@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
@@ -158,5 +158,12 @@ public interface Atom extends ComponentHasAttributesAndName,
    * @param workflowStatus the workflow status
    */
   public void setWorkflowStatus(WorkflowStatus workflowStatus);
+
+  /**
+   * Returns the lower name hash.
+   *
+   * @return the lower name hash
+   */
+  public String getLowerNameHash();
 
 }

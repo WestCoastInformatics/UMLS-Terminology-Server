@@ -9,10 +9,12 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -63,6 +65,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
   @Path("/concept/{id}")
   @ApiOperation(value = "Get concept report", notes = "Gets a concept report", response = String.class)
   public String getConceptReport(
+    @ApiParam(value = "Project id, e.g. UMLS", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -74,7 +77,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       Concept concept = reportService.getConcept(conceptId);
-      return reportService.getConceptReport(concept);
+      Project project = reportService.getProject(projectId);
+      return reportService.getConceptReport(project, concept);
 
     } catch (Exception e) {
       handleException(e, "trying to get concept report");
@@ -92,6 +96,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
   @Path("/descriptor/{id}")
   @ApiOperation(value = "Get descriptor report", notes = "Gets a descriptor report", response = String.class)
   public String getDescriptorReport(
+    @ApiParam(value = "Project id, e.g. UMLS", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Descriptor id, e.g. UMLS", required = true) @PathParam("id") Long descriptorId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -103,7 +108,9 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       Descriptor descriptor = reportService.getDescriptor(descriptorId);
-      return reportService.getDescriptorReport(descriptor);
+      final Project project = reportService.getProject(projectId);
+      
+      return reportService.getDescriptorReport(project, descriptor);
 
     } catch (Exception e) {
       handleException(e, "trying to get descriptor report");
@@ -121,6 +128,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
   @Path("/code/{id}")
   @ApiOperation(value = "Get code report", notes = "Gets a code report", response = String.class)
   public String getCodeReport(
+    @ApiParam(value = "Project id, e.g. UMLS", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Code id, e.g. UMLS", required = true) @PathParam("id") Long codeId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -132,7 +140,9 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       Code code = reportService.getCode(codeId);
-      return reportService.getCodeReport(code);
+      final Project project = reportService.getProject(projectId);
+      
+      return reportService.getCodeReport(project, code);
 
     } catch (Exception e) {
       handleException(e, "trying to get code report");

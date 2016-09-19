@@ -10,12 +10,12 @@ tsApp.service('reportService', [
     console.debug('configure reportService');
 
     // get concept report
-    this.getComponentReport = function(component) {
+    this.getComponentReport = function(projectId, component) {
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(reportUrl + '/' + component.type.toLowerCase() + '/' + component.id, {
+      $http.get(reportUrl + '/' + component.type.toLowerCase() + '/' + component.id + '?projectId=' + projectId, {
         headers : {
           'Content-type' : 'text/plain'
         }

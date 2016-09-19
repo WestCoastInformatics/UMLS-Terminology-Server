@@ -34,6 +34,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
@@ -270,7 +271,7 @@ public class AtomClassSearchHandler implements SearchHandler {
       try {
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             fieldedQuery.toString(), pfs, manager);
-      } catch (ParseException | IllegalArgumentException e) {
+      } catch (ParseException | LocalException | IllegalArgumentException e) {
         e.printStackTrace();
         fullTextQuery = null;
       }
@@ -286,7 +287,7 @@ public class AtomClassSearchHandler implements SearchHandler {
       }
 
       // If there's a parse exception, try the literal query
-      catch (ParseException | IllegalArgumentException e) {
+      catch (ParseException | LocalException | IllegalArgumentException e) {
         e.printStackTrace();
         fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
             escapedQuery + terminologyClause, pfs, manager);

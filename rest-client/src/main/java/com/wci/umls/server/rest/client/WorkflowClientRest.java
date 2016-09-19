@@ -23,6 +23,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
@@ -32,6 +33,7 @@ import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
@@ -1461,5 +1463,39 @@ public class WorkflowClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
     return in;
+  }
+  
+  /* see superclass */
+  @Override
+  public ValidationResult stamp(Long projectId, Long listId, String listType,
+    String activityId, Long lastModified, boolean overrideWarnings,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - stamp list " + listId + ", " + ", " + listType 
+            + lastModified + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(listId, "listId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/stamp?projectId=" + projectId + "&listId="
+        + listId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(null));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
   }
 }

@@ -31,13 +31,13 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getConceptReport(Long conceptId, String authToken)
+  public String getConceptReport(Long projectId, Long conceptId, String authToken)
     throws Exception {
 
     validateNotEmpty(conceptId, "conceptId");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/report/concept/" + conceptId);
+        config.getProperty("base.url") + "/report/concept/" + conceptId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -59,13 +59,13 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getDescriptorReport(Long descriptorId, String authToken)
+  public String getDescriptorReport(Long projectId, Long descriptorId, String authToken)
     throws Exception {
 
     validateNotEmpty(descriptorId, "descriptorId");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(
-        config.getProperty("base.url") + "/report/descriptor/" + descriptorId);
+        config.getProperty("base.url") + "/report/descriptor/" + descriptorId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -87,12 +87,12 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getCodeReport(Long codeId, String authToken) throws Exception {
+  public String getCodeReport(Long projectId, Long codeId, String authToken) throws Exception {
 
     validateNotEmpty(codeId, "codeId");
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/report/code/" + codeId);
+        .target(config.getProperty("base.url") + "/report/code/" + codeId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {

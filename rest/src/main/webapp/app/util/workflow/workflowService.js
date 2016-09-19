@@ -1164,5 +1164,39 @@ tsApp.service('workflowService', [
         });
       return deferred.promise;
     };
+    
+    // stamp
+    this.stamp = function(projectId, worklist, listType, overrideWarnings) {
+      console.debug('stamp list');
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(
+        workflowUrl
+          + '/stamp?projectId='
+          + projectId
+          + '&listId='
+          + worklist.id 
+          + '&listType='
+          + listType
+          + (worklist.name ? "&activityId=" + worklist.name : "")
+          + '&lastModified='
+          + worklist.lastModified
+          + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
+            + overrideWarnings : ''), null).then(
+      // success
+      function(response) {
+        console.debug('  validation = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
     // end
   } ]);
