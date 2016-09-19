@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -573,18 +573,36 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void loadMrdoc() throws Exception {
     logInfo("  Load MRDOC abbreviation types");
-    String line = null;
+    String linePre = null;
     Set<String> atnSeen = new HashSet<>();
     final Map<String, RelationshipType> relMap = new HashMap<>();
     final Map<String, String> inverseRelMap = new HashMap<>();
+
     final Map<String, AdditionalRelationshipType> relaMap = new HashMap<>();
     final Map<String, String> inverseRelaMap = new HashMap<>();
     final Map<String, TermType> ttyMap = new HashMap<>();
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRDOC);
     int objectCt = 0;
     final String fields[] = new String[4];
-    while ((line = reader.readLine()) != null) {
-      line = line.replace("\r", "");
+    final List<String> lines = new ArrayList<>();
+    while ((linePre = reader.readLine()) != null) {
+      linePre = linePre.replace("\r", "");
+      lines.add(linePre);
+    }
+    // Fake MRDOC entries for XR, BRO, BRB, BRN
+    // REL|RN|expanded_form|has a narrower relationship|
+    // REL|RN|rel_inverse|RB|
+    lines.add("REL|XR|expanded_form|Not related|");
+    lines.add("REL|XR|rel_inverse|XR|");
+    lines.add("REL|SIB|expanded_form|Sibling|");
+    lines.add("REL|SIB|rel_inverse|SIB|");
+    lines.add("REL|BRO|expanded_form|Bequeath otherwise|");
+    lines.add("REL|BRN|expanded_form|Bequeath narrower|");
+    lines.add("REL|BRB|expanded_form|Bequeath broader|");
+    lines.add("REL|BRO|rel_inverse|BRO|");
+    lines.add("REL|BRN|rel_inverse|BRB|");
+    lines.add("REL|BRN|rel_inverse|BRN|");
+    for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);
 
       // Field Description DOCKEY,VALUE,TYPE,EXPL
@@ -944,8 +962,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       logInfo("    metadata = " + sourceMetadataMap.get(terminology));
       final PrecedenceList list =
           getPrecedenceList(getTerminology(), getVersion());
-   // TODO: make sure precedence is actually getting loaded
-      logInfo("    default precedence = " + list.getPrecedence().getKeyValuePairs());
+      // TODO: make sure precedence is actually getting loaded
+      logInfo("    default precedence = "
+          + list.getPrecedence().getKeyValuePairs());
       final PrecedenceList sourceList = new PrecedenceListJpa();
       sourceList.setName(getTerminology());
       sourceList.setTimestamp(releaseVersionDate);

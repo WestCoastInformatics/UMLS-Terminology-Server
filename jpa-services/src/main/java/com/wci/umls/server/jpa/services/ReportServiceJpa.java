@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -144,7 +145,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
         sb.append(def.getTerminology()).append("_").append(def.getVersion())
             .append(lineEnd);
-        sb.append("  -").append(atom.getTerminology()).append("/")
+        sb.append("  - ").append(atom.getTerminology()).append("/")
             .append(atom.getTermType());
         sb.append("|").append(WordUtils.wrap(def.getValue(), 65, "\r\n    ", false))
             .append(lineEnd);
