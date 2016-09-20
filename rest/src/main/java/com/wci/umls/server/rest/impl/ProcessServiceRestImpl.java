@@ -1423,8 +1423,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * Run process as thread.
    *
    * @param projectId the project id
-   * @param processConfig the process config
-   * @param processExecution the process execution
+   * @param processConfigId the process config id
+   * @param processExecutionId the process execution id
    * @param userName the user name
    * @param background the background
    * @param restart the restart
@@ -1613,9 +1613,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
           if (!ConfigUtility.isEmpty(recipients)) {
             final Properties config = ConfigUtility.getConfigProperties();
-            ConfigUtility.sendEmail("[Terminology Server] Run Complete for Process: " + processExecution.getName(),
+            ConfigUtility.sendEmail(
+                "[Terminology Server] Run Complete for Process: "
+                    + processExecution.getName(),
                 config.getProperty("mail.smtp.user"), recipients,
-               processService.getProcessLog(projectId, processExecutionId),
+                processService.getProcessLog(projectId, processExecutionId),
                 config, "true".equals(config.get("mail.smtp.auth")));
           }
 
@@ -1648,8 +1650,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
           if (!ConfigUtility.isEmpty(recipients)) {
             try {
-              final Properties config = ConfigUtility.getConfigProperties();              
-              ConfigUtility.sendEmail("[Terminology Server] Process Run Failed for Process: " + processExecution.getName() + " at Algorithm step: " + algorithmExecution.getName(),
+              final Properties config = ConfigUtility.getConfigProperties();
+              ConfigUtility.sendEmail(
+                  "[Terminology Server] Process Run Failed for Process: "
+                      + processExecution.getName() + " at Algorithm step: "
+                      + algorithmExecution.getName(),
                   config.getProperty("mail.smtp.user"), recipients,
                   processService.getProcessLog(projectId, processExecutionId),
                   config, "true".equals(config.get("mail.smtp.auth")));
@@ -1695,8 +1700,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("processExecutionId") Long processExecutionId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /" + processExecutionId
-        + "/log, for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /"
+        + processExecutionId + "/log, for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -1744,7 +1749,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       return processService.getAlgorithmLog(projectId, algorithmExecutionId);
-      
+
     } catch (Exception e) {
       handleException(e, "trying to get the algorithm execution log entries");
       return null;

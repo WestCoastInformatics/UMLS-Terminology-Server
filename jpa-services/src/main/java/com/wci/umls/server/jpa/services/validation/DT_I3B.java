@@ -119,20 +119,17 @@ public class DT_I3B extends AbstractValidationCheck {
         ((ContentServiceJpa) contentService).getEntityManager()
             .createQuery("select a.from.id " + "from ConceptRelationshipJpa a "
                 + "where terminology = :terminology and version = :version"
-                + " and publishable = 1");
+                + " and publishable = 1 and a.from.id in (:conceptIds)");
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
       query2.setParameter("terminology", terminology);
       query2.setParameter("version", version);
+      query2.setParameter("conceptIds", demotedRelIds);
       cRelIds = new HashSet<Long>(query2.getResultList());
     } catch (NoResultException e) {
       cRelIds = new HashSet<>();
     }
-    System.out.println("  terminology = " + terminology);
-    System.out.println("  version = " + version);
-    System.out.println("  demotedRelIds = " + demotedRelIds.size());
-    System.out.println("  cRelIds = " + cRelIds.size());
     // Get the intersection of ids passed in with
     // the (demoted MINUS c level rels)
     return Sets.intersection(Sets.difference(demotedRelIds, cRelIds),

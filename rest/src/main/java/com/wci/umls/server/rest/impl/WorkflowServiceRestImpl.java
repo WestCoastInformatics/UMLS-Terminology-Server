@@ -3468,23 +3468,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Worklist id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Approve", required = false) @QueryParam("approve") boolean approve,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /worklist/" + id +
-        "/stamp," + projectId +  " for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /worklist/"
+        + id + "/stamp " + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
-    StampingAlgorithm algorithm = new StampingAlgorithm();
+    final StampingAlgorithm algorithm = new StampingAlgorithm();
     try {
 
       // Authorize project role, get userName
       final String userName = authorizeProject(algorithm, projectId,
           securityService, authToken, "stamping worklist", UserRole.AUTHOR);
-
       final Project project = algorithm.getProject(projectId);
-      
+
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy("S-" + userName);
       algorithm.setProject(project);
@@ -3492,16 +3490,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       algorithm.setVersion(project.getVersion());
       algorithm.setWorklistId(id);
       algorithm.setApprove(approve);
-      
-      ValidationResult result = algorithm.checkPreconditions();
+
+      final ValidationResult result = algorithm.checkPreconditions();
       if (!result.isValid()) {
         return result;
       }
- 
-      algorithm.compute(); 
+
+      algorithm.compute();
 
       return result;
-      
+
     } catch (Exception e) {
       try {
         algorithm.rollback();
@@ -3527,15 +3525,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Checklist id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Approve", required = false) @QueryParam("approve") boolean approve,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-
-    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /checklist/" + id +
-        "/stamp," + projectId +  " for user " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /checklist/" + id + "/stamp "
+            + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
-    StampingAlgorithm algorithm = new StampingAlgorithm();
+    final StampingAlgorithm algorithm = new StampingAlgorithm();
     try {
 
       // Authorize project role, get userName
@@ -3543,7 +3540,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "stamping checklist", UserRole.AUTHOR);
 
       final Project project = algorithm.getProject(projectId);
-      
+
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy("S-" + userName);
       algorithm.setProject(project);
@@ -3551,16 +3548,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       algorithm.setVersion(project.getVersion());
       algorithm.setChecklistId(id);
       algorithm.setApprove(approve);
-      
-      ValidationResult result = algorithm.checkPreconditions();
+
+      final ValidationResult result = algorithm.checkPreconditions();
       if (!result.isValid()) {
         return result;
       }
- 
-      algorithm.compute(); 
+
+      algorithm.compute();
 
       return result;
-      
+
     } catch (Exception e) {
       try {
         algorithm.rollback();
@@ -3583,46 +3580,47 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Recompute concept status", notes = "Recompute concept status", response = ValidationResultJpa.class)
   public ValidationResult recomputeConceptStatus(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Activity id, e.g. MATRIXINIT", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-
-    Logger.getLogger(getClass()).info("RESTful POST call (Workflow): /status/recompute/"
-         + projectId +  " for user " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful POST call (Workflow): /status/compute " + projectId
+            + ", " + activityId);
 
     // Instantiate services
-    MatrixInitializerAlgorithm algorithm = new MatrixInitializerAlgorithm();
+    final MatrixInitializerAlgorithm algorithm =
+        new MatrixInitializerAlgorithm();
     try {
 
       // Authorize project role, get userName
-      final String userName = authorizeProject(algorithm, projectId,
-          securityService, authToken, "recompute concept status", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(algorithm, projectId, securityService, authToken,
+              "compute concept status", UserRole.AUTHOR);
 
       final Project project = algorithm.getProject(projectId);
-      
+
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy(userName);
       algorithm.setProject(project);
       algorithm.setTerminology(project.getTerminology());
       algorithm.setVersion(project.getVersion());
-      
-      ValidationResult result = algorithm.checkPreconditions();
+
+      final ValidationResult result = algorithm.checkPreconditions();
       if (!result.isValid()) {
         return result;
       }
- 
-      algorithm.compute(); 
+
+      algorithm.compute();
 
       return result;
-      
+
     } catch (Exception e) {
       try {
         algorithm.rollback();
       } catch (Exception e2) {
         // do nothing
       }
-      handleException(e, "recompute concept status");
+      handleException(e, "compute concept status");
       return null;
     } finally {
       algorithm.close();

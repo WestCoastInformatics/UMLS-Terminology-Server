@@ -14,12 +14,13 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
  * Implementation of an algorithm to fail the first time it's run, then succeed
- * when restarted. 
- * This will be used for testing purposes only
+ * when restarted. This will be used for testing purposes only
  */
 public class FailOnceAlgorithm extends AbstractAlgorithm {
 
-  /** Flag saying whether this is the first time the algorithm has run or not. */
+  /**
+   * Flag saying whether this is the first time the algorithm has run or not.
+   */
   private static Boolean firstRun = true;
 
   /**
@@ -50,15 +51,14 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
     logInfo("Starting FAILONCE");
 
     // If this is the first time running, throw a failure message
-    if(firstRun){
+    if (firstRun) {
       setFirstRun(false);
       throw new Exception("FAILONCE first run failed.");
     }
-    
+
     // If this is a restart, succeed and finish.
-    else{
-      fireProgressEvent((int) 100,
-          "FAILONCE progress: " + 100 + "%");
+    else {
+      fireProgressEvent(100, "FAILONCE progress: " + 100 + "%");
     }
 
     logInfo("Finished FAILONCE");
@@ -76,10 +76,11 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
    *
    * @param firstRun the first run
    */
+  @SuppressWarnings("static-method")
   public void setFirstRun(Boolean firstRun) {
     FailOnceAlgorithm.firstRun = firstRun;
   }
-  
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {

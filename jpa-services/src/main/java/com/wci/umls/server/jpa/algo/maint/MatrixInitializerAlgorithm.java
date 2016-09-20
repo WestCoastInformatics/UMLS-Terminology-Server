@@ -62,37 +62,38 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     try {
 
       // Get all concepts having at least one releasable atom
-      SearchResultList list = this.findConcepts(getTerminology(), getVersion(),
+      SearchResultList list = findConcepts(getTerminology(), getVersion(),
           Branch.ROOT, "atoms.publishable:true", null);
       final Set<Long> publishableConcepts = list.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
+      logInfo("  publishable = " + list.getTotalCount());
 
       // Get all concepts where any of its atoms are set to NEEDS REVIEW or
       // DEMOTION
-      list = this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
+      list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
           "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
               + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
           null);
       final Set<Long> atomConceptIds = list.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
+      logInfo("  need review atoms = " + list.getTotalCount());
 
       // Get all concepts where any of its semantic type components are set to
       // NEEDS REVIEW
-      list = this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
+      list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
           "semanticTypes.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
       final Set<Long> styConceptIds = list.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
+      logInfo("  need review sty = " + list.getTotalCount());
 
       // Get all concepts where any of its relationships are set to NEEDS REVIEW
-      // or DEMOTION
       final javax.persistence.Query query =
           manager.createQuery("select r from ConceptRelationshipJpa r "
               + " where terminology = :terminology and version = :version "
-              + " and workflowStatus in ( :ws1, :ws2 )");
+              + " and workflowStatus in (  :ws )");
       query.setParameter("terminology", getTerminology());
       query.setParameter("version", getVersion());
-      query.setParameter("ws1", WorkflowStatus.DEMOTION);
-      query.setParameter("ws2", WorkflowStatus.NEEDS_REVIEW);
+      query.setParameter("ws", WorkflowStatus.NEEDS_REVIEW);
 
       @SuppressWarnings("unchecked")
       final List<ConceptRelationship> rels = query.getResultList();
@@ -101,11 +102,13 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         relConceptIds.add(rel.getFrom().getId());
         relConceptIds.add(rel.getTo().getId());
       }
+      logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
       final Set<Long> conceptIds = new HashSet<>(
           getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
       final Set<Long> failures = validateConcepts(getProject(), conceptIds);
+      logInfo("  validation failures = " + failures.size());
 
       final Set<Long> allNeedsReviewConceptIds = new HashSet<Long>();
       allNeedsReviewConceptIds.addAll(atomConceptIds);
@@ -133,33 +136,36 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         final Concept concept =
             getConcept(((Concept) results.get()[0]).getId());
 
-        final boolean initialPublishable = false;
-        boolean publishable = initialPublishable;
-
+        boolean changePublishable = false;
         // Starting point for changing workflow status
         final WorkflowStatus initialStatus = concept.getWorkflowStatus();
         WorkflowStatus status = initialStatus == WorkflowStatus.PUBLISHED
             ? WorkflowStatus.PUBLISHED : WorkflowStatus.READY_FOR_PUBLICATION;
 
         if (allNeedsReviewConceptIds.contains(concept.getId())) {
+          logInfo("  status change  = " + concept.getId());
           status = WorkflowStatus.NEEDS_REVIEW;
           statusChangeCt++;
         }
 
-        if (publishableConcepts.contains(concept.getId())) {
-          publishable = true;
+        final boolean publishable =
+            publishableConcepts.contains(concept.getId());
+        if (publishable != concept.isPublishable()) {
+          logInfo("  publishable change  = " + concept.getId());
+          changePublishable = true;
           publishableChangeCt++;
         }
 
-        // change either from N to R or R to N
-        if (initialStatus != status || initialPublishable != publishable) {
+        // change either from N to R or R to N or publishable from true/false or
+        // false/true
+        if (initialStatus != status || changePublishable) {
 
           // Send change to a conceptUpdate molecular action
           final UpdateConceptMolecularAction action =
               new UpdateConceptMolecularAction();
           try {
             // Configure the action
-            action.setProject(this.getProject());
+            action.setProject(getProject());
             action.setConceptId(concept.getId());
             action.setConceptId2(null);
             action.setLastModifiedBy(getLastModifiedBy());

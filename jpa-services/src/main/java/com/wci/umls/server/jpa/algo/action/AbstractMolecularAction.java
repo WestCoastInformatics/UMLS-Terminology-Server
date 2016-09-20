@@ -347,13 +347,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the relationship<? extends component info,? extends component info>
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
 
-    RelationshipList relList =
-        getInverseRelationships(relationship);
+    RelationshipList relList = getInverseRelationships(relationship);
 
     // If there's only one inverse relationship returned, that's the one we
     // want.
@@ -384,7 +382,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return null;
   }
 
-
   /**
    * Find rel to concept containing atom.
    *
@@ -393,13 +390,14 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the concept relationship
    * @throws Exception the exception
    */
-  public ConceptRelationship findRelToConceptContainingAtom (Concept fromConcept, Atom toAtom)
-    throws Exception {
-   
+  @SuppressWarnings("static-method")
+  public ConceptRelationship findRelToConceptContainingAtom(Concept fromConcept,
+    Atom toAtom) throws Exception {
+
     for (ConceptRelationship rel : fromConcept.getRelationships()) {
       Concept toConcept = rel.getTo();
-      for(Atom atom : toConcept.getAtoms()){
-        if(atom.getId().equals(toAtom.getId())){
+      for (Atom atom : toConcept.getAtoms()) {
+        if (atom.getId().equals(toAtom.getId())) {
           return rel;
         }
       }
