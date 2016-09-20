@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -155,7 +155,7 @@ import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
- * JPA and JAXB enabled implementation of {@link ContentService}.
+ * The Class ContentServiceJpa.
  */
 public class ContentServiceJpa extends MetadataServiceJpa
     implements ContentService {
@@ -163,14 +163,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /** The assign identifiers flag. */
   protected boolean assignIdentifiersFlag = false;
 
-  /** The id assignment handler . */
+  /** The id handler map. */
   static Map<String, IdentifierAssignmentHandler> idHandlerMap =
       new HashMap<>();
 
   /** The query timeout. */
   static int queryTimeout = 1000;
 
-  /** The helper map. */
+  /** The pn handler map. */
   private static Map<String, ComputePreferredNameHandler> pnHandlerMap = null;
 
   /** The normalized string handler. */
@@ -181,7 +181,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
-   * Static initialization (also used by refreshCaches).
+   * Inits the.
    */
   private static void init() {
     try {
@@ -260,13 +260,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     validateInit();
   }
 
-  /**
-   * Returns the concept.
-   *
-   * @param id the id
-   * @return the concept
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Concept getConcept(Long id) throws Exception {
@@ -274,15 +267,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, ConceptJpa.class);
   }
 
-  /**
-   * Returns the concepts.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the concepts
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -302,17 +286,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-
-  /**
-   * Returns the concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the concept
-   * @throws Exception the exception
-   */
   @Override
   public Concept getConcept(String terminologyId, String terminology,
     String version, String branch) throws Exception {
@@ -322,13 +295,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         ConceptJpa.class);
   }
 
-  /**
-   * Adds the concept.
-   *
-   * @param concept the concept
-   * @return the concept
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Concept addConcept(Concept concept) throws Exception {
@@ -351,12 +317,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update concept.
-   *
-   * @param concept the concept
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateConcept(Concept concept) throws Exception {
@@ -384,12 +344,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the concept.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeConcept(Long id) throws Exception {
@@ -400,14 +354,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the subset.
-   *
-   * @param id the id
-   * @param subsetClass the subset class
-   * @return the subset
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Subset getSubset(Long id, Class<? extends Subset> subsetClass)
@@ -424,17 +370,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the subset.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param subsetClass the subset class
-   * @return the subset
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Subset getSubset(String terminologyId, String terminology,
@@ -457,15 +392,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the atom subsets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the atom subsets
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SubsetList getAtomSubsets(String terminology, String version,
@@ -493,15 +419,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the concept subsets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the concept subsets
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SubsetList getConceptSubsets(String terminology, String version,
@@ -529,18 +446,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Find atom subset members.
-   *
-   * @param subsetId the subset id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the subset member list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings({
       "rawtypes", "unchecked"
@@ -573,18 +478,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find concept subset members.
-   *
-   * @param subsetId the subset id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the subset member list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings({
       "unchecked", "rawtypes"
@@ -619,15 +512,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the atom subset members.
-   *
-   * @param atomId the atom id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the atom subset members
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -664,15 +548,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the concept subset members.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the concept subset members
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -702,15 +577,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the all subsets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the all subsets
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SubsetList getAllSubsets(String terminology, String version,
@@ -734,13 +600,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the definition.
-   *
-   * @param id the id
-   * @return the definition
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Definition getDefinition(Long id) throws Exception {
@@ -749,15 +608,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, DefinitionJpa.class);
   }
 
-  /**
-   * Returns the definitions.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the definitions
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -776,16 +626,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the definition.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the definition
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Definition getDefinition(String terminologyId, String terminology,
@@ -796,14 +636,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         DefinitionJpa.class);
   }
 
-  /**
-   * Adds the definition.
-   *
-   * @param definition the definition
-   * @param component the component
-   * @return the definition
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Definition addDefinition(Definition definition,
@@ -827,13 +659,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update definition.
-   *
-   * @param definition the definition
-   * @param component the component
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateDefinition(Definition definition,
@@ -864,12 +689,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the definition.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeDefinition(Long id) throws Exception {
@@ -880,13 +699,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the semantic type component.
-   *
-   * @param id the id
-   * @return the semantic type component
-   * @throws Exception the exception
-   */
+  /* see superclass */
   @Override
   public SemanticTypeComponent getSemanticTypeComponent(Long id)
     throws Exception {
@@ -895,14 +708,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, SemanticTypeComponentJpa.class);
   }
 
-  /**
-   * Adds the semantic type component.
-   *
-   * @param component the component
-   * @param concept the concept
-   * @return the semantic type component
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SemanticTypeComponent addSemanticTypeComponent(
@@ -928,13 +733,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update semantic type component.
-   *
-   * @param semanticTypeComponent the semantic type component
-   * @param concept the concept
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateSemanticTypeComponent(
@@ -967,12 +765,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the semantic type component.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeSemanticTypeComponent(Long id) throws Exception {
@@ -984,13 +776,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the descriptor.
-   *
-   * @param id the id
-   * @return the descriptor
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Descriptor getDescriptor(Long id) throws Exception {
@@ -1000,15 +785,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  /**
-   * Returns the descriptors.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the descriptors
-   * @throws Exception the exception
-   */
+
   @SuppressWarnings("unchecked")
   @Override
   public DescriptorList getDescriptors(String terminologyId, String terminology,
@@ -1026,16 +803,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the descriptor.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the descriptor
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
@@ -1046,13 +813,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         DescriptorJpa.class);
   }
 
-  /**
-   * Adds the descriptor.
-   *
-   * @param descriptor the descriptor
-   * @return the descriptor
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Descriptor addDescriptor(Descriptor descriptor) throws Exception {
@@ -1075,12 +835,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update descriptor.
-   *
-   * @param descriptor the descriptor
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateDescriptor(Descriptor descriptor) throws Exception {
@@ -1108,12 +862,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the descriptor.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeDescriptor(Long id) throws Exception {
@@ -1124,13 +872,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the code.
-   *
-   * @param id the id
-   * @return the code
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Code getCode(Long id) throws Exception {
@@ -1139,15 +880,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return c;
   }
 
-  /**
-   * Returns the codes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the codes
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -1166,16 +898,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the code.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the code
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Code getCode(String terminologyId, String terminology, String version,
@@ -1186,13 +908,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         CodeJpa.class);
   }
 
-  /**
-   * Adds the code.
-   *
-   * @param code the code
-   * @return the code
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Code addCode(Code code) throws Exception {
@@ -1214,12 +929,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update code.
-   *
-   * @param code the code
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateCode(Code code) throws Exception {
@@ -1246,12 +955,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the code.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeCode(Long id) throws Exception {
@@ -1263,13 +966,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Returns the lexical class.
-   *
-   * @param id the id
-   * @return the lexical class
-   * @throws Exception the exception
-   */
   @Override
   public LexicalClass getLexicalClass(Long id) throws Exception {
     Logger.getLogger(getClass())
@@ -1277,15 +973,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, LexicalClassJpa.class);
   }
 
-  /**
-   * Returns the lexical classes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the lexical classes
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -1305,16 +992,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the lexical class.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the lexical class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
@@ -1325,13 +1002,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         LexicalClassJpa.class);
   }
 
-  /**
-   * Adds the lexical class.
-   *
-   * @param lexicalClass the lexical class
-   * @return the lexical class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public LexicalClass addLexicalClass(LexicalClass lexicalClass)
@@ -1355,12 +1025,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update lexical class.
-   *
-   * @param lexicalClass the lexical class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateLexicalClass(LexicalClass lexicalClass) throws Exception {
@@ -1388,12 +1052,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the lexical class.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeLexicalClass(Long id) throws Exception {
@@ -1405,13 +1063,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the string class.
-   *
-   * @param id the id
-   * @return the string class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringClass getStringClass(Long id) throws Exception {
@@ -1420,15 +1071,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, StringClassJpa.class);
   }
 
-  /**
-   * Returns the string classes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the string classes
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -1447,16 +1089,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the string class.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the string class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
@@ -1467,13 +1099,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         StringClass.class);
   }
 
-  /**
-   * Adds the string class.
-   *
-   * @param stringClass the string class
-   * @return the string class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringClass addStringClass(StringClass stringClass) throws Exception {
@@ -1496,12 +1121,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update string class.
-   *
-   * @param stringClass the string class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateStringClass(StringClass stringClass) throws Exception {
@@ -1529,12 +1148,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the string class.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeStringClass(Long id) throws Exception {
@@ -1545,18 +1158,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Find descendant concepts.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the concept list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ConceptList findDescendantConcepts(String terminologyId,
@@ -1576,18 +1177,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find ancestor concepts.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param parentsOnly the parents only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the concept list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ConceptList findAncestorConcepts(String terminologyId,
@@ -1724,18 +1313,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return query.getResultList();
   }
 
-  /**
-   * Find descendant descriptors.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the descriptor list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public DescriptorList findDescendantDescriptors(String terminologyId,
@@ -1755,18 +1332,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find ancestor descriptors.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the descriptor list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public DescriptorList findAncestorDescriptors(String terminologyId,
@@ -1786,18 +1351,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find descendant codes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the code list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public CodeList findDescendantCodes(String terminologyId, String terminology,
@@ -1817,18 +1370,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find ancestor codes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param parentsOnly the parents only
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the code list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public CodeList findAncestorCodes(String terminologyId, String terminology,
@@ -1846,13 +1387,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the atom.
-   *
-   * @param id the id
-   * @return the atom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Atom getAtom(Long id) throws Exception {
@@ -1860,15 +1394,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, AtomJpa.class);
   }
 
-  /**
-   * Returns the atoms.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the atoms
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -1887,16 +1412,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the atom.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the atom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Atom getAtom(String terminologyId, String terminology, String version,
@@ -1907,13 +1422,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         AtomJpa.class);
   }
 
-  /**
-   * Adds the atom.
-   *
-   * @param atom the atom
-   * @return the atom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Atom addAtom(Atom atom) throws Exception {
@@ -1938,12 +1446,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update atom.
-   *
-   * @param atom the atom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateAtom(Atom atom) throws Exception {
@@ -1964,12 +1466,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the atom.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeAtom(Long id) throws Exception {
@@ -2088,14 +1584,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the relationship.
-   *
-   * @param id the id
-   * @param relationshipClass the relationship class
-   * @return the relationship
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
@@ -2122,16 +1610,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the relationships.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param relationshipClass the relationship class
-   * @return the relationships
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -2172,17 +1650,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the relationship.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param relationshipClass the relationship class
-   * @return the relationship
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
@@ -2213,13 +1680,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return rel;
   }
 
-  /**
-   * Adds the relationship.
-   *
-   * @param rel the rel
-   * @return the relationship<? extends component info,? extends component info>
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> addRelationship(
@@ -2244,12 +1704,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update relationship.
-   *
-   * @param rel the rel
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateRelationship(
@@ -2282,13 +1736,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the relationship.
-   *
-   * @param id the id
-   * @param relationshipClass the relationship class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeRelationship(Long id,
@@ -2307,14 +1754,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the transitive relationship.
-   *
-   * @param id the id
-   * @param relationshipClass the relationship class
-   * @return the transitive relationship
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TransitiveRelationship<? extends AtomClass> getTransitiveRelationship(
@@ -2338,13 +1777,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Adds the transitive relationship.
-   *
-   * @param rel the rel
-   * @return the transitive relationship<? extends component has attributes>
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TransitiveRelationship<? extends ComponentHasAttributes> addTransitiveRelationship(
@@ -2371,12 +1803,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return newRel;
   }
 
-  /**
-   * Update transitive relationship.
-   *
-   * @param rel the rel
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateTransitiveRelationship(
@@ -2408,13 +1834,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the transitive relationship.
-   *
-   * @param id the id
-   * @param relationshipClass the relationship class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeTransitiveRelationship(Long id,
@@ -2428,14 +1847,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     removeComponent(id, rel.getClass());
   }
 
-  /**
-   * Returns the tree position.
-   *
-   * @param id the id
-   * @param treeposClass the treepos class
-   * @return the tree position
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePosition<? extends AtomClass> getTreePosition(Long id,
@@ -2458,13 +1869,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Adds the tree position.
-   *
-   * @param treepos the treepos
-   * @return the tree position<? extends component has attributes and name>
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
@@ -2491,12 +1895,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return newTreepos;
   }
 
-  /**
-   * Update tree position.
-   *
-   * @param treepos the treepos
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateTreePosition(
@@ -2528,13 +1926,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the tree position.
-   *
-   * @param id the id
-   * @param treeposClass the treepos class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeTreePosition(Long id,
@@ -2547,13 +1938,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     removeComponent(id, treepos.getClass());
   }
 
-  /**
-   * Adds the subset.
-   *
-   * @param subset the subset
-   * @return the subset
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Subset addSubset(Subset subset) throws Exception {
@@ -2579,12 +1963,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update subset.
-   *
-   * @param subset the subset
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateSubset(Subset subset) throws Exception {
@@ -2608,13 +1986,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Removes the subset.
-   *
-   * @param id the id
-   * @param subsetClass the subset class
-   * @throws Exception the exception
-   */
   @Override
   public void removeSubset(Long id, Class<? extends Subset> subsetClass)
     throws Exception {
@@ -2632,14 +2003,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Returns the subset member.
-   *
-   * @param id the id
-   * @param memberClass the member class
-   * @return the subset member
-   * @throws Exception the exception
-   */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
     Long id,
@@ -2660,16 +2023,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the subset members.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param memberClass the member class
-   * @return the subset members
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -2703,17 +2056,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the subset member.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param memberClass the member class
-   * @return the subset member
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
@@ -2737,14 +2079,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Adds the subset member.
-   *
-   * @param subsetMember the subset member
-   * @return the subset member<? extends component has attributes and name,?
-   *         extends subset>
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> addSubsetMember(
@@ -2772,12 +2106,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update subset member.
-   *
-   * @param subsetMember the subset member
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateSubsetMember(
@@ -2803,13 +2131,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the subset member.
-   *
-   * @param id the id
-   * @param memberClass the member class
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeSubsetMember(Long id,
@@ -2824,13 +2145,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the attribute.
-   *
-   * @param id the id
-   * @return the attribute
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Attribute getAttribute(Long id) throws Exception {
@@ -2838,15 +2152,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, AttributeJpa.class);
   }
 
-  /**
-   * Returns the attributes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the attributes
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
@@ -2865,16 +2170,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Returns the attribute.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the attribute
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Attribute getAttribute(String terminologyId, String terminology,
@@ -2885,14 +2180,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         AttributeJpa.class);
   }
 
-  /**
-   * Adds the attribute.
-   *
-   * @param attribute the attribute
-   * @param component the component
-   * @return the attribute
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Attribute addAttribute(Attribute attribute, ComponentInfo component)
@@ -2916,13 +2203,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update attribute.
-   *
-   * @param attribute the attribute
-   * @param component the component
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateAttribute(Attribute attribute, ComponentInfo component)
@@ -2952,12 +2232,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the attribute.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeAttribute(Long id) throws Exception {
@@ -2968,17 +2242,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Find concepts.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SearchResultList findConcepts(String terminology, String version,
@@ -2987,23 +2250,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
         + terminology + "/" + version + "/" + query);
     final SearchResultList results = findForQueryHelper(terminology, version,
         branch, query, pfs, ConceptJpa.class, ConceptJpa.class);
-    for (final SearchResult result : results.getObjects()) {
-      result.setType(IdType.CONCEPT);
-      Concept concept = getConcept(result.getId());
-      result.setWorkflowStatus(concept.getWorkflowStatus());
-    }
     return results;
   }
 
-  /**
-   * Autocomplete concepts.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @return the string list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringList autocompleteConcepts(String terminology, String version,
@@ -3014,17 +2263,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         ConceptJpa.class);
   }
 
-  /**
-   * Find descriptors.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SearchResultList findDescriptors(String terminology, String version,
@@ -3039,15 +2277,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return results;
   }
 
-  /**
-   * Autocomplete descriptors.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @return the string list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringList autocompleteDescriptors(String terminology, String version,
@@ -3143,13 +2372,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (luceneResults != null) {
       final Map<Long, Float> scoreMap = searchHandler.getScoreMap();
       for (final T r : luceneResults) {
-        SearchResult sr = new SearchResultJpa();
+        final SearchResult sr = new SearchResultJpa();
         sr.setId(r.getId());
         sr.setTerminology(r.getTerminology());
         sr.setVersion(r.getVersion());
         sr.setTerminologyId(r.getTerminologyId());
         sr.setValue(r.getName());
         sr.setScore(scoreMap.get(r.getId()));
+        sr.setWorkflowStatus(r.getWorkflowStatus());
         results.getObjects().add(sr);
       }
     }
@@ -3367,17 +2597,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Find codes.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SearchResultList findCodes(String terminology, String version,
@@ -3392,15 +2611,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return results;
   }
 
-  /**
-   * Autocomplete codes.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param searchTerm the search term
-   * @return the string list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public StringList autocompleteCodes(String terminology, String version,
@@ -3410,14 +2620,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return autocompleteHelper(terminology, version, searchTerm, CodeJpa.class);
   }
 
-  /**
-   * Returns the all concepts.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the all concepts
-   */
   /* see superclass */
   @Override
   public ConceptList getAllConcepts(String terminology, String version,
@@ -3446,14 +2648,32 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the all descriptors.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the all descriptors
-   */
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Long> getAllConceptIds(String terminology, String version,
+    String branch) {
+    Logger.getLogger(getClass()).debug("Content Service - get all concept ids "
+        + terminology + "/" + version + "/" + branch);
+    assert branch != null;
+
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select a.id from ConceptJpa a "
+              + "where version = :version " + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return new ArrayList<>();
+    }
+  }
+
   /* see superclass */
   @Override
   public DescriptorList getAllDescriptors(String terminology, String version,
@@ -3483,14 +2703,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the all codes.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the all codes
-   */
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Long> getAllDescriptorIds(String terminology, String version,
+    String branch) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get all descriptor ids " + terminology + "/"
+            + version + "/" + branch);
+    assert branch != null;
+
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select a.id from DescriptorJpa a "
+              + "where version = :version " + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
+
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return new ArrayList<>();
+    }
+  }
+
   /* see superclass */
   @Override
   public CodeList getAllCodes(String terminology, String version,
@@ -3519,13 +2759,32 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Clear transitive closure.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Long> getAllCodeIds(String terminology, String version,
+    String branch) {
+    Logger.getLogger(getClass()).debug("Content Service - get all code ids "
+        + terminology + "/" + version + "/" + branch);
+    assert branch != null;
+
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select a.id from CodeJpa a "
+              + "where version = :version " + "and terminology = :terminology "
+              + "and (branch = :branch or branchedTo not like :branchMatch)");
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      query.setParameter("branch", branch);
+      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return new ArrayList<>();
+    }
+  }
+
   /* see superclass */
   @Override
   public void clearTransitiveClosure(String terminology, String version)
@@ -3583,13 +2842,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Clear tree positions.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void clearTreePositions(String terminology, String version)
@@ -3645,24 +2897,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Clear branch.
-   *
-   * @param branch the branch
-   */
   /* see superclass */
   @Override
   public void clearBranch(String branch) {
     // TBD
   }
 
-  /**
-   * Returns the identifier assignment handler.
-   *
-   * @param terminology the terminology
-   * @return the identifier assignment handler
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public IdentifierAssignmentHandler getIdentifierAssignmentHandler(
@@ -3674,13 +2914,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the compute preferred name handler.
-   *
-   * @param terminology the terminology
-   * @return the compute preferred name handler
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ComputePreferredNameHandler getComputePreferredNameHandler(
@@ -3691,14 +2924,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return pnHandlerMap.get(ConfigUtility.DEFAULT);
   }
 
-  /**
-   * Returns the computed preferred name.
-   *
-   * @param atomClass the atom class
-   * @param list the list
-   * @return the computed preferred name
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public String getComputedPreferredName(AtomClass atomClass,
@@ -3726,39 +2951,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the normalized string.
-   *
-   * @param string the string
-   * @return the normalized string
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public String getNormalizedString(String string) throws Exception {
     return normalizedStringHandler.getNormalizedString(string);
   }
 
-  /**
-   * Sets the assign identifiers flag.
-   *
-   * @param assignIdentifiersFlag the assign identifiers flag
-   */
   /* see superclass */
   @Override
   public void setAssignIdentifiersFlag(boolean assignIdentifiersFlag) {
     this.assignIdentifiersFlag = assignIdentifiersFlag;
   }
 
-  /**
-   * Returns the component stats.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the component stats
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Map<String, Integer> getComponentStats(String terminology,
@@ -3883,7 +3087,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * Update component.
    *
    * @param <T> the
-   * @param newComponent the component
+   * @param newComponent the new component
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
@@ -4092,19 +3296,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     removeHasLastModified(id, clazz);
   }
 
-  /**
-   * Find concept relationships.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public RelationshipList findConceptRelationships(String conceptId,
@@ -4119,20 +3310,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, query, inverseFlag, pfs, ConceptRelationshipJpa.class);
   }
 
-  /**
-   * Find component info relationships.
-   *
-   * @param componentInfoId the component info id
-   * @param terminology the terminology
-   * @param version the version
-   * @param type the type
-   * @param branch the branch
-   * @param query the query
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public RelationshipList findComponentInfoRelationships(String componentInfoId,
@@ -4150,19 +3327,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
   }
 
-  /**
-   * Find concept deep relationships.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param filter the filter
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings({
       "unchecked"
@@ -4199,9 +3363,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + (inverseFlag ? "a.from.terminologyId" : "a.to.terminologyId")
             + ", a.obsolete, a.suppressible, a.published, a.publishable, "
             + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
-            + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus " + ", a.lastModifiedBy "
-            + "from ConceptRelationshipJpa a " + "where "
-            + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId ";
+            + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus "
+            + ", a.lastModifiedBy " + "from ConceptRelationshipJpa a "
+            + "where " + (inverseFlag ? "a.to" : "a.from")
+            + ".id = :conceptId ";
         query = manager.createQuery(queryStr);
         query.setParameter("conceptId", concept.getId());
         results.addAll(query.getResultList());
@@ -4210,7 +3375,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
@@ -4228,7 +3394,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4250,7 +3417,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
           + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4272,7 +3440,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       queryStr = "select a.id, a.terminologyId, a.terminology, a.version, "
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
-          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id " + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
+          + ", a.workflowStatus " + ", a.lastModifiedBy "
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
           + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -4315,9 +3484,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship.setSuppressible(result[8].toString().equals("true"));
         relationship.setPublished(result[9].toString().equals("true"));
         relationship.setPublishable(result[10].toString().equals("true"));
-        relationship.setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
+        relationship
+            .setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
         relationship.setLastModifiedBy(result[14].toString());
-        
+
         // handle self-referential
         if (includeSelfReferential || !relationship.getFrom().getId()
             .equals(relationship.getTo().getId())) {
@@ -4371,19 +3541,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Find descriptor relationships.
-   *
-   * @param descriptorId the descriptor id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public RelationshipList findDescriptorRelationships(String descriptorId,
@@ -4400,19 +3557,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Find code relationships.
-   *
-   * @param codeId the code id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param inverseFlag the inverse flag
-   * @param pfs the pfs
-   * @return the relationship list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public RelationshipList findCodeRelationships(String codeId,
@@ -4429,7 +3573,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
-   * Find relationships helper.
+   * Find relationships for component helper.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -4624,16 +3768,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Find codes for general query.
-   *
-   * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
@@ -4646,16 +3780,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Find concepts for general query.
-   *
-   * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   @Override
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
     String jqlQuery, String branch, PfsParameter pfs) throws Exception {
@@ -4667,16 +3791,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Find descriptors for general query.
-   *
-   * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the search result list
-   * @throws Exception the exception
-   */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
     String jqlQuery, String branch, PfsParameter pfs) throws Exception {
@@ -4688,13 +3802,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  /**
-   * Returns the tree for tree position.
-   *
-   * @param treePosition the tree position
-   * @return the tree for tree position
-   * @throws Exception the exception
-   */
   @SuppressWarnings("unchecked")
   @Override
   public Tree getTreeForTreePosition(
@@ -4806,18 +3913,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return tree;
   }
 
-  /**
-   * Find concept tree positions.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findConceptTreePositions(String terminologyId,
@@ -4830,18 +3925,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         query, pfs, ConceptTreePositionJpa.class);
   }
 
-  /**
-   * Find descriptor tree positions.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findDescriptorTreePositions(String terminologyId,
@@ -4854,18 +3937,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         query, pfs, DescriptorTreePositionJpa.class);
   }
 
-  /**
-   * Find code tree positions.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findCodeTreePositions(String terminologyId,
@@ -4878,17 +3949,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         query, pfs, CodeTreePositionJpa.class);
   }
 
-  /**
-   * Find concept tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findConceptTreePositionChildren(String terminologyId,
@@ -4902,17 +3962,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, pfs, ConceptTreePositionJpa.class);
   }
 
-  /**
-   * Find descriptor tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findDescriptorTreePositionChildren(
@@ -4926,17 +3975,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, pfs, DescriptorTreePositionJpa.class);
   }
 
-  /**
-   * Find code tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public TreePositionList findCodeTreePositionChildren(String terminologyId,
@@ -4952,7 +3990,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
-   * Returns the child tree positions helper.
+   * Returns the tree position children helper.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
@@ -4960,7 +3998,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param branch the branch
    * @param pfs the pfs
    * @param clazz the clazz
-   * @return the child tree positions helper
+   * @return the tree position children helper
    * @throws Exception the exception
    */
   @SuppressWarnings({
@@ -5031,13 +4069,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
-  /**
-   * Adds the general concept axiom.
-   *
-   * @param axiom the axiom
-   * @return the general concept axiom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public GeneralConceptAxiom addGeneralConceptAxiom(GeneralConceptAxiom axiom)
@@ -5049,12 +4080,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update general concept axiom.
-   *
-   * @param axiom the axiom
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateGeneralConceptAxiom(GeneralConceptAxiom axiom)
@@ -5066,12 +4091,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the general concept axiom.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeGeneralConceptAxiom(Long id) throws Exception {
@@ -5081,15 +4100,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the general concept axioms.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the general concept axioms
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
@@ -5119,14 +4129,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the expression handler.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @return the expression handler
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ExpressionHandler getExpressionHandler(String terminology,
@@ -5136,13 +4138,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return new EclExpressionHandler(terminology, version);
   }
 
-  /**
-   * Adds the mapping.
-   *
-   * @param mapping the mapping
-   * @return the mapping
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Mapping addMapping(Mapping mapping) throws Exception {
@@ -5165,12 +4160,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Update mapping.
-   *
-   * @param mapping the mapping
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateMapping(Mapping mapping) throws Exception {
@@ -5198,12 +4187,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the mapping.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeMapping(Long id) throws Exception {
@@ -5214,13 +4197,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the map set.
-   *
-   * @param id the id
-   * @return the map set
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MapSet getMapSet(Long id) throws Exception {
@@ -5228,16 +4204,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, MapSetJpa.class);
   }
 
-  /**
-   * Returns the map set.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the map set
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MapSet getMapSet(String terminologyId, String terminology,
@@ -5248,15 +4214,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         MapSetJpa.class);
   }
 
-  /**
-   * Returns the map sets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the map sets
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MapSetList getMapSets(String terminology, String version,
@@ -5284,13 +4241,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the mapping.
-   *
-   * @param id the id
-   * @return the mapping
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Mapping getMapping(Long id) throws Exception {
@@ -5298,16 +4248,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return getComponent(id, MappingJpa.class);
   }
 
-  /**
-   * Returns the mapping.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the mapping
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Mapping getMapping(String terminologyId, String terminology,
@@ -5318,15 +4258,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         MappingJpa.class);
   }
 
-  /**
-   * Find mappings.
-   *
-   * @param mapSetId the map set id
-   * @param query the query
-   * @param pfs the pfs
-   * @return the mapping list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @SuppressWarnings({
       "unchecked"
@@ -5356,18 +4287,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return result;
   }
 
-  /**
-   * Find concept mappings.
-   *
-   * @param conceptId the concept id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the mapping list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MappingList findConceptMappings(String conceptId, String terminology,
@@ -5381,18 +4300,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, query, pfs);
   }
 
-  /**
-   * Find code mappings.
-   *
-   * @param codeId the code id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the mapping list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MappingList findCodeMappings(String codeId, String terminology,
@@ -5406,18 +4313,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         query, pfs);
   }
 
-  /**
-   * Find descriptor mappings.
-   *
-   * @param descriptorId the descriptor id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the mapping list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MappingList findDescriptorMappings(String descriptorId,
@@ -5431,13 +4326,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         branch, query, pfs);
   }
 
-  /**
-   * Adds the map set.
-   *
-   * @param mapSet the map set
-   * @return the map set
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public MapSet addMapSet(MapSet mapSet) throws Exception {
@@ -5459,12 +4347,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return addComponent(mapSet);
   }
 
-  /**
-   * Update map set.
-   *
-   * @param mapSet the map set
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void updateMapSet(MapSet mapSet) throws Exception {
@@ -5492,12 +4374,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Removes the map set.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeMapSet(Long id) throws Exception {
@@ -5507,15 +4383,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Returns the terminology id map.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @return the terminology id map
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Map<Long, String> getTerminologyIdMap(String terminology,
@@ -5565,14 +4432,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Returns the note.
-   *
-   * @param id the id
-   * @param noteClass the note class
-   * @return the note
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Note getNote(Long id, Class<? extends Note> noteClass)
@@ -5596,13 +4455,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return note;
   }
 
-  /**
-   * Adds the note.
-   *
-   * @param note the note
-   * @return the note
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public Note addNote(Note note) throws Exception {
@@ -5617,13 +4469,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return newNote;
   }
 
-  /**
-   * Removes the note.
-   *
-   * @param id the id
-   * @param type the type
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void removeNote(Long id, Class<? extends Note> type) throws Exception {
@@ -5634,14 +4479,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   }
 
-  /**
-   * Find concept notes.
-   *
-   * @param query the query
-   * @param pfs the pfs
-   * @return the note list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public NoteList findConceptNotes(String query, PfsParameter pfs)
@@ -5661,14 +4498,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return results;
   }
 
-  /**
-   * Find descriptor notes.
-   *
-   * @param query the query
-   * @param pfs the pfs
-   * @return the note list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public NoteList findDescriptorNotes(String query, PfsParameter pfs)
@@ -5688,14 +4517,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return results;
   }
 
-  /**
-   * Find code notes.
-   *
-   * @param query the query
-   * @param pfs the pfs
-   * @return the note list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public NoteList findCodeNotes(String query, PfsParameter pfs)
@@ -5726,6 +4547,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
       }
     }
     return result;
+  }
+
+  /* see superclass */
+  @Override
+  public Set<Long> validateConcepts(Project project, Set<Long> conceptIds)
+    throws Exception {
+    final Set<Long> failures = new HashSet<>();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      if (project.getValidationChecks().contains(key)) {
+        failures.addAll(getValidationHandlersMap().get(key).validateConcepts(
+            conceptIds, project.getTerminology(), project.getVersion(), this));
+      }
+    }
+    return failures;
   }
 
   /* see superclass */

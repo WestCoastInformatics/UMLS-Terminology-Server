@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -2443,6 +2443,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       Project project = workflowService.getProject(projectId);
       final Map<String, String> params = new HashMap<>();
       params.put("terminology", project.getTerminology());
+      params.put("version", project.getVersion());
 
       executeQuery(query, queryType, params, workflowService);
 
@@ -2722,6 +2723,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       if (params == null || !params.containsKey("terminology")) {
         throw new Exception(
             "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("version")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'version'"
                 + params);
       }
       // Perform search
@@ -3265,6 +3271,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       // Aggregate into clusters
       final Map<String, String> params = new HashMap<>();
       params.put("terminology", project.getTerminology());
+      params.put("version", project.getVersion());
       final List<Long[]> results =
           executeQuery(query, queryType, params, workflowService);
 
@@ -3504,20 +3511,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         action.setChangeStatusFlag(true);
 
         // Perform the action
-        validationResult.merge(
-            action.performMolecularAction(action));
-        
+        validationResult.merge(action.performMolecularAction(action));
+
         // If the action failed, bail out now.
         if (!validationResult.getErrors().isEmpty()) {
           return validationResult;
         }
 
-
-        // Websocket notification - one for the updating of the toConcept, and one
+        // Websocket notification - one for the updating of the toConcept, and
+        // one
         // for the deletion of the fromConcept
-        final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getConceptPostUpdates().getId(),
-          action.getConceptPostUpdates());
+        final ChangeEvent event = new ChangeEventJpa(action.getName(),
+            authToken, IdType.CONCEPT.toString(),
+            action.getConceptPostUpdates().getId(),
+            action.getConceptPostUpdates());
         sendChangeEvent(event);
 
       }

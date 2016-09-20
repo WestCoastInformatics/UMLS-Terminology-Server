@@ -1,9 +1,10 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -22,7 +23,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -126,8 +127,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     assertEquals(WorkflowStatus.PUBLISHED, concept.getWorkflowStatus());
 
     // Update the WorkflowStatus of the concept to NEEDS_REVIEW
-    final UpdateConceptStatusMolecularAction action =
-        new UpdateConceptStatusMolecularAction();
+    final UpdateConceptMolecularAction action =
+        new UpdateConceptMolecularAction();
     try {
 
       // Configure the action
@@ -142,6 +143,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
       action.setChangeStatusFlag(false);
 
       action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      action.setPublishable(true);
 
       // Perform the action
       final ValidationResult validationResult =
@@ -158,7 +160,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     contentService = new ContentServiceJpa();
     concept = contentService.getConcept(conceptId);
     assertEquals(WorkflowStatus.NEEDS_REVIEW, concept.getWorkflowStatus());
-
+    // Ensure that the concept's workflow status is PUBLISHED
+    assertNotEquals(WorkflowStatus.PUBLISHED, concept.getWorkflowStatus());
     //
     // For a second concept, set one of the concept's components to
     // NEEDS_REVIEW, to confirm that it causes the concept to update as well.
@@ -208,7 +211,9 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     concept = contentService.getConcept(conceptId);
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION,
         concept.getWorkflowStatus());
-
+    // Ensure that the concept's workflow status is PUBLISHED
+    assertEquals(WorkflowStatus.PUBLISHED, concept.getWorkflowStatus());
+    
     // Verify that a molecular action was created for the update
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -315,8 +320,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     // If something fails, this can be changed to @Test and run to reset
     // everything's original status.
     if (!concept.getWorkflowStatus().equals(WorkflowStatus.PUBLISHED)) {
-      final UpdateConceptStatusMolecularAction action =
-          new UpdateConceptStatusMolecularAction();
+      final UpdateConceptMolecularAction action =
+          new UpdateConceptMolecularAction();
       try {
 
         // Configure the action
@@ -347,8 +352,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     concept = contentService.getConcept(concept.getId());
 
     if (!concept2.getWorkflowStatus().equals(WorkflowStatus.PUBLISHED)) {
-      final UpdateConceptStatusMolecularAction action2 =
-          new UpdateConceptStatusMolecularAction();
+      final UpdateConceptMolecularAction action2 =
+          new UpdateConceptMolecularAction();
       try {
 
         // Configure the action

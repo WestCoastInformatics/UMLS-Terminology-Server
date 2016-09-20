@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa.integrity;
 
@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -157,6 +159,32 @@ public class DT_I3BTest extends IntegrationUnitSupport {
     // Verify that it returned a validation error
     assertTrue(validationResult3.isValid());
 
+  }
+
+  /**
+   * Test batch mode.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testBatchMode() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
+    // 1. Read all concepts
+    Logger.getLogger(getClass()).info("  Read all concept ids ");
+    final List<Long> conceptIds =
+        contentService.getAllConceptIds("UMLS", "latest", Branch.ROOT);
+
+    // 2. Perform the batch test
+    Logger.getLogger(getClass()).info("  Validate check");
+    final DT_I3B check = new DT_I3B();
+    final Set<Long> failures = check.validateConcepts(new HashSet<>(conceptIds),
+        "UMLS", "latest", contentService);
+    Logger.getLogger(getClass()).info("    count = " + failures.size());
+    for (final Long id : failures) {
+      Logger.getLogger(getClass())
+          .info("     fail = " + contentService.getConcept(id));
+    }
   }
 
   /**

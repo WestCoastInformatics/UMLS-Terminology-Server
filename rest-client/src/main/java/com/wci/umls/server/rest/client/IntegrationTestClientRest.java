@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -26,6 +27,7 @@ import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -157,8 +159,8 @@ public class IntegrationTestClientRest extends RootClientRest
         .debug("Integration Test Client - add relationship" + relationship);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client
-        .target(config.getProperty("base.url") + "/test/relationship/add");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/test/concept/relationship/add");
 
     final String relString = ConfigUtility.getStringForGraph(
         relationship == null ? new ConceptRelationshipJpa() : relationship);
@@ -179,14 +181,42 @@ public class IntegrationTestClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public AtomRelationship addRelationship(AtomRelationshipJpa relationship,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Integration Test Client - add relationship" + relationship);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/test/Atom/relationship/add");
+
+    final String relString = ConfigUtility.getStringForGraph(
+        relationship == null ? new AtomRelationshipJpa() : relationship);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(relString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        AtomRelationshipJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public void updateRelationship(ConceptRelationshipJpa relationship,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Integration Test Client - update relationship" + relationship);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client
-        .target(config.getProperty("base.url") + "/test/relationship/update");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/test/concept/relationship/update");
 
     final String relString = ConfigUtility.getStringForGraph(
         relationship == null ? new ConceptRelationshipJpa() : relationship);
@@ -299,8 +329,8 @@ public class IntegrationTestClientRest extends RootClientRest
     validateNotEmpty(relId, "relId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client
-        .target(config.getProperty("base.url") + "/test/relationship/" + relId);
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/test/concept/relationship/" + relId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 

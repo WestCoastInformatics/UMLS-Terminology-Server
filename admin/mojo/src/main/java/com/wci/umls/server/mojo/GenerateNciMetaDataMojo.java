@@ -30,32 +30,38 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoFailureException;
 
+import com.wci.umls.server.AlgorithmConfig;
+import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
+import com.wci.umls.server.jpa.AlgorithmConfigJpa;
+import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.jpa.services.rest.SecurityServiceRest;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -66,6 +72,7 @@ import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
 import com.wci.umls.server.rest.impl.MetadataServiceRestImpl;
+import com.wci.umls.server.rest.impl.ProcessServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
@@ -153,7 +160,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     Logger.getLogger(getClass()).info("Authenticate admin user");
     SecurityServiceRest security = new SecurityServiceRestImpl();
     ProjectServiceRest project = new ProjectServiceRestImpl();
-
+    IntegrationTestServiceRest integrationService =
+        new IntegrationTestServiceRestImpl();
     //
     // NCIm Users:
     // CFC - Carol Creech
@@ -216,8 +224,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     project1.setPublic(true);
     project1.setLanguage("ENG");
     project1.setTerminology(terminology);
-    project1.setVersion("latest");
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
+    project1.setVersion(version);
     List<String> newAtomTermgroups = new ArrayList<>();
     newAtomTermgroups.add("MTH/PN");
     newAtomTermgroups.add("NCIMTH/PN");
@@ -239,9 +247,27 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     validationChecks.add("MGV_H2");
     project1.setValidationChecks(validationChecks);
 
+    // Add the default validationData
+    final List<TypeKeyValue> validationData = new ArrayList<>();
+
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue1 = integrationService
+        .addTypeKeyValue(new TypeKeyValueJpa("MGV_I", "CBO", ""), authToken);
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue2 = integrationService.addTypeKeyValue(
+        new TypeKeyValueJpa("MGV_I", "ISO3166-2", ""), authToken);
+    integrationService = new IntegrationTestServiceRestImpl();
+    TypeKeyValue typeKeyValue3 = integrationService
+        .addTypeKeyValue(new TypeKeyValueJpa("MGV_SCUI", "NCI", ""), authToken);
+
+    validationData.add(typeKeyValue1);
+    validationData.add(typeKeyValue2);
+    validationData.add(typeKeyValue3);
+
+    project1.setValidationData(validationData);
+
     // Handle precedence list
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();
-
     PrecedenceListJpa list =
         new PrecedenceListJpa(metadataService.getDefaultPrecedenceList(
             project1.getTerminology(), "latest", authToken));
@@ -253,7 +279,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // Add project
     project1 = (ProjectJpa) project.addProject(project1, authToken);
-
     final Long projectId = project1.getId();
 
     //
@@ -268,6 +293,45 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       project.assignUserToProject(projectId, inits, UserRole.valueOf(role),
           authToken);
     }
+
+    // Create and set up a process and algorithm configuration for testing
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for testing use");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Test Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(terminology);
+    processConfig.setVersion(version);
+    processConfig.setTimestamp(new Date());
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("WAIT");
+    algoConfig.setDescription("Algorithm for testing use");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("Test WAIT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTerminology(terminology);
+    algoConfig.setTimestamp(new Date());
+    algoConfig.setVersion(version);
+
+    // Create and set required algorithm properties
+    Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("num", "10");
+    algoConfig.setProperties(algoProperties);
+
+    algoConfig = process.addAlgorithmConfig(projectId,
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
 
     //
     // Fake some data as needs review
@@ -298,13 +362,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             .collect(Collectors.toList()).toArray(new Long[] {});
     for (int i = 0; i < id1s.length; i++) {
       // Add demotion
-      final ConceptRelationshipJpa rel = new ConceptRelationshipJpa();
+      final AtomRelationshipJpa rel = new AtomRelationshipJpa();
       contentService = new ContentServiceRestImpl();
-      final Concept from =
-          contentService.getConcept(id1s[i], projectId, authToken);
+      final Atom from = contentService.getConcept(id1s[i], projectId, authToken)
+          .getAtoms().iterator().next();
       contentService = new ContentServiceRestImpl();
-      final Concept to =
-          contentService.getConcept(id2s[i], projectId, authToken);
+      final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
+          .getAtoms().iterator().next();
       rel.setFrom(from);
       rel.setTo(to);
       rel.setRelationshipType("RO");
@@ -317,7 +381,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       testService.addRelationship(rel, authToken);
 
       // Add inverse demotion too
-      final ConceptRelationshipJpa rel2 = new ConceptRelationshipJpa();
+      final AtomRelationshipJpa rel2 = new AtomRelationshipJpa();
       contentService = new ContentServiceRestImpl();
       rel2.setFrom(to);
       rel2.setTo(from);
@@ -344,8 +408,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           contentService.getConcept(result.getId(), projectId, authToken),
           true);
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
       // Make all NCI atoms needs review
       for (final Atom atom : concept.getAtoms()) {
         if (atom.getTerminology().equals("NCI")) {
@@ -354,6 +416,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
     }
 
     // SNOMEDCT_US
@@ -377,8 +441,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         continue;
       }
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
 
       // Make all SNOMEDCT_US atoms needs review
       for (final Atom atom : concept.getAtoms()) {
@@ -388,6 +450,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
     }
 
     // leftovers
@@ -410,8 +474,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         continue;
       }
       concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
 
       // Make all SNOMEDCT_US atoms needs review
       for (final Atom atom : concept.getAtoms()) {
@@ -422,6 +484,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           testService.updateAtom((AtomJpa) atom, authToken);
         }
       }
+
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateConcept(concept, authToken);
     }
 
     //
@@ -466,12 +531,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition.setName("demotions");
     definition.setDescription(
         "Clustered concepts that failed insertion merges.  Must be either related or merged.");
-    definition.setQuery("select from_id clusterId, from_id conceptId "
-        + "from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
-        + " union select from_id, to_id from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
-        + "order by 1");
+    definition.setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
+        + "from atom_relationships a, atoms b, atoms c, concepts_atoms d, concepts_atoms e  "
+        + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
+        + "  and a.from_id = b.id and a.to_id = c.id "
+        + "  and b.id = d.atoms_id and c.id = e.atoms_id");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -701,9 +765,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken, UserRole.REVIEWER, WorkflowAction.ASSIGN, authToken);
 
     // Finish review
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
-    // authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.performWorkflowAction(projectId, lastWorklist.getId(),
+        authToken, UserRole.REVIEWER, WorkflowAction.FINISH, authToken);
 
     //
     // Add a QA bins workflow config for the current project

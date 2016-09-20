@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa.integrity;
 
@@ -8,6 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -38,13 +41,13 @@ public class DT_M1Test extends IntegrationUnitSupport {
   /** The service. */
   protected ContentServiceJpa contentService;
 
-  /**  The concept no sty. */
+  /** The concept no sty. */
   private Concept conceptNoSty = null;
 
-  /**  The concept no publishable sty. */
+  /** The concept no publishable sty. */
   private Concept conceptNoPublishableSty = null;
 
-  /**  The concept publishable sty. */
+  /** The concept publishable sty. */
   private Concept conceptPublishableSty = null;
 
   /**
@@ -93,7 +96,8 @@ public class DT_M1Test extends IntegrationUnitSupport {
     conceptNoSty.setSemanticTypes(new ArrayList<SemanticTypeComponent>());
 
     // Set all Semantic Types to not-publishable for conceptNoPublishedSty
-    for (SemanticTypeComponent sty : conceptNoPublishableSty.getSemanticTypes()) {
+    for (SemanticTypeComponent sty : conceptNoPublishableSty
+        .getSemanticTypes()) {
       sty.setPublishable(false);
     }
 
@@ -123,7 +127,8 @@ public class DT_M1Test extends IntegrationUnitSupport {
     //
 
     // Check whether the action violates the validation check
-    final ValidationResult validationResult = contentService.validateConcept(project, conceptNoSty);
+    final ValidationResult validationResult =
+        contentService.validateConcept(project, conceptNoSty);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -134,21 +139,49 @@ public class DT_M1Test extends IntegrationUnitSupport {
     //
 
     // Check whether the action violates the validation check
-    final ValidationResult validationResult2 = contentService.validateConcept(project, conceptNoPublishableSty);
+    final ValidationResult validationResult2 =
+        contentService.validateConcept(project, conceptNoPublishableSty);
 
     // Verify that it returned a validation error
-    assertFalse(validationResult2.isValid());    
-    
+    assertFalse(validationResult2.isValid());
+
     //
     // Test non-violation of DT_M1
     // Concept contains publishable Semantic Types
     //
 
     // Check whether the action violates the validation check
-    final ValidationResult validationResult3 = contentService.validateConcept(project, conceptPublishableSty);
+    final ValidationResult validationResult3 =
+        contentService.validateConcept(project, conceptPublishableSty);
 
     // Verify that returned no validation errors
     assertTrue(validationResult3.isValid());
+  }
+
+  /**
+   * Test batch mode.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testBatchMode() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
+    // 1. Read all concepts
+    Logger.getLogger(getClass()).info("  Read all concept ids ");
+    final List<Long> conceptIds =
+        contentService.getAllConceptIds("UMLS", "latest", Branch.ROOT);
+
+    // 2. Perform the batch test
+    Logger.getLogger(getClass()).info("  Validate check");
+    final DT_M1 check = new DT_M1();
+    final Set<Long> failures = check.validateConcepts(new HashSet<>(conceptIds),
+        "UMLS", "latest", contentService);
+    Logger.getLogger(getClass()).info("    count = " + failures.size());
+    for (final Long id : failures) {
+      Logger.getLogger(getClass())
+          .info("     fail = " + contentService.getConcept(id));
+    }
   }
 
   /**

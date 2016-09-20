@@ -8,6 +8,7 @@ package com.wci.umls.server.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
@@ -242,8 +243,7 @@ public interface ContentService extends MetadataService {
   public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
     boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
-    boolean includeSelfReferential,
-    PfsParameter pfs) throws Exception;
+    boolean includeSelfReferential, PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for descriptor.
@@ -1025,6 +1025,18 @@ public interface ContentService extends MetadataService {
     String branch);
 
   /**
+   * Returns the all concept ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all concept ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllConceptIds(String terminology, String version,
+    String branch) throws Exception;
+
+  /**
    * Gets the all descriptors.
    *
    * @param terminology the terminology
@@ -1036,6 +1048,18 @@ public interface ContentService extends MetadataService {
     String branch);
 
   /**
+   * Returns the all descriptor ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all descriptor ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllDescriptorIds(String terminology, String version,
+    String branch) throws Exception;
+
+  /**
    * Gets the all codes.
    *
    * @param terminology the terminology
@@ -1045,6 +1069,18 @@ public interface ContentService extends MetadataService {
    */
   public CodeList getAllCodes(String terminology, String version,
     String branch);
+
+  /**
+   * Returns the all code ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all code ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllCodeIds(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Gets the all subsets.
@@ -1827,8 +1863,21 @@ public interface ContentService extends MetadataService {
    * @param project the project
    * @param concept the concept
    * @return the validation result
+   * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Project project, Concept concept);
+  public ValidationResult validateConcept(Project project, Concept concept)
+    throws Exception;
+
+  /**
+   * Validate concepts.
+   *
+   * @param project the project
+   * @param conceptIds the concept ids
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public Set<Long> validateConcepts(Project project, Set<Long> conceptIds)
+    throws Exception;
 
   /**
    * Validate atom.

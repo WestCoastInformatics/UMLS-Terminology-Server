@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /**
  * Copyright (c) 2012 International Health Terminology Standards Development
@@ -45,8 +45,8 @@ import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
@@ -62,7 +62,6 @@ import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -277,7 +276,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validationData.add(typeKeyValue3);
 
     project1.setValidationData(validationData);
-    
+
     // Handle precedence list
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();
     PrecedenceListJpa list =
@@ -293,42 +292,6 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project1 = (ProjectJpa) project.addProject(project1, authToken);
     final Long projectId = project1.getId();
 
-    // Create and set up a process and algorithm configuration for testing
-    ProcessServiceRest process = new ProcessServiceRestImpl();
-    
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Process for testing use");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Test Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(terminology);
-    processConfig.setVersion(version);
-    processConfig.setTimestamp(new Date());
-    processConfig = process.addProcessConfig(projectId,(ProcessConfigJpa)processConfig,authToken);
-    process = new ProcessServiceRestImpl();
-    
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("WAIT");
-    algoConfig.setDescription("Algorithm for testing use");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("Test WAIT algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTerminology(terminology);
-    algoConfig.setTimestamp(new Date());
-    algoConfig.setVersion(version);
-    
-    // Create and set required algorithm properties
-    Map<String,String> algoProperties = new HashMap<String,String>();
-    algoProperties.put("num", "10");
-    algoConfig.setProperties(algoProperties);
-    
-    algoConfig = process.addAlgorithmConfig(projectId,(AlgorithmConfigJpa)algoConfig,authToken);
-    process = new ProcessServiceRestImpl();
-    
-    processConfig.getSteps().add(algoConfig);
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig, authToken);
-    
     //
     // Assign project roles
     //
@@ -353,6 +316,46 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project = new ProjectServiceRestImpl();
     project.assignUserToProject(projectId, author2.getUserName(),
         UserRole.AUTHOR, authToken);
+
+    
+    // Create and set up a process and algorithm configuration for testing
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for testing use");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Test Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(terminology);
+    processConfig.setVersion(version);
+    processConfig.setTimestamp(new Date());
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("WAIT");
+    algoConfig.setDescription("Algorithm for testing use");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("Test WAIT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTerminology(terminology);
+    algoConfig.setTimestamp(new Date());
+    algoConfig.setVersion(version);
+
+    // Create and set required algorithm properties
+    Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("num", "10");
+    algoConfig.setProperties(algoProperties);
+
+    algoConfig = process.addAlgorithmConfig(projectId,
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
 
     //
     // Fake some data as needs review
@@ -383,13 +386,13 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
             .collect(Collectors.toList()).toArray(new Long[] {});
     for (int i = 0; i < id1s.length; i++) {
       // Add demotion
-      final ConceptRelationshipJpa rel = new ConceptRelationshipJpa();
+      final AtomRelationshipJpa rel = new AtomRelationshipJpa();
       contentService = new ContentServiceRestImpl();
-      final Concept from =
-          contentService.getConcept(id1s[i], projectId, authToken);
+      final Atom from = contentService.getConcept(id1s[i], projectId, authToken)
+          .getAtoms().iterator().next();
       contentService = new ContentServiceRestImpl();
-      final Concept to =
-          contentService.getConcept(id2s[i], projectId, authToken);
+      final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
+          .getAtoms().iterator().next();
       rel.setFrom(from);
       rel.setTo(to);
       rel.setRelationshipType("RO");
@@ -402,7 +405,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
       testService.addRelationship(rel, authToken);
 
       // Add inverse demotion too
-      final ConceptRelationshipJpa rel2 = new ConceptRelationshipJpa();
+      final AtomRelationshipJpa rel2 = new AtomRelationshipJpa();
       contentService = new ContentServiceRestImpl();
       rel2.setFrom(to);
       rel2.setTo(from);
@@ -552,12 +555,11 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition.setName("demotions");
     definition.setDescription(
         "Clustered concepts that failed insertion merges.  Must be either related or merged.");
-    definition.setQuery("select from_id clusterId, from_id conceptId "
-        + "from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
-        + " union select from_id, to_id from concept_relationships "
-        + "where terminology = :terminology and workflowStatus = 'DEMOTION' "
-        + "order by 1");
+    definition.setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
+        + "from atom_relationships a, atoms b, atoms c, concepts_atoms d, concepts_atoms e  "
+        + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
+        + "  and a.from_id = b.id and a.to_id = c.id "
+        + "  and b.id = d.atoms_id and c.id = e.atoms_id");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);

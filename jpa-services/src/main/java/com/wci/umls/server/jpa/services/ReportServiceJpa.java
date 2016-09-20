@@ -42,6 +42,12 @@ import com.wci.umls.server.services.ReportService;
 
 /**
  * JPA and JAXB enabled implementation of {@link HistoryService}.
+ * TODO: factor out the style calculation into a separate method so it can be reused in other parts of the rpt
+ * TODO: if the style is "default" then don't write span tags at all
+ * TODO: put span tags around the first CUI written out
+ * TODO: put span tags around the STYs
+ * TODO: put span tags around the relationships in the DEMOTED RELATIONSHIPS section
+ * TODO: put span tags around the relationships in the NEEDS REVIW RELATIONSHIPS section.
  */
 public class ReportServiceJpa extends HistoryServiceJpa
     implements ReportService {

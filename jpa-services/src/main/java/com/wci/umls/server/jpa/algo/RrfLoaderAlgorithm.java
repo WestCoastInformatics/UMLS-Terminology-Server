@@ -594,14 +594,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // REL|RN|rel_inverse|RB|
     lines.add("REL|XR|expanded_form|Not related|");
     lines.add("REL|XR|rel_inverse|XR|");
-    lines.add("REL|SIB|expanded_form|Sibling|");
-    lines.add("REL|SIB|rel_inverse|SIB|");
     lines.add("REL|BRO|expanded_form|Bequeath otherwise|");
     lines.add("REL|BRN|expanded_form|Bequeath narrower|");
     lines.add("REL|BRB|expanded_form|Bequeath broader|");
     lines.add("REL|BRO|rel_inverse|BRO|");
     lines.add("REL|BRN|rel_inverse|BRB|");
-    lines.add("REL|BRN|rel_inverse|BRN|");
+    lines.add("REL|BRB|rel_inverse|BRN|");
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);
 
@@ -690,8 +688,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
       // Handle RelationshipLabel
-      else if (fields[0].equals("REL") && fields[2].equals("expanded_form")
-          && !fields[1].equals("SIB")) {
+      else if (fields[0].equals("REL") && fields[2].equals("expanded_form")) {
         final RelationshipType rel = new RelationshipTypeJpa();
         rel.setAbbreviation(fields[1]);
         rel.setExpandedForm(fields[3]);

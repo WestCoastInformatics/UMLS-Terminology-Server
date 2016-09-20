@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -21,7 +21,7 @@ import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -61,22 +61,26 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
     try {
 
+      // Get all concepts having at least one releasable atom
+      SearchResultList list = this.findConcepts(getTerminology(), getVersion(),
+          Branch.ROOT, "atoms.publishable:true", null);
+      final Set<Long> publishableConcepts = list.getObjects().stream()
+          .map(SearchResult::getId).collect(Collectors.toSet());
+
       // Get all concepts where any of its atoms are set to NEEDS REVIEW or
       // DEMOTION
-      SearchResultList searchResult =
-          this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
-              "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
-                  + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
-              null);
-      Set<Long> atomConceptIds = searchResult.getObjects().stream()
+      list = this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
+          "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
+              + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
+          null);
+      final Set<Long> atomConceptIds = list.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
 
       // Get all concepts where any of its semantic type components are set to
       // NEEDS REVIEW
-      searchResult = this.findConcepts(getTerminology(), getVersion(),
-          Branch.ROOT,
+      list = this.findConcepts(getTerminology(), getVersion(), Branch.ROOT,
           "semanticTypes.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
-      Set<Long> styConceptIds = searchResult.getObjects().stream()
+      final Set<Long> styConceptIds = list.getObjects().stream()
           .map(SearchResult::getId).collect(Collectors.toSet());
 
       // Get all concepts where any of its relationships are set to NEEDS REVIEW
@@ -92,17 +96,22 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       @SuppressWarnings("unchecked")
       final List<ConceptRelationship> rels = query.getResultList();
-
-      Set<Long> relConceptIds = new HashSet<Long>();
-      for (ConceptRelationship rel : rels) {
+      final Set<Long> relConceptIds = new HashSet<Long>();
+      for (final ConceptRelationship rel : rels) {
         relConceptIds.add(rel.getFrom().getId());
         relConceptIds.add(rel.getTo().getId());
       }
 
-      Set<Long> allNeedsReviewConceptIds = new HashSet<Long>();
+      // Perform validation and collect failed concept ids
+      final Set<Long> conceptIds = new HashSet<>(
+          getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
+      final Set<Long> failures = validateConcepts(getProject(), conceptIds);
+
+      final Set<Long> allNeedsReviewConceptIds = new HashSet<Long>();
       allNeedsReviewConceptIds.addAll(atomConceptIds);
       allNeedsReviewConceptIds.addAll(styConceptIds);
       allNeedsReviewConceptIds.addAll(relConceptIds);
+      allNeedsReviewConceptIds.addAll(failures);
 
       // Get all concepts for the terminology/version (detach).
 
@@ -118,36 +127,36 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       hQuery.setReadOnly(true).setFetchSize(2000);
       ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
 
-      int ct = 0;
+      int statusChangeCt = 0;
+      int publishableChangeCt = 0;
       while (results.next()) {
         final Concept concept =
             getConcept(((Concept) results.get()[0]).getId());
 
-        final WorkflowStatus initialStatus = concept.getWorkflowStatus();
+        final boolean initialPublishable = false;
+        boolean publishable = initialPublishable;
 
         // Starting point for changing workflow status
+        final WorkflowStatus initialStatus = concept.getWorkflowStatus();
         WorkflowStatus status = initialStatus == WorkflowStatus.PUBLISHED
             ? WorkflowStatus.PUBLISHED : WorkflowStatus.READY_FOR_PUBLICATION;
 
         if (allNeedsReviewConceptIds.contains(concept.getId())) {
           status = WorkflowStatus.NEEDS_REVIEW;
+          statusChangeCt++;
         }
 
-        // Check validation rules
-        if (status != WorkflowStatus.NEEDS_REVIEW) {
-          final ValidationResult result =
-              validateConcept(getProject(), concept);
-          if (result.getErrors().size() != 0) {
-            status = WorkflowStatus.NEEDS_REVIEW;
-          }
+        if (publishableConcepts.contains(concept.getId())) {
+          publishable = true;
+          publishableChangeCt++;
         }
 
         // change either from N to R or R to N
-        if (initialStatus != status) {
+        if (initialStatus != status || initialPublishable != publishable) {
 
           // Send change to a conceptUpdate molecular action
-          final UpdateConceptStatusMolecularAction action =
-              new UpdateConceptStatusMolecularAction();
+          final UpdateConceptMolecularAction action =
+              new UpdateConceptMolecularAction();
           try {
             // Configure the action
             action.setProject(this.getProject());
@@ -161,6 +170,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setChangeStatusFlag(true);
 
             action.setWorkflowStatus(status);
+            action.setPublishable(publishable);
             action.setActivityId(getActivityId());
             action.setWorkId(getWorkId());
 
@@ -173,13 +183,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           }
         }
 
-        // Log
-        if (++ct % logCt == 0) {
-          logInfo("  count = " + ct);
-        }
-
       }
 
+      logInfo("  publishable changed = " + publishableChangeCt);
+      logInfo("  status changed = " + statusChangeCt);
       logInfo("Finished MATRIXINIT");
 
     } catch (Exception e) {

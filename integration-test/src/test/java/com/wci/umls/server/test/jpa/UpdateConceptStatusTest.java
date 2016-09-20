@@ -25,7 +25,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -37,7 +37,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
- * Unit testing for {@link UpdateConceptStatusMolecularAction}.
+ * Unit testing for {@link UpdateConceptMolecularAction}.
  */
 public class UpdateConceptStatusTest extends IntegrationUnitSupport {
 
@@ -48,7 +48,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
   protected static Properties properties;
 
   /** The update concept status action/service */
-  protected static UpdateConceptStatusMolecularAction action;
+  protected static UpdateConceptMolecularAction action;
 
   /** The concept. */
   private Concept concept;
@@ -131,8 +131,8 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
 
     // Update the WorkflowStatus of the concept from READY_FOR_PUBLICATION to
     // NEEDS_REVIEW
-    final UpdateConceptStatusMolecularAction action =
-        new UpdateConceptStatusMolecularAction();
+    final UpdateConceptMolecularAction action =
+        new UpdateConceptMolecularAction();
     ValidationResult validationResult = null;
     try {
 

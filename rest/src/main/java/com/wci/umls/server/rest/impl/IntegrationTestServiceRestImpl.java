@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
@@ -30,6 +31,7 @@ import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -253,7 +255,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @GET
-  @Path("/relationship/{id}")
+  @Path("/concept/relationship/{id}")
   @ApiOperation(value = "Get a concept relationship", notes = "Get a concept relationship", response = ConceptRelationship.class)
   public ConceptRelationship getConceptRelationship(
     @ApiParam(value = "Concept Relationship id, e.g. 1", required = true) @PathParam("id") Long relationshipId,
@@ -290,7 +292,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   @Override
   @GET
   @Path("/attribute/{attributeId}")
-  @ApiOperation(value = "Get an attribute", notes = "Get an attributee", response = Attribute.class)
+  @ApiOperation(value = "Get an attribute", notes = "Get an attribute", response = Attribute.class)
   public Attribute getAttribute(
     @ApiParam(value = "Attribute id, e.g. 1", required = true) @PathParam("attributeId") Long attributeId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -388,10 +390,10 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/relationship/add")
-  @ApiOperation(value = "Add new relationship", notes = "Creates a new relationship", response = ConceptRelationshipJpa.class)
+  @Path("/concept/relationship/add")
+  @ApiOperation(value = "Add new concept relationship", notes = "Creates a new concept relationship", response = ConceptRelationshipJpa.class)
   public ConceptRelationship addRelationship(
-    @ApiParam(value = "ConceptRelationship", required = true) ConceptRelationshipJpa relationship,
+    @ApiParam(value = "a concept relationship", required = true) ConceptRelationshipJpa relationship,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -420,7 +422,39 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/relationship/update")
+  @Path("/atom/relationship/add")
+  @ApiOperation(value = "Add new atom relationship", notes = "Creates a new atom relationship", response = ConceptRelationshipJpa.class)
+  public AtomRelationship addRelationship(
+    @ApiParam(value = "A atom relationship", required = true) AtomRelationshipJpa relationship,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call PUT (TEST): /relationship/add " + relationship);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String authUser = authorizeApp(securityService, authToken,
+          "add relationship", UserRole.ADMINISTRATOR);
+      contentService.setLastModifiedBy(authUser);
+      contentService.setMolecularActionFlag(false);
+
+      // Add relationship
+      final AtomRelationship newRel =
+          (AtomRelationship) contentService.addRelationship(relationship);
+      return newRel;
+    } catch (Exception e) {
+      handleException(e, "trying to add a relationship");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @PUT
+  @Path("/concept/relationship/update")
   @ApiOperation(value = "Update relationship", notes = "Updates the relationship", response = ConceptRelationshipJpa.class)
   public void updateRelationship(
     @ApiParam(value = "ConceptRelationship", required = true) ConceptRelationshipJpa relationship,
@@ -439,19 +473,19 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       if (relationship.getId() == null) {
         throw new Exception(
             "Only a relationship that exists can be udpated: " + relationship);
-      }      
-      
+      }
+
       // Update relationship
       contentService.updateRelationship(relationship);
-      
+
     } catch (Exception e) {
       handleException(e, "trying to add a relationship");
     } finally {
       contentService.close();
       securityService.close();
     }
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   @GET
@@ -507,6 +541,6 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
-  
+  }
+
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -12,8 +12,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 /**
  * A molecular action for updating a concept workflow status.
  */
-public class UpdateConceptStatusMolecularAction
-    extends AbstractMolecularAction {
+public class UpdateConceptMolecularAction extends AbstractMolecularAction {
 
   /** The concept pre updates. */
   private Concept conceptPreUpdates;
@@ -24,12 +23,15 @@ public class UpdateConceptStatusMolecularAction
   /** The workflow status. */
   private WorkflowStatus workflowStatus;
 
+  /** The publishable. */
+  private boolean publishable;
+
   /**
-   * Instantiates an empty {@link UpdateConceptStatusMolecularAction}.
+   * Instantiates an empty {@link UpdateConceptMolecularAction}.
    *
    * @throws Exception the exception
    */
-  public UpdateConceptStatusMolecularAction() throws Exception {
+  public UpdateConceptMolecularAction() throws Exception {
     super();
     // n/a
   }
@@ -61,6 +63,15 @@ public class UpdateConceptStatusMolecularAction
     this.workflowStatus = workflowStatus;
   }
 
+  /**
+   * Sets the publishable.
+   *
+   * @param publishable the publishable
+   */
+  public void setPublishable(boolean publishable) {
+    this.publishable = publishable;
+  }
+
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -71,7 +82,8 @@ public class UpdateConceptStatusMolecularAction
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-    validationResult.merge(validateConcept(this.getProject(), this.getConcept()));
+    validationResult
+        .merge(validateConcept(this.getProject(), this.getConcept()));
     return validationResult;
   }
 
@@ -93,12 +105,13 @@ public class UpdateConceptStatusMolecularAction
     conceptPreUpdates = new ConceptJpa(getConcept(), false);
 
     // Make a copy of the concept
-    Concept updateConcept = new ConceptJpa(getConcept(),true);
-    
+    Concept updateConcept = new ConceptJpa(getConcept(), true);
+
     //
-    // Change status of the concept
+    // Change the concept in the limited ways supported
     //
     updateConcept.setWorkflowStatus(this.workflowStatus);
+    updateConcept.setPublishable(publishable);
 
     //
     // update the Concept

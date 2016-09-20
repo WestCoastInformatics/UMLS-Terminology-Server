@@ -1,9 +1,11 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.validation;
 
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
@@ -12,6 +14,7 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
@@ -31,6 +34,13 @@ public abstract class AbstractValidationCheck implements ValidationCheck {
     ValidationResult result = new ValidationResultJpa();
     // no checks
     return result;
+  }
+
+  /* see superclass */
+  @Override
+  public Set<Long> validateConcepts(Set<Long> conceptIds, String terminology,
+    String version, ContentService contentService) throws Exception {
+    return new HashSet<>();
   }
 
   /* see superclass */

@@ -1,17 +1,24 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.validation;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.NoResultException;
+
+import com.google.common.collect.Sets;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.ContentService;
 
 /**
  * Validates those {@link Concept}s which contain at least one demoted
@@ -32,10 +39,10 @@ public class DT_I3B extends AbstractValidationCheck {
   public ValidationResult validate(Concept source) {
     ValidationResult result = new ValidationResultJpa();
 
-    if (source==null){
+    if (source == null) {
       return result;
     }
-    
+
     //
     // Get demotions
     //
@@ -79,6 +86,58 @@ public class DT_I3B extends AbstractValidationCheck {
     }
 
     return result;
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<Long> validateConcepts(Set<Long> conceptIds, String terminology,
+    String version, ContentService contentService) throws Exception {
+
+    // Query to find all concepts without a semantic type.
+    // Step 1 = query to find all demoted relationships
+    Set<Long> demotedRelIds = null;
+    final javax.persistence.Query query =
+        ((ContentServiceJpa) contentService).getEntityManager()
+            .createQuery("select c2.id "
+                + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
+                + "where c2.terminology = :terminology and c2.version = :version and "
+                + "a.from.id in (ca.id) and a.workflowStatus='DEMOTION'");
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+      demotedRelIds = new HashSet<Long>(query.getResultList());
+    } catch (NoResultException e) {
+      demotedRelIds = new HashSet<>();
+    }
+
+    // Step 2 = query to find all publishable concept relationships
+    Set<Long> cRelIds = null;
+    final javax.persistence.Query query2 =
+        ((ContentServiceJpa) contentService).getEntityManager()
+            .createQuery("select a.from.id " + "from ConceptRelationshipJpa a "
+                + "where terminology = :terminology and version = :version"
+                + " and publishable = 1");
+    // Try to retrieve the single expected result If zero or more than one
+    // result are returned, log error and set result to null
+    try {
+      query2.setParameter("terminology", terminology);
+      query2.setParameter("version", version);
+      cRelIds = new HashSet<Long>(query2.getResultList());
+    } catch (NoResultException e) {
+      cRelIds = new HashSet<>();
+    }
+    System.out.println("  terminology = " + terminology);
+    System.out.println("  version = " + version);
+    System.out.println("  demotedRelIds = " + demotedRelIds.size());
+    System.out.println("  cRelIds = " + cRelIds.size());
+    // Get the intersection of ids passed in with
+    // the (demoted MINUS c level rels)
+    return Sets.intersection(Sets.difference(demotedRelIds, cRelIds),
+        conceptIds);
+
   }
 
   /* see superclass */

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -8,10 +8,12 @@ package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -75,6 +77,17 @@ public interface IntegrationTestServiceRest {
    */
   public ConceptRelationship addRelationship(
     ConceptRelationshipJpa relationship, String authToken) throws Exception;
+
+  /**
+   * Adds the relationship.
+   *
+   * @param relationship the relationship
+   * @param authToken the auth token
+   * @return the atom relationship
+   * @throws Exception the exception
+   */
+  public AtomRelationship addRelationship(AtomRelationshipJpa relationship,
+    String authToken) throws Exception;
 
   /**
    * Update relationship.
