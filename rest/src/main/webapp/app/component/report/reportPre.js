@@ -19,25 +19,30 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
           $scope.getReport($scope.selected.component);
         }
       });
+      $scope.$watch('selected.project', function() {
+        if ($scope.selected.project && $scope.selected.component) {
+          $scope.getReport($scope.selected.component);
+        }
+      });
 
-      // Trusted report
-      $scope.getTrustedReport = function(report) {
-        return $sce.trustAsHtml(report);
+      // Trust as HTML
+      $scope.getTrustedReport = function() {
+        return $sce.trustAsHtml($scope.report);
       };
-      
+
+            
       // Get the report
       $scope.getReport = function(component) {
-        reportService.getComponentReport($scope.selected.project.id, component).then(
-        // Success
-        function(data) {
-          $scope.report = data;
-        });
+        if ($scope.selected.project) {
+          reportService.getComponentReport($scope.selected.project.id, component).then(
+          // Success
+          function(data) {
+            $scope.report = data;
+          });
+        }
       }
       
-      // Trust as HTML
-      $scope.getX = function() {
-        return $sce.trustAsHtml($scope.report);
-      }
+
     } ]
   };
 } ]);

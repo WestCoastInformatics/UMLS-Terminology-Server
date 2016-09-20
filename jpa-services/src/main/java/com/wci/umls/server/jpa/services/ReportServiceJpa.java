@@ -5,6 +5,7 @@ package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -192,7 +194,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
         //
         // Determine flags
         //
-      
+      // Depict flag "B" for RxNORM Base Ambiguity Atom.
+      // does the atom have a releasable RXNORM indicate ABIGUITITY_FLAG=Base?
+      boolean isBaseRxnormAmbiguous = atom.getAttributes().stream().filter(
+          a -> a.getName().equals("AMBIGUITY_FLAG") && 
+          a.getValue().equals("Base") && a.getTerminology().equals("RXNORM")
+          && a.isPublishable()).collect(Collectors.toList()). size() > 0;
       
       sb.append(" ");
 
@@ -200,12 +207,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
         sb.append("<span class=\"DEMOTION\">");
       } else if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         sb.append("<span class=\"NEEDS_REVIEW\">");
-      } else if (atom.isObsolete()) {
-        sb.append("<span class=\"OBSOLETE\">");
-      } else if (atom.getAttributeByName("RXCUI") != null) {
-        sb.append("<span class=\"RXNORM\">");
       } else if (!atom.isPublishable()) {
         sb.append("<span class=\"UNRELEASABLE\">");
+      } else if (atom.isObsolete()) {
+        sb.append("<span class=\"OBSOLETE\">");
+      } else if (isBaseRxnormAmbiguous) {  
+        sb.append("<span class=\"RXNORM\">");
       } else {
         sb.append("<span>");
       }
@@ -240,10 +247,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // Depict flag "B" for RxNORM Base Ambiguity Atom.
       // does the atom have a releasable RXNORM indicate ABIGUITITY_FLAG=Base?
-      boolean isBaseRxnormAmbiguous = atom.getAttributes().stream().filter(
-          a -> a.getName().equals("AMBIGUITY_FLAG") && 
-          a.getValue().equals("Base") && a.getTerminology().equals("RXNORM")
-          && a.isPublishable()).collect(Collectors.toList()). size() > 0;
       if (isBaseRxnormAmbiguous) {
           sb.append("B");
       } else {
@@ -332,14 +335,16 @@ public class ReportServiceJpa extends HistoryServiceJpa
         Branch.ROOT, null, false, true, true, false, new PfsParameterJpa()).getObjects();
     
     // Lexical Relationships
-    /*TODO - how to get AtomRels
     List<AtomRelationship> lexicalRelationships = new ArrayList<>();
-    for (Relationship<?, ?> relationship : relList) {
-      AtomRelationship rel = (AtomRelationship)relationship;
-      if (rel.getAdditionalRelationshipType().endsWith("form_of")) {
-        lexicalRelationships.add(rel);
+    // double for loop over atoms and then each atom's relationships
+    // additional relation types ends with form_of
+    for (Atom atom : concept.getAtoms()) {
+      for (AtomRelationship atomRel : atom.getRelationships()) {
+        if (atomRel.getAdditionalRelationshipType().endsWith("form_of")) {
+          lexicalRelationships.add(atomRel);
+        }
       }
-    }  
+    }
     if (lexicalRelationships.size() > 0) {
       sb.append("LEXICAL RELATIONSHIP(S)").append(lineEnd);
       for (AtomRelationship rel : lexicalRelationships) {
@@ -352,7 +357,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
           sb.append("}");
         }
       }
-    }*/
+    }
     
     // Demoted Related Concepts
     List<String> usedToIds = new ArrayList<>();
@@ -448,15 +453,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     
     // Context Relationships
-    // TODO? gather // exclude PAR/CHD/SIB, show them.
     List<ConceptRelationship> contextRelationships = new ArrayList<>();
     for (Relationship<?, ?> relationship : relList) {
       ConceptRelationship rel = (ConceptRelationship)relationship;
-      if (!usedToIds.contains(rel.getTo().getTerminologyId()) &&
-          !(rel.getRelationshipType().equals("PAR") ||
+      if (rel.getRelationshipType().equals("PAR") ||
             rel.getRelationshipType().equals("CHD") ||
-            rel.getRelationshipType().equals("SIB"))) {
-        usedToIds.add(rel.getTo().getTerminologyId());
+            rel.getRelationshipType().equals("SIB")) {
         contextRelationships.add(rel);
       }
     }  
@@ -581,8 +583,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // siblings & self node
       indent = indent.substring(0, indent.length() - 2);
-      // TODO Collections.sort(siblings.getObjects(), new
-      // TreePositionComparator());
+      Collections.sort(siblings.getObjects(), new TreePositionComparator());
 
       indent += "  ";
       for (TreePosition siblingPosition : siblings.getObjects()) {
@@ -606,21 +607,20 @@ public class ReportServiceJpa extends HistoryServiceJpa
           sb.append(lineEnd);
         }
       }
-
       sb.append(lineEnd);
     }
 
     return sb.toString();
   }
 
-  private class TreePositionComparator {
-    public int compare(TreePosition object1, TreePosition object2) {
+  private class TreePositionComparator implements Comparator<TreePosition<?>> {
+    public int compare(TreePosition<?> object1, TreePosition<?> object2) {
         return object1.getNode().getName().compareTo(object2.getNode().getName());
     }
   }
   
   private void printChildren(StringBuilder sb, TreePosition treePos, TreePositionList children) {
-    //TODO Collections.sort(children.getObjects(), new TreePositionComparator());
+    Collections.sort(children.getObjects(), new TreePositionComparator());
     for (TreePosition<? extends ComponentHasAttributesAndName> childPosition : children.getObjects()) {
       sb.append(indent).append(childPosition.getNode().getName());
       if (childPosition.getChildCt() > 0) {
