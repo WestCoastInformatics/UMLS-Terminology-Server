@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /**
  * Copyright (c) 2012 International Health Terminology Standards Development
@@ -380,6 +380,14 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       testService = new IntegrationTestServiceRestImpl();
       testService.addRelationship(rel, authToken);
 
+      // This will handle both directions
+      rel.getFrom().setWorkflowStatus(WorkflowStatus.DEMOTION);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateAtom((AtomJpa) rel.getFrom(), authToken);
+      rel.getTo().setWorkflowStatus(WorkflowStatus.DEMOTION);
+      testService = new IntegrationTestServiceRestImpl();
+      testService.updateAtom((AtomJpa) rel.getFrom(), authToken);
+
       // Add inverse demotion too
       final AtomRelationshipJpa rel2 = new AtomRelationshipJpa();
       contentService = new ContentServiceRestImpl();
@@ -531,11 +539,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition.setName("demotions");
     definition.setDescription(
         "Clustered concepts that failed insertion merges.  Must be either related or merged.");
-    definition.setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
-        + "from atom_relationships a, atoms b, atoms c, concepts_atoms d, concepts_atoms e  "
-        + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
-        + "  and a.from_id = b.id and a.to_id = c.id "
-        + "  and b.id = d.atoms_id and c.id = e.atoms_id");
+    definition
+        .setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
+            + "from atom_relationships a, atoms b, atoms c, concepts_atoms d, concepts_atoms e  "
+            + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
+            + "  and a.from_id = b.id and a.to_id = c.id "
+            + "  and b.id = d.atoms_id and c.id = e.atoms_id");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -902,6 +911,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE", authToken);
 
+    // Matrix initializer
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", authToken);
   }
 
   /**

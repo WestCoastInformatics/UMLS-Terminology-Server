@@ -15,7 +15,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
-import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -29,11 +29,11 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
   /** The worklist id. */
   private Long worklistId;
-  
-  /**  The checklist id. */
+
+  /** The checklist id. */
   private Long checklistId;
-  
-  /**  Indicates if the action should be to approve or to unapprove. */
+
+  /** Indicates if the action should be to approve or to unapprove. */
   private boolean approve;
 
   /**
@@ -74,7 +74,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       if (worklistId != null) {
         final Worklist worklist = getWorklist(worklistId);
         records = worklist.getTrackingRecords();
-      } else if (checklistId != null){
+      } else if (checklistId != null) {
         final Checklist checklist = getChecklist(checklistId);
         records = checklist.getTrackingRecords();
       } else {
@@ -88,7 +88,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
           if (approve && c.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
             continue;
           }
-          if (!approve && c.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+          if (!approve
+              && c.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
             continue;
           }
           ct++;
@@ -96,8 +97,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
           if (approve) {
             action = new ApproveMolecularAction();
           } else {
-            action = new UpdateConceptStatusMolecularAction();
-            ((UpdateConceptStatusMolecularAction)action).setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            action = new UpdateConceptMolecularAction();
+            ((UpdateConceptMolecularAction) action)
+                .setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           }
           // set workflowStatus action to NEEDS_REVIEW
           final Concept concept = action.getConcept(c.getId());
@@ -165,7 +167,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   public void setWorklistId(Long worklistId) {
     this.worklistId = worklistId;
   }
-  
+
   /**
    * Sets the checklist id.
    *
@@ -174,7 +176,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   public void setChecklistId(Long checklistId) {
     this.checklistId = checklistId;
   }
-  
+
   /**
    * Sets the approve.
    *
@@ -188,7 +190,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        
+
     }, p);
 
     worklistId = Long.valueOf(p.getProperty("worklistId"));
@@ -203,9 +205,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
         new AlgorithmParameterJpa("Worklist Id", "worklistId", "Worklist id.",
             "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER);
     params.add(param);
-    param =
-        new AlgorithmParameterJpa("Checklist Id", "checklistId", "Checklist id.",
-            "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER);
+    param = new AlgorithmParameterJpa("Checklist Id", "checklistId",
+        "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER);
     params.add(param);
     return params;
   }

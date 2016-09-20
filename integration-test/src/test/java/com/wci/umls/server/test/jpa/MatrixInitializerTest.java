@@ -25,14 +25,15 @@ import org.junit.Test;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
@@ -54,7 +55,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
   private Concept concept2;
 
   /** The relationship. */
-  private ConceptRelationship relationship;
+  private AtomRelationship relationship;
 
   /**
    * Setup class.
@@ -92,12 +93,14 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     // C0029744 is PUBLISHED, but contains a DEMOTION relationship.
     concept2 = contentService.getConcept("C0029744", "UMLS", "latest", null);
 
-    for (ConceptRelationship rel : concept2.getRelationships()) {
-      if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-        relationship = rel;
+    OUTER: for (final Atom atom : concept2.getAtoms()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
+        if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          relationship = rel;
+          break OUTER;
+        }
       }
     }
-
   }
 
   /**
@@ -213,7 +216,7 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
         concept.getWorkflowStatus());
     // Ensure that the concept's workflow status is PUBLISHED
     assertEquals(WorkflowStatus.PUBLISHED, concept.getWorkflowStatus());
-    
+
     // Verify that a molecular action was created for the update
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -284,8 +287,8 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     assertEquals("workflowStatus", atomicActions.get(0).getField());
 
     // Check that the relationship is still DEMOTION
-    relationship = (ConceptRelationship) contentService.getRelationship(relId,
-        ConceptRelationshipJpa.class);
+    relationship = (AtomRelationship) contentService.getRelationship(relId,
+        AtomRelationshipJpa.class);
     assertEquals(WorkflowStatus.DEMOTION, relationship.getWorkflowStatus());
 
   }

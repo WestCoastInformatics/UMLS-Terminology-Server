@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -1289,6 +1289,7 @@ public class WorkflowClientRest extends RootClientRest
     }
   }
 
+  /* see superclass */
   @Override
   public WorkflowBinDefinition getWorkflowBinDefinition(Long projectId,
     String name, String type, String authToken) throws Exception {
@@ -1346,6 +1347,7 @@ public class WorkflowClientRest extends RootClientRest
 
   }
 
+  /* see superclass */
   @Override
   public Checklist importChecklist(
     FormDataContentDisposition contentDispositionHeader, InputStream in,
@@ -1421,6 +1423,7 @@ public class WorkflowClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString, ChecklistJpa.class);
   }
 
+  /* see superclass */
   @Override
   public InputStream exportChecklist(Long projectId, Long checklistId,
     String authToken) throws Exception {
@@ -1443,6 +1446,7 @@ public class WorkflowClientRest extends RootClientRest
     return in;
   }
 
+  /* see superclass */
   @Override
   public InputStream exportWorklist(Long projectId, Long worklistId,
     String authToken) throws Exception {
@@ -1465,23 +1469,21 @@ public class WorkflowClientRest extends RootClientRest
     return in;
   }
 
-
+  /* see superclass */
   @Override
   public ValidationResult stampWorklist(Long projectId, Long id,
-    String activityId, boolean approve, boolean overrideWarnings,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Workflow Client - stamp list " + id + ", " + approve + ", " + overrideWarnings + ", " + authToken);
+    String activityId, boolean approve, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - stamp list " + id
+        + ", " + approve + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(id, "id");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/worklist/" + id + "/stamp?projectId=" + projectId 
+        + "/workflow/worklist/" + id + "/stamp?projectId=" + projectId
         + (activityId == null ? "" : "&activityId=" + activityId)
-        + (approve ? "approve=true" : "")
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + (approve ? "&approve=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -1498,12 +1500,12 @@ public class WorkflowClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult stampChecklist(Long projectId, Long id,
-    String activityId, boolean approve, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, boolean approve, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Client - stamp list " + id
-        + ", " + approve + ", " + overrideWarnings + ", " + authToken);
+        + ", " + approve + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(id, "id");
@@ -1512,8 +1514,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/checklist/" + id + "/stamp?projectId=" + projectId
         + (activityId == null ? "" : "&activityId=" + activityId)
-        + (approve ? "approve=true" : "")
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + (approve ? "&approve=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -1530,20 +1531,19 @@ public class WorkflowClientRest extends RootClientRest
         ValidationResultJpa.class);
   }
 
+  /* see superclass */
   @Override
   public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, boolean overrideWarnings, String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).debug("Workflow Client - recompute concept status "
-         + ", " + overrideWarnings + ", " + authToken);
+    String activityId, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - recompute concept status " + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/status/compute?projectId=" + projectId
-        + (activityId == null ? "" : "&activityId=" + activityId)
-        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+        + (activityId == null ? "" : "&activityId=" + activityId));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
@@ -1558,7 +1558,6 @@ public class WorkflowClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
- 
   }
 
 }

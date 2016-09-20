@@ -671,13 +671,12 @@ public interface WorkflowServiceRest {
    * @param id the id
    * @param activityId the activity id
    * @param approve the approve
-   * @param overrideWarnings the override warnings
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampWorklist(Long projectId, Long id, String activityId, boolean approve,
-    boolean overrideWarnings, String authToken) throws Exception;
+  public ValidationResult stampWorklist(Long projectId, Long id,
+    String activityId, boolean approve, String authToken) throws Exception;
 
   /**
    * Stamp checklist.
@@ -686,27 +685,23 @@ public interface WorkflowServiceRest {
    * @param id the id
    * @param activityId the activity id
    * @param approve the approve
-   * @param overrideWarnings the override warnings
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampChecklist(Long projectId, Long id, String activityId,
-    boolean approve, boolean overrideWarnings, String authToken)
-    throws Exception;
+  public ValidationResult stampChecklist(Long projectId, Long id,
+    String activityId, boolean approve, String authToken) throws Exception;
 
   /**
    * Recompute concept status.
    *
    * @param projectId the project id
    * @param activityId the activity id
-   * @param overrideWarnings the override warnings
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult recomputeConceptStatus(Long projectId, String activityId,
-    boolean overrideWarnings, String authToken) throws Exception;
-
+  public ValidationResult recomputeConceptStatus(Long projectId,
+    String activityId, String authToken) throws Exception;
 
 }
