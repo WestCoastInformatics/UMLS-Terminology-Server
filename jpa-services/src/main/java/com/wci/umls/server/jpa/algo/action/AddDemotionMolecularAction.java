@@ -57,15 +57,11 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
     // Perform action specific validation - n/a
 
-    //TODO - check with Brian whether demotions can be on atoms contained in a single concept?        
-    // Verify concept id1/2 are not the same ??
+    // Verify concept id1/2 are not the same
     if (getConcept().getId().equals(getConcept2().getId())) {
       throw new Exception(
-          "Unexpected self-referential relationship, the fromId should match conceptId1");
+          "Unexpected self-referential relationship, the fromConcept Id should not match toConcept Id");
     }
-
-    //TODO - check with Brian on duplicate check        
-    // Duplicate check?
 
     validationResult.merge(super.checkPreconditions());
     return validationResult;
@@ -132,6 +128,14 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       updateRelationship(matchingInverseCRel);
     }    
     
+    // Change status of the concepts
+    getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    getConcept2().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+    
+    // update the concepts
+    updateConcept(getConcept());
+    updateConcept(getConcept2());
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(),
