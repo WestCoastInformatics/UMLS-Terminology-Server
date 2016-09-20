@@ -13,6 +13,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -106,52 +107,44 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     }
 
     //
-    // Any relationships with workflowStatus=DEMOTION (AND its inverse) need to
-    // be removed
+    // Any demotion relationship (AND its inverse) need to be removed
     //
-    final List<ConceptRelationship> removeRels = new ArrayList<>();
-    final List<ConceptRelationship> removeInverseRels = new ArrayList<>();
-    for (final ConceptRelationship rel : relationships) {
-      if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-        removeRels.add(rel);
-        relationships.remove(rel);
-        for (final ConceptRelationship inverseRel : inverseRelationships) {
-          if (inverseRel.getId().equals(
-              ((ConceptRelationship) findInverseRelationship(rel)).getId())) {
-            removeInverseRels.add(inverseRel);
-            inverseRelationships.remove(inverseRel);
-            break;
-          }
+    final List<AtomRelationship> removeDemotions = new ArrayList<>();
+    final List<AtomRelationship> removeInverseDemotions = new ArrayList<>();
+    for(final Atom atom : atoms){
+      for(AtomRelationship atomRel : atom.getRelationships()){
+        if(atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+          removeDemotions.add(atomRel);
+          removeInverseDemotions.add((AtomRelationship)findInverseRelationship(atomRel));
         }
       }
     }
-
-    //
-    // Remove objects from the appropriate Concept
-    //
-    for (final ConceptRelationship rel : removeRels) {
-      getConcept().getRelationships().remove(rel);
+    
+    //Remove demotions from appropriate atoms
+    for (final AtomRelationship rel : removeDemotions) {
+      rel.getFrom().getRelationships().remove(rel);
     }
-    for (final ConceptRelationship inverseRel : removeInverseRels) {
+    for (final AtomRelationship inverseRel : removeInverseDemotions) {
       inverseRel.getFrom().getRelationships().remove(inverseRel);
     }
 
     //
-    // Update the concept, and any concepts that had inverse rels removed from
-    // it
+    // Update any atom that had inverse rels removed from it
     //
-    updateConcept(getConcept());
-    for (final ConceptRelationship inverseRel : removeInverseRels) {
-      updateConcept(inverseRel.getFrom());
+    for (final AtomRelationship rel : removeDemotions) {
+      updateAtom(rel.getFrom());
+    }
+    for (final AtomRelationship inverseRel : removeInverseDemotions) {
+      updateAtom(inverseRel.getFrom());
     }
 
     //
-    // Remove the objects from the database
+    // Remove the demotions from the database
     //
-    for (final ConceptRelationship rel : removeRels) {
+    for (final AtomRelationship rel : removeDemotions) {
       removeRelationship(rel.getId(), rel.getClass());
     }
-    for (final ConceptRelationship inverseRel : removeInverseRels) {
+    for (final AtomRelationship inverseRel : removeInverseDemotions) {
       removeRelationship(inverseRel.getId(), inverseRel.getClass());
     }
 

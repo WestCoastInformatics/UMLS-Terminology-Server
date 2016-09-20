@@ -7,6 +7,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -93,35 +94,6 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    // If a relationship between these two concepts already exists, cannot add a
-    // new one.
-    // EXCEPTION: can add a DEMOTION relationship on top of an existing
-    // relationship, and can add a non-DEMOTION relationship on top of a
-    // DEMOTION.
-    // TODO - this needs to change:
-    /*
-    * Needs to look to atoms to remove demotions 
-    * New relationships CAN be added on top of old relationships. 
-    * Previous relationship is deleted, and new relationship takes it place.
-    */
-    if (!relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-      for (final ConceptRelationship rel : getConcept().getRelationships()) {
-        if (rel.getTo().getId() == relationship.getTo().getId()
-            && rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          throw new LocalException(
-              "Cannot add multiple relationships between two concepts.");
-        }
-      }
-    } else {
-      for (final ConceptRelationship rel : getConcept().getRelationships()) {
-        if (rel.getTo().getId() == relationship.getTo().getId()
-            && rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          throw new LocalException(
-              "Cannot add multiple DEMOTION relationships between two concepts.");
-        }
-      }
-    }
-
     validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
@@ -165,11 +137,65 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       inverseRelationship.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
-    //TODO - find if any matching relationships, and remove them.
+    // If any matching relationship, remove it and its inverse (new
+    // relationships will replace them)
+    for (final ConceptRelationship rel : getConcept().getRelationships()) {
+      if (rel.getTo().getId() == relationship.getTo().getId()) {
+        // Remove the relationship from the concepts
+        getConcept().getRelationships().remove(rel);
+        getConcept2().getRelationships().remove(findInverseRelationship(rel));
 
-    //TODO - look through atoms for demotion relationships, and remove them.
-    //Note: push helper to super class.
-    
+        // Update Concepts
+        updateConcept(getConcept());
+        updateConcept(getConcept2());
+
+        // Remove the relationships
+        removeRelationship(rel.getId(), rel.getClass());
+        removeRelationship(findInverseRelationship(rel).getId(),
+            rel.getClass());
+
+        // Change status of the source and target concept
+        if (getChangeStatusFlag()) {
+          getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          getConcept2().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        }
+
+        // Update Concepts
+        updateConcept(getConcept());
+        updateConcept(getConcept2());
+      }
+    }
+
+    // Look through atoms for demotion relationships, and remove them.
+    AtomRelationship demotion =
+        findDemotionMatchingRelationship(relationship);
+
+    if (demotion != null) {
+      // Remove the demotions from the atoms
+      demotion.getFrom().getRelationships().remove(demotion);
+      demotion.getTo().getRelationships()
+          .remove(findInverseRelationship(demotion));
+
+      // Update Atoms
+      updateAtom(demotion.getFrom());
+      updateAtom(demotion.getTo());
+
+      // Remove the demotions
+      removeRelationship(demotion.getId(), demotion.getClass());
+      removeRelationship(findInverseRelationship(demotion).getId(),
+          demotion.getClass());
+
+      // Change status of the source and target atom
+      if (getChangeStatusFlag()) {
+        demotion.getFrom().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        demotion.getTo().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
+
+      // Update Atoms
+      updateAtom(demotion.getFrom());
+      updateAtom(demotion.getTo());
+    }
+
     // Add the relationships
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =

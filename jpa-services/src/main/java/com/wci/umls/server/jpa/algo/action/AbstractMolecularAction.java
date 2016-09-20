@@ -30,6 +30,7 @@ import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
@@ -405,6 +406,29 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
     return null;
   }
+  
+  /**
+   * Find demotion between concepts.
+   *
+   * @param fromConcept the from concept
+   * @param toConcept the to concept
+   * @return the atom relationship
+   * @throws Exception the exception
+   */
+  public AtomRelationship findDemotionMatchingRelationship(ConceptRelationship relationship) throws Exception {
+
+    for (Atom fromAtom : relationship.getFrom().getAtoms()){
+      for(Atom toAtom : relationship.getTo().getAtoms()){
+        for(AtomRelationship atomRel : fromAtom.getRelationships()){
+          if(atomRel.getTo().getId().equals(toAtom.getId()) && atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+            return atomRel;
+          }
+        }
+      }
+    }
+
+    return null;
+  }  
 
   /**
    * Indicates whether or not delete action is the case.
