@@ -1,16 +1,18 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -68,7 +70,8 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-    validationResult.merge(validateConcept(this.getProject(), this.getConcept()));
+    validationResult
+        .merge(validateConcept(this.getProject(), this.getConcept()));
     return validationResult;
   }
 
@@ -109,43 +112,58 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     //
     // Any demotion relationship (AND its inverse) need to be removed
     //
-    final List<AtomRelationship> removeDemotions = new ArrayList<>();
-    final List<AtomRelationship> removeInverseDemotions = new ArrayList<>();
-    for(final Atom atom : atoms){
-      for(AtomRelationship atomRel : atom.getRelationships()){
-        if(atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
-          removeDemotions.add(atomRel);
-          removeInverseDemotions.add((AtomRelationship)findInverseRelationship(atomRel));
+    final Map<Atom, AtomRelationship> atomsDemotions = new HashMap<>();
+    for (final Atom atom : atoms) {
+      for (AtomRelationship atomRel : atom.getRelationships()) {
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+          atomsDemotions.put(atom, atomRel);
+
+          final AtomRelationship inverseRel =
+              (AtomRelationship) findInverseRelationship(atomRel);
+
+          // If the inverseDemotion's atom is also in the concept being
+          // approved, use That copy of the atom, instead of the one pulled from
+          // the demotion (which can cause errors due to making different
+          // changes to the different copies of the same atom)
+          boolean inverseRelAdded = false;
+          for (Atom inverseAtom : atoms) {
+            if (inverseAtom.getId().equals(inverseRel.getFrom().getId())) {
+              atomsDemotions.put(inverseAtom, inverseRel);
+              inverseRelAdded = true;
+              break;
+            }
+          }
+          // If the inverseDemotion's atom is NOT in the concept, create a new
+          // AtomJpa copy, and use that instead
+          if (!inverseRelAdded) {
+            atomsDemotions.put(new AtomJpa(inverseRel.getFrom()), inverseRel);
+          }
         }
       }
     }
-    
-    //Remove demotions from appropriate atoms
-    for (final AtomRelationship rel : removeDemotions) {
-      rel.getFrom().getRelationships().remove(rel);
-    }
-    for (final AtomRelationship inverseRel : removeInverseDemotions) {
-      inverseRel.getFrom().getRelationships().remove(inverseRel);
+
+    //
+    // Remove demotions from appropriate atoms
+    //
+    for (Map.Entry<Atom, AtomRelationship> atomDemotion : atomsDemotions
+        .entrySet()) {
+      Atom atom = atomDemotion.getKey();
+      AtomRelationship demotion = atomDemotion.getValue();
+      atom.getRelationships().remove(demotion);
     }
 
     //
-    // Update any atom that had inverse rels removed from it
+    // Update any atom that had demotion removed from it
     //
-    for (final AtomRelationship rel : removeDemotions) {
-      updateAtom(rel.getFrom());
-    }
-    for (final AtomRelationship inverseRel : removeInverseDemotions) {
-      updateAtom(inverseRel.getFrom());
+    for (Atom atom : atomsDemotions.keySet()) {
+      updateAtom(atom);
     }
 
     //
     // Remove the demotions from the database
     //
-    for (final AtomRelationship rel : removeDemotions) {
-      removeRelationship(rel.getId(), rel.getClass());
-    }
-    for (final AtomRelationship inverseRel : removeInverseDemotions) {
-      removeRelationship(inverseRel.getId(), inverseRel.getClass());
+    for (AtomRelationship demotion : atomsDemotions.values()) {
+      removeRelationship(demotion.getId(), demotion.getClass());
     }
 
     //

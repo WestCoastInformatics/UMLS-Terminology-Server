@@ -178,13 +178,18 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : fromRelationshipsCopies) {
       getFromConcept().getRelationships().remove(rel);
     }
+    final List<Concept> inverseConceptList = new ArrayList<>();
     for (final ConceptRelationship rel : inverseRelationshipsCopies) {
-      rel.getFrom().getRelationships().remove(rel);
       // rel.getFrom() can reference the same concept as getToConcept
       // But since getToConcept is its own object, remove from there as well to
       // keep its status up to date as well.
       if (rel.getFrom().getId().equals(getToConcept().getId())) {
         getToConcept().getRelationships().remove(rel);
+      }
+      else{
+        Concept inverseConcept = new ConceptJpa(rel.getFrom(),true);
+        inverseConcept.getRelationships().remove(rel);
+        inverseConceptList.add(inverseConcept);
       }
     }
 
@@ -193,8 +198,8 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(getToConcept());
     updateConcept(getFromConcept());
-    for (final ConceptRelationship rel : inverseRelationshipsCopies) {
-      updateConcept(rel.getFrom());
+    for (final Concept inverseConcept : inverseConceptList) {
+      updateConcept(inverseConcept);
     }
 
     //

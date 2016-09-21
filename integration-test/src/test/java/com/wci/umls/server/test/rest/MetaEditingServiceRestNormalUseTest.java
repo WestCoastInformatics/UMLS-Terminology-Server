@@ -1786,12 +1786,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that atomic actions exists for moving atoms,
     // adding/removing Semantic Types, and for adding/removing Relationships
-    //TODO - figure out why the !!!s aren't showing up anymore
-    // 1 for removing Relationship from toConcept !!!
+    // 1 for removing Relationship from toConcept
     // 2 for removing Atom from fromConcept
     // 2 for removing Relationships from fromConcept
     // 3 for removing Semantic Type from fromConcept
-    // 1 for removing inverse Relationships from related Concept !!!
+    // 1 for removing inverse Relationships from related Concept
     // 3 for deleting Semantic Types
     // 4 for deleting Relationships
     // 2 for creating Semantic Types for toConcept
@@ -2577,8 +2576,8 @@ public class MetaEditingServiceRestNormalUseTest
     demotion.setVersion(umlsVersion);
     demotion.setRelationshipType("RO");
     demotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
-        
+    demotion = testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
+    
     AtomRelationship inverseDemotion = new AtomRelationshipJpa();
     inverseDemotion.setFrom(toAtom);
     inverseDemotion.setTo(fromAtom);
@@ -2589,11 +2588,40 @@ public class MetaEditingServiceRestNormalUseTest
     inverseDemotion.setVersion(umlsVersion);
     inverseDemotion.setRelationshipType("RO");
     inverseDemotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
+    inverseDemotion = testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
     
-
     final Long demotionRelationshipId = demotion.getId();
-    final Long demotionInverseRelationshipId = inverseDemotion.getId();
+    final Long inverseDemotionRelationshipId = inverseDemotion.getId();   
+    
+    // Add demotions to atoms and update
+    fromAtom.getRelationships().add(demotion);
+    toAtom.getRelationships().add(inverseDemotion);
+    
+    testService.updateAtom((AtomJpa)fromAtom, authToken);
+    testService.updateAtom((AtomJpa)toAtom, authToken);
+    
+    fromAtom = testService.getAtom(fromAtom.getId(), authToken);
+    toAtom = testService.getAtom(toAtom.getId(), authToken);
+
+    // Make sure the demotions are there
+    boolean demotionPresent = false;
+    for(AtomRelationship atomRel : fromAtom.getRelationships()){
+      if(atomRel.getId().equals(demotionRelationshipId)){
+        demotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(demotionPresent);
+    
+    boolean inverseDemotionPresent = false;
+    for(AtomRelationship atomRel : toAtom.getRelationships()){
+      if(atomRel.getId().equals(inverseDemotionRelationshipId)){
+        inverseDemotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(inverseDemotionPresent);    
+    
 
     // get the concept
     Concept c =
@@ -2607,9 +2635,11 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(v.getErrors().isEmpty());
 
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
-
+    fromAtom = testService.getAtom(fromAtom.getId(), authToken);
+    toAtom = testService.getAtom(toAtom.getId(), authToken);
+   
     // Verify the DEMOTION relationship and its inverse have been deleted
-    boolean demotionPresent = false;
+    demotionPresent = false;
     for(AtomRelationship atomRel : fromAtom.getRelationships()){
       if(atomRel.getId().equals(demotionRelationshipId)){
         demotionPresent = true;
@@ -2617,9 +2647,9 @@ public class MetaEditingServiceRestNormalUseTest
     }
     assertFalse(demotionPresent);
 
-    boolean inverseDemotionPresent = false;
+    inverseDemotionPresent = false;
     for(AtomRelationship atomRel : toAtom.getRelationships()){
-      if(atomRel.getId().equals(demotionInverseRelationshipId)){
+      if(atomRel.getId().equals(inverseDemotionRelationshipId)){
         inverseDemotionPresent = true;
       }
     }
@@ -2733,8 +2763,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that atomic actions exists for updating atoms, semantic types,
     // relationships, and concept
-    // 2 for removing DEMOTION Relationship from Concept and inverse from
-    // related Concept
+    // 2 for removing DEMOTION Relationship from Atom and inverse from
+    // related Atom
     // 2 for deleting DEMOTION relationship and inverse
     // 2 for updating Atom
     // 1 for updating Semantic Type
@@ -2747,11 +2777,11 @@ public class MetaEditingServiceRestNormalUseTest
     Collections.sort(atomicActions,
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
     assertEquals(10, atomicActions.size());
-    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(0).getOldValue());
     assertNull(atomicActions.get(0).getNewValue());
     assertEquals("relationships", atomicActions.get(1).getField());
-    assertEquals("CONCEPT", atomicActions.get(0).getIdType().toString());
+    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
     assertNotNull(atomicActions.get(1).getOldValue());
     assertNull(atomicActions.get(1).getNewValue());
     assertEquals("relationships", atomicActions.get(1).getField());
@@ -4495,8 +4525,8 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Create a DEMOTION between concept and concept2, and its inverse
     Atom fromAtom = concept.getAtoms().get(0);
-    Atom toAtom = concept2.getAtoms().get(0);
-
+    Atom toAtom = concept2.getAtoms().get(0);    
+    
     AtomRelationship demotion = new AtomRelationshipJpa();
     demotion.setFrom(fromAtom);
     demotion.setTo(toAtom);
@@ -4507,8 +4537,8 @@ public class MetaEditingServiceRestNormalUseTest
     demotion.setVersion(umlsVersion);
     demotion.setRelationshipType("RO");
     demotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
-        
+    demotion = testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
+    
     AtomRelationship inverseDemotion = new AtomRelationshipJpa();
     inverseDemotion.setFrom(toAtom);
     inverseDemotion.setTo(fromAtom);
@@ -4519,11 +4549,39 @@ public class MetaEditingServiceRestNormalUseTest
     inverseDemotion.setVersion(umlsVersion);
     inverseDemotion.setRelationshipType("RO");
     inverseDemotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
+    inverseDemotion = testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
     
+    // Add demotions to atoms and update
+    fromAtom.getRelationships().add(demotion);
+    toAtom.getRelationships().add(inverseDemotion);
+    
+    testService.updateAtom((AtomJpa)fromAtom, authToken);
+    testService.updateAtom((AtomJpa)toAtom, authToken);
+    
+    fromAtom = testService.getAtom(fromAtom.getId(), authToken);
+    toAtom = testService.getAtom(toAtom.getId(), authToken);
 
+    // Make sure the demotions are there
+    boolean demotionPresent = false;
+    for(AtomRelationship atomRel : fromAtom.getRelationships()){
+      if(atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+        demotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(demotionPresent);
+    
+    boolean inverseDemotionPresent = false;
+    for(AtomRelationship atomRel : toAtom.getRelationships()){
+      if(atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+        inverseDemotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(inverseDemotionPresent);    
+    
     final Long demotionRelationshipId = demotion.getId();
-    final Long demotionInverseRelationshipId = inverseDemotion.getId();
+    final Long inverseDemotionRelationshipId = inverseDemotion.getId();
 
     // get the concept
     Concept c =
@@ -4568,17 +4626,32 @@ public class MetaEditingServiceRestNormalUseTest
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     ma = projectService.findMolecularActions(c.getId(), umlsTerminology,
         umlsVersion, null, pfs, authToken).getObjects().get(0);
-
+    fromAtom = testService.getAtom(fromAtom.getId(), authToken);
+    toAtom = testService.getAtom(toAtom.getId(), authToken);
+    
     // Verify the molecular action undone flag is set, and the lastModified has
     // been updated
     assertEquals(true, ma.isUndoneFlag());
     assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
 
     // Verify the DEMOTION relationship and its inverse have been re-created
-    assertNotNull(
-        testService.getConceptRelationship(demotionRelationshipId, authToken));
-    assertNotNull(testService
-        .getConceptRelationship(demotionInverseRelationshipId, authToken));
+    demotionPresent = false;
+    for(AtomRelationship atomRel : fromAtom.getRelationships()){
+      if(atomRel.getId().equals(demotionRelationshipId)){
+        demotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(demotionPresent);
+    
+    inverseDemotionPresent = false;
+    for(AtomRelationship atomRel : toAtom.getRelationships()){
+      if(atomRel.getId().equals(inverseDemotionRelationshipId)){
+        inverseDemotionPresent = true;
+        break;
+      }
+    }
+    assertTrue(inverseDemotionPresent); 
 
     // Verify concept now a workflow status of "NEEDS_REVIEW"
     assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
@@ -4667,6 +4740,8 @@ public class MetaEditingServiceRestNormalUseTest
     c = contentService.getConcept(c.getId(), project.getId(), authToken);
     ma = projectService.findMolecularActions(c.getId(), umlsTerminology,
         umlsVersion, null, pfs, authToken).getObjects().get(0);
+    fromAtom = testService.getAtom(fromAtom.getId(), authToken);
+    toAtom = testService.getAtom(toAtom.getId(), authToken);
 
     // Verify the molecular action undone flag is set, and the lastModified has
     // been updated
@@ -4674,10 +4749,23 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(ma.getLastModified().compareTo(modDate) >= 0);
 
     // Verify the DEMOTION relationship and its inverse have been re-deleted
-    assertNull(
-        testService.getConceptRelationship(demotionRelationshipId, authToken));
-    assertNull(testService.getConceptRelationship(demotionInverseRelationshipId,
-        authToken));
+    demotionPresent = false;
+    for(AtomRelationship atomRel : fromAtom.getRelationships()){
+      if(atomRel.getId().equals(demotionRelationshipId)){
+        demotionPresent = true;
+        break;
+      }
+    }
+    assertFalse(demotionPresent);
+    
+    inverseDemotionPresent = false;
+    for(AtomRelationship atomRel : toAtom.getRelationships()){
+      if(atomRel.getId().equals(inverseDemotionRelationshipId)){
+        inverseDemotionPresent = true;
+        break;
+      }
+    }
+    assertFalse(inverseDemotionPresent); 
 
     // Verify concept now a workflow status of "READY_FOR_PUBLICATION" again
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
