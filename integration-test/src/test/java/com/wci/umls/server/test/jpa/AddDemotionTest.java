@@ -208,6 +208,8 @@ public class AddDemotionTest extends IntegrationUnitSupport {
     concept2 = contentService.getConcept(concept2.getId());
   }
 
+  //TODO - make integration tests for UNDO/REDO
+  
   /**
    * /** Test normal use of the helper object.
    *
