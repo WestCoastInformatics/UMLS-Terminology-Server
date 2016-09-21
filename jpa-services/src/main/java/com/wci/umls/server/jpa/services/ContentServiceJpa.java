@@ -2380,6 +2380,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         sr.setValue(r.getName());
         sr.setScore(scoreMap.get(r.getId()));
         sr.setWorkflowStatus(r.getWorkflowStatus());
+        sr.setType(r.getType());
         results.getObjects().add(sr);
       }
     }
@@ -2669,6 +2670,41 @@ public class ContentServiceJpa extends MetadataServiceJpa
       query.setParameter("branch", branch);
       query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
       return query.getResultList();
+    } catch (NoResultException e) {
+      return new ArrayList<>();
+    }
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<Long> getAmbiguousAtomIds(Concept concept) {
+    try {
+      // collect lower name hash values from all atoms
+      final Set<String> lowerNameHashes = concept.getAtoms().stream()
+          .map(a -> a.getLowerNameHash()).collect(Collectors.toSet());
+
+      // Find lower name hashes that are ambiguous (e.g. in other concepts)
+      final javax.persistence.Query query = manager.createQuery(
+          "select distinct a.lowerNameHash, a.stringClassId from ConceptJpa c join c.atoms a "
+              + "where c.version = :version and c.terminology = :terminology "
+              + " and a.lowerNameHash in (:lowerNameHashes)"
+              + " and c.id != :conceptId");
+      query.setParameter("terminology", concept.getTerminology());
+      query.setParameter("version", concept.getVersion());
+      query.setParameter("conceptId", concept.getId());
+      query.setParameter("lowerNameHashes", lowerNameHashes);
+      final List<Object[]> results = query.getResultList();
+      final Map<String, String> suiToHash = new HashMap<>();
+      for (final Object[] result : results) {
+        suiToHash.put(result[0].toString(), result[1].toString());
+      }
+      // Return atoms whose suis and lower name hashes were in the map
+      return concept.getAtoms().stream()
+          .filter(a -> suiToHash.containsKey(a.getStringClassId()) && suiToHash
+              .get(a.getStringClassId()).equals(a.getLowerNameHash()))
+          .map(a -> a.getId()).collect(Collectors.toList());
+
     } catch (NoResultException e) {
       return new ArrayList<>();
     }
@@ -4635,4 +4671,5 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + " expected and does not exist.");
     }
   }
+
 }

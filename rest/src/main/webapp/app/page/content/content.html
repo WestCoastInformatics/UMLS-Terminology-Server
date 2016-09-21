@@ -10,12 +10,12 @@
       <div class="row m10">
         <div class="col-md-1 col-xs-3">Terminology</div>
         <div class="col-md-11 col-xs-9">
-          <select ng-model="selected.terminology"
-            ng-change="setTerminology(selected.terminology)"
+          <select ng-model="selected.metadata.terminology"
+            ng-change="setTerminology(selected.metadata.terminology)"
             ng-options="terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'">
           </select>
           <button style="margin-left: 15px;"
-            ng-show="!selected.terminology.metathesaurus" type="button"
+            ng-show="!selected.metadata.terminology.metathesaurus" type="button"
             class="btn btn-sm btn-primary" ng-click="browseHierarchy()"
             uib-tooltip="Click to browse top level hierarchy">Browse</button>
         </div>
@@ -78,7 +78,7 @@
       </div>
       <!-- As of 4/28/16, do not show term type select for non-metathesaurus terminologies -->
       <div
-        ng-show="selected.terminology.metathesaurus && selected.metadata.termTypes.length > 1"
+        ng-show="selected.metadata.terminology.metathesaurus && selected.metadata.termTypes.length > 1"
         class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
@@ -96,7 +96,7 @@
         </div>
       </div>
       <!-- Only show match terminology for metathesaurus -->
-      <div ng-show="selected.terminology.metathesaurus" class="row m10">
+      <div ng-show="selected.metadata.terminology.metathesaurus" class="row m10">
         <div class="col-md-4 col-xs-4"
           style="margin-right: 0px; padding-right: 0px;">
           Match Terminology
@@ -130,7 +130,7 @@
         </div>
       </div>
       <!-- Expressions -->
-      <div ng-show="selected.terminology.descriptionLogicTerminology">
+      <div ng-show="selected.metadata.terminology.descriptionLogicTerminology">
         <div class="row m10">
           <div class="col-md-4 col-xs-4"
             style="margin-right: 0px; padding-right: 0px;">
@@ -202,7 +202,7 @@
         &nbsp; Search Results
         <span ng-show="searchResults.results">({{searchResults.totalCount}})</span>
         <span ng-show="!searchResults.results">(no search yet)</span>
-        <i ng-show="!selected.terminology.metathesaurus"
+        <i ng-show="!selected.metadata.terminology.metathesaurus"
           class="pull-right glyphicon glyphicon-tree-conifer"
           ng-click="setTreeView()" title="Switch to tree view"
           tooltip-placement="right"></i>
@@ -224,14 +224,14 @@
             <!-- table-hover makes use of the active class -->
             <tr ng-class="{selected: searchResult.id == selected.component.id}"
               ng-repeat="searchResult in searchResults.results"
-              ng-click="getComponent({ id: searchResult.id, type :selected.terminology.organizingClassType, 
+              ng-click="getComponent({ id: searchResult.id, type :selected.metadata.terminology.organizingClassType, 
               terminologyId : searchResult.terminologyId, terminology : searchResult.terminology, 
               version :searchResult.version})">
               <td class="col-md-4 col-xs-4">
                 <span>
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
                   <span
-                    ng-show="searchResult.terminology != selected.terminology.terminology">{{searchResult.terminology}}/</span>
+                    ng-show="searchResult.terminology != selected.metadata.terminology.terminology">{{searchResult.terminology}}/</span>
                   <span class="breakword">{{searchResult.terminologyId}}</span>
                 </span>
               </td>
@@ -323,7 +323,7 @@
           ng-show="history.index > 0"
           title="{{getComponentStr(history[history.index - 1])}}"></i>
         <span
-          ng-show="selected.component.terminology != selected.terminology.terminology">{{selected.component.terminology}}</span>
+          ng-show="selected.component.terminology != selected.metadata.terminology.terminology">{{selected.component.terminology}}</span>
         {{selected.component.type}} Report
         <i class="glyphicon glyphicon-step-forward noul"
           ng-click="getComponentFromHistory(history.index + 1)"

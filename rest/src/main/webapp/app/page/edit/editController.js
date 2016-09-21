@@ -48,8 +48,9 @@ tsApp
           component : null,
           worklistMode : 'Assigned',
           terminology : null,
-          metadata : null
+          metadata : metadataService.getModel()
         };
+
 
         // Lists
         $scope.lists = {
@@ -326,19 +327,19 @@ tsApp
             $scope.getWorklists();
           });
 
-          // Initialize metadata
-          metadataService.getTerminology($scope.selected.project.terminology,
-            $scope.selected.project.version).then(
-          // Success
-          function(data) {
-            $scope.selected.terminology = data;
-          });
+          // $scope.lists.terminologies exists here
+          // set the metadata service terminology to match
+          for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+            var terminology = $scope.lists.terminologies[i];
+            // this works because we're only getting current terminologies
+            if (terminology.terminology == project.terminology) {
+              metadataService.setTerminology(terminology);
+            }
+          }
+
+          // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
-            $scope.selected.project.version).then(
-          // Success
-          function(data) {
-            $scope.selected.metadata = data;
-          });
+            $scope.selected.project.version);
 
           $scope.removeWindows();
 
@@ -813,7 +814,6 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/component/finder/finder.html',
             controller : 'FinderModalCtrl',
-            backdrop : 'static',
             size : 'lg',
             resolve : {
               selected : function() {
@@ -921,11 +921,11 @@ tsApp
         $scope.initialize = function() {
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
-          $scope.getProjects();
           metadataService.getTerminologies().then(
           // Success
           function(data) {
             $scope.lists.terminologies = data.terminologies;
+            $scope.getProjects();
           });
 
         };

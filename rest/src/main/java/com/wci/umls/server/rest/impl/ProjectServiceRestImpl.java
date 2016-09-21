@@ -90,7 +90,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /add " + project);
+        .info("RESTful call (Project): /add " + project);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -133,7 +133,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /update " + project);
+        .info("RESTful call (Project): /update " + project);
 
     // Create service and configure transaction scope
     final ProjectService projectService = new ProjectServiceJpa();
@@ -173,8 +173,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call DELETE (Project): /remove/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /remove/" + id);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -258,7 +257,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "User role, e.g. 'ADMINISTRATOR'", required = true) @QueryParam("role") UserRole role,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /assign "
+    Logger.getLogger(getClass()).info("RESTful call (Project): /assign "
         + projectId + ", " + userName + ", " + role);
 
     // Test preconditions
@@ -309,8 +308,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call PUT (Project): /"
-        + projectId + "/users, " + query + ", " + pfs);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /" + projectId
+        + "/users, " + query + ", " + pfs);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -349,7 +348,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public StringList getProjectRoles(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /roles");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /roles");
 
     try {
       authorizeApp(securityService, authToken, "get roles", UserRole.VIEWER);
@@ -375,8 +374,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public StringList getQueryTypes(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /queryTypes");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /queryTypes");
 
     try {
       authorizeApp(securityService, authToken, "get query types",
@@ -407,7 +405,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call PUT (Project): /users/ "
+    Logger.getLogger(getClass()).info("RESTful call (Project): /users/ "
         + projectId + "/unassigned, " + query + ", " + pfs);
 
     final ProjectService projectService = new ProjectServiceJpa();
@@ -447,8 +445,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public Boolean userHasSomeProjectRole(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /user/anyrole");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /user/anyrole");
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String user = authorizeApp(securityService, authToken,
@@ -482,8 +479,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "User name, e.g. guest", required = true) @QueryParam("userName") String userName,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /unassign "
-        + projectId + ", " + userName);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Project): /unassign " + projectId + ", " + userName);
 
     // Test preconditions
     if (projectId == null || userName == null) {
@@ -582,7 +579,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /log/"
+    Logger.getLogger(getClass()).info("RESTful call (Project): /log/"
         + projectId + ", " + objectId + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
@@ -654,7 +651,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Terminology): /log/"
+    Logger.getLogger(getClass()).info("RESTful call (Terminology): /log/"
         + terminology + ", " + version + ", " + activity + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
@@ -732,7 +729,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call POST (Content): /actions/molecular " + query);
+        .info("RESTful call (Content): /actions/molecular " + query);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -761,9 +758,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call POST (Content): /actions/atomic "
-            + molecularActionId + ", " + query);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /actions/atomic "
+        + molecularActionId + ", " + query);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -790,7 +786,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public KeyValuePairList getValidationChecks(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Project): /checks ");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /checks ");
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -816,7 +812,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public void reloadConfigProperties(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /reload ");
 
     final ReloadConfigPropertiesAlgorithm algo =
         new ReloadConfigPropertiesAlgorithm();
@@ -842,7 +838,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @QueryParam("local") Boolean localFlag,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Project): /reload ");
+    Logger.getLogger(getClass()).info("RESTful call (Project): /reload ");
     try {
       authorizeApp(securityService, authToken, "force exception",
           UserRole.ADMINISTRATOR);
@@ -859,6 +855,5 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-
 
 }

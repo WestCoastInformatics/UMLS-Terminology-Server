@@ -45,6 +45,7 @@ tsApp
               $scope.paging = {};
               $scope.paging['worklists'] = utilService.getPaging();
               $scope.paging['worklists'].sortField = 'lastModified';
+              $scope.paging['worklists'].filterList = new Array();
               $scope.paging['worklists'].sortAscending = false;
               $scope.paging['worklists'].callbacks = {
                 getPagedList : getWorklists
@@ -406,20 +407,21 @@ tsApp
               $scope.stamp = function(worklist, approve) {
                 console.debug("stamp:" + worklist);
                 if ($scope.type == 'Worklist') {
-                  workflowService.stampWorklist($scope.selected.project.id, worklist, approve, true).then(
-                    function() {  
-                      $scope.selected.worklist = null;
-                      $scope.getWorklists();            
-                    });
+                  workflowService
+                    .stampWorklist($scope.selected.project.id, worklist, approve, true).then(
+                      function() {
+                        $scope.selected.worklist = null;
+                        $scope.getWorklists();
+                      });
                 } else if ($scope.type == 'Checklist') {
-                  workflowService.stampChecklist($scope.selected.project.id, worklist, approve, true).then(
-                    function() {  
-                      $scope.selected.worklist = null;
-                      $scope.getWorklists();            
-                    });
+                  workflowService.stampChecklist($scope.selected.project.id, worklist, approve,
+                    true).then(function() {
+                    $scope.selected.worklist = null;
+                    $scope.getWorklists();
+                  });
                 }
               }
-              
+
               // Performs a workflow action
               $scope.performWorkflowAction = function(worklist, action, userName) {
 
