@@ -55,7 +55,7 @@ tsApp
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
         $scope.callbacks = contentService.getCallbacks();
-        console.debug('callbacks',$scope.callbacks);
+        console.debug('callbacks', $scope.callbacks);
         // Scope vars
         $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
         $scope.selected = {
@@ -117,15 +117,16 @@ tsApp
 
         // Sets the terminololgy
         $scope.setTerminology = function(terminology) {
-          // Set selected terminology
-          $scope.selected.terminology = terminology;
+          // Set shared model (may already be set)
+          metadataService.setTerminology(terminology);
 
           // set the autocomplete url, with pattern:
           // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = $scope.selected.terminology.organizingClassType.toLowerCase()
-            + '/' + $scope.selected.terminology.terminology + '/'
-            + $scope.selected.terminology.version + "/autocomplete/";
+          $scope.autocompleteUrl = $scope.selected.metadata.terminology.organizingClassType.toLowerCase()
+            + '/' + $scope.selected.metadata.terminology.terminology + '/'
+            + $scope.selected.metadata.terminology.version + "/autocomplete/";
 
+          
           // Load all metadata for this terminology, store it in the metadata
           // service and return deferred promise
           var deferred = $q.defer();
@@ -135,7 +136,6 @@ tsApp
 
             // Set the shared model in the metadata service
             metadataService.setModel(data);
-            metadataService.setTerminology(terminology);
 
             // if metathesaurus, ensure list view set
             if (terminology.metathesaurus) {
@@ -270,7 +270,7 @@ tsApp
           if (!hasQuery && !hasExpr && !hasNotes) {
             if (!suppressWarnings) {
               alert("You must use at least one character to search"
-                + ($scope.searchParams.advancedMode ? ($scope.selected.terminology.descriptionLogicTerminology ? ", supply an expression,"
+                + ($scope.searchParams.advancedMode ? ($scope.selected.metadata.terminology.descriptionLogicTerminology ? ", supply an expression,"
                   : "")
                   + " or search user notes"
                   : ""));
@@ -283,8 +283,8 @@ tsApp
           }
 
           contentService.findComponentsAsList($scope.searchParams.query,
-            $scope.selected.terminology.organizingClassType,
-            $scope.selected.terminology.terminology, $scope.selected.terminology.version,
+            $scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version,
             $scope.searchParams).then(function(data) {
             $scope.searchResults = data;
 
@@ -308,8 +308,8 @@ tsApp
           }
 
           contentService.findComponentsAsTree($scope.searchParams.query,
-            $scope.selected.terminology.organizingClassType,
-            $scope.selected.terminology.terminology, $scope.selected.terminology.version,
+            $scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version,
             $scope.searchParams).then(function(data) {
 
             // for ease and consistency of use of the ui tree
@@ -350,8 +350,8 @@ tsApp
           $scope.searchResults.page = 1
           $scope.searchParams.query = null;
 
-          contentService.getTreeRoots($scope.selected.terminology.organizingClassType,
-            $scope.selected.terminology.terminology, $scope.selected.terminology.version).then(
+          contentService.getTreeRoots($scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version).then(
             function(data) {
               // for ease and consistency of use of the ui tree
               // directive
@@ -639,12 +639,11 @@ tsApp
 
               // Load all terminologies upon controller load (unless already
               // loaded)
-              if ($scope.lists.terminologies && !$scope.selected.terminology) {
+              if ($scope.lists.terminologies) {
 
                 // if route parameters are specified, set the terminology and
                 // retrieve the specified concept
                 var terminologies = [];
-
                 if ($routeParams.terminology
                   && (($routeParams.version && $routeParams.terminologyId) || $routeParams.id)) {
 
@@ -698,6 +697,7 @@ tsApp
 
                   // If nothing set, pick the first one
                   if (!found) {
+
                     if (!$scope.lists.terminologies) {
                       window.alert('No terminologies found, database may not be properly loaded.');
                     } else {
@@ -715,7 +715,6 @@ tsApp
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
         $scope.initialize = function() {
-
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/content');
 

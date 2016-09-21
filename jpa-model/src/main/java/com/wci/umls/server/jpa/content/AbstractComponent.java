@@ -55,7 +55,7 @@ public abstract class AbstractComponent extends AbstractHasLastModified
 
   /** The publishable flag. */
   @Column(nullable = false)
-  private boolean publishable = false;
+  private boolean publishable = true;
 
   /** The terminology. */
   @Column(nullable = false)

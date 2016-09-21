@@ -134,7 +134,7 @@ tsApp.controller('WorkflowCtrl', [
         $scope.selected.project.version).then(
       // Success
       function(data) {
-        $scope.selected.terminology = data;
+        metadataService.setTerminology(data);
       });
       metadataService.getAllMetadata($scope.selected.project.terminology,
         $scope.selected.project.version).then(
@@ -234,18 +234,19 @@ tsApp.controller('WorkflowCtrl', [
             });
         });
     };
-    
-    // Recompute concept status 
+
+    // Recompute concept status
     $scope.recomputeConceptStatus = function() {
-      workflowService.recomputeConceptStatus($scope.selected.project.id, $scope.selected.config.type).then(
+      workflowService.recomputeConceptStatus($scope.selected.project.id,
+        $scope.selected.config.type).then(
         // Success
         function(response) {
-          workflowService.recomputeConceptStatus($scope.selected.project.id, $scope.selected.config.type)
-            .then(
-            // Success
-            function(response) {
-              $scope.getBins($scope.selected.project.id, $scope.selected.config);
-            });
+          workflowService.recomputeConceptStatus($scope.selected.project.id,
+            $scope.selected.config.type).then(
+          // Success
+          function(response) {
+            $scope.getBins($scope.selected.project.id, $scope.selected.config);
+          });
         });
     };
 
