@@ -95,20 +95,16 @@ public class DT_I3BTest extends IntegrationUnitSupport {
     conceptNoDemotions =
         contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
 
-    // Add matching conceptRelationships to any DEMOTION relationships for
-    // conceptDemotionsAndRels
-    List<ConceptRelationship> addList = new ArrayList<>();
-    for (ConceptRelationship rel : conceptDemotionsWithCorresponding
-        .getRelationships()) {
-      if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-        ConceptRelationship matchingRel =
-            new ConceptRelationshipJpa(rel, false);
+    // Add matching conceptRelationships to the DEMOTION relationship for
+    // conceptDemotionsWithRels
+    Concept matchingConcept = contentService.getConcept("C0035629", "UMLS", "latest", Branch.ROOT);
+        ConceptRelationship matchingRel = 
+            new ConceptRelationshipJpa();
+        matchingRel.setFrom(conceptDemotionsWithCorresponding);
+        matchingRel.setTo(matchingConcept);
         matchingRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
         matchingRel.setPublishable(true);
-        addList.add(matchingRel);
-      }
-    }
-    conceptDemotionsWithCorresponding.getRelationships().addAll(addList);
+    conceptDemotionsWithCorresponding.getRelationships().add(matchingRel);
 
   }
 

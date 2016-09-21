@@ -7,11 +7,11 @@
 package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -45,6 +46,7 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -1784,11 +1786,12 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that atomic actions exists for moving atoms,
     // adding/removing Semantic Types, and for adding/removing Relationships
-    // 1 for removing Relationship from toConcept
+    //TODO - figure out why the !!!s aren't showing up anymore
+    // 1 for removing Relationship from toConcept !!!
     // 2 for removing Atom from fromConcept
     // 2 for removing Relationships from fromConcept
     // 3 for removing Semantic Type from fromConcept
-    // 1 for removing inverse Relationships from related Concept
+    // 1 for removing inverse Relationships from related Concept !!!
     // 3 for deleting Semantic Types
     // 4 for deleting Relationships
     // 2 for creating Semantic Types for toConcept
@@ -2227,7 +2230,9 @@ public class MetaEditingServiceRestNormalUseTest
     // 1 for adding Atom to createdConcept
     // 3 for adding Relationships to createdConcept
     // 1 for adding SemanticType to createdConcept
-    // 2 for adding Relationships to related concepts
+    //TODO - figure out why the !!!s aren't showing up anymore
+    // 2 for adding Relationships to related concepts !!!
+    
     pfs.setSortField(null);
 
     List<AtomicAction> atomicActions = projectService
@@ -2557,53 +2562,38 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Populate concept components
     populateConcepts();
+   
+    // Create a DEMOTION between concept and concept2, and its inverse
+    Atom fromAtom = concept.getAtoms().get(0);
+    Atom toAtom = concept2.getAtoms().get(0);
 
-    // Set one of the relationships to DEMOTION
-    RelationshipList relList = contentService.findConceptRelationships(
-        concept.getTerminologyId(), concept.getTerminology(),
-        concept.getVersion(), null, null, authToken);
+    AtomRelationship demotion = new AtomRelationshipJpa();
+    demotion.setFrom(fromAtom);
+    demotion.setTo(toAtom);
+    demotion.setTerminology(umlsTerminology);
+    demotion.setTerminologyId("");
+    demotion.setBranch(Branch.ROOT);
+    demotion.setName("Test Demotion");
+    demotion.setVersion(umlsVersion);
+    demotion.setRelationshipType("RO");
+    demotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
+        
+    AtomRelationship inverseDemotion = new AtomRelationshipJpa();
+    inverseDemotion.setFrom(toAtom);
+    inverseDemotion.setTo(fromAtom);
+    inverseDemotion.setTerminology(umlsTerminology);
+    inverseDemotion.setTerminologyId("");
+    inverseDemotion.setBranch(Branch.ROOT);
+    inverseDemotion.setName("Test Demotion");
+    inverseDemotion.setVersion(umlsVersion);
+    inverseDemotion.setRelationshipType("RO");
+    inverseDemotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
+    
 
-    ConceptRelationshipJpa relationship =
-        (ConceptRelationshipJpa) relList.getObjects().get(0);
-
-    // This will return the single inverse relationship
-    String inverseRelType = "";
-    switch (relationship.getRelationshipType()) {
-      case "RN":
-        inverseRelType = "RB";
-        break;
-      case "RB":
-        inverseRelType = "RN";
-        break;
-      case "RO":
-        inverseRelType = "RO";
-        break;
-      case "XR":
-        inverseRelType = "XR";
-        break;
-      default:
-        throw new Exception("Unexpedted relationship type: "
-            + relationship.getRelationshipType());
-    }
-
-    RelationshipList inverseRelList =
-        contentService
-            .findConceptRelationships(relationship.getTo().getTerminologyId(),
-                relationship.getTo().getTerminology(),
-                relationship.getTo().getVersion(),
-                "toId:" + relationship.getFrom().getId()
-                    + " AND relationshipType:" + inverseRelType,
-                null, authToken);
-    ConceptRelationshipJpa inverseRelationship =
-        (ConceptRelationshipJpa) inverseRelList.getObjects().get(0);
-
-    relationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    inverseRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.updateRelationship(relationship, authToken);
-    testService.updateRelationship(inverseRelationship, authToken);
-
-    final Long demotionRelationshipId = relationship.getId();
-    final Long demotionInverseRelationshipId = relationship.getId();
+    final Long demotionRelationshipId = demotion.getId();
+    final Long demotionInverseRelationshipId = inverseDemotion.getId();
 
     // get the concept
     Concept c =
@@ -2619,17 +2609,28 @@ public class MetaEditingServiceRestNormalUseTest
     c = contentService.getConcept(concept.getId(), project.getId(), authToken);
 
     // Verify the DEMOTION relationship and its inverse have been deleted
-    assertNull(
-        testService.getConceptRelationship(demotionRelationshipId, authToken));
-    assertNull(testService.getConceptRelationship(demotionInverseRelationshipId,
-        authToken));
+    boolean demotionPresent = false;
+    for(AtomRelationship atomRel : fromAtom.getRelationships()){
+      if(atomRel.getId().equals(demotionRelationshipId)){
+        demotionPresent = true;
+      }
+    }
+    assertFalse(demotionPresent);
+
+    boolean inverseDemotionPresent = false;
+    for(AtomRelationship atomRel : toAtom.getRelationships()){
+      if(atomRel.getId().equals(demotionInverseRelationshipId)){
+        inverseDemotionPresent = true;
+      }
+    }
+    assertFalse(inverseDemotionPresent);    
 
     // Verify concept now has a workflow status of "READY_FOR_PUBLICATION"
     assertEquals(WorkflowStatus.READY_FOR_PUBLICATION, c.getWorkflowStatus());
 
     // Verify the concept has lastApproved and lastApprovedBy correctly
     // populated
-    assertEquals(adminUser, c.getLastApprovedBy());
+    assertEquals("E-" + adminUser, c.getLastApprovedBy());
     assertNotNull(c.getLastApproved());
     assertTrue(c.getLastApproved().compareTo(startDate) >= 0);
 
@@ -2657,7 +2658,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify that all of the concept's relationships and inverses have a status
     // of "READY_FOR_PUBLICATION", and a RelationshipType of RO, RB, RN, or XR
-    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+    RelationshipList relList = contentService.findConceptRelationships(c.getTerminologyId(),
         c.getTerminology(), c.getVersion(), null, null, authToken);
 
     final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");
@@ -2676,7 +2677,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // Check its inverse also
-      inverseRelType = "";
+      String inverseRelType = "";
       switch (rel.getRelationshipType()) {
         case "RN":
           inverseRelType = "RB";
@@ -2696,7 +2697,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // This will return the single inverse relationship
-      inverseRelList =
+      RelationshipList inverseRelList =
           contentService
               .findConceptRelationships(rel.getTo().getTerminologyId(),
                   rel.getTo().getTerminology(),
@@ -4492,52 +4493,37 @@ public class MetaEditingServiceRestNormalUseTest
     // Populate concept components
     populateConcepts();
 
-    // Set one of the relationships to DEMOTION
-    RelationshipList relList = contentService.findConceptRelationships(
-        concept.getTerminologyId(), concept.getTerminology(),
-        concept.getVersion(), null, null, authToken);
+    // Create a DEMOTION between concept and concept2, and its inverse
+    Atom fromAtom = concept.getAtoms().get(0);
+    Atom toAtom = concept2.getAtoms().get(0);
 
-    ConceptRelationshipJpa relationship =
-        (ConceptRelationshipJpa) relList.getObjects().get(0);
+    AtomRelationship demotion = new AtomRelationshipJpa();
+    demotion.setFrom(fromAtom);
+    demotion.setTo(toAtom);
+    demotion.setTerminology(umlsTerminology);
+    demotion.setTerminologyId("");
+    demotion.setBranch(Branch.ROOT);
+    demotion.setName("Test Demotion");
+    demotion.setVersion(umlsVersion);
+    demotion.setRelationshipType("RO");
+    demotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.addRelationship((AtomRelationshipJpa)demotion, authToken);
+        
+    AtomRelationship inverseDemotion = new AtomRelationshipJpa();
+    inverseDemotion.setFrom(toAtom);
+    inverseDemotion.setTo(fromAtom);
+    inverseDemotion.setTerminology(umlsTerminology);
+    inverseDemotion.setTerminologyId("");
+    inverseDemotion.setBranch(Branch.ROOT);
+    inverseDemotion.setName("Test Demotion");
+    inverseDemotion.setVersion(umlsVersion);
+    inverseDemotion.setRelationshipType("RO");
+    inverseDemotion.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    testService.addRelationship((AtomRelationshipJpa)inverseDemotion, authToken);    
+    
 
-    // This will return the single inverse relationship
-    String inverseRelType = "";
-    switch (relationship.getRelationshipType()) {
-      case "RN":
-        inverseRelType = "RB";
-        break;
-      case "RB":
-        inverseRelType = "RN";
-        break;
-      case "RO":
-        inverseRelType = "RO";
-        break;
-      case "XR":
-        inverseRelType = "XR";
-        break;
-      default:
-        throw new Exception("Unexpedted relationship type: "
-            + relationship.getRelationshipType());
-    }
-
-    RelationshipList inverseRelList =
-        contentService
-            .findConceptRelationships(relationship.getTo().getTerminologyId(),
-                relationship.getTo().getTerminology(),
-                relationship.getTo().getVersion(),
-                "toId:" + relationship.getFrom().getId()
-                    + " AND relationshipType:" + inverseRelType,
-                null, authToken);
-    ConceptRelationshipJpa inverseRelationship =
-        (ConceptRelationshipJpa) inverseRelList.getObjects().get(0);
-
-    relationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    inverseRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    testService.updateRelationship(relationship, authToken);
-    testService.updateRelationship(inverseRelationship, authToken);
-
-    final Long demotionRelationshipId = relationship.getId();
-    final Long demotionInverseRelationshipId = relationship.getId();
+    final Long demotionRelationshipId = demotion.getId();
+    final Long demotionInverseRelationshipId = inverseDemotion.getId();
 
     // get the concept
     Concept c =
@@ -4618,20 +4604,19 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(allStyReadyForPub);
 
     // Verify that all of the concept's relationships and inverses have a status
-    // of "NEEDS_REVIEW" or "DEMOTION"
-    relList = contentService.findConceptRelationships(c.getTerminologyId(),
+    // of "NEEDS_REVIEW"
+    RelationshipList relList = contentService.findConceptRelationships(c.getTerminologyId(),
         c.getTerminology(), c.getVersion(), null, null, authToken);
 
     boolean allRelsNotReadyForPub = true;
     boolean allInverseRelsNotReadyForPub = true;
     for (final Relationship<?, ?> rel : relList.getObjects()) {
-      if (!(rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)
-          || rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))) {
+      if (!rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
         allRelsNotReadyForPub = false;
       }
 
       // Check its inverse also
-      inverseRelType = "";
+      String inverseRelType = "";
       switch (rel.getRelationshipType()) {
         case "RN":
           inverseRelType = "RB";
@@ -4651,18 +4636,17 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // This will return the single inverse relationship
-      inverseRelList =
+      RelationshipList inverseRelList =
           contentService
               .findConceptRelationships(rel.getTo().getTerminologyId(),
                   rel.getTo().getTerminology(),
                   rel.getTo().getVersion(), "toId:" + rel.getFrom().getId()
                       + " AND relationshipType:" + inverseRelType,
                   null, authToken);
-      if (!(rel.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)
-          || rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))) {
+      if (!inverseRelList.getObjects().get(0).getWorkflowStatus()
+          .equals(WorkflowStatus.READY_FOR_PUBLICATION)) {
         allInverseRelsNotReadyForPub = false;
       }
-
     }
     assertTrue(allRelsNotReadyForPub);
     assertTrue(allInverseRelsNotReadyForPub);
@@ -4742,7 +4726,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // Check its inverse also
-      inverseRelType = "";
+      String inverseRelType = "";
       switch (rel.getRelationshipType()) {
         case "RN":
           inverseRelType = "RB";
@@ -4762,7 +4746,7 @@ public class MetaEditingServiceRestNormalUseTest
       }
 
       // This will return the single inverse relationship
-      inverseRelList =
+      RelationshipList inverseRelList =
           contentService
               .findConceptRelationships(rel.getTo().getTerminologyId(),
                   rel.getTo().getTerminology(),
