@@ -410,8 +410,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /**
    * Find demotion between concepts.
    *
-   * @param fromConcept the from concept
-   * @param toConcept the to concept
+   * @param relationship the relationship
    * @return the atom relationship
    * @throws Exception the exception
    */

@@ -82,6 +82,9 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     demotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
     demotionRelationship.setRelationshipType("RO");
     demotionRelationship.setAdditionalRelationshipType("");
+    demotionRelationship.setTerminology(getTerminology());
+    demotionRelationship.setTerminologyId("");
+    demotionRelationship.setVersion(getVersion());
 
     // construct inverse relationship
     AtomRelationship inverseDemotionRelationship = new AtomRelationshipJpa();
@@ -90,6 +93,9 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     inverseDemotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
     inverseDemotionRelationship.setRelationshipType("RO");
     inverseDemotionRelationship.setAdditionalRelationshipType("");
+    inverseDemotionRelationship.setTerminology(getTerminology());
+    inverseDemotionRelationship.setTerminologyId("");
+    inverseDemotionRelationship.setVersion(getVersion());
 
     // Add the demotions
     demotionRelationship =
@@ -114,32 +120,38 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     updateAtom(atom2);
 
     // Set any matching concept relationships to unreleasable
-    ConceptRelationship matchingCRel = findRelToConceptContainingAtom(getConcept(), atom2);
+    if (getChangeStatusFlag()) {
+      ConceptRelationship matchingCRel =
+          findRelToConceptContainingAtom(getConcept(), atom2);
 
-    if(matchingCRel!=null){
-      matchingCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      updateRelationship(matchingCRel);
+      if (matchingCRel != null) {
+        matchingCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        updateRelationship(matchingCRel);
+      }
+
+      ConceptRelationship matchingInverseCRel =
+          findRelToConceptContainingAtom(getConcept2(), atom1);
+
+      if (matchingInverseCRel != null) {
+        matchingInverseCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        updateRelationship(matchingInverseCRel);
+      }
     }
-    
-    ConceptRelationship matchingInverseCRel = findRelToConceptContainingAtom(getConcept2(), atom1);
 
-    if(matchingInverseCRel!=null){
-      matchingInverseCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      updateRelationship(matchingInverseCRel);
-    }    
-    
     // Change status of the concepts
-    getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    getConcept2().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-    
-    // update the concepts
-    updateConcept(getConcept());
-    updateConcept(getConcept2());
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      getConcept2().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the concepts
+      updateConcept(getConcept());
+      updateConcept(getConcept2());
+    }
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " to concept " + getConcept().getId() + " " + demotionRelationship);
+        getActivityId(), getWorkId(), getName() + " to concept "
+            + getConcept().getId() + " " + demotionRelationship);
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getConcept2().getId(), getActivityId(), getWorkId(),
         getName() + " from concept " + getConcept().getId() + " "
