@@ -117,12 +117,6 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Configure.
-   *
-   * @param parameters the parameters
-   * @throws Exception the exception
-   */
   /* see superclass */
   @POST
   @Override
@@ -131,8 +125,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl
   public void configure(
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Configure): /configure/configure with parameters "
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Configure): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization

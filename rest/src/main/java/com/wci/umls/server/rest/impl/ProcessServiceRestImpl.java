@@ -121,7 +121,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /config/add for user " + authToken
+        .info("RESTful call (Process): /config/add for user " + authToken
             + ", " + processConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -191,7 +191,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /config/update for user " + authToken
+        .info("RESTful call (Process): /config/update for user " + authToken
             + ", " + processConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -260,7 +260,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Cascade, e.g. true", required = true) @QueryParam("cascade") Boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call DELETE (Process): /config/"
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/"
         + id + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -395,7 +395,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /config "
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config "
         + query + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -517,7 +517,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /execution "
+    Logger.getLogger(getClass()).info("RESTful call (Process): /execution "
         + query + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -564,7 +564,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call POST (Process): /executing, for user " + authToken);
+        .info("RESTful call (Process): /executing, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -618,7 +618,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call DELETE (Process): /execution/" + id
+        .info("RESTful call (Process): /execution/" + id
             + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -687,7 +687,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /config/algo/add for user "
+        .info("RESTful call (Process): /config/algo/add for user "
             + authToken + ", " + algorithmConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -783,7 +783,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Process): /config/algo/update for user "
+        .info("RESTful call (Process): /config/algo/update for user "
             + authToken + ", " + algorithmConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -861,7 +861,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call DELETE (Process): /config/algo/" + id
+        .info("RESTful call (Process): /config/algo/" + id
             + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();

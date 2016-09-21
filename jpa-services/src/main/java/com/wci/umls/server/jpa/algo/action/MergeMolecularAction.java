@@ -181,7 +181,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : inverseRelationshipsCopies) {
       rel.getFrom().getRelationships().remove(rel);
       // rel.getFrom() can reference the same concept as getToConcept
-      // But since getToConept is its own object, remove from there as well to
+      // But since getToConcept is its own object, remove from there as well to
       // keep its status up to date as well.
       if (rel.getFrom().getId().equals(getToConcept().getId())) {
         getToConcept().getRelationships().remove(rel);
