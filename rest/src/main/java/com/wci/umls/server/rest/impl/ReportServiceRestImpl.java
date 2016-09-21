@@ -65,7 +65,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
   @Path("/concept/{id}")
   @ApiOperation(value = "Get concept report", notes = "Gets a concept report", response = String.class)
   public String getConceptReport(
-    @ApiParam(value = "Project id, e.g. UMLS", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Project id, e.g. UMLS", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {

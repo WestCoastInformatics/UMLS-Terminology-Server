@@ -100,7 +100,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/add " + projectId + ","
+        .info("RESTful call (MetaEditing): /sty/add " + projectId + ","
             + conceptId + " for user " + authToken + " with sty value "
             + semanticTypeValue);
 
@@ -192,7 +192,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /sty/remove " + projectId + ","
+        .info("RESTful call (MetaEditing): /sty/remove " + projectId + ","
             + conceptId + " for user " + authToken + " with id "
             + semanticTypeComponentId);
 
@@ -269,7 +269,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/add " + projectId
+        .info("RESTful call (MetaEditing): /attribute/add " + projectId
             + "," + conceptId + " for user " + authToken
             + " with attribute value " + attribute.getName());
 
@@ -348,7 +348,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /attribute/remove " + projectId
+        .info("RESTful call (MetaEditing): /attribute/remove " + projectId
             + "," + conceptId + " for user " + authToken + " with id "
             + attributeId);
 
@@ -425,7 +425,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/add " + projectId + ","
+        .info("RESTful call (MetaEditing): /atom/add " + projectId + ","
             + conceptId + " for user " + authToken + " with atom value "
             + atom.getName());
 
@@ -502,7 +502,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/remove " + projectId + ","
+        .info("RESTful call (MetaEditing): /atom/remove " + projectId + ","
             + conceptId + " remove for user " + authToken + " with id "
             + atomId);
 
@@ -578,7 +578,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/update " + projectId
+        .info("RESTful call (MetaEditing): /atom/update " + projectId
             + ", for user " + authToken + " with atom value " + atom.getName());
 
     // Instantiate services
@@ -654,7 +654,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/add " + projectId
+        .info("RESTful call (MetaEditing): /relationship/add " + projectId
             + "," + conceptId + " for user " + authToken
             + " with relationship value " + relationship);
 
@@ -734,7 +734,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /relationship/remove "
+        .info("RESTful call (MetaEditing): /relationship/remove "
             + projectId + "," + conceptId + " for user " + authToken
             + " with id " + relationshipId);
 
@@ -817,7 +817,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/merge " + projectId
+        .info("RESTful call (MetaEditing): /concept/merge " + projectId
             + "," + conceptId + " with concept " + conceptId2 + " for user "
             + authToken);
 
@@ -908,7 +908,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /atom/move " + projectId + ","
+        .info("RESTful call (MetaEditing): /atom/move " + projectId + ","
             + conceptId + " move atoms for user " + authToken + " to concept "
             + conceptId2);
 
@@ -1003,7 +1003,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/split " + projectId
+        .info("RESTful call (MetaEditing): /concept/split " + projectId
             + "," + conceptId + " for user " + authToken);
 
     // Instantiate services
@@ -1098,7 +1098,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /concept/approve " + projectId
+        .info("RESTful call (MetaEditing): /concept/approve " + projectId
             + "," + conceptId + " for user " + authToken);
 
     // Instantiate services
@@ -1173,7 +1173,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /action/undo " + projectId
+        .info("RESTful call (MetaEditing): /action/undo " + projectId
             + ", undo action with id " + molecularActionId + " for user "
             + authToken);
 
@@ -1275,7 +1275,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (MetaEditing): /action/redo " + projectId
+        .info("RESTful call (MetaEditing): /action/redo " + projectId
             + ", redo action with id " + molecularActionId + " for user "
             + authToken);
 

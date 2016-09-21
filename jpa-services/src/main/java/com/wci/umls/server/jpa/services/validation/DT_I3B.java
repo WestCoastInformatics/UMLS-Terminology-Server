@@ -3,11 +3,11 @@
  */
 package com.wci.umls.server.jpa.services.validation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 
@@ -15,6 +15,8 @@ import com.google.common.collect.Sets;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -22,7 +24,7 @@ import com.wci.umls.server.services.ContentService;
 
 /**
  * Validates those {@link Concept}s which contain at least one demoted
- * {@link ConceptRelationship} without a matching publishable
+ * {@link AtomRelationship} without a matching publishable
  * {@link ConceptRelationship}
  *
  */
@@ -46,17 +48,14 @@ public class DT_I3B extends AbstractValidationCheck {
     //
     // Get demotions
     //
-    List<ConceptRelationship> demotions = source.getRelationships().stream()
-        .filter(r -> r.getWorkflowStatus().equals(WorkflowStatus.DEMOTION))
-        .collect(Collectors.toList());
-
-    //
-    // Get non-demotion Concept relationships
-    //
-    List<ConceptRelationship> relationships = source.getRelationships().stream()
-        .filter(r -> !r.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
-            && r.isPublishable())
-        .collect(Collectors.toList());
+    List<AtomRelationship> demotions = new ArrayList<AtomRelationship>();
+    for(Atom atom : source.getAtoms()){
+      for(AtomRelationship atomRel : atom.getRelationships()){
+        if(atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+          demotions.add(atomRel);
+        }
+      }
+    }
 
     //
     // Assume no violation
@@ -66,13 +65,15 @@ public class DT_I3B extends AbstractValidationCheck {
     //
     // Scan for violations
     //
-    for (ConceptRelationship demotion : demotions) {
+    
+    for (AtomRelationship demotion : demotions) {
       matchFound = false;
-      for (ConceptRelationship relationship : relationships) {
-        if (demotion.getTo().getId().equals(relationship.getTo().getId())
-            && relationship.getTo().isPublishable()) {
-          matchFound = true;
-          break;
+      for (ConceptRelationship rel : source.getRelationships()) {
+        Concept toConcept = rel.getTo();
+        for (Atom toAtom : toConcept.getAtoms()) {
+          if (toAtom.getId().equals(demotion.getTo().getId())) {
+            matchFound = true;
+          }
         }
       }
       //
@@ -119,20 +120,17 @@ public class DT_I3B extends AbstractValidationCheck {
         ((ContentServiceJpa) contentService).getEntityManager()
             .createQuery("select a.from.id " + "from ConceptRelationshipJpa a "
                 + "where terminology = :terminology and version = :version"
-                + " and publishable = 1");
+                + " and publishable = 1 and a.from.id in (:conceptIds)");
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
       query2.setParameter("terminology", terminology);
       query2.setParameter("version", version);
+      query2.setParameter("conceptIds", demotedRelIds);
       cRelIds = new HashSet<Long>(query2.getResultList());
     } catch (NoResultException e) {
       cRelIds = new HashSet<>();
     }
-    System.out.println("  terminology = " + terminology);
-    System.out.println("  version = " + version);
-    System.out.println("  demotedRelIds = " + demotedRelIds.size());
-    System.out.println("  cRelIds = " + cRelIds.size());
     // Get the intersection of ids passed in with
     // the (demoted MINUS c level rels)
     return Sets.intersection(Sets.difference(demotedRelIds, cRelIds),

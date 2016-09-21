@@ -1907,4 +1907,11 @@ public interface ContentService extends MetadataService {
    */
   public ValidationResult validateCode(Project project, Code code);
 
+  /**
+   * Returns the ambiguous atom ids.
+   *
+   * @param concept the concept
+   * @return the ambiguous atom ids
+   */
+  public List<Long> getAmbiguousAtomIds(Concept concept);
 }

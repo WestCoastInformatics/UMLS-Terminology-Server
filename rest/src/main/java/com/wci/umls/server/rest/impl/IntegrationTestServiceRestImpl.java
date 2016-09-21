@@ -85,7 +85,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /add " + concept);
+        .info("RESTful call (Test): /add " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -119,7 +119,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /update " + concept);
+        .info("RESTful call (Test): /update " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -163,7 +163,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call DELETE (TEST): /remove/" + id);
+        .info("RESTful call (Test): /remove/" + id);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -228,7 +228,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Integration Test): /sty/" + styId);
+        .info("RESTful call (Test): /sty/" + styId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -262,7 +262,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (Integration Test): /relationship/" + relationshipId);
+        "RESTful call (Test): /relationship/" + relationshipId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -298,7 +298,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Integration Test): /attribute/" + attributeId);
+        .info("RESTful call (Test): /attribute/" + attributeId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -327,7 +327,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Integration Test): /atom/" + atomId);
+        .info("RESTful call (Test): /atom/" + atomId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -362,7 +362,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /update " + atom);
+        .info("RESTful call (Test): /update " + atom);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -397,7 +397,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /relationship/add " + relationship);
+        .info("RESTful call (Test): /relationship/add " + relationship);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -429,7 +429,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /relationship/add " + relationship);
+        .info("RESTful call (Test): /relationship/add " + relationship);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -461,7 +461,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /relationship/update " + relationship);
+        .info("RESTful call (Test): /relationship/update " + relationship);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -496,7 +496,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Integration Test): /worklist/" + worklistId);
+        .info("RESTful call (Test): /worklist/" + worklistId);
 
     WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -522,7 +522,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (TEST): /add " + typeKeyValue);
+        .info("RESTful call (Test): /add " + typeKeyValue);
 
     final ContentService contentService = new ContentServiceJpa();
     try {

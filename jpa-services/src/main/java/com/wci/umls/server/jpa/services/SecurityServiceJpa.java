@@ -239,7 +239,7 @@ public class SecurityServiceJpa extends RootServiceJpa
     if (username == null) {
       throw new LocalException("Unable to find user for the AuthToken");
     }
-    User user = getUser(username.toLowerCase());
+    User user = getUser(username);
     if (user == null) {
       return UserRole.VIEWER;
     }

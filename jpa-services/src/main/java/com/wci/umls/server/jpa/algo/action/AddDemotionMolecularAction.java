@@ -57,15 +57,11 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
     // Perform action specific validation - n/a
 
-    //TODO - check with Brian whether demotions can be on atoms contained in a single concept?        
-    // Verify concept id1/2 are not the same ??
+    // Verify concept id1/2 are not the same
     if (getConcept().getId().equals(getConcept2().getId())) {
       throw new Exception(
-          "Unexpected self-referential relationship, the fromId should match conceptId1");
+          "Unexpected self-referential relationship, the fromConcept Id should not match toConcept Id");
     }
-
-    //TODO - check with Brian on duplicate check        
-    // Duplicate check?
 
     validationResult.merge(super.checkPreconditions());
     return validationResult;
@@ -84,16 +80,22 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     demotionRelationship.setFrom(atom1);
     demotionRelationship.setTo(atom2);
     demotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    demotionRelationship.setRelationshipType("RQ");
+    demotionRelationship.setRelationshipType("RO");
     demotionRelationship.setAdditionalRelationshipType("");
+    demotionRelationship.setTerminology(getTerminology());
+    demotionRelationship.setTerminologyId("");
+    demotionRelationship.setVersion(getVersion());
 
     // construct inverse relationship
     AtomRelationship inverseDemotionRelationship = new AtomRelationshipJpa();
     inverseDemotionRelationship.setFrom(atom2);
     inverseDemotionRelationship.setTo(atom1);
     inverseDemotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
-    inverseDemotionRelationship.setRelationshipType("RQ");
+    inverseDemotionRelationship.setRelationshipType("RO");
     inverseDemotionRelationship.setAdditionalRelationshipType("");
+    inverseDemotionRelationship.setTerminology(getTerminology());
+    inverseDemotionRelationship.setTerminologyId("");
+    inverseDemotionRelationship.setVersion(getVersion());
 
     // Add the demotions
     demotionRelationship =
@@ -118,24 +120,38 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     updateAtom(atom2);
 
     // Set any matching concept relationships to unreleasable
-    ConceptRelationship matchingCRel = findRelToConceptContainingAtom(getConcept(), atom2);
+    if (getChangeStatusFlag()) {
+      ConceptRelationship matchingCRel =
+          findRelToConceptContainingAtom(getConcept(), atom2);
 
-    if(matchingCRel!=null){
-      matchingCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      updateRelationship(matchingCRel);
+      if (matchingCRel != null) {
+        matchingCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        updateRelationship(matchingCRel);
+      }
+
+      ConceptRelationship matchingInverseCRel =
+          findRelToConceptContainingAtom(getConcept2(), atom1);
+
+      if (matchingInverseCRel != null) {
+        matchingInverseCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        updateRelationship(matchingInverseCRel);
+      }
     }
-    
-    ConceptRelationship matchingInverseCRel = findRelToConceptContainingAtom(getConcept2(), atom1);
 
-    if(matchingInverseCRel!=null){
-      matchingInverseCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-      updateRelationship(matchingInverseCRel);
-    }    
-    
+    // Change status of the concepts
+    if (getChangeStatusFlag()) {
+      getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      getConcept2().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+
+      // update the concepts
+      updateConcept(getConcept());
+      updateConcept(getConcept2());
+    }
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(),
-        getName() + " to concept " + getConcept().getId() + " " + demotionRelationship);
+        getActivityId(), getWorkId(), getName() + " to concept "
+            + getConcept().getId() + " " + demotionRelationship);
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getConcept2().getId(), getActivityId(), getWorkId(),
         getName() + " from concept " + getConcept().getId() + " "

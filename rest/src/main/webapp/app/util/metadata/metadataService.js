@@ -38,15 +38,16 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     // Share a metadata model across controllers
     this.setModel = function(model) {
       for ( var key in model) {
-        metadata[key] = model[key];
+        // Don't overwrite terminology
+        if (key !== 'terminology') {
+          metadata[key] = model[key];
+        }
       }
     }
 
     // Share a terminology model across controllers
     this.setTerminology = function(terminology) {
-      for ( var key in terminology) {
-        metadata.terminology[key] = terminology[key];
-      }
+      metadata.terminology = terminology;
     }
 
     this.getModel = function() {
@@ -62,19 +63,11 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       $http.get(metadataUrl + '/all/' + terminology + '/' + version).then(
       // success
       function(response) {
+        console.debug('  metadata = ', response.data);
         // declare metadata defaults
         var metadata = getDefaultMetadata();
-        metadata.terminology = {};
-        metadata.terminology.terminology = terminology;
-        metadata.terminology.version = version;
-        metadata.entries = response.data.keyValuePairLists;
 
-        // Fail if no terminology found
-        if (metadata.terminology == null) {
-          gpService.decrement();
-          deferred.reject('Unable to find terminology');
-          return;
-        }
+        metadata.entries = response.data.keyValuePairLists;
 
         for (var i = 0; i < metadata.entries.length; i++) {
           // extract relationship types for

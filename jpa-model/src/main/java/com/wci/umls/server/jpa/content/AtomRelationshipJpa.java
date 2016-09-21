@@ -18,6 +18,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -30,6 +39,7 @@ import com.wci.umls.server.model.content.AtomRelationship;
     "terminologyId", "terminology", "version", "id"
 }))
 @Audited
+@Indexed
 @XmlRootElement(name = "atomRelationship")
 public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     implements AtomRelationship {
@@ -88,6 +98,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the from id
    */
+  @FieldBridge(impl=LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -109,6 +121,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the from terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminologyId() {
     return from == null ? null : from.getTerminologyId();
   }
@@ -130,6 +143,10 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the from name
    */
+  @Fields({
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+    @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+})
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -158,6 +175,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the to id
    */
+  @FieldBridge(impl=LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
   }
@@ -179,6 +198,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the to terminology id
    */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminologyId() {
     return to == null ? null : to.getTerminologyId();
   }
@@ -200,6 +220,10 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the to name
    */
+  @Fields({
+    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+    @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+})
   public String getToName() {
     return to == null ? null : to.getName();
   }

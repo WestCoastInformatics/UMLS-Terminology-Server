@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -157,7 +157,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /reindex "
+        .info("RESTful call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"
                 : "with specified objects " + indexedObjects));
 
@@ -199,7 +199,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /expression/count/" + terminology
+        .info("RESTful call (Content): /expression/count/" + terminology
             + "/version/" + query);
 
     try {
@@ -230,7 +230,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /expression/count/" + terminology
+        .info("RESTful call (Content): /expression/count/" + terminology
             + "/version/" + query);
 
     try {
@@ -259,9 +259,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /reindex/ecl/" + terminology + "/"
-            + version);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /reindex/ecl/" + terminology + "/" + version);
 
     final ContentServiceJpa contentService = new ContentServiceJpa();
 
@@ -300,7 +299,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/closure/compute/"
+        .info("RESTful call (Content): /terminology/closure/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -349,7 +348,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/treepos/compute/"
+        .info("RESTful call (Content): /terminology/treepos/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -407,10 +406,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rrf/umls/"
-            + terminology + "/" + version + " from input directory "
-            + inputDir);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/load/rrf/umls/" + terminology
+            + "/" + version + " from input directory " + inputDir);
 
     // Track system level information
     ContentService contentService = null;
@@ -522,7 +520,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/delta/"
+        .info("RESTful call (Content): /terminology/load/rf2/delta/"
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
@@ -627,7 +625,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/snapshot/"
+        .info("RESTful call (Content): /terminology/load/rf2/snapshot/"
             + terminology + "/" + version + " from input directory "
             + inputDir);
 
@@ -733,10 +731,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/full/"
-            + terminology + "/" + version + " from input directory "
-            + inputDir);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/load/rf2/full/" + terminology
+            + "/" + version + " from input directory " + inputDir);
 
     // Track system level information
     ContentService contentService = null;
@@ -837,8 +834,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/claml/"
-            + terminology + "/" + version + " from input file " + inputFile);
+        .info("RESTful call (Content): /terminology/load/claml/" + terminology
+            + "/" + version + " from input file " + inputFile);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -916,8 +913,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/owl/"
-            + terminology + "/" + version + " from input file " + inputFile);
+        .info("RESTful call (Content): /terminology/load/owl/" + terminology
+            + "/" + version + " from input file " + inputFile);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -989,8 +986,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful GET call (Content): /terminology/remove/" + terminology
-            + "/" + version);
+        .info("RESTful call (Content): /terminology/remove/"
+            + terminology + "/" + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -1656,17 +1653,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the string class.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the string class
-   * @throws Exception the exception
-   */
   @Override
   @GET
   @Path("/sui/{terminology}/{version}/{terminologyId}")
@@ -1712,18 +1698,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find ancestor concepts.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param parentsOnly the parents only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the concept list
-   * @throws Exception the exception
-   */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1766,18 +1740,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descendant concepts.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the concept list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1820,18 +1783,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find ancestor descriptors.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param parentsOnly the parents only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the descriptor list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1873,18 +1825,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descendant descriptors.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the descriptor list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1926,18 +1867,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find ancestor codes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param parentsOnly the parents only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the code list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1978,18 +1908,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descendant codes.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param childrenOnly the children only
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the code list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -2031,16 +1950,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the subset members for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the subset members for concept
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/concept/{terminology}/{version}/{terminologyId}/members")
@@ -2079,16 +1989,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the subset members for atom.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the subset members for atom
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
@@ -2126,18 +2027,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find relationships for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
+
   @SuppressWarnings({
       "rawtypes", "unchecked"
   })
@@ -2231,18 +2121,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find deep relationships for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param query the query
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships/deep")
@@ -2283,18 +2162,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find relationships for descriptor.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/relationships")
@@ -2341,18 +2209,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find relationships for code.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
@@ -2397,15 +2254,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the atom subsets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the atom subsets
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/aui/subset/all/{terminology}/{version}")
@@ -2440,15 +2289,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Returns the concept subsets.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param authToken the auth token
-   * @return the concept subsets
-   * @throws Exception the exception
-   */
+
   @Override
   @GET
   @Path("/concept/subset/all/{terminology}/{version}")
@@ -2482,18 +2323,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find atom subset members.
-   *
-   * @param subsetId the subset id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the subset member list
-   * @throws Exception the exception
-   */
+
   @Produces({
       MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
   })
@@ -2538,18 +2368,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concept subset members.
-   *
-   * @param subsetId the subset id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the subset member list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/subset/{subsetId}/{terminology}/{version}/members")
@@ -2591,17 +2410,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concept trees.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees")
@@ -2644,17 +2453,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptor trees.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/")
@@ -2697,17 +2496,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find code trees.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees")
@@ -2750,17 +2539,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find concept tree for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/trees")
@@ -2834,17 +2613,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find descriptor tree for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the tree
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/trees")
@@ -3411,18 +3180,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  /**
-   * Find mappings for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the mapping list
-   * @throws Exception the exception
-   */
+
   @Override
   @POST
   @Path("/concept/{terminologyId}/{terminology}/{version}/mappings")
@@ -3555,7 +3313,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /content/favorites for authToken "
+        .info("RESTful call (Content): /content/favorites for authToken "
             + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3654,7 +3412,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /concept/" + terminology + "/"
+        .info("RESTful call (Content): /concept/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3698,9 +3456,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /concept/note" + noteId
-            + "/remove for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /concept/note"
+        + noteId + "/remove for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3740,7 +3497,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /code/" + terminology + "/"
+        .info("RESTful call (Content): /code/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -3786,7 +3543,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /code/note"
+    Logger.getLogger(getClass()).info("RESTful call (Content): /code/note"
         + noteId + "/remove for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3825,7 +3582,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /descriptor/" + terminology + "/"
+        .info("RESTful call (Content): /descriptor/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final SecurityService securityService = new SecurityServiceJpa();
@@ -3871,9 +3628,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /descriptor/note" + noteId
-            + "/remove for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/note"
+        + noteId + "/remove for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3909,8 +3665,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /content/component/notes/?query="
-            + query + " for authToken " + authToken);
+        .info("RESTful call (Content): /content/component/notes/?query=" + query
+            + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -4074,7 +3830,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /validate/descriptor " + descriptor);
+        .info("RESTful call (Content): /validate/descriptor " + descriptor);
 
     final ContentService conceptService = new ContentServiceJpa();
     try {
@@ -4103,7 +3859,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /validate/atom " + atom);
+        .info("RESTful call (Content): /validate/atom " + atom);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -4132,7 +3888,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /validate/code " + code);
+        .info("RESTful call (Content): /validate/code " + code);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -4161,7 +3917,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call PUT (Project): /validate/concept " + concept);
+        .info("RESTful call (Content): /validate/concept " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {

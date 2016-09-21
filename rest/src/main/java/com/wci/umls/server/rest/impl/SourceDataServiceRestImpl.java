@@ -756,7 +756,7 @@ public class SourceDataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     // NOTE: Debug as used for polling
-    Logger.getLogger(getClass()).debug("RESTful POST call (Project): /log/"
+    Logger.getLogger(getClass()).debug("RESTful call (Source Data): /log/"
         + terminology + ", " + version + ", " + activity + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();

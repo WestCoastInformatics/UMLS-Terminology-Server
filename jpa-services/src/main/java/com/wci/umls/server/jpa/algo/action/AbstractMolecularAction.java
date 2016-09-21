@@ -30,6 +30,7 @@ import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
@@ -347,13 +348,11 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the relationship<? extends component info,? extends component info>
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
 
-    RelationshipList relList =
-        getInverseRelationships(relationship);
+    RelationshipList relList = getInverseRelationships(relationship);
 
     // If there's only one inverse relationship returned, that's the one we
     // want.
@@ -384,7 +383,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return null;
   }
 
-
   /**
    * Find rel to concept containing atom.
    *
@@ -393,13 +391,14 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the concept relationship
    * @throws Exception the exception
    */
-  public ConceptRelationship findRelToConceptContainingAtom (Concept fromConcept, Atom toAtom)
-    throws Exception {
-   
+  @SuppressWarnings("static-method")
+  public ConceptRelationship findRelToConceptContainingAtom(Concept fromConcept,
+    Atom toAtom) throws Exception {
+
     for (ConceptRelationship rel : fromConcept.getRelationships()) {
       Concept toConcept = rel.getTo();
-      for(Atom atom : toConcept.getAtoms()){
-        if(atom.getId().equals(toAtom.getId())){
+      for (Atom atom : toConcept.getAtoms()) {
+        if (atom.getId().equals(toAtom.getId())) {
           return rel;
         }
       }
@@ -407,6 +406,28 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
     return null;
   }
+  
+  /**
+   * Find demotion between concepts.
+   *
+   * @param relationship the relationship
+   * @return the atom relationship
+   * @throws Exception the exception
+   */
+  public AtomRelationship findDemotionMatchingRelationship(ConceptRelationship relationship) throws Exception {
+
+    for (Atom fromAtom : relationship.getFrom().getAtoms()){
+      for(Atom toAtom : relationship.getTo().getAtoms()){
+        for(AtomRelationship atomRel : fromAtom.getRelationships()){
+          if(atomRel.getTo().getId().equals(toAtom.getId()) && atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+            return atomRel;
+          }
+        }
+      }
+    }
+
+    return null;
+  }  
 
   /**
    * Indicates whether or not delete action is the case.

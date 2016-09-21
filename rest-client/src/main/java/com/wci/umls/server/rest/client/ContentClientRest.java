@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -1266,6 +1266,10 @@ public class ContentClientRest extends RootClientRest implements
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param inverseFlag the inverse flag
+   * @param includeConceptRels the include concept rels
+   * @param preferredOnly the preferred only
+   * @param includeSelfReferential the include self referential
    * @param pfs the pfs
    * @param filter the filter
    * @param authToken the auth token
@@ -1275,7 +1279,9 @@ public class ContentClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public RelationshipList findConceptDeepRelationships(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String filter,
+    String terminology, String version, boolean inverseFlag,
+    boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential, PfsParameterJpa pfs, String filter,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Content Client - find deep relationships for concept " + terminologyId
@@ -1288,7 +1294,7 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/deep");
+            + "/relationships/deep" );
     final String pfsString =
         ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
             : pfs);

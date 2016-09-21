@@ -1378,7 +1378,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // simple deep rels call
     Logger.getLogger(getClass()).info("  Test deep relationships");
     RelationshipList list = contentService.findConceptDeepRelationships(
-        "C0000097", "UMLS", "latest", new PfsParameterJpa(), null, authToken);
+        "C0000097", "UMLS", "latest", false, false, false, false, new PfsParameterJpa(), null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
@@ -1392,7 +1392,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
-        "latest", pfs, null, authToken);
+        "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
@@ -1404,7 +1404,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs = new PfsParameterJpa();
     pfs.setSortField("relationshipType");
     list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
-        "latest", pfs, null, authToken);
+        "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
@@ -1418,7 +1418,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(10);
     pfs.setSortField("relationshipType");
     list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
-        "latest", pfs, null, authToken);
+        "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
@@ -1434,7 +1434,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setMaxResults(10);
     pfs.setSortField("relationshipType");
     list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
-        "latest", pfs, null, authToken);
+        "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
