@@ -200,6 +200,32 @@
                 title="Export {{type}}" class="noul glyphicon glyphicon-download"></i>
             </td>
           </tr>
+          
+          <tr ng-show="type == 'Worklist'">
+            <td>
+              <b>Concept Reports</b>
+            </td>
+            <td>
+              <span ng-show="worklistReport && !reportRefresh">
+                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
+                &nbsp;
+                <i ng-click="removeGeneratedConceptReport(selected.worklist);"
+                  title="Remove report" class="noul glyphicon glyphicon-trash"></i>
+              </span>
+              <span ng-show="!worklistReport && reportRefresh">
+                <i ng-click="findGeneratedReports();"
+                  title="Refresh concept report generation status"
+                  class="noul glyphicon glyphicon-refresh"></i>
+                ...Generating...
+              </span>
+              <span ng-show="!worklistReport && !reportRefresh">
+                <button ng-click="generateConceptReport(selected.worklist);"
+                  title="Generate concept report" class="btn btn-xs btn-primary">Generate
+                  Report</button>
+              </span>
+            </td>
+          </tr>
+          
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Bin</b>
@@ -261,6 +287,46 @@
             <td>{{selected.worklist.stats.clusterCt}}/{{selected.worklist.stats.conceptCt}}</td>
           </tr>
 
+          <tr>
+            <td><b>Approved Count</b>
+            </td>
+            <td>{{selected.worklist.stats.approveCt}}</td>
+          </tr>
+          <tr ng-show="selected.worklist.stats.approveByEditorCt">
+            <td><b>Approved by Editors Count</b>
+            </td>
+            <td>{{selected.worklist.stats.approveByEditorCt}}</td>
+          </tr>
+          <tr ng-show="selected.worklist.stats.stampedCt">
+            <td><b>Stamped Count</b>
+            </td>
+            <td>{{selected.worklist.stats.stampedCt}}</td>
+          </tr>
+          <tr>
+            <td><b>Rels Inserted Count</b>
+            </td>
+            <td>{{selected.worklist.stats.relsInsertedCt}}</td>
+          </tr>
+          <tr>
+            <td><b>Stys Inserted Count</b>
+            </td>
+            <td>{{selected.worklist.stats.stysInsertedCt}}</td>
+          </tr>
+          <tr>
+            <td><b>Splits Count</b>
+            </td>
+            <td>{{selected.worklist.stats.splitsCt}}</td>
+          </tr>
+          <tr>
+            <td><b>Merge Count</b>
+            </td>
+            <td>{{selected.worklist.stats.mergeCt}}</td>
+          </tr>
+          <tr>
+            <td><b>Not Stamped Count</b>
+            </td>
+            <td>{{selected.worklist.stats.notStampedCt}}</td>
+          </tr>
           <tr
             ng-repeat="state in stateHistory">
             <td>
@@ -269,30 +335,7 @@
             <td>{{toDate(state.timestamp)}}</td>
           </tr>
 
-          <tr ng-show="type == 'Worklist'">
-            <td>
-              <b>Concept Reports</b>
-            </td>
-            <td>
-              <span ng-show="worklistReport && !reportRefresh">
-                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
-                &nbsp;
-                <i ng-click="removeGeneratedConceptReport(selected.worklist);"
-                  title="Remove report" class="noul glyphicon glyphicon-trash"></i>
-              </span>
-              <span ng-show="!worklistReport && reportRefresh">
-                <i ng-click="findGeneratedReports();"
-                  title="Refresh concept report generation status"
-                  class="noul glyphicon glyphicon-refresh"></i>
-                ...Generating...
-              </span>
-              <span ng-show="!worklistReport && !reportRefresh">
-                <button ng-click="generateConceptReport(selected.worklist);"
-                  title="Generate concept report" class="btn btn-xs btn-primary">Generate
-                  Report</button>
-              </span>
-            </td>
-          </tr>
+ 
         </tbody>
       </table>
 

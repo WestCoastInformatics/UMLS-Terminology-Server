@@ -62,7 +62,9 @@
   </tbody>
 </table>
 <span style="float: right;">
-
+  <input type="checkbox" ng-model="preferredOnly" ng-click="getPagedRelationships()"
+            title="Show preferred only">
+  <span>Show preferred only</span>
   <button ng-click="transferConceptToEditor()"
     ng-disabled="!selected.relationship" title="Transfer concept to editor"
     class="btn btn-xs btn-primary">Transfer</button>

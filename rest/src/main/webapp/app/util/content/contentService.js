@@ -684,7 +684,8 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findDeepRelationships = function(component, paging) {
+        this.findDeepRelationships = function(component, 
+          inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential, paging) {
 
           var deferred = $q.defer();
 
@@ -718,8 +719,15 @@ tsApp
           $http.post(
             contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
               + component.version + "/" + component.terminologyId + "/relationships/deep?query="
-              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
-            // gpService.decrement();
+              + encodeURIComponent(utilService.cleanQuery(query))
+              + (inverseFlag != null && inverseFlag != '' ? '&inverseFlag='
+                + inverseFlag : '')
+              + (includeConceptRels != null && includeConceptRels != '' ? '&includeConceptRels='
+                + includeConceptRels : '')
+              + (preferredOnly != null && preferredOnly != '' ? '&preferredOnly='
+                + preferredOnly : '')
+              + (includeSelfReferential != null && includeSelfReferential != '' ? '&includeSelfReferential='
+                + includeSelfReferential : ''), pfs).then(function(response) {
             deferred.resolve(response.data);
           }, function(response) {
             utilService.handleError(response);

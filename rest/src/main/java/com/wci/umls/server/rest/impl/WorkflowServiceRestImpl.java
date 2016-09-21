@@ -86,6 +86,8 @@ import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -1896,28 +1898,85 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       }
 
       verifyProject(worklist, projectId);
+      Project project = workflowService.getProject(projectId);
 
+      Set<Long> approvedByEditorIds = new HashSet<>();
+      Set<Long> mergeIds = new HashSet<>();
+      Set<Long> splitsIds = new HashSet<>();
+      Set<Long> relsInsertedIds = new HashSet<>();
+      Set<Long> stysInsertedIds = new HashSet<>();
+      Set<Long> approvedIds = new HashSet<>();
+      Set<Long> stampedIds = new HashSet<>();
+      
       worklist.getStats().put("clusterCt",
           worklist.getTrackingRecords().size());
       // Add up orig concepts size from all tracking records
-      worklist.getStats().put("conceptCt",
-          worklist.getTrackingRecords().stream().collect(
-              Collectors.summingInt(w -> w.getOrigConceptIds().size())));
-
-      // TODO to be done later
+      int conceptCt =  worklist.getTrackingRecords().stream().collect(
+          Collectors.summingInt(w -> w.getOrigConceptIds().size()));
+      worklist.getStats().put("conceptCt", conceptCt );
+      String query = "activityId:" + worklist.getName();
+      MolecularActionList list = workflowService.findMolecularActions(null, project.getTerminology(), 
+          project.getVersion(), query, null);
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on worklist
-      // n_approved -1 - "APPROVE_CONCEPT" molecular actions
-      // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
-      // editors initial
-      // n_stamped -1 - "APPROVE_CONCEPT" molecular actions with editors
-      // stampinginitial
-      // n_not_stamped -1 - concepts without APPROVE_CONCEPT actions
-      // n_rels_inserted -1 - "ADD_RELATIONSHIP" molecular actions
-      // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
-      // n_splits -1 - "SPLIT" molecular actions
-      // n_merges -1 - "MERGE" molecular actions
+      worklist.getStats().put("actionsCt", list.size());
+      
+      
+      for (MolecularAction action : list.getObjects()) {
 
+        // n_approved -1 - "APPROVE_CONCEPT" molecular actions
+        if (action.getName().equals("APPROVE")) {
+          approvedIds.add(action.getComponentId());
+        }
+
+        // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
+        // editors initial
+        if (action.getName().equals("APPROVE") && worklist.getAuthors()
+            .contains(action.getLastModifiedBy().replace("E-", ""))) {
+          approvedByEditorIds.add(action.getComponentId());
+        }
+
+        // n_stamped -1 - "APPROVE_CONCEPT" molecular actions with editors
+        // stampinginitial
+        if (action.getName().equals("APPROVE") && worklist.getAuthors()
+            .contains(action.getLastModifiedBy().replace("S-", ""))) {
+          stampedIds.add(action.getComponentId());
+        }
+
+        // n_rels_inserted -1 - "ADD_RELATIONSHIP" molecular actions
+        if (action.getName().equals("ADD_RELATIONSHIP")) {
+          relsInsertedIds.add(action.getComponentId());
+        }
+
+        // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
+        if (action.getName().equals("ADD_SEMANTIC_TYPE")) {
+          stysInsertedIds.add(action.getComponentId());
+        }
+
+        // n_splits -1 - "SPLIT" molecular actions
+        if (action.getName().equals("SPLIT")) {
+          splitsIds.add(action.getComponentId());
+        }
+
+        // n_merges -1 - "MERGE" molecular actions
+        if (action.getName().equals("MERGE")) {
+          mergeIds.add(action.getComponentId());
+        }
+      }
+      // n_not_stamped -1 - concepts without APPROVE_CONCEPT actions
+      // all concept ids (save in set) - all concept ids for approve
+      // actions in set
+      worklist.getStats().put("notStampedCt", conceptCt - approvedIds.size());
+
+      // add all stats to worklist
+      worklist.getStats().put("approveCt", approvedIds.size());
+      worklist.getStats().put("approveByEditorCt", approvedByEditorIds.size());
+      worklist.getStats().put("stampedCt", stampedIds.size());
+      worklist.getStats().put("relsInsertedCt", relsInsertedIds.size());
+      worklist.getStats().put("stysInsertedCt", stysInsertedIds.size());
+      worklist.getStats().put("splitsCt", splitsIds.size());
+      worklist.getStats().put("mergeCt", mergeIds.size());
+      
       // websocket - n/a
 
       // return the worklist
@@ -1959,28 +2018,69 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       }
 
       verifyProject(checklist, projectId);
+      Project project = workflowService.getProject(projectId);
 
+
+      Set<Long> mergeIds = new HashSet<>();
+      Set<Long> splitsIds = new HashSet<>();
+      Set<Long> relsInsertedIds = new HashSet<>();
+      Set<Long> stysInsertedIds = new HashSet<>();
+      Set<Long> approvedIds = new HashSet<>();
+      
       checklist.getStats().put("clusterCt",
           checklist.getTrackingRecords().size());
       // Add up orig concepts size from all tracking records
-      checklist.getStats().put("conceptCt",
-          checklist.getTrackingRecords().stream().collect(
-              Collectors.summingInt(w -> w.getOrigConceptIds().size())));
-
-      // TODO to be done later
+      int conceptCt =  checklist.getTrackingRecords().stream().collect(
+          Collectors.summingInt(w -> w.getOrigConceptIds().size()));
+      checklist.getStats().put("conceptCt", conceptCt );
+      String query = "activityId:" + checklist.getName();
+      MolecularActionList list = workflowService.findMolecularActions(null, project.getTerminology(), 
+          project.getVersion(), query, null);
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on checklist
-      // n_approved -1 - "APPROVE_CONCEPT" molecular actions
-      // n_approved_by_editor -1 - "APPROVE_CONCEPT" molecular actions with
-      // editors initial
-      // n_stamped -1 - "APPROVE_CONCEPT" molecular actions with editors
-      // stampinginitial
-      // n_not_stamped -1 - concepts without APPROVE_CONCEPT actions
-      // n_rels_inserted -1 - "ADD_RELATIONSHIP" molecular actions
-      // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
-      // n_splits -1 - "SPLIT" molecular actions
-      // n_merges -1 - "MERGE" molecular actions
+      checklist.getStats().put("actionsCt", list.size());
+      
+      
+      for (MolecularAction action : list.getObjects()) {
 
+        // n_approved -1 - "APPROVE_CONCEPT" molecular actions
+        if (action.getName().equals("APPROVE")) {
+          approvedIds.add(action.getComponentId());
+        }
+
+        // n_rels_inserted -1 - "ADD_RELATIONSHIP" molecular actions
+        if (action.getName().equals("ADD_RELATIONSHIP")) {
+          relsInsertedIds.add(action.getComponentId());
+        }
+
+        // n_stys_inserted -1 - "ADD_SEMANTIC_TYPE" molecular actions
+        if (action.getName().equals("ADD_SEMANTIC_TYPE")) {
+          stysInsertedIds.add(action.getComponentId());
+        }
+
+        // n_splits -1 - "SPLIT" molecular actions
+        if (action.getName().equals("SPLIT")) {
+          splitsIds.add(action.getComponentId());
+        }
+
+        // n_merges -1 - "MERGE" molecular actions
+        if (action.getName().equals("MERGE")) {
+          mergeIds.add(action.getComponentId());
+        }
+      }
+      // n_not_stamped -1 - concepts without APPROVE_CONCEPT actions
+      // all concept ids (save in set) - all concept ids for approve
+      // actions in set
+      checklist.getStats().put("notStampedCt", conceptCt - approvedIds.size());
+
+      // add all stats to checklist
+      checklist.getStats().put("approveCt", approvedIds.size());
+      checklist.getStats().put("relsInsertedCt", relsInsertedIds.size());
+      checklist.getStats().put("stysInsertedCt", stysInsertedIds.size());
+      checklist.getStats().put("splitsCt", splitsIds.size());
+      checklist.getStats().put("mergeCt", mergeIds.size());
+      
+      // websocket - n/a
       // return the checklist
       workflowService.handleLazyInit(checklist);
 
@@ -2243,8 +2343,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (final TrackingRecord record : recordList) {
         for (final Long conceptId : record.getOrigConceptIds()) {
           final Concept concept = reportService.getConcept(conceptId);
-          // TODO: conceptReportType and relationshipCt will become
-          // parameters to getConceptReport
           conceptReport
               .append(reportService.getConceptReport(project, concept));
           conceptReport.append("---------------------------------------------");
@@ -3000,6 +3098,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final String query = definition.getQuery();
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
 
     List<Long[]> results =
         executeQuery(query, definition.getQueryType(), params, workflowService);

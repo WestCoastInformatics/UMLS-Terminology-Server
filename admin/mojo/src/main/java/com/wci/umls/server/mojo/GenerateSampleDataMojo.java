@@ -32,9 +32,11 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -163,7 +165,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     IntegrationTestServiceRest integrationService =
         new IntegrationTestServiceRestImpl();
 
-    //
+/*    //
     // Add admin users
     //
     Logger.getLogger(getClass()).info("Add new admin users");
@@ -221,13 +223,13 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     if (author3 == null) {
       author3 = makeUser("author3", "Author3", 0);
       author3 = (UserJpa) security.addUser(author3, authToken);
-    }
+    }*/
 
     //
     // Make a project
     //
 
-    ProjectJpa project1 = new ProjectJpa();
+/*    ProjectJpa project1 = new ProjectJpa();
     project1.setBranch(Branch.ROOT);
     project1.setDescription("Project for NCI-META Editing");
     project1.setFeedbackEmail("info@westcoastinformatics.com");
@@ -317,7 +319,16 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     project.assignUserToProject(projectId, author2.getUserName(),
         UserRole.AUTHOR, authToken);
 
-    
+    */
+    Project project1 = new ProjectJpa();
+    Long projectId = 0L;
+    ProjectList projects = project.getProjects(authToken);
+    for (Project pjt : projects.getObjects()) {
+      if (pjt.getDescription().equals("Project for NCI-META Editing")) {
+        project1 = pjt;
+        projectId = pjt.getId();
+      }
+    }
     // Create and set up a process and algorithm configuration for testing
     ProcessServiceRest process = new ProcessServiceRestImpl();
 

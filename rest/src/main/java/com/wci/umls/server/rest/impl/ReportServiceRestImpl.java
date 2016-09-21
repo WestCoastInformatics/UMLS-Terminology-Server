@@ -77,7 +77,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       Concept concept = reportService.getConcept(conceptId);
-      Project project = reportService.getProject(projectId);
+      Project project = projectId == null ? null : reportService.getProject(projectId);
       return reportService.getConceptReport(project, concept);
 
     } catch (Exception e) {

@@ -2251,6 +2251,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Inverse flag", required = false) @QueryParam("inverseFlag") boolean inverseFlag,
+    @ApiParam(value = "Include concept rels", required = false) @QueryParam("includeConceptRels") boolean includeConceptRels,
+    @ApiParam(value = "Preferred only", required = false) @QueryParam("preferredOnly") boolean preferredOnly,
+    @ApiParam(value = "Include self referential", required = false) @QueryParam("includeSelfReferential") boolean includeSelfReferential,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -2265,7 +2269,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
       return contentService.findConceptDeepRelationships(terminologyId,
-          terminology, version, Branch.ROOT, query, false, false, false, false,
+          terminology, version, Branch.ROOT, query, inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential,
           pfs);
 
     } catch (Exception e) {

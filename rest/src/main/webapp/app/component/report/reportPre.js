@@ -15,15 +15,12 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
 
       // watch component, generate the report
       $scope.$watch('selected.component', function() {
+        console.debug('selected.component1', $scope.selected.component, $scope.selected.project);
         if ($scope.selected.component) {
           $scope.getReport($scope.selected.component);
         }
       });
-      $scope.$watch('selected.project', function() {
-        if ($scope.selected.project && $scope.selected.component) {
-          $scope.getReport($scope.selected.component);
-        }
-      });
+      
 
       // Trust as HTML
       $scope.getTrustedReport = function() {
@@ -33,13 +30,13 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
             
       // Get the report
       $scope.getReport = function(component) {
-        if ($scope.selected.project) {
-          reportService.getComponentReport($scope.selected.project.id, component).then(
+        //if ($scope.selected.project) {
+          reportService.getComponentReport(null, component).then(
           // Success
           function(data) {
             $scope.report = data;
           });
-        }
+        //}
       }
       
 

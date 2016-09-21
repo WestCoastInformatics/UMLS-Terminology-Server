@@ -23,16 +23,17 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.toConcept = null;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
-    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ', 'XR' ];
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ'];
     $scope.acceptedRelationshipTypes = [ {
       'key' : '',
-      'value' : '(none)'
+      'value' : 'XR (none)'
     } ];
     $scope.warnings = [];
     $scope.errors = [];
 
     $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+    $scope.defaultOrder = true;
 
     // Init modal
     function initialize() {
@@ -67,13 +68,20 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
 
+      if(!$scope.selected.component.publishable) {
+        $scope.acceptedRelationshipTypeStrings.push('BRO');
+        $scope.acceptedRelationshipTypeStrings.push('BRN');
+        $scope.acceptedRelationshipTypeStrings.push('BBT');
+      }
+      
       for (var i = 0; i < $scope.selected.metadata.relationshipTypes.length; i++) {
         if ($scope.acceptedRelationshipTypeStrings
           .includes($scope.selected.metadata.relationshipTypes[i].key)) {
           $scope.acceptedRelationshipTypes.push($scope.selected.metadata.relationshipTypes[i]);
         }
       }
-
+      
+     
     }
 
     // Perform insert rel

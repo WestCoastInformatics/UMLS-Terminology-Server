@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -174,22 +174,6 @@ public interface ContentServiceRest {
    */
   public SubsetMemberList getConceptSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
-
-  /**
-   * Find deep relationships for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param filter the filter
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
-  public RelationshipList findConceptDeepRelationships(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String filter,
-    String authToken) throws Exception;
 
   /**
    * Find relationships for descriptor.
@@ -1048,6 +1032,28 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public ValidationResult validateCode(Long projectId, CodeJpa code,
+    String authToken) throws Exception;
+
+  /**
+   * Find concept deep relationships.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param inverseFlag the inverse flag
+   * @param includeConceptRels the include concept rels
+   * @param preferredOnly the preferred only
+   * @param includeSelfReferential the include self referential
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findConceptDeepRelationships(String terminologyId,
+    String terminology, String version, boolean inverseFlag,
+    boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential, PfsParameterJpa pfs, String query,
     String authToken) throws Exception;
 
 }

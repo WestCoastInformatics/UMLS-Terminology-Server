@@ -15,7 +15,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
-import com.wci.umls.server.jpa.algo.action.UpdateConceptStatusMolecularAction;
+import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
@@ -96,8 +96,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
           if (approve) {
             action = new ApproveMolecularAction();
           } else {
-            action = new UpdateConceptStatusMolecularAction();
-            ((UpdateConceptStatusMolecularAction)action).setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            action = new UpdateConceptMolecularAction();
+            ((UpdateConceptMolecularAction)action).setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           }
           // set workflowStatus action to NEEDS_REVIEW
           final Concept concept = action.getConcept(c.getId());

@@ -4,9 +4,10 @@
 
 <div class="modal-body">
   <table class="table">
-    <tr>
+    <!--  SECTION A -->
+    <tr ng-show="defaultOrder">
       <td>
-        <span ng-show="action != 'Split'">
+        <span ng-show="action == 'Move' || (action == 'Merge' && defaultOrder)">
           <b>From Concept</b>
         </span>
         <span ng-show="action == 'Split'">
@@ -42,9 +43,10 @@
         </table>
       </td>
     </tr>
+    <!--  SECTION B  -->
     <tr ng-show="action != 'Split'">
       <td>
-        <b>To Concept</b>
+        <b><span ng-show="defaultOrder">To</span><span ng-show="!defaultOrder">From</span> Concept</b>
       </td>
       <td>
         <span ng-show="toConcepts.length > 1">
@@ -81,6 +83,48 @@
               </tr>
             </tbody>
           </table>
+      </td>
+    </tr>
+    <!--  SECTION C (normally invisible) -->
+    <tr ng-show="!defaultOrder">
+      <td>
+        <span ng-show="action == 'Move'">
+          <b>From Concept</b>
+        </span>
+        <span ng-show="action == 'Merge'">
+          <b>To Concept</b>
+        </span>
+        <span ng-show="action == 'Split'">
+          <b>Concept</b>
+        </span>
+      </td>
+      <td>
+        <table class="table">
+          <tbody>
+            <tr>
+              <td class="col-md-2 col-xs-2">{{selected.component.id}}</td>
+              <td class="col-md-5 col-xs-5">{{selected.component.name}}</td>
+              <td class="col-md-5 col-xs-5">
+                <span ng-repeat='sty in selected.component.semanticTypes'>
+                  {{sty.semanticType}}</br>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table" ng-show="action == 'Split' || action == 'Move'">
+          <thead>
+            <th>Atoms:</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="atom in selected.atoms">
+              <td class="col-md-5 col-xs-5">{{atom.name}}</td>
+              <td class="col-md-3 col-xs-3">{{atom.terminology}}/{{atom.termType}}</td>
+              <td class="col-md-4 col-xs-4">{{atom.codeId}}
+                {{atom.conceptId}} {{atom.descriptorId}}</td>
+            </tr>
+          </tbody>
+        </table>
       </td>
     </tr>
     <tr ng-show="action == 'Split'">
@@ -131,6 +175,11 @@
 
 
 <div class="modal-footer">
+ <span ng-show="action == 'Merge'" >
+      <i ng-click="reverseMergeOrder(); "
+        title="Reverse merge order"
+        class="mr20 noul glyphicon glyphicon-sort"></i>
+  </span>
   <button ng-show="action == 'Merge'" class="btn btn-primary"
     ng-disabled="!toConcept" ng-click="merge();" title="Merge concepts">Merge</button>
   <button ng-show="action == 'Move'" class="btn btn-primary" ng-click="move();"
