@@ -51,13 +51,13 @@ tsApp
 
         // add semantic type
         $scope.addSemanticTypeToConcept = function(semanticType) {
-          metaEditingService.addSemanticType($scope.selected.project.id, null,
+          metaEditingService.addSemanticType($scope.selected.project.id, $scope.selected.worklist.name,
             $scope.selected.component, semanticType);
         }
 
         // remove semantic type
         $scope.removeSemanticTypeFromConcept = function(semanticType) {
-          metaEditingService.removeSemanticType($scope.selected.project.id, null,
+          metaEditingService.removeSemanticType($scope.selected.project.id, $scope.selected.worklist.name,
             $scope.selected.component, semanticType.id, true);
         }
 

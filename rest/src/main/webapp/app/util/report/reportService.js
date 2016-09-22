@@ -15,7 +15,8 @@ tsApp.service('reportService', [
 
       // Get projects
       //gpService.increment();
-      $http.get(reportUrl + '/' + component.type.toLowerCase() + '/' + component.id + '?projectId=' + projectId, {
+      $http.get(reportUrl + '/' + component.type.toLowerCase() + '/' + component.id + 
+        (projectId ? '?projectId=' + projectId : ''), {
         headers : {
           'Content-type' : 'text/plain'
         }

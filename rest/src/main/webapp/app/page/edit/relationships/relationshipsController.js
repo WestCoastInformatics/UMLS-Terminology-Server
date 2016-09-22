@@ -10,11 +10,10 @@ tsApp
       'contentService',
       'tabService',
       'securityService',
-      'utilService',
       'metaEditingService',
       '$uibModal',
       function($scope, $window, utilService, contentService, tabService, securityService,
-        utilService, metaEditingService, $uibModal) {
+        metaEditingService, $uibModal) {
 
         console.debug("configure RelationshipsCtrl");
 
@@ -29,23 +28,24 @@ tsApp
         $scope.lists = $scope.parentWindowScope.lists;
         $scope.user = $scope.parentWindowScope.user;
         $scope.selected.relationship = null;
+        $scope.preferredOnly = true;
 
         // Paging variables
         $scope.paging = {};
-        $scope.paging = utilService.getPaging();
-        $scope.paging.sortField = 'id';
-        $scope.paging.pageSize = 10;
-        $scope.paging.filterFields = {};
-        $scope.paging.filterFields.toName = 1;
-        $scope.paging.filterFields.fromName = 1;
-        $scope.paging.filterFields.toTerminologyId = 1;
-        $scope.paging.filterFields.fromTerminologyId = 1;
-        $scope.paging.filterFields.relationshipType = 1;
-        $scope.paging.filterFields.additionalRelationshipType = 1;
-        $scope.paging.filterFields.terminology = 1;
-        $scope.paging.filterFields.lastModifiedBy = 1;
-        $scope.paging.sortAscending = false;
-        $scope.paging.callbacks = {
+        $scope.paging['relationships'] = utilService.getPaging();
+        $scope.paging['relationships'].sortField = 'id';
+        $scope.paging['relationships'].pageSize = 10;
+        $scope.paging['relationships'].filterFields = {};
+        $scope.paging['relationships'].filterFields.toName = 1;
+        $scope.paging['relationships'].filterFields.fromName = 1;
+        $scope.paging['relationships'].filterFields.toTerminologyId = 1;
+        $scope.paging['relationships'].filterFields.fromTerminologyId = 1;
+        $scope.paging['relationships'].filterFields.relationshipType = 1;
+        $scope.paging['relationships'].filterFields.additionalRelationshipType = 1;
+        $scope.paging['relationships'].filterFields.terminology = 1;
+        $scope.paging['relationships'].filterFields.lastModifiedBy = 1;
+        $scope.paging['relationships'].sortAscending = false;
+        $scope.paging['relationships'].callbacks = {
           getPagedList : getPagedRelationships
         };
 
@@ -57,13 +57,13 @@ tsApp
 
         // add relationship
         $scope.addRelationshipToConcept = function(relationship) {
-          metaEditingService.addRelationship($scope.selected.project.id, null,
+          metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.worklist.name,
             $scope.selected.component, relationship);
         }
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
-          metaEditingService.removeRelationship($scope.selected.project.id, null,
+          metaEditingService.removeRelationship($scope.selected.project.id, $scope.selected.worklist.name,
             $scope.selected.component, relationship.id, true);
         }
 
@@ -72,26 +72,16 @@ tsApp
           getPagedRelationships();
         }
         function getPagedRelationships() {
-          var paging = $scope.paging;
-          var pfs = {
-            startIndex : (paging.page - 1) * paging.pageSize,
-            maxResults : paging.pageSize,
-            sortField : paging.sortField,
-            ascending : paging.sortAscending,
-            queryRestriction : paging.filter
-          };
-
-          contentService.findRelationshipsForQuery({
+          contentService.findDeepRelationships({
             terminology : $scope.selected.project.terminology,
             version : $scope.selected.project.version,
             terminologyId : $scope.selected.component.terminologyId,
             type : $scope.selected.component.type
-          }, null, pfs).then(
+          }, false, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
           // Success
           function(data) {
             $scope.pagedRelationships = data.relationships;
             $scope.pagedRelationships.totalCount = data.totalCount
-
           });
         }
 
@@ -119,7 +109,7 @@ tsApp
         $scope.getSortIndicator = function(table, field) {
           return utilService.getSortIndicator(table, field, $scope.paging);
         };
-
+        
         // indicates the style for an relationship
         $scope.getRelationshipClass = function(relationship) {
 

@@ -32,6 +32,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     } ];
     $scope.warnings = [];
     $scope.errors = [];
+    $scope.defaultOrder = true;
 
     $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
@@ -75,26 +76,49 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
 
     }
 
+    $scope.reverseMergeOrder = function() {
+      $scope.defaultOrder = !$scope.defaultOrder;
+    }
+    
     // Perform merge
     $scope.merge = function() {
-
-      metaEditingService.mergeConcepts($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.component, $scope.toConcept, $scope.overrideWarnings).then(
-      // Success
-      function(data) {
-        $scope.warnings = data.warnings;
-        $scope.errors = data.errors;
-        if ($scope.warnings.length > 0) {
-          $scope.overrideWarnings = true;
-        }
-        if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
-          $uibModalInstance.close();
-        }
-      },
-      // Error
-      function(data) {
-        utilService.handleDialogError($scope.errors, data);
-      });
+      if ($scope.defaultOrder) {
+        metaEditingService.mergeConcepts($scope.selected.project.id, $scope.selected.activityId,
+          $scope.selected.component, $scope.toConcept, $scope.overrideWarnings).then(
+        // Success
+        function(data) {
+          $scope.warnings = data.warnings;
+          $scope.errors = data.errors;
+          if ($scope.warnings.length > 0) {
+            $scope.overrideWarnings = true;
+          }
+          if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+            $uibModalInstance.close();
+          }
+        },
+        // Error
+        function(data) {
+          utilService.handleDialogError($scope.errors, data);
+        });
+      } else {
+        metaEditingService.mergeConcepts($scope.selected.project.id, $scope.selected.activityId,
+          $scope.toConcept, $scope.selected.component,  $scope.overrideWarnings).then(
+        // Success
+        function(data) {
+          $scope.warnings = data.warnings;
+          $scope.errors = data.errors;
+          if ($scope.warnings.length > 0) {
+            $scope.overrideWarnings = true;
+          }
+          if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
+            $uibModalInstance.close();
+          }
+        },
+        // Error
+        function(data) {
+          utilService.handleDialogError($scope.errors, data);
+        });
+      }
     };
 
     // Perform move

@@ -357,8 +357,11 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : newRels) {
       getToConcept().getRelationships().add(rel);
     }
+    final List<Concept> inverseConceptList = new ArrayList<>();    
     for (final ConceptRelationship rel : newInverseRels) {
-      rel.getFrom().getRelationships().add(rel);
+      Concept inverseConcept = new ConceptJpa(rel.getFrom(),true);
+      inverseConcept.getRelationships().add(rel);
+      inverseConceptList.add(inverseConcept);
     }
     if (relationshipType != null) {
       getFromConcept().getRelationships().add(newBetweenRel);
@@ -379,10 +382,10 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(getFromConcept());
     updateConcept(getToConcept());
-    for (final ConceptRelationship rel : newInverseRels) {
-      if (!rel.getFrom().getId().equals(getToConcept().getId())
-          && !rel.getFrom().getId().equals(getFromConcept().getId())) {
-        updateConcept(rel.getFrom());
+    for (final Concept concept : inverseConceptList) {
+      if (!concept.getId().equals(getToConcept().getId())
+          && !concept.equals(getFromConcept().getId())) {
+        updateConcept(concept);
       }
     }
 

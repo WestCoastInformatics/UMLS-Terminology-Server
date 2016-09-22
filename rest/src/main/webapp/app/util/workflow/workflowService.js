@@ -476,7 +476,6 @@ tsApp.service('workflowService', [
       $http.get(workflowUrl + '/worklist/' + worklistId + '?projectId=' + projectId).then(
       // success
       function(response) {
-        console.debug('  worklist = ', worklist);
         gpService.decrement();
         deferred.resolve(response.data);
       },

@@ -15,12 +15,8 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
 
       // watch component, generate the report
       $scope.$watch('selected.component', function() {
+        console.debug('selected.component1', $scope.selected.component, $scope.selected.project);
         if ($scope.selected.component) {
-          $scope.getReport($scope.selected.component);
-        }
-      });
-      $scope.$watch('selected.project', function() {
-        if ($scope.selected.project && $scope.selected.component) {
           $scope.getReport($scope.selected.component);
         }
       });
@@ -30,19 +26,16 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
         return $sce.trustAsHtml($scope.report);
       };
 
-            
       // Get the report
       $scope.getReport = function(component) {
-        $scope.report = "Loading ...";
-        if ($scope.selected.project) {
-          reportService.getComponentReport($scope.selected.project.id, component).then(
-          // Success
-          function(data) {
-            $scope.report = data;
-          });
-        }
+        $scope.report = "Loading...";
+        reportService.getComponentReport(null, component).then(
+        // Success
+        function(data) {
+          $scope.report = data;
+        });
+
       }
-      
 
     } ]
   };

@@ -48,6 +48,8 @@ tsApp.directive('notes', [ function() {
           $scope.field = type.toLowerCase();
           if (type == 'Checklist') {
             $scope.field = 'worklist';
+          } else if (type == 'Concept') {
+            $scope.field = 'component';
           }
 
           $scope.selected = selected;

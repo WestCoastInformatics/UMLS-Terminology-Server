@@ -330,12 +330,15 @@ tsApp
               // Selects a worklist (setting $scope.selected.worklist).
               // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {
-                $scope.selected.worklist = worklist;
-                if ($scope.type == 'Worklist') {
-                  $scope.parseStateHistory(worklist);
-                }
-                $scope.getRecords(worklist);
-                $scope.findGeneratedConceptReports();
+                workflowService['get'+$scope.type]($scope.selected.project.id, worklist.id).then(
+                  function(data) {
+                  $scope.selected.worklist = data;
+                  if ($scope.type == 'Worklist') {
+                    $scope.parseStateHistory(data);
+                  }
+                  $scope.getRecords(data);
+                  $scope.findGeneratedConceptReports();
+                });
               };
 
               // parse workflow state history

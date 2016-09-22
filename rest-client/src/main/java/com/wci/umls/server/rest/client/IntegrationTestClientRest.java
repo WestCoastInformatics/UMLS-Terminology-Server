@@ -188,7 +188,7 @@ public class IntegrationTestClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client
-        .target(config.getProperty("base.url") + "/test/Atom/relationship/add");
+        .target(config.getProperty("base.url") + "/test/atom/relationship/add");
 
     final String relString = ConfigUtility.getStringForGraph(
         relationship == null ? new AtomRelationshipJpa() : relationship);

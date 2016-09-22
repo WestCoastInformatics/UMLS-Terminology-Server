@@ -163,7 +163,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     IntegrationTestServiceRest integrationService =
         new IntegrationTestServiceRestImpl();
 
-    //
+   //
     // Add admin users
     //
     Logger.getLogger(getClass()).info("Add new admin users");

@@ -36,7 +36,7 @@ tsApp
         // Paging variables
         $scope.paging = {};
         $scope.paging['atoms'] = utilService.getPaging();
-        $scope.paging['atoms'].sortField = 'id';
+        $scope.paging['atoms'].sortField = null;
         $scope.paging['atoms'].pageSize = 10;
         $scope.paging['atoms'].filterFields = {};
         $scope.paging['atoms'].filterFields.name = 1;
@@ -98,8 +98,7 @@ tsApp
           // page from the stys that are available to add
           $scope.pagedAtoms = utilService.getPagedArray($scope.selected.component.atoms,
             $scope.paging['atoms']);
-        }
-        ;
+        };
 
         // approve concept
         $scope.approveConcept = function() {
@@ -137,6 +136,11 @@ tsApp
           return utilService.getSortIndicator(table, field, $scope.paging);
         };
 
+        $scope.setSortPreferred = function() {
+          $scope.paging['atoms'].sortField = null;
+          $scope.getPagedAtoms();
+        }
+        
         // indicates the style for an atom
         $scope.getAtomClass = function(atom) {
 
