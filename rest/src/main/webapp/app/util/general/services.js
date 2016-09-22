@@ -499,7 +499,8 @@ tsApp.service('gpService', function() {
   console.debug('configure gpService');
   // declare the glass pane counter
   this.glassPane = {
-    counter : 0
+    counter : 0,
+    messages : []
   };
 
   this.isGlassPaneSet = function() {
@@ -512,11 +513,20 @@ tsApp.service('gpService', function() {
 
   // Increments glass pane counter
   this.increment = function(message) {
+    if (message) {
+      this.glassPane.messages.push(message);
+    }
     this.glassPane.counter++;
   };
 
   // Decrements glass pane counter
-  this.decrement = function() {
+  this.decrement = function(message) {
+    if (message) {
+      var index = this.glassPane.messages.indexOf(message); 
+      if (index !== -1) {
+        this.glassPane.messages.splice(index, 1);
+      }
+    }
     this.glassPane.counter--;
   };
 

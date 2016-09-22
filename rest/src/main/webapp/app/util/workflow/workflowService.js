@@ -199,29 +199,6 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
-    // regenerate workflow bins
-    this.regenerateBins = function(projectId, type) {
-      console.debug('regenerateBins', projectId, type);
-      var deferred = $q.defer();
-
-      // regenerate workflow bins
-      gpService.increment('Regenerating bins...');
-      $http.post(workflowUrl + '/bins?projectId=' + projectId, type).then(
-      // success
-      function(response) {
-        console.debug('  successfully regenerated bins');
-        gpService.decrement('Regenerating bins...');
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement('Regenerating bins...');
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
     // Find assigned work
     this.findAssignedWork = function(projectId, userName, pfs) {
       console.debug('findAssignedWork', projectId, userName, pfs);
@@ -876,20 +853,20 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       // find tracking records
-      gpService.increment();
+      gpService.increment('Regenerating bins...');
       $http.get(
         workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType)
         .then(
         // success
         function(response) {
           console.debug('  successful regenerate bins');
-          gpService.decrement();
+          gpService.decrement('Regenerating bins...');
           deferred.resolve(response.data);
         },
         // error
         function(response) {
           utilService.handleError(response);
-          gpService.decrement();
+          gpService.decrement('Regenerating bins...');
           deferred.reject(response.data);
         });
       return deferred.promise;
@@ -1163,7 +1140,7 @@ tsApp.service('workflowService', [
         });
       return deferred.promise;
     };
-    
+
     // stamp worklist
     this.stampWorklist = function(projectId, worklist, approve, overrideWarnings) {
       console.debug('stamp worklist');
@@ -1172,11 +1149,12 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl
-          + '/worklist/' + worklist.id + '/stamp?projectId='
+          + '/worklist/'
+          + worklist.id
+          + '/stamp?projectId='
           + projectId
           + (worklist.name ? "&activityId=" + worklist.name : "")
-          + (approve != null && approve != '' ? '&approve='
-            + approve : '')
+          + (approve != null && approve != '' ? '&approve=' + approve : '')
           + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
             + overrideWarnings : ''), null).then(
       // success
@@ -1193,7 +1171,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
+
     // stamp checklist
     this.stampChecklist = function(projectId, checklist, approve, overrideWarnings) {
       console.debug('stamp checklist');
@@ -1202,11 +1180,12 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl
-          + '/checklist/' + checklist.id + '/stamp?projectId='
+          + '/checklist/'
+          + checklist.id
+          + '/stamp?projectId='
           + projectId
           + (checklist.name ? "&activityId=" + checklist.name : "")
-          + (approve != null && approve != '' ? '&approve='
-            + approve : '')
+          + (approve != null && approve != '' ? '&approve=' + approve : '')
           + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
             + overrideWarnings : ''), null).then(
       // success
@@ -1223,8 +1202,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
-    
+
     // recompute concept status
     this.recomputeConceptStatus = function(projectId, overrideWarnings) {
       console.debug('recompute concept status');

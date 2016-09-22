@@ -9,6 +9,11 @@ INSERT INTO users (id, applicationRole, editorLevel, email, name, userName) valu
 -- Load initial author user
 INSERT INTO users (id, applicationRole, editorLevel, email, name, userName) values (4, 'AUTHOR', 0, 'test@example.com', 'Author', 'author');
 
+-- concepts indexes for editing
+create index x_concepts_1 on concepts(terminology);
+create index x_concepts_2 on concepts(workflowStatus);
+create index x_atoms_1 on atoms(workflowStatus);
+
 -- Create ancestorPath index for tree positions (not needed bcause of lucene)
 --create index x_ctr_ancestor_path on concept_tree_positions (ancestorPath(255));
 --create index x_dtr_ancestor_path on descriptor_tree_positions (ancestorPath(255));
