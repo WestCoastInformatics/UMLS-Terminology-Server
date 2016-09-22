@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -18,8 +18,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * A ClaML based implementation of {@link ComputePreferredNameHandler}.
  */
-public class Rf2ComputePreferredNameHandler extends
-    RrfComputePreferredNameHandler {
+public class Rf2ComputePreferredNameHandler
+    extends RrfComputePreferredNameHandler {
 
   /** the defaultPreferredNames values. */
   private String dpnTypeId = "900000000000013009";
@@ -50,9 +50,8 @@ public class Rf2ComputePreferredNameHandler extends
     }
     prop = config.getProperty("defaultPreferredNames.refSetId");
     if (prop != null) {
-      dpnRefSetId =
-          new HashSet<String>(Arrays.asList(FieldedStringTokenizer.split(prop,
-              ",")));
+      dpnRefSetId = new HashSet<String>(
+          Arrays.asList(FieldedStringTokenizer.split(prop, ",")));
     }
     prop = config.getProperty("defaultPreferredNames.acceptabilityId");
     if (prop != null) {
@@ -64,10 +63,11 @@ public class Rf2ComputePreferredNameHandler extends
    * Returns the rank.
    *
    * @param atom the atom
+   * @param list the list
    * @return the rank
    */
   @Override
-  protected String getRank(Atom atom, PrecedenceList list) {
+  public String getRank(Atom atom, PrecedenceList list) {
 
     // [active][LangPreferred][SyOrFn]
     // active = 2, obsolete = 1
@@ -85,9 +85,8 @@ public class Rf2ComputePreferredNameHandler extends
       // SNOMED graph resolver replaces the values with values + names
       if (!member.isObsolete()
           && dpnRefSetId.contains(member.getSubset().getTerminologyId())) {
-        langPreferred =
-            member.getAttributeByName("acceptabilityId").getValue()
-                .indexOf(dpnAcceptabilityId) != -1 ? 2 : 1;
+        langPreferred = member.getAttributeByName("acceptabilityId").getValue()
+            .indexOf(dpnAcceptabilityId) != -1 ? 2 : 1;
       }
     }
     return "" + active + langPreferred + syOrFn;

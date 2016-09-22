@@ -507,25 +507,16 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       Project project = projectService.getProject(projectId);
       final Project projectCopy = new ProjectJpa(project);
 
-      System.out
-          .println("project.userRoleMap.before = " + project.getUserRoleMap());
-      System.out.println("  userCopy = " + userCopy);
       project.getUserRoleMap().remove(userCopy);
       projectService.updateProject(project);
 
       // reread to show
       project = projectService.getProject(projectId);
-      System.out
-          .println("project.userRoleMap.after = " + project.getUserRoleMap());
-
-      System.out
-          .println("user.projRoleMap.before = " + user.getProjectRoleMap());
-      System.out.println("  projCopy = " + projectCopy);
+     
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
 
       user = securityService.getUser(userName);
-      System.out.println("user.projRoleMap.after= " + user.getProjectRoleMap());
 
       projectService.addLogEntry(authUser, projectId, projectId, null, null,
           "UNASSIGN user from project - " + userName);

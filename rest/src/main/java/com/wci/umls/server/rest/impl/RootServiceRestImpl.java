@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -7,11 +7,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.ExceptionHandler;
@@ -202,6 +206,46 @@ public class RootServiceRestImpl {
           "Mismatched project ids: " + projectId + ", " + (p == null ? "null"
               : (p.getProject() == null ? "null" : p.getProject().getId())));
     }
+  }
+
+  /**
+   * Returns the precedence list.
+   *
+   * @param service the service
+   * @param contentService the content service
+   * @param userName the user name
+   * @param obj the obj
+   * @param project the project
+   * @return the precedence list
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public PrecedenceList sortAtoms(SecurityService service,
+    ContentService contentService, String userName, AtomClass obj,
+    Project project) throws Exception {
+    PrecedenceList list = null;
+    final User user = service.getUser(userName);
+    if (user.getUserPreferences() != null
+        && user.getUserPreferences().getPrecedenceList() != null) {
+      list = user.getUserPreferences().getPrecedenceList();
+    } else if (project != null) {
+      if (contentService == null) {
+        throw new Exception(
+            "Project service not specified, could not retrieve precedence list");
+      } else {
+        final PrecedenceList projectList = project.getPrecedenceList();
+        if (projectList != null) {
+          list = projectList;
+        } else {
+          list = contentService.getPrecedenceList(obj.getTerminology(),
+              obj.getVersion());
+        }
+      }
+    }
+    obj.setAtoms(
+        contentService.getComputePreferredNameHandler(obj.getTerminology())
+            .sortAtoms(obj.getAtoms(), list));
+    return list;
   }
 
 }

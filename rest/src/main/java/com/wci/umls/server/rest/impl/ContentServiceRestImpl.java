@@ -22,7 +22,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
-import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
@@ -32,7 +31,6 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -87,7 +85,6 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
@@ -109,8 +106,6 @@ import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
-import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
 import io.swagger.annotations.Api;
@@ -986,8 +981,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /terminology/remove/"
-            + terminology + "/" + version);
+        .info("RESTful call (Content): /terminology/remove/" + terminology + "/"
+            + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -1041,28 +1036,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the concept", UserRole.VIEWER);
 
       final Concept concept = contentService.getConcept(terminologyId,
           terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (concept != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, concept, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
-        concept.setAtoms(contentService
-            .getComputePreferredNameHandler(concept.getTerminology())
-            .sortAtoms(concept.getAtoms(), list));
+        sortAtoms(securityService, contentService, userName, concept, project);
       }
       return concept;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a concept");
       return null;
     } finally {
-      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1084,29 +1075,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + conceptId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the concept", UserRole.VIEWER);
 
       final Concept concept = contentService.getConcept(conceptId);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (concept != null) {
         final String terminology = concept.getTerminology();
-
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, concept, projectId);
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
-        concept.setAtoms(contentService
-            .getComputePreferredNameHandler(concept.getTerminology())
-            .sortAtoms(concept.getAtoms(), list));
+        sortAtoms(securityService, contentService, userName, concept, project);
       }
       return concept;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a concept");
       return null;
     } finally {
-      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1348,30 +1334,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the descriptor", UserRole.VIEWER);
 
       final Descriptor descriptor = contentService.getDescriptor(terminologyId,
           terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (descriptor != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, descriptor, projectId);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(descriptor);
-        descriptor.setAtoms(contentService
-            .getComputePreferredNameHandler(descriptor.getTerminology())
-            .sortAtoms(descriptor.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, descriptor,
+            project);
       }
       return descriptor;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a descriptor");
       return null;
     } finally {
-      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1506,30 +1488,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the code", UserRole.VIEWER);
 
       final Code code = contentService.getCode(terminologyId, terminology,
           version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (code != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, code, projectId);
-
         contentService.getGraphResolutionHandler(terminology).resolve(code);
-        code.setAtoms(
-            contentService.getComputePreferredNameHandler(code.getTerminology())
-                .sortAtoms(code.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, code, project);
       }
       return code;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a code");
       return null;
     } finally {
-      projectService.close();
       contentService.close();
       securityService.close();
     }
@@ -1622,30 +1598,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /lui/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the lexical class", UserRole.VIEWER);
 
       final LexicalClass lexicalClass = contentService
           .getLexicalClass(terminologyId, terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (lexicalClass != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, lexicalClass, projectId);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(lexicalClass);
-        lexicalClass.setAtoms(contentService
-            .getComputePreferredNameHandler(lexicalClass.getTerminology())
-            .sortAtoms(lexicalClass.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, lexicalClass,
+            project);
       }
       return lexicalClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a lexicalClass");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       contentService.close();
       securityService.close();
     }
@@ -1668,29 +1641,27 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /sui/"
         + terminology + "/" + version + "/" + terminologyId);
     final ContentService contentService = new ContentServiceJpa();
-    final ProjectService projectService = new ProjectServiceJpa();
     try {
       String userName = authorizeApp(securityService, authToken,
           "retrieve the string class", UserRole.VIEWER);
 
       final StringClass stringClass = contentService
           .getStringClass(terminologyId, terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (stringClass != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, projectService, userName, stringClass, projectId);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(stringClass);
-        stringClass.setAtoms(contentService
-            .getComputePreferredNameHandler(stringClass.getTerminology())
-            .sortAtoms(stringClass.getAtoms(), list));
+        sortAtoms(securityService, contentService, userName, stringClass,
+            project);
       }
       return stringClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a stringClass");
       return null;
     } finally {
-      projectService.close();
+      contentService.close();
       contentService.close();
       securityService.close();
     }
@@ -2919,7 +2890,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -2994,7 +2964,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -3071,7 +3040,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -3496,9 +3464,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /code/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add code note", UserRole.VIEWER);
@@ -3581,9 +3547,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /descriptor/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add descriptor note", UserRole.VIEWER);
@@ -3931,42 +3895,4 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  /**
-   * Returns the precedence list.
-   *
-   * @param service the service
-   * @param metadataService the metadata service
-   * @param projectService the project service
-   * @param userName the user name
-   * @param obj the obj
-   * @param projectId the project id
-   * @return the precedence list
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  private PrecedenceList getPrecedenceList(SecurityService service,
-    MetadataService metadataService, ProjectService projectService,
-    String userName, AtomClass obj, Long projectId) throws Exception {
-    final User user = service.getUser(userName);
-    if (user.getUserPreferences() != null
-        && user.getUserPreferences().getPrecedenceList() != null) {
-      return user.getUserPreferences().getPrecedenceList();
-    } else if (projectId != null) {
-      if (projectService == null) {
-        throw new Exception(
-            "Project service not specified, could not retrieve precedence list");
-      } else {
-        PrecedenceList projectList =
-            projectService.getProject(projectId).getPrecedenceList();
-        if (projectList != null) {
-          return projectList;
-        } else {
-
-          return metadataService.getPrecedenceList(obj.getTerminology(),
-              obj.getVersion());
-        }
-      }
-    }
-    return null;
-  }
 }

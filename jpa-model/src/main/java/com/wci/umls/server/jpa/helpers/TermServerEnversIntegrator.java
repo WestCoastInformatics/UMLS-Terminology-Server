@@ -45,8 +45,6 @@ public class TermServerEnversIntegrator extends EnversIntegrator {
         listenerRegistry
             .addDuplicationStrategy(EnversListenerDuplicationStrategy.INSTANCE);
 
-        System.out.println("Registering event listeners");
-
         if (enversConfiguration.getEntCfg().hasAuditedEntities()) {
           listenerRegistry.appendListeners(EventType.POST_INSERT,
               new EmptyEnversPostInsertEventListenerImpl(enversConfiguration));

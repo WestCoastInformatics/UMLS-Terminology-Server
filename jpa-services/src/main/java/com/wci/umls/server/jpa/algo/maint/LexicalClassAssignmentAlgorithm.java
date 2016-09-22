@@ -147,7 +147,6 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
           lci.setLanguage(atom.getLanguage());
           lci.setNormalizedName(normalForm);
           service.addLexicalClassIdentity(lci);
-          System.out.println("NEW LUI: " + lci);
           atom.setLexicalClassId(handler.convertId(lui, "LUI"));
           updateAtom(atom);
           postLexicalClassLuiMap.put(normalForm, lui);

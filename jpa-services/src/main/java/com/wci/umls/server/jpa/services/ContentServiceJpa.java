@@ -3378,13 +3378,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find deep relationships for concept "
             + conceptId + "/" + terminology + "/" + version + "/" + filter);
 
-    if (pfs != null && pfs.getQueryRestriction() != null
+    // Determine if skipping suppressible (and obsolete by definition)
+    final String suppressibleClause = (pfs.getQueryRestriction() != null
+        && pfs.getQueryRestriction().equals("suppressible:false"))
+            ? " and a.suppressible = false " : "";
+
+    // Verify no query restriction except for suppressible:false
+    if (ConfigUtility.isEmpty(suppressibleClause) && pfs != null
+        && pfs.getQueryRestriction() != null
         && !pfs.getQueryRestriction().isEmpty()) {
       throw new IllegalArgumentException(
           "Query restriction is not implemented for this call: "
               + pfs.getQueryRestriction());
     }
-
     try {
 
       final Concept concept =
@@ -3401,8 +3407,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
             + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus "
             + ", a.lastModifiedBy " + "from ConceptRelationshipJpa a "
-            + "where " + (inverseFlag ? "a.to" : "a.from")
-            + ".id = :conceptId ";
+            + "where " + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId "
+            + suppressibleClause;
         query = manager.createQuery(queryStr);
         query.setParameter("conceptId", concept.getId());
         results.addAll(query.getResultList());
@@ -3416,7 +3422,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
-          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)";
+          + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)"
+          + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3443,7 +3450,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
+          + (inverseFlag ? "e.id in (ca.id) "
+              : "e.id in (ca.id) " + suppressibleClause);
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3466,7 +3474,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
+          + (inverseFlag ? "e.id in (ca.id) "
+              : "e.id in (ca.id) " + suppressibleClause);
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3489,7 +3498,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ");
+          + (inverseFlag ? "e.id in (ca.id) "
+              : "e.id in (ca.id) " + suppressibleClause);
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);

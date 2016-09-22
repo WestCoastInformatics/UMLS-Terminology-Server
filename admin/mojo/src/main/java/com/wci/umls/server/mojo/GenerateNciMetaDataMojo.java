@@ -386,7 +386,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       testService.updateAtom((AtomJpa) rel.getFrom(), authToken);
       rel.getTo().setWorkflowStatus(WorkflowStatus.DEMOTION);
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateAtom((AtomJpa) rel.getFrom(), authToken);
+      testService.updateAtom((AtomJpa) rel.getTo(), authToken);
 
       // Add inverse demotion too
       final AtomRelationshipJpa rel2 = new AtomRelationshipJpa();

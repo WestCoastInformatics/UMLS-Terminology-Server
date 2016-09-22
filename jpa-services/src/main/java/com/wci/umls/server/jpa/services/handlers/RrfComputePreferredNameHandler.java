@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Relationship;
@@ -100,7 +98,7 @@ public class RrfComputePreferredNameHandler
    * @return the rank
    * @throws Exception the exception
    */
-  protected String getRank(Atom atom, PrecedenceList list) throws Exception {
+  public String getRank(Atom atom, PrecedenceList list) throws Exception {
 
     // Bail if no list specified or found
     if (list == null) {
@@ -138,12 +136,13 @@ public class RrfComputePreferredNameHandler
   /**
    * Returns the rank for the relationship.
    *
+   * @param <T> the
    * @param relationship the rel
    * @param list the list
    * @return the rank
    * @throws Exception the exception
    */
-  protected <T extends Relationship<?, ?>> String getRank(T relationship,
+  public <T extends Relationship<?, ?>> String getRank(T relationship,
     PrecedenceList list) throws Exception {
     // Bail if no list specified or found
     if (list == null) {
@@ -180,7 +179,7 @@ public class RrfComputePreferredNameHandler
    * @param list the list
    * @throws Exception the exception
    */
-  private void cacheList(PrecedenceList list) throws Exception {
+  public void cacheList(PrecedenceList list) throws Exception {
 
     // No list - simply return to try something new
     if (list == null) {
@@ -194,7 +193,6 @@ public class RrfComputePreferredNameHandler
 
     // Otherwise, build the TTY map
     Map<String, String> ttyRanks = list.getTermTypeRankMap();
-    Logger.getLogger(getClass()).info("  default precedence list = " + list);
     ttyRankMap.put(list.getId(), ttyRanks);
 
     // Otherwise, build the terminology map

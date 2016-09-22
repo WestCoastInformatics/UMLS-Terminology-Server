@@ -205,18 +205,18 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       // regenerate workflow bins
-      gpService.increment();
+      gpService.increment('Regenerating bins...');
       $http.post(workflowUrl + '/bins?projectId=' + projectId, type).then(
       // success
       function(response) {
         console.debug('  successfully regenerated bins');
-        gpService.decrement();
+        gpService.decrement('Regenerating bins...');
         deferred.resolve(response.data);
       },
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
+        gpService.decrement('Regenerating bins...');
         deferred.reject(response.data);
       });
       return deferred.promise;

@@ -706,7 +706,11 @@ tsApp
               queryRestriction : null
             };
           }
-
+          
+          if (!paging.showSuppressible) {
+            pfs.queryRestriction = "suppressible:false";
+          }
+          
           // set filter/query; unlike relationships, does not require * for
           // filtering
           var query = paging.text;
@@ -831,7 +835,6 @@ tsApp
               // return the original concept without additional annotation
               deferred.reject();
             });
-
           }
           return deferred.promise;
         };

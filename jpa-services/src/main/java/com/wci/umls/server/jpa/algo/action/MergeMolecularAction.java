@@ -205,11 +205,9 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       removeSemanticTypeComponent(sty.getId());
     }
     for (final ConceptRelationship rel : fromRelationshipsCopies) {
-      System.out.println("remove rel : " + rel.getId());
       removeRelationship(rel.getId(), rel.getClass());
     }
     for (final ConceptRelationship rel : inverseRelationshipsCopies) {
-      System.out.println("invers rel : " + rel.getId());
       removeRelationship(rel.getId(), rel.getClass());
     }
 
