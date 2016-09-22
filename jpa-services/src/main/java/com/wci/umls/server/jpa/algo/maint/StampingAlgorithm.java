@@ -193,8 +193,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
     }, p);
 
-    worklistId = Long.valueOf(p.getProperty("worklistId"));
-    checklistId = Long.valueOf(p.getProperty("checklistId"));
+   worklistId = p.getProperty("worklistId") == null ? null : Long.valueOf(p.getProperty("worklistId"));
+   checklistId = p.getProperty("checklistId") == null ? null : Long.valueOf(p.getProperty("checklistId"));
+
   }
 
   /* see superclass */
