@@ -146,7 +146,8 @@ tsApp
               $scope.findComponents(false, true);
             }
 
-            if ($scope.user && $scope.user.userPreferences) {
+            // Do not update user prefs when in popout mode
+            if (!$routeParams.terminology && $scope.user && $scope.user.userPreferences) {
               $scope.user.userPreferences.lastTerminology = terminology.terminology;
               securityService.updateUserPreferences($scope.user.userPreferences);
             }

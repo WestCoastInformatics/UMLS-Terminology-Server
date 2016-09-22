@@ -39,7 +39,7 @@ tsApp.service('reportService', [
     // Popout report into new window
     this.popout = function(component) {
       var currentUrl = window.location.href;
-      var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+      var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#')+1);
       var newUrl = baseUrl + '/content/report/' + component.type + '/' + component.terminology
         + '/' + component.id;
       var title = 'Report-' + component.terminology + '/' + component.version + ', '
