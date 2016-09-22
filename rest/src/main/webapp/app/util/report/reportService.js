@@ -14,22 +14,23 @@ tsApp.service('reportService', [
       var deferred = $q.defer();
 
       // Get projects
-      //gpService.increment();
-      $http.get(reportUrl + '/' + component.type.toLowerCase() + '/' + component.id + 
-        (projectId ? '?projectId=' + projectId : ''), {
-        headers : {
-          'Content-type' : 'text/plain'
-        }
-      }).then(
+      // gpService.increment();
+      $http.get(
+        reportUrl + '/' + component.type.toLowerCase() + '/' + component.id
+          + (projectId ? '?projectId=' + projectId : ''), {
+          headers : {
+            'Content-type' : 'text/plain'
+          }
+        }).then(
       // success
       function(response) {
-        //gpService.decrement();
+        // gpService.decrement();
         deferred.resolve(response.data);
       },
       // error
       function(response) {
         utilService.handleError(response);
-        //gpService.decrement();
+        // gpService.decrement();
         deferred.reject(response.data);
       });
       return deferred.promise;
