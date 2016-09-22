@@ -78,7 +78,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           "get concept report", UserRole.VIEWER);
 
       final Concept concept = reportService.getConcept(conceptId);
-      final Project project = reportService.getProject(projectId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
 
       // Sort atoms
       if (concept != null) {
@@ -118,7 +119,9 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           "get descriptor report", UserRole.VIEWER);
 
       final Descriptor descriptor = reportService.getDescriptor(descriptorId);
-      final Project project = reportService.getProject(projectId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
+
       // Sort atoms
       if (descriptor != null) {
         reportService.getGraphResolutionHandler(descriptor.getTerminology())
@@ -157,7 +160,9 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           "get code report", UserRole.VIEWER);
 
       final Code code = reportService.getCode(codeId);
-      final Project project = reportService.getProject(projectId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
+
       // Sort atoms
       if (code != null) {
         reportService.getGraphResolutionHandler(code.getTerminology())
