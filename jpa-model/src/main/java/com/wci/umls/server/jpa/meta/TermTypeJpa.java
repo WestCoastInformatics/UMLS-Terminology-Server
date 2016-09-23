@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -55,6 +55,14 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   @Column(nullable = false)
   private boolean suppressible = false;
 
+  /** The exclude flag. */
+  @Column(nullable = false)
+  private boolean exclude = false;
+
+  /** The norm exclude flag. */
+  @Column(nullable = false)
+  private boolean normExclude = false;
+
   /** The style. */
   @Column(nullable = true)
   @Enumerated(EnumType.STRING)
@@ -65,6 +73,8 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   @Enumerated(EnumType.STRING)
   private UsageType usageType;
 
+  
+  
   /**
    * Instantiates an empty {@link TermTypeJpa}.
    */
@@ -110,6 +120,42 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   @Override
   public void setSuppressible(boolean suppressible) {
     this.suppressible = suppressible;
+  }
+
+  /**
+   * Indicates whether or not exclude is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isExclude() {
+    return exclude;
+  }
+
+  /**
+   * Sets the exclude.
+   *
+   * @param exclude the exclude
+   */
+  public void setExclude(boolean exclude) {
+    this.exclude = exclude;
+  }
+
+  /**
+   * Indicates whether or not norm exclude is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isNormExclude() {
+    return normExclude;
+  }
+
+  /**
+   * Sets the norm exclude.
+   *
+   * @param normExclude the norm exclude
+   */
+  public void setNormExclude(boolean normExclude) {
+    this.normExclude = normExclude;
   }
 
   /* see superclass */

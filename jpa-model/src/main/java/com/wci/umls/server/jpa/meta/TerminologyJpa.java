@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -104,6 +104,18 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = true)
   private String descriptionLogicProfile = null;
 
+  /**  email address of the Apelon inverter. */
+  @Column(nullable = true)
+  private String inverterEmail = null;
+  
+  /** context type value describing what to do with siblings. */
+  @Column
+  private boolean includeSiblings = false;
+  
+  /**  One or more URLs providing more information about this source. */
+  @Column(nullable = true)
+  private String url = null;
+  
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -347,6 +359,60 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Override
   public void setDescriptionLogicProfile(String profile) {
     descriptionLogicProfile = profile;
+  }
+
+  /**
+   * Returns the inverter email.
+   *
+   * @return the inverter email
+   */
+  public String getInverterEmail() {
+    return inverterEmail;
+  }
+
+  /**
+   * Indicates whether or not include siblings is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isIncludeSiblings() {
+    return includeSiblings;
+  }
+
+  /**
+   * Sets the include siblings.
+   *
+   * @param includeSiblings the include siblings
+   */
+  public void setIncludeSiblings(boolean includeSiblings) {
+    this.includeSiblings = includeSiblings;
+  }
+
+  /**
+   * Returns the url.
+   *
+   * @return the url
+   */
+  public String getUrl() {
+    return url;
+  }
+
+  /**
+   * Sets the url.
+   *
+   * @param url the url
+   */
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  /**
+   * Sets the inverter email.
+   *
+   * @param inverterEmail the inverter email
+   */
+  public void setInverterEmail(String inverterEmail) {
+    this.inverterEmail = inverterEmail;
   }
 
   /* see superclass */
