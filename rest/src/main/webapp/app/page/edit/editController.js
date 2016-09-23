@@ -37,7 +37,9 @@ tsApp
         $scope.checklistCt = 0;
 
         // Callbacks for report
-        $scope.callbacks = contentService.getCallbacks();
+        $scope.callbacks = {};
+        utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
+        utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
         // Selected variables
         $scope.selected = {
@@ -814,6 +816,7 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/component/finder/finder.html',
             controller : 'FinderModalCtrl',
+            backdrop: 'static',
             size : 'lg',
             resolve : {
               selected : function() {

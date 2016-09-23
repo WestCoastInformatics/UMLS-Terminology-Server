@@ -22,6 +22,7 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -87,7 +88,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review sty = " + list.getTotalCount());
 
       // Get all concepts where any of its relationships are set to NEEDS REVIEW
-      final javax.persistence.Query query =
+      javax.persistence.Query query =
           manager.createQuery("select r from ConceptRelationshipJpa r "
               + " where terminology = :terminology and version = :version "
               + " and workflowStatus in (  :ws )");
@@ -116,8 +117,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       allNeedsReviewConceptIds.addAll(relConceptIds);
       allNeedsReviewConceptIds.addAll(failures);
 
-      // Get all concepts for the terminology/version (detach).
-
       // NOTE: Hibernate-specific to support iterating
       // Restrict to timestamp used for THESE atoms, in case multiple RRF
       // files are loaded
@@ -134,20 +133,25 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       int publishableChangeCt = 0;
       while (results.next()) {
         final Concept concept =
-            getConcept(((Concept) results.get()[0]).getId());
+            new ConceptJpa((ConceptJpa) results.get()[0], false);
 
         boolean changePublishable = false;
         // Starting point for changing workflow status
-        final WorkflowStatus initialStatus = concept.getWorkflowStatus();
-        WorkflowStatus status = initialStatus == WorkflowStatus.PUBLISHED
-            ? WorkflowStatus.PUBLISHED : WorkflowStatus.READY_FOR_PUBLICATION;
+        final WorkflowStatus initialStatus =
+            concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW
+                ? WorkflowStatus.NEEDS_REVIEW
+                : WorkflowStatus.READY_FOR_PUBLICATION;
+        WorkflowStatus status = initialStatus;
 
-        if (allNeedsReviewConceptIds.contains(concept.getId())) {
+        // determine status change
+        if (allNeedsReviewConceptIds.contains(concept.getId())
+            && status != WorkflowStatus.NEEDS_REVIEW) {
           logInfo("  status change  = " + concept.getId());
           status = WorkflowStatus.NEEDS_REVIEW;
           statusChangeCt++;
         }
 
+        // determine publishable change
         final boolean publishable =
             publishableConcepts.contains(concept.getId());
         if (publishable != concept.isPublishable()) {
@@ -159,7 +163,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         // change either from N to R or R to N or publishable from true/false or
         // false/true
         if (initialStatus != status || changePublishable) {
-
           // Send change to a conceptUpdate molecular action
           final UpdateConceptMolecularAction action =
               new UpdateConceptMolecularAction();
@@ -170,7 +173,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setConceptId2(null);
             action.setLastModifiedBy(getLastModifiedBy());
             action.setLastModified(concept.getLastModified().getTime());
-            action.setOverrideWarnings(false);
+            action.setOverrideWarnings(true);
             action.setTransactionPerOperation(false);
             action.setMolecularActionFlag(true);
             action.setChangeStatusFlag(true);
@@ -180,7 +183,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setActivityId(getActivityId());
             action.setWorkId(getWorkId());
 
-            performMolecularAction(action);
+            final ValidationResult result = performMolecularAction(action);
+            if (!result.isValid()) {
+              throw new Exception("Invalid action - " + result);
+            }
 
           } catch (Exception e) {
             action.rollback();

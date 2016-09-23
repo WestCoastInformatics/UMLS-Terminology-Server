@@ -277,7 +277,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
       }
     }
-
     // Pick up the terminology/version from concept
     if (concept != null) {
       setTerminology(concept.getTerminology());
