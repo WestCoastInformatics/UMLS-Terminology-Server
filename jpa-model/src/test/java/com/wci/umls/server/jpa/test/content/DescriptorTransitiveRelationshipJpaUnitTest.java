@@ -140,7 +140,7 @@ public class DescriptorTransitiveRelationshipJpaUnitTest extends
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
     assertTrue(tester
-        .testCopyConstructorDeep(DescriptorTransitiveRelationship.class));
+        .testCopyConstructorCollection(DescriptorTransitiveRelationship.class));
   }
 
   /**

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.test.content;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -160,9 +161,26 @@ public class ComponentInfoRelationshipJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    // from and to are "fake" fields
+    tester.exclude("from");
+    tester.exclude("to");
     tester.proxy(ComponentInfo.class, 1, c1);
     tester.proxy(ComponentInfo.class, 2, c2);
-    assertTrue(tester.testCopyConstructorDeep(ComponentInfoRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(ComponentInfoRelationship.class));
+
+    // Test to/from fields
+    ComponentInfoRelationshipJpa object2 =
+        new ComponentInfoRelationshipJpa(object, false);
+    assertEquals(object2.getFromTerminology(), object.getFromTerminology());
+    assertEquals(object2.getFromTerminologyId(), object.getFromTerminologyId());
+    assertEquals(object2.getFromVersion(), object.getFromVersion());
+    assertEquals(object2.getFromName(), object.getFromName());
+    assertEquals(object2.getFromType(), object.getFromType());
+    assertEquals(object2.getToTerminology(), object.getToTerminology());
+    assertEquals(object2.getToTerminologyId(), object.getToTerminologyId());
+    assertEquals(object2.getToVersion(), object.getToVersion());
+    assertEquals(object2.getToName(), object.getToName());
+    assertEquals(object2.getToType(), object.getToType());
   }
 
   /**

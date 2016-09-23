@@ -81,10 +81,10 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
    * Instantiates a {@link AbstractRelationship} from the specified parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractRelationship(Relationship<S, T> relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+  public AbstractRelationship(Relationship<S, T> relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
     additionalRelationshipType = relationship.getAdditionalRelationshipType();
     group = relationship.getGroup();

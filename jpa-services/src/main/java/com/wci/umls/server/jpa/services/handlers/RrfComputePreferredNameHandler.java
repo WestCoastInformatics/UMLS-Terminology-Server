@@ -65,7 +65,7 @@ public class RrfComputePreferredNameHandler
     return null;
   }
 
-  /* see superclass */
+
   @Override
   public List<Atom> sortAtoms(Collection<Atom> atoms, PrecedenceList list)
     throws Exception {
@@ -87,6 +87,11 @@ public class RrfComputePreferredNameHandler
         return atomRanks.get(o2).compareTo(atomRanks.get(o1));
       }
     });
+    for (final Atom atom : sortedAtoms) {
+      System.out.println(
+          "  atom = " + atom.getTerminology() + ", " + atom.getTermType() + ", "
+              + atom.getId() + ", " + atomRanks.get(atom));
+    }
     return sortedAtoms;
   }
 

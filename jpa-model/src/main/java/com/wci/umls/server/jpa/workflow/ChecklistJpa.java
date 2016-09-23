@@ -45,11 +45,11 @@ public class ChecklistJpa extends AbstractChecklist {
    * Instantiates a {@link ChecklistJpa} from the specified parameters.
    *
    * @param checklist the checklist
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ChecklistJpa(Checklist checklist, boolean deepCopy) {
-    super(checklist, deepCopy);
-    if (deepCopy) {
+  public ChecklistJpa(Checklist checklist, boolean collectionCopy) {
+    super(checklist, collectionCopy);
+    if (collectionCopy) {
       notes = new ArrayList<>(checklist.getNotes());
     }
   }

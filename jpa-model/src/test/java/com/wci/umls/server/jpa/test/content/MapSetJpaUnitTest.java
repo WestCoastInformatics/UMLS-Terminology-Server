@@ -132,7 +132,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
@@ -140,7 +140,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Attribute.class, 2, a2);
     tester.proxy(Mapping.class, 1, m1);
     tester.proxy(Mapping.class, 2, m2);
-    assertTrue(tester.testCopyConstructorDeep(MapSet.class));
+    assertTrue(tester.testCopyConstructorCollection(MapSet.class));
 
   }
 

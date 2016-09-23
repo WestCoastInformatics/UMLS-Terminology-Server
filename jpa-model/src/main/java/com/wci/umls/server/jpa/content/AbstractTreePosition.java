@@ -56,10 +56,10 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
    * Instantiates a {@link AbstractTreePosition} from the specified parameters.
    *
    * @param treepos the treepos
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractTreePosition(TreePosition<T> treepos, boolean deepCopy) {
-    super(treepos, deepCopy);
+  public AbstractTreePosition(TreePosition<T> treepos, boolean collectionCopy) {
+    super(treepos, collectionCopy);
     additionalRelationshipType = treepos.getAdditionalRelationshipType();
     ancestorPath = treepos.getAncestorPath();
     childCt = treepos.getChildCt();

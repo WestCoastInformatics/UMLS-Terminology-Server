@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -20,7 +20,8 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 @Audited
 @MappedSuperclass
 public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttributesAndName>
-    extends AbstractComponentHasAttributes implements TransitiveRelationship<T> {
+    extends AbstractComponentHasAttributes
+    implements TransitiveRelationship<T> {
 
   /** The depth. */
   @Column(nullable = false)
@@ -38,11 +39,12 @@ public abstract class AbstractTransitiveRelationship<T extends ComponentHasAttri
    * parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public AbstractTransitiveRelationship(TransitiveRelationship<T> relationship,
-      boolean deepCopy) {
-    super(relationship, deepCopy);
+      boolean collectionCopy) {
+    super(relationship, collectionCopy);
+    depth = relationship.getDepth();
   }
 
   /* see superclass */

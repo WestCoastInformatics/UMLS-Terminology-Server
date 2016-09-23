@@ -156,7 +156,7 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Atom.class, 2, atom2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testCopyConstructorDeep(AtomRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(AtomRelationship.class));
   }
 
   /**
@@ -165,7 +165,7 @@ public class AtomRelationshipJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     AtomRelationship rel = new AtomRelationshipJpa();

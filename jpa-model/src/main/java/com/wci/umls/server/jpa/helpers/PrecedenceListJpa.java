@@ -111,6 +111,9 @@ public class PrecedenceListJpa implements PrecedenceList {
    */
   public PrecedenceListJpa(PrecedenceList precedenceList) {
     id = precedenceList.getId();
+    timestamp = precedenceList.getTimestamp();
+    lastModified = precedenceList.getLastModified();
+    lastModifiedBy = precedenceList.getLastModifiedBy();
     name = precedenceList.getName();
     setPrecedence(precedenceList.getPrecedence());
     terminology = precedenceList.getTerminology();

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -30,12 +30,12 @@ import com.wci.umls.server.model.meta.RootTerminology;
  */
 @Entity
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "terminology"
+    "terminology"
 }))
 @Audited
 @XmlRootElement(name = "rootTerminology")
-public class RootTerminologyJpa extends AbstractHasLastModified implements
-    RootTerminology {
+public class RootTerminologyJpa extends AbstractHasLastModified
+    implements RootTerminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -109,7 +109,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
     preferredName = rootTerminology.getPreferredName();
     restrictionLevel = rootTerminology.getRestrictionLevel();
     shortName = rootTerminology.getShortName();
-    synonymousNames = rootTerminology.getSynonymousNames();
+    synonymousNames = new ArrayList<>(rootTerminology.getSynonymousNames());
     polyhierarchy = rootTerminology.isPolyhierarchy();
   }
 
@@ -269,30 +269,23 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime
-            * result
-            + ((acquisitionContact == null) ? 0 : acquisitionContact.hashCode());
-    result =
-        prime * result
-            + ((contentContact == null) ? 0 : contentContact.hashCode());
+    result = prime * result
+        + ((acquisitionContact == null) ? 0 : acquisitionContact.hashCode());
+    result = prime * result
+        + ((contentContact == null) ? 0 : contentContact.hashCode());
     result = prime * result + ((family == null) ? 0 : family.hashCode());
-    result =
-        prime * result
-            + ((hierarchicalName == null) ? 0 : hierarchicalName.hashCode());
+    result = prime * result
+        + ((hierarchicalName == null) ? 0 : hierarchicalName.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
-    result =
-        prime * result
-            + ((licenseContact == null) ? 0 : licenseContact.hashCode());
+    result = prime * result
+        + ((licenseContact == null) ? 0 : licenseContact.hashCode());
     result = prime * result + (polyhierarchy ? 1231 : 1237);
-    result =
-        prime * result
-            + ((preferredName == null) ? 0 : preferredName.hashCode());
+    result = prime * result
+        + ((preferredName == null) ? 0 : preferredName.hashCode());
     result = prime * result + restrictionLevel;
     result = prime * result + ((shortName == null) ? 0 : shortName.hashCode());
-    result =
-        prime * result
-            + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result = prime * result
+        + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     return result;

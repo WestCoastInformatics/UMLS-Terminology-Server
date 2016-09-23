@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -120,16 +120,15 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
    * Instantiates a {@link AbstractAtomClass} from the specified parameters.
    *
    * @param atomClass the atom
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
-    super(atomClass, deepCopy);
+  public AbstractAtomClass(AtomClass atomClass, boolean collectionCopy) {
+    super(atomClass, collectionCopy);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
-    if (deepCopy) {
-      for (final Atom atom : atomClass.getAtoms()) {
-        getAtoms().add(new AtomJpa(atom, deepCopy));
-      }
+    branchedTo = atomClass.getBranchedTo();
+    if (collectionCopy) {
+      atoms = new ArrayList<>(atomClass.getAtoms());
     }
   }
 

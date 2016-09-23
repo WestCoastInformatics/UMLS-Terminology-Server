@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -119,22 +119,21 @@ public class SourceDataJpa implements SourceData {
    * Instantiates a new source data jpa.
    *
    * @param sourceData the source data
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public SourceDataJpa(SourceData sourceData, boolean deepCopy) {
+  public SourceDataJpa(SourceData sourceData, boolean collectionCopy) {
     super();
-    this.id = sourceData.getId();
-    this.name = sourceData.getName();
-    this.lastModified = sourceData.getLastModified();
-    this.lastModifiedBy = sourceData.getLastModifiedBy();
-    this.description = sourceData.getDescription();
-    this.handler = sourceData.getHandler();
-    this.status = sourceData.getStatus();
-    this.statusText = sourceData.getStatusText();
-    this.timestamp = sourceData.getTimestamp();
-    for (final SourceDataFile s : sourceData.getSourceDataFiles()) {
-      this.sourceDataFiles.add(new SourceDataFileJpa(s, deepCopy));
-    }
+    id = sourceData.getId();
+    name = sourceData.getName();
+    lastModified = sourceData.getLastModified();
+    lastModifiedBy = sourceData.getLastModifiedBy();
+    description = sourceData.getDescription();
+    handler = sourceData.getHandler();
+    status = sourceData.getStatus();
+    statusText = sourceData.getStatusText();
+    timestamp = sourceData.getTimestamp();
+    sourceDataFiles = new ArrayList<>(sourceData.getSourceDataFiles());
+
   }
 
   /* see superclass */
@@ -305,13 +304,11 @@ public class SourceDataJpa implements SourceData {
     result =
         prime * result + ((description == null) ? 0 : description.hashCode());
     result = prime * result + ((handler == null) ? 0 : handler.hashCode());
-    result =
-        prime * result
-            + ((handlerStatus == null) ? 0 : handlerStatus.hashCode());
+    result = prime * result
+        + ((handlerStatus == null) ? 0 : handlerStatus.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result =
-        prime * result
-            + ((releaseVersion == null) ? 0 : releaseVersion.hashCode());
+    result = prime * result
+        + ((releaseVersion == null) ? 0 : releaseVersion.hashCode());
     result = prime * result + ((status == null) ? 0 : status.hashCode());
     result =
         prime * result + ((statusText == null) ? 0 : statusText.hashCode());

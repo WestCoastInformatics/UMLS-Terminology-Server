@@ -138,7 +138,7 @@ public class AtomTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
-    assertTrue(tester.testCopyConstructorDeep(AtomTransitiveRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(AtomTransitiveRelationship.class));
   }
 
   /**

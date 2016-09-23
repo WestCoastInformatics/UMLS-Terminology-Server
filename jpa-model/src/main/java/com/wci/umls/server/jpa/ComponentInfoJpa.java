@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -74,12 +74,13 @@ public class ComponentInfoJpa implements ComponentInfo {
   public ComponentInfoJpa(ComponentInfo componentInfo) throws Exception {
     super();
 
-    this.id = componentInfo.getId();
-    this.terminology = componentInfo.getTerminology();
-    this.terminologyId = componentInfo.getTerminologyId();
-    this.version = componentInfo.getVersion();
-    this.name = componentInfo.getName();
-    this.type = componentInfo.getType();
+    id = componentInfo.getId();
+    terminology = componentInfo.getTerminology();
+    terminologyId = componentInfo.getTerminologyId();
+    version = componentInfo.getVersion();
+    name = componentInfo.getName();
+    type = componentInfo.getType();
+    timestamp = componentInfo.getTimestamp();
   }
 
   /**

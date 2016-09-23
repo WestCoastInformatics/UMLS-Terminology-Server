@@ -93,17 +93,17 @@ public class SourceDataFileJpa implements SourceDataFile {
    * Instantiates a new source data file jpa.
    *
    * @param sourceDataFile the source data file
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public SourceDataFileJpa(SourceDataFile sourceDataFile, boolean deepCopy) {
+  public SourceDataFileJpa(SourceDataFile sourceDataFile, boolean collectionCopy) {
     super();
-    this.id = sourceDataFile.getId();
-    this.name = sourceDataFile.getName();
-    this.size = sourceDataFile.getSize();
-    this.directory = sourceDataFile.isDirectory();
-    this.path = sourceDataFile.getPath();
-    this.lastModified = sourceDataFile.getLastModified();
-    this.lastModifiedBy = sourceDataFile.getLastModifiedBy();
+    id = sourceDataFile.getId();
+    name = sourceDataFile.getName();
+    size = sourceDataFile.getSize();
+    directory = sourceDataFile.isDirectory();
+    path = sourceDataFile.getPath();
+    lastModified = sourceDataFile.getLastModified();
+    lastModifiedBy = sourceDataFile.getLastModifiedBy();
   }
 
   /* see superclass */

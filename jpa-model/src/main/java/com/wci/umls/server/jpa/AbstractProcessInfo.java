@@ -100,6 +100,9 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
    */
   public AbstractProcessInfo(ProcessInfo<?> info) {
     id = info.getId();
+    timestamp = info.getTimestamp();
+    lastModified = info.getLastModified();
+    lastModifiedBy = info.getLastModifiedBy();
     name = info.getName();
     description = info.getDescription();
     feedbackEmail = info.getFeedbackEmail();

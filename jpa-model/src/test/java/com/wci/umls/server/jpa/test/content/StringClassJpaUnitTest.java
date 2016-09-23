@@ -95,10 +95,10 @@ public class StringClassJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(StringClass.class));
+    assertTrue(tester.testCopyConstructorCollection(StringClass.class));
   }
 
   /**

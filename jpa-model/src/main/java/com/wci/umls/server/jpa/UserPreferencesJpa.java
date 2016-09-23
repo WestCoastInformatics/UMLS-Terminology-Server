@@ -1,8 +1,9 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,8 @@ public class UserPreferencesJpa implements UserPreferences {
   /** The favorites. */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> favorites = null;
-  
+
+  /** The properties. */
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
   private Map<String, String> properties;
@@ -104,6 +106,8 @@ public class UserPreferencesJpa implements UserPreferences {
     lastTerminology = prefs.getLastTerminology();
     lastProjectRole = prefs.getLastProjectRole();
     precedenceList = prefs.getPrecedenceList();
+    favorites = new ArrayList<>(prefs.getFavorites());
+    properties = new HashMap<>(prefs.getProperties());
   }
 
   /**
@@ -313,7 +317,7 @@ public class UserPreferencesJpa implements UserPreferences {
   public List<String> getFavorites() {
     return this.favorites;
   }
-  
+
   /* see superclass */
   @Override
   public Map<String, String> getProperties() {
@@ -325,8 +329,7 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /* see superclass */
   @Override
-  public void setProperties(
-    Map<String, String> properties) {
+  public void setProperties(Map<String, String> properties) {
     this.properties = properties;
   }
 
@@ -349,7 +352,6 @@ public class UserPreferencesJpa implements UserPreferences {
 
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
@@ -357,10 +359,7 @@ public class UserPreferencesJpa implements UserPreferences {
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
     result =
-        prime
-            * result
-            + ((properties == null) ? 0 : properties
-                .hashCode());
+        prime * result + ((properties == null) ? 0 : properties.hashCode());
     result = prime * result
         + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
     result = prime * result

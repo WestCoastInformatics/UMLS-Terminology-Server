@@ -113,7 +113,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         "...............................................................................");
 
     //
-    // Concept information
+    // Component information
     //
     sb.append(lineEnd).append("CN# ");
     sb.append(comp.getId()).append(" ");
@@ -163,10 +163,20 @@ public class ReportServiceJpa extends HistoryServiceJpa
             decorate));
       }
     }
+    
+    //
+    // Sort atoms
+    //
+    final List<Atom> sortedAtoms = new ArrayList<>(comp.getAtoms());
+    if (concept != null) {
+      Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
+    }
+    
     //
     // Definitions
+    // TODO: need to look for definitions on descriptor,scui, etc.
     //
-    for (final Atom atom : comp.getAtoms()) {
+    for (final Atom atom : sortedAtoms) {
       for (final Definition def : atom.getDefinitions()) {
         sb.append("DEF ");
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
@@ -187,7 +197,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final StringBuffer sosBuffer = new StringBuffer();
     final String sosLabel = "SOS";
     sosBuffer.append(sosLabel);
-    for (final Atom atom : comp.getAtoms()) {
+    for (final Atom atom : sortedAtoms) {
       for (final Attribute att : atom.getAttributes()) {
         if (att.getName().equals("SOS")) {
           sosBuffer.append(
@@ -210,7 +220,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // Notes
     //
     final StringBuffer notesBuffer = new StringBuffer();
-    final String notesLabel = "NOTES";
+    final String notesLabel = "CONCEPT NOTE(S)";
     notesBuffer.append(notesLabel).append(lineEnd);
     for (final Note note : concept.getNotes()) {   
       notesBuffer.append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
@@ -235,10 +245,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     String prev_lui = "";
     String prev_sui = "";
 
-    final List<Atom> sortedAtoms = new ArrayList<>(comp.getAtoms());
-    if (concept != null) {
-      Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
-    }
 
     for (final Atom atom : sortedAtoms) {
 

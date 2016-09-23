@@ -1,10 +1,9 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,18 +15,6 @@ import com.wci.umls.server.AlgorithmParameter;
  */
 @XmlRootElement(name = "parameter")
 public class AlgorithmParameterJpa implements AlgorithmParameter {
-
-  /** The id. */
-  private Long id;
-
-  /** The last modified. */
-  private Date lastModified;
-
-  /** The last modified. */
-  private String lastModifiedBy;
-
-  /** The last modified. */
-  private Date timestamp = new Date();
 
   /** The name. */
   private String name;
@@ -76,7 +63,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     placeholder = param.getPlaceholder();
     type = param.getType();
     value = param.getValue();
-    values = param.getValues();
+    values = new ArrayList<>(param.getValues());
     possibleValues = new ArrayList<>(param.getPossibleValues());
   }
 
@@ -98,54 +85,6 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     this.placeholder = placeholder;
     this.length = length;
     this.type = type;
-  }
-
-  /* see superclass */
-  @Override
-  public Long getId() {
-    return id;
-  }
-
-  /* see superclass */
-  @Override
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  /* see superclass */
-  @Override
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /* see superclass */
-  @Override
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTimestamp(Date timestamp) {
-    this.timestamp = timestamp;
   }
 
   /* see superclass */
@@ -278,8 +217,7 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
     result = prime * result
         + ((possibleValues == null) ? 0 : possibleValues.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
-    result = prime * result
-        + ((values == null) ? 0 : values.hashCode());
+    result = prime * result + ((values == null) ? 0 : values.hashCode());
     return result;
   }
 

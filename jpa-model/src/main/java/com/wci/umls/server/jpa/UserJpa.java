@@ -118,15 +118,16 @@ public class UserJpa implements User {
    */
   public UserJpa(User user) {
     super();
-    this.id = user.getId();
-    this.userName = user.getUserName();
-    this.name = user.getName();
-    this.team = user.getTeam();
-    this.email = user.getEmail();
-    this.editorLevel = user.getEditorLevel();
-    this.applicationRole = user.getApplicationRole();
-    this.authToken = user.getAuthToken();
-    this.userPreferences = user.getUserPreferences();
+    id = user.getId();
+    userName = user.getUserName();
+    name = user.getName();
+    team = user.getTeam();
+    email = user.getEmail();
+    editorLevel = user.getEditorLevel();
+    applicationRole = user.getApplicationRole();
+    authToken = user.getAuthToken();
+    userPreferences = user.getUserPreferences();
+    projectRoleMap = new HashMap<>(user.getProjectRoleMap());
   }
 
   /* see superclass */

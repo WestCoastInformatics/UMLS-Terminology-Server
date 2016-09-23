@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -31,7 +31,7 @@ import com.wci.umls.server.model.meta.IdType;
 @Entity
 @Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {
     "terminologyId", "terminology", "version", "id"
-}) )
+}))
 @Audited
 @Indexed
 @XmlRootElement(name = "code")
@@ -63,19 +63,14 @@ public class CodeJpa extends AbstractAtomClass implements Code {
    * Instantiates a new code jpa.
    *
    * @param code the code
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public CodeJpa(Code code, boolean deepCopy) {
-    super(code, deepCopy);
-    if (code.getLabels() != null) {
-      labels = new ArrayList<>(code.getLabels());
-    }
+  public CodeJpa(Code code, boolean collectionCopy) {
+    super(code, collectionCopy);
+    labels = new ArrayList<>(code.getLabels());
 
-    if (deepCopy) {
-      for (final CodeRelationship relationship : code.getRelationships()) {
-        getRelationships().add(new CodeRelationshipJpa(relationship, deepCopy));
-      }
-
+    if (collectionCopy) {
+      relationships = new ArrayList<>(code.getRelationships());
     }
   }
 
@@ -99,6 +94,9 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /* see superclass */
   @Override
   public List<String> getLabels() {
+    if (labels == null) {
+      labels = new ArrayList<>();
+    }
     return labels;
   }
 
@@ -126,7 +124,6 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     return this.notes;
   }
 
-
   @Override
   public void setType(IdType type) {
     // N/A
@@ -136,6 +133,5 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   public IdType getType() {
     return IdType.CODE;
   }
-
 
 }

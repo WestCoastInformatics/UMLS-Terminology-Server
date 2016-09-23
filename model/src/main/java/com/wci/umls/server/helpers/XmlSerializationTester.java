@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -29,17 +29,16 @@ public class XmlSerializationTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testXmlSerialization() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test xml serialization - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test xml serialization - " + clazz.getName());
     Object obj = createObject(1);
-    Logger.getLogger(getClass()).info(obj);
+    Logger.getLogger(getClass()).debug(obj);
     String xml = ConfigUtility.getStringForGraph(obj);
-    Logger.getLogger(getClass()).info("xml = " + xml);
+    Logger.getLogger(getClass()).debug("xml = " + xml);
     Object obj2 = ConfigUtility.getGraphForString(xml, obj.getClass());
     String json = ConfigUtility.getJsonForGraph(obj);
-    Logger.getLogger(getClass()).info("json = " + json);
+    Logger.getLogger(getClass()).debug("json = " + json);
     Object obj3 = ConfigUtility.getGraphForJson(json, obj.getClass());
-    Logger.getLogger(getClass()).debug(obj);
     Logger.getLogger(getClass()).debug(obj2);
     Logger.getLogger(getClass()).debug(obj3);
 

@@ -88,9 +88,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     failDate = exec.getFailDate();
     processConfigId = exec.getProcessConfigId();
     workId = exec.getWorkId();
-    for (final AlgorithmExecution step : exec.getSteps()) {
-      getSteps().add(new AlgorithmExecutionJpa(step));
-    }
+    steps = new ArrayList<>(exec.getSteps());
   }
 
   /**

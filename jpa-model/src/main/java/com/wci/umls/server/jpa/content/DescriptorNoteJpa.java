@@ -48,7 +48,7 @@ public class DescriptorNoteJpa extends AbstractNote {
    */
   public DescriptorNoteJpa(DescriptorNoteJpa note) {
     super(note);
-    this.descriptor = note.getDescriptor();
+    descriptor = note.getDescriptor();
   }
 
   /**
