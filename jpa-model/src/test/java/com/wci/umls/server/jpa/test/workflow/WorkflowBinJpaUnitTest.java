@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.workflow;
 
@@ -220,7 +220,7 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test XML transient
+   * Test XML transient.
    *
    * @throws Exception the exception
    */
@@ -232,8 +232,6 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
     record.setId(1L);
     object.getTrackingRecords().add(record);
     String xml = ConfigUtility.getStringForGraph(object);
-    String json = ConfigUtility.getJsonForGraph(object);
-    System.out.println("json=" + json);
     assertTrue(xml.contains("<projectId>"));
     assertFalse(xml.contains("<project>"));
   }

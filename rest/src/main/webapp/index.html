@@ -173,9 +173,17 @@
   </div>
   <!-- Footer -->
   <div ts-footer></div>
+
   <!-- Glass Pane -->
   <div ng-controller="GlassPaneCtrl" ng-show="glassPane.counter > 0"
-    class="top-layer"></div>
+    class="top-layer">
+    <div class="v-wrap">
+      <div class="v-box top-layer-message">
+        <h5 ng-repeat="message in glassPane.messages"
+          class="alert alert-success">{{message}}</h5>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>

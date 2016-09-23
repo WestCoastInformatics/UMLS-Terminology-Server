@@ -52,6 +52,7 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -152,9 +153,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Workflow config to add", required = true) WorkflowConfigJpa workflowConfig,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /config/add/" + projectId + " "
-            + workflowConfig.toString() + " " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /config/add/"
+        + projectId + " " + workflowConfig.toString() + " " + authToken);
 
     final String action = "trying to add workflow config";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -200,9 +200,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Workflow config to update", required = true) WorkflowConfigJpa config,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /config/update/" + projectId + " "
-            + config.getId() + " " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /config/update/"
+        + projectId + " " + config.getId() + " " + authToken);
 
     final String action = "trying to update workflow config";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -245,8 +244,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /worklist/update/" + projectId
-            + " " + worklist.getId() + " " + authToken);
+        .info("RESTful call (Workflow): /worklist/update/" + projectId + " "
+            + worklist.getId() + " " + authToken);
 
     final String action = "trying to update a worklist";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -592,9 +591,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Workflow epoch to add", required = true) WorkflowEpochJpa epoch,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /epoch/add/" + projectId + " "
-            + epoch.getName() + " " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /epoch/add/"
+        + projectId + " " + epoch.getName() + " " + authToken);
 
     final String action = "trying to add workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -677,8 +675,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /definition/update  " + projectId
-            + " " + def.getId() + " " + authToken);
+        .info("RESTful call (Workflow): /definition/update  " + projectId + " "
+            + def.getId() + " " + authToken);
 
     final String action = "trying to update workflow bin definition";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -1242,8 +1240,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /worklist/assigned, " + projectId
-            + ", " + userName + ", " + role);
+        .info("RESTful call (Workflow): /worklist/assigned, " + projectId + ", "
+            + userName + ", " + role);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -1281,9 +1279,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist " + projectId + " "
-            + query + " " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /checklist "
+        + projectId + " " + query + " " + authToken);
 
     final String action = "trying to find checklists";
     final WorkflowService workflowService = new WorkflowServiceJpa();
@@ -2301,8 +2298,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Relationship count", required = false) @QueryParam("relationshipCt") Integer relationshipCt,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /report/" + id + "/report/generate ");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /report/" + id + "/report/generate ");
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     final ReportServiceJpa reportService = new ReportServiceJpa();
@@ -2343,8 +2340,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       for (final TrackingRecord record : recordList) {
         for (final Long conceptId : record.getOrigConceptIds()) {
           final Concept concept = reportService.getConcept(conceptId);
+
+          final PrecedenceList list = sortAtoms(securityService, reportService,
+              userName, concept, project);
           conceptReport
-              .append(reportService.getConceptReport(project, concept));
+              .append(reportService.getConceptReport(project, concept, list));
           conceptReport.append("---------------------------------------------");
         }
       }
@@ -2395,8 +2395,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /report " + projectId + ", " + query);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /report " + projectId + ", " + query);
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     StringList stringList = new StringList();
@@ -2568,9 +2568,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The note, e.g. \"this is a sample note\"", required = true) String note,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/" + checklistId
-            + "/note/add " + note);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /checklist/"
+        + checklistId + "/note/add " + note);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -2685,8 +2684,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/note/" + noteId
-            + "/remove");
+        .info("RESTful call (Workflow): /checklist/note/" + noteId + "/remove");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -2741,8 +2739,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Note id, e.g. 3", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /worklist/note/" + noteId + "/remove");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /worklist/note/" + noteId + "/remove");
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -2963,6 +2961,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         }
         final Long par = Math.min(conceptId1, conceptId2);
         final Long chd = Math.max(conceptId1, conceptId2);
+
         // skip self-ref
         if (par.equals(chd)) {
           continue;
@@ -2990,7 +2989,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         result[0] = par;
         result[1] = par;
         results.add(result);
-
         // recurse down the entire parChd graph for "root" keys
         final Set<Long> descendants = new HashSet<>();
         getDescendants(par, parChd, descendants);
@@ -2999,7 +2997,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           final Long[] result2 = new Long[2];
           result2[0] = par;
           result2[1] = desc;
-          results.add(result);
+          results.add(result2);
         }
       }
       return results;
@@ -3226,8 +3224,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/import " + projectId
-            + ", " + name);
+        .info("RESTful call (Workflow): /checklist/import " + projectId + ", "
+            + name);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     workflowService.setTransactionPerOperation(false);
@@ -3349,8 +3347,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/compute " + projectId
-            + ", " + name + ", " + query);
+        .info("RESTful call (Workflow): /checklist/compute " + projectId + ", "
+            + name + ", " + query);
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
     workflowService.setTransactionPerOperation(false);
@@ -3570,8 +3568,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Workflow): /worklist/"
-        + id + "/stamp " + projectId + ", " + activityId + ", " + approve);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /worklist/" + id
+        + "/stamp " + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
     final StampingAlgorithm algorithm = new StampingAlgorithm();
@@ -3626,9 +3624,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Approve", required = false) @QueryParam("approve") boolean approve,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/" + id + "/stamp "
-            + projectId + ", " + activityId + ", " + approve);
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /checklist/"
+        + id + "/stamp " + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
     final StampingAlgorithm algorithm = new StampingAlgorithm();
@@ -3683,8 +3680,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /status/compute " + projectId
-            + ", " + activityId);
+        .info("RESTful call (Workflow): /status/compute " + projectId + ", "
+            + activityId);
 
     // Instantiate services
     final MatrixInitializerAlgorithm algorithm =

@@ -154,6 +154,9 @@ public class TerminologyJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("descriptionLogicTerminology");
     tester.include("descriptionLogicProfile");
+    tester.include("inverterEmail");
+    tester.include("includeSiblings");
+    tester.include("url");
 
     tester.proxy(RootTerminology.class, 1, rootTerminologyProxy);
     tester.proxy(RootTerminology.class, 2, rootTerminologyProxy2);
@@ -244,6 +247,7 @@ public class TerminologyJpaUnitTest extends ModelUnitSupport {
     tester.include("current");
     tester.include("metathesaurus");
     tester.include("descriptionLogicTerminology");
+    tester.include("includeSiblings");
 
     assertTrue(tester.testNotNullFields());
   }

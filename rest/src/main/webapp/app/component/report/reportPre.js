@@ -20,25 +20,22 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
           $scope.getReport($scope.selected.component);
         }
       });
-      
 
       // Trust as HTML
       $scope.getTrustedReport = function() {
         return $sce.trustAsHtml($scope.report);
       };
 
-            
       // Get the report
       $scope.getReport = function(component) {
-        //if ($scope.selected.project) {
-          reportService.getComponentReport(null, component).then(
-          // Success
-          function(data) {
-            $scope.report = data;
-          });
-        //}
+        $scope.report = "Loading...";
+        reportService.getComponentReport(null, component).then(
+        // Success
+        function(data) {
+          $scope.report = data;
+        });
+
       }
-      
 
     } ]
   };

@@ -35,13 +35,13 @@
           ng-change="setConfig(selected.config)"></select>
         <span ng-show="lists.configs.length == 1">{{selected.config.type}}
         </span>
-        <button title="Regenerate bins"
-          ng-click="regenerateBins()"
+        <button confirm="Are you sure you want to regenerate bins?"
+          title="Regenerate bins" ng-click="regenerateBins()"
           class="ml20 btn btn-xs btn-primary">R</button>
-        <button title="Recompute concept status"
-          ng-click="recomputeConceptStatus()"
+        <button confirm="Are you sure you want to recompute concept status?"
+          title="Recompute concept status" ng-click="recomputeConceptStatus()"
           class="ml20 btn btn-xs btn-primary">S</button>
-  <!--  consider buttons
+        <!--  consider buttons
         <i title="Regenerate bins"
           ng-click="regenerateBins(); $event.stopPropagation()"
           class="ml20 noul glyphicon glyphicon-repeat"></i>
@@ -49,7 +49,7 @@
           ng-click="recomputeConceptStatus(); $event.stopPropagation()"
           class="ml20 noul glyphicon glyphicon-retweet"></i>
  -->
-         <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
+        <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
           <i ng-click="openEditConfigModal(selected.config)"
             ng-show="selected.config" title="Edit workflow configuration"
             class="ml20 noul glyphicon glyphicon-pencil"></i>

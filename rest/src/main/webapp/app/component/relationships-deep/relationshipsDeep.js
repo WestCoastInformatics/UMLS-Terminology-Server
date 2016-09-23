@@ -78,7 +78,7 @@ tsApp.directive('relationshipsDeep', [
           };
 
           // Request from service
-          contentService.findDeepRelationships(component, paging).then(
+          contentService.findDeepRelationships(component, false, false, false, false, paging).then(
           // Success
           function(data) {
             scope.pagedData.data = data.relationships;

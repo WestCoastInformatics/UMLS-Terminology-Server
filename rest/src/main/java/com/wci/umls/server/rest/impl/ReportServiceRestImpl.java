@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ReportServiceRest;
@@ -71,14 +72,24 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Report): /report");
 
-    ReportService reportService = new ReportServiceJpa();
+    final ReportService reportService = new ReportServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get concept report",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "get concept report", UserRole.VIEWER);
 
-      Concept concept = reportService.getConcept(conceptId);
-      Project project = projectId == null ? null : reportService.getProject(projectId);
-      return reportService.getConceptReport(project, concept);
+      final Concept concept = reportService.getConcept(conceptId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
+
+      // Sort atoms
+      if (concept != null) {
+        reportService.getGraphResolutionHandler(concept.getTerminology())
+            .resolve(concept);
+        final PrecedenceList list = sortAtoms(securityService, reportService,
+            userName, concept, project);
+        return reportService.getConceptReport(project, concept, list);
+      }
+      return "MISSING CONCEPT";
 
     } catch (Exception e) {
       handleException(e, "trying to get concept report");
@@ -102,15 +113,24 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Report): /report");
 
-    ReportService reportService = new ReportServiceJpa();
+    final ReportService reportService = new ReportServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get descriptor report",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "get descriptor report", UserRole.VIEWER);
 
-      Descriptor descriptor = reportService.getDescriptor(descriptorId);
-      final Project project = reportService.getProject(projectId);
-      
-      return reportService.getDescriptorReport(project, descriptor);
+      final Descriptor descriptor = reportService.getDescriptor(descriptorId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
+
+      // Sort atoms
+      if (descriptor != null) {
+        reportService.getGraphResolutionHandler(descriptor.getTerminology())
+            .resolve(descriptor);
+        final PrecedenceList list = sortAtoms(securityService, reportService,
+            userName, descriptor, project);
+        return reportService.getDescriptorReport(project, descriptor, list);
+      }
+      return "MISSING DESCRIPTOR";
 
     } catch (Exception e) {
       handleException(e, "trying to get descriptor report");
@@ -134,15 +154,24 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Report): /report");
 
-    ReportService reportService = new ReportServiceJpa();
+    final ReportService reportService = new ReportServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get code report",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "get code report", UserRole.VIEWER);
 
-      Code code = reportService.getCode(codeId);
-      final Project project = reportService.getProject(projectId);
-      
-      return reportService.getCodeReport(project, code);
+      final Code code = reportService.getCode(codeId);
+      final Project project =
+          projectId == null ? null : reportService.getProject(projectId);
+
+      // Sort atoms
+      if (code != null) {
+        reportService.getGraphResolutionHandler(code.getTerminology())
+            .resolve(code);
+        final PrecedenceList list =
+            sortAtoms(securityService, reportService, userName, code, project);
+        return reportService.getCodeReport(project, code, list);
+      }
+      return "MISSING CODE";
 
     } catch (Exception e) {
       handleException(e, "trying to get code report");

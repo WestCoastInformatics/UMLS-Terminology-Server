@@ -310,3 +310,27 @@ hr {
 .RXNORM {
 	color: orange;
 }
+
+/* For vertical centering */
+.v-wrap {
+	height: 100%;
+	white-space: nowrap;
+	text-align: center;
+}
+
+.v-wrap:before {
+	content: "";
+	display: inline-block;
+	vertical-align: middle;
+	width: 0;
+	/* adjust for white space between pseudo element and next sibling */
+	margin-right: -.25em;
+	/* stretch line height */
+	height: 100%;
+}
+
+.v-box {
+	display: inline-block;
+	vertical-align: middle;
+	white-space: normal;
+}

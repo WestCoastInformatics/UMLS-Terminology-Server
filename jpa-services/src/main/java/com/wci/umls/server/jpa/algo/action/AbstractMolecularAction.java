@@ -406,7 +406,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
     return null;
   }
-  
+
   /**
    * Find demotion between concepts.
    *
@@ -414,12 +414,15 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the atom relationship
    * @throws Exception the exception
    */
-  public AtomRelationship findDemotionMatchingRelationship(ConceptRelationship relationship) throws Exception {
+  @SuppressWarnings("static-method")
+  public AtomRelationship findDemotionMatchingRelationship(
+    ConceptRelationship relationship) throws Exception {
 
-    for (Atom fromAtom : relationship.getFrom().getAtoms()){
-      for(Atom toAtom : relationship.getTo().getAtoms()){
-        for(AtomRelationship atomRel : fromAtom.getRelationships()){
-          if(atomRel.getTo().getId().equals(toAtom.getId()) && atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)){
+    for (Atom fromAtom : relationship.getFrom().getAtoms()) {
+      for (Atom toAtom : relationship.getTo().getAtoms()) {
+        for (AtomRelationship atomRel : fromAtom.getRelationships()) {
+          if (atomRel.getTo().getId().equals(toAtom.getId())
+              && atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
             return atomRel;
           }
         }
@@ -427,7 +430,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     }
 
     return null;
-  }  
+  }
 
   /**
    * Indicates whether or not delete action is the case.

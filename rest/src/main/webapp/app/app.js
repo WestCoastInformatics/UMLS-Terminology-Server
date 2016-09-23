@@ -28,6 +28,8 @@ tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpSe
 
   $scope.glassPane = gpService.glassPane;
 
+  
+  
 } ]);
 
 // Simple error controller

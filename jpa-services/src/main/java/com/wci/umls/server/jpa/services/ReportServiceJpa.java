@@ -5,9 +5,12 @@ package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,11 +22,14 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
+import com.wci.umls.server.jpa.services.handlers.RrfComputePreferredNameHandler;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -60,23 +66,29 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
   }
 
-  /* see superclass */
-  @Override
-  public String getConceptReport(Project project, Concept concept)
-    throws Exception {
+  /**
+   * Helper function for actually generating a report.
+   *
+   * @param project the project
+   * @param comp the concept
+   * @param list the list
+   * @return the report helper
+   * @throws Exception the exception
+   */
+  private String getReportHelper(Project project, AtomClass comp,
+    PrecedenceList list) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
     Tree parent = null;
     String indent = "";
 
-    //
-    // Options
-    //
+    // For concept-specific things, cast it if so
+    final Concept concept = (comp instanceof Concept) ? ((Concept) comp) : null;
 
     //
     // Handle validation/integrity checks
     //
-    if (project != null) {
+    if (project != null && concept != null) {
       final ValidationResult validationResult =
           validateConcept(project, concept);
       sb.append("As of ");
@@ -103,30 +115,30 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // Concept information
     //
     sb.append(lineEnd).append("CN# ");
-    sb.append(concept.getId()).append(" ");
-    sb.append(concept.getName()).append(lineEnd);
+    sb.append(comp.getId()).append(" ");
+    sb.append(comp.getName()).append(lineEnd);
 
     // get all concept terminology ids associated with the atoms in this concept
     final List<String> conceptTerminologyIds = new ArrayList<>();
-    for (final Atom atom : concept.getAtoms()) {
+    for (final Atom atom : comp.getAtoms()) {
       final String conceptTerminologyId =
-          atom.getConceptTerminologyIds().get(concept.getTerminology());
+          atom.getConceptTerminologyIds().get(comp.getTerminology());
       if (conceptTerminologyId != null && !conceptTerminologyId.equals("")
           && !conceptTerminologyIds.contains(conceptTerminologyId)) {
         conceptTerminologyIds.add(conceptTerminologyId);
       }
     }
     Collections.sort(conceptTerminologyIds);
-    conceptTerminologyIds.remove(concept.getTerminologyId());
+    conceptTerminologyIds.remove(comp.getTerminologyId());
 
-    sb.append(getOpenStyleTag(concept.getWorkflowStatus(),
-        concept.isPublishable(), concept.isObsolete(), false));
+    sb.append(getOpenStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
+        comp.isObsolete(), false));
     sb.append("CUI ");
-    sb.append(concept.getTerminologyId()).append("\t");
+    sb.append(comp.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
-        .append(getStatusChar(concept.getWorkflowStatus())).append("\r\n");
-    sb.append(getCloseStyleTag(concept.getWorkflowStatus(),
-        concept.isPublishable(), concept.isObsolete(), false));
+        .append(getStatusChar(comp.getWorkflowStatus())).append("\r\n");
+    sb.append(getCloseStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
+        comp.isObsolete(), false));
     for (final String id : conceptTerminologyIds) {
       sb.append(id).append(lineEnd);
     }
@@ -134,23 +146,26 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     // Semantic Types
     //
-    sb.append("STY ");
-    boolean first = true;
-    for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
-      sb.append(getOpenStyleTag(sty.getWorkflowStatus(), false, false, false));
-      if (!first) {
-        sb.append("    ");
+    if (concept != null) {
+      sb.append("STY ");
+      boolean first = true;
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
+        sb.append(getOpenStyleTag(sty.getWorkflowStatus(), sty.isPublishable(),
+            sty.isObsolete(), false));
+        if (!first) {
+          sb.append("    ");
+        }
+        first = false;
+        sb.append(sty.getSemanticType()).append("\t");
+        sb.append(getStatusChar(sty.getWorkflowStatus())).append(lineEnd);
+        sb.append(
+            getCloseStyleTag(sty.getWorkflowStatus(), false, false, false));
       }
-      first = false;
-      sb.append(sty.getSemanticType()).append("\t");
-      sb.append(getStatusChar(sty.getWorkflowStatus())).append(lineEnd);
-      sb.append(getCloseStyleTag(sty.getWorkflowStatus(), false, false, false));
     }
-
     //
     // Definitions
     //
-    for (final Atom atom : concept.getAtoms()) {
+    for (final Atom atom : comp.getAtoms()) {
       for (final Definition def : atom.getDefinitions()) {
         sb.append("DEF ");
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
@@ -171,7 +186,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final StringBuffer sosBuffer = new StringBuffer();
     final String sosLabel = "SOS";
     sosBuffer.append(sosLabel);
-    for (final Atom atom : concept.getAtoms()) {
+    for (final Atom atom : comp.getAtoms()) {
       for (final Attribute att : atom.getAttributes()) {
         if (att.getName().equals("SOS")) {
           sosBuffer.append(
@@ -211,15 +226,20 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
 
     // Determine ambiguous atoms
-    final Set<Long> ambiguousAtomIds =
-        new HashSet<>(getAmbiguousAtomIds(concept));
+    final Set<Long> ambiguousAtomIds = concept == null ? new HashSet<>()
+        : new HashSet<>(getAmbiguousAtomIds(concept));
 
     sb.append("ATOMS").append(lineEnd);
 
     String prev_lui = "";
     String prev_sui = "";
 
-    for (final Atom atom : concept.getAtoms()) {
+    final List<Atom> sortedAtoms = new ArrayList<>(comp.getAtoms());
+    if (concept != null) {
+      Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
+    }
+
+    for (final Atom atom : sortedAtoms) {
 
       //
       // Determine flags
@@ -237,7 +257,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(getOpenStyleTag(atom.getWorkflowStatus(), atom.isPublishable(),
           atom.isObsolete(), isBaseRxnormAmbiguous));
 
-      if (getStatusChar(atom.getWorkflowStatus()).equals("D")) {
+      if (atom.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
         sb.append("D");
       } else {
         sb.append(" ");
@@ -252,10 +272,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
       if (atom.isObsolete()) {
         sb.append("O");
       } else if (atom.isSuppressible() && getTermType(atom.getTermType(),
-          concept.getTerminology(), concept.getVersion()).isSuppressible()) {
+          comp.getTerminology(), comp.getVersion()).isSuppressible()) {
         sb.append("Y");
       } else if (atom.isSuppressible() && !getTermType(atom.getTermType(),
-          concept.getTerminology(), concept.getVersion()).isSuppressible()) {
+          comp.getTerminology(), comp.getVersion()).isSuppressible()) {
         sb.append("E");
       } else {
         sb.append(" ");
@@ -303,10 +323,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(atom.getTermType()).append("/");
       sb.append(atom.getCodeId()).append("]");
 
-      // Write MUI if ( MSH (or MSH translation) or NCI (or NCI subsources)).
-      if (("MSH".equals(atom.getTerminology()) && atom.getConceptId() != null)
-          || ("NCI".equals(atom.getTerminology())
-              && atom.getConceptId() != null)) {
+      // Write the SCUI
+      if (atom.getConceptId() != null) {
         sb.append(" ");
         sb.append(atom.getConceptId());
       }
@@ -316,6 +334,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
       if (att != null) {
         sb.append(" ");
         sb.append(att.getValue());
+      }
+
+      // Write UMLSCUI
+      final Attribute umlscui = atom.getAttributeByName("UMLSCUI");
+      if (umlscui != null) {
+        sb.append(" ");
+        sb.append(umlscui.getValue());
       }
 
       if (!atom.isPublishable()) {
@@ -335,16 +360,35 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     // RELATIONSHIPS
     //
-    final List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relList =
-        findConceptDeepRelationships(concept.getTerminologyId(),
-            concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
-            false, true, true, false, new PfsParameterJpa()).getObjects();
+
+    List<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relList =
+        new ArrayList<>(0);
+    // Handle concept rels
+    if (concept != null) {
+      relList = findConceptDeepRelationships(concept.getTerminologyId(),
+          concept.getTerminology(), concept.getVersion(), Branch.ROOT, null,
+          false, true, true, false, new PfsParameterJpa()).getObjects();
+    }
+
+    // Handle descriptor rels
+    if (comp instanceof Descriptor) {
+      relList = findDescriptorRelationships(comp.getTerminologyId(),
+          comp.getTerminology(), comp.getVersion(), Branch.ROOT, null, false,
+          null).getObjects();
+    }
+
+    // Handle code rels
+    if (comp instanceof Code) {
+      relList =
+          findCodeRelationships(comp.getTerminologyId(), comp.getTerminology(),
+              comp.getVersion(), Branch.ROOT, null, false, null).getObjects();
+    }
 
     // Lexical Relationships
     final List<AtomRelationship> lexicalRelationships = new ArrayList<>();
     // double for loop over atoms and then each atom's relationships
     // additional relation types ends with form_of
-    for (final Atom atom : concept.getAtoms()) {
+    for (final Atom atom : comp.getAtoms()) {
       for (final AtomRelationship atomRel : atom.getRelationships()) {
         if (atomRel.getAdditionalRelationshipType().endsWith("form_of")) {
           lexicalRelationships.add(atomRel);
@@ -424,9 +468,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
       final ConceptRelationship rel = (ConceptRelationship) relationship;
       if (rel.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW
           && rel.getRelationshipType().equals("XR")
-          && !(rel.getRelationshipType().equals("PAR")
-              || rel.getRelationshipType().equals("CHD")
-              || rel.getRelationshipType().equals("SIB"))
           && !usedToIds.contains(rel.getTo().getTerminologyId())) {
         // usedToIds.add(rel.getTo().getTerminologyId());
         xrRelsToIds.add(rel.getTo().getTerminologyId());
@@ -455,9 +496,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
       if ((rel.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
           || rel.getWorkflowStatus() == WorkflowStatus.PUBLISHED)
           && !usedToIds.contains(rel.getTo().getTerminologyId()) && ct < 20
+          // Exclude these rel types
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
-              || rel.getRelationshipType().equals("SIB"))) {
+              || rel.getRelationshipType().equals("SIB")
+              || rel.getRelationshipType().equals("AQ")
+              || rel.getRelationshipType().equals("QB"))) {
         usedToIds.add(rel.getTo().getTerminologyId());
         reviewedRelatedConcepts.add(rel);
         ct++;
@@ -493,7 +537,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // collect all unique terminology, version, terminologyId, type combos from
     // atoms in concept - ATOMS are in order - just pick first 10
     int ct = 0;
-    for (final Atom atom : concept.getAtoms()) {
+    for (final Atom atom : comp.getAtoms()) {
 
       final Terminology fullTerminology =
           getTerminology(atom.getTerminology(), atom.getVersion());
@@ -756,21 +800,31 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (status == WorkflowStatus.NEEDS_REVIEW) {
       return "N";
     } else if (status == WorkflowStatus.DEMOTION) {
-      return "D";
+      return "N";
     } else {
       return "R";
     }
   }
 
+  /* see superclass */
   @Override
-  public String getDescriptorReport(Project project, Descriptor descriptor)
-    throws Exception {
-    return "TBD";
+  public String getConceptReport(Project project, Concept concept,
+    PrecedenceList list) throws Exception {
+    return getReportHelper(project, concept, list);
   }
 
+  /* see superclass */
   @Override
-  public String getCodeReport(Project project, Code code) throws Exception {
-    return "TBD";
+  public String getDescriptorReport(Project project, Descriptor descriptor,
+    PrecedenceList list) throws Exception {
+    return getReportHelper(project, descriptor, list);
+  }
+
+  /* see superclass */
+  @Override
+  public String getCodeReport(Project project, Code code, PrecedenceList list)
+    throws Exception {
+    return getReportHelper(project, code, list);
   }
 
   /**
@@ -810,10 +864,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append("}");
 
       // Print relationship_level
-      if (rel.getTerminology().equals(rel.getFrom().getTerminology())) {
-        sb.append(" C");
-      } else if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
+      if (rel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
         sb.append(" P");
+      } else if (rel.getTerminology().equals(rel.getFrom().getTerminology())) {
+        sb.append(" C");
       } else {
         sb.append(" S");
       }
@@ -880,6 +934,111 @@ public class ReportServiceJpa extends HistoryServiceJpa
       return "</span>";
     }
     return "";
+  }
+
+  /**
+   * LexicalClass/StringClass comparator for report.
+   */
+  class ReportsAtomComparator implements Comparator<Atom> {
+
+    /** The lui ranks. */
+    private Map<String, String> luiRanks = new HashMap<>();
+
+    /** The sui ranks. */
+    private Map<String, String> suiRanks = new HashMap<>();
+
+    /** The atom ranks. */
+    private Map<Long, String> atomRanks = new HashMap<>();
+
+    /**
+     * Instantiates a {@link ReportsAtomComparator} from the specified
+     * parameters.
+     *
+     * @param concept the concept
+     * @param list the list
+     * @throws Exception the exception
+     */
+    public ReportsAtomComparator(Concept concept, PrecedenceList list)
+        throws Exception {
+
+      // Set up vars
+      String lui = null;
+      String sui = null;
+      String rank = null;
+      String luiRank = null;
+      String suiRank = null;
+
+      // Configure rank handler
+      RrfComputePreferredNameHandler handler =
+          new RrfComputePreferredNameHandler();
+      handler.cacheList(list);
+
+      // Get default atom ordering
+      final List<Atom> atoms = concept.getAtoms();
+
+      // Iterate through atoms, maintaning the luiRanks and suiRanks maps
+      for (final Atom atom : atoms) {
+
+        // Get initial values
+        lui = atom.getLexicalClassId();
+        sui = atom.getStringClassId();
+        rank = handler.getRank(atom, list);
+        atomRanks.put(atom.getId(), rank);
+
+        // Look up that atom's lui
+        luiRank = luiRanks.get(lui);
+        if (luiRank == null) {
+          // Add the current atom's lui and rank to the hashmap.
+          luiRanks.put(lui, rank);
+        }
+
+        // Compare the rank returned with the current rank
+        // and determine which rank is higher.
+        else if (rank.compareTo(luiRank) > 0) {
+          // if the current atom's rank is higher than the one in the hashmap,
+          // then replace it.
+          luiRanks.put(lui, rank);
+
+          // Look up that atom's sui in suiRanks
+        }
+        suiRank = suiRanks.get(sui);
+        if (suiRank == null) {
+          // Add the current atom's sui and rank to the hashmap.
+          suiRanks.put(sui, rank);
+        }
+
+        // Compare the rank returned with the current rank
+        // and determine which rank is higher.
+        else if (rank.compareTo(suiRank) > 0) {
+          // if the current atom's rank is higher than the one in the hashmap,
+          // then replace it.
+          suiRanks.put(sui, rank);
+        }
+
+      } // end for
+    }
+
+    /* see superclass */
+    @Override
+    public int compare(Atom a1, Atom a2) {
+
+      // Reverse sort -> return the higher value first
+
+      // Compare LUI ranks first
+      if (!a1.getLexicalClassId().equals(a2.getLexicalClassId())) {
+        String l2 = luiRanks.get(a2.getLexicalClassId());
+        return l2.compareTo(luiRanks.get(a1.getLexicalClassId()));
+      }
+
+      // Compare SUI ranks second
+      if (!a1.getStringClassId().equals(a2.getStringClassId())) {
+        String s2 = suiRanks.get(a2.getStringClassId());
+        return s2.compareTo(suiRanks.get(a1.getStringClassId()));
+      }
+
+      // If things are STILL equal, compare the ranks
+      return atomRanks.get(a2.getId()).compareTo(atomRanks.get(a1.getId()));
+    }
   }
 
 }
