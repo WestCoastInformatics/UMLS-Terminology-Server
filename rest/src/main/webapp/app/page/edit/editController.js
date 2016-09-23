@@ -343,7 +343,11 @@ tsApp
 
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
-            $scope.selected.project.version);
+            $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                $scope.selected.metadata = data;
+              });
 
           $scope.removeWindows();
 
