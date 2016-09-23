@@ -73,8 +73,6 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   @Enumerated(EnumType.STRING)
   private UsageType usageType;
 
-  
-  
   /**
    * Instantiates an empty {@link TermTypeJpa}.
    */
@@ -96,6 +94,8 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     suppressible = tty.isSuppressible();
     style = tty.getStyle();
     usageType = tty.getUsageType();
+    exclude = tty.isExclude();
+    normExclude = tty.isNormExclude();
   }
 
   /* see superclass */
@@ -122,38 +122,26 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     this.suppressible = suppressible;
   }
 
-  /**
-   * Indicates whether or not exclude is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
+  @Override
   public boolean isExclude() {
     return exclude;
   }
 
-  /**
-   * Sets the exclude.
-   *
-   * @param exclude the exclude
-   */
+  /* see superclass */
+  @Override
   public void setExclude(boolean exclude) {
     this.exclude = exclude;
   }
 
-  /**
-   * Indicates whether or not norm exclude is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
+  /* see superclass */
+  @Override
   public boolean isNormExclude() {
     return normExclude;
   }
 
-  /**
-   * Sets the norm exclude.
-   *
-   * @param normExclude the norm exclude
-   */
+  /* see superclass */
+  @Override
   public void setNormExclude(boolean normExclude) {
     this.normExclude = normExclude;
   }
@@ -223,16 +211,16 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime * result
-            + ((codeVariantType == null) ? 0 : codeVariantType.hashCode());
+    result = prime * result
+        + ((codeVariantType == null) ? 0 : codeVariantType.hashCode());
     result = prime * result + (hierarchicalType ? 1231 : 1237);
-    result =
-        prime * result
-            + ((nameVariantType == null) ? 0 : nameVariantType.hashCode());
+    result = prime * result
+        + ((nameVariantType == null) ? 0 : nameVariantType.hashCode());
     result = prime * result + (obsolete ? 1231 : 1237);
     result = prime * result + ((style == null) ? 0 : style.hashCode());
     result = prime * result + (suppressible ? 1231 : 1237);
+    result = prime * result + (exclude ? 1231 : 1237);
+    result = prime * result + (normExclude ? 1231 : 1237);
     result = prime * result + ((usageType == null) ? 0 : usageType.hashCode());
     return result;
   }
@@ -259,6 +247,10 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
       return false;
     if (suppressible != other.suppressible)
       return false;
+    if (exclude != other.exclude)
+      return false;
+    if (normExclude != other.normExclude)
+      return false;
     if (usageType != other.usageType)
       return false;
     return true;
@@ -270,7 +262,8 @@ public class TermTypeJpa extends AbstractAbbreviation implements TermType {
     return "TermTypeJpa [" + super.toString() + "codeVariantType="
         + codeVariantType + ", hierarchicalType=" + hierarchicalType
         + ", nameVariantType=" + nameVariantType + ", obsolete=" + obsolete
-        + ", suppressible=" + suppressible + ", style=" + style
-        + ", usageType=" + usageType + "]";
+        + ", suppressible=" + suppressible + ", exclude=" + exclude
+        + ", normExclude=" + normExclude + ", style=" + style + ", usageType="
+        + usageType + "]";
   }
 }

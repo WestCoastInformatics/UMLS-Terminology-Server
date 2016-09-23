@@ -81,6 +81,8 @@ public class TermTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("obsolete");
     tester.include("style");
     tester.include("suppressible");
+    tester.include("exclude");
+    tester.include("normExclude");
     tester.include("usageType");
 
     assertTrue(tester.testIdentityFieldEquals());
