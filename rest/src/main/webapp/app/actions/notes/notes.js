@@ -13,12 +13,15 @@ tsApp.directive('notes', [ function() {
       '$sce',
       'utilService',
       'workflowService',
-      function($scope, $uibModal, $sce, utilService, workflowService) {
+      'contentService',
+      function($scope, $uibModal, $sce, utilService, workflowService, contentService) {
         console.debug("configure notes directive", $scope.type);
 
         $scope.field = $scope.type.toLowerCase();
         if ($scope.type == 'Checklist') {
           $scope.field = 'worklist';
+        } else if ($scope.type == 'Concept') {
+          $scope.field = 'component';
         }
 
         // Notes modal
@@ -91,7 +94,7 @@ tsApp.directive('notes', [ function() {
 
             if ($scope.type == 'Worklist') {
               workflowService.removeWorklistNote($scope.project.id, note.id).then(
-              // Success - remove worklist
+              // Success - remove worklist note
               function(data) {
                 $scope.newNote = null;
                 workflowService.getWorklist($scope.project.id, object.id).then(function(data) {
@@ -103,13 +106,13 @@ tsApp.directive('notes', [ function() {
                   utilService.handleDialogError($scope.errors, data);
                 });
               },
-              // Error - remove worklist
+              // Error - remove worklist note
               function(data) {
                 utilService.handleDialogError($scope.errors, data);
               });
             } else if ($scope.type == 'Checklist') {
               workflowService.removeChecklistNote($scope.project.id, note.id).then(
-              // Success - remove checklist
+              // Success - remove checklist note
               function(data) {
                 $scope.newNote = null;
                 workflowService.getChecklist($scope.project.id, object.id).then(function(data) {
@@ -121,11 +124,29 @@ tsApp.directive('notes', [ function() {
                   utilService.handleDialogError($scope.errors, data);
                 });
               },
-              // Error - remove checklist
+              // Error - remove checklist note
               function(data) {
                 utilService.handleDialogError($scope.errors, data);
               });
-            }
+            } else if ($scope.type == 'Concept') {
+              contentService.removeComponentNote(object, note.id).then(
+                // Success - remove concept note
+                function(data) {
+                  $scope.newNote = null;
+                  contentService.getConcept(object.id, $scope.project.id).then(function(data) {
+                    object.notes = data.notes;
+                    $scope.getPagedNotes();
+                  },
+                  // Error 
+                  function(data) {
+                    utilService.handleDialogError($scope.errors, data);
+                  });
+                },
+                // Error - remove concept note
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
+              }
           };
 
           // add new note
@@ -167,7 +188,25 @@ tsApp.directive('notes', [ function() {
               function(data) {
                 utilService.handleDialogError($scope.errors, data);
               });
-            }
+            } else if ($scope.type == 'Concept') {
+              contentService.addComponentNote(object, text).then(
+                // Success - add concept note
+                function(data) {
+                  $scope.newNote = null;
+                  contentService.getConcept(object.id, $scope.project.id).then(function(data) {
+                    object.notes = data.notes;
+                    $scope.getPagedNotes();
+                  },
+                  // Error - add worklist note
+                  function(data) {
+                    utilService.handleDialogError($scope.errors, data);
+                  });
+                },
+                // Error - add worklist note
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
+              }
           };
 
           // Convert date to a string

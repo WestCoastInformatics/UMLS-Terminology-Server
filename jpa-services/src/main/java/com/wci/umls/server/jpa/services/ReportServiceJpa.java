@@ -20,6 +20,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.content.Tree;
@@ -205,6 +206,22 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(sosBuffer.toString());
     }
 
+    //
+    // Notes
+    //
+    final StringBuffer notesBuffer = new StringBuffer();
+    final String notesLabel = "NOTES";
+    notesBuffer.append(notesLabel).append(lineEnd);
+    for (final Note note : concept.getNotes()) {   
+      notesBuffer.append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
+                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true))
+              .append(lineEnd);
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+    }
+    
+    
     //
     // Atoms
     //

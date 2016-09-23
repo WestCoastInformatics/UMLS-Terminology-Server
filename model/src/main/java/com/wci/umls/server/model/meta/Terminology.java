@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
@@ -220,4 +220,47 @@ public interface Terminology extends HasLastModified {
    * @param metathesaurus the metathesaurus
    */
   public void setMetathesaurus(boolean metathesaurus);
+
+  /**
+   * Returns the inverter email.
+   *
+   * @return the inverter email
+   */
+  public String getInverterEmail();
+
+  /**
+   * Sets the inverter email.
+   *
+   * @param inverterEmail the inverter email
+   */
+  public void setInverterEmail(String inverterEmail);
+
+  /**
+   * Indicates whether or not include siblings is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isIncludeSiblings();
+  
+  /**
+   * Sets the include siblings.
+   *
+   * @param includeSiblings the include siblings
+   */
+  public void setIncludeSiblings(boolean includeSiblings);
+
+  /**
+   * Returns the url.
+   *
+   * @return the url
+   */
+  public String getUrl();
+
+  /**
+   * Sets the url.
+   *
+   * @param url the url
+   */
+  public void setUrl(String url);
+
 }

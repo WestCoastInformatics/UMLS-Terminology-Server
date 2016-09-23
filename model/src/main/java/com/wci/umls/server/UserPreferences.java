@@ -1,9 +1,10 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.PrecedenceList;
 
@@ -137,5 +138,36 @@ public interface UserPreferences {
    * @return the favorites
    */
   public List<String> getFavorites();
+
+  /**
+   * Returns the properties.
+   *
+   * @return the properties
+   */
+  public Map<String, String> getProperties();
+
+  /**
+   * Sets the properties.
+   *
+   * @param properties the properties
+   */
+  public void setProperties(Map<String, String> properties);
+
+
+  /**
+   * Removes the property.
+   *
+   * @param key the key
+   */
+  public void removeProperty(String key);
+
+
+  /**
+   * Put property.
+   *
+   * @param key the key
+   * @param value the value
+   */
+  public void putProperty(String key, String value);
 
 }

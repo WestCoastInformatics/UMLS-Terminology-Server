@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -41,8 +41,8 @@ import com.wci.umls.server.model.meta.Terminology;
 }))
 @Audited
 @XmlRootElement(name = "terminology")
-public class TerminologyJpa extends AbstractHasLastModified implements
-    Terminology {
+public class TerminologyJpa extends AbstractHasLastModified
+    implements Terminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -104,6 +104,18 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = true)
   private String descriptionLogicProfile = null;
 
+  /** email address of the Apelon inverter. */
+  @Column(nullable = true)
+  private String inverterEmail = null;
+
+  /** context type value describing what to do with siblings. */
+  @Column(nullable = false)
+  private boolean includeSiblings = false;
+
+  /** One or more URLs providing more information about this source. */
+  @Column(nullable = true)
+  private String url = null;
+
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -132,6 +144,9 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     metathesaurus = terminology.isMetathesaurus();
     descriptionLogicTerminology = terminology.isDescriptionLogicTerminology();
     descriptionLogicProfile = terminology.getDescriptionLogicProfile();
+    inverterEmail = terminology.getInverterEmail();
+    includeSiblings = terminology.isIncludeSiblings();
+    url = terminology.getUrl();
   }
 
   /* see superclass */
@@ -351,6 +366,43 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
+  public String getInverterEmail() {
+    return inverterEmail;
+  }
+
+  /* see superclass */
+  @Override
+  public void setInverterEmail(String inverterEmail) {
+    this.inverterEmail = inverterEmail;
+  }
+  
+  /* see superclass */
+  @Override
+  public boolean isIncludeSiblings() {
+    return includeSiblings;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIncludeSiblings(boolean includeSiblings) {
+    this.includeSiblings = includeSiblings;
+  }
+
+  /* see superclass */
+  @Override
+  public String getUrl() {
+    return url;
+  }
+
+  /* see superclass */
+  @Override
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -359,27 +411,22 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result = prime * result + (current ? 1231 : 1237);
     result = prime * result + (metathesaurus ? 1231 : 1237);
     result = prime * result + (descriptionLogicTerminology ? 1231 : 1237);
-    result =
-        prime
-            * result
-            + ((descriptionLogicProfile == null) ? 0 : descriptionLogicProfile
-                .hashCode());
+    result = prime * result + ((descriptionLogicProfile == null) ? 0
+        : descriptionLogicProfile.hashCode());
     result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
-    result =
-        prime
-            * result
-            + ((organizingClassType == null) ? 0 : organizingClassType
-                .hashCode());
-    result =
-        prime * result
-            + ((preferredName == null) ? 0 : preferredName.hashCode());
+    result = prime * result
+        + ((organizingClassType == null) ? 0 : organizingClassType.hashCode());
+    result = prime * result
+        + ((preferredName == null) ? 0 : preferredName.hashCode());
     result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
-    result =
-        prime * result
-            + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result = prime * result
+        + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result + ((inverterEmail == null) ? 0 : inverterEmail.hashCode());
+    result = prime * result + (includeSiblings ? 1231 : 1237);
+    result = prime * result + ((url == null) ? 0 : url.hashCode());
     return result;
   }
 
@@ -446,6 +493,18 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (inverterEmail == null) {
+      if (other.inverterEmail != null)
+        return false;
+    } else if (!inverterEmail.equals(other.inverterEmail))
+      return false;
+    if (includeSiblings != other.includeSiblings)
+      return false;
+    if (url == null) {
+      if (other.url != null)
+        return false;
+    } else if (!url.equals(other.url))
+      return false;
     return true;
   }
 
@@ -457,10 +516,11 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         + organizingClassType + ", preferredName=" + preferredName
         + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
         + ", version=" + version + ", assertsRelDirection="
-        + assertsRelDirection + ", current=" + current + ", metathesaurus="
-        + metathesaurus + ", descriptionLogicTerminology="
-        + descriptionLogicTerminology + ", descriptionLogicProfile="
-        + descriptionLogicProfile + "]";
+        + assertsRelDirection + ", metathesaurus=" + metathesaurus
+        + ", descriptionLogicTerminology=" + descriptionLogicTerminology
+        + ", descriptionLogicProfile=" + descriptionLogicProfile
+        + ", inverterEmail=" + inverterEmail + ", includeSiblings="
+        + includeSiblings + ", url=" + url + "]";
   }
 
 }

@@ -3379,7 +3379,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /concept/" + terminology + "/"
+        .info("RESTful call (Content): /concept/note/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3402,6 +3402,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // add the note, add it to the concept, and update the concept
       final Note newNote = contentService.addNote(note);
       concept.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateConcept(concept);
 
     } catch (Exception e) {
@@ -3437,6 +3438,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final Concept concept = note.getConcept();
 
       concept.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
       contentService.updateConcept(concept);
       contentService.removeNote(noteId, ConceptNoteJpa.class);
 
@@ -3464,7 +3466,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /code/" + terminology + "/"
+        .info("RESTful call (Content): /code/note/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3488,6 +3490,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // add the note, add it to the code, and update the code
       Note newNote = contentService.addNote(note);
       code.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateCode(code);
 
     } catch (Exception e) {
@@ -3522,6 +3525,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final Code code = note.getCode();
 
       code.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
       contentService.updateCode(code);
       contentService.removeNote(noteId, CodeNoteJpa.class);
 
@@ -3547,7 +3551,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /descriptor/" + terminology + "/"
+        .info("RESTful call (Content): /descriptor/note/" + terminology + "/"
             + terminologyId + "/" + version + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
@@ -3571,6 +3575,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // add the note, add it to the descriptor, and update the descriptor
       Note newNote = contentService.addNote(note);
       descriptor.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateDescriptor(descriptor);
 
     } catch (Exception e) {
@@ -3605,6 +3610,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final Descriptor descriptor = note.getDescriptor();
 
       descriptor.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
       contentService.updateDescriptor(descriptor);
       contentService.removeNote(noteId, DescriptorNoteJpa.class);
 

@@ -73,7 +73,8 @@
       <tbody>
         <tr ng-repeat="worklist in worklists"
           ng-click="selectWorklist(worklist);"
-          ng-class="{selected: worklist.id == selected.worklist.id}">
+          ng-class="{selected: worklist.id == selected.worklist.id}"
+          class="pointer">
 
           <td>
             {{worklist.name}}
@@ -158,7 +159,7 @@
 
       <!-- Worklist Details -->
       <h4>{{selected.worklist.name}}</h4>
-      <table class="table">
+      <table class="table pointer">
         <tbody>
 
           <tr>

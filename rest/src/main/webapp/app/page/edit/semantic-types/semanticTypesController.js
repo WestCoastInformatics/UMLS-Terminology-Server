@@ -110,6 +110,16 @@ tsApp
         $window.onbeforeunload = function(evt) {
           $scope.parentWindowScope.removeWindow('semanticType');
         }
+        
+        $window.onresize = function(evt) {
+          // ask for inner/outer height width
+          // put in map if resized
+        }
+        
+        $window.onmove   = function(evt) {
+          //save window.screenX window.screenY
+          //$window.moveTo
+        }
 
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {

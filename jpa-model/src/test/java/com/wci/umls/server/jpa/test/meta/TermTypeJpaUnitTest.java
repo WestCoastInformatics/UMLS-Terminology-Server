@@ -81,6 +81,8 @@ public class TermTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("obsolete");
     tester.include("style");
     tester.include("suppressible");
+    tester.include("exclude");
+    tester.include("normExclude");
     tester.include("usageType");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -137,6 +139,8 @@ public class TermTypeJpaUnitTest extends ModelUnitSupport {
     tester.include("hierarchicalType");
     tester.include("obsolete");
     tester.include("suppressible");
+    tester.include("exclude");
+    tester.include("normExclude");
 
     assertTrue(tester.testNotNullFields());
   }

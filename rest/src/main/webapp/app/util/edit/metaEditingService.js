@@ -120,6 +120,7 @@ tsApp
               + projectId
               + '&conceptId='
               + concept.id
+              + (activityId ? "&activityId=" + activityId : "")
               + '&lastModified='
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='

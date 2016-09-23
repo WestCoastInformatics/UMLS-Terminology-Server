@@ -5,12 +5,13 @@
 </span>
 
 <ul class="pointer nav nav-tabs">
-  <li ng-class="{active : mode == 'Static'}"><a ng-click="mode = 'Static'">Report</a></li>
+  <li ng-class="{active : mode == 'Static'}"><a ng-click="setReportMode('Static')">Report</a></li>
   <li ng-class="{active : mode == 'Interactive'}"><a
-      ng-click="mode = 'Interactive'">Interactive</a></li>
+      ng-click="setReportMode('Interactive')">Interactive</a></li>
 </ul>
 
 <div ng-show="mode == 'Static'" report-pre selected="selected"
   callbacks="callbacks"></div>
 <div ng-show="mode == 'Interactive'" report selected="selected"
   callbacks="callbacks"></div>
+  

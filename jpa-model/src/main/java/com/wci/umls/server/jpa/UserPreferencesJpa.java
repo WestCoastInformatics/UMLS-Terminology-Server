@@ -3,7 +3,9 @@
  */
 package com.wci.umls.server.jpa;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -75,6 +77,10 @@ public class UserPreferencesJpa implements UserPreferences {
   /** The favorites. */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> favorites = null;
+  
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  private Map<String, String> properties;
 
   /**
    * Instantiates an empty {@link UserPreferencesJpa}.
@@ -307,6 +313,42 @@ public class UserPreferencesJpa implements UserPreferences {
   public List<String> getFavorites() {
     return this.favorites;
   }
+  
+  /* see superclass */
+  @Override
+  public Map<String, String> getProperties() {
+    if (properties == null) {
+      properties = new HashMap<>(2);
+    }
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(
+    Map<String, String> properties) {
+    this.properties = properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void putProperty(String key, String value) {
+    if (properties == null) {
+      properties = new HashMap<>(2);
+    }
+    properties.put(key, value);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeProperty(String key) {
+    if (properties == null) {
+      properties = new HashMap<>(2);
+    }
+    properties.remove(key);
+
+  }
+
 
   /* see superclass */
   @Override
@@ -314,6 +356,11 @@ public class UserPreferencesJpa implements UserPreferences {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
+    result =
+        prime
+            * result
+            + ((properties == null) ? 0 : properties
+                .hashCode());
     result = prime * result
         + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
     result = prime * result
@@ -367,6 +414,11 @@ public class UserPreferencesJpa implements UserPreferences {
         return false;
     } else if (!feedbackEmail.equals(other.feedbackEmail))
       return false;
+    if (properties == null) {
+      if (other.properties != null)
+        return false;
+    } else if (!properties.equals(other.properties))
+      return false;
     // if (precedenceList == null) {
     // if (other.precedenceList != null)
     // return false;
@@ -382,7 +434,7 @@ public class UserPreferencesJpa implements UserPreferences {
         + ", lastTerminology=" + lastTerminology + ", lastProjectId="
         + lastProjectId + ", lastProjectRole=" + lastProjectRole + ", lastTab="
         + lastTab + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
-        + precedenceList + "]";
+        + precedenceList + properties + "]";
   }
 
 }

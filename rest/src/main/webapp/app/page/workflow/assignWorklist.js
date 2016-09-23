@@ -23,6 +23,7 @@ tsApp.controller('AssignWorklistModalCtrl', [
     $scope.user = [];
     $scope.users = [];
     $scope.note = null;
+    $scope.messages = [];
     $scope.errors = [];
     $scope.tinymceOptions = utilService.tinymceOptions;
 
@@ -78,14 +79,15 @@ tsApp.controller('AssignWorklistModalCtrl', [
             workflowService.addWorklistNote($scope.project.id, worklist.id, $scope.note).then(
             // Success
             function(data) {
-              $uibModalInstance.close(worklist);
+              $scope.messages[0] = 'The worklist is assigned to ' + $scope.user.userName + '.';
             },
             // Error
             function(data) {
               utilService.handleDialogError(errors, data);
             });
           } else {
-            $uibModalInstance.close(worklist);
+            //$uibModalInstance.close(worklist);
+            $scope.messages[0] = 'The worklist is assigned to ' + $scope.user.userName + '.';
           }
 
         },
@@ -97,6 +99,10 @@ tsApp.controller('AssignWorklistModalCtrl', [
 
     }
 
+    $scope.close = function() {
+      $uibModalInstance.close(worklist);
+    }
+    
     // Dismiss modal
     $scope.cancel = function() {
       $uibModalInstance.dismiss('cancel');
