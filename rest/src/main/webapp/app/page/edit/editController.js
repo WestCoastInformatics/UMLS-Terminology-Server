@@ -220,6 +220,14 @@ tsApp
             $scope.resetSelected();
             $scope.getAssignedWorklistCt();
             $scope.getChecklistCt();
+            // select previously selected list if saved in user preferences         
+            if ($scope.user.userPreferences.properties['editWorklist']) {
+              for (var i = 0; i<$scope.lists.worklists.length; i++) {
+                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
+                  $scope.selectWorklist($scope.lists.worklists[i]);
+                };
+              }
+            }
           });
 
         };
@@ -257,6 +265,14 @@ tsApp
             $scope.resetSelected();
             $scope.getAvailableWorklistCt();
             $scope.getChecklistCt();
+            // select previously selected list if saved in user preferences         
+            if ($scope.user.userPreferences.properties['editWorklist']) {
+              for (var i = 0; i<$scope.lists.worklists.length; i++) {
+                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
+                  $scope.selectWorklist($scope.lists.worklists[i]);
+                };
+              }
+            }
           });
         };
         $scope.getAssignedWorklistCt = function() {
@@ -292,6 +308,14 @@ tsApp
             $scope.resetSelected();
             $scope.getAssignedWorklistCt();
             $scope.getAvailableWorklistCt();
+            // select previously selected list if saved in user preferences         
+            if ($scope.user.userPreferences.properties['editWorklist']) {
+              for (var i = 0; i<$scope.lists.worklists.length; i++) {
+                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
+                  $scope.selectWorklist($scope.lists.worklists[i]);
+                };
+              }
+            }
           });
         }
         $scope.getChecklistCt = function() {
@@ -383,6 +407,8 @@ tsApp
           $scope.getRecords(worklist, true);
           // Set activity id
           $scope.selected.activityId = worklist.name;
+          securityService.saveProperty($scope.user.userPreferences, 'editWorklist', $scope.selected.worklist.id);
+          
         };
 
         // select record from 'Cluster' list
@@ -393,6 +419,8 @@ tsApp
           if ($scope.worklistMode != 'Available') {
             $scope.getConcepts(record, true);
           }
+          securityService.saveProperty($scope.user.userPreferences, 'editRecord', $scope.selected.record.id);
+          
         }
 
         // refresh the concept list
@@ -516,7 +544,15 @@ tsApp
             function(data) {
               $scope.lists.records = data.records;
               $scope.lists.records.totalCount = data.totalCount;
-              if (selectFirst) {
+              
+              // select previously selected record if saved in user preferences
+              if ($scope.user.userPreferences.properties['editRecord']) {
+                for (var i = 0; i<$scope.lists.records.length; i++) {
+                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                    $scope.selectRecord($scope.lists.records[i]);
+                  }
+                }
+              } else if (selectFirst) {
                 $scope.selectRecord($scope.lists.records[0]);
               }
             });
@@ -527,6 +563,17 @@ tsApp
             function(data) {
               $scope.lists.records = data.records;
               $scope.lists.records.totalCount = data.totalCount;
+              
+              // select previously selected record if saved in user preferences
+              if ($scope.user.userPreferences.properties['editRecord']) {
+                for (var i = 0; i<$scope.lists.records.length; i++) {
+                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                    $scope.selectRecord($scope.lists.records[i]);
+                  }
+                }
+              } else if (selectFirst) {
+                $scope.selectRecord($scope.lists.records[0]);
+              }
             });
           }
 
