@@ -137,6 +137,7 @@ public class ContactInfoJpa implements ContactInfo {
     String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
     if (fields.length < 10) {
       // does not meet requirements, bail
+      this.value = mrsabField;
       return;
     }
     name = fields[0];

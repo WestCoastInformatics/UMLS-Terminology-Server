@@ -1546,6 +1546,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             algorithm.setWorkId(processExecution.getWorkId());
             algorithm.setActivityId(algorithmExecution.getActivityId());
             algorithm.setLastModifiedBy(userName);
+            algorithm.setTransactionPerOperation(false);
             // Convert Map<String,String> into properties to configure
             // algorithm
             final Properties prop = new Properties();
@@ -1585,6 +1586,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // Execute algorithm
             algorithm.compute();
+            
+            // Commit any changes the algorithm wants to make
+            algorithm.commit();
 
             // Take the number of steps completed times 100 and divided by the
             // total number of steps

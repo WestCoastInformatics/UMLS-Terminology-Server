@@ -54,13 +54,18 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     logInfo("Starting WAIT");
 
     // Print algorithm progress to the log, waiting a second between.
+    int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
       if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
       Thread.sleep(1000);
-      fireProgressEvent((int) ((100 / num) * i),
-          "WAIT progress: " + ((int) ((100 / num) * i)) + "%");
+      int currentProgress = (int) ((100 / num) * i);
+      if(currentProgress > previousProgress){
+      fireProgressEvent(currentProgress,
+          "WAIT progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+      }
     }
 
     logInfo("Finished WAIT");
