@@ -66,7 +66,11 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting STAMPING");
+    if (approve) {
+      logInfo("Started STAMPING");
+    } else {
+      logInfo("Started UNAPPROVING");
+    }
 
     try {
       // precollect records based on if checklistId or worklistId is set

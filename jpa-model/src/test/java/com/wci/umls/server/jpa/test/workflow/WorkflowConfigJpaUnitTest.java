@@ -132,8 +132,8 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy");
+  public void testModelCollectionCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCollectionCopy");
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);

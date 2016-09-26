@@ -200,13 +200,15 @@ public class ProjectJpa implements Project {
     terminology = project.getTerminology();
     version = project.getVersion();
     branch = project.getBranch();
-    userRoleMap = project.getUserRoleMap();
+    userRoleMap = new HashMap<>(project.getUserRoleMap());
     feedbackEmail = project.getFeedbackEmail();
     precedenceList = project.getPrecedenceList();
-    validCategories = project.getValidCategories();
-    semanticTypeCategoryMap = project.getSemanticTypeCategoryMap();
+    validCategories = new ArrayList<>(project.getValidCategories());
+    semanticTypeCategoryMap =
+        new HashMap<>(project.getSemanticTypeCategoryMap());
     language = project.getLanguage();
-    newAtomTermgroups = project.getNewAtomTermgroups();
+    workflowPath = project.getWorkflowPath();
+    newAtomTermgroups = new ArrayList<>(project.getNewAtomTermgroups());
   }
 
   /* see superclass */

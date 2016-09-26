@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -18,7 +18,8 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 
 /**
- * JPA and JAXB enabled implementation of {@link DescriptorTransitiveRelationship}.
+ * JPA and JAXB enabled implementation of
+ * {@link DescriptorTransitiveRelationship}.
  */
 @Entity
 @Table(name = "descriptor_transitive_rels", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -26,9 +27,9 @@ import com.wci.umls.server.model.content.DescriptorTransitiveRelationship;
 }))
 @Audited
 @XmlRootElement(name = "descriptorTransitiveRel")
-public class DescriptorTransitiveRelationshipJpa extends
-    AbstractTransitiveRelationship<Descriptor> implements
-    DescriptorTransitiveRelationship {
+public class DescriptorTransitiveRelationshipJpa
+    extends AbstractTransitiveRelationship<Descriptor>
+    implements DescriptorTransitiveRelationship {
 
   /** The super type. */
   @ManyToOne(targetEntity = DescriptorJpa.class, fetch = FetchType.EAGER, optional = false)
@@ -52,11 +53,11 @@ public class DescriptorTransitiveRelationshipJpa extends
    * specified parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public DescriptorTransitiveRelationshipJpa(
-      DescriptorTransitiveRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+      DescriptorTransitiveRelationship relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
   }

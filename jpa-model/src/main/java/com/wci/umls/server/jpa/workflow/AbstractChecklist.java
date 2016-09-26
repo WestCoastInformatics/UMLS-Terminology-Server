@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.workflow;
 
@@ -89,15 +89,19 @@ public abstract class AbstractChecklist extends AbstractHasLastModified
    * Instantiates a {@link AbstractChecklist} from the specified parameters.
    *
    * @param checklist the checklist
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractChecklist(Checklist checklist, boolean deepCopy) {
+  public AbstractChecklist(Checklist checklist, boolean collectionCopy) {
     super(checklist);
     id = checklist.getId();
+    timestamp = checklist.getTimestamp();
+    lastModified = checklist.getLastModified();
+    lastModifiedBy = checklist.getLastModifiedBy();
     name = checklist.getName();
     description = checklist.getDescription();
     project = checklist.getProject();
-    if (deepCopy) {
+    stats = new HashMap<>(checklist.getStats());
+    if (collectionCopy) {
       trackingRecords = new ArrayList<>(checklist.getTrackingRecords());
     }
   }

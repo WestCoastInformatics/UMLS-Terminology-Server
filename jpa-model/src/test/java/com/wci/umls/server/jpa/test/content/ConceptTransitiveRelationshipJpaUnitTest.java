@@ -139,7 +139,7 @@ public class ConceptTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Concept.class, 1, concept1);
     tester.proxy(Concept.class, 2, concept2);
     assertTrue(tester
-        .testCopyConstructorDeep(ConceptTransitiveRelationship.class));
+        .testCopyConstructorCollection(ConceptTransitiveRelationship.class));
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.actions;
 
@@ -103,7 +103,7 @@ public class AtomicActionJpa implements AtomicAction {
     field = action.getField();
     idType = action.getIdType();
     className = action.getClassName();
-    collectionClassName = action.getClassName();
+    collectionClassName = action.getCollectionClassName();
     objectId = action.getObjectId();
     molecularAction = action.getMolecularAction();
   }

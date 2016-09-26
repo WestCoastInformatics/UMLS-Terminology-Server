@@ -56,10 +56,10 @@ public class CodeTreePositionJpa extends AbstractTreePosition<Code> implements
    * Instantiates a {@link CodeTreePositionJpa} from the specified parameters.
    *
    * @param treepos the treepos
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public CodeTreePositionJpa(CodeTreePosition treepos, boolean deepCopy) {
-    super(treepos, deepCopy);
+  public CodeTreePositionJpa(CodeTreePosition treepos, boolean collectionCopy) {
+    super(treepos, collectionCopy);
     node = treepos.getNode();
   }
 

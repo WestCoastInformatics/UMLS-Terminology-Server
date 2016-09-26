@@ -44,9 +44,10 @@ import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
+import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
@@ -62,6 +63,7 @@ import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -163,7 +165,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     IntegrationTestServiceRest integrationService =
         new IntegrationTestServiceRestImpl();
 
-   //
+    //
     // Add admin users
     //
     Logger.getLogger(getClass()).info("Add new admin users");
@@ -364,8 +366,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     IntegrationTestServiceRest testService =
         new IntegrationTestServiceRestImpl();
 
-    // Demotions
     //
+    // Demotions
     //
     getLog().info("  Add demotions");
     PfsParameterJpa pfs = new PfsParameterJpa();
@@ -384,46 +386,29 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
             .getObjects().stream().map(c -> c.getId())
             .collect(Collectors.toList()).toArray(new Long[] {});
     for (int i = 0; i < id1s.length; i++) {
-      // Add demotion
-      final AtomRelationshipJpa rel = new AtomRelationshipJpa();
+      
       contentService = new ContentServiceRestImpl();
       final Atom from = contentService.getConcept(id1s[i], projectId, authToken)
           .getAtoms().iterator().next();
       contentService = new ContentServiceRestImpl();
       final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
           .getAtoms().iterator().next();
-      rel.setFrom(from);
-      rel.setTo(to);
-      rel.setRelationshipType("RO");
-      rel.setAdditionalRelationshipType("");
-      rel.setTerminologyId("");
-      rel.setTerminology(project1.getTerminology());
-      rel.setVersion("latest");
-      rel.setWorkflowStatus(WorkflowStatus.DEMOTION);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.addRelationship(rel, authToken);
 
-      // This will handle both directions
-      rel.getFrom().setWorkflowStatus(WorkflowStatus.DEMOTION);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateAtom((AtomJpa) rel.getFrom(), authToken);
-      rel.getTo().setWorkflowStatus(WorkflowStatus.DEMOTION);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.updateAtom((AtomJpa) rel.getTo(), authToken);
-
-      // Add inverse demotion too
-      final AtomRelationshipJpa rel2 = new AtomRelationshipJpa();
-      contentService = new ContentServiceRestImpl();
-      rel2.setFrom(to);
-      rel2.setTo(from);
-      rel2.setRelationshipType("RO");
-      rel2.setAdditionalRelationshipType("");
-      rel2.setTerminologyId("");
-      rel2.setTerminology(project1.getTerminology());
-      rel2.setVersion("latest");
-      rel2.setWorkflowStatus(WorkflowStatus.DEMOTION);
-      testService = new IntegrationTestServiceRestImpl();
-      testService.addRelationship(rel2, authToken);
+      final AddDemotionMolecularAction action = new AddDemotionMolecularAction();
+      action.setTransactionPerOperation(false);
+      action.setProject(project1);
+      action.setTerminology(project1.getTerminology());
+      action.setVersion(project1.getVersion());
+      action.setWorkId("GENERATE_SAMPLE");
+      action.setActivityId("DEMOTIONS");
+      action.setAtom(from);
+      action.setAtom2(to);
+      action.setChangeStatusFlag(true);
+      action.setConceptId(id1s[i]);
+      action.setConceptId2(id2s[i]);
+      action.setLastModifiedBy("loader");
+      action.performMolecularAction(action);
+      action.close();
     }
 
     // Status N NCIt concepts (and atoms)
@@ -518,6 +503,26 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
       testService = new IntegrationTestServiceRestImpl();
       testService.updateConcept(concept, authToken);
+    }
+
+    // Mark some rels as status N
+    getLog().info("  Status N rels");
+    pfs = new PfsParameterJpa();
+    pfs.setStartIndex(2000);
+    pfs.setMaxResults(100);
+    contentService = new ContentServiceRestImpl();
+    for (final SearchResult result : contentService
+        .findConcepts(terminology, version, null, pfs, authToken)
+        .getObjects()) {
+      contentService = new ContentServiceRestImpl();
+      final Concept concept =
+          contentService.getConcept(result.getId(), projectId, authToken);
+      if (concept.getRelationships().size() > 0) {
+        final ConceptRelationshipJpa rel =
+            (ConceptRelationshipJpa) concept.getRelationships().get(0);
+        testService = new IntegrationTestServiceRestImpl();
+        testService.updateRelationship(rel, authToken);
+      }
     }
 
     //

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -33,8 +33,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 @Audited
 @Indexed
 @XmlRootElement(name = "semanticTypeComponent")
-public class SemanticTypeComponentJpa extends AbstractComponent implements
-    SemanticTypeComponent {
+public class SemanticTypeComponentJpa extends AbstractComponent
+    implements SemanticTypeComponent {
 
   /** The semantic type. */
   @Column(nullable = false, length = 4000)
@@ -56,12 +56,12 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
    * Instantiates a {@link SemanticTypeComponentJpa} from the specified
    * parameters.
    *
-   * @param semanticType the semantic type
+   * @param sty the sty
    */
-  public SemanticTypeComponentJpa(SemanticTypeComponent semanticType) {
-    super(semanticType);
-    this.semanticType = semanticType.getSemanticType();
-    workflowStatus = semanticType.getWorkflowStatus();
+  public SemanticTypeComponentJpa(SemanticTypeComponent sty) {
+    super(sty);
+    semanticType = sty.getSemanticType();
+    workflowStatus = sty.getWorkflowStatus();
   }
 
   /* see superclass */

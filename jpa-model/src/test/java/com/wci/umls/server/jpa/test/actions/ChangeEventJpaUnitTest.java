@@ -124,9 +124,9 @@ public class ChangeEventJpaUnitTest extends ModelUnitSupport {
   public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     Logger.getLogger(getClass())
-        .info("xml = " + ConfigUtility.getStringForGraph(object));
+        .debug("xml = " + ConfigUtility.getStringForGraph(object));
     Logger.getLogger(getClass())
-        .info("json = " + ConfigUtility.getJsonForGraph(object));
+        .debug("json = " + ConfigUtility.getJsonForGraph(object));
     // Only testing TO XML/JSON is important
   }
 

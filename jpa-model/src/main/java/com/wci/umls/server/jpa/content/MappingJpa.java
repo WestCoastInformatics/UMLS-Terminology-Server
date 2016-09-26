@@ -108,10 +108,10 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
    * Instantiates a {@link MappingJpa} from the specified parameters.
    *
    * @param mapping the mapping
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public MappingJpa(Mapping mapping, boolean deepCopy) {
-    super(mapping, deepCopy);
+  public MappingJpa(Mapping mapping, boolean collectionCopy) {
+    super(mapping, collectionCopy);
     mapSet = mapping.getMapSet();
     fromTerminologyId = mapping.getFromTerminologyId();
     fromName = mapping.getFromName();

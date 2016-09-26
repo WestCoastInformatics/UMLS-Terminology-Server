@@ -37,7 +37,9 @@ tsApp
         $scope.checklistCt = 0;
 
         // Callbacks for report
-        $scope.callbacks = contentService.getCallbacks();
+        $scope.callbacks = {};
+        utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
+        utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
         // Selected variables
         $scope.selected = {
@@ -46,7 +48,8 @@ tsApp
           worklist : null,
           record : null,
           component : null,
-          worklistMode : 'Assigned',
+          worklistMode : $scope.user.userPreferences.properties['worklistModeTab'] ? 
+            $scope.user.userPreferences.properties['worklistModeTab'] : 'Assigned',
           terminology : null,
           metadata : metadataService.getModel()
         };
@@ -178,6 +181,7 @@ tsApp
         $scope.setWorklistMode = function(mode) {
           $scope.selected.worklistMode = mode;
           $scope.getWorklists();
+          securityService.saveProperty($scope.user.userPreferences, 'worklistModeTab', $scope.selected.worklistMode);
         }
 
         // Get $scope.lists.worklists
@@ -339,7 +343,11 @@ tsApp
 
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
-            $scope.selected.project.version);
+            $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                $scope.selected.metadata = data;
+              });
 
           $scope.removeWindows();
 
@@ -437,12 +445,20 @@ tsApp
           if ($scope.windows.hasOwnProperty(windowName)) {
             delete $scope.windows[windowName];
           }
+          //securityService.saveProperty($scope.user.userPreferences, windowName, false);
         }
 
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
             delete $scope.windows[win];
+            //securityService.saveProperty($scope.user.userPreferences, win, false);
+          }
+        }
+        
+        $scope.focusWindows = function() {
+          for ( var win in $scope.windows) {
+            $scope.windows[win].focus();
           }
         }
 
@@ -714,6 +730,10 @@ tsApp
             'width=600, height=600');
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
+          
+          /*securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);
+          securityService.saveProperty($scope.user.userPreferences, 'semanticTypeWidth', '600');
+          securityService.saveProperty($scope.user.userPreferences, 'semanticTypeHeight', '600');*/
         };
 
         // open atoms editor window
@@ -725,6 +745,10 @@ tsApp
           $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=1000, height=600');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
+          /*
+          securityService.saveProperty($scope.user.userPreferences, 'atom', true);
+          securityService.saveProperty($scope.user.userPreferences, 'atomWidth', '600');
+          securityService.saveProperty($scope.user.userPreferences, 'atomHeight', '600');*/
         };
 
         // open relationships editor window
@@ -737,6 +761,10 @@ tsApp
             'width=1000, height=600');
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
+          
+          /*securityService.saveProperty($scope.user.userPreferences, 'relationship', true);
+          securityService.saveProperty($scope.user.userPreferences, 'relationshipWidth', '600');
+          securityService.saveProperty($scope.user.userPreferences, 'relationshipHeight', '600');*/
         };
 
         // open contexts window
@@ -749,6 +777,10 @@ tsApp
             'width=1000, height=600');
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
+          /*
+          securityService.saveProperty($scope.user.userPreferences, 'context', true);
+          securityService.saveProperty($scope.user.userPreferences, 'contextWidth', '600');
+          securityService.saveProperty($scope.user.userPreferences, 'contextHeight', '600');*/
         };
 
         // closes child windows when term server tab is closed
@@ -814,6 +846,7 @@ tsApp
           var modalInstance = $uibModal.open({
             templateUrl : 'app/component/finder/finder.html',
             controller : 'FinderModalCtrl',
+            backdrop: 'static',
             size : 'lg',
             resolve : {
               selected : function() {
@@ -926,6 +959,10 @@ tsApp
           function(data) {
             $scope.lists.terminologies = data.terminologies;
             $scope.getProjects();
+            $scope.windows = {};
+            if ($scope.user.userPreferences.properties['semanticType']) {
+              $scope.openStyWindow();
+            }
           });
 
         };

@@ -48,7 +48,7 @@ public class ConceptNoteJpa extends AbstractNote {
    */
   public ConceptNoteJpa(ConceptNoteJpa note) {
     super(note);
-    this.concept = note.getConcept();
+    concept = note.getConcept();
   }
 
   /**

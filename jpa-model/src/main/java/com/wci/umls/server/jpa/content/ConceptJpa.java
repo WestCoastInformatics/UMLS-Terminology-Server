@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -120,36 +120,23 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * Instantiates a {@link ConceptJpa} from the specified parameters.
    *
    * @param concept the concept
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptJpa(Concept concept, boolean deepCopy) {
-    super(concept, deepCopy);
+  public ConceptJpa(Concept concept, boolean collectionCopy) {
+    super(concept, collectionCopy);
     anonymous = concept.isAnonymous();
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
     lastApproved = concept.getLastApproved();
     lastApprovedBy = concept.getLastApprovedBy();
+    labels = new ArrayList<>(concept.getLabels());
 
-    if (concept.getLabels() != null) {
-      labels = new ArrayList<>(concept.getLabels());
-    }
-
-    if (deepCopy) {
-      for (final Definition definition : concept.getDefinitions()) {
-        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
-      }
-      for (final ConceptRelationship relationship : concept
-          .getRelationships()) {
-        getRelationships()
-            .add(new ConceptRelationshipJpa(relationship, deepCopy));
-      }
-      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
-      }
-      for (final ConceptSubsetMember member : concept.getMembers()) {
-        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
-      }
+    if (collectionCopy) {
+      definitions = new ArrayList<>(concept.getDefinitions());
+      relationships = new ArrayList<>(concept.getRelationships());
+      semanticTypes = new ArrayList<>(concept.getSemanticTypes());
+      members = new ArrayList<>(concept.getMembers());
     }
   }
 
@@ -320,6 +307,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @FieldBridge(impl = CollectionToCsvBridge.class)
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public List<String> getLabels() {
+    if (labels == null) {
+      labels = new ArrayList<>();
+    }
     return labels;
   }
 
@@ -332,7 +322,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /* see superclass */
   @Override
-  public void setNotes(List<Note> notes) {
+  public void setNotes(List<Note> notes) {    
     this.notes = notes;
 
   }

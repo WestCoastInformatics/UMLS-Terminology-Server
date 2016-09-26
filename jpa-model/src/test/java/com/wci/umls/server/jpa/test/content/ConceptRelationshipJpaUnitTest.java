@@ -162,7 +162,7 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Concept.class, 2, concept2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testCopyConstructorDeep(ConceptRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(ConceptRelationship.class));
   }
 
   /**
@@ -171,7 +171,7 @@ public class ConceptRelationshipJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     ConceptRelationship rel = new ConceptRelationshipJpa();
     ProxyTester tester = new ProxyTester(rel);

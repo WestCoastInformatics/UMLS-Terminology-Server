@@ -87,7 +87,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
             .resolve(concept);
         final PrecedenceList list = sortAtoms(securityService, reportService,
             userName, concept, project);
-        return reportService.getConceptReport(project, concept, list);
+        return reportService.getConceptReport(project, concept, list, true);
       }
       return "MISSING CONCEPT";
 
@@ -128,7 +128,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
             .resolve(descriptor);
         final PrecedenceList list = sortAtoms(securityService, reportService,
             userName, descriptor, project);
-        return reportService.getDescriptorReport(project, descriptor, list);
+        return reportService.getDescriptorReport(project, descriptor, list,
+            true);
       }
       return "MISSING DESCRIPTOR";
 
@@ -169,7 +170,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
             .resolve(code);
         final PrecedenceList list =
             sortAtoms(securityService, reportService, userName, code, project);
-        return reportService.getCodeReport(project, code, list);
+        return reportService.getCodeReport(project, code, list, true);
       }
       return "MISSING CODE";
 

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -68,23 +68,16 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    * Instantiates a new descriptor jpa.
    *
    * @param descriptor the descriptor
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
-    super(descriptor, deepCopy);
+  public DescriptorJpa(Descriptor descriptor, boolean collectionCopy) {
+    super(descriptor, collectionCopy);
     if (descriptor.getLabels() != null) {
       labels = new ArrayList<>(descriptor.getLabels());
     }
-
-    if (deepCopy) {
-      for (final Definition definition : descriptor.getDefinitions()) {
-        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
-      }
-      for (final DescriptorRelationship relationship : descriptor.getRelationships()) {
-        getRelationships().add(
-            new DescriptorRelationshipJpa(relationship, deepCopy));
-      }
-
+    if (collectionCopy) {
+      definitions = new ArrayList<>(descriptor.getDefinitions());
+      relationships = new ArrayList<>(descriptor.getRelationships());
     }
   }
 
@@ -160,6 +153,5 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   public IdType getType() {
     return IdType.DESCRIPTOR;
   }
-
 
 }

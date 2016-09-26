@@ -177,7 +177,7 @@ public class MappingJpaUnitTest extends ModelUnitSupport {
     tester.proxy(AdditionalRelationshipType.class, 2, art2);
     tester.proxy(MapSet.class, 1, ms1);
     tester.proxy(MapSet.class, 2, ms2);
-    assertTrue(tester.testCopyConstructorDeep(Mapping.class));
+    assertTrue(tester.testCopyConstructorCollection(Mapping.class));
   }
 
   /**

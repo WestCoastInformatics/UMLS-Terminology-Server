@@ -61,10 +61,10 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
    * @param typeKeyValue the type key value
    */
   public TypeKeyValueJpa(TypeKeyValue typeKeyValue) {
-    this.id = typeKeyValue.getId();
-    this.type = typeKeyValue.getType();
-    this.key = typeKeyValue.getKey();
-    this.value = typeKeyValue.getValue();
+    id = typeKeyValue.getId();
+    type = typeKeyValue.getType();
+    key = typeKeyValue.getKey();
+    value = typeKeyValue.getValue();
   }
 
   /**

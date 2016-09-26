@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -158,10 +158,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
    * Instantiates a {@link AtomJpa} from the specified parameters.
    *
    * @param atom the atom
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AtomJpa(Atom atom, boolean deepCopy) {
-    super(atom, deepCopy);
+  public AtomJpa(Atom atom, boolean collectionCopy) {
+    super(atom, collectionCopy);
     codeId = atom.getCodeId();
     conceptTerminologyIds = new HashMap<>(atom.getConceptTerminologyIds());
     alternateTerminologyIds = new HashMap<>(atom.getAlternateTerminologyIds());
@@ -174,16 +174,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     termType = atom.getTermType();
     workflowStatus = atom.getWorkflowStatus();
 
-    if (deepCopy) {
-      for (final Definition definition : atom.getDefinitions()) {
-        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
-      }
-      for (final AtomRelationship relationship : atom.getRelationships()) {
-        getRelationships().add(new AtomRelationshipJpa(relationship, deepCopy));
-      }
-      for (final AtomSubsetMember member : atom.getMembers()) {
-        getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
-      }
+    if (collectionCopy) {
+      definitions = new ArrayList<>(atom.getDefinitions());
+      relationships = new ArrayList<>(atom.getRelationships());
+      members = new ArrayList<>(atom.getMembers());
+      componentHistories = new ArrayList<>(atom.getComponentHistory());
     }
   }
 
@@ -232,13 +227,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void setConceptTerminologyIds(Map<String, String> conceptTerminologyIds) {
+  public void setConceptTerminologyIds(
+    Map<String, String> conceptTerminologyIds) {
     this.conceptTerminologyIds = conceptTerminologyIds;
   }
 
   /* see superclass */
   @Override
-  public void putConceptTerminologyId(String terminology, String terminologyId) {
+  public void putConceptTerminologyId(String terminology,
+    String terminologyId) {
     if (conceptTerminologyIds == null) {
       conceptTerminologyIds = new HashMap<>(2);
     }
@@ -421,7 +418,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -454,32 +452,41 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.members = members;
   }
 
+  /* see superclass */
+  @Override
+  @XmlElement(type = ComponentHistoryJpa.class)
+  public List<ComponentHistory> getComponentHistory() {
+    if (componentHistories == null) {
+      componentHistories = new ArrayList<>();
+    }
+    return componentHistories;
+  }
+
+  /* see superclass */
+  @Override
+  public void setComponentHistory(List<ComponentHistory> componentHistory) {
+    this.componentHistories = componentHistory;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
-    result =
-        prime
-            * result
-            + ((conceptTerminologyIds == null) ? 0 : conceptTerminologyIds
-                .hashCode());
+    result = prime * result + ((conceptTerminologyIds == null) ? 0
+        : conceptTerminologyIds.hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
-    result =
-        prime * result
-            + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
+    result = prime * result
+        + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
-    result =
-        prime * result
-            + ((stringClassId == null) ? 0 : stringClassId.hashCode());
+    result = prime * result
+        + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
     return result;
   }
@@ -556,17 +563,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
         + stringClassId + ", termType=" + termType + ", workflowStatus="
         + workflowStatus + "] - " + super.toString();
-  }
-
-  @Override
-  @XmlElement(type = ComponentHistoryJpa.class)
-  public List<ComponentHistory> getComponentHistory() {
-    return componentHistories;
-  }
-
-  @Override
-  public void setComponentHistory(List<ComponentHistory> componentHistory) {
-    this.componentHistories = componentHistory;
   }
 
 }

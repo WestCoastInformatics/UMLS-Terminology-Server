@@ -55,7 +55,7 @@
               <b>Select a concept:</b>
             </thead>
             <tbody>
-              <tr ng-repeat="concept in toConcepts"
+              <tr ng-repeat="concept in toConcepts" class="pointer"
                 ng-click="selectToConcept(concept)"
                 ng-class="{selected: concept.id == toConcept.id}">
                 <td class="col-md-2 col-xs-2">{{concept.id}}</td>

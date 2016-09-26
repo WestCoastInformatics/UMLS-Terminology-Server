@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
-import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.algo.Algorithm;
@@ -26,7 +25,6 @@ import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -176,10 +174,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   /* see superclass */
   @Override
   public Algorithm getAlgorithmInstance(String key) throws Exception {
-    
-    return ConfigUtility.newStandardHandlerInstanceWithConfiguration("algorithm.handler", key, Algorithm.class);
+
+    return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+        "algorithm.handler", key, Algorithm.class);
   }
-  
+
   /**
    * Validate init.
    *
@@ -266,8 +265,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final List<ProcessConfig> results = new ArrayList<>();
 
     final List<String> clauses = new ArrayList<>();
-    
-    if(projectId==null){
+
+    if (projectId == null) {
       throw new Exception("Error: project must be specified");
     }
     clauses.add("projectId:" + projectId);
@@ -290,7 +289,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     return processConfigList;
   }
-
 
   /* see superclass */
   @Override
@@ -339,8 +337,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public ProcessExecutionList findProcessExecutions(Long projectId, String query,
-    PfsParameter pfs) throws Exception {
+  public ProcessExecutionList findProcessExecutions(Long projectId,
+    String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Project Service - find processExecutions " + "/" + query);
 
@@ -350,17 +348,17 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final List<ProcessExecution> results = new ArrayList<>();
 
     final List<String> clauses = new ArrayList<>();
-    if(projectId==null){
+    if (projectId == null) {
       throw new Exception("Error: project must be specified");
     }
-    clauses.add("projectId:" + projectId); 
+    clauses.add("projectId:" + projectId);
     if (!ConfigUtility.isEmpty(query)) {
       clauses.add(query);
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    List<ProcessExecutionJpa> processExecutions = searchHandler.getQueryResults(null,
-        null, Branch.ROOT, fullQuery, null, ProcessExecutionJpa.class,
+    List<ProcessExecutionJpa> processExecutions = searchHandler.getQueryResults(
+        null, null, Branch.ROOT, fullQuery, null, ProcessExecutionJpa.class,
         ProcessExecutionJpa.class, pfs, totalCt, manager);
 
     for (final ProcessExecution pe : processExecutions) {
@@ -368,12 +366,13 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       results.add(pe);
     }
 
-    final ProcessExecutionList processExecutionList = new ProcessExecutionListJpa();
+    final ProcessExecutionList processExecutionList =
+        new ProcessExecutionListJpa();
     processExecutionList.setObjects(results);
 
     return processExecutionList;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public AlgorithmConfig addAlgorithmConfig(AlgorithmConfig algorithmConfig)
@@ -384,7 +383,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     // Add algorithmConfig
     return addHasLastModified(algorithmConfig);
   }
-  
+
   /* see superclass */
   @Override
   public void removeAlgorithmConfig(Long id) throws Exception {
@@ -421,10 +420,10 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public AlgorithmExecution addAlgorithmExecution(AlgorithmExecution algorithmExecution)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - add algorithmExecution " + algorithmExecution);
+  public AlgorithmExecution addAlgorithmExecution(
+    AlgorithmExecution algorithmExecution) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Algorithm Service - add algorithmExecution " + algorithmExecution);
 
     // Add algorithmExecution
     return addHasLastModified(algorithmExecution);
@@ -445,8 +444,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   @Override
   public void updateAlgorithmExecution(AlgorithmExecution algorithmExecution)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - update algorithmExecution " + algorithmExecution);
+    Logger.getLogger(getClass()).debug(
+        "Algorithm Service - update algorithmExecution " + algorithmExecution);
     // update algorithmExecution
     updateHasLastModified(algorithmExecution);
 
@@ -462,52 +461,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     handleLazyInit(algorithmExecution);
 
     return algorithmExecution;
-  }  
-  
-  /* see superclass */
-  @Override
-  public AlgorithmParameter addAlgorithmParameter(AlgorithmParameter algorithmParameter)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - add algorithmParameter " + algorithmParameter);
-
-    // Add algorithmParameter
-    return addHasLastModified(algorithmParameter);
   }
 
-  /* see superclass */
-  @Override
-  public void removeAlgorithmParameter(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - remove algorithmParameter " + id);
-
-    // Remove the algorithmParameter
-    removeHasLastModified(id, AlgorithmParameterJpa.class);
-
-  }
-
-  /* see superclass */
-  @Override
-  public void updateAlgorithmParameter(AlgorithmParameter algorithmParameter)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - update algorithmParameter " + algorithmParameter);
-    // update algorithmParameter
-    updateHasLastModified(algorithmParameter);
-
-  }
-
-  /* see superclass */
-  @Override
-  public AlgorithmParameter getAlgorithmParameter(Long id) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Algorithm Service - get algorithmParameter " + id);
-    final AlgorithmParameter algorithmParameter =
-        manager.find(AlgorithmParameterJpa.class, id);
-
-    return algorithmParameter;
-  }  
-  
   /**
    * Handle lazy initialization.
    *
@@ -524,7 +479,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
 
   }
-  
+
   /**
    * Handle lazy init.
    *
@@ -540,8 +495,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
       handleLazyInit(algo);
     }
 
-  }  
-  
+  }
+
   /**
    * Handle lazy initialization.
    *
@@ -557,7 +512,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     algorithmConfig.getProject().getId();
     algorithmConfig.getProcess().getId();
   }
-
 
   /**
    * Handle lazy initialization.
@@ -597,8 +551,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    final List<LogEntry> entries =
-        findLogEntries(fullQuery, pfs);
+    final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
 
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
@@ -619,15 +572,14 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   @Override
   public String getProcessLog(Long projectId, Long processExecutionId)
     throws Exception {
-    
+
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setAscending(false);
     pfs.setSortField("lastModified");
 
     // Load the processExecution, to get the workId
-    ProcessExecution processExecution =
-        getProcessExecution(processExecutionId);
+    ProcessExecution processExecution = getProcessExecution(processExecutionId);
     String workId = processExecution.getWorkId();
 
     final List<String> clauses = new ArrayList<>();
@@ -638,8 +590,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    final List<LogEntry> entries =
-        findLogEntries(fullQuery, pfs);
+    final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
 
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
@@ -654,6 +605,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
 
     return log.toString();
-  }  
-  
+  }
+
 }

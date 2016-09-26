@@ -70,10 +70,10 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * Instantiates a {@link CodeRelationshipJpa} from the specified parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public CodeRelationshipJpa(CodeRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+  public CodeRelationshipJpa(CodeRelationship relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     alternateTerminologyIds =

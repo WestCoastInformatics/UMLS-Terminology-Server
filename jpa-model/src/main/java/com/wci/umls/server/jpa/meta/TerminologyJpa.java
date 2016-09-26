@@ -126,27 +126,27 @@ public class TerminologyJpa extends AbstractHasLastModified
   /**
    * Instantiates a {@link TerminologyJpa} from the specified parameters.
    *
-   * @param terminology the terminology
+   * @param copy the terminology
    */
-  public TerminologyJpa(Terminology terminology) {
-    super(terminology);
-    this.terminology = terminology.getTerminology();
-    citation = terminology.getCitation();
-    endDate = terminology.getEndDate();
-    organizingClassType = terminology.getOrganizingClassType();
-    preferredName = terminology.getPreferredName();
-    rootTerminology = terminology.getRootTerminology();
-    startDate = terminology.getStartDate();
-    synonymousNames = terminology.getSynonymousNames();
-    version = terminology.getVersion();
-    assertsRelDirection = terminology.isAssertsRelDirection();
-    current = terminology.isCurrent();
-    metathesaurus = terminology.isMetathesaurus();
-    descriptionLogicTerminology = terminology.isDescriptionLogicTerminology();
-    descriptionLogicProfile = terminology.getDescriptionLogicProfile();
-    inverterEmail = terminology.getInverterEmail();
-    includeSiblings = terminology.isIncludeSiblings();
-    url = terminology.getUrl();
+  public TerminologyJpa(Terminology copy) {
+    super(copy);
+    terminology = copy.getTerminology();
+    citation = copy.getCitation();
+    endDate = copy.getEndDate();
+    organizingClassType = copy.getOrganizingClassType();
+    preferredName = copy.getPreferredName();
+    rootTerminology = copy.getRootTerminology();
+    startDate = copy.getStartDate();
+    synonymousNames = new ArrayList<>(copy.getSynonymousNames());
+    version = copy.getVersion();
+    assertsRelDirection = copy.isAssertsRelDirection();
+    current = copy.isCurrent();
+    metathesaurus = copy.isMetathesaurus();
+    descriptionLogicTerminology = copy.isDescriptionLogicTerminology();
+    descriptionLogicProfile = copy.getDescriptionLogicProfile();
+    inverterEmail = copy.getInverterEmail();
+    includeSiblings = copy.isIncludeSiblings();
+    url = copy.getUrl();
   }
 
   /* see superclass */
@@ -375,7 +375,7 @@ public class TerminologyJpa extends AbstractHasLastModified
   public void setInverterEmail(String inverterEmail) {
     this.inverterEmail = inverterEmail;
   }
-  
+
   /* see superclass */
   @Override
   public boolean isIncludeSiblings() {
@@ -400,7 +400,6 @@ public class TerminologyJpa extends AbstractHasLastModified
     this.url = url;
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
@@ -424,7 +423,8 @@ public class TerminologyJpa extends AbstractHasLastModified
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
-    result = prime * result + ((inverterEmail == null) ? 0 : inverterEmail.hashCode());
+    result = prime * result
+        + ((inverterEmail == null) ? 0 : inverterEmail.hashCode());
     result = prime * result + (includeSiblings ? 1231 : 1237);
     result = prime * result + ((url == null) ? 0 : url.hashCode());
     return result;

@@ -161,7 +161,7 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Code.class, 2, code2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testCopyConstructorDeep(CodeRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(CodeRelationship.class));
   }
 
   /**
@@ -170,7 +170,7 @@ public class CodeRelationshipJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CodeRelationship rel = new CodeRelationshipJpa();

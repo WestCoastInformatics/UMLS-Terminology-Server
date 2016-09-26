@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -88,6 +88,9 @@ public abstract class AbstractComponent extends AbstractHasLastModified
   public AbstractComponent(Component component) {
     super(component);
     id = component.getId();
+    timestamp = component.getTimestamp();
+    lastModified = component.getLastModified();
+    lastModifiedBy = component.getLastModifiedBy();
     terminology = component.getTerminology();
     terminologyId = component.getTerminologyId();
     version = component.getVersion();

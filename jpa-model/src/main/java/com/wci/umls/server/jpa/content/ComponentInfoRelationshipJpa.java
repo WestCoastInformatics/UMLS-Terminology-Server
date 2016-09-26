@@ -92,12 +92,12 @@ public class ComponentInfoRelationshipJpa extends
    * parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    * @throws Exception the exception
    */
   public ComponentInfoRelationshipJpa(ComponentInfoRelationship relationship,
-      boolean deepCopy) throws Exception {
-    super(relationship, deepCopy);
+      boolean collectionCopy) throws Exception {
+    super(relationship, collectionCopy);
     fromTerminologyId = relationship.getFrom().getTerminologyId();
     fromTerminology = relationship.getFrom().getTerminology();
     fromVersion = relationship.getFrom().getVersion();

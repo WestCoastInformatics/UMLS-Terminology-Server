@@ -52,9 +52,7 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
    */
   public ProcessConfigJpa(ProcessConfig config) {
     super(config);
-    for (final AlgorithmConfig step : config.getSteps()) {
-      getSteps().add(new AlgorithmConfigJpa(step));
-    }
+    steps = new ArrayList<>(config.getSteps());
   }
 
   /* see superclass */

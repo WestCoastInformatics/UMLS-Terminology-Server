@@ -45,12 +45,13 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
    * Instantiates a {@link AbstractSubset} from the specified parameters.
    *
    * @param subset the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractSubset(Subset subset, boolean deepCopy) {
-    super(subset, deepCopy);
+  public AbstractSubset(Subset subset, boolean collectionCopy) {
+    super(subset, collectionCopy);
     name = subset.getName();
     description = subset.getDescription();
+    branchedTo = subset.getBranchedTo();
   }
 
   /* see superclass */

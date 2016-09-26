@@ -60,6 +60,13 @@ tsApp.service('securityService', [
         this.updateUserPreferences(prefs);
       }
     };
+    
+    this.saveProperty = function(prefs, key, value) {
+      if (prefs) {
+        prefs.properties[key] = value;
+        this.updateUserPreferences(prefs);
+      }
+    }
 
     // accepts the license
     this.acceptLicense = function() {

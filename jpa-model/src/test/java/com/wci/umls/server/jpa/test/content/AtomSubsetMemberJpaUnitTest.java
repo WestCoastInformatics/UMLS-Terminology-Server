@@ -177,7 +177,7 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Atom.class, 2, atom2);
     tester.proxy(AtomSubset.class, 1, subset1);
     tester.proxy(AtomSubset.class, 2, subset2);
-    assertTrue(tester.testCopyConstructorDeep(AtomSubsetMember.class));
+    assertTrue(tester.testCopyConstructorCollection(AtomSubsetMember.class));
   }
 
   /**

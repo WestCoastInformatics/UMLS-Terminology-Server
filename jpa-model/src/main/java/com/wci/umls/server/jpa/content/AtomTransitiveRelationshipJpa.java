@@ -52,11 +52,11 @@ public class AtomTransitiveRelationshipJpa extends
    * parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public AtomTransitiveRelationshipJpa(
-      AtomTransitiveRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+      AtomTransitiveRelationship relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
   }

@@ -177,7 +177,7 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Concept.class, 2, concept2);
     tester.proxy(ConceptSubset.class, 1, subset1);
     tester.proxy(ConceptSubset.class, 2, subset2);
-    assertTrue(tester.testCopyConstructorDeep(ConceptSubsetMember.class));
+    assertTrue(tester.testCopyConstructorCollection(ConceptSubsetMember.class));
   }
 
   /**

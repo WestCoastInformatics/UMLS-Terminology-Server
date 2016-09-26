@@ -56,16 +56,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
   public TrackingRecordList findAvailableWork(Project project, UserRole role,
     PfsParameter pfs, WorkflowService service) throws Exception {
     final StringBuilder sb = new StringBuilder();
-
-    if (role == null) {
-      sb.append("role:[* TO *]");
-    } else {
-      sb.append("role:" + role.name());
-    }
-    sb.append(" AND ").append("( NOT worklistName:[* TO *])");
-
-    return service.findTrackingRecords(project, sb.toString(), pfs);
-
+    throw new UnsupportedOperationException();
   }
 
   /* see superclass */
@@ -319,6 +310,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       algo.setActivityId(worklist.getName());
       algo.setLastModifiedBy("S-" + userName);
       algo.setWorklistId(worklist.getId());
+      algo.setApprove(true);
 
       final ValidationResult result = algo.checkPreconditions();
       if (!result.isValid()) {

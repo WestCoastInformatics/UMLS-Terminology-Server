@@ -48,7 +48,7 @@
           class="alert alert-warning"> No notes </span>
 
         <table ng-show="pagedNotes.length > 0" class="table">
-          <thead class="pointer">
+          <thead>
             <tr>
               <th class="col-md-6 col-xs-6">{{type}} Notes</th>
               <th class="col-md-2 col-xs-2">Date</th>
@@ -64,10 +64,8 @@
               <td>{{toDate(note.lastModified)}}</td>
               <td>{{note.lastModifiedBy}}</td>
               <td>
-                <a class="toolicon" title="Remove"
-                  ng-click="removeNote(selected[field], note)">
-                  <i title="Remove note" class="noul glyphicon glypicon-trash"></i>
-                </a>
+                <i ng-click="removeNote(selected[field], note);"
+                  title="Remove note" class="noul glyphicon glyphicon-trash"></i>
               </td>
             </tr>
           </tbody>

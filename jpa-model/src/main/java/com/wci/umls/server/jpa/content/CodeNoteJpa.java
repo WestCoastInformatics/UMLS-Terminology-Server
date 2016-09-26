@@ -51,7 +51,7 @@ public class CodeNoteJpa extends AbstractNote {
    */
   public CodeNoteJpa(CodeNoteJpa note) {
     super(note);
-    this.code = note.getCode();
+    code = note.getCode();
   }
 
   /**

@@ -74,21 +74,6 @@ public interface MolecularAction
   public void setComponentId2(Long referencedComponentId2);
 
   /**
-   * Returns the batch id. Represents a collection of connected molecular
-   * actions.
-   *
-   * @return the batch id
-   */
-  public String getBatchId();
-
-  /**
-   * Sets the batch id.
-   *
-   * @param batchId the batch id
-   */
-  public void setBatchId(String batchId);
-
-  /**
    * Returns the activity id.
    *
    * @return the activity id

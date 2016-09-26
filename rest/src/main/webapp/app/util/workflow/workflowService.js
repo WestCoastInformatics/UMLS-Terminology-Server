@@ -1208,7 +1208,7 @@ tsApp.service('workflowService', [
       console.debug('recompute concept status');
       var deferred = $q.defer();
 
-      gpService.increment();
+      gpService.increment('Recomputing concept status...');
       $http.post(
         workflowUrl
           + '/status/compute?projectId='
@@ -1218,13 +1218,13 @@ tsApp.service('workflowService', [
       // success
       function(response) {
         console.debug('  validation = ', response.data);
-        gpService.decrement();
+        gpService.decrement('Recomputing concept status...');
         deferred.resolve(response.data);
       },
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
+        gpService.decrement('Recomputing concept status...');
         deferred.reject(response.data);
       });
       return deferred.promise;

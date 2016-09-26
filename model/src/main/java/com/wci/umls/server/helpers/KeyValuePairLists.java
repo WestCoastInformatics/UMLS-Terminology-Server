@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -33,7 +33,7 @@ public class KeyValuePairLists {
    * @param lists the lists
    */
   public KeyValuePairLists(KeyValuePairLists lists) {
-    keyValuePairLists = lists.getKeyValuePairLists();
+    keyValuePairLists = new ArrayList<>(lists.getKeyValuePairLists());
   }
 
   /**
@@ -105,9 +105,8 @@ public class KeyValuePairLists {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result
-            + ((keyValuePairLists == null) ? 0 : keyValuePairLists.hashCode());
+    result = prime * result
+        + ((keyValuePairLists == null) ? 0 : keyValuePairLists.hashCode());
     return result;
   }
 

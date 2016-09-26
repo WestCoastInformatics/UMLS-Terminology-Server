@@ -140,7 +140,7 @@ public class CodeTreePositionJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    assertTrue(tester.testCopyConstructorDeep(CodeTreePosition.class));
+    assertTrue(tester.testCopyConstructorCollection(CodeTreePosition.class));
   }
 
   /**

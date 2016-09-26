@@ -5,7 +5,6 @@ package com.wci.umls.server.services;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
-import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.algo.Algorithm;
@@ -218,42 +217,6 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception;
-
-  /**
-   * Adds the algorithm parameter.
-   *
-   * @param algorithmParameter the algorithm parameter
-   * @return the algorithm parameter
-   * @throws Exception the exception
-   */
-  public AlgorithmParameter addAlgorithmParameter(
-    AlgorithmParameter algorithmParameter) throws Exception;
-
-  /**
-   * Returns the algorithm parameter.
-   *
-   * @param id the id
-   * @return the algorithm parameter
-   * @throws Exception the exception
-   */
-  public AlgorithmParameter getAlgorithmParameter(Long id) throws Exception;
-
-  /**
-   * Removes the algorithm parameter.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  public void removeAlgorithmParameter(Long id) throws Exception;
-
-  /**
-   * Update algorithm parameter.
-   *
-   * @param algorithmParameter the algorithm parameter
-   * @throws Exception the exception
-   */
-  public void updateAlgorithmParameter(AlgorithmParameter algorithmParameter)
-    throws Exception;
 
   /**
    * Returns the algorithm log.

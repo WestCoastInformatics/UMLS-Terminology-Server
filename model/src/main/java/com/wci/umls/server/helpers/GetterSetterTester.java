@@ -101,15 +101,15 @@ public class GetterSetterTester extends ProxyTester {
    * @throws Exception the exception
    */
   public void test() throws Exception {
-    Method[] methods = clazz.getMethods();
+    final Method[] methods = clazz.getMethods();
 
     for (int i = 0; i < methods.length; i++) {
       /* We're looking for single-argument setters. */
-      Method m = methods[i];
+      final Method m = methods[i];
       if (!m.getName().startsWith("set"))
         continue;
-      String fieldName = m.getName().substring(3);
-      Class<?>[] args = m.getParameterTypes();
+      final String fieldName = m.getName().substring(3);
+      final Class<?>[] args = m.getParameterTypes();
       if (args.length != 1)
         continue;
 
@@ -154,7 +154,7 @@ public class GetterSetterTester extends ProxyTester {
     if (this.verbose)
       Logger.getLogger(getClass()).debug(
           "Testing " + get.getDeclaringClass().getName() + "." + get.getName());
-    Object proxy = makeProxy(argType, 1);
+    final Object proxy = makeProxy(argType, 1);
     try {
       set.invoke(this.obj, new Object[] {
           proxy
@@ -171,7 +171,7 @@ public class GetterSetterTester extends ProxyTester {
       getResult = get.invoke(this.obj, new Object[] {});
     } catch (InvocationTargetException e) {
       throw new RuntimeException(
-          "Setter " + set.getDeclaringClass().getName() + "." + set.getName()
+          "Getter " + get.getDeclaringClass().getName() + "." + set.getName()
               + " threw " + e.getTargetException().toString());
     }
 

@@ -20,6 +20,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.content.Tree;
@@ -71,11 +72,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param project the project
    * @param comp the concept
    * @param list the list
+   * @param decorate the decorate
    * @return the report helper
    * @throws Exception the exception
    */
   private String getReportHelper(Project project, AtomClass comp,
-    PrecedenceList list) throws Exception {
+    PrecedenceList list, boolean decorate) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
     Tree parent = null;
@@ -111,7 +113,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         "...............................................................................");
 
     //
-    // Concept information
+    // Component information
     //
     sb.append(lineEnd).append("CN# ");
     sb.append(comp.getId()).append(" ");
@@ -131,13 +133,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
     conceptTerminologyIds.remove(comp.getTerminologyId());
 
     sb.append(getOpenStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
-        comp.isObsolete(), false));
+        comp.isObsolete(), false, decorate));
     sb.append("CUI ");
     sb.append(comp.getTerminologyId()).append("\t");
     sb.append("Concept Status is ")
         .append(getStatusChar(comp.getWorkflowStatus())).append("\r\n");
     sb.append(getCloseStyleTag(comp.getWorkflowStatus(), comp.isPublishable(),
-        comp.isObsolete(), false));
+        comp.isObsolete(), false, decorate));
     for (final String id : conceptTerminologyIds) {
       sb.append(id).append(lineEnd);
     }
@@ -150,21 +152,31 @@ public class ReportServiceJpa extends HistoryServiceJpa
       boolean first = true;
       for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         sb.append(getOpenStyleTag(sty.getWorkflowStatus(), sty.isPublishable(),
-            sty.isObsolete(), false));
+            sty.isObsolete(), false, decorate));
         if (!first) {
           sb.append("    ");
         }
         first = false;
         sb.append(sty.getSemanticType()).append("\t");
         sb.append(getStatusChar(sty.getWorkflowStatus())).append(lineEnd);
-        sb.append(
-            getCloseStyleTag(sty.getWorkflowStatus(), false, false, false));
+        sb.append(getCloseStyleTag(sty.getWorkflowStatus(), false, false, false,
+            decorate));
       }
     }
+    
+    //
+    // Sort atoms
+    //
+    final List<Atom> sortedAtoms = new ArrayList<>(comp.getAtoms());
+    if (concept != null) {
+      Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
+    }
+    
     //
     // Definitions
+    // TODO: need to look for definitions on descriptor,scui, etc.
     //
-    for (final Atom atom : comp.getAtoms()) {
+    for (final Atom atom : sortedAtoms) {
       for (final Definition def : atom.getDefinitions()) {
         sb.append("DEF ");
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
@@ -185,7 +197,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final StringBuffer sosBuffer = new StringBuffer();
     final String sosLabel = "SOS";
     sosBuffer.append(sosLabel);
-    for (final Atom atom : comp.getAtoms()) {
+    for (final Atom atom : sortedAtoms) {
       for (final Attribute att : atom.getAttributes()) {
         if (att.getName().equals("SOS")) {
           sosBuffer.append(
@@ -205,6 +217,22 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
 
     //
+    // Notes
+    //
+    final StringBuffer notesBuffer = new StringBuffer();
+    final String notesLabel = "CONCEPT NOTE(S)";
+    notesBuffer.append(notesLabel).append(lineEnd);
+    for (final Note note : concept.getNotes()) {   
+      notesBuffer.append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
+                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true))
+              .append(lineEnd);
+    }
+    if (notesBuffer.toString().length() > notesLabel.length()) {
+      sb.append(notesBuffer.toString());
+    }
+    
+    
+    //
     // Atoms
     //
 
@@ -217,10 +245,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     String prev_lui = "";
     String prev_sui = "";
 
-    final List<Atom> sortedAtoms = new ArrayList<>(comp.getAtoms());
-    if (concept != null) {
-      Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
-    }
 
     for (final Atom atom : sortedAtoms) {
 
@@ -238,7 +262,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(" ");
 
       sb.append(getOpenStyleTag(atom.getWorkflowStatus(), atom.isPublishable(),
-          atom.isObsolete(), isBaseRxnormAmbiguous));
+          atom.isObsolete(), isBaseRxnormAmbiguous, decorate));
 
       if (atom.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
         sb.append("D");
@@ -331,7 +355,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       }
 
       sb.append(getCloseStyleTag(atom.getWorkflowStatus(), atom.isPublishable(),
-          atom.isObsolete(), isBaseRxnormAmbiguous));
+          atom.isObsolete(), isBaseRxnormAmbiguous, decorate));
       sb.append(lineEnd);
 
       prev_lui = atom.getLexicalClassId();
@@ -418,9 +442,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     if (demotionRelationships.size() > 0) {
       sb.append("DEMOTED RELATED CONCEPT(S)").append(lineEnd);
-      sb.append(getOpenStyleTag(WorkflowStatus.DEMOTION, false, false, false));
+      sb.append(getOpenStyleTag(WorkflowStatus.DEMOTION, false, false, false,
+          decorate));
       sb.append(getRelationshipsReport(demotionRelationships));
-      sb.append(getCloseStyleTag(WorkflowStatus.DEMOTION, false, false, false));
+      sb.append(getCloseStyleTag(WorkflowStatus.DEMOTION, false, false, false,
+          decorate));
     }
 
     // Needs Review Related Concepts
@@ -436,11 +462,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     if (needsReviewRelationships.size() > 0) {
       sb.append("NEEDS REVIEW RELATED CONCEPT(S)").append(lineEnd);
-      sb.append(
-          getOpenStyleTag(WorkflowStatus.NEEDS_REVIEW, false, false, false));
+      sb.append(getOpenStyleTag(WorkflowStatus.NEEDS_REVIEW, false, false,
+          false, decorate));
       sb.append(getRelationshipsReport(needsReviewRelationships));
-      sb.append(
-          getCloseStyleTag(WorkflowStatus.NEEDS_REVIEW, false, false, false));
+      sb.append(getCloseStyleTag(WorkflowStatus.NEEDS_REVIEW, false, false,
+          false, decorate));
     }
 
     // XR(S) and Corresponding Relationships
@@ -792,22 +818,32 @@ public class ReportServiceJpa extends HistoryServiceJpa
   /* see superclass */
   @Override
   public String getConceptReport(Project project, Concept concept,
-    PrecedenceList list) throws Exception {
-    return getReportHelper(project, concept, list);
+    PrecedenceList list, boolean decorate) throws Exception {
+    return getReportHelper(project, concept, list, decorate);
   }
 
+  /**
+   * Returns the descriptor report.
+   *
+   * @param project the project
+   * @param descriptor the descriptor
+   * @param list the list
+   * @param decorate the decorate
+   * @return the descriptor report
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   public String getDescriptorReport(Project project, Descriptor descriptor,
-    PrecedenceList list) throws Exception {
-    return getReportHelper(project, descriptor, list);
+    PrecedenceList list, boolean decorate) throws Exception {
+    return getReportHelper(project, descriptor, list, decorate);
   }
 
   /* see superclass */
   @Override
-  public String getCodeReport(Project project, Code code, PrecedenceList list)
-    throws Exception {
-    return getReportHelper(project, code, list);
+  public String getCodeReport(Project project, Code code, PrecedenceList list,
+    boolean decorate) throws Exception {
+    return getReportHelper(project, code, list, decorate);
   }
 
   /**
@@ -874,11 +910,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param publishable the publishable
    * @param obsolete the obsolete
    * @param orangeFlag the orange flag
+   * @param decorate the decorate
    * @return the open style tag
    */
   @SuppressWarnings("static-method")
   public String getOpenStyleTag(WorkflowStatus status, boolean publishable,
-    boolean obsolete, boolean orangeFlag) {
+    boolean obsolete, boolean orangeFlag, boolean decorate) {
+    if (!decorate) {
+      return "";
+    }
     if (status == WorkflowStatus.DEMOTION) {
       return "<span class=\"DEMOTION\">";
     } else if (status == WorkflowStatus.NEEDS_REVIEW) {
@@ -900,11 +940,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @param publishable the publishable
    * @param obsolete the obsolete
    * @param orangeFlag the orange flag
+   * @param decorate the decorate
    * @return the close style tag
    */
   @SuppressWarnings("static-method")
   public String getCloseStyleTag(WorkflowStatus status, boolean publishable,
-    boolean obsolete, boolean orangeFlag) {
+    boolean obsolete, boolean orangeFlag, boolean decorate) {
+    if (!decorate) {
+      return "";
+    }
     if (status == WorkflowStatus.DEMOTION) {
       return "</span>";
     } else if (status == WorkflowStatus.NEEDS_REVIEW) {

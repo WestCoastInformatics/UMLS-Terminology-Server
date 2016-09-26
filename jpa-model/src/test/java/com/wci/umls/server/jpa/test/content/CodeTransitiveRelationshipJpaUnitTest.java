@@ -138,7 +138,7 @@ public class CodeTransitiveRelationshipJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Code.class, 1, code1);
     tester.proxy(Code.class, 2, code2);
-    assertTrue(tester.testCopyConstructorDeep(CodeTransitiveRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(CodeTransitiveRelationship.class));
   }
 
   /**

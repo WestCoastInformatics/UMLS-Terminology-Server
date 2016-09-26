@@ -17,7 +17,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
   /** The atom 1. */
-  private Atom atom1;
+  private Atom atom;
 
   /** The atom 2. */
   private Atom atom2;
@@ -35,10 +35,10 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
   /**
    * Sets the atom 1.
    *
-   * @param atom1 the atom 1
+   * @param atom the atom 1
    */
-  public void setAtom1(Atom atom1) {
-    this.atom1 = atom1;
+  public void setAtom(Atom atom) {
+    this.atom = atom;
   }
 
   /**
@@ -77,7 +77,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
     // Construct the demotion relationship
     AtomRelationship demotionRelationship = new AtomRelationshipJpa();
-    demotionRelationship.setFrom(atom1);
+    demotionRelationship.setFrom(atom);
     demotionRelationship.setTo(atom2);
     demotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
     demotionRelationship.setRelationshipType("RO");
@@ -89,7 +89,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     // construct inverse relationship
     AtomRelationship inverseDemotionRelationship = new AtomRelationshipJpa();
     inverseDemotionRelationship.setFrom(atom2);
-    inverseDemotionRelationship.setTo(atom1);
+    inverseDemotionRelationship.setTo(atom);
     inverseDemotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
     inverseDemotionRelationship.setRelationshipType("RO");
     inverseDemotionRelationship.setAdditionalRelationshipType("");
@@ -104,19 +104,19 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
         (AtomRelationshipJpa) addRelationship(inverseDemotionRelationship);
 
     // Add the demotions to atoms
-    atom1.getRelationships().add(demotionRelationship);
+    atom.getRelationships().add(demotionRelationship);
     atom2.getRelationships().add(inverseDemotionRelationship);
 
     // update the atoms
-    updateAtom(atom1);
+    updateAtom(atom);
     updateAtom(atom2);
 
     // Change status of the atoms
-    atom1.setWorkflowStatus(WorkflowStatus.DEMOTION);
+    atom.setWorkflowStatus(WorkflowStatus.DEMOTION);
     atom2.setWorkflowStatus(WorkflowStatus.DEMOTION);
 
     // update the atoms
-    updateAtom(atom1);
+    updateAtom(atom);
     updateAtom(atom2);
 
     // Set any matching concept relationships to unreleasable
@@ -130,7 +130,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       }
 
       ConceptRelationship matchingInverseCRel =
-          findRelToConceptContainingAtom(getConcept2(), atom1);
+          findRelToConceptContainingAtom(getConcept2(), atom);
 
       if (matchingInverseCRel != null) {
         matchingInverseCRel.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);

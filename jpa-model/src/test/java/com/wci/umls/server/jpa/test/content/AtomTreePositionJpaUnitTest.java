@@ -141,7 +141,7 @@ public class AtomTreePositionJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Atom.class, 1, atom1);
     tester.proxy(Atom.class, 2, atom2);
-    assertTrue(tester.testCopyConstructorDeep(AtomTreePosition.class));
+    assertTrue(tester.testCopyConstructorCollection(AtomTreePosition.class));
   }
 
   /**

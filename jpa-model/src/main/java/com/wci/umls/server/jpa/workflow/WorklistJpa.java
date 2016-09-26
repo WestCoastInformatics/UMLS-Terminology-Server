@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.workflow;
 
@@ -118,12 +118,12 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
    * Instantiates a {@link WorklistJpa} from the specified parameters.
    *
    * @param worklist the worklist
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public WorklistJpa(Worklist worklist, boolean deepCopy) {
-    super(worklist, deepCopy);
-    authors = worklist.getAuthors();
-    reviewers = worklist.getReviewers();
+  public WorklistJpa(Worklist worklist, boolean collectionCopy) {
+    super(worklist, collectionCopy);
+    authors = new ArrayList<>(worklist.getAuthors());
+    reviewers = new ArrayList<>(worklist.getReviewers());
     team = worklist.getTeam();
     epoch = worklist.getEpoch();
     workflowStatus = worklist.getWorkflowStatus();
@@ -131,9 +131,9 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
     number = worklist.getNumber();
     authorTime = worklist.getAuthorTime();
     reviewerTime = worklist.getReviewerTime();
-    if (deepCopy) {
+    workflowStateHistory = new HashMap<>(worklist.getWorkflowStateHistory());
+    if (collectionCopy) {
       notes = new ArrayList<>(worklist.getNotes());
-      workflowStateHistory = worklist.getWorkflowStateHistory();
     }
   }
 
