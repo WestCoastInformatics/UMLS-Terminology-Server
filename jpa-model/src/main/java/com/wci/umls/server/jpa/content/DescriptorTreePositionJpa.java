@@ -57,11 +57,11 @@ public class DescriptorTreePositionJpa extends AbstractTreePosition<Descriptor>
    * parameters.
    *
    * @param treepos the treepos
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public DescriptorTreePositionJpa(DescriptorTreePosition treepos,
-      boolean deepCopy) {
-    super(treepos, deepCopy);
+      boolean collectionCopy) {
+    super(treepos, collectionCopy);
     node = treepos.getNode();
   }
 

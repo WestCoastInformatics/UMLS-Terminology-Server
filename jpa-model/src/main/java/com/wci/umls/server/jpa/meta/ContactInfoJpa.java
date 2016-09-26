@@ -101,6 +101,7 @@ public class ContactInfoJpa implements ContactInfo {
    * @param contactInfo the i
    */
   public ContactInfoJpa(ContactInfo contactInfo) {
+    id = contactInfo.getId();
     address1 = contactInfo.getAddress1();
     address2 = contactInfo.getAddress2();
     city = contactInfo.getCity();
@@ -344,9 +345,8 @@ public class ContactInfoJpa implements ContactInfo {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((organization == null) ? 0 : organization.hashCode());
-    result =
-        prime * result
-            + ((stateOrProvince == null) ? 0 : stateOrProvince.hashCode());
+    result = prime * result
+        + ((stateOrProvince == null) ? 0 : stateOrProvince.hashCode());
     result = prime * result + ((telephone == null) ? 0 : telephone.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
     result = prime * result + ((url == null) ? 0 : url.hashCode());

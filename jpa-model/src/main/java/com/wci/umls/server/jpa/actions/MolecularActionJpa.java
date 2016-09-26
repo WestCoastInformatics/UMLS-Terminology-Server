@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.actions;
 
@@ -120,10 +120,11 @@ public class MolecularActionJpa implements MolecularAction {
    * Instantiates a {@link MolecularActionJpa} from the specified parameters.
    *
    * @param action the action
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public MolecularActionJpa(MolecularAction action, boolean deepCopy) {
+  public MolecularActionJpa(MolecularAction action, boolean collectionCopy) {
     id = action.getId();
+    timestamp = action.getTimestamp();
     lastModified = action.getLastModified();
     lastModifiedBy = action.getLastModifiedBy();
     version = action.getVersion();
@@ -133,11 +134,10 @@ public class MolecularActionJpa implements MolecularAction {
     terminology = action.getTerminology();
     macroAction = action.isMacroAction();
     undoneFlag = action.isUndoneFlag();
-    batchId = action.getBatchId();
     activityId = action.getActivityId();
     workId = action.getWorkId();
     name = action.getName();
-    if (deepCopy) {
+    if (collectionCopy) {
       atomicActions = new ArrayList<>(action.getAtomicActions());
     }
   }
@@ -156,7 +156,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getComponentId() {
     return componentId;
@@ -170,7 +170,7 @@ public class MolecularActionJpa implements MolecularAction {
 
   /* see superclass */
   @Override
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getComponentId2() {
     return componentId2;
@@ -288,18 +288,6 @@ public class MolecularActionJpa implements MolecularAction {
     this.macroAction = macroAction;
   }
 
-  /* see superclass */
-  @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getBatchId() {
-    return batchId;
-  }
-
-  /* see superclass */
-  @Override
-  public void setBatchId(String batchId) {
-    this.batchId = batchId;
-  }
 
   /* see superclass */
   @Override
@@ -349,10 +337,10 @@ public class MolecularActionJpa implements MolecularAction {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result
-        + ((componentId == null) ? 0 : componentId.hashCode());
-    result = prime * result
-        + ((componentId2 == null) ? 0 : componentId2.hashCode());
+    result =
+        prime * result + ((componentId == null) ? 0 : componentId.hashCode());
+    result =
+        prime * result + ((componentId2 == null) ? 0 : componentId2.hashCode());
     result = prime * result + ((batchId == null) ? 0 : batchId.hashCode());
     result =
         prime * result + ((activityId == null) ? 0 : activityId.hashCode());
@@ -422,12 +410,12 @@ public class MolecularActionJpa implements MolecularAction {
   @Override
   public String toString() {
     return "MolecularActionJpa [id=" + id + ", version=" + version
-        + ", componentId=" + componentId + ", componentId2="
-        + componentId2 + ", terminology=" + terminology + ", name=" + name
-        + ", lastModified=" + lastModified + ", lastModifiedBy="
-        + lastModifiedBy + ", timestamp=" + timestamp + ", macroAction="
-        + macroAction + ", undoneFlag=" + undoneFlag + ", batchId=" + batchId
-        + ", activityId=" + activityId + ", workId=" + workId + "]";
+        + ", componentId=" + componentId + ", componentId2=" + componentId2
+        + ", terminology=" + terminology + ", name=" + name + ", lastModified="
+        + lastModified + ", lastModifiedBy=" + lastModifiedBy + ", timestamp="
+        + timestamp + ", macroAction=" + macroAction + ", undoneFlag="
+        + undoneFlag + ", batchId=" + batchId + ", activityId=" + activityId
+        + ", workId=" + workId + "]";
   }
 
 }

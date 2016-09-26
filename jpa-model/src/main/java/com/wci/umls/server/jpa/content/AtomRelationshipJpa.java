@@ -70,10 +70,10 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * Instantiates a {@link AtomRelationshipJpa} from the specified parameters.
    *
    * @param relationship the concept relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AtomRelationshipJpa(AtomRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+  public AtomRelationshipJpa(AtomRelationship relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     alternateTerminologyIds =

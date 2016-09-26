@@ -55,16 +55,14 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
    * Instantiates a {@link ConceptSubsetJpa} from the specified parameters.
    *
    * @param subset the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptSubsetJpa(ConceptSubset subset, boolean deepCopy) {
-    super(subset, deepCopy);
+  public ConceptSubsetJpa(ConceptSubset subset, boolean collectionCopy) {
+    super(subset, collectionCopy);
     disjointSubset = subset.isDisjointSubset();
     labelSubset = subset.isLabelSubset();
-    if (deepCopy) {
-      for (final ConceptSubsetMember member : subset.getMembers()) {
-        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
-      }
+    if (collectionCopy) {
+      members = new ArrayList<>(subset.getMembers());
     }
 
   }
@@ -145,9 +143,8 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [name=" + getName()
-        + ", description=" + getDescription() + ", disjointSubset="
-        + disjointSubset + "]";
+    return getClass().getSimpleName() + " [name=" + getName() + ", description="
+        + getDescription() + ", disjointSubset=" + disjointSubset + "]";
   }
 
 }

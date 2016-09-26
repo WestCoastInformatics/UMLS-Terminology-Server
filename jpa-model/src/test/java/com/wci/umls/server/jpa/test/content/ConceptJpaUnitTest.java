@@ -101,7 +101,7 @@ public class ConceptJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(Concept.class));
+    assertTrue(tester.testCopyConstructorCollection(Concept.class));
   }
 
   /**

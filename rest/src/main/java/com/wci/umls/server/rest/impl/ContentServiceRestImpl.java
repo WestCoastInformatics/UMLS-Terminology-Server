@@ -1076,9 +1076,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Content): /concept/" + conceptId);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      String userName = authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "retrieve the concept", UserRole.VIEWER);
-
       final Concept concept = contentService.getConcept(conceptId);
       final Project project =
           projectId == null ? null : contentService.getProject(projectId);

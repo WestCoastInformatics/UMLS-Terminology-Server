@@ -1904,21 +1904,20 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       Set<Long> stysInsertedIds = new HashSet<>();
       Set<Long> approvedIds = new HashSet<>();
       Set<Long> stampedIds = new HashSet<>();
-      
+
       worklist.getStats().put("clusterCt",
           worklist.getTrackingRecords().size());
       // Add up orig concepts size from all tracking records
-      int conceptCt =  worklist.getTrackingRecords().stream().collect(
-          Collectors.summingInt(w -> w.getOrigConceptIds().size()));
-      worklist.getStats().put("conceptCt", conceptCt );
+      int conceptCt = worklist.getTrackingRecords().stream()
+          .collect(Collectors.summingInt(w -> w.getOrigConceptIds().size()));
+      worklist.getStats().put("conceptCt", conceptCt);
       String query = "activityId:" + worklist.getName();
-      MolecularActionList list = workflowService.findMolecularActions(null, project.getTerminology(), 
-          project.getVersion(), query, null);
+      MolecularActionList list = workflowService.findMolecularActions(null,
+          project.getTerminology(), project.getVersion(), query, null);
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on worklist
       worklist.getStats().put("actionsCt", list.size());
-      
-      
+
       for (MolecularAction action : list.getObjects()) {
 
         // n_approved -1 - "APPROVE_CONCEPT" molecular actions
@@ -1973,7 +1972,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       worklist.getStats().put("stysInsertedCt", stysInsertedIds.size());
       worklist.getStats().put("splitsCt", splitsIds.size());
       worklist.getStats().put("mergeCt", mergeIds.size());
-      
+
       // websocket - n/a
 
       // return the worklist
@@ -2017,27 +2016,25 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       verifyProject(checklist, projectId);
       Project project = workflowService.getProject(projectId);
 
-
       Set<Long> mergeIds = new HashSet<>();
       Set<Long> splitsIds = new HashSet<>();
       Set<Long> relsInsertedIds = new HashSet<>();
       Set<Long> stysInsertedIds = new HashSet<>();
       Set<Long> approvedIds = new HashSet<>();
-      
+
       checklist.getStats().put("clusterCt",
           checklist.getTrackingRecords().size());
       // Add up orig concepts size from all tracking records
-      int conceptCt =  checklist.getTrackingRecords().stream().collect(
-          Collectors.summingInt(w -> w.getOrigConceptIds().size()));
-      checklist.getStats().put("conceptCt", conceptCt );
+      int conceptCt = checklist.getTrackingRecords().stream()
+          .collect(Collectors.summingInt(w -> w.getOrigConceptIds().size()));
+      checklist.getStats().put("conceptCt", conceptCt);
       String query = "activityId:" + checklist.getName();
-      MolecularActionList list = workflowService.findMolecularActions(null, project.getTerminology(), 
-          project.getVersion(), query, null);
+      MolecularActionList list = workflowService.findMolecularActions(null,
+          project.getTerminology(), project.getVersion(), query, null);
       // compute the stats and add them to the stats object
       // n_actions -1 - molecular action search by concept ids on checklist
       checklist.getStats().put("actionsCt", list.size());
-      
-      
+
       for (MolecularAction action : list.getObjects()) {
 
         // n_approved -1 - "APPROVE_CONCEPT" molecular actions
@@ -2076,7 +2073,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       checklist.getStats().put("stysInsertedCt", stysInsertedIds.size());
       checklist.getStats().put("splitsCt", splitsIds.size());
       checklist.getStats().put("mergeCt", mergeIds.size());
-      
+
       // websocket - n/a
       // return the checklist
       workflowService.handleLazyInit(checklist);
@@ -2343,9 +2340,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
           final PrecedenceList list = sortAtoms(securityService, reportService,
               userName, concept, project);
-          conceptReport
-              .append(reportService.getConceptReport(project, concept, list));
-          conceptReport.append("---------------------------------------------");
+          conceptReport.append(
+              reportService.getConceptReport(project, concept, list, false));
+          conceptReport.append(
+              "\r\n---------------------------------------------\r\n\r\n");
         }
       }
 
@@ -3140,7 +3138,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     // unassigned bin
     if (definition.isEditable()) {
       long clusterIdCt = 1L;
-      for (Long clusterId : clusterIdConceptIdsMap.keySet()) {
+      for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
 
         // Create the tracking record
         final TrackingRecord record = new TrackingRecordJpa();
@@ -3156,7 +3154,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         // Load the concept ids involved
-        StringBuilder conceptNames = new StringBuilder();
+        final StringBuilder conceptNames = new StringBuilder();
         for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
           final Concept concept = workflowService.getConcept(conceptId);
           record.getOrigConceptIds().add(conceptId);
@@ -3166,7 +3164,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           // Set cluster type if a concept has an STY associated with a cluster
           // type in the project
           if (record.getClusterType().equals("")) {
-            for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+            for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
               if (project.getSemanticTypeCategoryMap()
                   .containsKey(sty.getSemanticType())) {
                 record.setClusterType(project.getSemanticTypeCategoryMap()

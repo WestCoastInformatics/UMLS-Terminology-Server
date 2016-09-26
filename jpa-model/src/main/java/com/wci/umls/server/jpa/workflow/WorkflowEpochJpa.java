@@ -90,9 +90,9 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
    * Instantiates a {@link WorkflowEpochJpa} from the specified parameters.
    *
    * @param epoch the workflow epoch
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public WorkflowEpochJpa(WorkflowEpoch epoch, boolean deepCopy) {
+  public WorkflowEpochJpa(WorkflowEpoch epoch, boolean collectionCopy) {
     id = epoch.getId();
     lastModified = epoch.getLastModified();
     lastModifiedBy = epoch.getLastModifiedBy();
@@ -100,7 +100,7 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     name = epoch.getName();
     active = epoch.isActive();
     project = epoch.getProject();
-    if (deepCopy) {
+    if (collectionCopy) {
       workflowBins = new ArrayList<>(epoch.getWorkflowBins());
     }
   }

@@ -98,7 +98,7 @@ public class DescriptorJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(Descriptor.class));
+    assertTrue(tester.testCopyConstructorCollection(Descriptor.class));
   }
 
   /**

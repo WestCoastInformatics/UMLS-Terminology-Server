@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.actions;
 
@@ -94,7 +94,6 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("name");
     tester.include("macroAction");
-    tester.include("batchId");
     tester.include("activityId");
     tester.include("workId");
     tester.include("undoneFlag");
@@ -113,13 +112,13 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
-    assertTrue(tester.testCopyConstructorDeep(MolecularAction.class));
+    assertTrue(tester.testCopyConstructorCollection(MolecularAction.class));
 
   }
 
@@ -180,7 +179,6 @@ public class MolecularActionJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("name");
-    tester.include("batchId");
     tester.include("activityId");
     tester.include("workId");
 

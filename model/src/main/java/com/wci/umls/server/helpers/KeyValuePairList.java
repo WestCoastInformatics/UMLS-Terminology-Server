@@ -35,7 +35,7 @@ public class KeyValuePairList {
    */
   public KeyValuePairList(KeyValuePairList list) {
     name = list.getName();
-    keyValuePairs = list.getKeyValuePairs();
+    keyValuePairs = new ArrayList<>(list.getKeyValuePairs());
   }
 
   /**

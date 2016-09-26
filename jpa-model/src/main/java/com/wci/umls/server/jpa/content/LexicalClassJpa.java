@@ -61,10 +61,10 @@ public class LexicalClassJpa extends AbstractAtomClass implements LexicalClass {
    * Instantiates a {@link LexicalClassJpa} from the specified parameters.
    *
    * @param lexicalClass the lexical class
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public LexicalClassJpa(LexicalClass lexicalClass, boolean deepCopy) {
-    super(lexicalClass, deepCopy);
+  public LexicalClassJpa(LexicalClass lexicalClass, boolean collectionCopy) {
+    super(lexicalClass, collectionCopy);
     language = lexicalClass.getLanguage();
     normalizedName = lexicalClass.getNormalizedName();
     if (lexicalClass.getLabels() != null) {

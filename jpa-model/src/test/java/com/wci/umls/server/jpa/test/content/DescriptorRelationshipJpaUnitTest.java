@@ -163,7 +163,7 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.proxy(Descriptor.class, 2, descriptor2);
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);
-    assertTrue(tester.testCopyConstructorDeep(DescriptorRelationship.class));
+    assertTrue(tester.testCopyConstructorCollection(DescriptorRelationship.class));
   }
 
   /**
@@ -172,7 +172,7 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     DescriptorRelationship rel = new DescriptorRelationshipJpa();

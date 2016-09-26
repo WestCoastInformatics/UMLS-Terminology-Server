@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -38,7 +38,7 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
   /** The enabled. */
   @Column(nullable = false)
   private boolean enabled = true;
-  
+
   /**
    * Instantiates an empty {@link AlgorithmConfigJpa}.
    */
@@ -53,6 +53,7 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
    */
   public AlgorithmConfigJpa(AlgorithmConfig config) {
     super(config);
+    enabled = config.isEnabled();
     process = config.getProcess();
 
   }
@@ -102,8 +103,8 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
   @Override
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {

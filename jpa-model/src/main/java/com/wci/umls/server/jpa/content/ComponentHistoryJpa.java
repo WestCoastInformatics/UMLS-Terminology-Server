@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
@@ -28,8 +31,8 @@ import com.wci.umls.server.model.content.Concept;
 }))
 @Audited
 @XmlRootElement(name = "componentHistory")
-public class ComponentHistoryJpa extends AbstractComponent implements
-    ComponentHistory {
+public class ComponentHistoryJpa extends AbstractComponent
+    implements ComponentHistory {
 
   /** The referenced concept. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = true)
@@ -66,8 +69,8 @@ public class ComponentHistoryJpa extends AbstractComponent implements
    */
   public ComponentHistoryJpa(ComponentHistory h) {
     super(h);
-    this.referencedConcept = new ConceptJpa(h.getReferencedConcept(), false);
-    this.reason = h.getReason();
+    referencedConcept = h.getReferencedConcept();
+    reason = h.getReason();
     relationshipType = h.getRelationshipType();
     additionalRelationshipType = h.getAdditionalRelationshipType();
     associatedRelease = h.getAssociatedRelease();
@@ -108,8 +111,8 @@ public class ComponentHistoryJpa extends AbstractComponent implements
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getReferencedConceptTerminologyId() {
-    return referencedConcept == null ? null : referencedConcept
-        .getTerminologyId();
+    return referencedConcept == null ? null
+        : referencedConcept.getTerminologyId();
   }
 
   /**
@@ -131,8 +134,8 @@ public class ComponentHistoryJpa extends AbstractComponent implements
    */
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getReferencedConceptTerminology() {
-    return referencedConcept == null ? null : referencedConcept
-        .getTerminology();
+    return referencedConcept == null ? null
+        : referencedConcept.getTerminology();
   }
 
   /**
@@ -254,21 +257,15 @@ public class ComponentHistoryJpa extends AbstractComponent implements
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-    result =
-        prime * result
-            + ((referencedConcept == null) ? 0 : referencedConcept.hashCode());
-    result =
-        prime * result
-            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
-    result =
-        prime * result
-            + ((associatedRelease == null) ? 0 : associatedRelease.hashCode());
+    result = prime * result
+        + ((referencedConcept == null) ? 0 : referencedConcept.hashCode());
+    result = prime * result
+        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result = prime * result
+        + ((associatedRelease == null) ? 0 : associatedRelease.hashCode());
     return result;
   }
 

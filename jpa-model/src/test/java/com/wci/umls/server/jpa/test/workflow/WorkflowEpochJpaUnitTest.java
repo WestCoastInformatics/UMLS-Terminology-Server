@@ -127,14 +127,14 @@ public class WorkflowEpochJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
-    assertTrue(tester.testCopyConstructorDeep(WorkflowEpoch.class));
+    assertTrue(tester.testCopyConstructorCollection(WorkflowEpoch.class));
   }
 
   /**

@@ -1,10 +1,12 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.content;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -16,18 +18,15 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
-import com.wci.umls.server.model.content.Attribute;
 
 /**
  * Unit testing for {@link AtomSubsetJpa}.
@@ -95,54 +94,27 @@ public class AtomSubsetJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test copy constructor.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testModelCopy() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    CopyConstructorTester tester = new CopyConstructorTester(object);
-    assertTrue(tester.testCopyConstructorDeep(AtomSubset.class));
-  }
-
-  /**
    * Test deep copy constructor.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    AtomSubset subset = new AtomSubsetJpa();
-    ProxyTester tester = new ProxyTester(subset);
-    subset = (AtomSubset) tester.createObject(1);
-
-    ProxyTester tester2 = new ProxyTester(new AttributeJpa());
-    Attribute att = (Attribute) tester2.createObject(1);
-
-    ProxyTester tester3 = new ProxyTester(new AtomJpa());
-    Atom atom = (Atom) tester3.createObject(1);
-
-    ProxyTester tester4 = new ProxyTester(new AtomSubsetMemberJpa());
-    AtomSubsetMember member = (AtomSubsetMember) tester4.createObject(1);
-    member.setMember(atom);
-
-    subset.getMembers().add(member);
-    subset.getAttributes().add(att);
-
-    AtomSubset subset2 = new AtomSubsetJpa(subset, false);
-    assertEquals(0, subset2.getAttributes().size());
-    assertEquals(0, subset2.getMembers().size());
-
-    AtomSubset subset3 = new AtomSubsetJpa(subset, true);
-    assertEquals(1, subset3.getAttributes().size());
-    assertEquals(att, subset3.getAttributes().iterator().next());
-    assertTrue(att != subset3.getAttributes().iterator().next());
-    assertEquals(1, subset3.getMembers().size());
-    assertEquals(member, subset3.getMembers().iterator().next());
-    assertTrue(member != subset3.getMembers().iterator().next());
+    CopyConstructorTester tester = new CopyConstructorTester(object);
+    final Atom atom = new AtomJpa();
+    atom.setId(1L);
+    tester.proxy(Atom.class, 1, atom);
+    final AtomSubsetMember member = new AtomSubsetMemberJpa();
+    member.setId(1L);
+    final List<AtomSubsetMember> members = new ArrayList<>();
+    members.add(member);
+    tester.proxy(Atom.class, 1, atom);
+    tester.proxy(List.class, 1, members);
+    // Excluding attributes because of different list types
+    tester.exclude("attributes");
+    assertTrue(tester.testCopyConstructorCollection(AtomSubset.class));
 
   }
 

@@ -64,10 +64,11 @@ public class PfsParameterJpa implements PfsParameter {
     queryRestriction = pfs.getQueryRestriction();
     branch = pfs.getBranch();
     sortField = pfs.getSortField();
-    sortFields = pfs.getSortFields();
+    sortFields = new ArrayList<>(pfs.getSortFields());
     ascending = pfs.isAscending();
     activeOnly = pfs.getActiveOnly();
     inactiveOnly = pfs.getInactiveOnly();
+    expression = pfs.getExpression();
   }
 
   @Override

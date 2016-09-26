@@ -135,15 +135,16 @@ public class WorkflowBinJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelDeepCopy");
+  public void testModelCollectionCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST testModelCollectionCopy");
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    // Can only proxy one type of list...
     tester.proxy(List.class, 1, l1);
     tester.proxy(List.class, 2, l2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
-    assertTrue(tester.testCopyConstructorDeep(WorkflowBin.class));
+    assertTrue(tester.testCopyConstructorCollection(WorkflowBin.class));
 
   }
 

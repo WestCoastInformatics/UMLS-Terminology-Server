@@ -3,14 +3,15 @@ tsApp.controller('FinderModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
+  'metadataService',
   'contentService',
   'reportService',
   'selected',
   'lists',
   'user',
   'type',
-  function($scope, $uibModalInstance, utilService, contentService, reportService, selected, lists,
-    user, type) {
+  function($scope, $uibModalInstance, utilService, metadataService, contentService, reportService,
+    selected, lists, user, type) {
     console.debug('Entered finder modal control');
 
     // Scope vars
@@ -24,7 +25,9 @@ tsApp.controller('FinderModalCtrl', [
     $scope.searchResults = [];
 
     // Callbacks for report
-    $scope.callbacks = contentService.getCallbacks();
+    $scope.callbacks = {};
+    utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
+    utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
     // Paging vars
     $scope.paging = utilService.getPaging();

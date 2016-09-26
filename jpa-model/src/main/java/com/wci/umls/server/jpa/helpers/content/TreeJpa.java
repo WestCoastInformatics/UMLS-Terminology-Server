@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
@@ -88,10 +88,8 @@ public class TreeJpa implements Tree {
     labels = tree.getLabels();
 
     // deep-copy children
-    children = new ArrayList<>();
-    for (final Tree child : tree.getChildren()) {
-      children.add(new TreeJpa(child));
-    }
+    children = new ArrayList<>(tree.getChildren());
+
   }
 
   /**
@@ -99,7 +97,8 @@ public class TreeJpa implements Tree {
    *
    * @param treePosition the tree position
    */
-  public TreeJpa(TreePosition<? extends ComponentHasAttributesAndName> treePosition) {
+  public TreeJpa(
+      TreePosition<? extends ComponentHasAttributesAndName> treePosition) {
 
     if (treePosition == null)
       throw new IllegalArgumentException(
@@ -114,7 +113,7 @@ public class TreeJpa implements Tree {
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
     if (treePosition.getNode() instanceof AtomClass) {
-      this.labels = ((AtomClass)treePosition.getNode()).getLabels();
+      this.labels = ((AtomClass) treePosition.getNode()).getLabels();
     }
   }
 
@@ -294,9 +293,8 @@ public class TreeJpa implements Tree {
     result = prime * result + ((nodeName == null) ? 0 : nodeName.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((nodeTerminologyId == null) ? 0 : nodeTerminologyId.hashCode());
+    result = prime * result
+        + ((nodeTerminologyId == null) ? 0 : nodeTerminologyId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }

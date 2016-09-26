@@ -72,11 +72,11 @@ public class DescriptorRelationshipJpa extends
    * parameters.
    *
    * @param relationship the concept relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public DescriptorRelationshipJpa(DescriptorRelationship relationship,
-      boolean deepCopy) {
-    super(relationship, deepCopy);
+      boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
     alternateTerminologyIds =

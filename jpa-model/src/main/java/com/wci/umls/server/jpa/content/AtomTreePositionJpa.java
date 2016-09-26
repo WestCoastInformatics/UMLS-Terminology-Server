@@ -57,10 +57,10 @@ public class AtomTreePositionJpa extends AbstractTreePosition<Atom>
    * parameters.
    *
    * @param treepos the treepos
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AtomTreePositionJpa(AtomTreePosition treepos, boolean deepCopy) {
-    super(treepos, deepCopy);
+  public AtomTreePositionJpa(AtomTreePosition treepos, boolean collectionCopy) {
+    super(treepos, collectionCopy);
     node = treepos.getNode();
   }
 

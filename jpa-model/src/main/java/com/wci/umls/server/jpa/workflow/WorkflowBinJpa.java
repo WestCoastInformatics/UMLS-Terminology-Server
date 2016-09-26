@@ -143,9 +143,9 @@ public class WorkflowBinJpa implements WorkflowBin {
    * Instantiates a {@link WorkflowBinJpa} from the specified parameters.
    *
    * @param bin the workflow bin
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public WorkflowBinJpa(WorkflowBin bin, boolean deepCopy) {
+  public WorkflowBinJpa(WorkflowBin bin, boolean collectionCopy) {
     id = bin.getId();
     lastModified = bin.getLastModified();
     lastModifiedBy = bin.getLastModifiedBy();
@@ -163,7 +163,8 @@ public class WorkflowBinJpa implements WorkflowBin {
     creationTime = bin.getCreationTime();
     clusterCt = bin.getClusterCt();
     project = bin.getProject();
-    if (deepCopy) {
+    stats = new ArrayList<>(bin.getStats());
+    if (collectionCopy) {
       trackingRecords = new ArrayList<>(bin.getTrackingRecords());
     }
   }

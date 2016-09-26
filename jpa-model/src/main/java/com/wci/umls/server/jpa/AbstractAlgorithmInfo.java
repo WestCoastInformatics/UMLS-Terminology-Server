@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -92,7 +92,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
-  
+
   /** the properties */
   @ElementCollection
   private Map<String, String> properties = new HashMap<>();
@@ -115,15 +115,16 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
    */
   public AbstractAlgorithmInfo(AlgorithmInfo<?> info) {
     id = info.getId();
+    timestamp = info.getTimestamp();
+    lastModified = info.getLastModified();
+    lastModifiedBy = info.getLastModifiedBy();
     name = info.getName();
     description = info.getDescription();
     project = info.getProject();
     terminology = info.getTerminology();
     version = info.getVersion();
-    properties = info.getProperties();
-    for (final AlgorithmParameter param : info.getParameters()) {
-      getParameters().add(new AlgorithmParameterJpa(param));
-    }
+    properties = new HashMap<>(info.getProperties());
+    parameters = new ArrayList<>(info.getParameters());
     algorithmKey = info.getAlgorithmKey();
 
   }
@@ -237,7 +238,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     this.version = version;
   }
 
-
   /* see superclass */
   @Override
   @XmlTransient
@@ -273,7 +273,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     }
     project.setId(projectId);
   }
-  
+
   /* see superclass */
   @Override
   @XmlElement(type = AlgorithmParameterJpa.class)

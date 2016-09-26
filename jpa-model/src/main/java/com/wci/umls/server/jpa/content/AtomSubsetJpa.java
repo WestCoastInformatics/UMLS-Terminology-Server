@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -46,15 +46,13 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
    * Instantiates a {@link AtomSubsetJpa} from the specified parameters.
    *
    * @param subset the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AtomSubsetJpa(AtomSubset subset, boolean deepCopy) {
-    super(subset, deepCopy);
+  public AtomSubsetJpa(AtomSubset subset, boolean collectionCopy) {
+    super(subset, collectionCopy);
 
-    if (deepCopy) {
-      for (final AtomSubsetMember member : subset.getMembers()) {
-        getMembers().add(new AtomSubsetMemberJpa(member, deepCopy));
-      }
+    if (collectionCopy) {
+      members = new ArrayList<>(subset.getMembers());
     }
   }
 
@@ -73,7 +71,6 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
   public void setMembers(List<AtomSubsetMember> members) {
     this.members = members;
   }
-
 
   /* see superclass */
   @Override

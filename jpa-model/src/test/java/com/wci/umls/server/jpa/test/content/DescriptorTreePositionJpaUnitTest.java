@@ -140,7 +140,7 @@ public class DescriptorTreePositionJpaUnitTest extends ModelUnitSupport {
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.proxy(Descriptor.class, 1, descriptor1);
     tester.proxy(Descriptor.class, 2, descriptor2);
-    assertTrue(tester.testCopyConstructorDeep(DescriptorTreePosition.class));
+    assertTrue(tester.testCopyConstructorCollection(DescriptorTreePosition.class));
   }
 
   /**

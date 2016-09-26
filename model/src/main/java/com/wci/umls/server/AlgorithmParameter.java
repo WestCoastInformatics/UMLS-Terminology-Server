@@ -1,18 +1,17 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
 import java.util.List;
 
-import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 
 /**
  * Represents a tuple for configuring one field of an algorithm config. TODO:
  * the Jpa layer can have a factory for creating stock fields (like "query" and
  */
-public interface AlgorithmParameter extends HasName, HasLastModified {
+public interface AlgorithmParameter extends HasName {
 
   /**
    * The Enum Type.
@@ -27,7 +26,8 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
 
     /** string type. */
     STRING,
-    /** text type */
+
+    /** text type. */
     TEXT,
     /** enum type. */
     ENUM,
@@ -37,7 +37,8 @@ public interface AlgorithmParameter extends HasName, HasLastModified {
     MULTI,
     /** directory type. */
     DIRECTORY,
-    /** file type */
+
+    /** file type. */
     FILE;
   }
 

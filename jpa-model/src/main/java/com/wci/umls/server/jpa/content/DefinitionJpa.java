@@ -54,10 +54,10 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
    * Instantiates a {@link DefinitionJpa} from the specified parameters.
    *
    * @param definition the definition
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public DefinitionJpa(Definition definition, boolean deepCopy) {
-    super(definition, deepCopy);
+  public DefinitionJpa(Definition definition, boolean collectionCopy) {
+    super(definition, collectionCopy);
     value = definition.getValue();
     alternateTerminologyIds =
         new HashMap<>(definition.getAlternateTerminologyIds());

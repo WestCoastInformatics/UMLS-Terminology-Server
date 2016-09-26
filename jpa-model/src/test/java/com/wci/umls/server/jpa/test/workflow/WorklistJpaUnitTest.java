@@ -132,7 +132,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelDeepCopy() throws Exception {
+  public void testModelCollectionCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     CopyConstructorTester tester = new CopyConstructorTester(object);
@@ -140,7 +140,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.proxy(List.class, 2, l2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
-    assertTrue(tester.testCopyConstructorDeep(Worklist.class));
+    assertTrue(tester.testCopyConstructorCollection(Worklist.class));
 
   }
 

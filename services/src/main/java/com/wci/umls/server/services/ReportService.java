@@ -20,11 +20,12 @@ public interface ReportService extends HistoryService {
    * @param project the project
    * @param concept the concept
    * @param list the list
+   * @param decorate the decorate
    * @return the concept report
    * @throws Exception the exception
    */
   public String getConceptReport(Project project, Concept concept,
-    PrecedenceList list) throws Exception;
+    PrecedenceList list, boolean decorate) throws Exception;
 
   /**
    * Returns the descriptor report.
@@ -32,11 +33,12 @@ public interface ReportService extends HistoryService {
    * @param project the project
    * @param descriptor the descriptor
    * @param list the list
+   * @param decorate the decorate
    * @return the descriptor report
    * @throws Exception the exception
    */
   public String getDescriptorReport(Project project, Descriptor descriptor,
-    PrecedenceList list) throws Exception;
+    PrecedenceList list, boolean decorate) throws Exception;
 
   /**
    * Returns the concept report.
@@ -44,9 +46,10 @@ public interface ReportService extends HistoryService {
    * @param project the project
    * @param code the code
    * @param list the list
+   * @param decorate the decorate
    * @return the concept report
    * @throws Exception the exception
    */
-  public String getCodeReport(Project project, Code code, PrecedenceList list)
-    throws Exception;
+  public String getCodeReport(Project project, Code code, PrecedenceList list,
+    boolean decorate) throws Exception;
 }

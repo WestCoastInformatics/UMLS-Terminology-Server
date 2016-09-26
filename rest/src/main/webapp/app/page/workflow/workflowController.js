@@ -239,15 +239,10 @@ tsApp.controller('WorkflowCtrl', [
     $scope.recomputeConceptStatus = function() {
       workflowService.recomputeConceptStatus($scope.selected.project.id,
         $scope.selected.config.type).then(
-        // Success
-        function(response) {
-          workflowService.recomputeConceptStatus($scope.selected.project.id,
-            $scope.selected.config.type).then(
-          // Success
-          function(response) {
-            $scope.getBins($scope.selected.project.id, $scope.selected.config);
-          });
-        });
+      // Success
+      function(response) {
+        $scope.getBins($scope.selected.project.id, $scope.selected.config);
+      });
     };
 
     // enable/disable

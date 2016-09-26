@@ -37,10 +37,10 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    * Instantiates a {@link AbstractSubsetMember} from the specified parameters.
    *
    * @param member the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractSubsetMember(SubsetMember<T, S> member, boolean deepCopy) {
-    super(member, deepCopy);
+  public AbstractSubsetMember(SubsetMember<T, S> member, boolean collectionCopy) {
+    super(member, collectionCopy);
   }
 
   /* see superclass */

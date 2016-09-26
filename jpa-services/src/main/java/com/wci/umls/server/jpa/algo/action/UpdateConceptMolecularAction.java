@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -75,16 +74,12 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
-    ValidationResult validationResult = new ValidationResultJpa();
     // Perform action specific validation - n/a
 
     // Metadata referential integrity checking
 
     // Check preconditions
-    validationResult.merge(super.checkPreconditions());
-    validationResult
-        .merge(validateConcept(this.getProject(), this.getConcept()));
-    return validationResult;
+    return super.checkPreconditions();
   }
 
   /**
