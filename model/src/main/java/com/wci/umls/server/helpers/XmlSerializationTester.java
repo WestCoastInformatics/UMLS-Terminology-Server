@@ -64,7 +64,9 @@ public class XmlSerializationTester extends ProxyTester {
       return true;
     } else {
       Logger.getLogger(getClass()).info("obj = " + obj);
+      Logger.getLogger(getClass()).debug("xml = " + xml);
       Logger.getLogger(getClass()).info("obj2 = " + obj2);
+      Logger.getLogger(getClass()).debug("json = " + json);
       Logger.getLogger(getClass()).info("obj3 = " + obj3);
       return false;
     }

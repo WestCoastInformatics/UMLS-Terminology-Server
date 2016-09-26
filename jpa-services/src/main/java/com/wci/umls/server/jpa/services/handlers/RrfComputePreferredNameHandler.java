@@ -88,9 +88,9 @@ public class RrfComputePreferredNameHandler
       }
     });
     for (final Atom atom : sortedAtoms) {
-      System.out.println(
-          "  atom = " + atom.getTerminology() + ", " + atom.getTermType() + ", "
-              + atom.getId() + ", " + atomRanks.get(atom));
+//      System.out.println(
+//          "  atom = " + atom.getTerminology() + ", " + atom.getTermType() + ", "
+//              + atom.getId() + ", " + atomRanks.get(atom));
     }
     return sortedAtoms;
   }

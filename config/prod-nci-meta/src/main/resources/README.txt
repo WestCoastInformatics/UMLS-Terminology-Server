@@ -49,14 +49,14 @@ mvn install -Pjpa,rest -Drun.config.umls=/home/ec2-tomcat/ncim/config/config.pro
 REDEPLOY WITH DB BUILD
 
 # AS your user
-sudo /sbin/service/confluence stop
+sudo /sbin/service confluence stop
 
 # AS ec2-tomcat user
 cd ~/ncim/bin
 ./prepDemo.csh >&! prepDemo.log &
 
 # AS your user
-sudo /sbin/service/confluence start
+sudo /sbin/service confluence start
 
 
 REDEPLOY INSTRUCTIONS
