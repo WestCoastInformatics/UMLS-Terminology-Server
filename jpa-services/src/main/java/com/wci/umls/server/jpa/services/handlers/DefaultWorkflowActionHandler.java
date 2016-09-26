@@ -319,6 +319,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
       algo.setActivityId(worklist.getName());
       algo.setLastModifiedBy("S-" + userName);
       algo.setWorklistId(worklist.getId());
+      algo.setApprove(true);
 
       final ValidationResult result = algo.checkPreconditions();
       if (!result.isValid()) {

@@ -159,7 +159,7 @@ public class LogEntryJpa implements LogEntry {
   @Override
   public void setMessage(String message) {
     if (message.length() > 4000) {
-      this.message = message.substring(1, 4000);
+      this.message = message.substring(0, 4000);
     } else {
       this.message = message;
     }
