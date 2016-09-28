@@ -468,23 +468,17 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     this.componentHistories = componentHistory;
   }
 
-  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((alternateTerminologyIds == null) ? 0
-        : alternateTerminologyIds.hashCode());
     result = prime * result + ((codeId == null) ? 0 : codeId.hashCode());
     result = prime * result + ((conceptId == null) ? 0 : conceptId.hashCode());
-    result = prime * result + ((conceptTerminologyIds == null) ? 0
-        : conceptTerminologyIds.hashCode());
     result =
         prime * result + ((descriptorId == null) ? 0 : descriptorId.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
     result = prime * result
         + ((lexicalClassId == null) ? 0 : lexicalClassId.hashCode());
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result
         + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
@@ -500,11 +494,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     if (getClass() != obj.getClass())
       return false;
     AtomJpa other = (AtomJpa) obj;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
-      return false;
     if (codeId == null) {
       if (other.codeId != null)
         return false;
@@ -514,11 +503,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       if (other.conceptId != null)
         return false;
     } else if (!conceptId.equals(other.conceptId))
-      return false;
-    if (conceptTerminologyIds == null) {
-      if (other.conceptTerminologyIds != null)
-        return false;
-    } else if (!conceptTerminologyIds.equals(other.conceptTerminologyIds))
       return false;
     if (descriptorId == null) {
       if (other.descriptorId != null)
@@ -534,11 +518,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       if (other.lexicalClassId != null)
         return false;
     } else if (!lexicalClassId.equals(other.lexicalClassId))
-      return false;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    } else if (!name.equals(other.name))
       return false;
     if (stringClassId == null) {
       if (other.stringClassId != null)

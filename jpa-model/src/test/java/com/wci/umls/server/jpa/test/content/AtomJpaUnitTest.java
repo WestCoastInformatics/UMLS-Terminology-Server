@@ -100,13 +100,10 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
 
     tester.include("codeId");
     tester.include("conceptId");
-    tester.include("conceptTerminologyIds");
-    tester.include("alternateTerminologyIds");
     tester.include("descriptorId");
     tester.include("language");
     tester.include("lexicalClassId");
     tester.include("stringClassId");
-    tester.include("name");
     tester.include("termType");
 
     tester.proxy(Map.class, 1, map1);
