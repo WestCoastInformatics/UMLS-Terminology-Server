@@ -301,8 +301,8 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            $scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record);
+            /*$scope.parentWindowScope.getRecords(false);
+            $scope.parentWindowScope.getConcepts($scope.selected.record);*/
           });
         };
 
@@ -340,8 +340,8 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            $scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+            /*$scope.parentWindowScope.getRecords(false);
+            $scope.parentWindowScope.getConcepts($scope.selected.record, true);*/
           });
         };
 
@@ -378,8 +378,8 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            $scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+            /*$scope.parentWindowScope.getRecords(false);
+            $scope.parentWindowScope.getConcepts($scope.selected.record, true);*/
           });
 
         };

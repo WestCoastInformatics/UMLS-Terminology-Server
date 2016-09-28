@@ -425,9 +425,11 @@ tsApp
           $scope.getRecords(worklist, true);
           // Set activity id
           $scope.selected.activityId = worklist.name;
-          securityService.saveProperty($scope.user.userPreferences, 'editWorklist', $scope.selected.worklist.id);
-          securityService.saveProperty($scope.user.userPreferences, 'editWorklistPaging', JSON.stringify($scope.paging['worklists']));
-                
+          //securityService.saveProperty($scope.user.userPreferences, 'editWorklist', $scope.selected.worklist.id);
+          //securityService.saveProperty($scope.user.userPreferences, 'editWorklistPaging', JSON.stringify($scope.paging['worklists']));
+          $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
+          $scope.user.userPreferences.properties['editWorklistPaging'] = JSON.stringify($scope.paging['worklists']);
+          securityService.updateUserPreferences($scope.user.userPreferences);      
         };
 
         // select record from 'Cluster' list
@@ -438,9 +440,11 @@ tsApp
           if ($scope.worklistMode != 'Available') {
             $scope.getConcepts(record, true);
           }
-          securityService.saveProperty($scope.user.userPreferences, 'editRecord', $scope.selected.record.id);
-          securityService.saveProperty($scope.user.userPreferences, 'editRecordPaging', JSON.stringify($scope.paging['records']));
-          
+          //securityService.saveProperty($scope.user.userPreferences, 'editRecord', $scope.selected.record.id);
+          //securityService.saveProperty($scope.user.userPreferences, 'editRecordPaging', JSON.stringify($scope.paging['records']));
+          $scope.user.userPreferences.properties['editRecord'] = $scope.selected.record.id;
+          $scope.user.userPreferences.properties['editRecordPaging'] = JSON.stringify($scope.paging['records']);
+          securityService.updateUserPreferences($scope.user.userPreferences);      
         }
 
         // refresh the concept list
