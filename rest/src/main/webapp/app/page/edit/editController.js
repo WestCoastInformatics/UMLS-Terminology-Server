@@ -145,7 +145,16 @@ tsApp
                     $scope.removeConceptFromList(concept);
                   } else {
                     $scope.lists.concepts[i] = data;
-                    $scope.selectConcept($scope.lists.concepts[0]);
+                    
+                    if ($scope.user.userPreferences.properties['editConcept']) {
+                      for (var i = 0; i<$scope.lists.concepts.length; i++) {
+                        if ($scope.lists.concepts[i].id == $scope.user.userPreferences.properties['editConcept']) { 
+                          $scope.selectConcept($scope.lists.concepts[i]);
+                        };
+                      }
+                    } else {
+                      $scope.selectConcept($scope.lists.concepts[0]);
+                    }
                   }
                   $scope.getRecords();
                 });
@@ -203,6 +212,9 @@ tsApp
         // Get all available worklists with project and type
         $scope.getAvailableWorklists = function() {
           var paging = $scope.paging['worklists'];
+          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+          }
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -247,6 +259,9 @@ tsApp
         // Get assigned worklists with project and type
         $scope.getAssignedWorklists = function() {
           var paging = $scope.paging['worklists'];
+          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+          }
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -291,6 +306,9 @@ tsApp
         // Find checklists
         $scope.getChecklists = function() {
           var paging = $scope.paging['worklists'];
+          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+          }
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -408,7 +426,8 @@ tsApp
           // Set activity id
           $scope.selected.activityId = worklist.name;
           securityService.saveProperty($scope.user.userPreferences, 'editWorklist', $scope.selected.worklist.id);
-          
+          securityService.saveProperty($scope.user.userPreferences, 'editWorklistPaging', JSON.stringify($scope.paging['worklists']));
+                
         };
 
         // select record from 'Cluster' list
@@ -420,6 +439,7 @@ tsApp
             $scope.getConcepts(record, true);
           }
           securityService.saveProperty($scope.user.userPreferences, 'editRecord', $scope.selected.record.id);
+          securityService.saveProperty($scope.user.userPreferences, 'editRecordPaging', JSON.stringify($scope.paging['records']));
           
         }
 
@@ -473,26 +493,69 @@ tsApp
           if ($scope.windows.hasOwnProperty(windowName)) {
             delete $scope.windows[windowName];
           }
-          //securityService.saveProperty($scope.user.userPreferences, windowName, false);
+          securityService.saveProperty($scope.user.userPreferences, windowName, false);
         }
 
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
             delete $scope.windows[win];
-            //securityService.saveProperty($scope.user.userPreferences, win, false);
+            securityService.saveProperty($scope.user.userPreferences, win, false);
           }
         }
         
+        // focus windows and open those saved to user preferences
         $scope.focusWindows = function() {
+          // focus windows that are already open
           for ( var win in $scope.windows) {
-            $scope.windows[win].focus();
+            $scope.windows[win].focus();            
+          }
+          var width;
+          var height;
+          // open windows that were saved to user preferences
+          if (!$scope.windows['semanticType'] && $scope.user.userPreferences.properties['semanticType'] == 'true') {
+            if($scope.user.userPreferences.properties['semanticTypeWidth']) {
+              width = $scope.user.userPreferences.properties['semanticTypeWidth'];
+            }
+            if($scope.user.userPreferences.properties['semanticTypeHeight']) {
+              height = $scope.user.userPreferences.properties['semanticTypeHeight'];
+            }
+            $scope.openStyWindow(width, height);
+          }
+          if (!$scope.windows['relationship'] && $scope.user.userPreferences.properties['relationship'] == 'true') {
+            if($scope.user.userPreferences.properties['relationshipWidth']) {
+              width = $scope.user.userPreferences.properties['relationshipWidth'];
+            }
+            if($scope.user.userPreferences.properties['relationshipHeight']) {
+              height = $scope.user.userPreferences.properties['relationshipHeight'];
+            }
+            $scope.openRelationshipsWindow(width, height);
+          }
+          if (!$scope.windows['context'] && $scope.user.userPreferences.properties['context'] == 'true') {
+            if($scope.user.userPreferences.properties['contextWidth']) {
+              width = $scope.user.userPreferences.properties['contextWidth'];
+            }
+            if($scope.user.userPreferences.properties['contextHeight']) {
+              height = $scope.user.userPreferences.properties['contextHeight'];
+            }
+            $scope.openContextsWindow(width, height);
+          }
+          if (!$scope.windows['atom'] && $scope.user.userPreferences.properties['atom'] == 'true') {
+            if($scope.user.userPreferences.properties['atomWidth']) {
+              width = $scope.user.userPreferences.properties['atomWidth'];
+            }
+            if($scope.user.userPreferences.properties['atomHeight']) {
+              height = $scope.user.userPreferences.properties['atomHeight'];
+            }
+            $scope.openAtomsWindow(width, height);
           }
         }
 
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
           $scope.selected.component = concept;
+          securityService.saveProperty($scope.user.userPreferences, 'editConcept', $scope.selected.component.id);
+          
           $scope.refreshWindows();
 
           // Update the selected concept in the list
@@ -511,6 +574,11 @@ tsApp
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
+          if (selectFirst && $scope.user.userPreferences.properties['editRecordPaging']) {
+            // try angular.copy
+            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
+          }
+          
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -768,66 +836,101 @@ tsApp
         }
 
         // open semantic type editor window
-        $scope.openStyWindow = function() {
+        $scope.openStyWindow = function(width, height) {
 
-          var newUrl = utilService.composeUrl('edit/semantic-types');
+          var newUrl = utilService.composeUrl('/edit/semantic-types');
           window.$windowScope = $scope;
 
+          if (width == null && height == null && $scope.user.userPreferences.properties['semanticTypeWidth']) {
+            width = $scope.user.userPreferences.properties['semanticTypeWidth'];
+            height = $scope.user.userPreferences.properties['semanticTypeHeight'];
+          } else if (!$scope.user.userPreferences.properties['semanticTypeWidth']){
+            width = 600;
+            height = 600;
+          }
           $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow',
-            'width=600, height=600');
+            'width=' + width + ', height=' + height);
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
+          if ($scope.user.userPreferences.properties['semanticTypeX']) {
+            $scope.windows['semanticType'].moveTo($scope.user.userPreferences.properties['semanticTypeX'],
+              $scope.user.userPreferences.properties['semanticTypeY']);
+          }
           
-          /*securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);
-          securityService.saveProperty($scope.user.userPreferences, 'semanticTypeWidth', '600');
-          securityService.saveProperty($scope.user.userPreferences, 'semanticTypeHeight', '600');*/
+          securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);          
         };
 
         // open atoms editor window
-        $scope.openAtomsWindow = function() {
+        $scope.openAtomsWindow = function(width, height) {
 
-          var newUrl = utilService.composeUrl('edit/atoms');
+          var newUrl = utilService.composeUrl('/edit/atoms');
           window.$windowScope = $scope;
-
-          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=1000, height=600');
+          
+          if (width == null && height == null && $scope.user.userPreferences.properties['atomWidth']) {
+            width = $scope.user.userPreferences.properties['atomWidth'];
+            height = $scope.user.userPreferences.properties['atomHeight'];
+          } else if (!$scope.user.userPreferences.properties['atomWidth']){
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 
+            'width=' + width + ', height=' + height);
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
-          /*
+          if ($scope.user.userPreferences.properties['atomX']) {
+            $scope.windows['atom'].moveTo($scope.user.userPreferences.properties['atomX'],
+              $scope.user.userPreferences.properties['atomY']);
+          }
+          
           securityService.saveProperty($scope.user.userPreferences, 'atom', true);
-          securityService.saveProperty($scope.user.userPreferences, 'atomWidth', '600');
-          securityService.saveProperty($scope.user.userPreferences, 'atomHeight', '600');*/
         };
 
         // open relationships editor window
-        $scope.openRelationshipsWindow = function() {
+        $scope.openRelationshipsWindow = function(width, height) {
 
-          var newUrl = utilService.composeUrl('edit/relationships');
+          var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
-
+          if (width == null && height == null && $scope.user.userPreferences.properties['relationshipWidth']) {
+            width = $scope.user.userPreferences.properties['relationshipWidth'];
+            height = $scope.user.userPreferences.properties['relationshipHeight'];
+          } else if (!$scope.user.userPreferences.properties['relationshipWidth']){
+            width = 600;
+            height = 600;
+          }
           $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
-            'width=1000, height=600');
+            'width=' + width + ', height=' + height);
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
-          
-          /*securityService.saveProperty($scope.user.userPreferences, 'relationship', true);
-          securityService.saveProperty($scope.user.userPreferences, 'relationshipWidth', '600');
-          securityService.saveProperty($scope.user.userPreferences, 'relationshipHeight', '600');*/
+          if ($scope.user.userPreferences.properties['relationshipX']) {
+            $scope.windows['relationship'].moveTo($scope.user.userPreferences.properties['relationshipX'],
+              $scope.user.userPreferences.properties['relationshipY']);
+          }
+          securityService.saveProperty($scope.user.userPreferences, 'relationship', true);
         };
 
         // open contexts window
-        $scope.openContextsWindow = function() {
+        $scope.openContextsWindow = function(width, height) {
 
           var newUrl = utilService.composeUrl('contexts');
           window.$windowScope = $scope;
 
+          if (width == null && height == null && $scope.user.userPreferences.properties['contextWidth']) {
+            width = $scope.user.userPreferences.properties['contextWidth'];
+            height = $scope.user.userPreferences.properties['contextHeight'];
+          } else if (!$scope.user.userPreferences.properties['contextWidth']){
+            width = 600;
+            height = 600;
+          }
           $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
-            'width=1000, height=600');
+            'width=' + width + ', height=' + height);
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
-          /*
+          if ($scope.user.userPreferences.properties['contextX']) {
+            $scope.windows['context'].moveTo($scope.user.userPreferences.properties['contextX'],
+              $scope.user.userPreferences.properties['contextY']);
+          }
+          
           securityService.saveProperty($scope.user.userPreferences, 'context', true);
-          securityService.saveProperty($scope.user.userPreferences, 'contextWidth', '600');
-          securityService.saveProperty($scope.user.userPreferences, 'contextHeight', '600');*/
         };
 
         // closes child windows when term server tab is closed
@@ -881,8 +984,8 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            $scope.getRecords(false);
-            $scope.getConcepts($scope.selected.record);
+            //$scope.getRecords(false);
+            //$scope.getConcepts($scope.selected.record);
           });
 
         };
@@ -990,8 +1093,8 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            $scope.getRecords(false);
-            $scope.getConcepts($scope.selected.record, true);
+            //$scope.getRecords(false);
+            //$scope.getConcepts($scope.selected.record, true);
           });
         };
 
@@ -1006,10 +1109,7 @@ tsApp
           function(data) {
             $scope.lists.terminologies = data.terminologies;
             $scope.getProjects();
-            $scope.windows = {};
-            if ($scope.user.userPreferences.properties['semanticType']) {
-              $scope.openStyWindow();
-            }
+           
           });
 
         };

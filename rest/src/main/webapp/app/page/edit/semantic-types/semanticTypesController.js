@@ -10,9 +10,10 @@ tsApp
       'utilService',
       'metadataService',
       'metaEditingService',
+      'securityService',
       '$uibModal',
       function($scope, $window, tabService, utilService, metadataService, metaEditingService,
-        $uibModal) {
+        securityService, $uibModal) {
 
         console.debug("configure SemanticTypesCtrl");
 
@@ -23,6 +24,7 @@ tsApp
         // preserve parent scope reference
         $scope.parentWindowScope = window.opener.$windowScope;
         window.$windowScope = $scope;
+        $scope.user = securityService.getUser();
         $scope.selected = $scope.parentWindowScope.selected;
         $scope.lists = $scope.parentWindowScope.lists;
 
@@ -111,16 +113,19 @@ tsApp
           $scope.parentWindowScope.removeWindow('semanticType');
         }
         
+        // on window resize, save dimensions and screen location to user preferences
         $window.onresize = function(evt) {
-          // ask for inner/outer height width
-          // put in map if resized
+          clearTimeout(window.resizedFinished);
+          window.resizedFinished = setTimeout(function(){
+              console.log('Resized finished.');
+              $scope.user.userPreferences.properties['semanticTypeWidth'] = window.outerWidth;
+              $scope.user.userPreferences.properties['semanticTypeHeight'] = window.outerHeight;
+              $scope.user.userPreferences.properties['semanticTypeX'] = window.screenX;
+              $scope.user.userPreferences.properties['semanticTypeY'] = window.screenY;
+              securityService.updateUserPreferences($scope.user.userPreferences);
+          }, 250);
         }
-        
-        $window.onmove   = function(evt) {
-          //save window.screenX window.screenY
-          //$window.moveTo
-        }
-
+       
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {
           utilService.setSortField(table, field, $scope.paging);

@@ -234,13 +234,13 @@
 
     <!-- Open new windows -->
     <span style="float: left;">
-      <button ng-click="openStyWindow()" title="Stys"
+      <button ng-click="openStyWindow(null, null)" title="Stys"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
-      <button ng-click="openAtomsWindow()" title="Atoms"
+      <button ng-click="openAtomsWindow(null, null)" title="Atoms"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Atoms</button>
-      <button ng-click="openRelationshipsWindow()" title="Relationships"
+      <button ng-click="openRelationshipsWindow(null, null)" title="Relationships"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
-      <button ng-click="openContextsWindow()" title="Contexts"
+      <button ng-click="openContextsWindow(null, null)" title="Contexts"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Contexts</button>
       <i ng-click="focusWindows(); $event.stopPropagation(); "
                 title="Focus"

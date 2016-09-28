@@ -99,6 +99,19 @@ tsApp
           $scope.parentWindowScope.removeWindow('relationship');
         }
 
+        // on window resize, save dimensions and screen location to user preferences
+        $window.onresize = function(evt) {
+          clearTimeout(window.resizedFinished);
+          window.resizedFinished = setTimeout(function(){
+              console.log('Resized finished on relationships window.');
+              $scope.user.userPreferences.properties['relationshipWidth'] = window.outerWidth;
+              $scope.user.userPreferences.properties['relationshipHeight'] = window.outerHeight;
+              $scope.user.userPreferences.properties['relationshipX'] = window.screenX;
+              $scope.user.userPreferences.properties['relationshipY'] = window.screenY;
+              securityService.updateUserPreferences($scope.user.userPreferences);
+          }, 250);
+        }
+       
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {
           utilService.setSortField(table, field, $scope.paging);

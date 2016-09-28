@@ -101,6 +101,19 @@ tsApp.controller('ContextsCtrl', [
       $scope.parentWindowScope.removeWindow('context');
     }
 
+    // on window resize, save dimensions and screen location to user preferences
+    $window.onresize = function(evt) {
+      clearTimeout(window.resizedFinished);
+      window.resizedFinished = setTimeout(function(){
+          console.log('Resized finished on context window.');
+          $scope.user.userPreferences.properties['contextWidth'] = window.outerWidth;
+          $scope.user.userPreferences.properties['contextHeight'] = window.outerHeight;
+          $scope.user.userPreferences.properties['contextX'] = window.screenX;
+          $scope.user.userPreferences.properties['contextY'] = window.screenY;
+          securityService.updateUserPreferences($scope.user.userPreferences);
+      }, 250);
+    }
+   
     // Table sorting mechanism
     $scope.setSortField = function(table, field, object) {
       utilService.setSortField(table, field, $scope.paging);

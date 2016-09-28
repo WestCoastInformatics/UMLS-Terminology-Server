@@ -377,6 +377,10 @@ tsApp
           });
         }
 
+        $scope.resetUserPreferences = function(user) {
+          securityService.resetUserPreferences(user);
+        }
+        
         //
         // MODALS
         //

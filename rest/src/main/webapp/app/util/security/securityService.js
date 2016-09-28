@@ -61,11 +61,22 @@ tsApp.service('securityService', [
       }
     };
     
+    // save properties
     this.saveProperty = function(prefs, key, value) {
       if (prefs) {
         prefs.properties[key] = value;
         this.updateUserPreferences(prefs);
       }
+    }
+    
+    // reset user preferences
+    this.resetUserPreferences = function(user) {
+      user.userPreferences.properties = null;
+      user.userPreferences.lastProjectId = null;
+      user.userPreferences.lastProjectRole = null;
+      user.userPreferences.lastTerminology = null;
+      user.userPreferences.lastTab = null;
+      this.updateUserPreferences(user.userPreferences);
     }
 
     // accepts the license
