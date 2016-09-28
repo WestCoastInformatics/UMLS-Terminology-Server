@@ -175,6 +175,10 @@
 
 
 <div class="modal-footer">
+<span style="float: left;">
+        <button ng-click="openFinderModal(selected.record)" title="Add concept"
+          class="btn btn-xs btn-primary">Finder</button>
+      </span>
  <span ng-show="action == 'Merge'" >
       <i ng-click="reverseMergeOrder(); "
         title="Reverse merge order"

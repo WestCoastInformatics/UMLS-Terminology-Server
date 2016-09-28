@@ -71,7 +71,7 @@ tsApp.service('securityService', [
     
     // reset user preferences
     this.resetUserPreferences = function(user) {
-      user.userPreferences.properties = null;
+      user.userPreferences.properties = {};
       user.userPreferences.lastProjectId = null;
       user.userPreferences.lastProjectRole = null;
       user.userPreferences.lastTerminology = null;

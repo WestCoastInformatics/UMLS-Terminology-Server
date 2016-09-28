@@ -221,15 +221,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     final StringBuffer notesBuffer = new StringBuffer();
     final String notesLabel = "CONCEPT NOTE(S)";
-    notesBuffer.append(notesLabel).append(lineEnd);
+    notesBuffer.append(notesLabel);
     for (final Note note : concept.getNotes()) {   
-      notesBuffer.append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
-                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true))
-              .append(lineEnd);
+      notesBuffer.append(lineEnd).append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
+                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true));
     }
     if (notesBuffer.toString().length() > notesLabel.length()) {
       sb.append(notesBuffer.toString());
     }
+    sb.append(lineEnd);
     
     
     //

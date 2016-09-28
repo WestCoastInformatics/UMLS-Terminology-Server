@@ -212,9 +212,9 @@ tsApp
         // Get all available worklists with project and type
         $scope.getAvailableWorklists = function() {
           var paging = $scope.paging['worklists'];
-          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+         /* if ($scope.user.userPreferences.properties['editWorklistPaging']) {
             paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }
+          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -259,9 +259,9 @@ tsApp
         // Get assigned worklists with project and type
         $scope.getAssignedWorklists = function() {
           var paging = $scope.paging['worklists'];
-          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+          /*if ($scope.user.userPreferences.properties['editWorklistPaging']) {
             paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }
+          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -306,9 +306,9 @@ tsApp
         // Find checklists
         $scope.getChecklists = function() {
           var paging = $scope.paging['worklists'];
-          if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+          /*if ($scope.user.userPreferences.properties['editWorklistPaging']) {
             paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }
+          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -352,7 +352,7 @@ tsApp
         $scope.changeProjectRole = function() {
           // save the change
           securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
-          $scope.resetPaging();
+          //$scope.resetPaging();
           $scope.getWorklists();
         }
 
@@ -369,7 +369,7 @@ tsApp
             $scope.lists.projectRoles = data.options;
 
             // Get worklists
-            $scope.resetPaging();
+            //$scope.resetPaging();
             $scope.getWorklists();
           });
 
@@ -574,10 +574,6 @@ tsApp
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
-          if (selectFirst && $scope.user.userPreferences.properties['editRecordPaging']) {
-            // try angular.copy
-            paging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
-          }
           
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -1109,7 +1105,16 @@ tsApp
           function(data) {
             $scope.lists.terminologies = data.terminologies;
             $scope.getProjects();
-           
+            
+            // reinitialize paging saved in user preferences
+            if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+              var savedPaging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
+              $scope.paging['worklists'].page = savedPaging.page;
+            }
+            if ($scope.user.userPreferences.properties['editRecordPaging']) {
+              var savedPaging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
+              $scope.paging['records'].page = savedPaging.page;
+            }
           });
 
         };
