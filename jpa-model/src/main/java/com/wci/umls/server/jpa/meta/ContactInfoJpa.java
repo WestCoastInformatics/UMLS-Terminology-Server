@@ -81,7 +81,7 @@ public class ContactInfoJpa implements ContactInfo {
   private String url;
 
   /** The value. */
-  @Column(nullable = true)
+  @Column(nullable = true, length=4000)
   private String value;
 
   /** The zip code. */
@@ -137,7 +137,7 @@ public class ContactInfoJpa implements ContactInfo {
     String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
     if (fields.length < 10) {
       // does not meet requirements, bail
-      this.value = mrsabField;
+      value = mrsabField;
       return;
     }
     name = fields[0];

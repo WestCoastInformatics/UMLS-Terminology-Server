@@ -18,6 +18,7 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.algo.MetadataLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
