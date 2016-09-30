@@ -112,6 +112,26 @@ tsApp
         });
 
         // Handle changes from actions performed by this user
+        $scope.$on('termServer::noteChange', function(event, concept) {
+
+          // Refresh the selected concept
+          if ($scope.selected.component.id == concept.id) {
+            contentService.getConcept(concept.id, $scope.selected.project.id).then(
+            // Success
+            function(data) {
+              if (!data) {
+                // if selected concept no longer exists, just bail from this
+                $scope.removeConceptFromList(concept);
+              } else {
+                $scope.selectConcept(data);
+              }
+              $scope.getRecords();
+
+            });
+          }
+        });
+        
+        // Handle changes from actions performed by this user
         $scope.$on('termServer::conceptChange', function(event, concept) {
 
           // Refresh the selected concept
@@ -212,9 +232,6 @@ tsApp
         // Get all available worklists with project and type
         $scope.getAvailableWorklists = function() {
           var paging = $scope.paging['worklists'];
-         /* if ($scope.user.userPreferences.properties['editWorklistPaging']) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -259,9 +276,6 @@ tsApp
         // Get assigned worklists with project and type
         $scope.getAssignedWorklists = function() {
           var paging = $scope.paging['worklists'];
-          /*if ($scope.user.userPreferences.properties['editWorklistPaging']) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -306,9 +320,6 @@ tsApp
         // Find checklists
         $scope.getChecklists = function() {
           var paging = $scope.paging['worklists'];
-          /*if ($scope.user.userPreferences.properties['editWorklistPaging']) {
-            paging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-          }*/
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,

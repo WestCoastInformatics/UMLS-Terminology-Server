@@ -1300,7 +1300,7 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActions(Long componentId,
+  public MolecularActionList findMolecularActions(Long componentId, 
     String terminology, String version, String query, PfsParameter pfs)
     throws Exception {
 
@@ -1314,7 +1314,7 @@ public abstract class RootServiceJpa implements RootService {
       clauses.add(query);
     }
     if (componentId != null) {
-      clauses.add("componentId:" + componentId);
+      clauses.add("(componentId:" + componentId + " OR componentId2:" + componentId + ")");
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
