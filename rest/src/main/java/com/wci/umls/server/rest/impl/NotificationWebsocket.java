@@ -89,8 +89,9 @@ public class NotificationWebsocket {
    */
   @SuppressWarnings("static-method")
   @OnMessage
-  public String echoText(String name) {
-    return name;
+  public void echoText(String text) {
+    Logger.getLogger(getClass()).info(
+        "message: " + text);
   }
 
   /**
@@ -108,11 +109,14 @@ public class NotificationWebsocket {
     }
 
     // Send message to all listeners
-    synchronized (sessions) {
+   
       for (final Session session : new HashSet<>(sessions)) {
         try {
-          // Send async message
-          session.getAsyncRemote().sendText(message);
+          
+          // Send synch message  
+          // TODO: performance not ideal 
+          session.getBasicRemote().sendText(message);
+
         } catch (Exception e) {
           e.printStackTrace();
           // if anything went wrong, close the session and remove it
@@ -125,7 +129,6 @@ public class NotificationWebsocket {
           sessions.remove(session);
         }
       }
-    }
 
   }
 

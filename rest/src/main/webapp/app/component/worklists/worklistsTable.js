@@ -8,12 +8,11 @@ tsApp
       '$window',
       '$sce',
       '$interval',
-      'websocketService',
       'utilService',
       'securityService',
       'projectService',
       'workflowService',
-      function($uibModal, $window, $sce, $interval, websocketService, utilService, securityService,
+      function($uibModal, $window, $sce, $interval, utilService, securityService,
         projectService, workflowService) {
         console.debug('configure worklistTable directive');
         return {

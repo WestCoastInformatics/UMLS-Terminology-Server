@@ -54,16 +54,17 @@ tsApp.service('websocketService',
 
       this.connection.onopen = function() {
         // Log so we know it is happening
-        console.debug('Connection open');
+        console.debug('MESSAGE Connection open');
       };
 
       this.connection.onclose = function() {
         // Log so we know it is happening
-        console.debug('Connection closed');
+        console.debug('MESSAGE Connection closed');
       };
 
       // error handler
       this.connection.onerror = function(error) {
+        console.debug('MESSAGE Connection on error', error);
         utilService.handleError(error, null, null, null);
       };
 
