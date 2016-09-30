@@ -76,6 +76,9 @@ public class ResetDevDatabase {
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
+    if (System.getProperty("input.dir") != null) {
+      p.setProperty("input.dir", "your path");
+    }
     request.setProperties(p);
     request.setDebug(false);
     Invoker invoker = new DefaultInvoker();

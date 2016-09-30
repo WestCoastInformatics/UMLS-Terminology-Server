@@ -9,9 +9,11 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -83,11 +85,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
   /** The run date. */
   private Date runDate = null;
 
-  /** The term current flag. */
-  private Boolean termCurrent = null;
-
-  /** The term organizing class type. */
-  private IdType termOrganizingClassType = null;
 
   /**
    * Instantiates an empty {@link MetadataLoaderAlgorithm}.
@@ -99,9 +96,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     setWorkId("METADATALOADER");
     setLastModifiedBy("admin");
   }
-
-  // TODO - Cancel-checks, progress-monitoring, transaction (no commits), and
-  // logging.
 
   /**
    * Sets the directory.
@@ -148,8 +142,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     cacheExistingAdditionalRelationshipTypes();
     List<String> lines = loadFileIntoStringList("MRDOC.RRF", "RELA|");
 
-    final Map<String, String> relaMRDOCMap = new HashMap<>();
-    final Map<String, String> inverseRelaMRDOCMap = new HashMap<>();
+    final Set<String> relaMRDOC = new HashSet<>();
+    final Set<String> inverseRelaMRDOC = new HashSet<>();
 
     // Field Description DOCKEY,VALUE,TYPE,EXPL
     // 0 DOCKEY
@@ -162,15 +156,14 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
     String fields[] = new String[4];
 
-    // Load all of the rels and inverse rels from MRDOC into maps
+    // Load all of the rels and inverseRels from MRDOC into a set
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);
       if (fields[2].equals("expanded_form")
-          && !relaMRDOCMap.containsKey(fields[1])) {
-        relaMRDOCMap.put(fields[1], line);
-      } else if (fields[2].equals("rela_inverse")
-          && !inverseRelaMRDOCMap.containsKey(fields[3])) {
-        relaMRDOCMap.put(fields[3], line);
+          && !relaMRDOC.contains(fields[1])) {
+        relaMRDOC.add(fields[1]);
+      } else if (fields[2].equals("rela_inverse")){
+        inverseRelaMRDOC.add(fields[3]);
       }
     }
 
@@ -178,18 +171,17 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     // database, fire ERROR.
     // If loaded inverse doesn't exist as its own entity in MRDOC, but it DOES
     // exist in the database, fire warning.
-    for (String abbreviation : inverseRelaMRDOCMap.keySet()) {
-      if (!relaMRDOCMap.containsKey(abbreviation)
+    for (String abbreviation : inverseRelaMRDOC) {
+      if (!relaMRDOC.contains(abbreviation)
           && loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
         validationResult.addWarning(
-            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC.");
+            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: " + abbreviation);
       }
-      if (!relaMRDOCMap.containsKey(abbreviation)
+      if (!relaMRDOC.contains(abbreviation)
           && !loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
         validationResult.addError(
-            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database.");
+            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database: " + abbreviation);
       }
-
     }
 
     return validationResult;
@@ -398,25 +390,10 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load the sources.src file
     //
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + "sources.src";
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
+    List<String> lines = loadFileIntoStringList("sources.src", null);
 
-    String fields[] = new String[20];
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      lines.add(linePre);
-    }
-
-    sources.close();
-
+    String fields[] = new String[20];    
+    
     // Each line of sources.src corresponds to one terminology.
     // Check to make sure the terminology doesn't already exist in the database
     // If it does, skip it.
@@ -503,8 +480,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         // Add if it does not yet exist
         Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
-        term.setOrganizingClassType(termOrganizingClassType);
-        term.setCurrent(termCurrent);
+        term.setCurrent(true);
         term.setPreferredName(fields[7]);
         term.setTimestamp(runDate);
         term.setLastModified(runDate);
@@ -539,24 +515,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load the contexts.src file
     //
-    sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + "contexts.src";
-    sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
+    lines = loadFileIntoStringList("contexts.src", null);
 
-    fields = new String[17];
-    lines = new ArrayList<>();
-    linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      lines.add(linePre);
-    }
-
-    sources.close();
+    fields = new String[17];   
 
     // Each line of sources.src corresponds to one terminology.
     // Check to make sure the terminology doesn't already exist in the database
@@ -589,6 +550,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       // 31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|
       // SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|
 
+      //TODO - put into method "determineOrganizingClassType"
+      //TODO - pull first 100 lines, and find most occuring instance.
+      
       if (termsToAddMap.containsKey(fields[4])) {
         // Set terminology organizingClassType based on sg_type:
         if (fields[12].equals("SOURCE_CUI")) {
