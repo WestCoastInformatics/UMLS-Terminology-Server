@@ -221,15 +221,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     final StringBuffer notesBuffer = new StringBuffer();
     final String notesLabel = "CONCEPT NOTE(S)";
-    notesBuffer.append(notesLabel).append(lineEnd);
+    notesBuffer.append(notesLabel);
     for (final Note note : concept.getNotes()) {   
-      notesBuffer.append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
-                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true))
-              .append(lineEnd);
+      notesBuffer.append(lineEnd).append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
+                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true));
     }
     if (notesBuffer.toString().length() > notesLabel.length()) {
       sb.append(notesBuffer.toString());
     }
+    sb.append(lineEnd);
     
     
     //
@@ -706,6 +706,26 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(lineEnd);
     }
 
+    if (comp.getLastModified() != null && comp.getLastModifiedBy() != null) {
+      if (comp instanceof Concept) {
+        sb.append("Concept");
+      } else if (comp instanceof Descriptor) {
+        sb.append("Descriptor");
+      } else if (comp instanceof Code) {
+        sb.append("Code");
+      }
+      sb.append(" was last touched on ").append(comp.getLastModified()).append(
+          " by ").append(comp.getLastModifiedBy()).append(".").append(lineEnd);
+    }
+    if (concept != null) {
+      if (concept.getLastApproved() != null
+          && concept.getLastApprovedBy() != null) {
+        sb.append("Concept was last approved on ")
+            .append(concept.getLastApproved()).append(" by ")
+            .append(concept.getLastApprovedBy()).append(".").append(lineEnd);
+      }
+    }
+    
     return sb.toString();
   }
 

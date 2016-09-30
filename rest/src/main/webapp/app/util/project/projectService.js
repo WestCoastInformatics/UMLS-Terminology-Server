@@ -384,6 +384,35 @@ tsApp
           return deferred.promise;
         };
 
+        // Finds molecular actions
+        this.findMolecularActions = function(componentId, terminology, version, query, pfs) {
+
+          console.debug('findMolecularActions', componentId, terminology, version, query, pfs);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+          $http.post(projectUrl + '/actions/molecular?componentId=' + componentId + '&terminology=' + terminology 
+            + '&version=' + version + '&query=' + utilService.prepQuery(query),
+            utilService.prepPfs(pfs)).then(
+          // success
+          function(response) {
+            console.debug('  projects = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        };
+
+        
         // get all validation check names
         this.getValidationCheckNames = function() {
           var deferred = $q.defer();

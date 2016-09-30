@@ -2,6 +2,7 @@
 tsApp.controller('MergeMoveSplitModalCtrl', [
   '$scope',
   '$uibModalInstance',
+  '$uibModal',
   'utilService',
   'metaEditingService',
   'contentService',
@@ -9,7 +10,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, selected,
+  function($scope, $uibModalInstance, $uibModal, utilService, metaEditingService, contentService, selected,
     lists, user, action) {
     console.debug('Entered merge/move/split modal control', lists, action);
 
@@ -186,5 +187,54 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     // initialize modal
     initialize();
 
+    
+    //
+    // MODALS
+    //
+    // Add concept modal
+    $scope.openFinderModal = function(lrecord) {
+      console.debug('openFinderModal ', lrecord);
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/component/finder/finder.html',
+        controller : 'FinderModalCtrl',
+        backdrop: 'static',
+        size : 'lg',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          type : function() {
+            return 'Concept';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        // return if concept is already on concept list
+        for (var i = 0; i < $scope.lists.concepts.length; i++) {
+          if ($scope.lists.concepts[i].id == data.id) {
+            window.alert('Concept ' + data.id + ' is already on the concept list.');
+            return;
+          }
+        }
+        // get full concept
+        contentService.getConcept(data.id, $scope.selected.project.id).then(
+        // Success
+        function(data) {
+          $scope.lists.concepts.push(data);
+          $scope.toConcepts.push(data);
+        });
+      });
+
+    };
+    
     // end
   } ]);

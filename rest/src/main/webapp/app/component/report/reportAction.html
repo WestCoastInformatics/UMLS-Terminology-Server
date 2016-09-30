@@ -1,0 +1,52 @@
+
+<!-- Title -->
+<h3 style="font-size: 20px;">
+  {{selected.component.terminologyId}} {{selected.component.name}}
+  <span class="label label-warning"
+    ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
+    uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
+  <span class="label label-default" ng-show="selected.component.obsolete"
+    uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.anonymous"
+    class="label label-info" uib-tooltip="Anonymous">A</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && !selected.component.fullyDefined && !selected.component.anonymous"
+    class="label label-info" uib-tooltip="Primitive">P</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.fullyDefined"
+    class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
+</h3>
+
+<div pager paging="paging" count="pagedActions.totalCount"
+          callbacks="paging.callbacks"></div>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-md-2 col-xs-2">Component Id</th>
+      <th class="col-md-2 col-xs-2">Component Id2</th>
+      <th class="col-md-2 col-xs-2">Name</th>
+      <th class="col-md-2 col-xs-2">Timestamp</th>
+      <th class="col-md-2 col-xs-2">Editor</th>
+      <th class="col-md-2 col-xs-2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat='action in pagedActions' ng-class="{grey: action.undoneFlag == true}">
+      <td>{{action.componentId}}</td>
+      <td>{{action.undoneFlag}}</td>
+      <td>{{action.name}}</td>
+      <td>{{toDate(action.timestamp)}}</td>
+      <td>{{action.lastModifiedBy}}</td>
+      <td>
+        <i title="Undo action" ng-show="isUndoable(action)"
+          ng-click="undoAction(action, false); $event.stopPropagation()"
+          class="noul glyphicon glyphicon-menu-left"></i> 
+        <i title="Redo action" ng-show="isRedoable(action)"
+          ng-click="redoAction(action, false); $event.stopPropagation()"
+          class="noul glyphicon glyphicon-menu-right"></i>
+      </td>
+    </tr>
+  </tbody>
+</table>
