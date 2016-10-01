@@ -286,6 +286,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     final ProcessConfigList processConfigList = new ProcessConfigListJpa();
     processConfigList.setObjects(results);
+    processConfigList.setTotalCount(processConfigs.size());
 
     return processConfigList;
   }

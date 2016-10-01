@@ -110,26 +110,6 @@ tsApp
             }
           }
         });
-
-        // Handle changes from actions performed by this user
-        $scope.$on('termServer::noteChange', function(event, concept) {
-
-          // Refresh the selected concept
-          if ($scope.selected.component.id == concept.id) {
-            contentService.getConcept(concept.id, $scope.selected.project.id).then(
-            // Success
-            function(data) {
-              if (!data) {
-                // if selected concept no longer exists, just bail from this
-                $scope.removeConceptFromList(concept);
-              } else {
-                $scope.selectConcept(data);
-              }
-              $scope.getRecords();
-
-            });
-          }
-        });
         
         // Handle changes from actions performed by this user
         $scope.$on('termServer::conceptChange', function(event, concept) {
@@ -187,6 +167,7 @@ tsApp
               // Success
               function(data) {
                 // no need to remove anything or select anything
+                console.debug('pushing concept', data.id);
                 $scope.lists.concepts.push(data);
                 $scope.getRecords();
               });
@@ -995,8 +976,6 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            //$scope.getRecords(false);
-            //$scope.getConcepts($scope.selected.record);
           });
 
         };
@@ -1104,8 +1083,6 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            //$scope.getRecords(false);
-            //$scope.getConcepts($scope.selected.record, true);
           });
         };
 

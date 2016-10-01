@@ -136,15 +136,49 @@ tsApp.controller('ProcessCtrl', [
     }
 
     $scope.getProcessConfigs = function() {
-      // TBD - process service
+      var paging = $scope.paging['process'];
+      var pfs = {
+        startIndex : (paging.page - 1) * paging.pageSize,
+        maxResults : paging.pageSize,
+        sortField : paging.sortField,
+        ascending : paging.sortAscending,
+        queryRestriction : paging.filter
+      };
+      processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
+        function(data) {
+          $scope.lists.processes = data.processes;
+          $scope.lists.processes.totalCount = data.totalCount;
+          
 
-      // In "then" call getProcessExecutionsCt
+          // TODO In "then" call getProcessExecutionsCt
+        });
+
+    }
+    
+    $scope.removeProcessConfig = function(processConfigId) {
+      processService.removeProcessConfig($scope.selected.project.id, processConfigId).then(
+        function(data) {
+          
+        });
     }
 
     $scope.getProcessExecutions = function() {
-      // TBD - process service
+      var paging = $scope.paging['process'];
+      var pfs = {
+        startIndex : (paging.page - 1) * paging.pageSize,
+        maxResults : paging.pageSize,
+        sortField : paging.sortField,
+        ascending : paging.sortAscending,
+        queryRestriction : paging.filter
+      };
+      processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
+        function(data) {
+          $scope.lists.executions = data.executions;
+          $scope.lists.executions.totalCount = data.totalCount;
+          
 
-      // In "then" call getProcessConfigsCt
+          // TODO In "then" call getProcessConfigsCt
+        });
 
     }
 
