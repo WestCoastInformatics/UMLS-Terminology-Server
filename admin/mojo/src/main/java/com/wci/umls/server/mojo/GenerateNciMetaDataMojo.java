@@ -178,20 +178,21 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // GSC - George Chang
     // HAG - Alpha Garrett
     // TPW - Tammy Powell
+    // MJA - Miranda Jarnot 
     final String[] initials = new String[] {
         "CFC", "BAC", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR", "LLW",
-        "TAQ", "GSC", "HAG", "TPW"
+        "TAQ", "GSC", "HAG", "TPW", "MJA"
     };
     final String[] names = new String[] {
         "Carol Creech", "Brian Carlsen", "Deborah Shapiro", "Joanne Wong",
         "Larry Wright", "Margaret Haber", "Sherri de Coronado",
         "Gilberto Fragoso", "Laura Roth", "Lori Whiteman", "Theresa Quinn",
-        "George Chang", "Alpha Garret", "Tammy Powell"
+        "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot"
     };
     final String[] roles = new String[] {
         "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR", "REVIEWER",
         "REVIEWER", "REVIEWER", "ADMINISTRATOR", "REVIEWER", "REVIEWER",
-        "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER"
+        "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER", "REVIEWER"
     };
     Logger.getLogger(getClass()).info("Add new users");
     for (int i = 0; i < initials.length; i++) {
