@@ -76,11 +76,9 @@ public class ConceptSubsetJpaUnitTest extends ModelUnitSupport {
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("suppressible");
     tester.include("obsolete");
-    tester.include("publishable");
-    tester.include("published");
+    tester.include("branch");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("version");
 
     tester.include("name");
     tester.include("description");
