@@ -32,10 +32,52 @@
             ng-click="setMode(mode)">{{mode}} ({{counts[mode]}})</a></li>
       </ul>
     </div>
-
+<h4>In development...</h4>
     <h5>Process {{selected.mode}}</h5>
-    ... table...
+     <div pager paging="paging['process']" style="margin-top: 5px"
+      count="lists.processes.totalCount"
+      callbacks="paging['process'].callbacks"></div>
+    <table ng-show="lists.processes.totalCount > 0" class="table pointer">
+      <thead>
+        <tr>
+          <th class="col-md-3 col-xs-3"><span
+              ng-click="setSortField('process','name')">
+              Name
+              <span ng-bind="getSortIndicator('process','name')"></span>
+            </span></th>
+          <th class="col-md-5 col-xs-5">Description</th>
+          <th class="col-md-2 col-xs-"><span
+              ng-click="setSortField('process','lastModified')">
+              Last Modified
+              <span ng-bind="getSortIndicator('process','lastModified')"></span>
+            </span></th>
+          <!-- Actions header -->
+          <th class="col-md-2 col-xs-2">Actions</th>
+        </tr>
 
+      </thead>
+      <tbody>
+        <tr ng-repeat="process in lists.processes"
+          ng-click="selectProcess(process);"
+          ng-class="{selected: process.id == selected.process.id}">
+
+          <td>{{process.name}}</td>
+          <td>{{process.description}}</td>
+          <td>{{toDate(process.lastModified)}}</td>
+
+          <!--  actions -->
+          <td class="nobreak">
+
+            <i title="Remove process"
+              ng-show="selected.projectRole == 'ADMINISTRATOR'"
+              confirm="Are you sure you want to remove the process ({{process.name}})?"
+              ng-click="removeProcess(process); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-trash"></i>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>
