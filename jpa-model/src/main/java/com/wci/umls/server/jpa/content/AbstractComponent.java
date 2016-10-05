@@ -252,29 +252,20 @@ public abstract class AbstractComponent extends AbstractHasLastModified
     // n/a
   }
 
-  /**
-   * CUSTOM equals: uses .toString() on the concept terminology ids map.
-   *
-   * @return the int
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + (obsolete ? 1231 : 1237);
-    result = prime * result + (publishable ? 1231 : 1237);
-    result = prime * result + (published ? 1231 : 1237);
     result = prime * result + (suppressible ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result
         + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -284,12 +275,12 @@ public abstract class AbstractComponent extends AbstractHasLastModified
     if (getClass() != obj.getClass())
       return false;
     AbstractComponent other = (AbstractComponent) obj;
-
+    if (branch == null) {
+      if (other.branch != null)
+        return false;
+    } else if (!branch.equals(other.branch))
+      return false;
     if (obsolete != other.obsolete)
-      return false;
-    if (publishable != other.publishable)
-      return false;
-    if (published != other.published)
       return false;
     if (suppressible != other.suppressible)
       return false;
@@ -302,11 +293,6 @@ public abstract class AbstractComponent extends AbstractHasLastModified
       if (other.terminologyId != null)
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
-      return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
       return false;
     return true;
   }

@@ -177,20 +177,22 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // TAQ - Theresa Quinn
     // GSC - George Chang
     // HAG - Alpha Garrett
+    // TPW - Tammy Powell
+    // MJA - Miranda Jarnot 
     final String[] initials = new String[] {
         "CFC", "BAC", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR", "LLW",
-        "TAQ", "GSC", "HAG"
+        "TAQ", "GSC", "HAG", "TPW", "MJA"
     };
     final String[] names = new String[] {
         "Carol Creech", "Brian Carlsen", "Deborah Shapiro", "Joanne Wong",
         "Larry Wright", "Margaret Haber", "Sherri de Coronado",
         "Gilberto Fragoso", "Laura Roth", "Lori Whiteman", "Theresa Quinn",
-        "George Chang", "Alpha Garret"
+        "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot"
     };
     final String[] roles = new String[] {
         "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR", "REVIEWER",
         "REVIEWER", "REVIEWER", "ADMINISTRATOR", "REVIEWER", "REVIEWER",
-        "AUTHOR", "AUTHOR", "AUTHOR"
+        "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER", "REVIEWER"
     };
     Logger.getLogger(getClass()).info("Add new users");
     for (int i = 0; i < initials.length; i++) {
@@ -200,7 +202,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       if (user == null) {
         user = makeUser(inits, name);
         if (user.getUserName().equals("LAR")
-            || user.getUserName().equals("LLW")) {
+            || user.getUserName().equals("LLW")
+          || user.getUserName().equals("TPW")) {
           user.setEditorLevel(5);
         }
         user.setApplicationRole(UserRole.valueOf("USER"));
