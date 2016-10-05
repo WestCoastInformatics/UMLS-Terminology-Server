@@ -443,11 +443,20 @@ tsApp
           for (var i = 0; i < $scope.selected.record.concepts.length; i++) {
             contentService.getConcept($scope.selected.record.concepts[i].id, $scope.selected.project.id).then(
               function(data) {
-                $scope.lists.concepts.push(data);
-                $scope.lists.concepts.sort(utilService.sortBy('id'));
-                // Select first, when the first concept is loaded
-                if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
-                  $scope.selectConcept($scope.lists.concepts[0]);
+                // prevent duplicates (due to websocket msgs) from being added to concept list
+                var found = false;
+                for (var j = 0; j<$scope.lists.concepts.length; j++) {
+                  if ($scope.lists.concepts[j].id == data.id) {
+                    found = true;
+                  }
+                }
+                if (!found) {
+                  $scope.lists.concepts.push(data);
+                  $scope.lists.concepts.sort(utilService.sortBy('id'));
+                  // Select first, when the first concept is loaded
+                  if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
+                    $scope.selectConcept($scope.lists.concepts[0]);
+                  }
                 }
               });
           }
@@ -606,8 +615,7 @@ tsApp
               // select previously selected record if saved in user preferences
               if ($scope.user.userPreferences.properties['editRecord']) {
                 for (var i = 0; i<$scope.lists.records.length; i++) {
-                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']
-                    && ($scope.selected.record == null || $scope.selected.record.id != $scope.lists.records[i].id)) {
+                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
                     $scope.selectRecord($scope.lists.records[i]);
                   }
                 }
