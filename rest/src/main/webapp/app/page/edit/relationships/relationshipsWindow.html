@@ -15,7 +15,7 @@
       <th class="col-md-4 col-xs-4"><span
           ng-click="setSortField('relationships','toName')">To Name</span> <span
           ng-bind="getSortIndicator('relationships','toName')"></span></th>
-      <th class="col-md-2 col-xs-2"><span
+      <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('relationships','toTerminologyId')">To
           Concept</span> <span
           ng-bind="getSortIndicator('relationships','toTerminologyId')"></span></th>
@@ -27,6 +27,9 @@
           ng-click="setSortField('relationships','additionalRelationshipType')">Add
           Rel Type</span> <span
           ng-bind="getSortIndicator('relationships','additionalRelationshipType')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('relationships','level')">Level</span>
+        <span ng-bind="getSortIndicator('relationships','level')"></span></th>
       <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('relationships','terminology')">Terminology</span>
         <span ng-bind="getSortIndicator('relationships','terminology')"></span></th>
@@ -48,12 +51,14 @@
       <td>{{relationship.toTerminologyId}}</td>
       <td>{{relationship.relationshipType}}</td>
       <td>{{relationship.additionalRelationshipType}}</td>
+      <td>{{relationship.level}}</td>
       <td>{{relationship.terminology}}</td>
       <td>{{relationship.lastModifiedBy}}</td>
       <td class="nobreak">
 
         <i
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
+          ng-show="relationship.level != 'S'"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 

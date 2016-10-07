@@ -12,6 +12,10 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
       console.debug('configure atoms directive');
 
+      scope.getPagedList = function() {
+        getPagedList();
+      }
+      
       // Paging function
       function getPagedList() {
         scope.pagedData = utilService.getPagedArray(scope.component.atoms.filter(
@@ -34,7 +38,8 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       scope.$watch('component', function() {
         if (scope.component) {
           // reset paging
-          scope.paging = utilService.getPaging();
+          // interferes with Show All/Show Paged
+          //scope.paging = utilService.getPaging();
           scope.pageCallbacks = {
             getPagedList : getPagedList
           };

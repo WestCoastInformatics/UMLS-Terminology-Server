@@ -567,7 +567,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       // If new entry
       if (!uniqueSet.contains(entry)) {
         // Break if we've reached the limit
-        if (ct >= 10) {
+        if (ct >= 100) {
           break;
         }
 
@@ -599,7 +599,15 @@ public class ReportServiceJpa extends HistoryServiceJpa
         sb.append("CONTEXTS").append(lineEnd);
         firstContext = false;
       }
-
+      
+      final Terminology fullTerminology = getTerminology(
+          treePos.getNode().getTerminology(), treePos.getNode().getVersion());
+      
+      // skip all non-english contexts
+      if(!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
+        continue;
+      }
+      
       sb.append(treePos.getNode().getTerminology()).append("_")
           .append(treePos.getNode().getVersion());
       sb.append("/").append(treePos.getNode().getTerminologyId())
@@ -622,11 +630,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
         }
       }
 
-      // children
-      final Terminology fullTerminology = getTerminology(
-          treePos.getNode().getTerminology(), treePos.getNode().getVersion());
+      // children     
       final IdType type = fullTerminology.getOrganizingClassType();
-
+      
+      
       TreePositionList siblings = null;
       TreePositionList children = null;
       final PfsParameter childPfs = new PfsParameterJpa();

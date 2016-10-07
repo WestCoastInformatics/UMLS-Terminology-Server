@@ -86,7 +86,7 @@
                 title="Claim worklist"
                 class="noul glyphicon glyphicon-hand-right"></i>
 
-              <i confirm="Are you sure you want to unassign the worklist?"
+              <i 
                 ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                 ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                 title="Unassign worklist"
@@ -220,11 +220,12 @@
             </span>
           </td>
           <td>
-            <div notes selected="selected" type="Concept">
+            <span notes selected="selected" type="Concept"></span>
             <i title="Remove from list"
               ng-show="concept.id == selected.component.id"
               ng-click="removeConceptFromList(concept); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-remove"></i>
+              class="noul glyphicon glyphicon-trash"></i>
+            
           </td>
         </tr>
       </tbody>
@@ -264,6 +265,7 @@
     <br />
     <hr>
     <!-- Concept Report -->
+    <h4>Reports</h4>
     <div report-panel selected="selected" callbacks="callbacks"></div>
 
   </div>

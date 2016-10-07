@@ -1,7 +1,14 @@
 <!-- Atoms -->
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
 
-  <h4>{{metadata.atomsLabel}} ({{pagedData.totalCount}})</h4>
+  <h4>{{metadata.atomsLabel}} ({{pagedData.totalCount}})
+  <span ng-show="pagedData.totalCount > 10" style="float: right;">
+    <button ng-show="paging.pageSize == 10" ng-click="paging.pageSize = 100000; getPagedList();" title="Show all atoms"
+      class="btn btn-xs btn-primary">Show All</button>
+    <button ng-show="paging.pageSize == 100000" ng-click="paging.pageSize = 10; getPagedList();" title="Show paged atoms"
+      class="btn btn-xs btn-primary">Show Paged</button>
+  </span>
+  </h4>
   <span class="alert alert-warning" style="margin-left: 15px"
     ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
     Click button above to show Obsolete

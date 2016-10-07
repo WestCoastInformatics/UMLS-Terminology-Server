@@ -556,19 +556,33 @@ tsApp
 
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
-          $scope.selected.component = concept;
-          securityService.saveProperty($scope.user.userPreferences, 'editConcept', $scope.selected.component.id);
-          
-          $scope.refreshWindows();
 
-          // Update the selected concept in the list
-          for (var i = 0; i < $scope.lists.concepts.length; i++) {
-            var concept = $scope.lists.concepts[i];
-            if (concept.id == $scope.selected.component.id) {
-              $scope.lists.concepts[i] = $scope.selected.component;
-              break;
-            }
-          }
+          // Get a component and set the local component data model
+          // e.g. this is called when a user clicks on a search result
+
+          contentService.getComponent(concept).then(
+            // Success
+            function(response) {
+
+              // If we still don't know the terminology (because of a link in),
+              // look it up first
+
+              $scope.selected.component = response;
+
+              securityService.saveProperty($scope.user.userPreferences, 'editConcept',
+                $scope.selected.component.id);
+
+              $scope.refreshWindows();
+
+              // Update the selected concept in the list
+              for (var i = 0; i < $scope.lists.concepts.length; i++) {
+                var concept = $scope.lists.concepts[i];
+                if (concept.id == $scope.selected.component.id) {
+                  $scope.lists.concepts[i] = $scope.selected.component;
+                  break;
+                }
+              }
+            });
         };
 
         // Get $scope.lists.records

@@ -4,6 +4,12 @@
 </h4>
 <h4 class="{{selected.component.workflowStatus}}">{{selected.component.name}}
   {{selected.component.id}}</h4>
+<span ng-show="pagedAtoms.totalCount > 10" style="float: right;">
+          <button ng-show="paging['atoms'].pageSize == 10" ng-click="paging['atoms'].pageSize = 100000; getPagedAtoms()" title="Show all atoms"
+            class="btn btn-xs btn-primary">Show All</button>
+          <button ng-show="paging['atoms'].pageSize == 100000" ng-click="paging['atoms'].pageSize = 10; getPagedAtoms()" title="Show paged atoms"
+            class="btn btn-xs btn-primary">Show Paged</button>
+</span>
 
 <div pager paging="paging['atoms']" count="selected.component.atoms.length"
   callbacks="paging['atoms'].callbacks"></div>
@@ -64,10 +70,10 @@
     ng-click="setSortField('atoms', null)" title="Sort by atom precedence" class="btn btn-xs btn-primary">Sort preferred</button>
 </span> -->
 <span style="float: right;">
-  <button confirm="Are you sure you want to approve the concept?"
+  <button 
     ng-click="approveConcept()" title="Approve" class="btn btn-xs btn-primary">Approve</button>
   <button ng-click="next()" title="Next" class="btn btn-xs btn-primary">Next</button>
-  <button confirm="Are you sure you want to approve the concept?"
+  <button 
     ng-click="approveNext()" title="Approve/Next" class="btn btn-xs btn-primary">Approve/Next</button>
   <button ng-click="openMergeModal()" ng-disabled="getSelectedAtomCount() == 0"
     title="Merge" class="btn btn-xs btn-primary">Merge</button>
