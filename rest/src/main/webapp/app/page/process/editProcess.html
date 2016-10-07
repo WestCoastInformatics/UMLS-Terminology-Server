@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h4>{{action}} Process</h4>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>
+        <input ng-model="process.name" size="60" placeholder="e.g. demotions" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Description</b>
+      </td>
+      <td>
+        <textarea rows="2" cols="60" ng-model="process.description"
+          placeholder="Basic description of the process"></textarea>
+      </td>
+    </tr>
+    
+ 
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+  <!-- messages -->
+  <div class="col-md-12 col-xs-12">
+    <div class="alert alert-success" ng-repeat="message in messages">
+      {{message}}
+      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submitProcess(process); ">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitProcess(process); ">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

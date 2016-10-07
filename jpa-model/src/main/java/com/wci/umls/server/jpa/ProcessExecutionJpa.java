@@ -64,6 +64,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Column(nullable = true)
   private String workId;
 
+  /** The type. */
+  @Column(nullable = false)
+  private String type;
+  
   /** The steps . */
   @OneToMany(mappedBy = "process", targetEntity = AlgorithmExecutionJpa.class)
   @OrderColumn
@@ -89,6 +93,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     processConfigId = exec.getProcessConfigId();
     workId = exec.getWorkId();
     steps = new ArrayList<>(exec.getSteps());
+    type = exec.getType();
   }
 
   /**
@@ -101,6 +106,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     // Clear out the id copied from the config
     this.setId(null);
     processConfigId = config.getId();
+    type = config.getType();
   }
 
   /* see superclass */
@@ -183,6 +189,19 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public String getType() {
+    return type;
+  }
+
+  /* see superclass */
+  @Override
+  public void setType(String type) {
+    this.type = type;
+  }
+  
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -190,6 +209,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     result = prime * result
         + ((processConfigId == null) ? 0 : processConfigId.hashCode());
     result = prime * result + ((workId == null) ? 0 : workId.hashCode());
+    result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;
   }
 
@@ -213,6 +233,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
         return false;
     } else if (!workId.equals(other.workId))
       return false;
+    if (type == null) {
+      if (other.type != null)
+        return false;
+    } else if (!type.equals(other.type))
+      return false;
     return true;
   }
 
@@ -221,7 +246,8 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   public String toString() {
     return "ProcessExecutionJpa [startDate=" + startDate + ", finishDate="
         + finishDate + ", failDate=" + failDate + ", steps=" + steps
-        + ", workId=" + workId + ", processConfigId=" + processConfigId + "] "
+        + ", workId=" + workId + ", processConfigId=" + processConfigId 
+        + ", type=" + type + "] "
         + super.toString();
 
   }

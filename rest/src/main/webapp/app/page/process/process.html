@@ -20,21 +20,29 @@
       </span>
     </h5>
   </div>
-
-
-
-  <!-- C1 -->
-  <div class="col-md-12 col-xs-12">
-    <div>
+  <div>
       <ul class="pointer nav nav-tabs">
         <li ng-repeat='mode in lists.modes'
           ng-class="{active : selected.mode == mode}"><a
             ng-click="setMode(mode)">{{mode}} ({{counts[mode]}})</a></li>
       </ul>
     </div>
-<h4>In development...</h4>
-    <h5>Process {{selected.mode}}</h5>
-     <div pager paging="paging['process']" style="margin-top: 5px"
+
+
+  <!-- C1 -->
+  <div class="col-md-6 col-xs-12">
+    <h4>Processes - In development...</h4>
+     
+    <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            style="float: right;">
+            <select ng-model="selected.processType"
+            ng-change="getProcessConfigs()"
+            ng-options="processType for processType in lists.processTypes"></select>
+            <button ng-click="openAddProcessModal()" title="Add new process"
+              class="btn btn-xs btn-primary">Add Process</button>
+    </span>
+    
+    <div pager paging="paging['process']" style="margin-top: 5px"
       count="lists.processes.totalCount"
       callbacks="paging['process'].callbacks"></div>
     <table ng-show="lists.processes.totalCount > 0" class="table pointer">
@@ -46,15 +54,14 @@
               <span ng-bind="getSortIndicator('process','name')"></span>
             </span></th>
           <th class="col-md-5 col-xs-5">Description</th>
-          <th class="col-md-2 col-xs-"><span
+          <th class="col-md-3 col-xs-3"><span
               ng-click="setSortField('process','lastModified')">
               Last Modified
               <span ng-bind="getSortIndicator('process','lastModified')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2">Actions</th>
+          <th class="col-md-1 col-xs-1">Actions</th>
         </tr>
-
       </thead>
       <tbody>
         <tr ng-repeat="process in lists.processes"
@@ -67,19 +74,96 @@
 
           <!--  actions -->
           <td class="nobreak">
-
+            <i title="Edit process"
+              ng-show="selected.projectRole == 'ADMINISTRATOR'"
+              ng-click="openEditProcessModal(process); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-pencil"></i>
             <i title="Remove process"
               ng-show="selected.projectRole == 'ADMINISTRATOR'"
               confirm="Are you sure you want to remove the process ({{process.name}})?"
-              ng-click="removeProcess(process); $event.stopPropagation()"
+              ng-click="removeProcessConfig(process); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
 
           </td>
         </tr>
       </tbody>
-    </table>
-  </div>
+    <span ng-show="lists.processes.totalCount == 0"
+      class="alert alert-warning">There are no processes of type {{selected.processType}}.</span>
+ 
+      </table>
+    </div>
 
+
+  <!-- R1C2 - concepts list  -->
+  <div class="col-md-6 col-xs-12">
+    
+    <span ng-show="selected.process"><h4>Process Details</h4></span>
+    <!-- Details, Releases, Records -->
+    <span ng-show="!selected.process && list.processes.length > 0"
+      class="alert alert-warning">Select a process to see details</span>
+
+    <div class="col-md-12 col-xs-12" ng-show="selected.process">
+
+      <!-- Process Details -->
+      <table class="table pointer">
+        <tbody>
+          <tr>
+            <td>
+              <b>Name</b>
+            </td>
+            <td>{{selected.process.name}}</td>
+          </tr>
+          <tr>
+            <td>
+              <b>Description</b>
+            </td>
+            <td>{{selected.process.description}}</td>
+          </tr>
+         
+          <tr>
+            <td>
+              <b>Terminology</b>
+            </td>
+            <td>{{selected.project.terminology}}</td>
+          </tr>
+
+          <tr>
+            <td><b>Version</b>
+            </td>
+            <td>{{selected.project.version}}</td>
+          </tr>
+          
+        </tbody>
+      </table> 
+      <h5><b>Steps</b></h5>
+      <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            style="float: right;">
+            <select ng-model="selected.algorithmConfigType"
+            ng-change="changeAlgorithmConfigType()"
+            ng-options="configType for configType in lists.algorithmConfigTypes"></select>
+            <button ng-click="openAddAlgorithmModal()" title="Add"
+              class="btn btn-xs btn-primary">Add</button>
+            </span>
+              <table class="table pointer">
+                <tr ng-repeat="step in selected.process.steps">
+                  <td class="col-md-4 col-xs-4">{{step.name}}</td>
+                  <td class="col-md-4 col-xs-4">{{step.description}}</td>
+                  <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
+                  <td  class="col-md-1 col-xs-1 nobreak">
+                    <i title="Edit step"
+                      ng-show="selected.projectRole == 'ADMINISTRATOR'"
+                      ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
+                      class="noul glyphicon glyphicon-pencil"></i> <i
+                      title="Remove step"
+                      ng-show="selected.projectRole == 'ADMINISTRATOR'"
+                      confirm="Are you sure you want to remove the step ({{step.name}})?"
+                      ng-click="removeAlgorithm(step); $event.stopPropagation()"
+                      class="noul glyphicon glyphicon-trash"></i>
+                  </td>
+                </tr>
+              </table>
+
+  </div>
 </div>
 
 

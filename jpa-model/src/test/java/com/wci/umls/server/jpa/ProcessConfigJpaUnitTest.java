@@ -172,6 +172,7 @@ public class ProcessConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("terminology");
     tester.include("version");
+    tester.include("type");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -198,6 +199,7 @@ public class ProcessConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("projectId");
+    tester.include("type");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

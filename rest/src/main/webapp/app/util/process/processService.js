@@ -127,6 +127,285 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // cancel process
+    this.cancelProcess = function(projectId, id) {
+      console.debug('cancelProcess', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/execution/' + id + '/cancel?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  cancel = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // execute process
+    this.executeProcess = function(projectId, id, background) {
+      console.debug('executeProcess', projectId, id, background);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/config/' + id + '/execute?projectId=' + projectId + '&background=' + background).then(
+      // success
+      function(response) {
+        console.debug('  execute = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // find currently executing processes
+    this.findCurrentlyExecutingProcesses = function(projectId) {
+      console.debug('executing processes', projectId, id, background);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/executing?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  executing = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get algorithm config for key
+    this.getAlgorithmConfigForKey = function(projectId, key) {
+      console.debug('get algorithm config for key', projectId, key);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/config/algo/key/' + key + '?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  config = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get algorithm log
+    this.getAlgorithmLog = function(projectId, algorithmExecutionId) {
+      console.debug('get algorithm log', projectId, algorithmExecutionId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/algo/' + algorithmExecutionId + '/log?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  log = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get algorithm progress
+    this.getAlgorithmProgress = function(projectId, id) {
+      console.debug('get algorithm progress', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/algo/' + id + '/progress?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  progress = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+   
+
+       
+    // get process log
+    this.getProcessLog = function(projectId, processExecutionId) {
+      console.debug('get process log', projectId, processExecutionId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/' + processExecutionId + '/log?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  log = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get process progress
+    this.getProcessProgress = function(projectId, id) {
+      console.debug('get process progress', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/' + id + '/progress?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  progress = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+   
+    
+    // get insertion algorithms
+    this.getInsertionAlgorithms = function(projectId) {
+      console.debug('get insertion algorithms', projectId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/algo/insertion?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  insertion = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get maintenance algorithms
+    this.getMaintenanceAlgorithms = function(projectId) {
+      console.debug('get maintenance algorithms', projectId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/algo/maintenance?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  maintenance = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // get release algorithms
+    this.getReleaseAlgorithms = function(projectId) {
+      console.debug('get release algorithms', projectId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/algo/release?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  release = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // restart process
+    this.restartProcess = function(projectId, id) {
+      console.debug('restart process', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/execution/' + id + '/restart?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  restart = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+   
     // remove algorithm config
     this.removeAlgorithmConfig = function(projectId, id) {
       console.debug('removeAlgorithmConfig', projectId, id);
@@ -161,6 +440,29 @@ tsApp.service('processService', [
       // success
       function(response) {
         console.debug('  successful delete');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // remove process execution
+    this.removeProcessExecution = function(projectId, id) {
+      console.debug('removeProcessExecution', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http['delete'](processUrl + '/execution/' + id + '/remove?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  remove process execution');
         gpService.decrement();
         deferred.resolve(response.data);
       },
