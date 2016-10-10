@@ -109,6 +109,13 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " to concept " + getConcept().getId() + " " + attribute);
+    
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
+        "\n  attribute id = " + getAttribute().getId() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
   }
 
   @Override
@@ -117,4 +124,5 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
 
   }
 
+  
 }

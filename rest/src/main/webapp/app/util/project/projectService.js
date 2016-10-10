@@ -354,15 +354,16 @@ tsApp
           return deferred.promise();
         };
 
-        // get log for project and refset/translation
-        this.getLog = function(projectId, objectId, lines) {
+        // get log 
+        this.getLog = function(projectId, objectId, message, lines) {
           console.debug('getLog');
           var deferred = $q.defer();
           var llines = lines ? lines : 1000;
           // Assign user to project
-          gpService.increment();
+          //gpService.increment();
           $http.get(
             projectUrl + '/log?projectId=' + projectId + (objectId ? '&objectId=' + objectId : '')
+              + (message ? '&message=' + message : '')
               + '&lines=' + llines, {
               transformResponse : [ function(response) {
                 // Data response is plain text at this point
@@ -372,13 +373,13 @@ tsApp
             }).then(
           // success
           function(response) {
-            gpService.decrement();
+            //gpService.decrement();
             deferred.resolve(response.data);
           },
           // error
           function(response) {
             utilService.handleError(response);
-            gpService.decrement();
+            //gpService.decrement();
             deferred.reject(response.data);
           });
           return deferred.promise;

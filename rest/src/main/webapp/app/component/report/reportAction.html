@@ -39,13 +39,16 @@
       <td>{{action.name}}</td>
       <td>{{toDate(action.timestamp)}}</td>
       <td>{{action.lastModifiedBy}}</td>
-      <td>
+      <td ng-mouseenter="displayLog(action);">
         <i title="Undo action" ng-show="isUndoable(action)"
           ng-click="undoAction(action, false); $event.stopPropagation()"
           class="noul glyphicon glyphicon-menu-left"></i> 
         <i title="Redo action" ng-show="isRedoable(action)"
           ng-click="redoAction(action, false); $event.stopPropagation()"
           class="noul glyphicon glyphicon-menu-right"></i>
+        <i uib-popover-html="action.log" popover-trigger="mouseenter" 
+          popover-placement="left" 
+            class="noul glyphicon glyphicon-file"></i>       
       </td>
     </tr>
   </tbody>

@@ -157,6 +157,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
         getName() + " from concept " + getConcept().getId() + " "
             + inverseDemotionRelationship);
 
+    
   }
 
 }

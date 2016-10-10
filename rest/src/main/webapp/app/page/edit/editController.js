@@ -170,7 +170,7 @@ tsApp
               function(data) {
                 // no need to remove anything or select anything
                 $scope.lists.concepts.push(data);
-
+                $scope.refreshWindows();
                 $scope.getRecords();
               });
             }
@@ -452,6 +452,7 @@ tsApp
                 }
                 if (!found) {
                   $scope.lists.concepts.push(data);
+                  $scope.refreshWindows();
                   $scope.lists.concepts.sort(utilService.sortBy('id'));
                   // Select first, when the first concept is loaded
                   if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
@@ -557,17 +558,7 @@ tsApp
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
 
-          // Get a component and set the local component data model
-          // e.g. this is called when a user clicks on a search result
-
-          contentService.getComponent(concept).then(
-            // Success
-            function(response) {
-
-              // If we still don't know the terminology (because of a link in),
-              // look it up first
-
-              $scope.selected.component = response;
+              $scope.selected.component = concept;
 
               securityService.saveProperty($scope.user.userPreferences, 'editConcept',
                 $scope.selected.component.id);
@@ -582,7 +573,6 @@ tsApp
                   break;
                 }
               }
-            });
         };
 
         // Get $scope.lists.records
@@ -808,6 +798,7 @@ tsApp
               }
             }
             $scope.lists.concepts.push(data);
+            $scope.refreshWindows();
             $scope.lists.concepts.sort(utilService.sortBy('id'));
           });
         }
@@ -1040,6 +1031,7 @@ tsApp
             // Success
             function(data) {
               $scope.lists.concepts.push(data);
+              $scope.refreshWindows();
               $scope.selectConcept(data);
             });
           });

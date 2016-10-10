@@ -149,9 +149,9 @@ tsApp
         // version:
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
-        this.getComponent = function(component) {
+        this.getComponent = function(component, projectId) {
 
-          console.debug('getComponent', component);
+          console.debug('getComponent', component, projectId);
 
           var deferred = $q.defer();
 
@@ -174,7 +174,7 @@ tsApp
             + component.terminology + "/" + component.version + "/" + component.terminologyId
             : contentUrl + '/' + component.type.toLowerCase() + "/" + component.id;
 
-          $http.get(url).then(
+          $http.get(url + (projectId ? '?projectId=' + projectId : '')).then(
             // success
             function(response) {
               var data = response.data;
@@ -190,9 +190,6 @@ tsApp
 
                 // cycle over all atoms for pre-processing
                 for (var i = 0; i < data.atoms.length; i++) {
-
-                  // assign expandable content flag
-                  data.atoms[i].hasContent = atomHasContent(data.atoms[i]);
 
                   // push any definitions up to top level
                   for (var j = 0; j < data.atoms[i].definitions.length; j++) {
@@ -322,7 +319,7 @@ tsApp
         };
 
         // Helper function for determining if an atom has content
-        function atomHasContent(atom) {
+        this.atomHasContent = function(atom)  {
           if (!atom)
             return false;
           if (atom.attributes.length > 0)
@@ -917,21 +914,7 @@ tsApp
 
         // function for getting concept
         this.getConcept = function(conceptId, projectId) {
-          var deferred = $q.defer();
-
-          gpService.increment();
-
-          $http.get(contentUrl + '/concept/' + conceptId + '?projectId=' + projectId).then(
-            function(response) {
-              gpService.decrement();
-              deferred.resolve(response.data);
-            }, function(response) {
-              utilService.handleError(response);
-              gpService.decrement();
-              deferred.reject(response.data);
-            });
-
-          return deferred.promise;
+          return this.getComponent({id:conceptId, type:'CONCEPT'}, projectId);
         };
 
         // Find mappings

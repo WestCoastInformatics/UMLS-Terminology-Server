@@ -400,6 +400,14 @@ public class SplitMolecularAction extends AbstractMolecularAction {
         getName() + " into concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  from_concept = " + getFromConcept().getId() + " " + getFromConcept().getName() +
+        (getToConcept() != null ? "\n  to_concept = " + getToConcept().getId() + " " + getToConcept().getName() : "") +
+        "\n  atom ids = " + moveAtoms.toString() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
+    
     // Make copy of to and fromConcept to pass into change event
     originatingConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
     createdConceptPostUpdates = new ConceptJpa(getToConcept(), false);

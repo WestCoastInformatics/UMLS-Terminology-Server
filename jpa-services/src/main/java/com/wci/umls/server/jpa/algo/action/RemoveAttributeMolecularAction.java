@@ -119,6 +119,12 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(), getName() + " from concept "
             + getConcept().getId() + " " + attribute);
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
+        "\n  attribute id = " + getAttributeId() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
   }
 
 }
