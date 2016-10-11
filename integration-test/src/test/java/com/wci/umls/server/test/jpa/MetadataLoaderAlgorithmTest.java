@@ -49,17 +49,18 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
     processService = new ProcessServiceJpa();
 
     // If the algorithm is defined in the config.properties, get from there.
-    try{
-      algo = (MetadataLoaderAlgorithm) processService.getAlgorithmInstance("METADATALOADER");
+    try {
+      algo = (MetadataLoaderAlgorithm) processService
+          .getAlgorithmInstance("METADATALOADER");
     }
     // If not, create and configure from scratch
-    catch(Exception e) {
+    catch (Exception e) {
       algo = new MetadataLoaderAlgorithm();
-      
+
       // Also need to create and pass in required parameters.
       List<AlgorithmParameter> algoParams = algo.getParameters();
-      for (AlgorithmParameter algoParam : algoParams){
-        if(algoParam.getFieldName().equals("directory")){
+      for (AlgorithmParameter algoParam : algoParams) {
+        if (algoParam.getFieldName().equals("directory")) {
           algoParam.setValue("terminologies/NCI_INSERT");
         }
       }
@@ -82,7 +83,7 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
   @Test
   public void testMetadataLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
-    
+
     // Run the METADATALOADER algorithm
     try {
 
@@ -91,17 +92,29 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       ValidationResult validationResult = algo.checkPreconditions();
       // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty())) {
-        // rollback -- unlocks the concept and closes transaction
+      // for this algorithm, warnings are OK, so only rollback if errors.
+      // rollback -- unlocks the concept and closes transaction
+      if (!validationResult.getErrors().isEmpty()) {
+        Logger.getLogger(getClass())
+            .info("Stopping algorithm - Precondition Errors identified:");
+        for (String error : validationResult.getErrors()) {
+          Logger.getLogger(getClass()).info(error);
+        }
         algo.rollback();
       }
+      if (!validationResult.getWarnings().isEmpty()) {
+        Logger.getLogger(getClass()).info(
+            "Precondition Warnings identified, but continuing algorithm run:");
+        for (String warning : validationResult.getWarnings()) {
+          Logger.getLogger(getClass()).info(warning);
+        }
+      }
       assertTrue(validationResult.getErrors().isEmpty());
-//
-//      //
-//      // Perform the algorithm
-//      //
-//      algo.compute();
+
+      //
+      // Perform the algorithm
+      //
+      algo.compute();
 
     } catch (Exception e) {
       algo.rollback();

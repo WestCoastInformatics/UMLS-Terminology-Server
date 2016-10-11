@@ -22,6 +22,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -66,7 +67,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
   private final String loader = "loader";
 
   /** The loaded terminologies. */
-  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+  private Map<KeyValuePair, Terminology> loadedTerminologies = new HashMap<>();
 
   /** The loaded root terminologies. */
   private Map<String, RootTerminology> loadedRootTerminologies =
@@ -74,6 +75,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
   /** The loaded term types. */
   private Map<String, TermType> loadedTermTypes = new HashMap<>();
+
+  /** The loaded organizing class types. */
+  private Map<String, IdType> loadedOrganizingClassTypes = null;
 
   /** The loaded attribute names. */
   private Map<String, AttributeName> loadedAttributeNames = new HashMap<>();
@@ -276,7 +280,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       updateProgress();
 
       //
-      // Load AdditionalRelationshipTypes (and inversese)
+      // Load AdditionalRelationshipTypes (and inverses)
       //
       if (isCancelled()) {
         throw new CancelException("Cancelled");
@@ -326,7 +330,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       // lazy init
       term.getSynonymousNames().size();
       term.getRootTerminology().getTerminology();
-      loadedTerminologies.put(term.getTerminology(), term);
+      loadedTerminologies.put(
+          new KeyValuePair(term.getTerminology(), term.getVersion()), term);
     }
 
   }
@@ -480,11 +485,35 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         addRootTerminology(rootTerm);
         loadedRootTerminologies.put(rootTerm.getTerminology(), rootTerm);
       }
+      // If it does already exist, update the existing root terminology
+      else {
+        final RootTerminology existingRootTerm =
+            loadedRootTerminologies.get(fields[4]);
+        existingRootTerm.setAcquisitionContact(new ContactInfoJpa(fields[9]));
+        existingRootTerm.setContentContact(new ContactInfoJpa(fields[10]));
+        existingRootTerm.setLicenseContact(new ContactInfoJpa(fields[11]));
+        existingRootTerm.setFamily(fields[6]);
+        if (!fields[13].isEmpty()) {
+          if (fields[13].contains("MULTIPLE")) {
+            existingRootTerm.setPolyhierarchy(true);
+          } else {
+            existingRootTerm.setPolyhierarchy(false);
+          }
+        }
+        existingRootTerm.setPreferredName(fields[7]);
+        existingRootTerm.setRestrictionLevel(Integer.parseInt(fields[2]));
+        existingRootTerm.setTerminology(fields[4]);
+        existingRootTerm.setTimestamp(runDate);
+        existingRootTerm.setLastModified(runDate);
+        existingRootTerm.setLastModifiedBy(loader);
+        existingRootTerm.setLanguage(fields[15]);
+      }
 
       //
       // Terminology based on input line.
       //
-      if (!loadedTerminologies.containsKey(fields[4])) {
+      if (!loadedTerminologies
+          .containsKey(new KeyValuePair(fields[4], fields[5]))) {
         // Add if it does not yet exist
         Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
@@ -494,8 +523,13 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         term.setLastModified(runDate);
         term.setLastModifiedBy(loader);
         term.setTerminology(fields[4]);
-        term.setVersion(fields[6]);
+        term.setVersion(fields[5]);
         term.setDescriptionLogicTerminology(false);
+        if (determineOrganizingClassType(fields[4]) != null) {
+          term.setOrganizingClassType(determineOrganizingClassType(fields[4]));
+        } else {
+          term.setOrganizingClassType(IdType.CODE);
+        }
         term.setInverterEmail(fields[12]);
         if (!fields[13].isEmpty()) {
           if (fields[13].contains("NOSIB")) {
@@ -518,68 +552,181 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         term.setRootTerminology(loadedRootTerminologies.get(fields[4]));
         termsToAddMap.put(fields[0], term);
       }
+      // If it does already exist, update the existing root terminology
+      else {
+
+      }
     }
 
-    //
-    // Load the contexts.src file
-    //
-    lines = loadFileIntoStringList("contexts.src", null);
-
-    fields = new String[17];
-
-    // Each line of sources.src corresponds to one terminology.
-    // Check to make sure the terminology doesn't already exist in the database
-    // If it does, skip it.
-    // If it does not, add it.
-    for (String line : lines) {
-      FieldedStringTokenizer.split(line, "|", 17, fields);
-
-      // Fields:
-      // 0 source_atom_id_1
-      // 1 relationship_name
-      // 2 relationship_attribute
-      // 3 source_atom_id_2
-      // 4 source (Used to match to sources.src)
-      // 5 source_of_label
-      // 6 hcd
-      // 7 parent_treenum
-      // 8 release mode
-      // 9 source_rui
-      // 10 relationship_group
-      // 11 sg_id_1
-      // 12 sg_type_1 (Terminology.organizingClassType)
-      // 13 sg_qualifier_1
-      // 14 sg_id_2
-      // 15 sg_type_2 (Terminology.organizingClassType)?
-      // 16 sg_qualifier_2
-
-      // e.g.
-      // 362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||
-      // 31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|
-      // SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|
-
-      // TODO - put into method "determineOrganizingClassType"
-      // TODO - pull first 100 lines, and find most occuring instance.
-
-      if (termsToAddMap.containsKey(fields[4])) {
-        // Set terminology organizingClassType based on sg_type:
-        if (fields[12].equals("SOURCE_CUI")) {
-          termsToAddMap.get(fields[4]).setOrganizingClassType(IdType.CONCEPT);
-        } else if (fields[12].equals("SOURCE_DUI")) {
-          termsToAddMap.get(fields[4])
-              .setOrganizingClassType(IdType.DESCRIPTOR);
-        } else {
-          termsToAddMap.get(fields[4]).setOrganizingClassType(IdType.CODE);
+    // TODO - test if this works once database is reset
+    // For every Term about to be added, find any previously existing terms with
+    // the same root terminology, and set their current to false.
+    for (Terminology newTerm : termsToAddMap.values()) {
+      for (Terminology existingTerm : loadedTerminologies.values()) {
+        if (newTerm.getRootTerminology()
+            .equals(existingTerm.getRootTerminology())) {
+          if (existingTerm.isCurrent()) {
+            existingTerm.setCurrent(false);
+            logInfo("[MetadataLoader] Updating Terminology: " + existingTerm);
+            updateTerminology(existingTerm);
+          }
         }
       }
     }
 
-    // After we finish going through both files, add everything from the map to
+    // After we finish going through the file, add everything that we need to
     // the database
     for (Terminology newTerm : termsToAddMap.values()) {
       logInfo("[MetadataLoader] Adding Terminology: " + newTerm);
-      addTerminology(newTerm);
+      newTerm = addTerminology(newTerm);
+      loadedTerminologies.put(new KeyValuePair(newTerm.getTerminology(),newTerm.getVersion()), newTerm);
     }
+
+  }
+
+  /**
+   * Determine organizing class type.
+   *
+   * @param source the source
+   * @return the id type
+   */
+  private IdType determineOrganizingClassType(String terminology)
+    throws Exception {
+
+    // If previous version of terminology exists, use previous
+    // OrganizingClassType
+    for (Map.Entry<KeyValuePair, Terminology> entry : loadedTerminologies
+        .entrySet()) {
+      KeyValuePair termNameAndVersion = entry.getKey();
+      String termName = termNameAndVersion.getKey();
+      Terminology term = entry.getValue();
+      if (terminology.equals(termName)) {
+        return term.getOrganizingClassType();
+      }
+    }
+
+    // Otherwise, we need to look through contexts.src.
+    // If this is the first time this is being called, read contexts.src,
+    // and populate the loadedOrganizingClassTypes map
+    if (loadedOrganizingClassTypes == null) {
+
+      loadedOrganizingClassTypes = new HashMap<>();
+
+      //
+      // Load the contexts.src file
+      //
+      final List<String> lines = loadFileIntoStringList("contexts.src", null);
+
+      final String[] fields = new String[17];
+
+      // Store a map of how many times each organizingClassType is associated
+      // with each terminology, and the total rows observed
+      // e.g. "NCI_2016_05E" -> "TOTAL" -> 100
+      // "NCI_2016_05E" -> "SOURCE_CUI" -> 97
+      // "NCI_2016_05E" -> "SOURCE_DUI" -> 3
+      final Map<String, Map<String, Integer>> sourcesOrganizingClassTypeCount =
+          new HashMap<>();
+
+      for (String line : lines) {
+        FieldedStringTokenizer.split(line, "|", 17, fields);
+
+        // Fields:
+        // 0 source_atom_id_1
+        // 1 relationship_name
+        // 2 relationship_attribute
+        // 3 source_atom_id_2
+        // 4 source (Used to match to sources.src)
+        // 5 source_of_label
+        // 6 hcd
+        // 7 parent_treenum
+        // 8 release mode
+        // 9 source_rui
+        // 10 relationship_group
+        // 11 sg_id_1
+        // 12 sg_type_1 (Terminology.organizingClassType)
+        // 13 sg_qualifier_1
+        // 14 sg_id_2
+        // 15 sg_type_2
+        // 16 sg_qualifier_2
+
+        // e.g.
+        // 362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||
+        // 31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|
+        // SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|
+
+        // Pull first 100 references to each terminology, find the most
+        // occurring class type, and save it into the map.
+
+        String source = fields[4];
+
+        // If this is the first time this source has been encountered,
+        // initialize its sub-map
+        if (sourcesOrganizingClassTypeCount.get(source) == null) {
+          sourcesOrganizingClassTypeCount.put(source,
+              new HashMap<String, Integer>());
+          sourcesOrganizingClassTypeCount.get(source).put("TOTAL", 0);
+        }
+        // Only read up to 100 observations per source
+        if (sourcesOrganizingClassTypeCount.get(source).get("TOTAL") < 100) {
+          // Set terminology organizingClassType count based on sg_type
+          Integer currentTotalCount =
+              sourcesOrganizingClassTypeCount.get(source).get("TOTAL");
+          String organizingClassType = fields[12];
+          if (sourcesOrganizingClassTypeCount.get(source)
+              .get(organizingClassType) == null) {
+            sourcesOrganizingClassTypeCount.get(source).put(organizingClassType,
+                0);
+          }
+          Integer currentOrganizingClassTypeCount =
+              sourcesOrganizingClassTypeCount.get(source)
+                  .get(organizingClassType);
+
+          sourcesOrganizingClassTypeCount.get(source).put(organizingClassType,
+              ++currentOrganizingClassTypeCount);
+          sourcesOrganizingClassTypeCount.get(source).put("TOTAL",
+              ++currentTotalCount);
+        }
+      }
+
+      // Once the entire file is read, go through each terminology, find the
+      // most common organizingClassType, and assign to the
+      // loadedOrganizingClassTypes map
+
+      for (Map.Entry<String, Map<String, Integer>> entry : sourcesOrganizingClassTypeCount
+          .entrySet()) {
+        String term = entry.getKey();
+        Map<String, Integer> classTypeCountMap = entry.getValue();
+
+        Integer highestOccurence = 0;
+        String mostCommonClassType = null;
+
+        for (Map.Entry<String, Integer> subEntry : classTypeCountMap
+            .entrySet()) {
+          String classType = subEntry.getKey();
+          Integer count = subEntry.getValue();
+          if (!classType.equals("TOTAL")) {
+            if (count > highestOccurence) {
+              highestOccurence = count;
+              mostCommonClassType = classType;
+            }
+          }
+        }
+
+        // Once we identify the most common class type, use it to assign:
+        // SOURCE_CUI = CONCEPT, SOURCE_DUI = DESCRIPTOR, else CODE
+        if (mostCommonClassType.equals("SOURCE_CUI")) {
+          loadedOrganizingClassTypes.put(term, IdType.CONCEPT);
+        } else if (mostCommonClassType.equals("SOURCE_DUI")) {
+          loadedOrganizingClassTypes.put(term, IdType.DESCRIPTOR);
+        } else {
+          loadedOrganizingClassTypes.put(term, IdType.CODE);
+        }
+      }
+    }
+
+    // Now that that's all taken care of, return the value, if it exists
+    return loadedOrganizingClassTypes.get(terminology);
+
   }
 
   /**

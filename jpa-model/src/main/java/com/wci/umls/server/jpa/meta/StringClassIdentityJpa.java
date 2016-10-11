@@ -10,6 +10,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
+
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 
@@ -22,6 +30,7 @@ import com.wci.umls.server.model.meta.StringClassIdentity;
     "nameHash", "language", "id"
 }))
 @XmlRootElement(name = "stringIdentity")
+@Indexed
 public class StringClassIdentityJpa implements StringClassIdentity {
 
   /** The id. */
@@ -80,6 +89,8 @@ public class StringClassIdentityJpa implements StringClassIdentity {
    */
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
   public Long getId() {
     return id;
   }
@@ -102,6 +113,7 @@ public class StringClassIdentityJpa implements StringClassIdentity {
    */
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -121,6 +133,7 @@ public class StringClassIdentityJpa implements StringClassIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLanguage() {
     return language;
   }
