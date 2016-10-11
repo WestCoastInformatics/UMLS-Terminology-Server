@@ -117,19 +117,8 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (inverseRelationship.getRelationshipType().equals("XR")) {
       inverseRelationship.setPublishable(false);
     }
-
-    // Assign alternateTerminologyId
-    // final IdentifierAssignmentHandler handler = contentService
-    // .getIdentifierAssignmentHandler(concept.getTerminology());
-
-    // final String altId = handler.getTerminologyId(relationship);
-    // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-    // altId);
-
-    // final String inverseAltId =
-    // handler.getTerminologyId(inverseRelationship);
-    // inverseRelationship.getAlternateTerminologyIds()
-    // .put(concept.getTerminology(), inverseAltId);
+    
+    // Assign RUI at production time
 
     // Change status of the relationships
     if (getChangeStatusFlag()) {
@@ -140,7 +129,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // If any matching relationship, remove it and its inverse (new
     // relationships will replace them)
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
-      if (rel.getTo().getId() == relationship.getTo().getId()) {
+      if (rel.getTo().getId().equals(relationship.getTo().getId())) {
         // Remove the relationship from the concepts
         getConcept().getRelationships().remove(rel);
         getConcept2().getRelationships().remove(findInverseRelationship(rel));

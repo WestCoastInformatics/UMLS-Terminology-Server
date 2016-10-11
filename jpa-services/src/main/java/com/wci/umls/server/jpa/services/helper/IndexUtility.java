@@ -581,7 +581,7 @@ public class IndexUtility {
 
     // construct the query
     final String finalQuery = (pfsQuery.toString().startsWith(" AND ")) ?
-        pfsQuery.toString() : pfsQuery.toString().substring(5);
+        pfsQuery.toString().substring(5): pfsQuery.toString();
 
     Logger.getLogger(IndexUtility.class)
         .info("  query = " + finalQuery + ", " + pfs);
