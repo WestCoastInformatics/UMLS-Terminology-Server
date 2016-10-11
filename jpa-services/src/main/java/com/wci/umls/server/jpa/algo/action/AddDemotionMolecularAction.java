@@ -157,6 +157,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
         getName() + " from concept " + getConcept().getId() + " "
             + inverseDemotionRelationship);
 
+    // N/A - no log entry for molecular action -> only ever performed by insertion.
   }
 
 }
