@@ -175,6 +175,7 @@ public class AtomClassSearchHandler implements SearchHandler {
         parsedQuery += " OR (terminologyId:" + literalQuery;
         parsedQuery += " OR atoms.terminologyId:" + literalQuery;
         parsedQuery += " OR atoms.codeId:" + literalQuery;
+        parsedQuery += " OR id:" + literalQuery;
         parsedQuery += " OR atoms.conceptId:" + literalQuery;
         parsedQuery += " OR atoms.descriptorId:" + literalQuery + ")^5.0";
       }

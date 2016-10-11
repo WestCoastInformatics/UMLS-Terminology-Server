@@ -1764,4 +1764,44 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/config/algo/{key}/new")
+  @ApiOperation(value = "Get an empty new algorithm config", notes = "Returns an empty new algorithm config", response = AlgorithmConfigJpa.class)
+  public AlgorithmConfig newAlgorithmConfig(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Algorithm config key, e.g. MATRIXINT", required = true) @QueryParam("key") String key,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
+        + key + "/new, for user " + authToken);
+
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "adding a new algorithm config", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load project
+      Project project = processService.getProject(projectId);
+
+      Algorithm algo = processService.getAlgorithmInstance(key);
+      AlgorithmConfig algorithmConfig = new AlgorithmConfigJpa();
+      algorithmConfig.setParameters(algo.getParameters());
+      algorithmConfig.setProject(project);
+      return algorithmConfig;
+
+    } catch (Exception e) {
+      handleException(e, "trying to return a new algorithm config");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
+  
 }

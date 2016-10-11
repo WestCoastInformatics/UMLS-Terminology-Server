@@ -135,6 +135,7 @@ tsApp
           else {
             // well
             var found = false;
+
             for (var i = 0; i < $scope.lists.concepts.length; i++) {
               var c = $scope.lists.concepts[i];
               if (c.id == concept.id) {
@@ -161,14 +162,15 @@ tsApp
                 found = true;
               }
             }
+
             // If no matching concept found, add it to to the list
             if (!found) {
               contentService.getConcept(concept.id, $scope.selected.project.id).then(
               // Success
               function(data) {
                 // no need to remove anything or select anything
-                console.debug('pushing concept', data.id);
                 $scope.lists.concepts.push(data);
+                $scope.refreshWindows();
                 $scope.getRecords();
               });
             }
@@ -417,8 +419,6 @@ tsApp
           $scope.getRecords(worklist, true);
           // Set activity id
           $scope.selected.activityId = worklist.name;
-          //securityService.saveProperty($scope.user.userPreferences, 'editWorklist', $scope.selected.worklist.id);
-          //securityService.saveProperty($scope.user.userPreferences, 'editWorklistPaging', JSON.stringify($scope.paging['worklists']));
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
           $scope.user.userPreferences.properties['editWorklistPaging'] = JSON.stringify($scope.paging['worklists']);
           securityService.updateUserPreferences($scope.user.userPreferences);      
@@ -432,8 +432,6 @@ tsApp
           if ($scope.worklistMode != 'Available') {
             $scope.getConcepts(record, true);
           }
-          //securityService.saveProperty($scope.user.userPreferences, 'editRecord', $scope.selected.record.id);
-          //securityService.saveProperty($scope.user.userPreferences, 'editRecordPaging', JSON.stringify($scope.paging['records']));
           $scope.user.userPreferences.properties['editRecord'] = $scope.selected.record.id;
           $scope.user.userPreferences.properties['editRecordPaging'] = JSON.stringify($scope.paging['records']);
           securityService.updateUserPreferences($scope.user.userPreferences);      
@@ -442,14 +440,24 @@ tsApp
         // refresh the concept list
         $scope.getConcepts = function(record, selectFirst) {
           $scope.lists.concepts = [];
-          for (var i = 0; i < record.concepts.length; i++) {
-            contentService.getConcept(record.concepts[i].id, $scope.selected.project.id).then(
+          for (var i = 0; i < $scope.selected.record.concepts.length; i++) {
+            contentService.getConcept($scope.selected.record.concepts[i].id, $scope.selected.project.id).then(
               function(data) {
-                $scope.lists.concepts.push(data);
-                $scope.lists.concepts.sort(utilService.sortBy('id'));
-                // Select first, when the first concept is loaded
-                if (selectFirst && data.id == record.concepts[0].id) {
-                  $scope.selectConcept($scope.lists.concepts[0]);
+                // prevent duplicates (due to websocket msgs) from being added to concept list
+                var found = false;
+                for (var j = 0; j<$scope.lists.concepts.length; j++) {
+                  if ($scope.lists.concepts[j].id == data.id) {
+                    found = true;
+                  }
+                }
+                if (!found) {
+                  $scope.lists.concepts.push(data);
+                  $scope.refreshWindows();
+                  $scope.lists.concepts.sort(utilService.sortBy('id'));
+                  // Select first, when the first concept is loaded
+                  if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
+                    $scope.selectConcept($scope.lists.concepts[0]);
+                  }
                 }
               });
           }
@@ -549,19 +557,22 @@ tsApp
 
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
-          $scope.selected.component = concept;
-          securityService.saveProperty($scope.user.userPreferences, 'editConcept', $scope.selected.component.id);
-          
-          $scope.refreshWindows();
 
-          // Update the selected concept in the list
-          for (var i = 0; i < $scope.lists.concepts.length; i++) {
-            var concept = $scope.lists.concepts[i];
-            if (concept.id == $scope.selected.component.id) {
-              $scope.lists.concepts[i] = $scope.selected.component;
-              break;
-            }
-          }
+              $scope.selected.component = concept;
+
+              securityService.saveProperty($scope.user.userPreferences, 'editConcept',
+                $scope.selected.component.id);
+
+              $scope.refreshWindows();
+
+              // Update the selected concept in the list
+              for (var i = 0; i < $scope.lists.concepts.length; i++) {
+                var concept = $scope.lists.concepts[i];
+                if (concept.id == $scope.selected.component.id) {
+                  $scope.lists.concepts[i] = $scope.selected.component;
+                  break;
+                }
+              }
         };
 
         // Get $scope.lists.records
@@ -787,6 +798,7 @@ tsApp
               }
             }
             $scope.lists.concepts.push(data);
+            $scope.refreshWindows();
             $scope.lists.concepts.sort(utilService.sortBy('id'));
           });
         }
@@ -1019,6 +1031,7 @@ tsApp
             // Success
             function(data) {
               $scope.lists.concepts.push(data);
+              $scope.refreshWindows();
               $scope.selectConcept(data);
             });
           });

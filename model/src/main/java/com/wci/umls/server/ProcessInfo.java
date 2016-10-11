@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -74,5 +74,19 @@ public interface ProcessInfo<T extends AlgorithmInfo<?>>
    * @param steps the steps
    */
   public void setSteps(List<T> steps);
+
+  /**
+   * Returns the type.
+   *
+   * @return the type
+   */
+  public String getType();
+
+  /**
+   * Sets the type.
+   *
+   * @param type the type
+   */
+  public void setType(String type);
 
 }

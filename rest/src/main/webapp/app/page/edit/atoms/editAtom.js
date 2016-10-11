@@ -60,6 +60,8 @@ tsApp.controller('AtomModalCtrl', [
           atom.codeId = '';
         if (!atom.descriptorId)
           atom.descriptorId = '';
+        if (!atom.workflowStatus)
+          atom.workflowStatus = 'NEEDS_REVIEW';
 
         metaEditingService.addAtom($scope.selected.project.id, $scope.selected.activityId,
           $scope.selected.component, atom, $scope.overrideWarnings).then(

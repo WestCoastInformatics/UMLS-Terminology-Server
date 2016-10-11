@@ -111,7 +111,7 @@
 
             <span
               ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.authors.length > 0 && !worklist.reviewerAvailable && worklist.reviewers.length==0">
-              <i confirm="Are you sure you want to unassign the worklist?"
+              <i 
                 ng-repeat="author in worklist.authors"
                 ng-click="unassignWorklist(worklist, author); "
                 title="Unassign worklist from {{author}}"
@@ -120,7 +120,7 @@
 
             <span
               ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.reviewers.length > 0 && !worklist.reviewerAvailable && !worklist.workflowStatus =='READY_FOR_PUBLICATION'">
-              <i confirm="Are you sure you want to unassign the worklist?"
+              <i 
                 ng-repeat="author in worklist.authors"
                 ng-click="unassignWorklist(worklist, author); "
                 title="Unassign worklist from {{author}}"

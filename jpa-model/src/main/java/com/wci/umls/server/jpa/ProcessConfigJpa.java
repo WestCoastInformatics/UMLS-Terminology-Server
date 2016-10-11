@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -15,7 +16,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
@@ -38,6 +43,10 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
   @OrderColumn
   private List<AlgorithmConfig> steps = new ArrayList<>();
 
+  /** The type. */
+  @Column(nullable = false)
+  private String type;
+  
   /**
    * Instantiates an empty {@link ProcessConfigJpa}.
    */
@@ -53,6 +62,7 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
   public ProcessConfigJpa(ProcessConfig config) {
     super(config);
     steps = new ArrayList<>(config.getSteps());
+    type = config.getType();
   }
 
   /* see superclass */
@@ -68,9 +78,22 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
     this.steps = steps;
   }
 
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public String getType() {
+    return type;
+  }
+
+  /* see superclass */
+  @Override
+  public void setType(String type) {
+    this.type = type;
+  }
+  
   @Override
   public String toString() {
-    return "ProcessConfigJpa [steps=" + steps + "] " + super.toString();
+    return "ProcessConfigJpa [steps=" + steps + ", type=" + type + "] " + super.toString();
   }
 
 }

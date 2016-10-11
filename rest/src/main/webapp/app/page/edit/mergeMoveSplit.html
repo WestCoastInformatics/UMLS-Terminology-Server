@@ -156,7 +156,7 @@
         </span>
       </td>
     </tr>
-    <tr>
+    <!-- <tr>
       <td>
         <b>Workflow Status</b>
       </td>
@@ -164,7 +164,7 @@
         <select ng-model="selectedWorkflowStatus"
           ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
       </td>
-    </tr>
+    </tr> -->
   </table>
 
 
@@ -177,7 +177,7 @@
 <div class="modal-footer">
 <span style="float: left;">
         <button ng-click="openFinderModal(selected.record)" title="Add concept"
-          class="btn btn-xs btn-primary">Finder</button>
+          class="btn btn-primary">Finder</button>
       </span>
  <span ng-show="action == 'Merge'" >
       <i ng-click="reverseMergeOrder(); "

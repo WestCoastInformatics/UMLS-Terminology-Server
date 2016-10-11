@@ -499,7 +499,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_SEMANTIC_TYPE to concept " + c.getId()));
 
     //
@@ -575,7 +575,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("semanticTypes", atomicActions.get(1).getField());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_SEMANTIC_TYPE to concept " + c.getId()));
 
     //
@@ -629,7 +629,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(
         logEntry.contains("REMOVE_SEMANTIC_TYPE from concept " + c.getId()));
 
@@ -746,7 +746,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_ATTRIBUTE to concept " + c.getId()));
 
     //
@@ -828,7 +828,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("attributes", atomicActions.get(1).getField());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_ATTRIBUTE to concept " + c.getId()));
 
     //
@@ -881,7 +881,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REMOVE_ATTRIBUTE from concept " + c.getId()));
 
     // remove the second attribute from the concept (assume verification of MA,
@@ -1008,7 +1008,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_ATOM to concept " + c.getId()));
 
     //
@@ -1105,7 +1105,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("atoms", atomicActions.get(1).getField());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_ATOM to concept " + c.getId()));
 
     //
@@ -1157,7 +1157,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(1).getNewValue());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REMOVE_ATOM from concept " + c.getId()));
 
     // remove the second atom from the concept (assume verification of
@@ -1319,7 +1319,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UPDATE_ATOM "));
 
   }
@@ -1464,9 +1464,9 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_RELATIONSHIP to concept " + c2.getId()));
-    logEntry = projectService.getLog(project.getId(), c2.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c2.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_RELATIONSHIP from concept " + c.getId()));
 
     //
@@ -1567,9 +1567,9 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("relationships", atomicActions.get(3).getField());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_RELATIONSHIP to concept " + c3.getId()));
-    logEntry = projectService.getLog(project.getId(), c3.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c3.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("ADD_RELATIONSHIP from concept " + c.getId()));
 
     //
@@ -1635,10 +1635,10 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(atomicActions.get(3).getNewValue());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(
         logEntry.contains("REMOVE_RELATIONSHIP to concept " + c2.getId()));
-    logEntry = projectService.getLog(project.getId(), c2.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c2.getId(), null, 1, authToken);
     assertTrue(
         logEntry.contains("REMOVE_RELATIONSHIP from concept " + c.getId()));
 
@@ -1889,11 +1889,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), fromCId, 1, authToken);
+        projectService.getLog(project.getId(), fromCId, null, 1, authToken);
     assertTrue(logEntry
         .contains("MERGE concept " + fromCId + " into concept " + toC.getId()));
     logEntry =
-        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), toC.getId(), null, 1, authToken);
     assertTrue(logEntry
         .contains("MERGE concept " + toC.getId() + " from concept " + fromCId));
 
@@ -2032,11 +2032,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), fromC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("MOVE " + moveList + " from Concept "
         + fromC.getId() + " to concept " + toC.getId()));
     logEntry =
-        projectService.getLog(project.getId(), toC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), toC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("MOVE " + moveList + " to Concept "
         + toC.getId() + " from concept " + fromC.getId()));
 
@@ -2306,11 +2306,11 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entries exists
     String logEntry = projectService.getLog(project.getId(),
-        originatingC.getId(), 1, authToken);
+        originatingC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("SPLIT from concept " + originatingC.getId()
         + " into concept " + createdC.getId()));
     logEntry =
-        projectService.getLog(project.getId(), createdC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), createdC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("SPLIT into concept " + createdC.getId()
         + " from concept " + originatingC.getId()));
 
@@ -2529,12 +2529,12 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals("relationships", atomicActions.get(7).getField());
 
     // Verify the log entries exists
-    logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
+    logEntry = projectService.getLog(project.getId(), originatingC.getId(), null, 1,
         authToken);
     assertTrue(logEntry.contains("SPLIT from concept " + originatingC.getId()
         + " into concept " + createdC.getId()));
     logEntry =
-        projectService.getLog(project.getId(), createdC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), createdC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("SPLIT into concept " + createdC.getId()
         + " from concept " + originatingC.getId()));
 
@@ -2812,7 +2812,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("APPROVE concept " + c.getId()));
 
   }
@@ -2932,7 +2932,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Add Action
@@ -2967,7 +2967,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -3025,7 +3025,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(atomReadded);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Remove Action
@@ -3057,7 +3057,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(testService.getAtom(addedAtomId, authToken));
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
   }
 
@@ -3171,7 +3171,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Add Action
@@ -3206,7 +3206,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -3265,7 +3265,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(attributeReadded);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Remove Action
@@ -3297,7 +3297,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertNull(testService.getAttribute(addedAttributeId, authToken));
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
   }
 
@@ -3412,7 +3412,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry = projectService.getLog(project.getId(),
-        ma.getComponentId(), 1, authToken);
+        ma.getComponentId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Add Action
@@ -3448,7 +3448,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), 1,
+    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), null, 1,
         authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
@@ -3509,7 +3509,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(semanticTypeReadded);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), 1,
+    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), null, 1,
         authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
@@ -3543,7 +3543,7 @@ public class MetaEditingServiceRestNormalUseTest
         testService.getSemanticTypeComponent(addedSemanticTypeId, authToken));
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), 1,
+    logEntry = projectService.getLog(project.getId(), ma.getComponentId(), null, 1,
         authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
   }
@@ -3705,7 +3705,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Add Action
@@ -3758,7 +3758,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertEquals(WorkflowStatus.NEEDS_REVIEW, c.getWorkflowStatus());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -3838,7 +3838,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(inverseRelReadded);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Remove Action
@@ -3888,7 +3888,7 @@ public class MetaEditingServiceRestNormalUseTest
         testService.getConceptRelationship(inverseAddedRelId, authToken));
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
   }
@@ -4019,7 +4019,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), fromC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     // Test Redo Move Action
@@ -4059,7 +4059,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry =
-        projectService.getLog(project.getId(), fromC.getId(), 1, authToken);
+        projectService.getLog(project.getId(), fromC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
   }
 
@@ -4216,7 +4216,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry = projectService.getLog(project.getId(),
-        originatingC.getId(), 1, authToken);
+        originatingC.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -4328,7 +4328,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(relationshipPresent);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), originatingC.getId(), 1,
+    logEntry = projectService.getLog(project.getId(), originatingC.getId(), null, 1,
         authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
@@ -4452,7 +4452,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), fromCId, 1, authToken);
+        projectService.getLog(project.getId(), fromCId, null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -4496,7 +4496,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     logEntry =
-        projectService.getLog(project.getId(), fromCId, 1, authToken);
+        projectService.getLog(project.getId(), fromCId, null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
   }
@@ -4726,7 +4726,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -4856,7 +4856,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertTrue(allInverseRelsCorrectType);
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
   }
@@ -4993,7 +4993,7 @@ public class MetaEditingServiceRestNormalUseTest
 
     // Verify the log entry exists
     String logEntry =
-        projectService.getLog(project.getId(), c.getId(), 1, authToken);
+        projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("UNDO " + ma.getName() + ", " + ma.getId()));
 
     //
@@ -5025,7 +5025,7 @@ public class MetaEditingServiceRestNormalUseTest
     assertFalse(addedAtom.isPublishable());
 
     // Verify the log entry exists
-    logEntry = projectService.getLog(project.getId(), c.getId(), 1, authToken);
+    logEntry = projectService.getLog(project.getId(), c.getId(), null, 1, authToken);
     assertTrue(logEntry.contains("REDO " + ma.getName() + ", " + ma.getId()));
 
   }

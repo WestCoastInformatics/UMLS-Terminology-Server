@@ -32,6 +32,7 @@ tsApp.controller('ProcessCtrl', [
       projectRole : null,
       process : null,
       algorithm : null,
+      processType : 'Insertion',
       mode : 'Configuration' // vs 'Execution'
     };
 
@@ -41,6 +42,8 @@ tsApp.controller('ProcessCtrl', [
       algorithms : [],
       projects : [],
       projectRoles : [],
+      processTypes : ['Insertion', 'Maintenance', 'Release'],
+      algorithmConfigTypes : [],
       modes : [ 'Configuration', 'Execution' ]
     }
 
@@ -135,6 +138,42 @@ tsApp.controller('ProcessCtrl', [
       }
     }
 
+    $scope.selectProcess = function(process) {
+      $scope.selected.process = process;
+      processService.getProcessConfig($scope.selected.project.id, process.id).then(
+        function(data) {
+          $scope.selected.process = data;
+        });
+      $scope.lists.algorithmConfigTypes = [];
+      if ($scope.selected.processType == 'Insertion') {
+        processService.getInsertionAlgorithms($scope.selected.project.id).then(
+          function(data) {
+            for (var i = 0; i<data.keyValuePairs.length; i++) {
+              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
+            }
+            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+          });
+      }
+      if ($scope.selected.processType == 'Maintenance') {
+        processService.getMaintenanceAlgorithms($scope.selected.project.id).then(
+          function(data) {
+            for (var i = 0; i<data.keyValuePairs.length; i++) {
+              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
+            }
+            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+          });
+      }
+      if ($scope.selected.processType == 'Release') {
+        processService.getReleaseAlgorithms($scope.selected.project.id).then(
+          function(data) {
+            for (var i = 0; i<data.keyValuePairs.length; i++) {
+              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
+            }
+            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+          });
+      }
+    }
+    
     $scope.getProcessConfigs = function() {
       var paging = $scope.paging['process'];
       var pfs = {
@@ -142,13 +181,13 @@ tsApp.controller('ProcessCtrl', [
         maxResults : paging.pageSize,
         sortField : paging.sortField,
         ascending : paging.sortAscending,
-        queryRestriction : paging.filter
+        queryRestriction : $scope.selected.processType
       };
       processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
         function(data) {
           $scope.lists.processes = data.processes;
           $scope.lists.processes.totalCount = data.totalCount;
-          
+          $scope.selected.process = null;
 
           // TODO In "then" call getProcessExecutionsCt
         });
@@ -243,8 +282,135 @@ tsApp.controller('ProcessCtrl', [
     // MODALS
     //
 
-    // TBD
+    // Add new process
+    $scope.openAddProcessModal = function() {
 
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/process/editProcess.html',
+        controller : 'ProcessModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          action : function() {
+            return 'Add';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.regenerateBins();
+      });
+    };
+
+    
+    // Add new process
+    $scope.openEditProcessModal = function(lprocess) {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/process/editProcess.html',
+        controller : 'ProcessModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          process : function() {
+            return lprocess;
+          },
+          action : function() {
+            return 'Edit';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.getProcessConfigs();
+      });
+    };
+    
+    // Add new algorithm
+    $scope.openAddAlgorithmModal = function() {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/process/editAlgorithm.html',
+        controller : 'AlgorithmModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          algorithm : function() {
+            return null;
+          },
+          action : function() {
+            return 'Add';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.regenerateBins();
+      });
+    };
+    // edit algorithm
+    $scope.openEditAlgorithmModal = function(lalgorithm) {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/process/editAlgorithm.html',
+        controller : 'AlgorithmModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          algorithm : function() {
+            return lalgorithm;
+          },
+          action : function() {
+            return 'Edit';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.getProcessConfigs();
+      });
+    };
+    
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
     //

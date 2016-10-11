@@ -237,6 +237,14 @@ public class MoveMolecularAction extends AbstractMolecularAction {
         getName() + " " + atomIds + " to Concept " + getToConcept().getId()
             + " from concept " + getFromConcept().getId());
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  from_concept = " + getFromConcept().getId() + " " + getFromConcept().getName() +
+        (getToConcept() != null ? "\n  to_concept = " + getToConcept().getId() + " " + getToConcept().getName() : "") +
+        "\n  move atoms = " + getMoveAtoms() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
+    
     // Make copy of toConcept and fromConcept to pass into change event
     fromConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
     toConceptPostUpdates = new ConceptJpa(getToConcept(), false);

@@ -82,6 +82,10 @@ tsApp
           function(data) {
             $scope.pagedRelationships = data.relationships;
             $scope.pagedRelationships.totalCount = data.totalCount
+            
+            for (var i=0; i<$scope.pagedRelationships.length; i++) {
+              $scope.pagedRelationships[i].level = $scope.getRelationshipLevel($scope.pagedRelationships[i]);
+            }
           });
         }
 
@@ -156,7 +160,18 @@ tsApp
         // indicates if a particular row is selected
         $scope.isRowSelected = function(relationship) {
           return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
-        }
+        };
+        
+        // returns relationship level
+        $scope.getRelationshipLevel = function(rel) {
+          if (rel.workflowStatus == 'DEMOTION') {
+            return 'P';
+          } else if (rel.terminology == rel.fromTerminology) {
+            return 'C';
+          } else {
+            return 'S';
+          }
+        };
 
         //
         // Modals

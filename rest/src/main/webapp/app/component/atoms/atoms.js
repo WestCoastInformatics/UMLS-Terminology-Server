@@ -1,5 +1,5 @@
 // Atoms directive
-tsApp.directive('atoms', [ 'utilService', function(utilService) {
+tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService, contentService) {
   return {
     restrict : 'A',
     scope : {
@@ -12,6 +12,12 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
     link : function(scope, element, attrs) {
       console.debug('configure atoms directive');
 
+      scope.expanded = {};
+      
+      scope.getPagedList = function() {
+        getPagedList();
+      }
+      
       // Paging function
       function getPagedList() {
         scope.pagedData = utilService.getPagedArray(scope.component.atoms.filter(
@@ -34,7 +40,8 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
       scope.$watch('component', function() {
         if (scope.component) {
           // reset paging
-          scope.paging = utilService.getPaging();
+          // commented out - interferes with Show All/Show Paged
+          //scope.paging = utilService.getPaging();
           scope.pageCallbacks = {
             getPagedList : getPagedList
           };
@@ -55,7 +62,7 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
 
       // toggle an items collapsed state
       scope.toggleItemCollapse = function(item) {
-        item.expanded = !item.expanded;
+        scope.expanded[item.id] = !scope.expanded[item.id];
       };
 
       // get the collapsed state icon
@@ -64,11 +71,11 @@ tsApp.directive('atoms', [ 'utilService', function(utilService) {
         // if no expandable content detected, return blank glyphicon
         // (see
         // tsApp.css)
-        if (!item.hasContent)
+        if (!contentService.atomHasContent(item))
           return 'glyphicon glyphicon-plus glyphicon-none';
 
         // return plus/minus based on current expanded status
-        if (item.expanded)
+        if (scope.expanded[item.id])
           return 'glyphicon glyphicon-minus';
         else
           return 'glyphicon glyphicon-plus';

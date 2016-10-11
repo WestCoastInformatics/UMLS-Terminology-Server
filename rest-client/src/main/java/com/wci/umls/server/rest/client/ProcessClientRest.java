@@ -339,6 +339,36 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public AlgorithmConfig newAlgorithmConfig(Long projectId,
+    String key, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "AlgorithmConfig Client - new algorithmConfig" + key);
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/config/algo/" + key + "/new" + "?projectId=" + projectId);
+
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    AlgorithmConfigJpa result =
+        ConfigUtility.getGraphForString(resultString, AlgorithmConfigJpa.class);
+
+    return result;
+  }
+  
+  /* see superclass */
+  @Override
   public void updateAlgorithmConfig(Long projectId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception {
     Logger.getLogger(getClass())

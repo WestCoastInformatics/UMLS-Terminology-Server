@@ -105,6 +105,7 @@ public class ProcessExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("processConfigId");
     tester.include("workId");
+    tester.include("type");
 
     // This is not a real getter, skip it
     tester.exclude("projectId");
@@ -176,6 +177,7 @@ public class ProcessExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("processConfigId");
     tester.include("startDate");
+    tester.include("type");
 
     assertTrue(tester.testNotNullFields());
   }
@@ -207,6 +209,7 @@ public class ProcessExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("failDate");
     tester.include("finishDate");
     tester.include("startDate");
+    tester.include("type");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

@@ -300,6 +300,18 @@ public interface ProcessServiceRest {
    */
   public String getAlgorithmLog(Long projectId, Long algorithmId, String authToken)
       throws Exception;
+
+  /**
+   * New algorithm config.
+   *
+   * @param projectId the project id
+   * @param key the key
+   * @param authToken the auth token
+   * @return the algorithm config
+   * @throws Exception the exception
+   */
+  public AlgorithmConfig newAlgorithmConfig(Long projectId, String key,
+    String authToken) throws Exception;
   
   
 }
