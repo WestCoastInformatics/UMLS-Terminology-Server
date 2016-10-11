@@ -85,7 +85,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
   /** The run date. */
   private Date runDate = null;
 
-
   /**
    * Instantiates an empty {@link MetadataLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -159,10 +158,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     // Load all of the rels and inverseRels from MRDOC into a set
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);
-      if (fields[2].equals("expanded_form")
-          && !relaMRDOC.contains(fields[1])) {
+      if (fields[2].equals("expanded_form") && !relaMRDOC.contains(fields[1])) {
         relaMRDOC.add(fields[1]);
-      } else if (fields[2].equals("rela_inverse")){
+      } else if (fields[2].equals("rela_inverse")) {
         inverseRelaMRDOC.add(fields[3]);
       }
     }
@@ -175,18 +173,28 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       if (!relaMRDOC.contains(abbreviation)
           && loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
         validationResult.addWarning(
-            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: " + abbreviation);
+            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: "
+                + abbreviation);
       }
       if (!relaMRDOC.contains(abbreviation)
           && !loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
         validationResult.addError(
-            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database: " + abbreviation);
+            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database: "
+                + abbreviation);
       }
     }
 
     return validationResult;
   }
 
+  /**
+   * Load file into string list.
+   *
+   * @param fileName the file name
+   * @param startsWithFilter the starts with filter
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<String> loadFileIntoStringList(String fileName,
     String startsWithFilter) throws Exception {
     String sourcesFile =
@@ -392,8 +400,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     List<String> lines = loadFileIntoStringList("sources.src", null);
 
-    String fields[] = new String[20];    
-    
+    String fields[] = new String[20];
+
     // Each line of sources.src corresponds to one terminology.
     // Check to make sure the terminology doesn't already exist in the database
     // If it does, skip it.
@@ -517,7 +525,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     lines = loadFileIntoStringList("contexts.src", null);
 
-    fields = new String[17];   
+    fields = new String[17];
 
     // Each line of sources.src corresponds to one terminology.
     // Check to make sure the terminology doesn't already exist in the database
@@ -550,9 +558,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       // 31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|
       // SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|
 
-      //TODO - put into method "determineOrganizingClassType"
-      //TODO - pull first 100 lines, and find most occuring instance.
-      
+      // TODO - put into method "determineOrganizingClassType"
+      // TODO - pull first 100 lines, and find most occuring instance.
+
       if (termsToAddMap.containsKey(fields[4])) {
         // Set terminology organizingClassType based on sg_type:
         if (fields[12].equals("SOURCE_CUI")) {
@@ -928,7 +936,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 / steps) * stepsCompleted);
+    int currentProgress = (int) ((100.0 / steps) * stepsCompleted);
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "METADATALOADING progress: " + currentProgress + "%");

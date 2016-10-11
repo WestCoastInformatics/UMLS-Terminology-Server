@@ -148,6 +148,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       updateConcept(getConcept2());
     }
 
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "

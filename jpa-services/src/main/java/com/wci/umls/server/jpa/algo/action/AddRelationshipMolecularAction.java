@@ -167,8 +167,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     }
 
     // Look through atoms for demotion relationships, and remove them.
-    AtomRelationship demotion =
-        findDemotionMatchingRelationship(relationship);
+    AtomRelationship demotion = findDemotionMatchingRelationship(relationship);
 
     if (demotion != null) {
       // Remove the demotions from the atoms
@@ -224,14 +223,17 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getConcept2().getId(), getActivityId(), getWorkId(), getName()
             + " from concept " + getConcept().getId() + " " + relationship);
-    
+
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        (getConcept2() != null ? "\n  concept2 = " + getConcept2().getId() + " " + getConcept2().getName() : "") +
-        "\n  relationship id = " + getRelationship().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getConcept().getId() + " " + getConcept().getName()
+            + (getConcept2() != null ? "\n  concept2 (to) = "
+                + getConcept2().getId() + " " + getConcept2().getName() : "")
+            + "\n  relationship id = " + getRelationship().getRelationshipType()
+            + ", " + getRelationship().getAdditionalRelationshipType() + ", "
+            + relationship.getTerminology());
   }
 
 }

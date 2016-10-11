@@ -55,7 +55,6 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
   @Override
   public TrackingRecordList findAvailableWork(Project project, UserRole role,
     PfsParameter pfs, WorkflowService service) throws Exception {
-    final StringBuilder sb = new StringBuilder();
     throw new UnsupportedOperationException();
   }
 

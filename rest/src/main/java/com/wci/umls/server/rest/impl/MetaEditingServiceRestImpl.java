@@ -48,7 +48,6 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.SecurityService;
-import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -135,7 +134,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -213,7 +212,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -269,9 +268,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /attribute/add " + projectId
-            + "," + conceptId + " for user " + authToken
-            + " with attribute value " + attribute.getName());
+        .info("RESTful call (MetaEditing): /attribute/add " + projectId + ","
+            + conceptId + " for user " + authToken + " with attribute value "
+            + attribute.getName());
 
     // Instantiate services
     final AddAttributeMolecularAction action =
@@ -290,7 +289,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -348,9 +347,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /attribute/remove " + projectId
-            + "," + conceptId + " for user " + authToken + " with id "
-            + attributeId);
+        .info("RESTful call (MetaEditing): /attribute/remove " + projectId + ","
+            + conceptId + " for user " + authToken + " with id " + attributeId);
 
     // Instantiate services
     final RemoveAttributeMolecularAction action =
@@ -369,7 +367,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -445,7 +443,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -522,7 +520,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -597,7 +595,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -654,9 +652,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /relationship/add " + projectId
-            + "," + conceptId + " for user " + authToken
-            + " with relationship value " + relationship);
+        .info("RESTful call (MetaEditing): /relationship/add " + projectId + ","
+            + conceptId + " for user " + authToken + " with relationship value "
+            + relationship);
 
     // Instantiate services
     final AddRelationshipMolecularAction action =
@@ -677,7 +675,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // is represented in that direction
       action.setConceptId(conceptId);
       action.setConceptId2(relationship.getTo().getId());
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -734,9 +732,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /relationship/remove "
-            + projectId + "," + conceptId + " for user " + authToken
-            + " with id " + relationshipId);
+        .info("RESTful call (MetaEditing): /relationship/remove " + projectId
+            + "," + conceptId + " for user " + authToken + " with id "
+            + relationshipId);
 
     // Instantiate services
     final RemoveRelationshipMolecularAction action =
@@ -761,7 +759,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -784,7 +782,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
           action.getConcept());
       sendChangeEvent(event);
-      
+
       return validationResult;
 
     } catch (Exception e) {
@@ -817,8 +815,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /concept/merge " + projectId
-            + "," + conceptId + " with concept " + conceptId2 + " for user "
+        .info("RESTful call (MetaEditing): /concept/merge " + projectId + ","
+            + conceptId + " with concept " + conceptId2 + " for user "
             + authToken);
 
     // Instantiate services
@@ -838,7 +836,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -854,24 +852,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
       }
 
-      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-      // so they can be appropriately read by ChangeEvent
-      GraphResolutionHandler graphHandler = action
-          .getGraphResolutionHandler(action.getToConcept().getTerminology());
-      graphHandler.resolve(action.getFromConceptPreUpdates());
-      graphHandler.resolve(action.getToConceptPreUpdates());
-      graphHandler.resolve(action.getToConceptPostUpdates());
-
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getToConceptPostUpdates().getId(),
-          action.getToConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getToConcept().getId(),
+          action.getToConcept());
       sendChangeEvent(event);
 
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getFromConceptPreUpdates().getId(),
-          action.getFromConceptPreUpdates());
+          IdType.CONCEPT.toString(), action.getFromConcept().getId(),
+          action.getFromConcept());
       sendChangeEvent(event2);
 
       return validationResult;
@@ -928,7 +918,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -946,25 +936,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
       }
 
-      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-      // so they can be appropriately read by ChangeEvent
-      GraphResolutionHandler graphHandler = action
-          .getGraphResolutionHandler(action.getToConcept().getTerminology());
-      graphHandler.resolve(action.getFromConceptPreUpdates());
-      graphHandler.resolve(action.getToConceptPreUpdates());
-      graphHandler.resolve(action.getFromConceptPostUpdates());
-      graphHandler.resolve(action.getToConceptPostUpdates());
-
       // Websocket notification - one each for the updating the from and
       // toConcept
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getToConceptPreUpdates().getId(),
-          action.getToConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getToConcept().getId(),
+          action.getToConcept());
       sendChangeEvent(event);
 
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getFromConceptPostUpdates().getId(),
-          action.getFromConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getFromConcept().getId(),
+          action.getFromConcept());
       sendChangeEvent(event2);
 
       return validationResult;
@@ -1003,8 +984,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /concept/split " + projectId
-            + "," + conceptId + " for user " + authToken);
+        .info("RESTful call (MetaEditing): /concept/split " + projectId + ","
+            + conceptId + " for user " + authToken);
 
     // Instantiate services
     final SplitMolecularAction action = new SplitMolecularAction();
@@ -1022,7 +1003,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1043,28 +1024,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
       }
 
-      // Resolve all three concepts with graphresolutionhandler.resolve(concept)
-      // so they can be appropriately read by ChangeEvent
-      GraphResolutionHandler graphHandler = action
-          .getGraphResolutionHandler(action.getToConcept().getTerminology());
-      graphHandler.resolve(action.getOriginatingConceptPreUpdates());
-      graphHandler.resolve(action.getOriginatingConceptPostUpdates());
-      graphHandler.resolve(action.getCreatedConceptPostUpdates());
-
       // Websocket notification - one for the updating of the originating
       // Concept, and one
       // for the created Concept
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(),
-          action.getOriginatingConceptPostUpdates().getId(),
-          action.getOriginatingConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getFromConcept().getId(),
+          action.getFromConcept());
       System.out.println("splitConcept event " + event.toString());
       sendChangeEvent(event);
 
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(),
-          action.getCreatedConceptPostUpdates().getId(),
-          action.getCreatedConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getToConcept().getId(),
+          action.getToConcept());
       System.out.println("splitConcept event2 " + event2.toString());
       sendChangeEvent(event2);
 
@@ -1100,8 +1071,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful call (MetaEditing): /concept/approve " + projectId
-            + "," + conceptId + " for user " + authToken);
+        .info("RESTful call (MetaEditing): /concept/approve " + projectId + ","
+            + conceptId + " for user " + authToken);
 
     // Instantiate services
     final ApproveMolecularAction action = new ApproveMolecularAction();
@@ -1119,7 +1090,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(null);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setLastModified(lastModified);
       action.setOverrideWarnings(overrideWarnings);
       action.setTransactionPerOperation(false);
@@ -1159,8 +1130,6 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  
-  
   /* see superclass */
   @Override
   @POST
@@ -1210,7 +1179,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);
@@ -1312,7 +1281,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setActivityId(activityId);
       action.setConceptId(conceptId);
       action.setConceptId2(conceptId2);
-      action.setLastModifiedBy("E-"+userName);
+      action.setLastModifiedBy("E-" + userName);
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(false);
       action.setChangeStatusFlag(true);

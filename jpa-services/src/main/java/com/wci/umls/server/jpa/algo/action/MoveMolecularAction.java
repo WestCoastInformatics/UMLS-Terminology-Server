@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -9,7 +9,6 @@ import java.util.List;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -24,18 +23,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
   /** The move atoms. */
   private List<Atom> moveAtoms;
-
-  /** The to concept pre updates. */
-  private Concept toConceptPreUpdates;
-
-  /** The to concept post updates. */
-  private Concept toConceptPostUpdates;
-
-  /** The from concept pre updates. */
-  private Concept fromConceptPreUpdates;
-
-  /** The from concept post updates. */
-  private Concept fromConceptPostUpdates;
 
   /**
    * Instantiates an empty {@link MoveMolecularAction}.
@@ -72,42 +59,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
    */
   public Concept getToConcept() {
     return getConcept2();
-  }
-
-  /**
-   * Returns the to concept pre updates.
-   *
-   * @return the to concept pre updates
-   */
-  public Concept getToConceptPreUpdates() {
-    return toConceptPreUpdates;
-  }
-
-  /**
-   * Returns the to concept post updates.
-   *
-   * @return the to concept post updates
-   */
-  public Concept getToConceptPostUpdates() {
-    return toConceptPostUpdates;
-  }
-
-  /**
-   * Returns the from concept pre updates.
-   *
-   * @return the from concept pre updates
-   */
-  public Concept getFromConceptPreUpdates() {
-    return fromConceptPreUpdates;
-  }
-
-  /**
-   * Returns the from concept post updates.
-   *
-   * @return the from concept post updates
-   */
-  public Concept getFromConceptPostUpdates() {
-    return fromConceptPostUpdates;
   }
 
   /**
@@ -170,11 +121,6 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // Make copy of toConcept and fromConcept before changes, to pass into
-    // change event
-    fromConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
-    toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
-
     //
     // Make a copy of the atoms to be moved
     //
@@ -228,26 +174,29 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     updateConcept(getFromConcept());
 
     // log the REST calls
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getFromConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getFromConcept().getId(), getActivityId(), getWorkId(),
         getName() + " " + atomIds + " from Concept " + getFromConcept().getId()
             + " to concept " + getToConcept().getId());
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getToConcept().getId(),
-        getActivityId(), getWorkId(),
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getToConcept().getId(), getActivityId(), getWorkId(),
         getName() + " " + atomIds + " to Concept " + getToConcept().getId()
             + " from concept " + getFromConcept().getId());
 
+    // Log for the molecular action report
+    final StringBuilder sb = new StringBuilder();
+    sb.append("\n  move atoms =");
+    for (final Atom atom : getMoveAtoms()) {
+      sb.append(("\n    " + atom.getName() + ", " + atom.getTerminology() + "/"
+          + atom.getTermType() + "," + atom.getCodeId()));
+    }
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  from_concept = " + getFromConcept().getId() + " " + getFromConcept().getName() +
-        (getToConcept() != null ? "\n  to_concept = " + getToConcept().getId() + " " + getToConcept().getName() : "") +
-        "\n  move atoms = " + getMoveAtoms() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
-    
-    // Make copy of toConcept and fromConcept to pass into change event
-    fromConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
-    toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getFromConcept().getId() + " " + getFromConcept().getName()
+            + (getToConcept() != null ? "\n  concept2 (to) = "
+                + getToConcept().getId() + " " + getToConcept().getName() : "")
+            + sb);
 
   }
 

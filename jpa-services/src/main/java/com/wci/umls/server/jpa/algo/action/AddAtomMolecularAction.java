@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -141,12 +141,13 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(),
         getName() + " to concept " + getConcept().getId() + " " + atom);
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  atom id = " + getAtom().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  atom = " + getAtom().getName()
+            + ", " + atom.getTerminology() + "/" + atom.getTermType() + ","
+            + atom.getCodeId());
   }
 
 }

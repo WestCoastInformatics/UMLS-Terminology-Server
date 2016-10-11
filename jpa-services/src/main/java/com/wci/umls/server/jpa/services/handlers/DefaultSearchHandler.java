@@ -79,7 +79,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Add terminology conditions if supplied
-    StringBuilder terminologyClause = new StringBuilder();
+    final StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
       terminologyClause.append(
@@ -87,7 +87,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Assemble query
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     if (fixedQuery.isEmpty()) {
       if (terminologyClause.length() > 0) {
         // Just use PFS and skip the leading "AND"

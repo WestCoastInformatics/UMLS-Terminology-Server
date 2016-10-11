@@ -550,7 +550,7 @@ public class IndexUtility {
     FullTextQuery fullTextQuery = null;
 
     // Build up the query
-    StringBuilder pfsQuery = new StringBuilder();
+    final StringBuilder pfsQuery = new StringBuilder();
     pfsQuery.append(query);
     if (pfs != null) {
       if (pfs.getActiveOnly()) {
@@ -566,12 +566,12 @@ public class IndexUtility {
     }
 
     // Set up the "full text query"
-    FullTextEntityManager fullTextEntityManager =
+    final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    final SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
-    QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
+    final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
         .getIndexedFieldNames(fieldNamesKey, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
 
@@ -580,10 +580,9 @@ public class IndexUtility {
     queryParser.setLowercaseExpandedTerms(false);
 
     // construct the query
-    String finalQuery = pfsQuery.toString();
-    if (pfsQuery.toString().startsWith(" AND ")) {
-      finalQuery = finalQuery.substring(5);
-    }
+    final String finalQuery = (pfsQuery.toString().startsWith(" AND ")) ?
+        pfsQuery.toString() : pfsQuery.toString().substring(5);
+
     Logger.getLogger(IndexUtility.class)
         .info("  query = " + finalQuery + ", " + pfs);
     try {
@@ -595,7 +594,7 @@ public class IndexUtility {
     // Validate query terms
     luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
         .getIndexReaderAccessor().open(clazz));
-    Set<Term> terms = new HashSet<>();
+    final Set<Term> terms = new HashSet<>();
     luceneQuery.extractTerms(terms);
     for (final Term t : terms) {
       if (t.field() != null && !t.field().isEmpty() && !IndexUtility
@@ -620,7 +619,7 @@ public class IndexUtility {
           && pfs.getSortField().equals("RANDOM")) {
 
         // Randomly sort
-        Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
+        final Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
 
           @Override
           public FieldComparator<Long> newComparator(String fieldname,

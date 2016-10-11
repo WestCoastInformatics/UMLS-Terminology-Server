@@ -25,15 +25,6 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class MergeMolecularAction extends AbstractMolecularAction {
 
-  /** The to concept pre updates. */
-  private Concept toConceptPreUpdates;
-
-  /** The to concept post updates. */
-  private Concept toConceptPostUpdates;
-
-  /** The from concept pre updates. */
-  private Concept fromConceptPreUpdates;
-
   /**
    * Instantiates an empty {@link MergeMolecularAction}.
    *
@@ -60,33 +51,6 @@ public class MergeMolecularAction extends AbstractMolecularAction {
    */
   public Concept getToConcept() {
     return getConcept2();
-  }
-
-  /**
-   * Returns the to concept pre updates.
-   *
-   * @return the to concept pre updates
-   */
-  public Concept getToConceptPreUpdates() {
-    return toConceptPreUpdates;
-  }
-
-  /**
-   * Returns the to concept post updates.
-   *
-   * @return the to concept post updates
-   */
-  public Concept getToConceptPostUpdates() {
-    return toConceptPostUpdates;
-  }
-
-  /**
-   * Returns the from concept pre updates.
-   *
-   * @return the from concept pre updates
-   */
-  public Concept getFromConceptPreUpdates() {
-    return fromConceptPreUpdates;
   }
 
   /* see superclass */
@@ -133,11 +97,6 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
-    // Make copy of toConcept and fromConcept before changes, to pass into
-    // change event
-    toConceptPreUpdates = new ConceptJpa(getToConcept(), false);
-    fromConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
 
     //
     // Make a copy of each object in the fromConcept
@@ -380,15 +339,14 @@ public class MergeMolecularAction extends AbstractMolecularAction {
         getName() + " concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  from_concept = " + getFromConcept().getId() + " " + getFromConcept().getName() +
-        (getToConcept() != null ? "\n  to_concept = " + getToConcept().getId() + " " + getToConcept().getName() : "") +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
-    
-    // Make copy of toConcept to pass into change event
-    toConceptPostUpdates = new ConceptJpa(getToConcept(), false);
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getFromConcept().getId() + " " + getFromConcept().getName()
+            + (getToConcept() != null ? "\n  concept (to) = "
+                + getToConcept().getId() + " " + getToConcept().getName()
+                : ""));
 
   }
 

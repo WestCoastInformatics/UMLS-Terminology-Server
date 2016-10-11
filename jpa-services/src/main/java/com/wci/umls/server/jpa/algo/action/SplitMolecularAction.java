@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -42,18 +42,6 @@ public class SplitMolecularAction extends AbstractMolecularAction {
   /** The relationship type abbr. */
   private String relationshipType = null;
 
-  /** The originating concept pre updates. */
-  private Concept originatingConceptPreUpdates;
-
-  /** The originating concept post updates. */
-  private Concept originatingConceptPostUpdates;
-
-  /** The created concept post updates. */
-  private Concept createdConceptPostUpdates;
-
-  /** The created concept. */
-  private Concept createdConcept;
-
   /**
    * Instantiates an empty {@link SplitMolecularAction}.
    *
@@ -62,6 +50,33 @@ public class SplitMolecularAction extends AbstractMolecularAction {
   public SplitMolecularAction() throws Exception {
     super();
     // n/a
+  }
+
+  /**
+   * Returns the from concept.
+   *
+   * @return the from concept
+   */
+  public Concept getFromConcept() {
+    return getConcept();
+  }
+
+  /**
+   * Returns the to concept.
+   *
+   * @return the to concept
+   */
+  public Concept getToConcept() {
+    return getConcept2();
+  }
+
+  /**
+   * Sets the to concept.
+   *
+   * @param toConcept the to concept
+   */
+  public void setToConcept(Concept toConcept) {
+    setConcept2(toConcept);
   }
 
   /**
@@ -98,51 +113,6 @@ public class SplitMolecularAction extends AbstractMolecularAction {
    */
   public void setRelationshipType(String relationshipType) {
     this.relationshipType = relationshipType;
-  }
-
-  /**
-   * Returns the originating concept.
-   *
-   * @return the originating concept
-   */
-  public Concept getFromConcept() {
-    return getConcept();
-  }
-
-  /**
-   * Returns the created concept.
-   *
-   * @return the created concept
-   */
-  public Concept getToConcept() {
-    return createdConcept;
-  }
-
-  /**
-   * Returns the originating concept pre updates.
-   *
-   * @return the originating concept pre updates
-   */
-  public Concept getOriginatingConceptPreUpdates() {
-    return originatingConceptPreUpdates;
-  }
-
-  /**
-   * Returns the originating concept post updates.
-   *
-   * @return the originating concept post updates
-   */
-  public Concept getOriginatingConceptPostUpdates() {
-    return originatingConceptPostUpdates;
-  }
-
-  /**
-   * Returns the created concept post updates.
-   *
-   * @return the created concept post updates
-   */
-  public Concept getCreatedConceptPostUpdates() {
-    return createdConceptPostUpdates;
   }
 
   /* see superclass */
@@ -187,10 +157,6 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
-    // Make copy of originating Concept before changes, to pass into
-    // change event
-    originatingConceptPreUpdates = new ConceptJpa(getFromConcept(), false);
 
     //
     // Make a copy of each object in the originating Concept to be moved
@@ -245,11 +211,15 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     //
     // Create and add the new concept
     //
-    createdConcept = new ConceptJpa(getConcept(), false);
-    getToConcept().setId(null);
+    setToConcept(new ConceptJpa());
+    getToConcept().setTimestamp(new Date());
+    getToConcept().setSuppressible(false);
+    getToConcept().setObsolete(false);
+    getToConcept().setPublished(false);
+    getToConcept().setPublishable(true);
     getToConcept().setTerminologyId("");
-    createdConcept = new ConceptJpa(addConcept(createdConcept), false);
-    getToConcept().setTerminologyId(createdConcept.getId().toString());
+    setToConcept(new ConceptJpa(addConcept(getToConcept()), false));
+    getToConcept().setTerminologyId(getToConcept().getId().toString());
 
     // Add newly created concept and conceptId to the molecular action (undo
     // action uses
@@ -357,9 +327,9 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : newRels) {
       getToConcept().getRelationships().add(rel);
     }
-    final List<Concept> inverseConceptList = new ArrayList<>();    
+    final List<Concept> inverseConceptList = new ArrayList<>();
     for (final ConceptRelationship rel : newInverseRels) {
-      Concept inverseConcept = new ConceptJpa(rel.getFrom(),true);
+      Concept inverseConcept = new ConceptJpa(rel.getFrom(), true);
       inverseConcept.getRelationships().add(rel);
       inverseConceptList.add(inverseConcept);
     }
@@ -400,17 +370,21 @@ public class SplitMolecularAction extends AbstractMolecularAction {
         getName() + " into concept " + getToConcept().getId() + " from concept "
             + getFromConcept().getId());
 
+    // Log for the molecular action report
+    final StringBuilder sb = new StringBuilder();
+    sb.append("\n  move atoms =");
+    for (final Atom atom : moveAtoms) {
+      sb.append(("\n    " + atom.getName() + ", " + atom.getTerminology() + "/"
+          + atom.getTermType() + "," + atom.getCodeId()));
+    }
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  from_concept = " + getFromConcept().getId() + " " + getFromConcept().getName() +
-        (getToConcept() != null ? "\n  to_concept = " + getToConcept().getId() + " " + getToConcept().getName() : "") +
-        "\n  atom ids = " + moveAtoms.toString() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
-    
-    // Make copy of to and fromConcept to pass into change event
-    originatingConceptPostUpdates = new ConceptJpa(getFromConcept(), false);
-    createdConceptPostUpdates = new ConceptJpa(getToConcept(), false);
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getFromConcept().getId() + " " + getFromConcept().getName()
+            + (getToConcept() != null ? "\n  concept2 (to) = "
+                + getToConcept().getId() + " " + getToConcept().getName() : "")
+            + sb + "\n  copy rels = " + copyRelationships + "\n  copy stys = "
+            + copySemanticTypes);
 
   }
 

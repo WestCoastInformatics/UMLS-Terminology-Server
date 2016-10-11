@@ -119,11 +119,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     this.conceptId2 = conceptId2;
   }
 
-  /**
-   * Returns the concept.
-   *
-   * @return the concept
-   */
+  /* see superclass */
   @Override
   public Concept getConcept() {
     return concept;
@@ -133,6 +129,15 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public Concept getConcept2() {
     return concept2;
+  }
+
+  /**
+   * Sets the concept 2.
+   *
+   * @param concept2 the concept 2
+   */
+  public void setConcept2(Concept concept2) {
+    this.concept2 = concept2;
   }
 
   /* see superclass */

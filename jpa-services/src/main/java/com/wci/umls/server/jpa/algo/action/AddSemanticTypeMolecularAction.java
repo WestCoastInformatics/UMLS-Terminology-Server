@@ -74,7 +74,7 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    validationResult.merge(super.checkPreconditions()); 
+    validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
 
@@ -112,15 +112,15 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " to concept "
-            + getConcept().getId() + " " + sty);
+        getActivityId(), getWorkId(),
+        getName() + " to concept " + getConcept().getId() + " " + sty);
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  semantic type component id = " + getSemanticTypeComponent().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  semantic type = "
+            + getSemanticTypeComponent().getSemanticType());
   }
 
 }
