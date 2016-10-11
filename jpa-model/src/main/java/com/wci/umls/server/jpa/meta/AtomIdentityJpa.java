@@ -10,6 +10,12 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+
 import com.wci.umls.server.model.meta.AtomIdentity;
 
 /**
@@ -21,6 +27,7 @@ import com.wci.umls.server.model.meta.AtomIdentity;
     "terminology", "terminologyId"
 }))
 @XmlRootElement(name = "atomIdentity")
+@Indexed
 public class AtomIdentityJpa implements AtomIdentity {
 
   /** The id. */
@@ -93,6 +100,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
@@ -105,6 +113,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -117,6 +126,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getStringClassId() {
     return stringClassId;
   }
@@ -129,6 +139,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTermType() {
     return termType;
   }
@@ -141,6 +152,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getCodeId() {
     return codeId;
   }
@@ -154,6 +166,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getConceptId() {
     return conceptId;
   }
@@ -166,6 +179,7 @@ public class AtomIdentityJpa implements AtomIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getDescriptorId() {
     return descriptorId;
   }

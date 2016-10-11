@@ -10,6 +10,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
+
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 
@@ -21,6 +29,7 @@ import com.wci.umls.server.model.meta.LexicalClassIdentity;
     "normalizedNameHash", "language", "id"
 }))
 @XmlRootElement(name = "lexicalClassIdentity")
+@Indexed
 public class LexicalClassIdentityJpa implements LexicalClassIdentity {
 
   /** The id. */
@@ -70,6 +79,8 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getId() {
     return id;
   }
@@ -82,6 +93,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getNormalizedName() {
     return normalizedName;
   }
@@ -96,6 +108,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getLanguage() {
     return language;
   }
