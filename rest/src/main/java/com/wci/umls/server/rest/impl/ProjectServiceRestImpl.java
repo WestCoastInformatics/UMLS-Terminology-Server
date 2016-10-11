@@ -567,11 +567,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   public String getLog(
     @ApiParam(value = "Project id, e.g. 5", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Object id, e.g. 5", required = false) @QueryParam("objectId") Long objectId,
+    @ApiParam(value = "Message, e.g. Action", required = false) @QueryParam("message") String message,
     @ApiParam(value = "Lines, e.g. 5", required = true) @QueryParam("lines") int lines,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Project): /log/"
-        + projectId + ", " + objectId + ", " + lines);
+        + projectId + ", " + objectId + ", " + message + ", " + lines);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -598,6 +599,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       if (objectId != null) {
         query += " AND objectId:" + objectId;
       }
+      if (message != null) {
+        query += " AND message:" + message;
+      }
 
       if (query.isEmpty()) {
         throw new Exception(
@@ -609,13 +613,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       final StringBuilder log = new StringBuilder();
       for (int i = entries.size() - 1; i >= 0; i--) {
         final LogEntry entry = entries.get(i);
-        final StringBuilder message = new StringBuilder();
-        message.append("[")
+        final StringBuilder msg = new StringBuilder();
+        msg.append("[")
             .append(ConfigUtility.DATE_FORMAT4.format(entry.getLastModified()));
-        message.append("] ");
-        message.append(entry.getLastModifiedBy()).append(" ");
-        message.append(entry.getMessage()).append("\n");
-        log.append(message);
+        msg.append("] ");
+        msg.append(entry.getLastModifiedBy()).append(" ");
+        msg.append(entry.getMessage()).append("\n");
+        log.append(msg);
       }
 
       return log.toString();

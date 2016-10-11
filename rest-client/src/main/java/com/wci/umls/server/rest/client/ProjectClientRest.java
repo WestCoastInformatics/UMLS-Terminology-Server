@@ -397,7 +397,7 @@ public class ProjectClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getLog(Long projectId, Long objectId, int lines,
+  public String getLog(Long projectId, Long objectId, String message, int lines,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Project Client - get log");
 
@@ -408,7 +408,8 @@ public class ProjectClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/project/log?" + "projectId="
-            + projectId + "&objectId=" + objectId + "&lines=" + lines);
+            + projectId + "&objectId=" + objectId +  
+            "&message=" + message + "&lines=" + lines);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 

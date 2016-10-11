@@ -35,8 +35,8 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     $scope.errors = [];
     $scope.defaultOrder = true;
 
-    $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
-    $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+    /*$scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
+    $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];*/
 
     // Init modal
     function initialize() {
@@ -229,7 +229,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
         contentService.getConcept(data.id, $scope.selected.project.id).then(
         // Success
         function(data) {
-          $scope.lists.concepts.push(data);
+          //$scope.lists.concepts.push(data);
           $scope.toConcepts.push(data);
         });
       });

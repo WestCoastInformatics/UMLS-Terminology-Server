@@ -76,7 +76,7 @@
               uib-tooltip="{{key}} concept"
               ng-click="callbacks.getComponent(item.id, 'CONCEPT',value, key, callbacks.getTerminologyVersion(key))">{{value}}</a>
           </span>
-          <div style="margin-left: 20px;" ng-show="item.expanded">
+          <div style="margin-left: 20px;" ng-show="expanded[item.id]">
             <!-- Atom Definitions -->
             <div ng-show="item.definitions.length > 0">
               <strong>{{metadata.definitionsLabel}}</strong>

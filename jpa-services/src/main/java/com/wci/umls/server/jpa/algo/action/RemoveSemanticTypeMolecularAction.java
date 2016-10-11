@@ -109,6 +109,12 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(), getName() + " from concept "
             + getConcept().getId() + " " + sty);
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
+        "\n  semantic type component id = " + getSemanticTypeComponentId() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
   }
 
 }

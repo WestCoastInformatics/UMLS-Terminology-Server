@@ -4,7 +4,8 @@ tsApp.directive('notes', [ function() {
     restrict : 'A',
     scope : {
       selected : '=',
-      type : '@'
+      type : '@',
+      empty : '='
     },
     templateUrl : 'app/actions/notes/notes.html',
     controller : [
@@ -16,7 +17,7 @@ tsApp.directive('notes', [ function() {
       'contentService',
       function($scope, $uibModal, $sce, utilService, workflowService, contentService) {
         console.debug("configure notes directive", $scope.type);
-
+        
         $scope.field = $scope.type.toLowerCase();
         if ($scope.type == 'Checklist') {
           $scope.field = 'worklist';

@@ -1,6 +1,5 @@
-
-<i ng-if="selected.component.notes.length == 0" ng-click="openNotesModal()" title="Add {{type}} notes" 
+<i ng-if="empty && empty.length == 0" ng-click="openNotesModal()" title="Add {{type}} notes" 
   style="opacity:0.5"
   class="noul glyphicon glyphicon-tags"></i>
-<i ng-if="selected.component.notes.length > 0" ng-click="openNotesModal()" title="Add/Edit {{type}} notes" 
+<i ng-if="!empty || empty.length > 0 " ng-click="openNotesModal()" title="Add/Edit {{type}} notes" 
   class="noul glyphicon glyphicon-tags"></i>

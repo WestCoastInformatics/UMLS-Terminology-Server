@@ -141,6 +141,12 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(),
         getName() + " to concept " + getConcept().getId() + " " + atom);
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
+        "\n  atom id = " + getAtom().getId() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
   }
 
 }

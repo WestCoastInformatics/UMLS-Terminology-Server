@@ -179,8 +179,20 @@ tsApp
 
         }
 
+        $scope.toggleSelection = function toggleSelection(atom) {
+          // is currently selected
+          if ($scope.selected.atoms[atom.id]) {
+            delete $scope.selected.atoms[atom.id];
+          }
+
+          // is newly selected
+          else {
+            $scope.selected.atoms[atom.id] = atom;
+          }
+        };
+        
         // selects an atom
-        $scope.selectAtom = function(event, atom) {
+        /*$scope.selectAtom = function(event, atom) {
 
           if (event.ctrlKey) {
             selectWithCtrl(atom);
@@ -188,16 +200,16 @@ tsApp
             $scope.selected.atoms = {};
             $scope.selected.atoms[atom.id] = atom;
           }
-        };
+        };*/
 
         // selects or deselects additional atom
-        function selectWithCtrl(atom) {
+        /*function selectWithCtrl(atom) {
           if ($scope.selected.atoms[atom.id]) {
             delete $scope.selected.atoms[atom.id];
           } else {
             $scope.selected.atoms[atom.id] = atom;
           }
-        }
+        }*/
 
         // indicates if a particular row is selected
         $scope.isRowSelected = function(atom) {

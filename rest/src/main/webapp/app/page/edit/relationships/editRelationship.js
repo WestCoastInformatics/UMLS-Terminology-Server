@@ -2,6 +2,7 @@
 tsApp.controller('EditRelationshipModalCtrl', [
   '$scope',
   '$uibModalInstance',
+  '$uibModal',
   'utilService',
   'metaEditingService',
   'contentService',
@@ -9,7 +10,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, utilService, metaEditingService, contentService, 
+  function($scope, $uibModalInstance, $uibModal, utilService, metaEditingService, contentService, 
     selected, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
 
@@ -68,12 +69,12 @@ tsApp.controller('EditRelationshipModalCtrl', [
         $scope.toConcept = $scope.toConcepts[0];
       }
 
+      // compute accepted relationship types
       if(!$scope.selected.component.publishable) {
         $scope.acceptedRelationshipTypeStrings.push('BRO');
         $scope.acceptedRelationshipTypeStrings.push('BRN');
         $scope.acceptedRelationshipTypeStrings.push('BBT');
-      }
-      
+      }      
       for (var i = 0; i < $scope.selected.metadata.relationshipTypes.length; i++) {
         if ($scope.acceptedRelationshipTypeStrings
           .includes($scope.selected.metadata.relationshipTypes[i].key)) {
@@ -136,7 +137,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
       });
     };
 
-    // select the merge concept
+    // select the to concept
     $scope.selectToConcept = function(concept) {
       $scope.toConcept = concept;
     }
@@ -149,5 +150,53 @@ tsApp.controller('EditRelationshipModalCtrl', [
     // initialize modal
     initialize();
 
+    
+    //
+    // MODALS
+    //
+    // Add concept modal
+    $scope.openFinderModal = function() {
+      console.debug('openFinderModal ');
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/component/finder/finder.html',
+        controller : 'FinderModalCtrl',
+        backdrop: 'static',
+        size : 'lg',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          type : function() {
+            return 'Concept';
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        // return if concept is already on concept list
+        for (var i = 0; i < $scope.lists.concepts.length; i++) {
+          if ($scope.lists.concepts[i].id == data.id) {
+            window.alert('Concept ' + data.id + ' is already on the concept list.');
+            return;
+          }
+        }
+        // get full concept
+        contentService.getConcept(data.id, $scope.selected.project.id).then(
+        // Success
+        function(data) {
+          //$scope.lists.concepts.push(data);
+          $scope.toConcepts.push(data);
+        });
+      });
+
+    };
     // end
   } ]);

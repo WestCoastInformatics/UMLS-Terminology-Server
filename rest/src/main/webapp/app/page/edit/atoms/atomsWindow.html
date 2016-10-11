@@ -43,14 +43,15 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="atom in pagedAtoms.data" ng-click="selectAtom($event, atom)"
-      class="{{getAtomClass(atom)}}" ng-class="{selected: isRowSelected(atom)}">
-      <td>{{atom.name}}</td>
-      <td>{{atom.terminology}}/{{atom.termType}}</td>
-      <td>{{atom.codeId}}</td>
-      <td>{{atom.conceptId}}</td>
-      <td>{{atom.descriptorId}}</td>
-      <td>{{atom.lastModifiedBy}}</td>
+    <tr ng-repeat="atom in pagedAtoms.data" ng-class="{selected: isRowSelected(atom)}">
+      <td ng-click="toggleSelection(atom)"><input type="checkbox"  value="{{atom.name}}"
+        ng-checked="isRowSelected(atom)"
+        >&nbsp;{{atom.name}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.terminology}}/{{atom.termType}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.codeId}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.conceptId}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.descriptorId}}</td>
+      <td ng-click="toggleSelection(atom)">{{atom.lastModifiedBy}}</td>
       <td class="nobreak">
 
         <i ng-click="openEditAtomModal(atom); $event.stopPropagation()"

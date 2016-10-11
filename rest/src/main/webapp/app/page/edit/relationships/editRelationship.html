@@ -75,7 +75,7 @@
         </span>
       </td>
     </tr>
-    <tr>
+    <!-- <tr>
       <td>
         <b>Workflow Status</b>
       </td>
@@ -84,7 +84,7 @@
         <select ng-model="selectedWorkflowStatus"
           ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
       </td>
-    </tr>
+    </tr> -->
   </table>
 
 
@@ -94,7 +94,10 @@
 </div>
 
 <div class="modal-footer">
-  
+  <span style="float: left;">
+        <button ng-click="openFinderModal()" title="Add concept"
+          class="btn btn-primary">Finder</button>
+  </span>
   <button ng-disabled="!toConcept" class="btn btn-primary"
     ng-click="addRelationship();" title="Add relationship">Add</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>

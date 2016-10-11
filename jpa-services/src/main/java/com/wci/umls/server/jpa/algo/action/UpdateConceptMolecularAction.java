@@ -121,6 +121,12 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + getConcept());
 
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
+        "\n  terminology = " + getTerminology() +
+        "\n  version = " + getVersion());
+    
   }
 
 }

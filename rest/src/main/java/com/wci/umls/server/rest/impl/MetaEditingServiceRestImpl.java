@@ -784,7 +784,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
           action.getConcept());
       sendChangeEvent(event);
-
+      
       return validationResult;
 
     } catch (Exception e) {

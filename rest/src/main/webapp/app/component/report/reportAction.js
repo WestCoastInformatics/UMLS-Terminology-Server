@@ -10,8 +10,8 @@ tsApp.directive('reportAction', [ '$window', '$routeParams', function($window, $
       callbacks : '='
     },
     templateUrl : 'app/component/report/reportAction.html',
-    controller : [ '$scope', 'projectService', 'utilService', 'metaEditingService',
-                   function($scope, projectService, utilService, metaEditingService) {
+    controller : [ '$scope', '$sce', 'projectService', 'utilService', 'metaEditingService',
+                   function($scope, $sce, projectService, utilService, metaEditingService) {
       // Scope vars
       $scope.molecularActions = {};
       
@@ -132,6 +132,18 @@ tsApp.directive('reportAction', [ '$window', '$routeParams', function($window, $
         return utilService.toDate(lastModified);
       };
 
+      $scope.displayLog = function(action) {
+        var objectId = action.id;
+        projectService.getLog($scope.selected.project.id, objectId, 'ACTION').then(
+          // Success
+          function(data) {
+            action.log = $sce.trustAsHtml('<span class="preformatted">' + data + '</span>');
+          },
+          // Error
+          function(data) {
+            utilService.handleDialogError($scope.errors, data);
+          });
+      }
     } ]
   };
 } ]);
