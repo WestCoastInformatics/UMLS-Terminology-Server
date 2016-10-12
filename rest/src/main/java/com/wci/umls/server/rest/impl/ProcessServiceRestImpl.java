@@ -1547,6 +1547,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             algorithm.setActivityId(algorithmExecution.getActivityId());
             algorithm.setLastModifiedBy(userName);
             algorithm.setTransactionPerOperation(false);
+            algorithm.beginTransaction();
             // Convert Map<String,String> into properties to configure
             // algorithm
             final Properties prop = new Properties();
