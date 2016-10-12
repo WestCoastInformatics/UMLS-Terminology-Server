@@ -28,7 +28,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       });
     }
     if ($scope.action == 'Add') {
-      $scope.algorithm = 
+      $scope.algorithm = '';
     }
 
     // Update algorithm

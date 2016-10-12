@@ -139,13 +139,15 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + atom);
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  atom = " + getAtom() + 
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
-    
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  atom = " + atom.getName() + ", "
+            + atom.getTerminology() + "/" + atom.getTermType() + ","
+            + atom.getCodeId() + ", " + atom.isPublishable() + ", "
+            + atom.isSuppressible() + ", " + atom.getWorkflowStatus());
+
   }
 
 }

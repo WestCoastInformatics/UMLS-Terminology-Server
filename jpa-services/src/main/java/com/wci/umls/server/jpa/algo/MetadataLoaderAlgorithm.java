@@ -1083,7 +1083,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 / steps) * stepsCompleted);
+    int currentProgress = (int) ((100.0 / steps) * stepsCompleted);
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "METADATALOADING progress: " + currentProgress + "%");

@@ -117,19 +117,8 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (inverseRelationship.getRelationshipType().equals("XR")) {
       inverseRelationship.setPublishable(false);
     }
-
-    // Assign alternateTerminologyId
-    // final IdentifierAssignmentHandler handler = contentService
-    // .getIdentifierAssignmentHandler(concept.getTerminology());
-
-    // final String altId = handler.getTerminologyId(relationship);
-    // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-    // altId);
-
-    // final String inverseAltId =
-    // handler.getTerminologyId(inverseRelationship);
-    // inverseRelationship.getAlternateTerminologyIds()
-    // .put(concept.getTerminology(), inverseAltId);
+    
+    // Assign RUI at production time
 
     // Change status of the relationships
     if (getChangeStatusFlag()) {
@@ -140,7 +129,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // If any matching relationship, remove it and its inverse (new
     // relationships will replace them)
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
-      if (rel.getTo().getId() == relationship.getTo().getId()) {
+      if (rel.getTo().getId().equals(relationship.getTo().getId())) {
         // Remove the relationship from the concepts
         getConcept().getRelationships().remove(rel);
         getConcept2().getRelationships().remove(findInverseRelationship(rel));
@@ -167,8 +156,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     }
 
     // Look through atoms for demotion relationships, and remove them.
-    AtomRelationship demotion =
-        findDemotionMatchingRelationship(relationship);
+    AtomRelationship demotion = findDemotionMatchingRelationship(relationship);
 
     if (demotion != null) {
       // Remove the demotions from the atoms
@@ -224,14 +212,17 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getConcept2().getId(), getActivityId(), getWorkId(), getName()
             + " from concept " + getConcept().getId() + " " + relationship);
-    
+
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        (getConcept2() != null ? "\n  concept2 = " + getConcept2().getId() + " " + getConcept2().getName() : "") +
-        "\n  relationship id = " + getRelationship().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getConcept().getId() + " " + getConcept().getName()
+            + (getConcept2() != null ? "\n  concept2 (to) = "
+                + getConcept2().getId() + " " + getConcept2().getName() : "")
+            + "\n  relationship id = " + getRelationship().getRelationshipType()
+            + ", " + getRelationship().getAdditionalRelationshipType() + ", "
+            + relationship.getTerminology());
   }
 
 }

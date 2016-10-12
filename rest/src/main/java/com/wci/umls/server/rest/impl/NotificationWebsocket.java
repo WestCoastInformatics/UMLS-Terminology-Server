@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 public class NotificationWebsocket {
 
   /** The sessions. */
-  private Set<Session> sessions = Collections
-      .synchronizedSet(new HashSet<Session>());
+  private Set<Session> sessions =
+      Collections.synchronizedSet(new HashSet<Session>());
 
   /**
    * Instantiates an empty {@link NotificationWebsocket}.
@@ -84,14 +84,11 @@ public class NotificationWebsocket {
   /**
    * Echo text.
    *
-   * @param name the name
-   * @return the string
+   * @param text the text
    */
-  @SuppressWarnings("static-method")
   @OnMessage
   public void echoText(String text) {
-    Logger.getLogger(getClass()).info(
-        "message: " + text);
+    Logger.getLogger(getClass()).info("message: " + text);
   }
 
   /**
@@ -109,26 +106,26 @@ public class NotificationWebsocket {
     }
 
     // Send message to all listeners
-   
-      for (final Session session : new HashSet<>(sessions)) {
-        try {
-          
-          // Send synch message  
-          // TODO: performance not ideal 
-          session.getBasicRemote().sendText(message);
 
-        } catch (Exception e) {
-          e.printStackTrace();
-          // if anything went wrong, close the session and remove it
-          try {
-            session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
-                "Closing"));
-          } catch (Exception e2) {
-            // do nothing
-          }
-          sessions.remove(session);
+    for (final Session session : new HashSet<>(sessions)) {
+      try {
+
+        // Send synch message
+        // TODO: performance not ideal
+        session.getBasicRemote().sendText(message);
+
+      } catch (Exception e) {
+        e.printStackTrace();
+        // if anything went wrong, close the session and remove it
+        try {
+          session.close(
+              new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Closing"));
+        } catch (Exception e2) {
+          // do nothing
         }
+        sessions.remove(session);
       }
+    }
 
   }
 

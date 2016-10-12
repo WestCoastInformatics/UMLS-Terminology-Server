@@ -109,12 +109,13 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
         getActivityId(), getWorkId(),
         getName() + " from concept " + getConcept().getId() + " " + atom);
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  atom id = " + getAtomId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  atom = " + atom.getName() + ", "
+            + atom.getTerminology() + "/" + atom.getTermType() + ","
+            + atom.getCodeId());
   }
 
 }

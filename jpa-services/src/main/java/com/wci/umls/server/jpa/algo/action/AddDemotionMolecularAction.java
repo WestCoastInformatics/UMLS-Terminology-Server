@@ -148,6 +148,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       updateConcept(getConcept2());
     }
 
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
@@ -157,7 +158,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
         getName() + " from concept " + getConcept().getId() + " "
             + inverseDemotionRelationship);
 
-    
+    // N/A - no log entry for molecular action -> only ever performed by insertion.
   }
 
 }
