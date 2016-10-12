@@ -31,8 +31,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Default implementation of {@link IdentifierAssignmentHandler}. This supports
  * "application-managed" identifier assignment.
  */
-public class DefaultIdentifierAssignmentHandler implements
-    IdentifierAssignmentHandler {
+public class DefaultIdentifierAssignmentHandler
+    implements IdentifierAssignmentHandler {
 
   /* see superclass */
   @Override
@@ -97,7 +97,7 @@ public class DefaultIdentifierAssignmentHandler implements
     throws Exception {
     return relationship.getTerminologyId();
   }
-  
+
   @Override
   public String getInverseTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
@@ -168,6 +168,66 @@ public class DefaultIdentifierAssignmentHandler implements
   @Override
   public String getTerminologyId(MapSet mapSet) throws Exception {
     return mapSet.getTerminologyId();
+  }
+
+  @Override
+  public boolean getTransactionPerOperation() throws Exception {
+    // N/A
+    return false;
+  }
+
+  @Override
+  public void setTransactionPerOperation(boolean transactionPerOperation)
+    throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void commit() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void rollback() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void beginTransaction() throws Exception {
+    // N/A
+  }
+
+  @Override
+  public void close() throws Exception {
+    // N/A
+  }
+
+  @Override
+  public void clear() throws Exception {
+    // N/A
+  }
+
+  @Override
+  public void commitClearBegin() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void logAndCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void logAndCommit(String preMessage, int objectCt, int logCt,
+    int commitCt) throws Exception {
+    // N/A
+    
   }
 
 }

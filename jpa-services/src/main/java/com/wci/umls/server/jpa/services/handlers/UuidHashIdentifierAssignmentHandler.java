@@ -165,7 +165,7 @@ public class UuidHashIdentifierAssignmentHandler
   public String getInverseTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
-    //TODO: Lookup inverse rel type
+    // TODO: Lookup inverse rel type
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,
     // component.terminologyId
@@ -275,5 +275,68 @@ public class UuidHashIdentifierAssignmentHandler
     hashKey.append(mapSet.getTerminology()).append(mapSet.getTerminologyId())
         .append(mapSet.getName());
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
+  }
+
+  @Override
+  public boolean getTransactionPerOperation() throws Exception {
+    // N/A
+    return false;
+  }
+
+  @Override
+  public void setTransactionPerOperation(boolean transactionPerOperation)
+    throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void commit() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void rollback() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void beginTransaction() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void close() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void clear() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void commitClearBegin() throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void logAndCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    // N/A
+
+  }
+
+  @Override
+  public void logAndCommit(String preMessage, int objectCt, int logCt,
+    int commitCt) throws Exception {
+    // N/A
+
   }
 }

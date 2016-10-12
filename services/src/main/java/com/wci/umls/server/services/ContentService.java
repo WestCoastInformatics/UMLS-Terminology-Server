@@ -1914,4 +1914,14 @@ public interface ContentService extends MetadataService {
    * @return the ambiguous atom ids
    */
   public List<Long> getAmbiguousAtomIds(Concept concept);
+
+  /**
+   * New identifier assignment handler.
+   *
+   * @param terminology the terminology
+   * @return the identifier assignment handler
+   * @throws Exception the exception
+   */
+  IdentifierAssignmentHandler newIdentifierAssignmentHandler(String terminology)
+    throws Exception;
 }

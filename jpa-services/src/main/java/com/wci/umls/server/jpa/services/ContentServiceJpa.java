@@ -2952,6 +2952,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
+  public IdentifierAssignmentHandler newIdentifierAssignmentHandler(
+    String terminology) throws Exception {
+    return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+        "identifier.assignment.handler", terminology,
+        IdentifierAssignmentHandler.class);
+  }
+
+  /* see superclass */
+  @Override
   public ComputePreferredNameHandler getComputePreferredNameHandler(
     String terminology) throws Exception {
     if (pnHandlerMap.containsKey(terminology)) {
@@ -3677,8 +3686,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery, "toNameSort", clazz, clazz, pfs,
-        totalCt, manager));
+        finalQuery, "toNameSort", clazz, clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
