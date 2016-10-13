@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.HashSet;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
@@ -138,7 +140,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // If any matching relationship, remove it and its inverse (new
     // relationships will replace them)
-    for (final ConceptRelationship rel : getConcept().getRelationships()) {
+    for (final ConceptRelationship rel : new HashSet<>(getConcept().getRelationships())) {
       if (rel.getTo().getId().equals(relationship.getTo().getId())) {
         Logger.getLogger(getClass()).info("  remove matching C rel = " + rel);
 

@@ -381,9 +381,11 @@ public abstract class RootServiceJpa implements RootService {
     // verify that final object is actually a string, enum, or date
     if (!finalMethod.getReturnType().equals(String.class)
         && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Long.class)
         && !finalMethod.getReturnType().equals(Date.class)) {
       throw new Exception(
-          "Requested sort field value is not string, enum, or date value");
+          "Requested sort field value is not string, enum, or date value "
+              + finalMethod.getReturnType().getName());
     }
     return finalObject;
 
@@ -421,9 +423,11 @@ public abstract class RootServiceJpa implements RootService {
     // verify that final object is actually a string, enum, or date
     if (!finalMethod.getReturnType().equals(String.class)
         && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Long.class)
         && !finalMethod.getReturnType().equals(Date.class)) {
       throw new Exception(
-          "Requested sort field value is not string, enum, or date value");
+          "Requested sort field value is not string, enum, or date value "
+              + finalMethod.getReturnType().getName());
     }
     return finalMethod.getReturnType();
 
@@ -569,8 +573,8 @@ public abstract class RootServiceJpa implements RootService {
                       return -1;
                     }
                     if (s2 != null
-                        && ((String) s2).compareTo((String) s1) != 0) {
-                      return ((String) s2).compareTo((String) s1);
+                        && (s2.toString()).compareTo(s1.toString()) != 0) {
+                      return (s2.toString()).compareTo(s1.toString());
                     } else {
                       return 0;
                     }
