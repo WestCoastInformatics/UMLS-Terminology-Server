@@ -464,13 +464,17 @@ public abstract class RootServiceJpa implements RootService {
       for (final T t : list) {
         final StringBuilder sb = new StringBuilder();
         for (final Method m : t.getClass().getMethods()) {
-
           // TODO Add annotation check for @Field, @Fields...
-          if (m.getName().startsWith("get")) {
+          if (m.getName().startsWith("get") && (m
+              .isAnnotationPresent(org.hibernate.search.annotations.Field.class)
+              || m.isAnnotationPresent(
+                  org.hibernate.search.annotations.Fields.class))) {
             try {
 
               Object val = m.invoke(t);
-              if (val != null && val instanceof String) {
+              // Support long, string, and enum
+              if (val != null && (val instanceof String || val instanceof Long
+                  || m.getReturnType().isEnum())) {
 
                 sb.append(val.toString()).append(" ");
               }
@@ -485,10 +489,6 @@ public abstract class RootServiceJpa implements RootService {
           result.add(t);
         }
 
-        // old method
-        /*
-         * if (t.toString().toLowerCase() { result.add(t); }
-         */
       }
     }
 
@@ -526,16 +526,19 @@ public abstract class RootServiceJpa implements RootService {
                 final Object s1 = getSortFieldValue(t1, sortField);
                 final Object s2 = getSortFieldValue(t2, sortField);
 
-                final boolean isDate =
-                    getSortFieldType(t1, sortField).equals(Date.class);
+                final boolean isDate = s1 instanceof Date;
+                final boolean isLong = s1 instanceof Long;
 
                 // if both values null, skip to next sort field
                 if (s1 != null || s2 != null) {
 
                   // handle date comparison by long value
-                  if (isDate) {
-                    final Long l1 = s1 == null ? null : ((Date) s1).getTime();
-                    final Long l2 = s2 == null ? null : ((Date) s2).getTime();
+                  if (isDate || isLong) {
+                    final Long l1 = s1 == null ? null
+                        : (isDate ? ((Date) s1).getTime() : ((Long) s1));
+                    final Long l2 = s2 == null ? null
+                        : (isDate ? ((Date) s2).getTime() : ((Long) s2));
+
                     if (ascending) {
                       if (l1 == null && s2 != null) {
                         return -1;

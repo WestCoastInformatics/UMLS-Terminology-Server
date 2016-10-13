@@ -322,7 +322,7 @@ public class UserPreferencesJpa implements UserPreferences {
   @Override
   public Map<String, String> getProperties() {
     if (properties == null) {
-      properties = new HashMap<>(2);
+      properties = new HashMap<>();
     }
     return properties;
   }
@@ -331,25 +331,6 @@ public class UserPreferencesJpa implements UserPreferences {
   @Override
   public void setProperties(Map<String, String> properties) {
     this.properties = properties;
-  }
-
-  /* see superclass */
-  @Override
-  public void putProperty(String key, String value) {
-    if (properties == null) {
-      properties = new HashMap<>(2);
-    }
-    properties.put(key, value);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProperty(String key) {
-    if (properties == null) {
-      properties = new HashMap<>(2);
-    }
-    properties.remove(key);
-
   }
 
   /* see superclass */

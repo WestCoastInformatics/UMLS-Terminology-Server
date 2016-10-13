@@ -724,7 +724,7 @@ tsApp
 
           // set filter/query; unlike relationships, does not require * for
           // filtering
-          var query = paging.text;
+          var query = paging.filter
 
           // do not use glass pane, produces additional user lag on initial
           // concept load

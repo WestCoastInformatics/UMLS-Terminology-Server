@@ -420,17 +420,16 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the atom relationship
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   public AtomRelationship findDemotionMatchingRelationship(
     ConceptRelationship relationship) throws Exception {
 
-    for (final Atom fromAtom : relationship.getFrom().getAtoms()) {
+    final List<Atom> fromAtoms =
+        getConcept(relationship.getFrom().getId()).getAtoms();
+    final List<Atom> toAtoms =
+        getConcept(relationship.getTo().getId()).getAtoms();
+    for (final Atom fromAtom : fromAtoms) {
       for (final AtomRelationship atomRel : fromAtom.getRelationships()) {
-        for (final Atom toAtom : relationship.getTo().getAtoms()) {
-          if (atomRel.getTo().getId().equals(toAtom.getId())) {
-            Logger.getLogger(getClass())
-                .info("    candidate demotion = " + atomRel);
-          }
+        for (final Atom toAtom : toAtoms) {
           if (atomRel.getTo().getId().equals(toAtom.getId())
               && atomRel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
             return atomRel;
