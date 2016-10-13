@@ -18,7 +18,7 @@
     <span ng-show="worklists.totalCount == 0" style="display: block;"
       class="alert alert-warning">No worklists.</span>
 
-    <table ng-show="worklists.totalCount > 0" class="table">
+    <table ng-show="worklists.totalCount > 0" class="slim table">
 
       <!-- Worklist header -->
       <thead ng-show="type === 'Worklist'" class="pointer">
@@ -159,7 +159,7 @@
 
       <!-- Worklist Details -->
       <h4>{{selected.worklist.name}}</h4>
-      <table class="table pointer">
+      <table class="slim table pointer">
         <tbody>
 
           <tr>

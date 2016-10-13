@@ -536,7 +536,6 @@ public class IndexUtility {
    * Apply pfs to lucene query2.
    *
    * @param clazz the clazz
-   * @param fieldNamesKey the field names key
    * @param query the query
    * @param pfs the pfs
    * @param manager the manager
@@ -544,13 +543,13 @@ public class IndexUtility {
    * @throws Exception the exception
    */
   public static FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    Class<?> fieldNamesKey, String query, PfsParameter pfs,
+    String query, PfsParameter pfs,
     EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 
     // Build up the query
-    StringBuilder pfsQuery = new StringBuilder();
+    final StringBuilder pfsQuery = new StringBuilder();
     pfsQuery.append(query);
     if (pfs != null) {
       if (pfs.getActiveOnly()) {
@@ -566,13 +565,13 @@ public class IndexUtility {
     }
 
     // Set up the "full text query"
-    FullTextEntityManager fullTextEntityManager =
+    final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    final SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
-    QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
-        .getIndexedFieldNames(fieldNamesKey, true).toArray(new String[] {}),
+    final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
+        .getIndexedFieldNames(clazz, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
 
     // preserve capitalization from incoming query (in order to correctly match
@@ -580,10 +579,9 @@ public class IndexUtility {
     queryParser.setLowercaseExpandedTerms(false);
 
     // construct the query
-    String finalQuery = pfsQuery.toString();
-    if (pfsQuery.toString().startsWith(" AND ")) {
-      finalQuery = finalQuery.substring(5);
-    }
+    final String finalQuery = (pfsQuery.toString().startsWith(" AND ")) ?
+        pfsQuery.toString().substring(5): pfsQuery.toString();
+
     Logger.getLogger(IndexUtility.class)
         .info("  query = " + finalQuery + ", " + pfs);
     try {
@@ -595,14 +593,14 @@ public class IndexUtility {
     // Validate query terms
     luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
         .getIndexReaderAccessor().open(clazz));
-    Set<Term> terms = new HashSet<>();
+    final Set<Term> terms = new HashSet<>();
     luceneQuery.extractTerms(terms);
     for (final Term t : terms) {
       if (t.field() != null && !t.field().isEmpty() && !IndexUtility
-          .getIndexedFieldNames(fieldNamesKey, false).contains(t.field())) {
+          .getIndexedFieldNames(clazz, false).contains(t.field())) {
         throw new ParseException(
             "Query references invalid field name " + t.field() + ", "
-                + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
+                + IndexUtility.getIndexedFieldNames(clazz, false));
       }
     }
 
@@ -620,7 +618,7 @@ public class IndexUtility {
           && pfs.getSortField().equals("RANDOM")) {
 
         // Randomly sort
-        Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
+        final Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
 
           @Override
           public FieldComparator<Long> newComparator(String fieldname,

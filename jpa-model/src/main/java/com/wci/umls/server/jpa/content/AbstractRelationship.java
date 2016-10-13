@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -83,7 +83,8 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
    * @param relationship the relationship
    * @param collectionCopy the deep copy
    */
-  public AbstractRelationship(Relationship<S, T> relationship, boolean collectionCopy) {
+  public AbstractRelationship(Relationship<S, T> relationship,
+      boolean collectionCopy) {
     super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
     additionalRelationshipType = relationship.getAdditionalRelationshipType();
@@ -218,18 +219,14 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result = prime * result + (assertedDirection ? 1231 : 1237);
     result = prime * result + ((group == null) ? 0 : group.hashCode());
     result = prime * result + (hierarchical ? 1231 : 1237);
     result = prime * result + (inferred ? 1231 : 1237);
-    result =
-        prime * result
-            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result = prime * result
+        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + (stated ? 1231 : 1237);
     return result;
   }
@@ -274,12 +271,10 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [from = " + getFrom() + ", to = "
-        + getTo() + ", " + super.toString() + ", relationshipType="
-        + relationshipType + ", additionalRelationshipType="
-        + additionalRelationshipType + ", group=" + group + ", inferred="
-        + inferred + ", stated=" + stated + ", assertedDirection="
-        + assertedDirection + ", hierarchcial=" + hierarchical
-        + ", workflowStatus=" + workflowStatus + "]";
+    return getClass().getName() + " [from=" + getFrom() + ", to=" + getTo()
+        + ", relationshipType=" + relationshipType
+        + ", additionalRelationshipType=" + additionalRelationshipType
+        + ", group=" + group + ", assertedDirection=" + assertedDirection
+        + ", workflowStatus=" + workflowStatus + "] " + super.toString();
   }
 }

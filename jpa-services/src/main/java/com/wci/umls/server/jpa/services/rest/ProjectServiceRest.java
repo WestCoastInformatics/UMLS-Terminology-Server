@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -157,6 +157,7 @@ public interface ProjectServiceRest {
    *
    * @param projectId the project id
    * @param objectId the object id
+   * @param message the message
    * @param lines the lines
    * @param authToken the auth token
    * @return the log

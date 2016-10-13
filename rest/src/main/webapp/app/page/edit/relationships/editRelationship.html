@@ -3,13 +3,13 @@
 </div>
 
 <div class="modal-body">
-  <table class="table">
+  <table class="slim table">
     <tr>
-      <td>
+      <td class="col-md-3 col-xs-3">
         <b>From Concept</b>
       </td>
-      <td>
-        <table class="table">
+      <td class="col-md-9 col-xs-9">
+        <table class="slim table">
           <tbody>
             <tr>
               <td class="col-md-2 col-xs-2">{{selected.component.id}}</td>
@@ -28,11 +28,8 @@
       <td>
         <b>To Concept</b>
       </td>
-      <td ng-show="toConcepts.length > 1">
-        <table class="table">
-          <thead>
-            <b>Select a concept:</b>
-          </thead>
+      <td>
+        <table class="slim table">
           <tbody>
             <tr ng-repeat="concept in toConcepts"
               ng-click="selectToConcept(concept)"
@@ -48,21 +45,7 @@
           </tbody>
         </table>
       </td>
-      <td ng-show="toConcepts.length == 1">
-        <table class="table">
-          <tbody>
-            <tr>
-              <td class="col-md-2 col-xs-2">{{toConcepts[0].id}}</td>
-              <td class="col-md-5 col-xs-5">{{toConcepts[0].name}}</td>
-              <td class="col-md-5 col-xs-5">
-                <span ng-repeat='sty in toConcepts[0].semanticTypes'>
-                  {{sty.semanticType}}</br>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
+
     </tr>
     <tr>
       <td>
@@ -95,8 +78,7 @@
 
 <div class="modal-footer">
   <span style="float: left;">
-        <button ng-click="openFinderModal()" title="Add concept"
-          class="btn btn-primary">Finder</button>
+    <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
   </span>
   <button ng-disabled="!toConcept" class="btn btn-primary"
     ng-click="addRelationship();" title="Add relationship">Add</button>

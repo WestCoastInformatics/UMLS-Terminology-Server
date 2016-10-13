@@ -1,35 +1,39 @@
 
 <h4>
-  <b>Relationships Editor ({{pagedRelationships.totalCount}})</b>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Relationships
+    ({{pagedRelationships.totalCount}})</b>
+  <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
+    {{selected.component.id}}</span>
 </h4>
-<h4 class="{{selected.component.workflowStatus}}">{{selected.component.name}}
-  {{selected.component.id}}</h4>
+<span ng-show="pagedRelationships.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['relationships'].pageSize"
+    title="Page Size"
+    ng-change="paging['relationships'].callbacks.getPagedList()">
+    <option selected value="10">10</option>
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+</span>
 
 <div pager paging="paging['relationships']"
   count="pagedRelationships.totalCount"
   callbacks="paging['relationships'].callbacks"></div>
 
-<table class="table pointer">
+<table class="slim table pointer">
   <thead>
     <tr>
       <th class="col-md-4 col-xs-4"><span
           ng-click="setSortField('relationships','toName')">To Name</span> <span
           ng-bind="getSortIndicator('relationships','toName')"></span></th>
       <th class="col-md-1 col-xs-1"><span
-          ng-click="setSortField('relationships','toTerminologyId')">To
-          Concept</span> <span
-          ng-bind="getSortIndicator('relationships','toTerminologyId')"></span></th>
-      <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('relationships','toId')"> Concept</span> <span
+          ng-bind="getSortIndicator('relationships','toId')"></span></th>
+      <th class="col-md-2 col-xs-2"><span
           ng-click="setSortField('relationships','relationshipType')">Rel
           Type</span> <span
           ng-bind="getSortIndicator('relationships','relationshipType')"></span></th>
-      <th class="col-md-1 col-xs-1"><span
-          ng-click="setSortField('relationships','additionalRelationshipType')">Add
-          Rel Type</span> <span
-          ng-bind="getSortIndicator('relationships','additionalRelationshipType')"></span></th>
-      <th class="col-md-1 col-xs-1"><span
-          ng-click="setSortField('relationships','level')">Level</span>
-        <span ng-bind="getSortIndicator('relationships','level')"></span></th>
+      <th class="col-md-1 col-xs-1">Lvl</th>
       <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('relationships','terminology')">Terminology</span>
         <span ng-bind="getSortIndicator('relationships','terminology')"></span></th>
@@ -49,8 +53,8 @@
       ng-class="{selected: isRowSelected(relationship)}">
       <td>{{relationship.toName}}</td>
       <td>{{relationship.toId}}</td>
-      <td>{{relationship.relationshipType}}</td>
-      <td>{{relationship.additionalRelationshipType}}</td>
+      <td>{{relationship.relationshipType}}&nbsp;
+        {{relationship.additionalRelationshipType}}</td>
       <td>{{relationship.level}}</td>
       <td>{{relationship.terminology}}</td>
       <td>{{relationship.lastModifiedBy}}</td>
@@ -66,14 +70,21 @@
     </tr>
   </tbody>
 </table>
-<span style="float: right;">
-  <input type="checkbox" ng-model="preferredOnly" ng-click="getPagedRelationships()"
-            title="Show preferred only">
-  <span>Show preferred only</span>
-  <button ng-click="transferConceptToEditor()"
-    ng-disabled="!selected.relationship" title="Transfer concept to editor"
-    class="btn btn-xs btn-primary">Transfer</button>
-  <button ng-click="openMergeModal()" ng-disabled="!selected.relationship"
-    title="Merge" class="btn btn-xs btn-primary">Merge</button>
 
-</span>
+<!-- Controls in floating footer -->
+<nav style="background-color: #ffffff"
+  class="hidden-xs navbar navbar-default navbar-fixed-bottom">
+  <div class="container-fluid">
+
+    <span style="float: right;">
+      <input type="checkbox" ng-model="preferredOnly"
+        ng-click="getPagedRelationships()" title="Show preferred only">
+      <span>Show preferred only</span>
+      <button ng-click="transferConceptToEditor()"
+        ng-disabled="!selected.relationship" title="Transfer concept to editor"
+        class="btn btn-xs btn-primary">Transfer</button>
+      <button ng-click="openMergeModal()" ng-disabled="!selected.relationship"
+        title="Merge" class="btn btn-xs btn-primary">Merge</button>
+    </span>
+  </div>
+</nav>

@@ -1,6 +1,6 @@
 <div ng-if="selected.component">
   <!-- Title -->
-  <h3 style="font-size: 20px;">
+  <h4 style="font-size: 20px;">
     {{selected.component.terminologyId}} {{selected.component.name}}
     <span class="label label-warning"
       ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
@@ -16,7 +16,7 @@
     <span style="padding-bottom: 2px;"
       ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.fullyDefined"
       class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
-  </h3>
+  </h4>
   <!-- Buttons for suppressible/obsolete -->
   <!--  NOTE: descriptionLogicTerminologies ALWAYS show obsolete/suppressible
   but the button does not appear -->

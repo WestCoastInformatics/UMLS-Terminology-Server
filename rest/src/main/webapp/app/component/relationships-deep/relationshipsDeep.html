@@ -2,34 +2,47 @@
 <!-- Relationships -->
 <div
   ng-show="metadata.terminology.metathesaurus && component.terminology === metadata.terminology.terminology && (pagedData.totalCount > 0 || paging.filter)">
-  <h4>Deep {{metadata.relationshipsLabel}}
-    ({{pagedData.totalCount}})&nbsp;&nbsp;</h4>
-  <div pager paging="paging" count="pagedData.totalCount"
-    callbacks="pageCallbacks"></div>
-  <ul class="icon-list">
-    <li class="cr-list" ng-repeat="item in pagedData.data"><span
-        ng-show="item.group > 0">
-        <span class="label label-success"
-          uib-tooltip="Relationship group {{item.group}}">{{item.group}}</span>
-        &nbsp;
-      </span> <span class="label label-warning" ng-show="item.suppressible"
-        uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
-      <span class="label label-default" ng-show="item.obsolete"
-        uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
-      <span class="label label-info"
-        uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType,metadata)}}">{{item.relationshipType}}</span>
-      {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
-        class="hidden-xs">
-        <a ng-class="{'nolink' : !callbacks.getComponent}"
-          ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
-          uib-tooltip="{{component.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
-        {{item.toName}} [{{item.terminology}}]
-      </span> <span class="visible-xs-inline">
-        <a ng-class="{'nolink' : !callbacks.getComponent}"
-          ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
-          uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}
-          [{{item.terminology}}]</a>
-      </span> &nbsp;</li>
-  </ul>
+  <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
+    ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <h5>Deep {{metadata.relationshipsLabel}}
+    ({{pagedData.totalCount}})&nbsp;&nbsp;</h5>
+  <div ng-show="showing">
+    <span ng-show="pagedData.totalCount > 10" style="float: right;">
+      Page size: <select ng-model="paging.pageSize" title="Page Size"
+        ng-change="getPagedList()">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </span>
+    <div pager paging="paging" count="pagedData.totalCount"
+      callbacks="pageCallbacks"></div>
+    <ul class="icon-list">
+      <li class="cr-list" ng-repeat="item in pagedData.data"><span
+          ng-show="item.group > 0">
+          <span class="label label-success"
+            uib-tooltip="Relationship group {{item.group}}">{{item.group}}</span>
+          &nbsp;
+        </span> <span class="label label-warning" ng-show="item.suppressible"
+          uib-tooltip="{{metadata.suppressibleLabel}}">{{metadata.suppressibleIndicator}}</span>
+        <span class="label label-default" ng-show="item.obsolete"
+          uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
+        <span class="label label-info"
+          uib-tooltip="{{callbacks.getRelationshipTypeName(item.relationshipType,metadata)}}">{{item.relationshipType}}</span>
+        {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
+          class="hidden-xs">
+          <a ng-class="{'nolink' : !callbacks.getComponent}"
+            ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            uib-tooltip="{{component.terminology}} {{component.type | lowercase}}">{{item.toTerminologyId}}</a>
+          {{item.toName}} [{{item.terminology}}]
+        </span> <span class="visible-xs-inline">
+          <a ng-class="{'nolink' : !callbacks.getComponent}"
+            ng-click="callbacks.getComponent(item.toId, metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}
+            [{{item.terminology}}]</a>
+        </span> &nbsp;</li>
+    </ul>
+  </div>
 </div>
-<!-- end Relationships -->
+<!-- end deep Relationships -->

@@ -1,13 +1,29 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.apache.lucene.search.Query;
+import org.hibernate.search.SearchFactory;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
+import org.hibernate.search.jpa.Search;
 
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
+import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
@@ -21,6 +37,9 @@ import com.wci.umls.server.services.UmlsIdentityService;
  */
 public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     implements UmlsIdentityService {
+
+  /** The max ids. */
+  private static Map<String, Long> maxIds = new HashMap<>();
 
   /**
    * Instantiates an empty {@link UmlsIdentityServiceJpa}.
@@ -246,16 +265,24 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - get next atom id");
 
     Long atomId = 0L;
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
-      Long atomId2 = (Long) query.getSingleResult();
-      atomId = atomId2 != null ? atomId2 : atomId;
-    } catch (NoResultException e) {
-      atomId = 0L;
+    // If this is the first time this is called, lookup max ID from the database
+    if (maxIds.get("AUI") == null) {
+      try {
+        final javax.persistence.Query query =
+            manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
+        Long atomId2 = (Long) query.getSingleResult();
+        atomId = atomId2 != null ? atomId2 : atomId;
+      } catch (NoResultException e) {
+        atomId = 0L;
+      }
+      // Set the max lexical class Id
+      maxIds.put("AUI", atomId);
+      Logger.getLogger(getClass()).info("Initializing max AUI = " + atomId);
     }
-    // Return the max
-    return atomId + 1;
+    final Long result = maxIds.get("AUI") + 1;
+    maxIds.put("AUI", result);
+
+    return result;
   }
 
   /* see superclass */
@@ -264,28 +291,93 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get atom identity " + identity);
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from AtomIdentityJpa a "
-              + "where stringClassId = :stringClassId "
-              + "and terminology = :terminology "
-              + "and terminologyId = :terminologyId "
-              + "and termType = :termType " + "and codeId = :codeId "
-              + "and conceptId = :conceptId "
-              + "and descriptorId = :descriptorId ");
-      query.setParameter("stringClassId", identity.getStringClassId());
-      query.setParameter("terminology", identity.getTerminology());
-      query.setParameter("terminologyId", identity.getTerminologyId());
-      query.setParameter("termType", identity.getTermType());
-      query.setParameter("codeId", identity.getCodeId());
-      query.setParameter("conceptId", identity.getConceptId());
-      query.setParameter("descriptorId", identity.getDescriptorId());
+    // TODO - list of string clauses. For all the things!
+    // if (!identity.stringClassId().isEmpty()){
+    // "stringClassId:" + identity.getStringClassId()
+    // } else{
+    // "NOT stringClassId:[* TO *]"
+    // }
+    // COnfigUtility.composeQuery('AND', clauses).
 
-      return (AtomIdentity) query.getSingleResult();
+    // TODO again - do same for StringClassIdentity and LexicalClassIdentities
 
-    } catch (NoResultException e) {
+    final List<String> clauses = new ArrayList<>();
+
+    if (!ConfigUtility.isEmpty(identity.getStringClassId())) {
+      clauses.add("stringClassId:" + identity.getStringClassId());
+    } else {
+      clauses.add("NOT stringClassId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminology())) {
+      clauses.add("terminology:" + identity.getTerminology());
+    } else {
+      clauses.add("NOT terminology:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminology())) {
+      clauses.add("terminology:" + identity.getTerminology());
+    } else {
+      clauses.add("NOT terminology:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminologyId())) {
+      clauses.add("terminologyId:" + identity.getTerminologyId());
+    } else {
+      clauses.add("NOT terminologyId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTermType())) {
+      clauses.add("termType:" + identity.getTermType());
+    } else {
+      clauses.add("NOT termType:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getCodeId())) {
+      clauses.add("codeId:" + identity.getCodeId());
+    } else {
+      clauses.add("NOT codeId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getConceptId())) {
+      clauses.add("conceptId:" + identity.getConceptId());
+    } else {
+      clauses.add("NOT conceptId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getDescriptorId())) {
+      clauses.add("descriptorId:" + identity.getDescriptorId());
+    } else {
+      clauses.add("NOT descriptorId:[* TO *]");
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    Long id = getIdentityId(identity.getClass(), fullQuery);
+
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
+
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
+    // TODO - remove below if above works
+    // try {
+    // final javax.persistence.Query query =
+    // manager.createQuery("select a from AtomIdentityJpa a "
+    // + "where stringClassId = :stringClassId "
+    // + "and terminology = :terminology "
+    // + "and terminologyId = :terminologyId "
+    // + "and termType = :termType " + "and codeId = :codeId "
+    // + "and conceptId = :conceptId "
+    // + "and descriptorId = :descriptorId ");
+    // query.setParameter("stringClassId", identity.getStringClassId());
+    // query.setParameter("terminology", identity.getTerminology());
+    // query.setParameter("terminologyId", identity.getTerminologyId());
+    // query.setParameter("termType", identity.getTermType());
+    // query.setParameter("codeId", identity.getCodeId());
+    // query.setParameter("conceptId", identity.getConceptId());
+    // query.setParameter("descriptorId", identity.getDescriptorId());
+    //
+    // return (AtomIdentity) query.getSingleResult();
+    //
+    // } catch (NoResultException e) {
+    // return null;
+    // }
   }
 
   /* see superclass */
@@ -322,6 +414,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   public StringClassIdentity getStringClassIdentity(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get string identity " + id);
+
     return getObject(id, StringClassIdentity.class);
   }
 
@@ -332,16 +425,25 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - get next string id");
 
     Long stringId = 0L;
-    try {
-      final javax.persistence.Query query = manager
-          .createQuery("select max(a.id) from StringClassIdentityJpa a ");
-      Long stringId2 = (Long) query.getSingleResult();
-      stringId = stringId2 != null ? stringId2 : stringId;
-    } catch (NoResultException e) {
-      stringId = 0L;
+
+    // If this is the first time this is called, lookup max ID from the database
+    if (maxIds.get("SUI") == null) {
+      try {
+        final javax.persistence.Query query = manager
+            .createQuery("select max(a.id) from StringClassIdentityJpa a ");
+        Long stringId2 = (Long) query.getSingleResult();
+        stringId = stringId2 != null ? stringId2 : stringId;
+      } catch (NoResultException e) {
+        stringId = 0L;
+      }
+      // Set the max string class Id
+      maxIds.put("SUI", stringId);
+      Logger.getLogger(getClass()).info("Initializing max SUI = " + stringId);
     }
-    // Return the max
-    return stringId + 1;
+    final Long result = maxIds.get("SUI") + 1;
+    maxIds.put("SUI", result);
+
+    return result;
   }
 
   /* see superclass */
@@ -351,18 +453,33 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get string identity " + identity);
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from StringClassIdentityJpa a "
-              + "where name = :name " + "and language = :language");
-      query.setParameter("name", identity.getName());
-      query.setParameter("language", identity.getLanguage());
+    Long id = getIdentityId(identity.getClass(),
+        "language:" + identity.getLanguage() + " AND name:\""
+            + QueryParserBase.escape(identity.getName()) + "\"");
 
-      return (StringClassIdentity) query.getSingleResult();
-
-    } catch (NoResultException e) {
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
+
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
+
+    // TODO - remove below if above works
+
+    // try {
+    // final javax.persistence.Query query =
+    // manager.createQuery("select a from StringClassIdentityJpa a "
+    // + "where name = :name " + "and language = :language");
+    // query.setParameter("name", identity.getName());
+    // query.setParameter("language", identity.getLanguage());
+    //
+    // return (StringClassIdentity) query.getSingleResult();
+    //
+    // } catch (NoResultException e) {
+    // return null;
+    // }
   }
 
   /* see superclass */
@@ -414,18 +531,26 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next lexicalClass id");
 
-    Long lexicalClassId = 0L;
-    try {
-      final javax.persistence.Query query = manager
-          .createQuery("select max(a.id) from LexicalClassIdentityJpa a ");
-      Long lexicalClassId2 = (Long) query.getSingleResult();
-      lexicalClassId =
-          lexicalClassId2 != null ? lexicalClassId2 : lexicalClassId;
-    } catch (NoResultException e) {
-      lexicalClassId = 0L;
+    Long lexicalId = 0L;
+
+    // If this is the first time this is called, lookup max ID from the database
+    if (maxIds.get("LUI") == null) {
+      try {
+        final javax.persistence.Query query = manager
+            .createQuery("select max(a.id) from LexicalClassIdentityJpa a ");
+        Long lexicalId2 = (Long) query.getSingleResult();
+        lexicalId = lexicalId2 != null ? lexicalId2 : lexicalId;
+      } catch (NoResultException e) {
+        lexicalId = 0L;
+      }
+      // Set the max lexical class Id
+      maxIds.put("LUI", lexicalId);
+      Logger.getLogger(getClass()).info("Initializing max LUI = " + lexicalId);
     }
-    // Return the max
-    return lexicalClassId + 1;
+    final Long result = maxIds.get("LUI") + 1;
+    maxIds.put("LUI", result);
+
+    return result;
   }
 
   /* see superclass */
@@ -435,17 +560,32 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get lexicalClass identity " + identity);
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a from LexicalClassIdentityJpa a "
-              + "where normalizedName = :normalizedName ");
-      query.setParameter("normalizedName", identity.getNormalizedName());
+    Long id = getIdentityId(identity.getClass(),
+        "language:" + identity.getLanguage() + " AND normalizedName:\""
+            + QueryParserBase.escape(identity.getNormalizedName()) + "\"");
 
-      return (LexicalClassIdentity) query.getSingleResult();
-
-    } catch (NoResultException e) {
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
+
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
+
+    // TODO - remove below if above works
+
+    // try {
+    // final javax.persistence.Query query =
+    // manager.createQuery("select a from LexicalClassIdentityJpa a "
+    // + "where normalizedName = :normalizedName ");
+    // query.setParameter("normalizedName", identity.getNormalizedName());
+    //
+    // return (LexicalClassIdentity) query.getSingleResult();
+    //
+    // } catch (NoResultException e) {
+    // return null;
+    // }
   }
 
   /* see superclass */
@@ -617,6 +757,47 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     RelationshipIdentity identity =
         getRelationshipIdentity(relationshipIdentityId);
     removeObject(identity);
+  }
+
+  /**
+   * Returns the identity id.
+   *
+   * @param objectClass the object class
+   * @param query the query
+   * @return the identity id
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public Long getIdentityId(Class<? extends HasId> objectClass, String query)
+    throws Exception {
+
+    // Set up the "full text query"
+    final FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    final SearchFactory searchFactory =
+        fullTextEntityManager.getSearchFactory();
+    final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
+        .getIndexedFieldNames(objectClass, true).toArray(new String[] {}),
+        searchFactory.getAnalyzer(objectClass));
+    final Query luceneQuery = queryParser.parse(query);
+    final FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(luceneQuery, objectClass);
+
+    //Logger.getLogger(UmlsIdentityServiceJpa.class)
+    //.info(" lucene Class: " + objectClass.getSimpleName() + ", query = " + fullTextQuery);
+    
+    // then use a projection
+    fullTextQuery.setProjection("id");
+    final List<Object[]> results = fullTextQuery.getResultList();
+    if (results.isEmpty()) {
+      return null;
+    }
+    if (results.size() > 1) {
+      throw new Exception("Error: returned more than one id " + results);
+    }
+
+    final Long id = Long.valueOf(results.get(0)[0].toString());
+    return id;
   }
 
 }

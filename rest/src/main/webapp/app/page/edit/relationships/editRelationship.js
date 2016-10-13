@@ -4,14 +4,15 @@ tsApp.controller('EditRelationshipModalCtrl', [
   '$uibModalInstance',
   '$uibModal',
   'utilService',
-  'metaEditingService',
+  'metadataService',
   'contentService',
+  'metaEditingService',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, $uibModal, utilService, metaEditingService, contentService, 
-    selected, lists, user, action) {
+  function($scope, $uibModalInstance, $uibModal, utilService, metadataService, contentService,
+    metaEditingService, selected, lists, user, action) {
     console.debug('Entered edit relationship modal control', lists, action);
 
     // Scope vars
@@ -24,7 +25,7 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.toConcept = null;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
-    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ'];
+    $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ' ];
     $scope.acceptedRelationshipTypes = [ {
       'key' : '',
       'value' : 'XR (none)'
@@ -35,6 +36,13 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
     $scope.defaultOrder = true;
+
+    // Callbacks for finder
+    $scope.callbacks = {
+      addComponent : addFinderComponent
+    };
+    utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
+    utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
     // Init modal
     function initialize() {
@@ -70,19 +78,18 @@ tsApp.controller('EditRelationshipModalCtrl', [
       }
 
       // compute accepted relationship types
-      if(!$scope.selected.component.publishable) {
+      if (!$scope.selected.component.publishable) {
         $scope.acceptedRelationshipTypeStrings.push('BRO');
         $scope.acceptedRelationshipTypeStrings.push('BRN');
         $scope.acceptedRelationshipTypeStrings.push('BBT');
-      }      
+      }
       for (var i = 0; i < $scope.selected.metadata.relationshipTypes.length; i++) {
         if ($scope.acceptedRelationshipTypeStrings
           .includes($scope.selected.metadata.relationshipTypes[i].key)) {
           $scope.acceptedRelationshipTypes.push($scope.selected.metadata.relationshipTypes[i]);
         }
       }
-      
-     
+
     }
 
     // Perform insert rel
@@ -147,56 +154,32 @@ tsApp.controller('EditRelationshipModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
+    // Add finder component
+    function addFinderComponent(data) {
+      // return if concept is already on concept list
+      for (var i = 0; i < $scope.lists.concepts.length; i++) {
+        if ($scope.lists.concepts[i].id == data.id) {
+          return;
+        }
+      }
+      // If full concept, simply push
+      if (data.atoms && data.atoms.length > 0) {
+        $scope.toConcepts.push(data);
+        $scope.selectToConcept(data);
+        return;
+      }
+
+      // get full concept
+      contentService.getConcept(data.id, $scope.selected.project.id).then(
+      // Success
+      function(data) {
+        // $scope.lists.concepts.push(data);
+        $scope.toConcepts.push(data);
+      });
+    }
+
     // initialize modal
     initialize();
 
-    
-    //
-    // MODALS
-    //
-    // Add concept modal
-    $scope.openFinderModal = function() {
-      console.debug('openFinderModal ');
-      var modalInstance = $uibModal.open({
-        templateUrl : 'app/component/finder/finder.html',
-        controller : 'FinderModalCtrl',
-        backdrop: 'static',
-        size : 'lg',
-        resolve : {
-          selected : function() {
-            return $scope.selected;
-          },
-          lists : function() {
-            return $scope.lists;
-          },
-          user : function() {
-            return $scope.user;
-          },
-          type : function() {
-            return 'Concept';
-          }
-        }
-      });
-
-      modalInstance.result.then(
-      // Success
-      function(data) {
-        // return if concept is already on concept list
-        for (var i = 0; i < $scope.lists.concepts.length; i++) {
-          if ($scope.lists.concepts[i].id == data.id) {
-            window.alert('Concept ' + data.id + ' is already on the concept list.');
-            return;
-          }
-        }
-        // get full concept
-        contentService.getConcept(data.id, $scope.selected.project.id).then(
-        // Success
-        function(data) {
-          //$scope.lists.concepts.push(data);
-          $scope.toConcepts.push(data);
-        });
-      });
-
-    };
     // end
   } ]);

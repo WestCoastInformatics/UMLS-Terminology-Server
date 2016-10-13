@@ -20,6 +20,9 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
         }), scope.paging);
       }
 
+      // indicator of showing
+      scope.showing = false;
+
       // instantiate paging and paging callbacks function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();

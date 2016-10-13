@@ -12,7 +12,7 @@
 
     <div pager paging="paging" count="pagedData.totalCount"
       callbacks="pageCallbacks"></div>
-    <table ng-show="pagedData.data.length > 0" class="table table-hover">
+    <table ng-show="pagedData.data.length > 0" class="slim table table-hover">
       <tbody>
         <tr ng-repeat="note in pagedData.data"
           ng-mouseenter="note.hover = true;" ng-mouseleave="note.hover = false;">

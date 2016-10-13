@@ -275,9 +275,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    List<ProcessConfigJpa> processConfigs = searchHandler.getQueryResults(null,
-        null, Branch.ROOT, fullQuery, null, ProcessConfigJpa.class,
-        ProcessConfigJpa.class, pfs, totalCt, manager);
+    List<ProcessConfigJpa> processConfigs =
+        searchHandler.getQueryResults(null, null, Branch.ROOT, fullQuery, null,
+            ProcessConfigJpa.class, pfs, totalCt, manager);
 
     for (final ProcessConfig pc : processConfigs) {
       handleLazyInit(pc);
@@ -358,9 +358,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
-    List<ProcessExecutionJpa> processExecutions = searchHandler.getQueryResults(
-        null, null, Branch.ROOT, fullQuery, null, ProcessExecutionJpa.class,
-        ProcessExecutionJpa.class, pfs, totalCt, manager);
+    List<ProcessExecutionJpa> processExecutions =
+        searchHandler.getQueryResults(null, null, Branch.ROOT, fullQuery, null,
+            ProcessExecutionJpa.class, pfs, totalCt, manager);
 
     for (final ProcessExecution pe : processExecutions) {
       handleLazyInit(pe);

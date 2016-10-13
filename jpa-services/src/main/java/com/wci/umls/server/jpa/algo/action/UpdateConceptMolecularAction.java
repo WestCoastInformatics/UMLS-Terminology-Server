@@ -13,12 +13,6 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class UpdateConceptMolecularAction extends AbstractMolecularAction {
 
-  /** The concept pre updates. */
-  private Concept conceptPreUpdates;
-
-  /** The concept post updates. */
-  private Concept conceptPostUpdates;
-
   /** The workflow status. */
   private WorkflowStatus workflowStatus;
 
@@ -33,24 +27,6 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
   public UpdateConceptMolecularAction() throws Exception {
     super();
     // n/a
-  }
-
-  /**
-   * Returns the concept pre updates.
-   *
-   * @return the concept pre updates
-   */
-  public Concept getConceptPreUpdates() {
-    return conceptPreUpdates;
-  }
-
-  /**
-   * Returns the concept post updates.
-   *
-   * @return the concept post updates
-   */
-  public Concept getConceptPostUpdates() {
-    return conceptPostUpdates;
   }
 
   /**
@@ -95,10 +71,6 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    // Make copy of the Concept before changes, to pass into
-    // change event
-    conceptPreUpdates = new ConceptJpa(getConcept(), false);
-
     // Make a copy of the concept
     Concept updateConcept = new ConceptJpa(getConcept(), true);
 
@@ -113,20 +85,17 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(updateConcept);
 
-    // Make copy of the Concept after changes, to pass into
-    // change event
-    conceptPostUpdates = new ConceptJpa(getConcept(), false);
-
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + getConcept());
 
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
-    
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + ", " + getConcept().isPublishable()
+            + ", " + getConcept().isSuppressible() + ", "
+            + getConcept().getWorkflowStatus());
   }
 
 }

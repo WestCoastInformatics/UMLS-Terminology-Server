@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.algo.action;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -138,18 +139,20 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
             + getConcept2().getId() + " " + relationship);
-    addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept2().getId(),
-        getActivityId(), getWorkId(), getName() + " from concept "
-            + getConcept().getId() + " " + relationship);
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getConcept2().getId(), getActivityId(), getWorkId(), getName()
+            + " from concept " + getConcept().getId() + " " + relationship);
 
-    
+    // Log for the molecular action report
+    final Concept concept = getConcept(relationship.getFrom().getId());
+    final Concept concept2 = getConcept(relationship.getTo().getId());
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        (getConcept2() != null ? "\n  concept2 = " + getConcept2().getId() + " " + getConcept2().getName() : "") +
-        "\n  relationship id = " + getRelationshipId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept (from) = " + concept.getId()
+            + " " + concept.getName() + "\n  concept2 (to) = "
+            + concept2.getId() + " " + concept2.getName()
+            + "\n  relationship = " + relationship.getRelationshipType() + ", "
+            + relationship.getAdditionalRelationshipType());
   }
 
 }

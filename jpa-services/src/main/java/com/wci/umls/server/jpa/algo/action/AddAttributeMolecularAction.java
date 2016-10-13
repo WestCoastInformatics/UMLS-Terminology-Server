@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
-import java.util.Properties;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -109,20 +107,13 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(),
         getName() + " to concept " + getConcept().getId() + " " + attribute);
-    
+
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  attribute id = " + getAttribute().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  attribute = "
+            + getAttribute().getName() + ", " + attribute.getValue());
   }
 
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
-
-  }
-
-  
 }

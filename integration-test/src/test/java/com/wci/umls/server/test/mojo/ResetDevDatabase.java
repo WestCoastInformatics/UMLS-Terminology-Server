@@ -77,7 +77,7 @@ public class ResetDevDatabase {
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     if (System.getProperty("input.dir") != null) {
-      p.setProperty("input.dir", "your path");
+      p.setProperty("input.dir", System.getProperty("input.dir"));
     }
     request.setProperties(p);
     request.setDebug(false);

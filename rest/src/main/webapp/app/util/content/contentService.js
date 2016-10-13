@@ -319,7 +319,7 @@ tsApp
         };
 
         // Helper function for determining if an atom has content
-        this.atomHasContent = function(atom)  {
+        this.atomHasContent = function(atom) {
           if (!atom)
             return false;
           if (atom.attributes.length > 0)
@@ -681,8 +681,8 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findDeepRelationships = function(component, 
-          inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential, paging) {
+        this.findDeepRelationships = function(component, inverseFlag, includeConceptRels,
+          preferredOnly, includeSelfReferential, paging) {
 
           var deferred = $q.defer();
 
@@ -704,11 +704,11 @@ tsApp
               queryRestriction : null
             };
           }
-          
+
           if (!paging.showSuppressible) {
             pfs.queryRestriction = "suppressible:false";
           }
-          
+
           // set filter/query; unlike relationships, does not require * for
           // filtering
           var query = paging.text;
@@ -717,24 +717,33 @@ tsApp
           // concept load
           // i.e. retrieve concept, THEN get deep relationships
           // gpService.increment();
-          $http.post(
-            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
-              + component.version + "/" + component.terminologyId + "/relationships/deep?query="
-              + encodeURIComponent(utilService.cleanQuery(query))
-              + (inverseFlag != null && inverseFlag != '' ? '&inverseFlag='
-                + inverseFlag : '')
-              + (includeConceptRels != null && includeConceptRels != '' ? '&includeConceptRels='
-                + includeConceptRels : '')
-              + (preferredOnly != null && preferredOnly != '' ? '&preferredOnly='
-                + preferredOnly : '')
-              + (includeSelfReferential != null && includeSelfReferential != '' ? '&includeSelfReferential='
-                + includeSelfReferential : ''), pfs).then(function(response) {
-            deferred.resolve(response.data);
-          }, function(response) {
-            utilService.handleError(response);
-            // gpService.decrement();
-            deferred.reject(response.data);
-          });
+          $http
+            .post(
+              contentUrl
+                + '/'
+                + component.type.toLowerCase()
+                + "/"
+                + component.terminology
+                + "/"
+                + component.version
+                + "/"
+                + component.terminologyId
+                + "/relationships/deep?query="
+                + encodeURIComponent(utilService.cleanQuery(query))
+                + (inverseFlag != null && inverseFlag != '' ? '&inverseFlag=' + inverseFlag : '')
+                + (includeConceptRels != null && includeConceptRels != '' ? '&includeConceptRels='
+                  + includeConceptRels : '')
+                + (preferredOnly != null && preferredOnly != '' ? '&preferredOnly=' + preferredOnly
+                  : '')
+                + (includeSelfReferential != null && includeSelfReferential != '' ? '&includeSelfReferential='
+                  + includeSelfReferential
+                  : ''), pfs).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              // gpService.decrement();
+              deferred.reject(response.data);
+            });
 
           return deferred.promise;
         };
@@ -914,7 +923,10 @@ tsApp
 
         // function for getting concept
         this.getConcept = function(conceptId, projectId) {
-          return this.getComponent({id:conceptId, type:'CONCEPT'}, projectId);
+          return this.getComponent({
+            id : conceptId,
+            type : 'CONCEPT'
+          }, projectId);
         };
 
         // Find mappings
@@ -954,7 +966,7 @@ tsApp
             + '/' + component.version + '/' + component.terminologyId;
           var title = 'Component-' + component.terminology + '/' + component.version + ', '
             + component.terminologyId;
-          var newWindow = $window.open(newUrl, title, 'width=500, height=600');
+          var newWindow = $window.open(newUrl, title, 'width=500,height=600,scrollbars=yes');
           newWindow.document.title = title;
           newWindow.focus();
 

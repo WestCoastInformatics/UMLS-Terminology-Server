@@ -229,4 +229,3 @@ tsApp.directive('notes', [ function() {
 
   };
 } ]);
-;

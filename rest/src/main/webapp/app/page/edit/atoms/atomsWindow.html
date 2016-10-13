@@ -1,21 +1,25 @@
 
 <h4>
-  <b>Atoms Editor ({{selected.component.atoms.length}})</b>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Atoms
+    ({{selected.component.atoms.length}})</b>
+  <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">
+    {{selected.component.name}} {{selected.component.id}} </span>
 </h4>
-<h4 class="{{selected.component.workflowStatus}}">{{selected.component.name}}
-  {{selected.component.id}}</h4>
 <span ng-show="pagedAtoms.totalCount > 10" style="float: right;">
-          <button ng-show="paging['atoms'].pageSize == 10" ng-click="paging['atoms'].pageSize = 100000; getPagedAtoms()" title="Show all atoms"
-            class="btn btn-xs btn-primary">Show All</button>
-          <button ng-show="paging['atoms'].pageSize == 100000" ng-click="paging['atoms'].pageSize = 10; getPagedAtoms()" title="Show paged atoms"
-            class="btn btn-xs btn-primary">Show Paged</button>
+  Page size: <select ng-model="paging['atoms'].pageSize" title="Page Size"
+    ng-change="paging['atoms'].callbacks.getPagedList()">
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="1000000">Unlimited</option>
+  </select>
 </span>
-
 <div pager paging="paging['atoms']" count="selected.component.atoms.length"
   callbacks="paging['atoms'].callbacks"></div>
 
-
-<table class="table pointer">
+<table class="slim table pointer">
   <thead>
     <tr>
       <th class="col-md-4 col-xs-4"><span
@@ -23,7 +27,7 @@
           ng-bind="getSortIndicator('atoms','name')"></span></th>
       <th class="col-md-2 col-xs-2"><span
           ng-click="setSortField('atoms','termType,terminology')">Termgroup</span>
-        <span ng-bind="getSortIndicator('atoms','terminology,termType')"></span></th>
+        <span ng-bind="getSortIndicator('atoms','termType,terminology')"></span></th>
       <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('atoms','codeId')">Code</span> <span
           ng-bind="getSortIndicator('atoms','codeId')"></span></th>
@@ -43,10 +47,12 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="atom in pagedAtoms.data" ng-class="{selected: isRowSelected(atom)}">
-      <td ng-click="toggleSelection(atom)"><input type="checkbox"  value="{{atom.name}}"
-        ng-checked="isRowSelected(atom)"
-        >&nbsp;{{atom.name}}</td>
+    <tr ng-repeat="atom in pagedAtoms.data"
+      ng-class="{selected: isRowSelected(atom)}">
+      <td ng-click="toggleSelection(atom)">
+        <input type="checkbox" value="{{atom.name}}"
+          ng-checked="isRowSelected(atom)">&nbsp;{{atom.name}}
+      </td>
       <td ng-click="toggleSelection(atom)">{{atom.terminology}}/{{atom.termType}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.codeId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.conceptId}}</td>
@@ -66,20 +72,30 @@
   </tbody>
 </table>
 
-<span style="float: left;">
-  <button 
-    ng-click="setSortField('atoms', null)" title="Sort by atom precedence" class="btn btn-xs btn-primary">Sort preferred</button>
-</span>
-<span style="float: right;">
-  <button 
-    ng-click="approveConcept()" title="Approve" class="btn btn-xs btn-primary">Approve</button>
-  <button ng-click="next()" title="Next" class="btn btn-xs btn-primary">Next</button>
-  <button 
-    ng-click="approveNext()" title="Approve/Next" class="btn btn-xs btn-primary">Approve/Next</button>
-  <button ng-click="openMergeModal()" ng-disabled="getSelectedAtomCount() == 0"
-    title="Merge" class="btn btn-xs btn-primary">Merge</button>
-  <button ng-click="openMoveModal()" ng-disabled="getSelectedAtomCount() == 0"
-    title="Move" class="btn btn-xs btn-primary">Move</button>
-  <button ng-click="openSplitModal()" ng-disabled="getSelectedAtomCount() == 0"
-    title="Split" class="btn btn-xs btn-primary">Split</button>
-</span>
+
+<!-- Controls in floating footer -->
+<nav style="background-color: #ffffff"
+  class="hidden-xs navbar navbar-default navbar-fixed-bottom">
+  <div class="container-fluid">
+    <span ng-show="paging['atoms'].sortField" style="float: left;">
+      <button ng-click="setSortPreferred()" title="Sort by atom precedence"
+        class="btn btn-xs btn-primary">Sort preferred</button>
+    </span>
+    <span style="float: right;">
+      <button ng-click="approveConcept()" title="Approve"
+        class="btn btn-xs btn-primary">Approve</button>
+      <button ng-click="next()" title="Next" class="btn btn-xs btn-primary">Next</button>
+      <button ng-click="approveNext()" title="Approve/Next"
+        class="btn btn-xs btn-primary">Approve/Next</button>
+      <button ng-click="openMergeModal()"
+        ng-disabled="getSelectedAtomCount() == 0" title="Merge"
+        class="btn btn-xs btn-primary">Merge</button>
+      <button ng-click="openMoveModal()"
+        ng-disabled="getSelectedAtomCount() == 0" title="Move"
+        class="btn btn-xs btn-primary">Move</button>
+      <button ng-click="openSplitModal()"
+        ng-disabled="getSelectedAtomCount() == 0" title="Split"
+        class="btn btn-xs btn-primary">Split</button>
+    </span>
+  </div>
+</nav>

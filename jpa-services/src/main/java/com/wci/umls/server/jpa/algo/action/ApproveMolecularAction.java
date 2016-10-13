@@ -240,14 +240,16 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(getConcept());
 
-    // Make copy of the Concept after changes, to pass into
-    // change event
-    conceptPostUpdates = new ConceptJpa(getConcept(), false);
-
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " concept "
             + getConcept().getId() + " " + getConcept().getName());
+
+    // Log for the molecular action report
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName());
 
   }
 

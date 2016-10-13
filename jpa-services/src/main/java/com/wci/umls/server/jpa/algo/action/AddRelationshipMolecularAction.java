@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -105,10 +107,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
+    Logger.getLogger(getClass()).info("Add Rel");
+    Logger.getLogger(getClass()).info("  rel = " + relationship);
     // construct inverse relationship
     final ConceptRelationshipJpa inverseRelationship =
         (ConceptRelationshipJpa) createInverseConceptRelationship(relationship);
+    Logger.getLogger(getClass()).info("  inverse rel = " + inverseRelationship);
 
     // XR (not related) relationships need to be set to not-released
     if (relationship.getRelationshipType().equals("XR")) {
@@ -118,18 +122,13 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       inverseRelationship.setPublishable(false);
     }
 
-    // Assign alternateTerminologyId
-    // final IdentifierAssignmentHandler handler = contentService
-    // .getIdentifierAssignmentHandler(concept.getTerminology());
+    Logger.getLogger(getClass()).info("  concept1 = " + getConcept());
+    Logger.getLogger(getClass()).info("    atoms = " + getConcept().getAtoms());
+    Logger.getLogger(getClass()).info("  concept2 = " + getConcept2());
+    Logger.getLogger(getClass())
+        .info("    atoms = " + getConcept2().getAtoms());
 
-    // final String altId = handler.getTerminologyId(relationship);
-    // relationship.getAlternateTerminologyIds().put(concept.getTerminology(),
-    // altId);
-
-    // final String inverseAltId =
-    // handler.getTerminologyId(inverseRelationship);
-    // inverseRelationship.getAlternateTerminologyIds()
-    // .put(concept.getTerminology(), inverseAltId);
+    // Assign RUI at production time
 
     // Change status of the relationships
     if (getChangeStatusFlag()) {
@@ -140,7 +139,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // If any matching relationship, remove it and its inverse (new
     // relationships will replace them)
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
-      if (rel.getTo().getId() == relationship.getTo().getId()) {
+      if (rel.getTo().getId().equals(relationship.getTo().getId())) {
+        Logger.getLogger(getClass()).info("  remove matching C rel = " + rel);
+
         // Remove the relationship from the concepts
         getConcept().getRelationships().remove(rel);
         getConcept2().getRelationships().remove(findInverseRelationship(rel));
@@ -167,10 +168,10 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     }
 
     // Look through atoms for demotion relationships, and remove them.
-    AtomRelationship demotion =
-        findDemotionMatchingRelationship(relationship);
+    AtomRelationship demotion = findDemotionMatchingRelationship(relationship);
 
     if (demotion != null) {
+      Logger.getLogger(getClass()).info("  remove demotion = " + demotion);
       // Remove the demotions from the atoms
       demotion.getFrom().getRelationships().remove(demotion);
       demotion.getTo().getRelationships()
@@ -216,6 +217,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
+    Logger.getLogger(getClass()).info("  done");
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
@@ -224,14 +226,17 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getConcept2().getId(), getActivityId(), getWorkId(), getName()
             + " from concept " + getConcept().getId() + " " + relationship);
-    
+
+    // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        (getConcept2() != null ? "\n  concept2 = " + getConcept2().getId() + " " + getConcept2().getName() : "") +
-        "\n  relationship id = " + getRelationship().getId() +
-        "\n  terminology = " + getTerminology() +
-        "\n  version = " + getVersion());
+        "\nACTION  " + getName() + "\n  concept (from) = "
+            + getConcept().getId() + " " + getConcept().getName()
+            + (getConcept2() != null ? "\n  concept2 (to) = "
+                + getConcept2().getId() + " " + getConcept2().getName() : "")
+            + "\n  relationship id = " + getRelationship().getRelationshipType()
+            + ", " + getRelationship().getAdditionalRelationshipType() + ", "
+            + relationship.getTerminology());
   }
 
 }

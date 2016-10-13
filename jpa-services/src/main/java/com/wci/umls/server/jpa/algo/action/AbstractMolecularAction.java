@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
@@ -119,11 +121,7 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     this.conceptId2 = conceptId2;
   }
 
-  /**
-   * Returns the concept.
-   *
-   * @return the concept
-   */
+  /* see superclass */
   @Override
   public Concept getConcept() {
     return concept;
@@ -133,6 +131,15 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public Concept getConcept2() {
     return concept2;
+  }
+
+  /**
+   * Sets the concept 2.
+   *
+   * @param concept2 the concept 2
+   */
+  public void setConcept2(Concept concept2) {
+    this.concept2 = concept2;
   }
 
   /* see superclass */
@@ -417,11 +424,15 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   public AtomRelationship findDemotionMatchingRelationship(
     ConceptRelationship relationship) throws Exception {
 
-    for (Atom fromAtom : relationship.getFrom().getAtoms()) {
-      for (Atom toAtom : relationship.getTo().getAtoms()) {
-        for (AtomRelationship atomRel : fromAtom.getRelationships()) {
+    for (final Atom fromAtom : relationship.getFrom().getAtoms()) {
+      for (final AtomRelationship atomRel : fromAtom.getRelationships()) {
+        for (final Atom toAtom : relationship.getTo().getAtoms()) {
+          if (atomRel.getTo().getId().equals(toAtom.getId())) {
+            Logger.getLogger(getClass())
+                .info("    candidate demotion = " + atomRel);
+          }
           if (atomRel.getTo().getId().equals(toAtom.getId())
-              && atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+              && atomRel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
             return atomRel;
           }
         }
