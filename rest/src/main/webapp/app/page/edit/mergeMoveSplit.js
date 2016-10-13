@@ -23,8 +23,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
 
     $scope.toConcepts = [];
     $scope.toConcept = null;
-    $scope.copyRelationships = true;
-    $scope.copySemanticTypes = true;
+    $scope.copy = true;
     $scope.overrideWarnings = false;
     $scope.selectedRelationshipType = 'RO';
     $scope.acceptedRelationshipTypeStrings = [ 'RO', 'RB', 'RN', 'RQ', 'XR' ];
@@ -165,7 +164,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       }
 
       metaEditingService.splitConcept($scope.selected.project.id, $scope.selected.activityId,
-        $scope.selected.component, atomsList, $scope.copyRelationships, $scope.copySemanticTypes,
+        $scope.selected.component, atomsList, $scope.copy, $scope.copy,
         $scope.selectedRelationshipType, $scope.overrideWarnings).then(
       // Success
       function(data) {
