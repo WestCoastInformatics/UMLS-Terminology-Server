@@ -139,7 +139,7 @@ tsApp
         }
        
         // Table sorting mechanism
-        $scope.setSortField = function(table, field, object) {
+        $scope.setSortField = function(table, field) {
           utilService.setSortField(table, field, $scope.paging);
           $scope.getPagedAtoms();
         };
@@ -179,37 +179,17 @@ tsApp
 
         }
 
+        // select/deselect atom
         $scope.toggleSelection = function toggleSelection(atom) {
           // is currently selected
           if ($scope.selected.atoms[atom.id]) {
             delete $scope.selected.atoms[atom.id];
           }
-
           // is newly selected
           else {
             $scope.selected.atoms[atom.id] = atom;
           }
         };
-        
-        // selects an atom
-        /*$scope.selectAtom = function(event, atom) {
-
-          if (event.ctrlKey) {
-            selectWithCtrl(atom);
-          } else {
-            $scope.selected.atoms = {};
-            $scope.selected.atoms[atom.id] = atom;
-          }
-        };*/
-
-        // selects or deselects additional atom
-        /*function selectWithCtrl(atom) {
-          if ($scope.selected.atoms[atom.id]) {
-            delete $scope.selected.atoms[atom.id];
-          } else {
-            $scope.selected.atoms[atom.id] = atom;
-          }
-        }*/
 
         // indicates if a particular row is selected
         $scope.isRowSelected = function(atom) {
@@ -219,6 +199,16 @@ tsApp
         // indicates the number of atoms selected
         $scope.getSelectedAtomCount = function() {
           return Object.keys($scope.selected.atoms).length;
+        }
+        
+        // only atoms from allowed termgroups can be deleted
+        $scope.isAtomDeleteable = function(atom) {
+          for (var i = 0; i<$scope.selected.project.newAtomTermgroups.length; i++) {
+            if ((atom.terminology + '/' + atom.termType) == $scope.selected.project.newAtomTermgroups[i]) {
+              return true;
+            }
+          }
+          return false;
         }
 
         //

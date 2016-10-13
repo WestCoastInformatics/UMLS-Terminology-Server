@@ -544,7 +544,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final Set<String> uniqueSet = new HashSet<>();
     final List<TreePosition<?>> treePositionList = new ArrayList<>();
     // collect all unique terminology, version, terminologyId, type combos from
-    // atoms in concept - ATOMS are in order - just pick first 10
+    // atoms in concept - ATOMS are in order 
     int ct = 0;
     for (final Atom atom : comp.getAtoms()) {
 

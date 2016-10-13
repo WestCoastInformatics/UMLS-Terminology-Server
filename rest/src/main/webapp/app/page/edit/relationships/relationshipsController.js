@@ -130,25 +130,29 @@ tsApp
         // indicates the style for an relationship
         $scope.getRelationshipClass = function(relationship) {
 
+          // DEMOTION (blue)
+          if (relationship.workflowStatus == 'DEMOTION')
+            return 'DEMOTION';
+          
           // NEEDS_REVIEW (red)
           if (relationship.workflowStatus == 'NEEDS_REVIEW')
             return 'NEEDS_REVIEW';
-
+            
           // UNRELEASABLE (green)
           if (!relationship.publishable)
             return 'UNRELEASABLE';
 
+          // OBSOLETE (purple)
+          if (relationship.obsolete)
+            return 'OBSOLETE';
+          
           // RXNORM (orange)
           if (relationship.terminology == 'RXNORM') {
             return 'RXNORM';
           }
 
-          // OBSOLETE (purple)
-          if (relationship.obsolete)
-            return 'OBSOLETE';
-
           // REVIEWED READY_FOR_PUBLICATION (black)
-          return 'READY_FOR_PUBLICATION';
+          return '';
 
         }
 

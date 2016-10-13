@@ -137,7 +137,11 @@ tsApp.directive('reportAction', [ '$window', '$routeParams', function($window, $
         projectService.getLog($scope.selected.project.id, objectId, 'ACTION').then(
           // Success
           function(data) {
-            action.log = $sce.trustAsHtml('<span class="preformatted">' + data + '</span>');
+            if (data.length > 0) {
+              action.log = $sce.trustAsHtml('<span class="preformatted">' + data + '</span>');
+            } else {
+              action.log = $sce.trustAsHtml('<span class="preformatted">No details.</span>');
+            }
           },
           // Error
           function(data) {
