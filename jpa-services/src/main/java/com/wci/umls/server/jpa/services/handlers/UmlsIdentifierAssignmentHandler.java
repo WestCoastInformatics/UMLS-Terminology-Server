@@ -272,7 +272,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       synchronized (LOCK) {
         // Create AttributeIdentity and populate from the attribute.
@@ -307,7 +309,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -329,7 +333,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -394,7 +400,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -408,7 +416,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Create RelationshipIdentity and populate from the relationship.
       final RelationshipIdentity identity = new RelationshipIdentityJpa();
@@ -443,7 +453,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -489,8 +501,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
-    try {
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }    try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
 
@@ -522,7 +535,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
