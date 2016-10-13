@@ -3,19 +3,26 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.apache.lucene.search.Query;
+import org.hibernate.search.SearchFactory;
+import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
+import org.hibernate.search.jpa.Search;
 
-import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
-import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
-import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
@@ -284,28 +291,70 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get atom identity " + identity);
 
-    try {
-      FullTextQuery fullTextQuery = IndexUtility.applyPfsToLuceneQuery(
-          AtomIdentityJpa.class,
-          "stringClassId:\""
-              + QueryParserBase.escape(identity.getStringClassId()) + "\""
-              + " AND terminology:\""
-              + QueryParserBase.escape(identity.getTerminology()) + "\""
-              + " AND terminologyId:\""
-              + QueryParserBase.escape(identity.getTerminologyId()) + "\""
-              + " AND termType:\""
-              + QueryParserBase.escape(identity.getTermType()) + "\""
-              + " AND codeId:\"" + QueryParserBase.escape(identity.getCodeId())
-              + "\"" + " AND conceptId:\""
-              + QueryParserBase.escape(identity.getConceptId()) + "\""
-              + " AND descriptorId:\""
-              + QueryParserBase.escape(identity.getDescriptorId()) + "\"",
-          null, manager);
-      return (AtomIdentity) fullTextQuery.getSingleResult();
-    } catch (NoResultException e) {
+    // TODO - list of string clauses. For all the things!
+    // if (!identity.stringClassId().isEmpty()){
+    // "stringClassId:" + identity.getStringClassId()
+    // } else{
+    // "NOT stringClassId:[* TO *]"
+    // }
+    // COnfigUtility.composeQuery('AND', clauses).
+
+    // TODO again - do same for StringClassIdentity and LexicalClassIdentities
+
+    final List<String> clauses = new ArrayList<>();
+
+    if (!ConfigUtility.isEmpty(identity.getStringClassId())) {
+      clauses.add("stringClassId:" + identity.getStringClassId());
+    } else {
+      clauses.add("NOT stringClassId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminology())) {
+      clauses.add("terminology:" + identity.getTerminology());
+    } else {
+      clauses.add("NOT terminology:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminology())) {
+      clauses.add("terminology:" + identity.getTerminology());
+    } else {
+      clauses.add("NOT terminology:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTerminologyId())) {
+      clauses.add("terminologyId:" + identity.getTerminologyId());
+    } else {
+      clauses.add("NOT terminologyId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getTermType())) {
+      clauses.add("termType:" + identity.getTermType());
+    } else {
+      clauses.add("NOT termType:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getCodeId())) {
+      clauses.add("codeId:" + identity.getCodeId());
+    } else {
+      clauses.add("NOT codeId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getConceptId())) {
+      clauses.add("conceptId:" + identity.getConceptId());
+    } else {
+      clauses.add("NOT conceptId:[* TO *]");
+    }
+    if (!ConfigUtility.isEmpty(identity.getDescriptorId())) {
+      clauses.add("descriptorId:" + identity.getDescriptorId());
+    } else {
+      clauses.add("NOT descriptorId:[* TO *]");
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    Long id = getIdentityId(identity.getClass(), fullQuery);
+
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
 
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
     // TODO - remove below if above works
     // try {
     // final javax.persistence.Query query =
@@ -404,16 +453,18 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get string identity " + identity);
 
-    try {
-      FullTextQuery fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(StringClassIdentityJpa.class,
-              "language:" + identity.getLanguage() + " AND name:\""
-                  + QueryParserBase.escape(identity.getName()) + "\"",
-              null, manager);
-      return (StringClassIdentity) fullTextQuery.getSingleResult();
-    } catch (NoResultException e) {
+    Long id = getIdentityId(identity.getClass(),
+        "language:" + identity.getLanguage() + " AND name:\""
+            + QueryParserBase.escape(identity.getName()) + "\"");
+
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
+
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
 
     // TODO - remove below if above works
 
@@ -509,16 +560,18 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get lexicalClass identity " + identity);
 
-    try {
-      FullTextQuery fullTextQuery =
-          IndexUtility.applyPfsToLuceneQuery(LexicalClassIdentityJpa.class,
-              "language:" + identity.getLanguage() + " AND normalizedName:\""
-                  + QueryParserBase.escape(identity.getNormalizedName()) + "\"",
-              null, manager);
-      return (LexicalClassIdentity) fullTextQuery.getSingleResult();
-    } catch (NoResultException e) {
+    Long id = getIdentityId(identity.getClass(),
+        "language:" + identity.getLanguage() + " AND normalizedName:\""
+            + QueryParserBase.escape(identity.getNormalizedName()) + "\"");
+
+    // If no id found, return null.
+    if (id == null) {
       return null;
     }
+
+    // If id found, set object id, and return object.
+    identity.setId(id);
+    return identity;
 
     // TODO - remove below if above works
 
@@ -704,6 +757,47 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     RelationshipIdentity identity =
         getRelationshipIdentity(relationshipIdentityId);
     removeObject(identity);
+  }
+
+  /**
+   * Returns the identity id.
+   *
+   * @param objectClass the object class
+   * @param query the query
+   * @return the identity id
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public Long getIdentityId(Class<? extends HasId> objectClass, String query)
+    throws Exception {
+
+    // Set up the "full text query"
+    final FullTextEntityManager fullTextEntityManager =
+        Search.getFullTextEntityManager(manager);
+    final SearchFactory searchFactory =
+        fullTextEntityManager.getSearchFactory();
+    final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
+        .getIndexedFieldNames(objectClass, true).toArray(new String[] {}),
+        searchFactory.getAnalyzer(objectClass));
+    final Query luceneQuery = queryParser.parse(query);
+    final FullTextQuery fullTextQuery =
+        fullTextEntityManager.createFullTextQuery(luceneQuery, objectClass);
+
+    //Logger.getLogger(UmlsIdentityServiceJpa.class)
+    //.info(" lucene Class: " + objectClass.getSimpleName() + ", query = " + fullTextQuery);
+    
+    // then use a projection
+    fullTextQuery.setProjection("id");
+    final List<Object[]> results = fullTextQuery.getResultList();
+    if (results.isEmpty()) {
+      return null;
+    }
+    if (results.size() > 1) {
+      throw new Exception("Error: returned more than one id " + results);
+    }
+
+    final Long id = Long.valueOf(results.get(0)[0].toString());
+    return id;
   }
 
 }

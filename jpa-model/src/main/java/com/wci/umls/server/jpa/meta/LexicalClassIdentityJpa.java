@@ -80,7 +80,7 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
   /* see superclass */
   @Override
   @FieldBridge(impl = LongBridge.class)
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
   public Long getId() {
     return id;
   }
