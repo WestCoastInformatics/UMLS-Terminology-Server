@@ -3876,7 +3876,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
         searchFactory.getAnalyzer(clazz));
     final String fullAncPath = treePosition.getAncestorPath()
         + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
-    System.out.println("clazz=" + clazz.getName());
     // Iterate over ancestor path
     for (final String pathPart : fullAncPath.split("~")) {
       final Long partId = Long.parseLong(pathPart);
@@ -3889,7 +3888,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
-      System.out.println("query = " + finalQuery);
       // Prepare the manager and lucene query
 
       final Query luceneQuery = queryParser.parse(finalQuery.toString());

@@ -121,7 +121,13 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (inverseRelationship.getRelationshipType().equals("XR")) {
       inverseRelationship.setPublishable(false);
     }
-    
+
+    Logger.getLogger(getClass()).info("  concept1 = " + getConcept());
+    Logger.getLogger(getClass()).info("    atoms = " + getConcept().getAtoms());
+    Logger.getLogger(getClass()).info("  concept2 = " + getConcept2());
+    Logger.getLogger(getClass())
+        .info("    atoms = " + getConcept2().getAtoms());
+
     // Assign RUI at production time
 
     // Change status of the relationships

@@ -535,8 +535,8 @@ tsApp
           for ( var win in $scope.windows) {
             $scope.windows[win].focus();
           }
-          var width = 600;
-          var height = 600;
+          var width = 400;
+          var height = 400;
           // open windows that were saved to user preferences
           if (!$scope.windows['semanticType']
             && $scope.user.userPreferences.properties['semanticType'] == 'true') {
@@ -875,17 +875,23 @@ tsApp
           var newUrl = utilService.composeUrl('/edit/semantic-types');
           window.$windowScope = $scope;
 
-          $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow', 'width=' + width
-            + ', height=' + height + ',scrollbars=yes');
+          if (width == null && height == null && $scope.user.userPreferences.properties['semanticTypeWidth']) {
+            width = $scope.user.userPreferences.properties['semanticTypeWidth'];
+            height = $scope.user.userPreferences.properties['semanticTypeHeight'];
+          } else if (!$scope.user.userPreferences.properties['semanticTypeWidth']){
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow',
+            'width=' + width + ', height=' + height);
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
           if ($scope.user.userPreferences.properties['semanticTypeX']) {
-            $scope.windows['semanticType'].moveTo(
-              $scope.user.userPreferences.properties['semanticTypeX'],
+            $scope.windows['semanticType'].moveTo($scope.user.userPreferences.properties['semanticTypeX'],
               $scope.user.userPreferences.properties['semanticTypeY']);
           }
-
-          securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);
+          
+          securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);          
         };
 
         // open atoms editor window
@@ -893,16 +899,23 @@ tsApp
 
           var newUrl = utilService.composeUrl('/edit/atoms');
           window.$windowScope = $scope;
-
-          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=' + width
-            + ', height=' + height + ',scrollbars=yes');
+          
+          if (width == null && height == null && $scope.user.userPreferences.properties['atomWidth']) {
+            width = $scope.user.userPreferences.properties['atomWidth'];
+            height = $scope.user.userPreferences.properties['atomHeight'];
+          } else if (!$scope.user.userPreferences.properties['atomWidth']){
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 
+            'width=' + width + ', height=' + height);
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
           if ($scope.user.userPreferences.properties['atomX']) {
             $scope.windows['atom'].moveTo($scope.user.userPreferences.properties['atomX'],
               $scope.user.userPreferences.properties['atomY']);
           }
-
+          
           securityService.saveProperty($scope.user.userPreferences, 'atom', true);
         };
 
@@ -911,14 +924,19 @@ tsApp
 
           var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
-
-          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow', 'width='
-            + width + ', height=' + height + ',scrollbars=yes');
+          if (width == null && height == null && $scope.user.userPreferences.properties['relationshipWidth']) {
+            width = $scope.user.userPreferences.properties['relationshipWidth'];
+            height = $scope.user.userPreferences.properties['relationshipHeight'];
+          } else if (!$scope.user.userPreferences.properties['relationshipWidth']){
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
+            'width=' + width + ', height=' + height);
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
           if ($scope.user.userPreferences.properties['relationshipX']) {
-            $scope.windows['relationship'].moveTo(
-              $scope.user.userPreferences.properties['relationshipX'],
+            $scope.windows['relationship'].moveTo($scope.user.userPreferences.properties['relationshipX'],
               $scope.user.userPreferences.properties['relationshipY']);
           }
           securityService.saveProperty($scope.user.userPreferences, 'relationship', true);
@@ -930,15 +948,22 @@ tsApp
           var newUrl = utilService.composeUrl('contexts');
           window.$windowScope = $scope;
 
-          $scope.windows['context'] = $window.open(newUrl, 'contextWindow', 'width=' + width
-            + ', height=' + height + ',scrollbars=yes');
+          if (width == null && height == null && $scope.user.userPreferences.properties['contextWidth']) {
+            width = $scope.user.userPreferences.properties['contextWidth'];
+            height = $scope.user.userPreferences.properties['contextHeight'];
+          } else if (!$scope.user.userPreferences.properties['contextWidth']){
+            width = 600;
+            height = 600;
+          }
+          $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
+            'width=' + width + ', height=' + height);
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
           if ($scope.user.userPreferences.properties['contextX']) {
             $scope.windows['context'].moveTo($scope.user.userPreferences.properties['contextX'],
               $scope.user.userPreferences.properties['contextY']);
           }
-
+          
           securityService.saveProperty($scope.user.userPreferences, 'context', true);
         };
 
