@@ -410,14 +410,6 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     return true;
   }
 
-  /* see superclass */
-  @Override
-  public String toString() {
-    return "CodeRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds
-        + ", getRelationshipType()=" + getRelationshipType()
-        + ", getAdditionalRelationshipType()="
-        + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
-  }
+  // Use superclass toString()
 
 }

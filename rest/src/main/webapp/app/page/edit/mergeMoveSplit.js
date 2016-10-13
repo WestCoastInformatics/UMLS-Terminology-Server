@@ -4,14 +4,15 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
   '$uibModalInstance',
   '$uibModal',
   'utilService',
-  'metaEditingService',
+  'metadataService',
   'contentService',
+  'metaEditingService',
   'selected',
   'lists',
   'user',
   'action',
-  function($scope, $uibModalInstance, $uibModal, utilService, metaEditingService, contentService, selected,
-    lists, user, action) {
+  function($scope, $uibModalInstance, $uibModal, utilService, metadataService, contentService,
+    metaEditingService, selected, lists, user, action) {
     console.debug('Entered merge/move/split modal control', lists, action);
 
     // Scope vars
@@ -35,8 +36,17 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     $scope.errors = [];
     $scope.defaultOrder = true;
 
-    /*$scope.selectedWorkflowStatus = 'NEEDS_REVIEW';
-    $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];*/
+    /*
+     * $scope.selectedWorkflowStatus = 'NEEDS_REVIEW'; $scope.workflowStatuses = [
+     * 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+     */
+
+    // Callbacks for finder
+    $scope.callbacks = {
+      addComponent : addFinderComponent
+    };
+    utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
+    utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
     // Init modal
     function initialize() {
@@ -80,7 +90,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
     $scope.reverseMergeOrder = function() {
       $scope.defaultOrder = !$scope.defaultOrder;
     }
-    
+
     // Perform merge
     $scope.merge = function() {
       if ($scope.defaultOrder) {
@@ -103,7 +113,7 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
         });
       } else {
         metaEditingService.mergeConcepts($scope.selected.project.id, $scope.selected.activityId,
-          $scope.toConcept, $scope.selected.component,  $scope.overrideWarnings).then(
+          $scope.toConcept, $scope.selected.component, $scope.overrideWarnings).then(
         // Success
         function(data) {
           $scope.warnings = data.warnings;
@@ -184,57 +194,32 @@ tsApp.controller('MergeMoveSplitModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
+    // Add finder component
+    function addFinderComponent(data) {
+      // return if concept is already on concept list
+      for (var i = 0; i < $scope.lists.concepts.length; i++) {
+        if ($scope.lists.concepts[i].id == data.id) {
+          return;
+        }
+      }
+      // If full concept, simply push
+      if (data.atoms && data.atoms.length > 0) {
+        $scope.toConcepts.push(data);
+        $scope.selectToConcept(data);
+        return;
+      }
+
+      // get full concept
+      contentService.getConcept(data.id, $scope.selected.project.id).then(
+      // Success
+      function(data) {
+        // $scope.lists.concepts.push(data);
+        $scope.toConcepts.push(data);
+      });
+    }
+
     // initialize modal
     initialize();
 
-    
-    //
-    // MODALS
-    //
-    // Add concept modal
-    $scope.openFinderModal = function(lrecord) {
-      console.debug('openFinderModal ', lrecord);
-      var modalInstance = $uibModal.open({
-        templateUrl : 'app/component/finder/finder.html',
-        controller : 'FinderModalCtrl',
-        backdrop: 'static',
-        size : 'lg',
-        resolve : {
-          selected : function() {
-            return $scope.selected;
-          },
-          lists : function() {
-            return $scope.lists;
-          },
-          user : function() {
-            return $scope.user;
-          },
-          type : function() {
-            return 'Concept';
-          }
-        }
-      });
-
-      modalInstance.result.then(
-      // Success
-      function(data) {
-        // return if concept is already on concept list
-        for (var i = 0; i < $scope.lists.concepts.length; i++) {
-          if ($scope.lists.concepts[i].id == data.id) {
-            window.alert('Concept ' + data.id + ' is already on the concept list.');
-            return;
-          }
-        }
-        // get full concept
-        contentService.getConcept(data.id, $scope.selected.project.id).then(
-        // Success
-        function(data) {
-          //$scope.lists.concepts.push(data);
-          $scope.toConcepts.push(data);
-        });
-      });
-
-    };
-    
     // end
   } ]);

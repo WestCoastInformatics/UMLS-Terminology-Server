@@ -10,6 +10,34 @@ hr {
 	background-color: lightgrey;
 }
 
+h5 {
+	font-weight: 500;
+	font-size :16px;
+}
+
+/* Override the 8px default table td padding */
+.slim>tbody>tr>td {
+	padding: 2px;
+}
+
+.slim>tr>td {
+	padding: 2px;
+}
+
+.slim>thead>tr>th {
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.slim>tr>th {
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
 .minibtn {
 	transform: scale(.8, .8);
 	padding-left: 5px;
@@ -80,7 +108,7 @@ hr {
 	/* override from inline-block to allow multiple items per line */
 	padding-left: 0;
 	padding-right: 10px;
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 	padding-left: 0px;
 	border-radius: 4px;
 }
@@ -115,6 +143,10 @@ hr {
 
 .glyphicon-leaf {
 	opacity: 0.5;
+}
+
+.nocontent {
+	opacity: 0.2;
 }
 
 .green {
@@ -197,6 +229,10 @@ hr {
 
 .mr20 {
 	margin-right: 20px;
+}
+
+.mb10 {
+	margin-bottom: 10px;
 }
 
 .tab-disabled {

@@ -41,8 +41,8 @@ public class DefaultSearchHandler implements SearchHandler {
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
     String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception {
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
     // Default Search Handler algorithm
     // If empty query or ":" detected, perform query as written
@@ -104,13 +104,13 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("PE query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           escapedQuery + terminologyClause, pfs, manager);
     }
 

@@ -31,8 +31,8 @@ import com.wci.umls.server.services.SourceDataService;
 /**
  * Reference implementation of the {@link SecurityService}.
  */
-public class SourceDataServiceJpa extends RootServiceJpa implements
-    SourceDataService {
+public class SourceDataServiceJpa extends RootServiceJpa
+    implements SourceDataService {
 
   /** The map of handler names to handler class names. */
   private static Map<String, String> sourceDataHandlers = null;
@@ -44,14 +44,12 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
       Properties config = ConfigUtility.getConfigProperties();
       if (config == null)
         config = ConfigUtility.getConfigProperties();
-      final String handlerNames =
-          ConfigUtility.getConfigProperties()
-              .getProperty("source.data.handler");
+      final String handlerNames = ConfigUtility.getConfigProperties()
+          .getProperty("source.data.handler");
 
       for (final String handlerName : handlerNames.split(",")) {
-        final String handlerClassName =
-            ConfigUtility.getConfigProperties().getProperty(
-                "source.data.handler." + handlerName + ".class");
+        final String handlerClassName = ConfigUtility.getConfigProperties()
+            .getProperty("source.data.handler." + handlerName + ".class");
         if (handlerClassName == null) {
           throw new Exception("Source data handler " + handlerName
               + " has no class specified in config file");
@@ -64,7 +62,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
             sourceDataHandlers.put(handlerName, handlerClassName);
 
           } catch (Exception e) {
-            throw new Exception(handlerClassName + " could not be instantiated");
+            throw new Exception(
+                handlerClassName + " could not be instantiated");
           }
 
         }
@@ -90,16 +89,16 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public SourceData getSourceData(Long sourceDataId) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - get source data " + sourceDataId);
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - get source data " + sourceDataId);
     return getHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
   /* see superclass */
   @Override
   public SourceData addSourceData(SourceData sourceData) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - add source data " + sourceData.getName());
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - add source data " + sourceData.getName());
     addHasLastModified(sourceData);
 
     return sourceData;
@@ -116,8 +115,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void removeSourceData(Long sourceDataId) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - remove source data " + sourceDataId);
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - remove source data " + sourceDataId);
     removeHasLastModified(sourceDataId, SourceDataJpa.class);
   }
 
@@ -125,15 +124,14 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   @Override
   public SourceDataList findSourceDatas(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "SourceData Service - find searchDatas " + query);
+    Logger.getLogger(getClass())
+        .info("SourceData Service - find searchDatas " + query);
 
     int[] totalCt = new int[1];
     @SuppressWarnings("unchecked")
-    List<SourceData> list =
-        (List<SourceData>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, SourceDataJpa.class, SourceDataJpa.class,
-            pfs, totalCt);
+    List<SourceData> list = (List<SourceData>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query,
+        SourceDataJpa.class, pfs, totalCt);
     SourceDataList result = new SourceDataListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -145,8 +143,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   @Override
   @SuppressWarnings("unchecked")
   public SourceDataFileList getSourceDataFiles() {
-    Logger.getLogger(getClass()).debug(
-        "SourceData Service - get sourceDataFiles");
+    Logger.getLogger(getClass())
+        .debug("SourceData Service - get sourceDataFiles");
     javax.persistence.Query query =
         manager.createQuery("select a from SourceDataFileJpa a");
     try {
@@ -174,8 +172,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   @Override
   public SourceDataFile addSourceDataFile(SourceDataFile sourceDataFile)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - add source data file "
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - add source data file "
             + sourceDataFile.getName());
     return addHasLastModified(sourceDataFile);
   }
@@ -184,8 +182,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   @Override
   public void updateSourceDataFile(SourceDataFile sourceDataFile)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - update source data file "
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - update source data file "
             + sourceDataFile.getName());
     updateHasLastModified(sourceDataFile);
 
@@ -194,8 +192,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void removeSourceDataFile(Long sourceDataFileId) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - remove source data " + sourceDataFileId);
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - remove source data " + sourceDataFileId);
     removeHasLastModified(sourceDataFileId, SourceDataFileJpa.class);
   }
 
@@ -209,17 +207,16 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
    */
   /* see superclass */
   @Override
-  public SourceDataFileList findSourceDataFiles(String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass()).info(
-        "SourceDataFile Service - find searchDataFiles " + query);
+  public SourceDataFileList findSourceDataFiles(String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("SourceDataFile Service - find searchDataFiles " + query);
 
     int[] totalCt = new int[1];
     @SuppressWarnings("unchecked")
-    List<SourceDataFile> list =
-        (List<SourceDataFile>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, SourceDataFileJpa.class,
-            SourceDataFileJpa.class, pfs, totalCt);
+    List<SourceDataFile> list = (List<SourceDataFile>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query,
+        SourceDataFileJpa.class, pfs, totalCt);
     SourceDataFileList result = new SourceDataFileListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -269,8 +266,8 @@ public class SourceDataServiceJpa extends RootServiceJpa implements
 
   @Override
   public SourceDataList getSourceDatas() {
-    Logger.getLogger(getClass()).debug(
-        "Source Data Service - get all source datas");
+    Logger.getLogger(getClass())
+        .debug("Source Data Service - get all source datas");
     javax.persistence.Query query =
         manager.createQuery("select a from SourceDataJpa a");
 

@@ -13,11 +13,11 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
       console.debug('configure atoms directive');
 
       scope.expanded = {};
-      
+      scope.showing = true;
       scope.getPagedList = function() {
         getPagedList();
       }
-      
+
       // Paging function
       function getPagedList() {
         scope.pagedData = utilService.getPagedArray(scope.component.atoms.filter(
@@ -41,7 +41,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
         if (scope.component) {
           // reset paging
           // commented out - interferes with Show All/Show Paged
-          //scope.paging = utilService.getPaging();
+          // scope.paging = utilService.getPaging();
           scope.pageCallbacks = {
             getPagedList : getPagedList
           };
@@ -72,13 +72,13 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
         // (see
         // tsApp.css)
         if (!contentService.atomHasContent(item))
-          return 'glyphicon glyphicon-plus glyphicon-none';
+          return 'glyphicon glyphicon-plus glyphicon-plus nocontent';
 
         // return plus/minus based on current expanded status
         if (scope.expanded[item.id])
-          return 'glyphicon glyphicon-minus';
+          return 'noul glyphicon glyphicon-minus';
         else
-          return 'glyphicon glyphicon-plus';
+          return 'noul glyphicon glyphicon-plus';
       };
 
     }

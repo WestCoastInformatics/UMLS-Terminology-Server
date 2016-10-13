@@ -418,14 +418,5 @@ public class ConceptRelationshipJpa extends
     return true;
   }
 
-  /* see superclass */
-  @Override
-  public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds
-        + ", getRelationshipType()=" + getRelationshipType()
-        + ", getAdditionalRelationshipType()="
-        + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
-  }
-
+  // Use superclass toString()
 }

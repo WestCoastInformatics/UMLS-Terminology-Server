@@ -16,6 +16,8 @@ tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
         scope.pagedData = utilService.getPagedArray(scope.component.semanticTypes, scope.paging);
       }
 
+      scope.showing = true;
+
       // instantiate paging and paging callbacks function
       scope.pagedData = [];
       scope.paging = utilService.getPaging();

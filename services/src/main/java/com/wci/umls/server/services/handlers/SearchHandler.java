@@ -27,7 +27,6 @@ public interface SearchHandler extends Configurable {
    * @param branch the branch
    * @param query the query
    * @param literalField the literal field
-   * @param fieldNamesKey the field names key
    * @param clazz the class to search on
    * @param pfs the pfs
    * @param totalCt a container for the total number of results (for making a
@@ -38,8 +37,8 @@ public interface SearchHandler extends Configurable {
    */
   public <T extends HasId> List<T> getQueryResults(String terminology,
     String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception;
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception;
 
   /**
    * Returns the score map for the most recent call to getQueryResults. NOTE:

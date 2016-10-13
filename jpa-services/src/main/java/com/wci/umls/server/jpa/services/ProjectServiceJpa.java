@@ -33,7 +33,6 @@ public class ProjectServiceJpa extends RootServiceJpa
   /** The config properties. */
   protected static Properties config = null;
 
-
   /**
    * Instantiates an empty {@link ProjectServiceJpa}.
    *
@@ -269,7 +268,7 @@ public class ProjectServiceJpa extends RootServiceJpa
     int[] totalCt = new int[1];
     List<Project> list = (List<Project>) getQueryResults(
         query == null || query.isEmpty() ? "id:[* TO *]" : query,
-        ProjectJpa.class, ProjectJpa.class, pfs, totalCt);
+        ProjectJpa.class, pfs, totalCt);
     final ProjectList result = new ProjectListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);

@@ -1,6 +1,7 @@
 // Edit controller
 tsApp
-  .controller('EditCtrl',
+  .controller(
+    'EditCtrl',
     [
       '$scope',
       '$location',
@@ -37,7 +38,9 @@ tsApp
         $scope.checklistCt = 0;
 
         // Callbacks for report
-        $scope.callbacks = {};
+        $scope.callbacks = {
+          addComponent : addFinderComponent
+        };
         utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
         utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
 
@@ -48,12 +51,11 @@ tsApp
           worklist : null,
           record : null,
           component : null,
-          worklistMode : $scope.user.userPreferences.properties['worklistModeTab'] ? 
-            $scope.user.userPreferences.properties['worklistModeTab'] : 'Assigned',
+          worklistMode : $scope.user.userPreferences.properties['worklistModeTab'] ? $scope.user.userPreferences.properties['worklistModeTab']
+            : 'Assigned',
           terminology : null,
           metadata : metadataService.getModel()
         };
-
 
         // Lists
         $scope.lists = {
@@ -110,72 +112,78 @@ tsApp
             }
           }
         });
-        
+
         // Handle changes from actions performed by this user
-        $scope.$on('termServer::conceptChange', function(event, concept) {
+        $scope
+          .$on(
+            'termServer::conceptChange',
+            function(event, concept) {
 
-          // Refresh the selected concept
-          if ($scope.selected.component.id == concept.id) {
-            contentService.getConcept(concept.id, $scope.selected.project.id).then(
-            // Success
-            function(data) {
-              if (!data) {
-                // if selected concept no longer exists, just bail from this
-                $scope.removeConceptFromList(concept);
-              } else {
-                $scope.selectConcept(data);
-              }
-              $scope.getRecords();
-
-            });
-          }
-
-          // If a concept is referenced that isn't selected,
-          // update the concept in the list, and/or add to the list
-          else {
-            // well
-            var found = false;
-
-            for (var i = 0; i < $scope.lists.concepts.length; i++) {
-              var c = $scope.lists.concepts[i];
-              if (c.id == concept.id) {
-                contentService.getConcept(c.id, $scope.selected.project.id).then(
+              // Refresh the selected concept
+              if ($scope.selected.component.id == concept.id) {
+                contentService.getConcept(concept.id, $scope.selected.project.id).then(
                 // Success
                 function(data) {
                   if (!data) {
+                    // if selected concept no longer exists, just bail from this
                     $scope.removeConceptFromList(concept);
                   } else {
-                    $scope.lists.concepts[i] = data;
-                    
-                    if ($scope.user.userPreferences.properties['editConcept']) {
-                      for (var i = 0; i<$scope.lists.concepts.length; i++) {
-                        if ($scope.lists.concepts[i].id == $scope.user.userPreferences.properties['editConcept']) { 
-                          $scope.selectConcept($scope.lists.concepts[i]);
-                        };
-                      }
-                    } else {
-                      $scope.selectConcept($scope.lists.concepts[0]);
-                    }
+                    $scope.selectConcept(data);
                   }
                   $scope.getRecords();
-                });
-                found = true;
-              }
-            }
 
-            // If no matching concept found, add it to to the list
-            if (!found) {
-              contentService.getConcept(concept.id, $scope.selected.project.id).then(
-              // Success
-              function(data) {
-                // no need to remove anything or select anything
-                $scope.lists.concepts.push(data);
-                $scope.refreshWindows();
-                $scope.getRecords();
-              });
-            }
-          }
-        });
+                });
+              }
+
+              // If a concept is referenced that isn't selected,
+              // update the concept in the list, and/or add to the list
+              else {
+                // well
+                var found = false;
+
+                for (var i = 0; i < $scope.lists.concepts.length; i++) {
+                  var c = $scope.lists.concepts[i];
+                  if (c.id == concept.id) {
+                    contentService
+                      .getConcept(c.id, $scope.selected.project.id)
+                      .then(
+                        // Success
+                        function(data) {
+                          if (!data) {
+                            $scope.removeConceptFromList(concept);
+                          } else {
+                            $scope.lists.concepts[i] = data;
+
+                            if ($scope.user.userPreferences.properties['editConcept']) {
+                              for (var i = 0; i < $scope.lists.concepts.length; i++) {
+                                if ($scope.lists.concepts[i].id == $scope.user.userPreferences.properties['editConcept']) {
+                                  $scope.selectConcept($scope.lists.concepts[i]);
+                                }
+                                ;
+                              }
+                            } else {
+                              $scope.selectConcept($scope.lists.concepts[0]);
+                            }
+                          }
+                          $scope.getRecords();
+                        });
+                    found = true;
+                  }
+                }
+
+                // If no matching concept found, add it to to the list
+                if (!found) {
+                  contentService.getConcept(concept.id, $scope.selected.project.id).then(
+                  // Success
+                  function(data) {
+                    // no need to remove anything or select anything
+                    $scope.lists.concepts.push(data);
+                    $scope.refreshWindows();
+                    $scope.getRecords();
+                  });
+                }
+              }
+            });
 
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
@@ -193,7 +201,8 @@ tsApp
         $scope.setWorklistMode = function(mode) {
           $scope.selected.worklistMode = mode;
           $scope.getWorklists();
-          securityService.saveProperty($scope.user.userPreferences, 'worklistModeTab', $scope.selected.worklistMode);
+          securityService.saveProperty($scope.user.userPreferences, 'worklistModeTab',
+            $scope.selected.worklistMode);
         }
 
         // Get $scope.lists.worklists
@@ -222,25 +231,28 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          workflowService.findAvailableWorklists($scope.selected.project.id, $scope.user.userName,
-            $scope.selected.projectRole, pfs).then(
-          // Success
-          function(data) {
-            $scope.lists.worklists = data.worklists;
-            $scope.lists.worklists.totalCount = data.totalCount
-            $scope.availableCt = data.totalCount;
-            $scope.resetSelected();
-            $scope.getAssignedWorklistCt();
-            $scope.getChecklistCt();
-            // select previously selected list if saved in user preferences         
-            if ($scope.user.userPreferences.properties['editWorklist']) {
-              for (var i = 0; i<$scope.lists.worklists.length; i++) {
-                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
-                  $scope.selectWorklist($scope.lists.worklists[i]);
-                };
-              }
-            }
-          });
+          workflowService
+            .findAvailableWorklists($scope.selected.project.id, $scope.user.userName,
+              $scope.selected.projectRole, pfs)
+            .then(
+              // Success
+              function(data) {
+                $scope.lists.worklists = data.worklists;
+                $scope.lists.worklists.totalCount = data.totalCount
+                $scope.availableCt = data.totalCount;
+                $scope.resetSelected();
+                $scope.getAssignedWorklistCt();
+                $scope.getChecklistCt();
+                // select previously selected list if saved in user preferences
+                if ($scope.user.userPreferences.properties['editWorklist']) {
+                  for (var i = 0; i < $scope.lists.worklists.length; i++) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                      $scope.selectWorklist($scope.lists.worklists[i]);
+                    }
+                    ;
+                  }
+                }
+              });
 
         };
         $scope.getAvailableWorklistCt = function() {
@@ -267,25 +279,28 @@ tsApp
             queryRestriction : paging.filter
           };
 
-          workflowService.findAssignedWorklists($scope.selected.project.id, $scope.user.userName,
-            $scope.selected.projectRole, pfs).then(
-          // Success
-          function(data) {
-            $scope.lists.worklists = data.worklists;
-            $scope.lists.worklists.totalCount = data.totalCount;
-            $scope.assignedCt = data.totalCount;
-            $scope.resetSelected();
-            $scope.getAvailableWorklistCt();
-            $scope.getChecklistCt();
-            // select previously selected list if saved in user preferences         
-            if ($scope.user.userPreferences.properties['editWorklist']) {
-              for (var i = 0; i<$scope.lists.worklists.length; i++) {
-                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
-                  $scope.selectWorklist($scope.lists.worklists[i]);
-                };
-              }
-            }
-          });
+          workflowService
+            .findAssignedWorklists($scope.selected.project.id, $scope.user.userName,
+              $scope.selected.projectRole, pfs)
+            .then(
+              // Success
+              function(data) {
+                $scope.lists.worklists = data.worklists;
+                $scope.lists.worklists.totalCount = data.totalCount;
+                $scope.assignedCt = data.totalCount;
+                $scope.resetSelected();
+                $scope.getAvailableWorklistCt();
+                $scope.getChecklistCt();
+                // select previously selected list if saved in user preferences
+                if ($scope.user.userPreferences.properties['editWorklist']) {
+                  for (var i = 0; i < $scope.lists.worklists.length; i++) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                      $scope.selectWorklist($scope.lists.worklists[i]);
+                    }
+                    ;
+                  }
+                }
+              });
         };
         $scope.getAssignedWorklistCt = function() {
           var pfs = {
@@ -311,24 +326,27 @@ tsApp
             queryRestriction : paging.filter
           };
 
-          workflowService.findChecklists($scope.selected.project.id, '', pfs).then(
-          // Success
-          function(data) {
-            $scope.lists.worklists = data.checklists;
-            $scope.lists.worklists.totalCount = data.totalCount;
-            $scope.checklistCt = data.totalCount;
-            $scope.resetSelected();
-            $scope.getAssignedWorklistCt();
-            $scope.getAvailableWorklistCt();
-            // select previously selected list if saved in user preferences         
-            if ($scope.user.userPreferences.properties['editWorklist']) {
-              for (var i = 0; i<$scope.lists.worklists.length; i++) {
-                if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) { 
-                  $scope.selectWorklist($scope.lists.worklists[i]);
-                };
-              }
-            }
-          });
+          workflowService
+            .findChecklists($scope.selected.project.id, '', pfs)
+            .then(
+              // Success
+              function(data) {
+                $scope.lists.worklists = data.checklists;
+                $scope.lists.worklists.totalCount = data.totalCount;
+                $scope.checklistCt = data.totalCount;
+                $scope.resetSelected();
+                $scope.getAssignedWorklistCt();
+                $scope.getAvailableWorklistCt();
+                // select previously selected list if saved in user preferences
+                if ($scope.user.userPreferences.properties['editWorklist']) {
+                  for (var i = 0; i < $scope.lists.worklists.length; i++) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                      $scope.selectWorklist($scope.lists.worklists[i]);
+                    }
+                    ;
+                  }
+                }
+              });
         }
         $scope.getChecklistCt = function() {
           var pfs = {
@@ -346,7 +364,7 @@ tsApp
         $scope.changeProjectRole = function() {
           // save the change
           securityService.saveRole($scope.user.userPreferences, $scope.selected.projectRole);
-          //$scope.resetPaging();
+          // $scope.resetPaging();
           $scope.getWorklists();
         }
 
@@ -363,7 +381,7 @@ tsApp
             $scope.lists.projectRoles = data.options;
 
             // Get worklists
-            //$scope.resetPaging();
+            // $scope.resetPaging();
             $scope.getWorklists();
           });
 
@@ -380,10 +398,10 @@ tsApp
           // Initialize metadata - this also sets the model
           metadataService.getAllMetadata($scope.selected.project.terminology,
             $scope.selected.project.version).then(
-              // Success
-              function(data) {
-                $scope.selected.metadata = data;
-              });
+          // Success
+          function(data) {
+            metadataService.setModel(data);
+          });
 
           $scope.removeWindows();
 
@@ -420,8 +438,9 @@ tsApp
           // Set activity id
           $scope.selected.activityId = worklist.name;
           $scope.user.userPreferences.properties['editWorklist'] = $scope.selected.worklist.id;
-          $scope.user.userPreferences.properties['editWorklistPaging'] = JSON.stringify($scope.paging['worklists']);
-          securityService.updateUserPreferences($scope.user.userPreferences);      
+          $scope.user.userPreferences.properties['editWorklistPaging'] = JSON
+            .stringify($scope.paging['worklists']);
+          securityService.updateUserPreferences($scope.user.userPreferences);
         };
 
         // select record from 'Cluster' list
@@ -433,33 +452,35 @@ tsApp
             $scope.getConcepts(record, true);
           }
           $scope.user.userPreferences.properties['editRecord'] = $scope.selected.record.id;
-          $scope.user.userPreferences.properties['editRecordPaging'] = JSON.stringify($scope.paging['records']);
-          securityService.updateUserPreferences($scope.user.userPreferences);      
+          $scope.user.userPreferences.properties['editRecordPaging'] = JSON
+            .stringify($scope.paging['records']);
+          securityService.updateUserPreferences($scope.user.userPreferences);
         }
 
         // refresh the concept list
         $scope.getConcepts = function(record, selectFirst) {
           $scope.lists.concepts = [];
           for (var i = 0; i < $scope.selected.record.concepts.length; i++) {
-            contentService.getConcept($scope.selected.record.concepts[i].id, $scope.selected.project.id).then(
-              function(data) {
-                // prevent duplicates (due to websocket msgs) from being added to concept list
-                var found = false;
-                for (var j = 0; j<$scope.lists.concepts.length; j++) {
-                  if ($scope.lists.concepts[j].id == data.id) {
-                    found = true;
-                  }
+            contentService.getConcept($scope.selected.record.concepts[i].id,
+              $scope.selected.project.id).then(function(data) {
+              // prevent duplicates (due to websocket msgs) from being added
+              // to concept list
+              var found = false;
+              for (var j = 0; j < $scope.lists.concepts.length; j++) {
+                if ($scope.lists.concepts[j].id == data.id) {
+                  found = true;
                 }
-                if (!found) {
-                  $scope.lists.concepts.push(data);
-                  $scope.refreshWindows();
-                  $scope.lists.concepts.sort(utilService.sortBy('id'));
-                  // Select first, when the first concept is loaded
-                  if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
-                    $scope.selectConcept($scope.lists.concepts[0]);
-                  }
+              }
+              if (!found) {
+                $scope.lists.concepts.push(data);
+                $scope.refreshWindows();
+                $scope.lists.concepts.sort(utilService.sortBy('id'));
+                // Select first, when the first concept is loaded
+                if (selectFirst && data.id == $scope.selected.record.concepts[0].id) {
+                  $scope.selectConcept($scope.lists.concepts[0]);
                 }
-              });
+              }
+            });
           }
         }
 
@@ -507,48 +528,51 @@ tsApp
             securityService.saveProperty($scope.user.userPreferences, win, false);
           }
         }
-        
+
         // focus windows and open those saved to user preferences
         $scope.focusWindows = function() {
           // focus windows that are already open
           for ( var win in $scope.windows) {
-            $scope.windows[win].focus();            
+            $scope.windows[win].focus();
           }
-          var width;
-          var height;
+          var width = 400;
+          var height = 400;
           // open windows that were saved to user preferences
-          if (!$scope.windows['semanticType'] && $scope.user.userPreferences.properties['semanticType'] == 'true') {
-            if($scope.user.userPreferences.properties['semanticTypeWidth']) {
+          if (!$scope.windows['semanticType']
+            && $scope.user.userPreferences.properties['semanticType'] == 'true') {
+            if ($scope.user.userPreferences.properties['semanticTypeWidth']) {
               width = $scope.user.userPreferences.properties['semanticTypeWidth'];
             }
-            if($scope.user.userPreferences.properties['semanticTypeHeight']) {
+            if ($scope.user.userPreferences.properties['semanticTypeHeight']) {
               height = $scope.user.userPreferences.properties['semanticTypeHeight'];
             }
             $scope.openStyWindow(width, height);
           }
-          if (!$scope.windows['relationship'] && $scope.user.userPreferences.properties['relationship'] == 'true') {
-            if($scope.user.userPreferences.properties['relationshipWidth']) {
+          if (!$scope.windows['relationship']
+            && $scope.user.userPreferences.properties['relationship'] == 'true') {
+            if ($scope.user.userPreferences.properties['relationshipWidth']) {
               width = $scope.user.userPreferences.properties['relationshipWidth'];
             }
-            if($scope.user.userPreferences.properties['relationshipHeight']) {
+            if ($scope.user.userPreferences.properties['relationshipHeight']) {
               height = $scope.user.userPreferences.properties['relationshipHeight'];
             }
             $scope.openRelationshipsWindow(width, height);
           }
-          if (!$scope.windows['context'] && $scope.user.userPreferences.properties['context'] == 'true') {
-            if($scope.user.userPreferences.properties['contextWidth']) {
+          if (!$scope.windows['context']
+            && $scope.user.userPreferences.properties['context'] == 'true') {
+            if ($scope.user.userPreferences.properties['contextWidth']) {
               width = $scope.user.userPreferences.properties['contextWidth'];
             }
-            if($scope.user.userPreferences.properties['contextHeight']) {
+            if ($scope.user.userPreferences.properties['contextHeight']) {
               height = $scope.user.userPreferences.properties['contextHeight'];
             }
             $scope.openContextsWindow(width, height);
           }
           if (!$scope.windows['atom'] && $scope.user.userPreferences.properties['atom'] == 'true') {
-            if($scope.user.userPreferences.properties['atomWidth']) {
+            if ($scope.user.userPreferences.properties['atomWidth']) {
               width = $scope.user.userPreferences.properties['atomWidth'];
             }
-            if($scope.user.userPreferences.properties['atomHeight']) {
+            if ($scope.user.userPreferences.properties['atomHeight']) {
               height = $scope.user.userPreferences.properties['atomHeight'];
             }
             $scope.openAtomsWindow(width, height);
@@ -558,21 +582,21 @@ tsApp
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
 
-              $scope.selected.component = concept;
+          $scope.selected.component = concept;
 
-              securityService.saveProperty($scope.user.userPreferences, 'editConcept',
-                $scope.selected.component.id);
+          securityService.saveProperty($scope.user.userPreferences, 'editConcept',
+            $scope.selected.component.id);
 
-              $scope.refreshWindows();
+          $scope.refreshWindows();
 
-              // Update the selected concept in the list
-              for (var i = 0; i < $scope.lists.concepts.length; i++) {
-                var concept = $scope.lists.concepts[i];
-                if (concept.id == $scope.selected.component.id) {
-                  $scope.lists.concepts[i] = $scope.selected.component;
-                  break;
-                }
-              }
+          // Update the selected concept in the list
+          for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            var concept = $scope.lists.concepts[i];
+            if (concept.id == $scope.selected.component.id) {
+              $scope.lists.concepts[i] = $scope.selected.component;
+              break;
+            }
+          }
         };
 
         // Get $scope.lists.records
@@ -581,7 +605,7 @@ tsApp
         }
         function getRecords(selectFirst) {
           var paging = $scope.paging['records'];
-          
+
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -609,43 +633,49 @@ tsApp
 
           if ($scope.selected.worklistMode == 'Available'
             || $scope.selected.worklistMode == 'Assigned') {
-            workflowService.findTrackingRecordsForWorklist($scope.selected.project.id,
-              $scope.selected.worklist.id, pfs).then(
-            // Success
-            function(data) {
-              $scope.lists.records = data.records;
-              $scope.lists.records.totalCount = data.totalCount;
-              
-              // select previously selected record if saved in user preferences
-              if ($scope.user.userPreferences.properties['editRecord']) {
-                for (var i = 0; i<$scope.lists.records.length; i++) {
-                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                    $scope.selectRecord($scope.lists.records[i]);
+            workflowService
+              .findTrackingRecordsForWorklist($scope.selected.project.id,
+                $scope.selected.worklist.id, pfs)
+              .then(
+                // Success
+                function(data) {
+                  $scope.lists.records = data.records;
+                  $scope.lists.records.totalCount = data.totalCount;
+
+                  // select previously selected record if saved in user
+                  // preferences
+                  if ($scope.user.userPreferences.properties['editRecord']) {
+                    for (var i = 0; i < $scope.lists.records.length; i++) {
+                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                        $scope.selectRecord($scope.lists.records[i]);
+                      }
+                    }
+                  } else if (selectFirst) {
+                    $scope.selectRecord($scope.lists.records[0]);
                   }
-                }
-              } else if (selectFirst) {
-                $scope.selectRecord($scope.lists.records[0]);
-              }
-            });
+                });
           } else if ($scope.selected.worklistMode == 'Checklists') {
-            workflowService.findTrackingRecordsForChecklist($scope.selected.project.id,
-              $scope.selected.worklist.id, pfs).then(
-            // Success
-            function(data) {
-              $scope.lists.records = data.records;
-              $scope.lists.records.totalCount = data.totalCount;
-              
-              // select previously selected record if saved in user preferences
-              if ($scope.user.userPreferences.properties['editRecord']) {
-                for (var i = 0; i<$scope.lists.records.length; i++) {
-                  if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                    $scope.selectRecord($scope.lists.records[i]);
+            workflowService
+              .findTrackingRecordsForChecklist($scope.selected.project.id,
+                $scope.selected.worklist.id, pfs)
+              .then(
+                // Success
+                function(data) {
+                  $scope.lists.records = data.records;
+                  $scope.lists.records.totalCount = data.totalCount;
+
+                  // select previously selected record if saved in user
+                  // preferences
+                  if ($scope.user.userPreferences.properties['editRecord']) {
+                    for (var i = 0; i < $scope.lists.records.length; i++) {
+                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                        $scope.selectRecord($scope.lists.records[i]);
+                      }
+                    }
+                  } else if (selectFirst) {
+                    $scope.selectRecord($scope.lists.records[0]);
                   }
-                }
-              } else if (selectFirst) {
-                $scope.selectRecord($scope.lists.records[0]);
-              }
-            });
+                });
           }
 
         }
@@ -992,51 +1022,32 @@ tsApp
 
         };
 
-        // Add concept modal
-        $scope.openFinderModal = function(lrecord) {
-          console.debug('openFinderModal ', lrecord);
-          var modalInstance = $uibModal.open({
-            templateUrl : 'app/component/finder/finder.html',
-            controller : 'FinderModalCtrl',
-            backdrop: 'static',
-            size : 'lg',
-            resolve : {
-              selected : function() {
-                return $scope.selected;
-              },
-              lists : function() {
-                return $scope.lists;
-              },
-              user : function() {
-                return $scope.user;
-              },
-              type : function() {
-                return 'Concept';
-              }
+        // For callback from finder - needs to be not a $scope function
+        function addFinderComponent(data) {
+          // return if concept is already on concept list
+          for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            if ($scope.lists.concepts[i].id == data.id) {
+              window.alert('Concept ' + data.id + ' is already on the concept list.');
+              return;
             }
-          });
+          }
+          // If full concept, simply push
+          if (data.atoms && data.atoms.length > 0) {
+            $scope.lists.concepts.push(data);
+            $scope.refreshWindows();
+            $scope.selectConcept(data);
+            return;
+          }
 
-          modalInstance.result.then(
+          // get full concept
+          contentService.getConcept(data.id, $scope.selected.project.id).then(
           // Success
           function(data) {
-            // return if concept is already on concept list
-            for (var i = 0; i < $scope.lists.concepts.length; i++) {
-              if ($scope.lists.concepts[i].id == data.id) {
-                window.alert('Concept ' + data.id + ' is already on the concept list.');
-                return;
-              }
-            }
-            // get full concept
-            contentService.getConcept(data.id, $scope.selected.project.id).then(
-            // Success
-            function(data) {
-              $scope.lists.concepts.push(data);
-              $scope.refreshWindows();
-              $scope.selectConcept(data);
-            });
+            $scope.lists.concepts.push(data);
+            $scope.refreshWindows();
+            $scope.selectConcept(data);
           });
-
-        };
+        }
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist) {
@@ -1106,21 +1117,23 @@ tsApp
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
           metadataService.getTerminologies().then(
-          // Success
-          function(data) {
-            $scope.lists.terminologies = data.terminologies;
-            $scope.getProjects();
-            
-            // reinitialize paging saved in user preferences
-            if ($scope.user.userPreferences.properties['editWorklistPaging']) {
-              var savedPaging = JSON.parse($scope.user.userPreferences.properties['editWorklistPaging']);
-              $scope.paging['worklists'].page = savedPaging.page;
-            }
-            if ($scope.user.userPreferences.properties['editRecordPaging']) {
-              var savedPaging = JSON.parse($scope.user.userPreferences.properties['editRecordPaging']);
-              $scope.paging['records'].page = savedPaging.page;
-            }
-          });
+            // Success
+            function(data) {
+              $scope.lists.terminologies = data.terminologies;
+              $scope.getProjects();
+
+              // reinitialize paging saved in user preferences
+              if ($scope.user.userPreferences.properties['editWorklistPaging']) {
+                var savedPaging = JSON
+                  .parse($scope.user.userPreferences.properties['editWorklistPaging']);
+                $scope.paging['worklists'].page = savedPaging.page;
+              }
+              if ($scope.user.userPreferences.properties['editRecordPaging']) {
+                var savedPaging = JSON
+                  .parse($scope.user.userPreferences.properties['editRecordPaging']);
+                $scope.paging['records'].page = savedPaging.page;
+              }
+            });
 
         };
 

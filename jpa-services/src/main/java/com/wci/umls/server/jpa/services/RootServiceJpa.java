@@ -820,7 +820,6 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param <T> the
    * @param query the query
-   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @param pfs the pfs
    * @param totalCt the total ct
@@ -828,9 +827,8 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   // TODO This should no longer exist, use search handlers from RootServiceJpa
-  public <T> List<?> getQueryResults(final String query,
-    final Class<?> fieldNamesKey, final Class<T> clazz, final PfsParameter pfs,
-    int[] totalCt) throws Exception {
+  public <T> List<?> getQueryResults(final String query, final Class<T> clazz,
+    final PfsParameter pfs, int[] totalCt) throws Exception {
 
     if (query == null || query.isEmpty()) {
       throw new Exception("Unexpected empty query.");
@@ -838,15 +836,15 @@ public abstract class RootServiceJpa implements RootService {
 
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          query, pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, query, pfs, manager);
     } catch (ParseException e) {
       // If parse exception, try a literal query
       final StringBuilder escapedQuery = new StringBuilder();
       if (query != null && !query.isEmpty()) {
         escapedQuery.append(QueryParserBase.escape(query));
       }
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           escapedQuery.toString(), pfs, manager);
     }
 
@@ -1132,7 +1130,7 @@ public abstract class RootServiceJpa implements RootService {
 
     final int[] totalCt = new int[1];
     final List<LogEntry> list = (List<LogEntry>) getQueryResults(sb.toString(),
-        LogEntryJpa.class, LogEntryJpa.class, pfs, totalCt);
+        LogEntryJpa.class, pfs, totalCt);
 
     return list;
   }
@@ -1313,7 +1311,7 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public MolecularActionList findMolecularActions(Long componentId, 
+  public MolecularActionList findMolecularActions(Long componentId,
     String terminology, String version, String query, PfsParameter pfs)
     throws Exception {
 
@@ -1327,14 +1325,14 @@ public abstract class RootServiceJpa implements RootService {
       clauses.add(query);
     }
     if (componentId != null) {
-      clauses.add("(componentId:" + componentId + " OR componentId2:" + componentId + ")");
+      clauses.add("(componentId:" + componentId + " OR componentId2:"
+          + componentId + ")");
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     for (final MolecularActionJpa ma : searchHandler.getQueryResults(
         terminology, version, Branch.ROOT, fullQuery, null,
-        MolecularActionJpa.class, MolecularActionJpa.class, pfs, totalCt,
-        manager)) {
+        MolecularActionJpa.class, pfs, totalCt, manager)) {
       results.getObjects().add(ma);
     }
     results.setTotalCount(totalCt[0]);
@@ -1387,8 +1385,8 @@ public abstract class RootServiceJpa implements RootService {
     int totalCt[] = new int[1];
     final AtomicActionList results = new AtomicActionListJpa();
     for (final AtomicActionJpa aa : searchHandler.getQueryResults(null, null,
-        Branch.ROOT, sb.toString(), null, AtomicActionJpa.class,
-        AtomicActionJpa.class, pfs, totalCt, manager)) {
+        Branch.ROOT, sb.toString(), null, AtomicActionJpa.class, pfs, totalCt,
+        manager)) {
       results.getObjects().add(aa);
     }
     results.setTotalCount(totalCt[0]);
@@ -1504,9 +1502,9 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     final int[] totalCt = new int[1];
-    return new ArrayList<TypeKeyValue>(searchHandler.getQueryResults(null, null,
-        Branch.ROOT, query, null, TypeKeyValueJpa.class, TypeKeyValueJpa.class,
-        null, totalCt, getEntityManager()));
+    return new ArrayList<TypeKeyValue>(
+        searchHandler.getQueryResults(null, null, Branch.ROOT, query, null,
+            TypeKeyValueJpa.class, null, totalCt, getEntityManager()));
   }
 
   /**

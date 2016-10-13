@@ -323,7 +323,7 @@ tsApp
             return newArray;
           }
 
-          newArray = array;
+          newArray = array.slice(0);
           // apply suppressible/obsolete
 
           // apply sort if specified
@@ -522,7 +522,7 @@ tsApp.service('gpService', function() {
   // Decrements glass pane counter
   this.decrement = function(message) {
     if (message) {
-      var index = this.glassPane.messages.indexOf(message); 
+      var index = this.glassPane.messages.indexOf(message);
       if (index !== -1) {
         this.glassPane.messages.splice(index, 1);
       }

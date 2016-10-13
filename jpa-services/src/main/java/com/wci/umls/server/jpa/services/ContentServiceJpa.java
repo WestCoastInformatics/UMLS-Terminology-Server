@@ -472,8 +472,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
         branch, finalQuery.toString(), "memberNameSort",
-        ConceptSubsetMemberJpa.class, AtomSubsetMemberJpa.class, pfs, totalCt,
-        manager));
+        AtomSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
     return list;
   }
@@ -505,8 +504,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final SubsetMemberList list = new SubsetMemberListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
         branch, finalQuery.toString(), "memberNameSort",
-        ConceptSubsetMemberJpa.class, ConceptSubsetMemberJpa.class, pfs,
-        totalCt, manager));
+        ConceptSubsetMemberJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     return list;
@@ -2249,7 +2247,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find concepts "
         + terminology + "/" + version + "/" + query);
     final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, ConceptJpa.class, ConceptJpa.class);
+        branch, query, pfs, ConceptJpa.class);
     return results;
   }
 
@@ -2270,7 +2268,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find descriptors "
         + terminology + "/" + version + "/" + query);
     final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, DescriptorJpa.class, DescriptorJpa.class);
+        branch, query, pfs, DescriptorJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
     }
@@ -2297,14 +2295,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param branch the branch
    * @param query the query
    * @param pfs the pfs
-   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
    */
   public <T extends AtomClass> SearchResultList findForQueryHelper(
     String terminology, String version, String branch, String query,
-    PfsParameter pfs, Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
+    PfsParameter pfs, Class<T> clazz) throws Exception {
     // Prepare results
     final SearchResultList results = new SearchResultListJpa();
     int totalCt[] = new int[1];
@@ -2359,8 +2356,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // if no expression, or expression with results, perform lucene query
     if (exprResults == null || exprResults.size() > 0) {
       luceneResults = searchHandler.getQueryResults(terminology, version,
-          branch, query, "atoms.nameSort", fieldNamesKey, clazz, localPfs,
-          totalCt, manager);
+          branch, query, "atoms.nameSort", clazz, localPfs, totalCt, manager);
       Logger.getLogger(getClass())
           .debug("    lucene result count = " + luceneResults.size());
 
@@ -2397,7 +2393,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @param jqlQuery the jql query
    * @param branch the branch
    * @param pfs the pfs
-   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @return the search result list
    * @throws Exception the exception
@@ -2405,7 +2400,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @SuppressWarnings("unchecked")
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
     String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
-    Class<?> fieldNamesKey, Class<T> clazz) throws Exception {
+    Class<T> clazz) throws Exception {
     // Prepare results
     final SearchResultList results = new SearchResultListJpa();
     List<T> classes = null;
@@ -2416,9 +2411,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     boolean luceneQueryFlag = false;
     if (luceneQuery != null && !luceneQuery.equals("")) {
       SearchHandler searchHandler = getSearchHandler("");
-      luceneQueryClasses
-          .addAll(searchHandler.getQueryResults(null, null, branch, luceneQuery,
-              "atomsName.sort", fieldNamesKey, clazz, pfs, totalCt, manager));
+      luceneQueryClasses.addAll(searchHandler.getQueryResults(null, null,
+          branch, luceneQuery, "atomsName.sort", clazz, pfs, totalCt, manager));
       luceneQueryFlag = true;
     }
 
@@ -2605,7 +2599,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find codes "
         + terminology + "/" + version + "/" + query);
     final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, CodeJpa.class, CodeJpa.class);
+        branch, query, pfs, CodeJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);
     }
@@ -3686,7 +3680,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery, "toNameSort", clazz, clazz, pfs, totalCt, manager));
+        finalQuery, "toNameSort", clazz, pfs, totalCt, manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : results
@@ -3737,8 +3731,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
     // pass empty terminology/version because it's handled above
     results.setObjects((List) searchHandler.getQueryResults("", "", branch,
-        finalQuery.toString(), "fromNameSort", MappingJpa.class,
-        MappingJpa.class, pfs, totalCt, manager));
+        finalQuery.toString(), "fromNameSort", MappingJpa.class, pfs, totalCt,
+        manager));
     results.setTotalCount(totalCt[0]);
 
     for (final Mapping mapping : results.getObjects()) {
@@ -3784,8 +3778,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
     final TreePositionList list = new TreePositionListJpa();
     list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, finalQuery.toString(), "nodeNameSort",
-        ConceptTreePositionJpa.class, clazz, pfs, totalCt, manager));
+        branch, finalQuery.toString(), "nodeNameSort", clazz, pfs, totalCt,
+        manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
@@ -3829,7 +3823,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info(
         "Content Service - find codes " + luceneQuery + "/" + jqlQuery + "/");
     return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
-        CodeJpa.class, CodeJpa.class);
+        CodeJpa.class);
   }
 
   /* see superclass */
@@ -3840,7 +3834,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find concepts "
         + luceneQuery + "/" + jqlQuery + "/");
     return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
-        ConceptJpa.class, ConceptJpa.class);
+        ConceptJpa.class);
   }
 
   /* see superclass */
@@ -3851,7 +3845,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).info("Content Service - find descriptors "
         + luceneQuery + "/" + jqlQuery + "/");
     return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
-        DescriptorJpa.class, DescriptorJpa.class);
+        DescriptorJpa.class);
   }
 
   /* see superclass */
@@ -3862,29 +3856,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
     TreePosition<? extends ComponentHasAttributesAndName> treePosition)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("Content Service - get tree for tree position");
+        .info("Content Service - get tree for tree position "
+            + treePosition.getNode().getId() + ", "
+            + treePosition.getAncestorPath());
 
     Long tpId = treePosition.getNode().getId();
 
     // Determine type
-    Class<?> clazz = null;
-    if (manager.find(ConceptJpa.class, tpId) != null) {
-      clazz = ConceptTreePositionJpa.class;
-    } else if (manager.find(DescriptorJpa.class, tpId) != null) {
-      clazz = DescriptorTreePositionJpa.class;
-    } else if (manager.find(CodeJpa.class, tpId) != null) {
-      clazz = CodeTreePositionJpa.class;
-    } else {
-      throw new Exception("Unknown tree position type.");
-    }
+    Class<?> clazz = treePosition.getClass();
     Logger.getLogger(getClass()).debug("  type = " + clazz.getName());
 
     // tree to return
     Tree tree = null;
 
     // the current tree variables (ancestor path and local tree)
-    String partAncPath = ""; // initially top-level
-    Tree parentTree = tree; // initially the empty tree
+    // initially top-level
+    String partAncPath = "";
+    // initially the empty tree
+    Tree parentTree = tree;
 
     // Prepare lucene
     final FullTextEntityManager fullTextEntityManager =
@@ -3892,12 +3881,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final SearchFactory searchFactory =
         fullTextEntityManager.getSearchFactory();
     final QueryParser queryParser = new MultiFieldQueryParser(
-        IndexUtility.getIndexedFieldNames(ConceptTreePositionJpa.class, true)
-            .toArray(new String[] {}),
+        IndexUtility.getIndexedFieldNames(clazz, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
     final String fullAncPath = treePosition.getAncestorPath()
         + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
-
     // Iterate over ancestor path
     for (final String pathPart : fullAncPath.split("~")) {
       final Long partId = Long.parseLong(pathPart);
@@ -3906,17 +3893,18 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append("nodeId:" + partId + " AND ");
       if (partAncPath.isEmpty()) {
         // query for empty value
-        finalQuery.append("-ancestorPath:[* TO *]");
+        finalQuery.append("NOT ancestorPath:[* TO *]");
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
       // Prepare the manager and lucene query
+
       final Query luceneQuery = queryParser.parse(finalQuery.toString());
       final FullTextQuery fullTextQuery =
           fullTextEntityManager.createFullTextQuery(luceneQuery, clazz);
 
       // // projection approach -- don't want to have to instantiate node Jpa
-      // object
+      // object (could be faster)
       // fullTextQuery.setProjection("nodeId", "nodeTerminologyId", "nodeName",
       // "childCt", "ancestorPath");
       //
@@ -3940,7 +3928,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // original approach
       if (fullTextQuery.getResultSize() != 1) {
         throw new Exception(
-            "Unexpected number of results: " + fullTextQuery.getResultSize());
+            "Unexpected number of results: " + fullTextQuery.getResultSize()
+                + ", " + partId + ", " + partAncPath);
+
       }
 
       final TreePosition<? extends AtomClass> treepos =
@@ -4085,9 +4075,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
 
     final TreePositionList list = new TreePositionListJpa();
-    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
-        branch, query, null, ConceptTreePositionJpa.class,
-        ConceptTreePositionJpa.class, pfs, totalCt, manager));
+    list.setObjects(
+        (List) searchHandler.getQueryResults(terminology, version, branch,
+            query, null, ConceptTreePositionJpa.class, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
@@ -4334,7 +4324,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     int[] totalCt = new int[1];
     final List<Mapping> list = (List<Mapping>) getQueryResults(sb.toString(),
-        MappingJpa.class, MappingJpa.class, pfs, totalCt);
+        MappingJpa.class, pfs, totalCt);
     final MappingList result = new MappingListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -4490,23 +4480,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public Note getNote(Long id, Class<? extends Note> noteClass)
     throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Content Service - get tree position " + id);
-    tx = manager.getTransaction();
-    Note note = null;
-    if (noteClass != null) {
-      note = manager.find(noteClass, id);
-
-    } else {
-      note = manager.find(ConceptNoteJpa.class, id);
-      if (note == null) {
-        note = manager.find(CodeNoteJpa.class, id);
-      }
-      if (note == null) {
-        note = manager.find(DescriptorNoteJpa.class, id);
-      }
-    }
-    return note;
+    Logger.getLogger(getClass()).debug("Content Service - get note " + id);
+    return manager.find(noteClass, id);
   }
 
   /* see superclass */
@@ -4542,9 +4517,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<ConceptNoteJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "", query, "",
-            ConceptNoteJpa.class, ConceptNoteJpa.class, pfs, totalCt, manager);
+    final List<ConceptNoteJpa> luceneResults = searchHandler.getQueryResults(
+        null, null, "", query, "", ConceptNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ConceptNoteJpa note : luceneResults) {
       results.getObjects().add(note);
@@ -4561,9 +4535,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<DescriptorNoteJpa> luceneResults = searchHandler.getQueryResults(
-        null, null, "", query, "", DescriptorNoteJpa.class,
-        DescriptorNoteJpa.class, pfs, totalCt, manager);
+    final List<DescriptorNoteJpa> luceneResults =
+        searchHandler.getQueryResults(null, null, "", query, "",
+            DescriptorNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final DescriptorNoteJpa note : luceneResults) {
       results.getObjects().add(note);
@@ -4580,9 +4554,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final NoteList results = new NoteListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<CodeNoteJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, "", query, "",
-            CodeNoteJpa.class, CodeNoteJpa.class, pfs, totalCt, manager);
+    final List<CodeNoteJpa> luceneResults = searchHandler.getQueryResults(null,
+        null, "", query, "", CodeNoteJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final CodeNoteJpa note : luceneResults) {
       results.getObjects().add(note);

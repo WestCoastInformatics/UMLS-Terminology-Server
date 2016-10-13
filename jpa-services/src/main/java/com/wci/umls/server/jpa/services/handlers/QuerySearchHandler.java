@@ -23,8 +23,8 @@ public class QuerySearchHandler extends DefaultSearchHandler {
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
     String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception {
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
     if (query.toLowerCase().startsWith("select")) {
       final Map<String, String> params = new HashMap<>();
@@ -34,7 +34,7 @@ public class QuerySearchHandler extends DefaultSearchHandler {
           params, manager);
     } else {
       return super.getQueryResults(terminology, version, branch, query,
-          literalField, fieldNamesKey, clazz, pfs, totalCt, manager);
+          literalField, clazz, pfs, totalCt, manager);
     }
   }
 
@@ -80,8 +80,8 @@ public class QuerySearchHandler extends DefaultSearchHandler {
     }
 
     // crude check: check for data manipulation commands
-    if (query.toUpperCase().matches(
-        "ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+    if (query.toUpperCase()
+        .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
       throw new LocalException(
           "SQL Query has bad format:  data manipulation request detected");
     }

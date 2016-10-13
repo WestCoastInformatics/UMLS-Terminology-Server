@@ -44,7 +44,7 @@
       count="lists.worklists.totalCount"
       callbacks="paging['worklists'].callbacks"></div>
 
-    <table ng-show="lists.worklists.totalCount > 0" class="table pointer">
+    <table ng-show="lists.worklists.totalCount > 0" class="slim table pointer">
       <thead>
         <tr>
           <th class="col-md-5 col-xs-5"><span
@@ -58,7 +58,7 @@
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2">Actions</th>
+          <th ng-show="" class="col-md-2 col-xs-2">Actions</th>
         </tr>
 
       </thead>
@@ -72,8 +72,10 @@
 
           <!--  actions -->
           <td class="nobreak">
+            <span
+              ng-show="selected.worklistMode == 'Checklists' && selected.projectRole != 'ADMINISTRATOR'">n/a</span>
 
-            <i title="Remove worklist"
+            <i title="Remove {{selected.worklistMode}}"
               ng-show="selected.projectRole == 'ADMINISTRATOR'"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
@@ -86,7 +88,7 @@
                 title="Claim worklist"
                 class="noul glyphicon glyphicon-hand-right"></i>
 
-              <i 
+              <i
                 ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                 ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                 title="Unassign worklist"
@@ -134,7 +136,7 @@
 
         <table
           ng-show="lists.records.totalCount > 0 || paging['records'].filter || paging['records'].typeFilter"
-          class="table pointer">
+          class="slim table pointer">
           <thead>
             <tr>
               <th class="col-md-1 col-xs-1">Cluster</th>
@@ -187,14 +189,13 @@
 
   <!-- R1C2 - concepts list  -->
   <div class="col-md-6 col-xs-12" ng-show="selected.worklistMode != 'Available'">
-    <h4>
-      Concept List
+    <span>
+      <h4 style="display: inline">Concept List</h4>
       <span style="float: right;">
-        <button ng-click="openFinderModal(selected.record)" title="Add concept"
-          class="btn btn-xs btn-primary">Finder</button>
+        <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
       </span>
-    </h4>
-    <table class="table">
+    </span>
+    <table class="slim table">
       <thead>
         <tr>
 
@@ -219,13 +220,12 @@
               {{sty.semanticType}}<br>
             </span>
           </td>
-          <td>
+          <td class="nobreak">
             <span notes selected="selected" empty="concept.notes" type="Concept"></span>
             <i title="Remove from list"
-              ng-show="concept.id == selected.component.id"
               ng-click="removeConceptFromList(concept); $event.stopPropagation()"
               class="noul glyphicon glyphicon-remove"></i>
-            
+
           </td>
         </tr>
       </tbody>
@@ -239,24 +239,22 @@
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
       <button ng-click="openAtomsWindow(null, null)" title="Atoms"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Atoms</button>
-      <button ng-click="openRelationshipsWindow(null, null)" title="Relationships"
-        ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
+      <button ng-click="openRelationshipsWindow(null, null)"
+        title="Relationships" ng-disabled="!selected.component"
+        class="btn btn-xs btn-primary">Rels</button>
       <button ng-click="openContextsWindow(null, null)" title="Contexts"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Contexts</button>
-      <i ng-click="focusWindows(); $event.stopPropagation(); "
-                title="Focus"
-                class="ml10 noul glyphicon glyphicon-fullscreen"></i>
+      <i ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
+        class="ml10 noul glyphicon glyphicon-fullscreen"></i>
     </span>
 
     <!-- Concept actions -->
     <span style="float: right;">
-      <button
-        ng-click="approveConcept(selected.component)" title="Approve"
+      <button ng-click="approveConcept(selected.component)" title="Approve"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
       <button ng-click="next()" title="Next" ng-disabled="!selected.component"
         class="btn btn-xs btn-primary">Next</button>
-      <button 
-        ng-click="approveNext()" title="Approve/Next"
+      <button ng-click="approveNext()" title="Approve/Next"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()" title="Merge"
         ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>

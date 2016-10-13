@@ -21,6 +21,8 @@ tsApp.directive('relationships', [
             .setError('Relationships directive requires callbacks.findRelationships function');
         }
 
+        scope.showing = true;
+
         // instantiate paging and paging callbacks function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
@@ -48,6 +50,9 @@ tsApp.directive('relationships', [
           value : 'toName'
         } ];
 
+        scope.getPagedList = function() {
+          getPagedList();
+        }
         function getPagedList() {
 
           // compute the sort order
