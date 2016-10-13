@@ -9,7 +9,7 @@
   <div ng-show="!annotatedContentCollapsed">
     <div pager paging="paging" count="pagedData.totalCount"
       callbacks="pageCallbacks"></div>
-    <table class="table table-hover" ng-show="pagedData.results.length > 0">
+    <table class="slim table table-hover" ng-show="pagedData.results.length > 0">
       <tbody>
         <!-- table-hover makes use of the active class -->
         <tr ng-class="{selected: content.id == component.id}"

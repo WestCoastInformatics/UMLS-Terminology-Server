@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -41,9 +41,9 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptorRelationship")
-public class DescriptorRelationshipJpa extends
-    AbstractRelationship<Descriptor, Descriptor> implements
-    DescriptorRelationship {
+public class DescriptorRelationshipJpa
+    extends AbstractRelationship<Descriptor, Descriptor>
+    implements DescriptorRelationship {
 
   /** The from concept. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
@@ -83,6 +83,11 @@ public class DescriptorRelationshipJpa extends
         new HashMap<>(relationship.getAlternateTerminologyIds());
   }
 
+  /**
+   * Returns the from.
+   *
+   * @return the from
+   */
   /* see superclass */
   @Override
   @XmlTransient
@@ -90,6 +95,11 @@ public class DescriptorRelationshipJpa extends
     return from;
   }
 
+  /**
+   * Sets the from.
+   *
+   * @param component the from
+   */
   /* see superclass */
   @Override
   public void setFrom(Descriptor component) {
@@ -208,6 +218,11 @@ public class DescriptorRelationshipJpa extends
     from.setName(term);
   }
 
+  /**
+   * Returns the to.
+   *
+   * @return the to
+   */
   /* see superclass */
   @Override
   @XmlTransient
@@ -215,6 +230,11 @@ public class DescriptorRelationshipJpa extends
     return to;
   }
 
+  /**
+   * Sets the to.
+   *
+   * @param component the to
+   */
   /* see superclass */
   @Override
   public void setTo(Descriptor component) {
@@ -333,6 +353,11 @@ public class DescriptorRelationshipJpa extends
     to.setName(term);
   }
 
+  /**
+   * Returns the alternate terminology ids.
+   *
+   * @return the alternate terminology ids
+   */
   /* see superclass */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
@@ -344,6 +369,11 @@ public class DescriptorRelationshipJpa extends
     return alternateTerminologyIds;
   }
 
+  /**
+   * Sets the alternate terminology ids.
+   *
+   * @param alternateTerminologyIds the alternate terminology ids
+   */
   /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
@@ -351,15 +381,27 @@ public class DescriptorRelationshipJpa extends
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
+  /**
+   * Put alternate terminology id.
+   *
+   * @param terminology the terminology
+   * @param terminologyId the terminology id
+   */
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
     alternateTerminologyIds.put(terminology, terminologyId);
   }
 
+  /**
+   * Removes the alternate terminology id.
+   *
+   * @param terminology the terminology
+   */
   /* see superclass */
   @Override
   public void removeAlternateTerminologyId(String terminology) {
@@ -370,20 +412,28 @@ public class DescriptorRelationshipJpa extends
 
   }
 
+  /**
+   * Hash code.
+   *
+   * @return the int
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
+  /**
+   * Equals.
+   *
+   * @param obj the obj
+   * @return true, if successful
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -411,13 +461,6 @@ public class DescriptorRelationshipJpa extends
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "DescriptorRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds
-        + ", getRelationshipType()=" + getRelationshipType()
-        + ", getAdditionalRelationshipType()="
-        + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
-  }
+  // Use superclass toString()
 
 }

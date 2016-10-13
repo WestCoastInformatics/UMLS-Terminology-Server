@@ -1,15 +1,26 @@
 
-<h4>
-  <b>Contexts</b>
-</h4>
-<h4 class="{{selected.component.workflowStatus}}">{{selected.component.name}}
-  {{selected.component.id}}</h4>
 
+<h4>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Contexts
+    ({{entries.length}})</b>
+  <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
+    {{selected.component.id}}</span>
+</h4>
+<span ng-show="pagedEntries.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['entries'].pageSize" title="Page Size"
+    ng-change="paging['entries'].callbacks.getPagedList()">
+    <option value="5">5</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+  </select>
+</span>
 <div pager paging="paging['entries']" count="entries.length"
   callbacks="paging['entries'].callbacks"></div>
 
 
-<table class="table pointer">
+<table class="slim table pointer">
   <thead>
     <tr>
       <th class="col-md-2 col-xs-2"><span

@@ -157,10 +157,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<TrackingRecordJpa> luceneResults =
-        searchHandler.getQueryResults(null, null, Branch.ROOT,
-            composeQuery(project, query), "", TrackingRecordJpa.class,
-            TrackingRecordJpa.class, pfs, totalCt, manager);
+    final List<TrackingRecordJpa> luceneResults = searchHandler.getQueryResults(
+        null, null, Branch.ROOT, composeQuery(project, query), "",
+        TrackingRecordJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       handleLazyInit(trackingRecord);
@@ -194,9 +193,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<TrackingRecordJpa> luceneResults = searchHandler.getQueryResults(
-        null, null, Branch.ROOT, finalQuery, "", TrackingRecordJpa.class,
-        TrackingRecordJpa.class, pfs, totalCt, manager);
+    final List<TrackingRecordJpa> luceneResults =
+        searchHandler.getQueryResults(null, null, Branch.ROOT, finalQuery, "",
+            TrackingRecordJpa.class, pfs, totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final TrackingRecordJpa trackingRecord : luceneResults) {
       handleLazyInit(trackingRecord);
@@ -311,9 +310,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowEpochJpa> results = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, ""), "", WorkflowEpochJpa.class,
-        WorkflowEpochJpa.class, null, totalCt, manager);
+    final List<WorkflowEpochJpa> results =
+        searchHandler.getQueryResults(null, null, "", composeQuery(project, ""),
+            "", WorkflowEpochJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowEpoch>(results);
 
   }
@@ -363,9 +362,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
-    final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, ""), "", WorkflowConfigJpa.class,
-        WorkflowConfigJpa.class, null, totalCt, manager);
+    final List<WorkflowConfigJpa> results =
+        searchHandler.getQueryResults(null, null, "", composeQuery(project, ""),
+            "", WorkflowConfigJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowConfig>(results);
 
   }
@@ -381,8 +380,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final int[] totalCt = new int[1];
     final List<WorkflowConfigJpa> results = searchHandler.getQueryResults(null,
         null, "", composeQuery(project, "") + " AND type:" + type, "",
-        WorkflowConfigJpa.class, WorkflowConfigJpa.class, null, totalCt,
-        manager);
+        WorkflowConfigJpa.class, null, totalCt, manager);
 
     if (results.size() == 0) {
       return null;
@@ -536,8 +534,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         searchHandler.getQueryResults(null, null, "",
             composeQuery(project, "")
                 + (type == null ? "" : " AND type:" + type),
-            "", WorkflowBinJpa.class, WorkflowBinJpa.class, null, totalCt,
-            manager);
+            "", WorkflowBinJpa.class, null, totalCt, manager);
     return new ArrayList<WorkflowBin>(results);
 
   }
@@ -637,8 +634,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<WorklistJpa> luceneResults = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, query), "", WorklistJpa.class,
-        WorklistJpa.class, pfs, totalCt, manager);
+        null, "", composeQuery(project, query), "", WorklistJpa.class, pfs,
+        totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final WorklistJpa worklist : luceneResults) {
       handleLazyInit(worklist);
@@ -725,8 +722,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final SearchHandler searchHandler = getSearchHandler(null);
     final int[] totalCt = new int[1];
     final List<ChecklistJpa> luceneResults = searchHandler.getQueryResults(null,
-        null, "", composeQuery(project, query), "", ChecklistJpa.class,
-        ChecklistJpa.class, pfs, totalCt, manager);
+        null, "", composeQuery(project, query), "", ChecklistJpa.class, pfs,
+        totalCt, manager);
     results.setTotalCount(totalCt[0]);
     for (final ChecklistJpa checklist : luceneResults) {
       results.getObjects().add(checklist);

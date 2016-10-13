@@ -74,7 +74,6 @@ tsApp
           for ( var key in map) {
             filterList.push(key);
           }
-          console.debug('ZZZ', filterList);
           return filterList.sort();
         }
 
@@ -96,9 +95,11 @@ tsApp
         }
         function getPagedAtoms() {
           // page from the stys that are available to add
+          console.debug('before', $scope.selected.component.atoms);
           $scope.pagedAtoms = utilService.getPagedArray($scope.selected.component.atoms,
             $scope.paging['atoms']);
-        };
+          console.debug('after', $scope.selected.component.atoms);
+        }
 
         // approve concept
         $scope.approveConcept = function() {
@@ -125,19 +126,20 @@ tsApp
           $scope.parentWindowScope.removeWindow('atom');
         }
 
-        // on window resize, save dimensions and screen location to user preferences
+        // on window resize, save dimensions and screen location to user
+        // preferences
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
-          window.resizedFinished = setTimeout(function(){
-              console.log('Resized finished on atoms window.');
-              $scope.user.userPreferences.properties['atomWidth'] = window.outerWidth;
-              $scope.user.userPreferences.properties['atomHeight'] = window.outerHeight;
-              $scope.user.userPreferences.properties['atomX'] = window.screenX;
-              $scope.user.userPreferences.properties['atomY'] = window.screenY;
-              securityService.updateUserPreferences($scope.user.userPreferences);
+          window.resizedFinished = setTimeout(function() {
+            console.log('Resized finished on atoms window.');
+            $scope.user.userPreferences.properties['atomWidth'] = window.outerWidth;
+            $scope.user.userPreferences.properties['atomHeight'] = window.outerHeight;
+            $scope.user.userPreferences.properties['atomX'] = window.screenX;
+            $scope.user.userPreferences.properties['atomY'] = window.screenY;
+            securityService.updateUserPreferences($scope.user.userPreferences);
           }, 250);
         }
-       
+
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {
           utilService.setSortField(table, field, $scope.paging);
@@ -149,11 +151,13 @@ tsApp
           return utilService.getSortIndicator(table, field, $scope.paging);
         };
 
+        // Reset sort to "preferred"
         $scope.setSortPreferred = function() {
           $scope.paging['atoms'].sortField = null;
+          $scope.paging['atoms'].sortAscending = false;
           $scope.getPagedAtoms();
         }
-        
+
         // indicates the style for an atom
         $scope.getAtomClass = function(atom) {
 
@@ -190,26 +194,21 @@ tsApp
             $scope.selected.atoms[atom.id] = atom;
           }
         };
-        
-        // selects an atom
-        /*$scope.selectAtom = function(event, atom) {
 
-          if (event.ctrlKey) {
-            selectWithCtrl(atom);
-          } else {
-            $scope.selected.atoms = {};
-            $scope.selected.atoms[atom.id] = atom;
-          }
-        };*/
+        // selects an atom
+        /*
+         * $scope.selectAtom = function(event, atom) {
+         * 
+         * if (event.ctrlKey) { selectWithCtrl(atom); } else {
+         * $scope.selected.atoms = {}; $scope.selected.atoms[atom.id] = atom; } };
+         */
 
         // selects or deselects additional atom
-        /*function selectWithCtrl(atom) {
-          if ($scope.selected.atoms[atom.id]) {
-            delete $scope.selected.atoms[atom.id];
-          } else {
-            $scope.selected.atoms[atom.id] = atom;
-          }
-        }*/
+        /*
+         * function selectWithCtrl(atom) { if ($scope.selected.atoms[atom.id]) {
+         * delete $scope.selected.atoms[atom.id]; } else {
+         * $scope.selected.atoms[atom.id] = atom; } }
+         */
 
         // indicates if a particular row is selected
         $scope.isRowSelected = function(atom) {
@@ -313,8 +312,10 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            /*$scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record);*/
+            /*
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record);
+             */
           });
         };
 
@@ -352,8 +353,11 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            /*$scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record, true);*/
+            /*
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
         };
 
@@ -390,8 +394,11 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-            /*$scope.parentWindowScope.getRecords(false);
-            $scope.parentWindowScope.getConcepts($scope.selected.record, true);*/
+            /*
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
 
         };

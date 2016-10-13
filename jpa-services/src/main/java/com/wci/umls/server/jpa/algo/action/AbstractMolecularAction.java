@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
@@ -425,6 +427,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     for (final Atom fromAtom : relationship.getFrom().getAtoms()) {
       for (final AtomRelationship atomRel : fromAtom.getRelationships()) {
         for (final Atom toAtom : relationship.getTo().getAtoms()) {
+          if (atomRel.getTo().getId().equals(toAtom.getId())) {
+            Logger.getLogger(getClass())
+                .info("    candidate demotion = " + atomRel);
+          }
           if (atomRel.getTo().getId().equals(toAtom.getId())
               && atomRel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
             return atomRel;

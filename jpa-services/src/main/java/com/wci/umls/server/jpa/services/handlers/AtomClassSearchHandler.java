@@ -100,8 +100,8 @@ public class AtomClassSearchHandler implements SearchHandler {
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
     String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception {
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
     // check assumption: class queried must extend AbstractAtomClass
     if (!AbstractAtomClass.class.isAssignableFrom(clazz)) {
@@ -270,7 +270,7 @@ public class AtomClassSearchHandler implements SearchHandler {
     // if fielded, try fielded query first
     if (fieldedQuery != null) {
       try {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
             fieldedQuery.toString(), pfs, manager);
       } catch (ParseException | LocalException | IllegalArgumentException e) {
         fullTextQuery = null;
@@ -282,13 +282,13 @@ public class AtomClassSearchHandler implements SearchHandler {
 
       // try the parsed query
       try {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
             finalQuery.toString(), pfs, manager);
       }
 
       // If there's a parse exception, try the literal query
       catch (ParseException | LocalException | IllegalArgumentException e) {
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
             escapedQuery + terminologyClause, pfs, manager);
       }
     }
@@ -327,9 +327,8 @@ public class AtomClassSearchHandler implements SearchHandler {
         }
         // Try the query again (if at least one expansion was found)
         if (found) {
-          fullTextQuery =
-              IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                  newQuery.toString() + terminologyClause, pfs, manager);
+          fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
+              newQuery.toString() + terminologyClause, pfs, manager);
           totalCt[0] = fullTextQuery.getResultSize();
         }
       }
@@ -360,9 +359,8 @@ public class AtomClassSearchHandler implements SearchHandler {
 
         // Try the query again (if replacement found)
         if (found) {
-          fullTextQuery =
-              IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-                  newQuery.toString() + terminologyClause, pfs, manager);
+          fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
+              newQuery.toString() + terminologyClause, pfs, manager);
           totalCt[0] = fullTextQuery.getResultSize();
         }
       }
@@ -386,7 +384,7 @@ public class AtomClassSearchHandler implements SearchHandler {
         }
         newQuery.append(")");
         // Try the query again
-        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+        fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
             newQuery.toString() + terminologyClause, pfs, manager);
         totalCt[0] = fullTextQuery.getResultSize();
 

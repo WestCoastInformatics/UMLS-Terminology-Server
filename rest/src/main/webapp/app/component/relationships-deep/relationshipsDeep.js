@@ -15,6 +15,8 @@ tsApp.directive('relationshipsDeep', [
       templateUrl : 'app/component/relationships-deep/relationshipsDeep.html',
       link : function(scope, element, attrs) {
 
+        scope.showing = true;
+
         // instantiate paging and paging callbacks function
         scope.pagedData = [];
         scope.paging = utilService.getPaging();
@@ -42,6 +44,9 @@ tsApp.directive('relationshipsDeep', [
           value : 'to.name'
         } ];
 
+        scope.getPagedList = function() {
+          getPagedList();
+        }
         function getPagedList() {
 
           // compute the sort order

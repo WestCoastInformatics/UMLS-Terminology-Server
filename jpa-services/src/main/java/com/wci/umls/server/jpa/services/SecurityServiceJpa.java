@@ -397,7 +397,7 @@ public class SecurityServiceJpa extends RootServiceJpa
     int[] totalCt = new int[1];
     final List<User> list = (List<User>) getQueryResults(
         query == null || query.isEmpty() ? "id:[* TO *]" : query, UserJpa.class,
-        UserJpa.class, pfs, totalCt);
+        pfs, totalCt);
     final UserList result = new UserListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);

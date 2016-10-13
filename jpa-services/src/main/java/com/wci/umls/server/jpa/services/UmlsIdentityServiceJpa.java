@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -31,6 +31,7 @@ import com.wci.umls.server.services.UmlsIdentityService;
 public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     implements UmlsIdentityService {
 
+  /** The max ids. */
   private static Map<String, Long> maxIds = new HashMap<>();
 
   /**
@@ -260,8 +261,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     // If this is the first time this is called, lookup max ID from the database
     if (maxIds.get("AUI") == null) {
       try {
-        final javax.persistence.Query query = manager
-            .createQuery("select max(a.id) from AtomIdentityJpa a ");
+        final javax.persistence.Query query =
+            manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
         Long atomId2 = (Long) query.getSingleResult();
         atomId = atomId2 != null ? atomId2 : atomId;
       } catch (NoResultException e) {
@@ -269,8 +270,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max lexical class Id
       maxIds.put("AUI", atomId);
-      Logger.getLogger(getClass())
-      .info("Initializing max AUI = " + atomId);      
+      Logger.getLogger(getClass()).info("Initializing max AUI = " + atomId);
     }
     final Long result = maxIds.get("AUI") + 1;
     maxIds.put("AUI", result);
@@ -286,43 +286,49 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     try {
       FullTextQuery fullTextQuery = IndexUtility.applyPfsToLuceneQuery(
-          AtomIdentityJpa.class, AtomIdentityJpa.class,
-          "stringClassId:\"" + QueryParserBase.escape(identity.getStringClassId()) + "\""
-              + " AND terminology:\"" + QueryParserBase.escape(identity.getTerminology()) + "\""
-              + " AND terminologyId:\"" + QueryParserBase.escape(identity.getTerminologyId()) + "\""
-              + " AND termType:\"" + QueryParserBase.escape(identity.getTermType()) + "\""  
-              + " AND codeId:\"" + QueryParserBase.escape(identity.getCodeId()) + "\""
-              + " AND conceptId:\"" + QueryParserBase.escape(identity.getConceptId()) + "\""
-              + " AND descriptorId:\"" + QueryParserBase.escape(identity.getDescriptorId()) + "\"",
+          AtomIdentityJpa.class,
+          "stringClassId:\""
+              + QueryParserBase.escape(identity.getStringClassId()) + "\""
+              + " AND terminology:\""
+              + QueryParserBase.escape(identity.getTerminology()) + "\""
+              + " AND terminologyId:\""
+              + QueryParserBase.escape(identity.getTerminologyId()) + "\""
+              + " AND termType:\""
+              + QueryParserBase.escape(identity.getTermType()) + "\""
+              + " AND codeId:\"" + QueryParserBase.escape(identity.getCodeId())
+              + "\"" + " AND conceptId:\""
+              + QueryParserBase.escape(identity.getConceptId()) + "\""
+              + " AND descriptorId:\""
+              + QueryParserBase.escape(identity.getDescriptorId()) + "\"",
           null, manager);
       return (AtomIdentity) fullTextQuery.getSingleResult();
     } catch (NoResultException e) {
       return null;
     }
-    
-    // TODO - remove below if above works    
-//    try {
-//      final javax.persistence.Query query =
-//          manager.createQuery("select a from AtomIdentityJpa a "
-//              + "where stringClassId = :stringClassId "
-//              + "and terminology = :terminology "
-//              + "and terminologyId = :terminologyId "
-//              + "and termType = :termType " + "and codeId = :codeId "
-//              + "and conceptId = :conceptId "
-//              + "and descriptorId = :descriptorId ");
-//      query.setParameter("stringClassId", identity.getStringClassId());
-//      query.setParameter("terminology", identity.getTerminology());
-//      query.setParameter("terminologyId", identity.getTerminologyId());
-//      query.setParameter("termType", identity.getTermType());
-//      query.setParameter("codeId", identity.getCodeId());
-//      query.setParameter("conceptId", identity.getConceptId());
-//      query.setParameter("descriptorId", identity.getDescriptorId());
-//
-//      return (AtomIdentity) query.getSingleResult();
-//
-//    } catch (NoResultException e) {
-//      return null;
-//    }
+
+    // TODO - remove below if above works
+    // try {
+    // final javax.persistence.Query query =
+    // manager.createQuery("select a from AtomIdentityJpa a "
+    // + "where stringClassId = :stringClassId "
+    // + "and terminology = :terminology "
+    // + "and terminologyId = :terminologyId "
+    // + "and termType = :termType " + "and codeId = :codeId "
+    // + "and conceptId = :conceptId "
+    // + "and descriptorId = :descriptorId ");
+    // query.setParameter("stringClassId", identity.getStringClassId());
+    // query.setParameter("terminology", identity.getTerminology());
+    // query.setParameter("terminologyId", identity.getTerminologyId());
+    // query.setParameter("termType", identity.getTermType());
+    // query.setParameter("codeId", identity.getCodeId());
+    // query.setParameter("conceptId", identity.getConceptId());
+    // query.setParameter("descriptorId", identity.getDescriptorId());
+    //
+    // return (AtomIdentity) query.getSingleResult();
+    //
+    // } catch (NoResultException e) {
+    // return null;
+    // }
   }
 
   /* see superclass */
@@ -383,8 +389,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max string class Id
       maxIds.put("SUI", stringId);
-      Logger.getLogger(getClass())
-      .info("Initializing max SUI = " + stringId);      
+      Logger.getLogger(getClass()).info("Initializing max SUI = " + stringId);
     }
     final Long result = maxIds.get("SUI") + 1;
     maxIds.put("SUI", result);
@@ -400,11 +405,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - get string identity " + identity);
 
     try {
-      FullTextQuery fullTextQuery = IndexUtility.applyPfsToLuceneQuery(
-          StringClassIdentityJpa.class, StringClassIdentityJpa.class,
-          "language:" + identity.getLanguage() + " AND name:\""
-              + QueryParserBase.escape(identity.getName()) + "\"",
-          null, manager);
+      FullTextQuery fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(StringClassIdentityJpa.class,
+              "language:" + identity.getLanguage() + " AND name:\""
+                  + QueryParserBase.escape(identity.getName()) + "\"",
+              null, manager);
       return (StringClassIdentity) fullTextQuery.getSingleResult();
     } catch (NoResultException e) {
       return null;
@@ -489,8 +494,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max lexical class Id
       maxIds.put("LUI", lexicalId);
-      Logger.getLogger(getClass())
-      .info("Initializing max LUI = " + lexicalId);      
+      Logger.getLogger(getClass()).info("Initializing max LUI = " + lexicalId);
     }
     final Long result = maxIds.get("LUI") + 1;
     maxIds.put("LUI", result);
@@ -506,29 +510,29 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - get lexicalClass identity " + identity);
 
     try {
-      FullTextQuery fullTextQuery = IndexUtility.applyPfsToLuceneQuery(
-          LexicalClassIdentityJpa.class, LexicalClassIdentityJpa.class,
-          "language:" + identity.getLanguage() + " AND normalizedName:\""
-              + QueryParserBase.escape(identity.getNormalizedName()) + "\"",
-          null, manager);
+      FullTextQuery fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(LexicalClassIdentityJpa.class,
+              "language:" + identity.getLanguage() + " AND normalizedName:\""
+                  + QueryParserBase.escape(identity.getNormalizedName()) + "\"",
+              null, manager);
       return (LexicalClassIdentity) fullTextQuery.getSingleResult();
     } catch (NoResultException e) {
       return null;
     }
 
-    // TODO - remove below if above works    
-    
-//    try {
-//      final javax.persistence.Query query =
-//          manager.createQuery("select a from LexicalClassIdentityJpa a "
-//              + "where normalizedName = :normalizedName ");
-//      query.setParameter("normalizedName", identity.getNormalizedName());
-//
-//      return (LexicalClassIdentity) query.getSingleResult();
-//
-//    } catch (NoResultException e) {
-//      return null;
-//    }
+    // TODO - remove below if above works
+
+    // try {
+    // final javax.persistence.Query query =
+    // manager.createQuery("select a from LexicalClassIdentityJpa a "
+    // + "where normalizedName = :normalizedName ");
+    // query.setParameter("normalizedName", identity.getNormalizedName());
+    //
+    // return (LexicalClassIdentity) query.getSingleResult();
+    //
+    // } catch (NoResultException e) {
+    // return null;
+    // }
   }
 
   /* see superclass */

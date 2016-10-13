@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -72,7 +72,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @param relationship the concept relationship
    * @param collectionCopy the deep copy
    */
-  public AtomRelationshipJpa(AtomRelationship relationship, boolean collectionCopy) {
+  public AtomRelationshipJpa(AtomRelationship relationship,
+      boolean collectionCopy) {
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
@@ -98,7 +99,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the from id
    */
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getFromId() {
     return from == null ? null : from.getId();
@@ -144,9 +145,9 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @return the from name
    */
   @Fields({
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
-    @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-})
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "fromNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public String getFromName() {
     return from == null ? null : from.getName();
   }
@@ -175,7 +176,7 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    *
    * @return the to id
    */
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
@@ -221,9 +222,9 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
    * @return the to name
    */
   @Fields({
-    @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-    @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-})
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(name = "toNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  })
   public String getToName() {
     return to == null ? null : to.getName();
   }
@@ -264,7 +265,8 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -281,20 +283,19 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
 
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -322,14 +323,6 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "AtomRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds
-        + ", getRelationshipType()=" + getRelationshipType()
-        + ", getAdditionalRelationshipType()="
-        + getAdditionalRelationshipType() + ", getId()=" + getId() + "]";
-  }
-
+  // Use superclass toString()
 
 }

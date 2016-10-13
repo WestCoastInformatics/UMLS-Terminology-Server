@@ -536,7 +536,6 @@ public class IndexUtility {
    * Apply pfs to lucene query2.
    *
    * @param clazz the clazz
-   * @param fieldNamesKey the field names key
    * @param query the query
    * @param pfs the pfs
    * @param manager the manager
@@ -544,7 +543,7 @@ public class IndexUtility {
    * @throws Exception the exception
    */
   public static FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    Class<?> fieldNamesKey, String query, PfsParameter pfs,
+    String query, PfsParameter pfs,
     EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
@@ -572,7 +571,7 @@ public class IndexUtility {
 
     Query luceneQuery;
     final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
-        .getIndexedFieldNames(fieldNamesKey, true).toArray(new String[] {}),
+        .getIndexedFieldNames(clazz, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
 
     // preserve capitalization from incoming query (in order to correctly match
@@ -598,10 +597,10 @@ public class IndexUtility {
     luceneQuery.extractTerms(terms);
     for (final Term t : terms) {
       if (t.field() != null && !t.field().isEmpty() && !IndexUtility
-          .getIndexedFieldNames(fieldNamesKey, false).contains(t.field())) {
+          .getIndexedFieldNames(clazz, false).contains(t.field())) {
         throw new ParseException(
             "Query references invalid field name " + t.field() + ", "
-                + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
+                + IndexUtility.getIndexedFieldNames(clazz, false));
       }
     }
 
