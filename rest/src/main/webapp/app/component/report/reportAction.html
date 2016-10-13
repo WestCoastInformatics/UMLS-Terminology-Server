@@ -1,4 +1,7 @@
-
+<span ng-show="!selected.project" style="display: block;"
+      class="alert alert-warning">No project selected.</span>
+      
+<span ng-show="selected.project">
 <!-- Title -->
 <h3 style="font-size: 20px;">
   {{selected.component.terminologyId}} {{selected.component.name}}
@@ -18,6 +21,8 @@
     class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
 </h3>
 
+
+      
 <div pager paging="paging" count="pagedActions.totalCount"
           callbacks="paging.callbacks"></div>
 
@@ -39,17 +44,18 @@
       <td>{{action.name}}</td>
       <td>{{toDate(action.timestamp)}}</td>
       <td>{{action.lastModifiedBy}}</td>
-      <td ng-mouseenter="displayLog(action);">
+      <td class="nobreak" ng-mouseenter="displayLog(action);">
         <i title="Undo action" ng-show="isUndoable(action)"
           ng-click="undoAction(action, false); $event.stopPropagation()"
           class="noul glyphicon glyphicon-menu-left"></i> 
         <i title="Redo action" ng-show="isRedoable(action)"
           ng-click="redoAction(action, false); $event.stopPropagation()"
           class="noul glyphicon glyphicon-menu-right"></i>
-        <i uib-popover-html="action.log" popover-trigger="mouseenter" 
+        <i uib-popover-html="action.log" popover-trigger="outsideClick" 
           popover-placement="left" 
             class="noul glyphicon glyphicon-file"></i>       
       </td>
     </tr>
   </tbody>
 </table>
+</span>

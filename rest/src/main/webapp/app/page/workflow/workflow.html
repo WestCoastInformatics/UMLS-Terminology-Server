@@ -127,7 +127,7 @@
               <td>{{stats.stats.all}}</td>
               <td>{{stats.stats.assigned}}</td>
               <td>{{stats.stats.unassigned}}</td>
-              <td>
+              <td class="nobreak">
                 <i
                   ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
                   ng-click="setConfig(selected.config); $event.stopPropagation()"

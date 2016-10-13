@@ -498,9 +498,7 @@ tsApp
             $scope.paging['records'].page += 1;
             $scope.getRecords(true);
           } else {
-            // TODO; somehow notify sty window that no more records are
-            // available so msg can be displayed
-            // BAC: recommend just setting a "warning"
+            confirm('No more clusters.');
           }
         }
 
@@ -619,12 +617,12 @@ tsApp
 
             // Handle status
             if (value == 'N') {
-              if (pfs.queryRestriction != null)
+              if (pfs.queryRestriction != null && pfs.queryRestriction != '')
                 pfs.queryRestriction += ' AND workflowStatus:N*';
               else
                 pfs.queryRestriction = 'workflowStatus:N*';
             } else if (value == 'R') {
-              if (pfs.queryRestriction != null)
+              if (pfs.queryRestriction != null && pfs.queryRestriction != '')
                 pfs.queryRestriction += ' AND workflowStatus:R*';
               else
                 pfs.queryRestriction = 'workflowStatus:R*';
@@ -883,7 +881,7 @@ tsApp
             height = 600;
           }
           $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow',
-            'width=' + width + ', height=' + height);
+            'width=' + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
           if ($scope.user.userPreferences.properties['semanticTypeX']) {
@@ -908,7 +906,7 @@ tsApp
             height = 600;
           }
           $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 
-            'width=' + width + ', height=' + height);
+            'width=' + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
           if ($scope.user.userPreferences.properties['atomX']) {
@@ -932,7 +930,7 @@ tsApp
             height = 600;
           }
           $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
-            'width=' + width + ', height=' + height);
+            'width=' + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
           if ($scope.user.userPreferences.properties['relationshipX']) {
@@ -956,7 +954,7 @@ tsApp
             height = 600;
           }
           $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
-            'width=' + width + ', height=' + height);
+            'width=' + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
           if ($scope.user.userPreferences.properties['contextX']) {

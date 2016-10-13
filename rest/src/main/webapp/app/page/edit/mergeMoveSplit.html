@@ -111,20 +111,11 @@
     </tr>
     <tr ng-show="action == 'Split'">
       <td>
-        <b>Copy Relationships</b>
+        <span title="Copy relationships & semantic types to new concept."><b>Copy</b></span>
       </td>
       <td>
-        <input type="checkbox" ng-model="copyRelationships"
-          title="Copy relationships to new concept.">
-      </td>
-    </tr>
-    <tr ng-show="action == 'Split'">
-      <td>
-        <b>Copy Semantic Types</b>
-      </td>
-      <td>
-        <input type="checkbox" ng-model="copySemanticTypes"
-          title="Copy semantic types to new concept.">
+        <input type="checkbox" ng-model="copy"
+          title="Copy relationships & semantic types to new concept.">
       </td>
     </tr>
     <tr ng-show="action == 'Split' || action == 'Insert'">
