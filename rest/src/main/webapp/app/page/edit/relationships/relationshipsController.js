@@ -33,7 +33,7 @@ tsApp
         // Paging variables
         $scope.paging = {};
         $scope.paging['relationships'] = utilService.getPaging();
-        $scope.paging['relationships'].sortField = 'id';
+        $scope.paging['relationships'].sortField = 'lastModified';
         $scope.paging['relationships'].pageSize = 10;
         $scope.paging['relationships'].filterFields = {};
         $scope.paging['relationships'].filterFields.toName = 1;
@@ -57,14 +57,14 @@ tsApp
 
         // add relationship
         $scope.addRelationshipToConcept = function(relationship) {
-          metaEditingService.addRelationship($scope.selected.project.id, $scope.selected.worklist.name,
-            $scope.selected.component, relationship);
+          metaEditingService.addRelationship($scope.selected.project.id,
+            $scope.selected.worklist.name, $scope.selected.component, relationship);
         }
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
-          metaEditingService.removeRelationship($scope.selected.project.id, $scope.selected.worklist.name,
-            $scope.selected.component, relationship.id, true);
+          metaEditingService.removeRelationship($scope.selected.project.id,
+            $scope.selected.worklist.name, $scope.selected.component, relationship.id, true);
         }
 
         // Get paged relationships
@@ -78,15 +78,16 @@ tsApp
             terminologyId : $scope.selected.component.terminologyId,
             type : $scope.selected.component.type
           }, false, true, $scope.preferredOnly, false, $scope.paging['relationships']).then(
-          // Success
-          function(data) {
-            $scope.pagedRelationships = data.relationships;
-            $scope.pagedRelationships.totalCount = data.totalCount
-            
-            for (var i=0; i<$scope.pagedRelationships.length; i++) {
-              $scope.pagedRelationships[i].level = $scope.getRelationshipLevel($scope.pagedRelationships[i]);
-            }
-          });
+            // Success
+            function(data) {
+              $scope.pagedRelationships = data.relationships;
+              $scope.pagedRelationships.totalCount = data.totalCount
+
+              for (var i = 0; i < $scope.pagedRelationships.length; i++) {
+                $scope.pagedRelationships[i].level = $scope
+                  .getRelationshipLevel($scope.pagedRelationships[i]);
+              }
+            });
         }
 
         $scope.transferConceptToEditor = function() {
@@ -103,19 +104,20 @@ tsApp
           $scope.parentWindowScope.removeWindow('relationship');
         }
 
-        // on window resize, save dimensions and screen location to user preferences
+        // on window resize, save dimensions and screen location to user
+        // preferences
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
-          window.resizedFinished = setTimeout(function(){
-              console.log('Resized finished on relationships window.');
-              $scope.user.userPreferences.properties['relationshipWidth'] = window.outerWidth;
-              $scope.user.userPreferences.properties['relationshipHeight'] = window.outerHeight;
-              $scope.user.userPreferences.properties['relationshipX'] = window.screenX;
-              $scope.user.userPreferences.properties['relationshipY'] = window.screenY;
-              securityService.updateUserPreferences($scope.user.userPreferences);
+          window.resizedFinished = setTimeout(function() {
+            console.log('Resized finished on relationships window.');
+            $scope.user.userPreferences.properties['relationshipWidth'] = window.outerWidth;
+            $scope.user.userPreferences.properties['relationshipHeight'] = window.outerHeight;
+            $scope.user.userPreferences.properties['relationshipX'] = window.screenX;
+            $scope.user.userPreferences.properties['relationshipY'] = window.screenY;
+            securityService.updateUserPreferences($scope.user.userPreferences);
           }, 250);
         }
-       
+
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {
           utilService.setSortField(table, field, $scope.paging);
@@ -126,18 +128,18 @@ tsApp
         $scope.getSortIndicator = function(table, field) {
           return utilService.getSortIndicator(table, field, $scope.paging);
         };
-        
+
         // indicates the style for an relationship
         $scope.getRelationshipClass = function(relationship) {
 
           // DEMOTION (blue)
           if (relationship.workflowStatus == 'DEMOTION')
             return 'DEMOTION';
-          
+
           // NEEDS_REVIEW (red)
           if (relationship.workflowStatus == 'NEEDS_REVIEW')
             return 'NEEDS_REVIEW';
-            
+
           // UNRELEASABLE (green)
           if (!relationship.publishable)
             return 'UNRELEASABLE';
@@ -145,7 +147,7 @@ tsApp
           // OBSOLETE (purple)
           if (relationship.obsolete)
             return 'OBSOLETE';
-          
+
           // RXNORM (orange)
           if (relationship.terminology == 'RXNORM') {
             return 'RXNORM';
@@ -165,7 +167,7 @@ tsApp
         $scope.isRowSelected = function(relationship) {
           return $scope.selected.relationship && $scope.selected.relationship.id == relationship.id;
         };
-        
+
         // returns relationship level
         $scope.getRelationshipLevel = function(rel) {
           if (rel.workflowStatus == 'DEMOTION') {

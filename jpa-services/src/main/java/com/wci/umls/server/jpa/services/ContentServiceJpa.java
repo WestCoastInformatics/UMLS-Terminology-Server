@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -3409,8 +3410,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + ", a.obsolete, a.suppressible, a.published, a.publishable, "
             + (inverseFlag ? "a.from.name " : "a.to.name ") + ", "
             + (inverseFlag ? "a.from.id " : "a.to.id ") + ", a.workflowStatus "
-            + ", a.lastModifiedBy " + "from ConceptRelationshipJpa a "
-            + "where " + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId "
+            + ", a.lastModifiedBy, a.lastModified "
+            + "from ConceptRelationshipJpa a " + "where "
+            + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId "
             + suppressibleClause;
         query = manager.createQuery(queryStr);
         query.setParameter("conceptId", concept.getId());
@@ -3421,7 +3423,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId, "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from AtomRelationshipJpa a, ConceptJpa c2 join c2.atoms ca "
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
@@ -3441,7 +3443,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from ConceptRelationshipJpa a, ConceptJpa b, AtomJpa c, "
           + "ConceptJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3465,7 +3467,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from DescriptorRelationshipJpa a, DescriptorJpa b, AtomJpa c, "
           + "DescriptorJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca "
           + "where a." + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3489,7 +3491,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "a.relationshipType, a.additionalRelationshipType, c2.terminologyId,       "
           + "a.obsolete, a.suppressible, a.published, a.publishable, "
           + (inverseFlag ? "a.from.name " : "a.to.name ") + ", c2.id "
-          + ", a.workflowStatus " + ", a.lastModifiedBy "
+          + ", a.workflowStatus " + ", a.lastModifiedBy, a.lastModified "
           + "from CodeRelationshipJpa a, CodeJpa b, AtomJpa c, "
           + "CodeJpa d, AtomJpa e, ConceptJpa c2 join c2.atoms ca " + "where a."
           + (inverseFlag ? "to" : "from") + ".id = b.id "
@@ -3536,6 +3538,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
         relationship
             .setWorkflowStatus(WorkflowStatus.valueOf(result[13].toString()));
         relationship.setLastModifiedBy(result[14].toString());
+        relationship.setLastModified(
+            new Date(((java.sql.Timestamp) result[15]).getTime()));
 
         // handle self-referential
         if (includeSelfReferential || !relationship.getFrom().getId()

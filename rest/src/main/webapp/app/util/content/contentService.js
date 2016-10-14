@@ -690,12 +690,20 @@ tsApp
             defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
           }
 
+          var sortField = paging.sortField;
+          var sortFields = null;
+          if (paging.sortFields) {
+            sortField = null;
+            sortFields = paging.sortFields;
+          } else if (!sortField) {
+            sortFields = [ 'group', 'relationshipType' ];
+          }
+
           if (paging) {
 
             var pfs = {
               startIndex : (paging.page - 1) * paging.pageSize,
               maxResults : paging.pageSize,
-              sortFields : paging.sortFields ? paging.sortFields : [ 'group', 'relationshipType' ],
               ascending : paging.sortAscending,
 
               // NOTE: Deep relationships do not support query restrictions,
@@ -705,13 +713,18 @@ tsApp
             };
           }
 
+          if (pfs.sortFields) {
+            pfs.sortFields = sortFields;
+          } else {
+            pfs.sortField = sortField;
+          }
           if (!paging.showSuppressible) {
             pfs.queryRestriction = "suppressible:false";
           }
 
           // set filter/query; unlike relationships, does not require * for
           // filtering
-          var query = paging.text;
+          var query = paging.filter
 
           // do not use glass pane, produces additional user lag on initial
           // concept load

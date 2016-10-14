@@ -1109,8 +1109,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.CONCEPT.toString(), action.getConceptPostUpdates().getId(),
-          action.getConceptPostUpdates());
+          IdType.CONCEPT.toString(), action.getConcept().getId(),
+          action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;

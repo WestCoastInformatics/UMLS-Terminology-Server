@@ -153,21 +153,4 @@ public interface UserPreferences {
    */
   public void setProperties(Map<String, String> properties);
 
-
-  /**
-   * Removes the property.
-   *
-   * @param key the key
-   */
-  public void removeProperty(String key);
-
-
-  /**
-   * Put property.
-   *
-   * @param key the key
-   * @param value the value
-   */
-  public void putProperty(String key, String value);
-
 }

@@ -151,47 +151,74 @@
           Test Exception</button>
         <button ng-show="user.applicationRole == 'ADMINISTRATOR'"
           confirm="Are you sure you want to reload the configuration?"
-          ng-click="reloadConfig()" class="btn btn-xs btn-warning">Reload
+          ng-click="reloadConfig()" class="btn btn-xs btn-primary">Reload
           Config</button>
-        <button class="btn btn-xs btn-warning"
+        <button class="btn btn-xs btn-primary"
           ng-click="resetUserPreferences(user)"
-          title="Reset user preferences to defaults">Reset Preferences</button> 
+          title="Reset user preferences to defaults">Reset Preferences</button>
       </div>
       <div class="col-md-12 col-xs-12">
-        <h5>
+        <h6>
           <b>Default Project Settings</b>
-        </h5>
+        </h6>
       </div>
       <div class="col-md-12 col-xs-12">
-        <div class="col-md-6 col-xs-6">
-          <table class="slim table pointer">
-            <thead>
-              <tr>
-                <th class="col-md-2 col-xs-2"></th>
-                <th class="col-md-9 col-xs-9"></th>
-                <th class="col-md-1 col-xs-1"></th>
-              </tr>
-            </thead>
-            <tbody>
+        <table class="slim table pointer">
+          <thead>
+            <tr>
+              <th class="col-md-3 col-xs-3"></th>
+              <th class="col-md-9 col-xs-9"></th>
+            </tr>
+          </thead>
+          <tbody>
 
-              <tr>
-                <td>Feedback Email:</td>
-                <td>
-                  <input type="text" size="40"
-                    ng-change="setChanged('feedbackEmail')"
-                    ng-model="user.userPreferences.feedbackEmail">
-                </td>
-                <td>
-                  <button class="btn btn-xs btn-warning"
-                    ng-show="changed.feedbackEmail"
-                    ng-click="saveUserPreference('feedbackEmail', user.userPreferences.feedbackEmail)"
-                    title="Click to save the feedback email">Save</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div> 
+            <tr>
+              <td>Feedback Email:</td>
+              <td>
+                <input type="text" size="40"
+                  ng-change="setChanged('feedbackEmail')"
+                  ng-model="user.userPreferences.feedbackEmail"> &nbsp;
+                <button class="btn btn-xs btn-warning"
+                  ng-show="changed.feedbackEmail"
+                  ng-click="saveUserPreference('feedbackEmail')"
+                  title="Click to save the feedback email">Save</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <div class="col-md-12 col-xs-12">
+        <h6>
+          <b>Other Settings</b>
+        </h6>
+      </div>
+      <div class="col-md-12 col-xs-12">
+        <table class="slim table pointer">
+          <thead>
+            <tr>
+              <th class="col-md-3 col-xs-3"></th>
+              <th class="col-md-9 col-xs-9"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Last Project Id:</td>
+              <td>{{user.userPreferences.lastProjectId}}</td>
+            </tr>
+            <tr>
+              <td>Last Project Role:</td>
+              <td>{{user.userPreferences.lastProjectRole}}</td>
+            </tr>
+            <tr
+              ng-repeat="item in user.userPreferences.properties | toArrayKeys | orderBy">
+              <td>{{item}}:</td>
+              <td>{{user.userPreferences.properties[item]}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 </div>

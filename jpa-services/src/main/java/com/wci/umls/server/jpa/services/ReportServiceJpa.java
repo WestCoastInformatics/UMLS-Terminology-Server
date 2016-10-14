@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +55,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
     implements ReportService {
 
   /** The line end. */
-  private String lineEnd = "\r\n";
+  private final String lineEnd = "\r\n";
+
+  /** The concept contexts cache. */
+  private static final Map<Long, String> conceptContextsCache =
+      Collections.synchronizedMap(new LinkedHashMap<Long, String>(50) {
+        private static final long serialVersionUID = 2546245625L;
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Long, String> eldest) {
+          return size() > 50;
+        }
+      });
 
   /**
    * Instantiates an empty {@link ReportServiceJpa}.
@@ -163,7 +175,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
             decorate));
       }
     }
-    
+
     //
     // Sort atoms
     //
@@ -171,7 +183,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (concept != null) {
       Collections.sort(sortedAtoms, new ReportsAtomComparator(concept, list));
     }
-    
+
     //
     // Definitions
     // TODO: need to look for definitions on descriptor,scui, etc.
@@ -222,16 +234,19 @@ public class ReportServiceJpa extends HistoryServiceJpa
     final StringBuffer notesBuffer = new StringBuffer();
     final String notesLabel = "CONCEPT NOTE(S)";
     notesBuffer.append(notesLabel);
-    for (final Note note : concept.getNotes()) {   
-      notesBuffer.append(lineEnd).append(WordUtils.wrap("  - " + note.getLastModifiedBy() + "/"
-                  + note.getLastModified() + "  " + note.getNote(), 65, "\r\n    ", true));
+    for (final Note note : concept.getNotes()) {
+      notesBuffer.append(lineEnd)
+          .append(
+              WordUtils.wrap(
+                  "  - " + note.getLastModifiedBy() + "/"
+                      + note.getLastModified() + "  " + note.getNote(),
+                  65, "\r\n    ", true));
     }
     if (notesBuffer.toString().length() > notesLabel.length()) {
       sb.append(notesBuffer.toString());
     }
     sb.append(lineEnd);
-    
-    
+
     //
     // Atoms
     //
@@ -244,7 +259,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
     String prev_lui = "";
     String prev_sui = "";
-
 
     for (final Atom atom : sortedAtoms) {
 
@@ -539,178 +553,192 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     // CONTEXTS
     //
-    // TODO : deal with atom tree positions
-    boolean firstContext = true;
-    final Set<String> uniqueSet = new HashSet<>();
-    final List<TreePosition<?>> treePositionList = new ArrayList<>();
-    // collect all unique terminology, version, terminologyId, type combos from
-    // atoms in concept - ATOMS are in order 
-    int ct = 0;
-    for (final Atom atom : comp.getAtoms()) {
 
-      final Terminology fullTerminology =
-          getTerminology(atom.getTerminology(), atom.getVersion());
-      final IdType type = fullTerminology.getOrganizingClassType();
-      String terminologyId = null;
-
-      if (type == IdType.CODE) {
-        terminologyId = atom.getCodeId();
-      } else if (type == IdType.CONCEPT) {
-        terminologyId = atom.getConceptId();
-      } else if (type == IdType.DESCRIPTOR) {
-        terminologyId = atom.getDescriptorId();
-      } else {
-        continue;
-      }
-      final String entry = type + ":" + atom.getTerminology() + ":"
-          + atom.getVersion() + ":" + terminologyId;
-      // If new entry
-      if (!uniqueSet.contains(entry)) {
-        // Break if we've reached the limit
-        if (ct >= 100) {
-          break;
-        }
-
-        // See if there is a tree position
-        final TreePosition<?> treePos = getTreePosition(type, terminologyId,
-            atom.getTerminology(), atom.getVersion());
-        // Increment if so
-        if (treePos != null) {
-          ++ct;
-          treePositionList.add(treePos);
-        }
-
-        // Get tree position
-      }
-      uniqueSet.add(entry);
+    // Check cache
+    final String contexts = getCachedContexts(concept.getId());
+    if (contexts != null) {
+      sb.append(contexts);
     }
 
-    // Sort tree positions by terminology
-    Collections.sort(treePositionList,
-        (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
+    else {
 
-    // display context for each tree position
-    for (final TreePosition<?> treePos : treePositionList) {
+      final StringBuilder cxtBuilder = new StringBuilder();
 
-      if (treePos.getAncestorPath().equals(""))
-        continue;
+      // TODO : deal with atom tree positions
+      boolean firstContext = true;
+      final Set<String> uniqueSet = new HashSet<>();
+      final List<TreePosition<?>> treePositionList = new ArrayList<>();
+      // collect all unique terminology, version, terminologyId, type combos
+      // from
+      // atoms in concept - ATOMS are in order
+      int ct = 0;
+      for (final Atom atom : comp.getAtoms()) {
 
-      if (firstContext) {
-        sb.append("CONTEXTS").append(lineEnd);
-        firstContext = false;
-      }
-      
-      final Terminology fullTerminology = getTerminology(
-          treePos.getNode().getTerminology(), treePos.getNode().getVersion());
-      
-      // skip all non-english contexts
-      if(!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
-        continue;
-      }
-      
-      sb.append(treePos.getNode().getTerminology()).append("_")
-          .append(treePos.getNode().getVersion());
-      sb.append("/").append(treePos.getNode().getTerminologyId())
-          .append(lineEnd);
+        final Terminology fullTerminology =
+            getTerminology(atom.getTerminology(), atom.getVersion());
+        final IdType type = fullTerminology.getOrganizingClassType();
+        String terminologyId = null;
 
-      final Tree tree = getTreeForTreePosition(treePos);
-
-      // ancestors
-      indent = "";
-      sb.append(tree.getNodeName()).append(lineEnd);
-      indent += "  ";
-      indent = printAncestors(sb, tree, null, indent);
-      // "parent" is the tree position above the bottom one
-      parent = tree;
-      while (parent.getChildren().size() > 0) {
-        if (parent.getChildren().get(0).getChildren().size() > 0) {
-          parent = parent.getChildren().get(0);
+        if (type == IdType.CODE) {
+          terminologyId = atom.getCodeId();
+        } else if (type == IdType.CONCEPT) {
+          terminologyId = atom.getConceptId();
+        } else if (type == IdType.DESCRIPTOR) {
+          terminologyId = atom.getDescriptorId();
         } else {
-          break;
+          continue;
         }
-      }
-
-      // children     
-      final IdType type = fullTerminology.getOrganizingClassType();
-      
-      
-      TreePositionList siblings = null;
-      TreePositionList children = null;
-      final PfsParameter childPfs = new PfsParameterJpa();
-      childPfs.setStartIndex(0);
-      childPfs.setMaxResults(10);
-      if (type == IdType.CONCEPT) {
-        if (treePos.getChildCt() > 0) {
-          children = findConceptTreePositionChildren(
-              treePos.getNode().getTerminologyId(),
-              treePos.getNode().getTerminology(),
-              treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-        } else {
-          children = new TreePositionListJpa();
-        }
-        siblings = findConceptTreePositionChildren(
-            parent.getNodeTerminologyId(), parent.getTerminology(),
-            parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
-      } else if (type == IdType.CODE) {
-        if (treePos.getChildCt() > 0) {
-          children =
-              findCodeTreePositionChildren(treePos.getNode().getTerminologyId(),
-                  treePos.getNode().getTerminology(),
-                  treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-        } else {
-          children = new TreePositionListJpa();
-        }
-        siblings = findCodeTreePositionChildren(parent.getNodeTerminologyId(),
-            parent.getTerminology(), parent.getVersion(), Branch.ROOT,
-            new PfsParameterJpa());
-      } else if (type == IdType.DESCRIPTOR) {
-        if (treePos.getChildCt() > 0) {
-          children = findDescriptorTreePositionChildren(
-              treePos.getNode().getTerminologyId(),
-              treePos.getNode().getTerminology(),
-              treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-        } else {
-          children = new TreePositionListJpa();
-        }
-        siblings = findDescriptorTreePositionChildren(
-            parent.getNodeTerminologyId(), parent.getTerminology(),
-            parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
-      } else {
-        throw new Exception("Unexpected it type - " + type);
-      }
-
-      // siblings & self node
-      indent = indent.substring(0, indent.length() - 2);
-      Collections.sort(siblings.getObjects(),
-          (t1, t2) -> t1.getNode().getName().compareTo(t2.getNode().getName()));
-
-      indent += "  ";
-      for (TreePosition<?> siblingPosition : siblings.getObjects()) {
-        sb.append(indent);
-        if (siblingPosition.getNode().getName()
-            .equals(treePos.getNode().getName())) {
-          sb.append("<b>");
-        }
-        sb.append(siblingPosition.getNode().getName());
-        if (siblingPosition.getNode().getName()
-            .equals(treePos.getNode().getName())) {
-          sb.append("</b>").append(lineEnd);
-
-          // children
-          indent += "  ";
-          printChildren(sb, treePos, children, indent);
-          if (children.getTotalCount() > 10) {
-            sb.append(indent)
-                .append("..." + (children.getTotalCount() - 10) + " more ...");
+        final String entry = type + ":" + atom.getTerminology() + ":"
+            + atom.getVersion() + ":" + terminologyId;
+        // If new entry
+        if (!uniqueSet.contains(entry)) {
+          // Break if we've reached the limit
+          if (ct >= 100) {
+            break;
           }
-          indent = indent.substring(0, indent.length() - 2);
-        } else if (siblingPosition.getChildCt() > 0) {
-          sb.append(" +").append(lineEnd);
-        } else {
-          sb.append(lineEnd);
+
+          // See if there is a tree position
+          final TreePosition<?> treePos = getTreePosition(type, terminologyId,
+              atom.getTerminology(), atom.getVersion());
+          // Increment if so
+          if (treePos != null) {
+            ++ct;
+            treePositionList.add(treePos);
+          }
+
+          // Get tree position
         }
+        uniqueSet.add(entry);
       }
-      sb.append(lineEnd);
+
+      // Sort tree positions by terminology
+      Collections.sort(treePositionList,
+          (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
+
+      // display context for each tree position
+      for (final TreePosition<?> treePos : treePositionList) {
+
+        if (treePos.getAncestorPath().equals(""))
+          continue;
+
+        if (firstContext) {
+          cxtBuilder.append("CONTEXTS").append(lineEnd);
+          firstContext = false;
+        }
+
+        final Terminology fullTerminology = getTerminology(
+            treePos.getNode().getTerminology(), treePos.getNode().getVersion());
+
+        // skip all non-english contexts
+        if (!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
+          continue;
+        }
+
+        cxtBuilder.append(treePos.getNode().getTerminology()).append("_")
+            .append(treePos.getNode().getVersion());
+        cxtBuilder.append("/").append(treePos.getNode().getTerminologyId())
+            .append(lineEnd);
+
+        final Tree tree = getTreeForTreePosition(treePos);
+
+        // ancestors
+        indent = "";
+        cxtBuilder.append(tree.getNodeName()).append(lineEnd);
+        indent += "  ";
+        indent = printAncestors(sb, tree, null, indent);
+        // "parent" is the tree position above the bottom one
+        parent = tree;
+        while (parent.getChildren().size() > 0) {
+          if (parent.getChildren().get(0).getChildren().size() > 0) {
+            parent = parent.getChildren().get(0);
+          } else {
+            break;
+          }
+        }
+
+        // children
+        final IdType type = fullTerminology.getOrganizingClassType();
+
+        TreePositionList siblings = null;
+        TreePositionList children = null;
+        final PfsParameter childPfs = new PfsParameterJpa();
+        childPfs.setStartIndex(0);
+        childPfs.setMaxResults(10);
+        if (type == IdType.CONCEPT) {
+          if (treePos.getChildCt() > 0) {
+            children = findConceptTreePositionChildren(
+                treePos.getNode().getTerminologyId(),
+                treePos.getNode().getTerminology(),
+                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
+          } else {
+            children = new TreePositionListJpa();
+          }
+          siblings = findConceptTreePositionChildren(
+              parent.getNodeTerminologyId(), parent.getTerminology(),
+              parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+        } else if (type == IdType.CODE) {
+          if (treePos.getChildCt() > 0) {
+            children = findCodeTreePositionChildren(
+                treePos.getNode().getTerminologyId(),
+                treePos.getNode().getTerminology(),
+                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
+          } else {
+            children = new TreePositionListJpa();
+          }
+          siblings = findCodeTreePositionChildren(parent.getNodeTerminologyId(),
+              parent.getTerminology(), parent.getVersion(), Branch.ROOT,
+              new PfsParameterJpa());
+        } else if (type == IdType.DESCRIPTOR) {
+          if (treePos.getChildCt() > 0) {
+            children = findDescriptorTreePositionChildren(
+                treePos.getNode().getTerminologyId(),
+                treePos.getNode().getTerminology(),
+                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
+          } else {
+            children = new TreePositionListJpa();
+          }
+          siblings = findDescriptorTreePositionChildren(
+              parent.getNodeTerminologyId(), parent.getTerminology(),
+              parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+        } else {
+          throw new Exception("Unexpected it type - " + type);
+        }
+
+        // siblings & self node
+        indent = indent.substring(0, indent.length() - 2);
+        Collections.sort(siblings.getObjects(), (t1, t2) -> t1.getNode()
+            .getName().compareTo(t2.getNode().getName()));
+
+        indent += "  ";
+        for (TreePosition<?> siblingPosition : siblings.getObjects()) {
+          cxtBuilder.append(indent);
+          if (siblingPosition.getNode().getName()
+              .equals(treePos.getNode().getName())) {
+            cxtBuilder.append("<b>");
+          }
+          cxtBuilder.append(siblingPosition.getNode().getName());
+          if (siblingPosition.getNode().getName()
+              .equals(treePos.getNode().getName())) {
+            cxtBuilder.append("</b>").append(lineEnd);
+
+            // children
+            indent += "  ";
+            printChildren(sb, treePos, children, indent);
+            if (children.getTotalCount() > 10) {
+              cxtBuilder.append(indent).append(
+                  "..." + (children.getTotalCount() - 10) + " more ...");
+            }
+            indent = indent.substring(0, indent.length() - 2);
+          } else if (siblingPosition.getChildCt() > 0) {
+            cxtBuilder.append(" +").append(lineEnd);
+          } else {
+            cxtBuilder.append(lineEnd);
+          }
+        }
+        cxtBuilder.append(lineEnd);
+      }
+      cacheContexts(concept.getId(), cxtBuilder.toString());
+      sb.append(cxtBuilder.toString());
     }
 
     if (comp.getLastModified() != null && comp.getLastModifiedBy() != null) {
@@ -721,8 +749,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
       } else if (comp instanceof Code) {
         sb.append("Code");
       }
-      sb.append(" was last touched on ").append(comp.getLastModified()).append(
-          " by ").append(comp.getLastModifiedBy()).append(".").append(lineEnd);
+      sb.append(" was last touched on ").append(comp.getLastModified())
+          .append(" by ").append(comp.getLastModifiedBy()).append(".")
+          .append(lineEnd);
     }
     if (concept != null) {
       if (concept.getLastApproved() != null
@@ -732,7 +761,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
             .append(concept.getLastApprovedBy()).append(".").append(lineEnd);
       }
     }
-    
+
     return sb.toString();
   }
 
@@ -1092,6 +1121,35 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // If things are STILL equal, compare the ranks
       return atomRanks.get(a2.getId()).compareTo(atomRanks.get(a1.getId()));
+    }
+  }
+
+  /**
+   * Returns the cached contexts.
+   *
+   * @param conceptId the concept id
+   * @return the cached contexts
+   */
+  @SuppressWarnings("static-method")
+  private String getCachedContexts(Long conceptId) {
+    synchronized (conceptContextsCache) {
+      if (conceptContextsCache.containsKey(conceptId)) {
+        return conceptContextsCache.get(conceptId);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Cache contexts.
+   *
+   * @param conceptId the concept id
+   * @param contexts the contexts
+   */
+  @SuppressWarnings("static-method")
+  private void cacheContexts(Long conceptId, String contexts) {
+    synchronized (conceptContextsCache) {
+      conceptContextsCache.put(conceptId, contexts);
     }
   }
 

@@ -275,8 +275,7 @@ tsApp
         };
 
         // update a specific user preference
-        $scope.saveUserPreference = function(item, value) {
-          $scope.user.userPreferences[item] = value;
+        $scope.saveUserPreference = function(item) {
           $scope.changed[item] = false;
           $scope.saveUserPreferences();
         };

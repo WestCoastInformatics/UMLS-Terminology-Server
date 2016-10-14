@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.HashSet;
+
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
@@ -107,12 +109,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-    Logger.getLogger(getClass()).info("Add Rel");
-    Logger.getLogger(getClass()).info("  rel = " + relationship);
     // construct inverse relationship
     final ConceptRelationshipJpa inverseRelationship =
         (ConceptRelationshipJpa) createInverseConceptRelationship(relationship);
-    Logger.getLogger(getClass()).info("  inverse rel = " + inverseRelationship);
 
     // XR (not related) relationships need to be set to not-released
     if (relationship.getRelationshipType().equals("XR")) {
@@ -121,12 +120,6 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     if (inverseRelationship.getRelationshipType().equals("XR")) {
       inverseRelationship.setPublishable(false);
     }
-
-    Logger.getLogger(getClass()).info("  concept1 = " + getConcept());
-    Logger.getLogger(getClass()).info("    atoms = " + getConcept().getAtoms());
-    Logger.getLogger(getClass()).info("  concept2 = " + getConcept2());
-    Logger.getLogger(getClass())
-        .info("    atoms = " + getConcept2().getAtoms());
 
     // Assign RUI at production time
 
@@ -138,9 +131,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // If any matching relationship, remove it and its inverse (new
     // relationships will replace them)
-    for (final ConceptRelationship rel : getConcept().getRelationships()) {
+    for (final ConceptRelationship rel : new HashSet<>(
+        getConcept().getRelationships())) {
       if (rel.getTo().getId().equals(relationship.getTo().getId())) {
-        Logger.getLogger(getClass()).info("  remove matching C rel = " + rel);
 
         // Remove the relationship from the concepts
         getConcept().getRelationships().remove(rel);
@@ -171,7 +164,6 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     AtomRelationship demotion = findDemotionMatchingRelationship(relationship);
 
     if (demotion != null) {
-      Logger.getLogger(getClass()).info("  remove demotion = " + demotion);
       // Remove the demotions from the atoms
       demotion.getFrom().getRelationships().remove(demotion);
       demotion.getTo().getRelationships()
@@ -217,7 +209,6 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
-    Logger.getLogger(getClass()).info("  done");
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),

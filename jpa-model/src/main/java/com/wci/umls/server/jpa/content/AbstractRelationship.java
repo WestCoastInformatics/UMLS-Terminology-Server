@@ -271,8 +271,8 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getName() + " [from=" + getFrom() + ", to=" + getTo()
-        + ", relationshipType=" + relationshipType
+    return getClass().getName() + " [from=" + ", to=" + getTo().getName() + " "
+        + getTo().getName() + ", relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType
         + ", group=" + group + ", assertedDirection=" + assertedDirection
         + ", workflowStatus=" + workflowStatus + "] " + super.toString();
