@@ -28,8 +28,6 @@ tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpSe
 
   $scope.glassPane = gpService.glassPane;
 
-  
-  
 } ]);
 
 // Simple error controller
@@ -139,5 +137,14 @@ tsApp.directive('confirm', function($confirm) {
         reBind(bindConfirm);
       }
     }
+  };
+});
+
+// Filter for ordering by key
+tsApp.filter('toArrayKeys', function() {
+  return function(obj, field, reverse) {
+    var arr = [];
+    arr = Object.keys(obj);
+    return arr;
   };
 });

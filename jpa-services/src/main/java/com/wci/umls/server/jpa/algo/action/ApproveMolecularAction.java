@@ -26,12 +26,6 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class ApproveMolecularAction extends AbstractMolecularAction {
 
-  /** The concept pre updates. */
-  private Concept conceptPreUpdates;
-
-  /** The concept post updates. */
-  private Concept conceptPostUpdates;
-
   /**
    * Instantiates an empty {@link ApproveMolecularAction}.
    *
@@ -40,24 +34,6 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
   public ApproveMolecularAction() throws Exception {
     super();
     // n/a
-  }
-
-  /**
-   * Returns the concept pre updates.
-   *
-   * @return the concept pre updates
-   */
-  public Concept getConceptPreUpdates() {
-    return conceptPreUpdates;
-  }
-
-  /**
-   * Returns the concept post updates.
-   *
-   * @return the concept post updates
-   */
-  public Concept getConceptPostUpdates() {
-    return conceptPostUpdates;
   }
 
   /* see superclass */
@@ -87,10 +63,6 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     // Perform the action (contentService will create atomic actions for CRUD
     // operations)
     //
-
-    // Make copy of the Concept before changes, to pass into
-    // change event
-    conceptPreUpdates = new ConceptJpa(getConcept(), false);
 
     //
     // Get each object in the Concept
