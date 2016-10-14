@@ -114,18 +114,18 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     final List<String> clauses = new ArrayList<>();
 
     clauses.add(
-        identityClauseBuilder("terminology", identity.getTerminology(), false));
-    clauses.add(identityClauseBuilder("terminologyId",
+        composeClause("terminology", identity.getTerminology(), false));
+    clauses.add(composeClause("terminologyId",
         identity.getTerminologyId(), false));
     clauses.add(
-        identityClauseBuilder("componentId", identity.getComponentId(), false));
-    clauses.add(identityClauseBuilder("componentType",
+        composeClause("componentId", identity.getComponentId(), false));
+    clauses.add(composeClause("componentType",
         identity.getComponentType().toString(), false));
-    clauses.add(identityClauseBuilder("componentTerminology",
+    clauses.add(composeClause("componentTerminology",
         identity.getComponentTerminology(), false));
-    clauses.add(identityClauseBuilder("name", identity.getName(), true));
+    clauses.add(composeClause("name", identity.getName(), true));
     clauses
-        .add(identityClauseBuilder("hashcode", identity.getHashcode(), false));
+        .add(composeClause("hashcode", identity.getHashcode(), false));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
@@ -242,10 +242,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     final List<String> clauses = new ArrayList<>();
 
     clauses.add(
-        identityClauseBuilder("terminology", identity.getTerminology(), false));
-    clauses.add(identityClauseBuilder("conceptTerminologyId",
+        composeClause("terminology", identity.getTerminology(), false));
+    clauses.add(composeClause("conceptTerminologyId",
         identity.getConceptTerminologyId(), false));
-    clauses.add(identityClauseBuilder("semanticType",
+    clauses.add(composeClause("semanticType",
         identity.getSemanticType(), true));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
@@ -351,18 +351,18 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     final List<String> clauses = new ArrayList<>();
 
-    clauses.add(identityClauseBuilder("stringClassId",
+    clauses.add(composeClause("stringClassId",
         identity.getStringClassId(), false));
     clauses.add(
-        identityClauseBuilder("terminology", identity.getTerminology(), false));
-    clauses.add(identityClauseBuilder("terminologyId",
+        composeClause("terminology", identity.getTerminology(), false));
+    clauses.add(composeClause("terminologyId",
         identity.getTerminologyId(), false));
     clauses
-        .add(identityClauseBuilder("termType", identity.getTermType(), false));
-    clauses.add(identityClauseBuilder("codeId", identity.getCodeId(), false));
+        .add(composeClause("termType", identity.getTermType(), false));
+    clauses.add(composeClause("codeId", identity.getCodeId(), false));
     clauses.add(
-        identityClauseBuilder("conceptId", identity.getConceptId(), false));
-    clauses.add(identityClauseBuilder("descriptorId",
+        composeClause("conceptId", identity.getConceptId(), false));
+    clauses.add(composeClause("descriptorId",
         identity.getDescriptorId(), false));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
@@ -464,8 +464,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     final List<String> clauses = new ArrayList<>();
 
     clauses
-        .add(identityClauseBuilder("language", identity.getLanguage(), false));
-    clauses.add(identityClauseBuilder("name", identity.getName(), true));
+        .add(composeClause("language", identity.getLanguage(), false));
+    clauses.add(composeClause("name", identity.getName(), true));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
@@ -571,8 +571,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     final List<String> clauses = new ArrayList<>();
 
     clauses
-        .add(identityClauseBuilder("language", identity.getLanguage(), false));
-    clauses.add(identityClauseBuilder("normalizedName",
+        .add(composeClause("language", identity.getLanguage(), false));
+    clauses.add(composeClause("normalizedName",
         identity.getNormalizedName(), true));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
@@ -718,22 +718,22 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     final List<String> clauses = new ArrayList<>();
 
     clauses.add(
-        identityClauseBuilder("terminology", identity.getTerminology(), false));
-    clauses.add(identityClauseBuilder("terminologyId",
+        composeClause("terminology", identity.getTerminology(), false));
+    clauses.add(composeClause("terminologyId",
         identity.getTerminologyId(), false));
-    clauses.add(identityClauseBuilder("relationshipType",
+    clauses.add(composeClause("relationshipType",
         identity.getRelationshipType(), false));
-    clauses.add(identityClauseBuilder("additionalRelationshipType",
+    clauses.add(composeClause("additionalRelationshipType",
         identity.getAdditionalRelationshipType(), false));
-    clauses.add(identityClauseBuilder("fromId", identity.getFromId(), false));
-    clauses.add(identityClauseBuilder("fromType",
+    clauses.add(composeClause("fromId", identity.getFromId(), false));
+    clauses.add(composeClause("fromType",
         identity.getFromType().toString(), false));
-    clauses.add(identityClauseBuilder("fromTerminology",
+    clauses.add(composeClause("fromTerminology",
         identity.getFromTerminology(), false));
-    clauses.add(identityClauseBuilder("toId", identity.getToId(), false));
-    clauses.add(identityClauseBuilder("toType", identity.getToType().toString(),
+    clauses.add(composeClause("toId", identity.getToId(), false));
+    clauses.add(composeClause("toType", identity.getToType().toString(),
         false));
-    clauses.add(identityClauseBuilder("toTerminology",
+    clauses.add(composeClause("toTerminology",
         identity.getToTerminology(), false));
 
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
@@ -788,7 +788,16 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     removeObject(identity);
   }
 
-  private String identityClauseBuilder(String fieldName, String fieldValue,
+  /**
+   * Identity clause builder.
+   *
+   * @param fieldName the field name
+   * @param fieldValue the field value
+   * @param escapeValue - whether the value can have characters that need to be escaped
+   * @return the string
+   * @throws Exception the exception
+   */
+  private String composeClause(String fieldName, String fieldValue,
     boolean escapeValue) throws Exception {
 
     if (!ConfigUtility.isEmpty(fieldValue)) {

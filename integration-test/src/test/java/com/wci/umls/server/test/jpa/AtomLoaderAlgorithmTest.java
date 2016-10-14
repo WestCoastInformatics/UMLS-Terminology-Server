@@ -16,17 +16,17 @@ import org.junit.Test;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.algo.MetadataLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AtomLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working.
  */
-public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  MetadataLoaderAlgorithm algo = null;
+  AtomLoaderAlgorithm algo = null;
 
   /** The process service. */
   ProcessServiceJpa processService = null;
@@ -50,12 +50,12 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     // If the algorithm is defined in the config.properties, get from there.
     try {
-      algo = (MetadataLoaderAlgorithm) processService
-          .getAlgorithmInstance("METADATALOADER");
+      algo = (AtomLoaderAlgorithm) processService
+          .getAlgorithmInstance("ATOMLOADER");
     }
     // If not, create and configure from scratch
     catch (Exception e) {
-      algo = new MetadataLoaderAlgorithm();
+      algo = new AtomLoaderAlgorithm();
 
       // Also need to create and pass in required parameters.
       List<AlgorithmParameter> algoParams = algo.getParameters();
@@ -76,48 +76,38 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test metadata loader normal use.
+   * Test atom loader normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testMetadataLoader() throws Exception {
+  public void testAtomLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the METADATALOADER algorithm
+    // Run the ATOMLOADER algorithm
     try {
 
+      algo.setTransactionPerOperation(false);
+      algo.beginTransaction();
       //
       // Check prerequisites
       //
       ValidationResult validationResult = algo.checkPreconditions();
       // if prerequisites fail, return validation result
-      // for this algorithm, warnings are OK, so only rollback if errors.
-      // rollback -- unlocks the concept and closes transaction
-      if (!validationResult.getErrors().isEmpty()) {
-        Logger.getLogger(getClass())
-            .info("Stopping algorithm - Precondition Errors identified:");
-        for (String error : validationResult.getErrors()) {
-          Logger.getLogger(getClass()).info(error);
-        }
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty())) {
+        // rollback -- unlocks the concept and closes transaction
         algo.rollback();
       }
-      if (!validationResult.getWarnings().isEmpty()) {
-        Logger.getLogger(getClass()).info(
-            "Precondition Warnings identified, but continuing algorithm run:");
-        for (String warning : validationResult.getWarnings()) {
-          Logger.getLogger(getClass()).info(warning);
-        }
-      }
       assertTrue(validationResult.getErrors().isEmpty());
-
-      //
-      // Perform the algorithm
-      //
-      algo.compute();
       
-      // Result is to get through this all without throwing an error
-      
+       //
+       // Perform the algorithm
+       //
+       algo.compute();
+       
+       // Result is to get through this all without throwing an error    
+       
     } catch (Exception e) {
       algo.rollback();
     } finally {
