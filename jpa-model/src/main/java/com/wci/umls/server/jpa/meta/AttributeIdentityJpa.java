@@ -12,6 +12,15 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
+
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.IdType;
 
@@ -24,6 +33,7 @@ import com.wci.umls.server.model.meta.IdType;
     "terminology", "terminologyId"
 }))
 @XmlRootElement(name = "attributeIdentity")
+@Indexed
 public class AttributeIdentityJpa implements AttributeIdentity {
 
   /** The id. */
@@ -79,11 +89,12 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     componentId = identity.getComponentId();
     componentType = identity.getComponentType();
     componentTerminology = identity.getComponentTerminology();
-    hashcode = identity.getHashcode();
   }
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
   public Long getId() {
     return id;
   }
@@ -96,6 +107,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
@@ -108,6 +120,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -120,6 +133,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getComponentId() {
     return componentId;
   }
@@ -132,6 +146,8 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getComponentType() {
     return componentType;
   }
@@ -144,6 +160,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getComponentTerminology() {
     return componentTerminology;
   }
@@ -168,6 +185,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getName() {
     return name;
   }
@@ -183,7 +201,6 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((componentId == null) ? 0 : componentId.hashCode());
@@ -208,11 +225,6 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     if (getClass() != obj.getClass())
       return false;
     AttributeIdentityJpa other = (AttributeIdentityJpa) obj;
-    if (hashcode == null) {
-      if (other.hashcode != null)
-        return false;
-    } else if (!hashcode.equals(other.hashcode))
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -249,8 +261,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     return "AttributeIdentityJpa [id=" + id + ", name=" + name
         + ", terminologyId=" + terminologyId + ", terminology=" + terminology
         + ", componentId=" + componentId + ", componentType=" + componentType
-        + ", componentTerminology=" + componentTerminology + ", hashCode="
-        + hashcode + "]";
+        + ", componentTerminology=" + componentTerminology + "]";
   }
 
 }

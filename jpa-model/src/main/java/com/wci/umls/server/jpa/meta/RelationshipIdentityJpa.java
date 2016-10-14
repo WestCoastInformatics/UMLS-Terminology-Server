@@ -12,6 +12,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
+
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 
@@ -25,6 +33,7 @@ import com.wci.umls.server.model.meta.RelationshipIdentity;
     "toType"
 }))
 @XmlRootElement(name = "relationshipIdentity")
+@Indexed
 public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /** The id. */
@@ -107,6 +116,8 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
   public Long getId() {
     return id;
   }
@@ -119,6 +130,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminologyId() {
     return terminologyId;
   }
@@ -131,6 +143,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -143,6 +156,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getRelationshipType() {
     return relationshipType;
   }
@@ -155,6 +169,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getAdditionalRelationshipType() {
     return additionalRelationshipType;
   }
@@ -167,6 +182,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromId() {
     return fromId;
   }
@@ -179,6 +195,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getFromType() {
     return fromType;
   }
@@ -191,6 +208,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getFromTerminology() {
     return fromTerminology;
   }
@@ -203,6 +221,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToId() {
     return toId;
   }
@@ -215,6 +234,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getToType() {
     return toType;
   }
@@ -227,6 +247,7 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getToTerminology() {
     return toTerminology;
   }
