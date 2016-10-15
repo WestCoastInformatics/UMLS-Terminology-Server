@@ -459,6 +459,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Load terminology simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologySimple(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
    * Load terminology rrf.
    *
    * @param terminology the terminology
@@ -711,8 +723,8 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+  public TreeList findDescriptorTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
@@ -879,8 +891,8 @@ public interface ContentServiceRest {
    * @return the ecl expression result count
    * @throws Exception the exception
    */
-  public Integer getEclExpressionResultCount(String terminology,
-    String version, String query, String authToken) throws Exception;
+  public Integer getEclExpressionResultCount(String terminology, String version,
+    String query, String authToken) throws Exception;
 
   /**
    * Gets the ecl expression results.

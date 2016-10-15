@@ -1030,13 +1030,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      System.out.println("splitConcept event " + event.toString());
       sendChangeEvent(event);
 
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getToConcept().getId(),
           action.getToConcept());
-      System.out.println("splitConcept event2 " + event2.toString());
       sendChangeEvent(event2);
 
       return validationResult;
