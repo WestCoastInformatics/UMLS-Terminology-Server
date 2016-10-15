@@ -2947,6 +2947,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
+  public IdentifierAssignmentHandler newIdentifierAssignmentHandler(
+    String terminology) throws Exception {
+    return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+        "identifier.assignment.handler", terminology,
+        IdentifierAssignmentHandler.class);
+  }
+
+  /* see superclass */
+  @Override
   public ComputePreferredNameHandler getComputePreferredNameHandler(
     String terminology) throws Exception {
     if (pnHandlerMap.containsKey(terminology)) {

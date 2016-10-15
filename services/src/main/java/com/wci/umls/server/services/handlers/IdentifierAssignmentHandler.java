@@ -24,11 +24,12 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.services.Transactionable;
 
 /**
  * Represents an algorithm for assigning identifiers.
  */
-public interface IdentifierAssignmentHandler extends Configurable {
+public interface IdentifierAssignmentHandler extends Configurable, Transactionable{
 
   /**
    * Returns the terminology id.

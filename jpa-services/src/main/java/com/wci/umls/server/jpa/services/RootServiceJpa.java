@@ -808,6 +808,19 @@ public abstract class RootServiceJpa implements RootService {
       commitClearBegin();
     }
   }
+  
+  /* see superclass */
+  @Override
+  public void logAndCommit(final String preMessage, final int objectCt, final int logCt,
+    final int commitCt) throws Exception {
+    // log at regular intervals
+    if (objectCt % logCt == 0) {
+      Logger.getLogger(getClass()).info(preMessage + "    count = " + objectCt);
+    }
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
+  }  
 
   /**
    * Returns the query results.

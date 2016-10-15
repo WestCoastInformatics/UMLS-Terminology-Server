@@ -51,6 +51,9 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UmlsIdentifierAssignmentHandler
     implements IdentifierAssignmentHandler {
 
+  /** The service */
+  private UmlsIdentityService service = null;
+
   /** The lock. */
   private static String LOCK = "lock";
 
@@ -125,7 +128,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -155,9 +160,10 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
-
   }
 
   /* see superclass */
@@ -168,7 +174,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -198,7 +206,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -210,7 +220,10 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
+
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -244,7 +257,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -257,7 +272,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       synchronized (LOCK) {
         // Create AttributeIdentity and populate from the attribute.
@@ -292,7 +309,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -314,7 +333,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -379,7 +400,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -393,7 +416,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }
     try {
       // Create RelationshipIdentity and populate from the relationship.
       final RelationshipIdentity identity = new RelationshipIdentityJpa();
@@ -428,7 +453,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -474,8 +501,9 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
-    try {
+    if (getTransactionPerOperation()) {
+      service = new UmlsIdentityServiceJpa();
+    }    try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
 
@@ -507,7 +535,9 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      if (getTransactionPerOperation()) {
+        service.close();
+      }
     }
   }
 
@@ -558,7 +588,66 @@ public class UmlsIdentifierAssignmentHandler
     final int length = lengthMap.get(type);
     final String idStr = id.toString();
     final int startIndex = idStr.length() + 19 - length;
-    return prefixMap.get(type)
-        + ("00000000000000000000" + idStr).substring(startIndex);
+    final String convertedId = prefixMap.get(type)
+        + ("000000000000000000" + idStr).substring(startIndex);
+    return convertedId;
+  }
+
+  @Override
+  public boolean getTransactionPerOperation() throws Exception {
+    return service.getTransactionPerOperation();
+  }
+
+  @Override
+  public void setTransactionPerOperation(boolean transactionPerOperation)
+    throws Exception {
+    if (!transactionPerOperation) {
+      service = new UmlsIdentityServiceJpa();
+      service.setTransactionPerOperation(transactionPerOperation);
+    } else {
+      service = null;
+    }
+  }
+
+  @Override
+  public void commit() throws Exception {
+    service.commit();
+  }
+
+  @Override
+  public void rollback() throws Exception {
+    service.rollback();
+  }
+
+  @Override
+  public void beginTransaction() throws Exception {
+    service.beginTransaction();
+  }
+
+  @Override
+  public void close() throws Exception {
+    service.close();
+  }
+
+  @Override
+  public void clear() throws Exception {
+    service.clear();
+  }
+
+  @Override
+  public void commitClearBegin() throws Exception {
+    service.commitClearBegin();
+  }
+
+  @Override
+  public void logAndCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    service.logAndCommit(objectCt, logCt, commitCt);
+  }
+
+  @Override
+  public void logAndCommit(String preMessage, int objectCt, int logCt,
+    int commitCt) throws Exception {
+    service.logAndCommit(preMessage, objectCt, logCt, commitCt);
   }
 }
