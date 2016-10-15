@@ -5,8 +5,6 @@ package com.wci.umls.server.jpa.algo.action;
 
 import java.util.HashSet;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;

@@ -370,7 +370,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 System.out.println("line="+line);
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
-
+            
       // Field Description
       // 0 conceptid
       // 1 type

@@ -235,8 +235,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       //
       List<String> lines = loadFileIntoStringList("classes_atoms.src", null);
 
-      logInfo("[AtomLoader] Loading associated resources");            
-      
+      logInfo("[AtomLoader] Loading associated resources");
+
       // Cache all currently existing objects
       cacheExistingTermTypes();
       cacheExistingTerminologies();
@@ -246,8 +246,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       cacheExistingDescriptors();
       cacheExistingAtoms();
 
-      logInfo("[AtomLoader] Checking for new/updated Atoms");      
-      
+      logInfo("[AtomLoader] Checking for new/updated Atoms");
+
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
 
@@ -414,8 +414,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
           // Check map to see if concept already exists
           if (!newAtom.getConceptId().isEmpty()) {
 
-            if (conceptIdMap
-                .containsKey(newAtom.getConceptId() + newAtom.getTerminology())) {
+            if (conceptIdMap.containsKey(
+                newAtom.getConceptId() + newAtom.getTerminology())) {
               final Concept concept = getConcept(conceptIdMap
                   .get(newAtom.getConceptId() + newAtom.getTerminology()));
               concept.getAtoms().add(newAtom);
@@ -438,7 +438,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
               concept.getAtoms().add(newAtom);
               addConcept(concept);
-              conceptIdMap.put(concept.getTerminologyId() + concept.getTerminology(),
+              conceptIdMap.put(
+                  concept.getTerminologyId() + concept.getTerminology(),
                   concept.getId());
             }
           }
@@ -446,8 +447,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
           // Check map to see if descriptor already exists
           if (!newAtom.getDescriptorId().isEmpty()) {
 
-            if (descriptorIdMap
-                .containsKey(newAtom.getDescriptorId() + newAtom.getTerminology())) {
+            if (descriptorIdMap.containsKey(
+                newAtom.getDescriptorId() + newAtom.getTerminology())) {
               final Descriptor descriptor = getDescriptor(descriptorIdMap
                   .get(newAtom.getDescriptorId() + newAtom.getTerminology()));
               descriptor.getAtoms().add(newAtom);
@@ -470,11 +471,12 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
               descriptor.getAtoms().add(newAtom);
               addDescriptor(descriptor);
-              descriptorIdMap.put(descriptor.getTerminologyId() + descriptor.getTerminology(),
+              descriptorIdMap.put(
+                  descriptor.getTerminologyId() + descriptor.getTerminology(),
                   descriptor.getId());
             }
-          }          
-          
+          }
+
         }
         // If a previous atom with same AUI exists, load that object.
         else {
@@ -683,7 +685,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     results.close();
   }
 
-
   /**
    * Cache existing concepts.
    *
@@ -706,8 +707,13 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       conceptIdMap.put(terminologyId + terminology, id);
     }
     results.close();
-  }  
-  
+  }
+
+  /**
+   * Cache existing descriptors.
+   *
+   * @throws Exception the exception
+   */
   private void cacheExistingDescriptors() throws Exception {
 
     // Pre-populate descriptorIdMap (for all terminologies from this insertion)
@@ -725,8 +731,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       conceptIdMap.put(terminologyId + terminology, id);
     }
     results.close();
-  }    
-  
+  }
+
   /**
    * Update progress.
    *
@@ -734,7 +740,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "ATOMLOADING progress: " + currentProgress + "%");
