@@ -554,7 +554,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       }
       // If it does already exist, update the existing root terminology
       else {
-
+        //
       }
     }
 
@@ -579,7 +579,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     for (Terminology newTerm : termsToAddMap.values()) {
       logInfo("[MetadataLoader] Adding Terminology: " + newTerm);
       newTerm = addTerminology(newTerm);
-      loadedTerminologies.put(new KeyValuePair(newTerm.getTerminology(),newTerm.getVersion()), newTerm);
+      loadedTerminologies.put(
+          new KeyValuePair(newTerm.getTerminology(), newTerm.getVersion()),
+          newTerm);
     }
 
   }
@@ -587,8 +589,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Determine organizing class type.
    *
-   * @param source the source
+   * @param terminology the terminology
    * @return the id type
+   * @throws Exception the exception
    */
   private IdType determineOrganizingClassType(String terminology)
     throws Exception {

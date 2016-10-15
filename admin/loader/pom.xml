@@ -105,6 +105,7 @@
         </plugins>
       </build>
     </profile>
+    
     <!-- Load RRF UMLS, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>RRF-umls</id>

@@ -367,7 +367,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         new FileReader(new File(getInputPath(), "concepts.txt")));
     final String[] fields = new String[10];
     while ((line = reader.readLine()) != null) {
-
+System.out.println("line="+line);
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
 
