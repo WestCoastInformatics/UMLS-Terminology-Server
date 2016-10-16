@@ -140,11 +140,13 @@ tsApp.controller('ProcessCtrl', [
 
     $scope.selectProcess = function(process) {
       $scope.selected.process = process;
+      // TODO processService['getProcess'+$scope.mode]()
       processService.getProcessConfig($scope.selected.project.id, process.id).then(
         function(data) {
           $scope.selected.process = data;
         });
       $scope.lists.algorithmConfigTypes = [];
+      // TODO use brackets here too
       if ($scope.selected.processType == 'Insertion') {
         processService.getInsertionAlgorithms($scope.selected.project.id).then(
           function(data) {

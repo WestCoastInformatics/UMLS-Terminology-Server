@@ -761,6 +761,65 @@ tsApp
           return deferred.promise;
         };
 
+        // Handle paging of tree positions (requires content service
+        // call).
+        this.findDeepTreePositions = function(component, paging) {
+
+          var deferred = $q.defer();
+
+          if (component.type.toLowerCase() !== 'concept') {
+            defer.reject('Deep tree positions cannot be retrieved for type prefix ' + prefix);
+          }
+
+          if (paging) {
+
+            var pfs = {
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortFields : paging.sortFields ? paging.sortFields : [ 'terminology' ],
+              ascending : paging.sortAscending,
+
+              // NOTE: Deep relationships do not support query restrictions,
+              // instead using
+              // text filter as only query parameter
+              queryRestriction : null
+            };
+          }
+
+          // set filter/query; unlike relationships, does not require * for
+          // filtering
+          var query = paging.text;
+
+          // do not use glass pane, produces additional user lag on initial
+          // concept load
+          // i.e. retrieve concept, THEN get deep tree positions
+          // gpService.increment();
+          $http
+            .post(
+              contentUrl
+                + '/'
+                + component.type.toLowerCase()
+                + "/"
+                + component.terminology
+                + "/"
+                + component.version
+                + "/"
+                + component.terminologyId
+                + "/treePositions/deep?query="
+                + encodeURIComponent(utilService.cleanQuery(query))
+                , pfs).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              // gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        };
+
+        
+        
         // function for testing whether a query is a valid expression
         this.isExpressionConstraintLanguage = function(terminology, version, query) {
           var deferred = $q.defer();

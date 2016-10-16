@@ -969,7 +969,8 @@ tsApp
         $window.onbeforeunload = function(evt) {
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
-              $scope.windows[key].close();
+                $scope.windows[key].$windowScope.parentClosing = true;
+            	$scope.windows[key].close();
             }
           }
         }
@@ -978,7 +979,8 @@ tsApp
         $scope.$on('$destroy', function() {
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
-              $scope.windows[key].close();
+                $scope.windows[key].$windowScope.parentClosing = true;
+            	$scope.windows[key].close();
             }
           }
         });

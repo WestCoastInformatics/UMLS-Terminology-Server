@@ -110,7 +110,9 @@ tsApp
 
         // notify edit controller when semantic type window closes
         $window.onbeforeunload = function(evt) {
-          $scope.parentWindowScope.removeWindow('semanticType');
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('semanticType');
+          }
         }
         
         // on window resize, save dimensions and screen location to user preferences

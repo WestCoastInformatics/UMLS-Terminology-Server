@@ -566,57 +566,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // TODO : deal with atom tree positions
       boolean firstContext = true;
-      final Set<String> uniqueSet = new HashSet<>();
-      final List<TreePosition<?>> treePositionList = new ArrayList<>();
-      // collect all unique terminology, version, terminologyId, type combos
-      // from
-      // atoms in concept - ATOMS are in order
-      int ct = 0;
-      for (final Atom atom : comp.getAtoms()) {
 
-        final Terminology fullTerminology =
-            getTerminology(atom.getTerminology(), atom.getVersion());
-        final IdType type = fullTerminology.getOrganizingClassType();
-        String terminologyId = null;
-
-        if (type == IdType.CODE) {
-          terminologyId = atom.getCodeId();
-        } else if (type == IdType.CONCEPT) {
-          terminologyId = atom.getConceptId();
-        } else if (type == IdType.DESCRIPTOR) {
-          terminologyId = atom.getDescriptorId();
-        } else {
-          continue;
-        }
-        final String entry = type + ":" + atom.getTerminology() + ":"
-            + atom.getVersion() + ":" + terminologyId;
-        // If new entry
-        if (!uniqueSet.contains(entry)) {
-          // Break if we've reached the limit
-          if (ct >= 100) {
-            break;
-          }
-
-          // See if there is a tree position
-          final TreePosition<?> treePos = getTreePosition(type, terminologyId,
-              atom.getTerminology(), atom.getVersion());
-          // Increment if so
-          if (treePos != null) {
-            ++ct;
-            treePositionList.add(treePos);
-          }
-
-          // Get tree position
-        }
-        uniqueSet.add(entry);
-      }
-
-      // Sort tree positions by terminology
-      Collections.sort(treePositionList,
-          (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
-
+      TreePositionList treePositionList = findConceptDeepTreePositions(concept.getTerminologyId(),
+    	        concept.getTerminology(), concept.getVersion(), Branch.ROOT, null, new PfsParameterJpa());      
+      
       // display context for each tree position
-      for (final TreePosition<?> treePos : treePositionList) {
+      for (final TreePosition<?> treePos : treePositionList.getObjects()) {
 
         if (treePos.getAncestorPath().equals(""))
           continue;
