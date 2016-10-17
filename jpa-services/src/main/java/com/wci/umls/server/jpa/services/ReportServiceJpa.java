@@ -21,6 +21,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasTerminology;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
@@ -192,8 +193,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       for (final Definition def : atom.getDefinitions()) {
         sb.append("DEF ");
         sb.append(def.isPublishable() ? "[Release] " : "[Do Not Release] ");
-        sb.append(def.getTerminology()).append("_").append(def.getVersion())
-            .append(lineEnd);
+        sb.append(getTerminologyAndVersion(def)).append(lineEnd);
         sb.append("  - ").append(atom.getTerminology()).append("/")
             .append(atom.getTermType());
         sb.append("|")
@@ -214,8 +214,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         if (att.getName().equals("SOS")) {
           sosBuffer.append(
               att.isPublishable() ? " [Release] " : " [Do Not Release] ");
-          sosBuffer.append(att.getTerminology()).append("_")
-              .append(att.getVersion()).append(lineEnd);
+          sosBuffer.append(getTerminologyAndVersion(att)).append(lineEnd);
           sosBuffer.append("  - ").append(atom.getTerminology()).append("/")
               .append(atom.getTermType());
           sosBuffer.append("|")
@@ -339,8 +338,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // Name/termgroup/code
       sb.append(atom.getName()).append(" [");
-      sb.append(atom.getTerminology()).append("_").append(atom.getVersion())
-          .append("/");
+      sb.append(getTerminologyAndVersion(atom)).append("/");
       sb.append(atom.getTermType()).append("/");
       sb.append(atom.getCodeId()).append("]");
 
@@ -424,8 +422,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
         }
         sb.append(rel.getFrom().getName()).append("[SFO]/[LFO]")
             .append(rel.getTo().getName());
-        sb.append("[").append(rel.getTerminology()).append("_")
-            .append(rel.getVersion()).append("]").append(lineEnd);
+        sb.append("[").append(getTerminologyAndVersion(rel)).append("]")
+            .append(lineEnd);
         if (!rel.isPublishable()) {
           sb.append("}");
         }
@@ -566,57 +564,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
       // TODO : deal with atom tree positions
       boolean firstContext = true;
-      final Set<String> uniqueSet = new HashSet<>();
-      final List<TreePosition<?>> treePositionList = new ArrayList<>();
-      // collect all unique terminology, version, terminologyId, type combos
-      // from
-      // atoms in concept - ATOMS are in order
-      int ct = 0;
-      for (final Atom atom : comp.getAtoms()) {
 
-        final Terminology fullTerminology =
-            getTerminology(atom.getTerminology(), atom.getVersion());
-        final IdType type = fullTerminology.getOrganizingClassType();
-        String terminologyId = null;
-
-        if (type == IdType.CODE) {
-          terminologyId = atom.getCodeId();
-        } else if (type == IdType.CONCEPT) {
-          terminologyId = atom.getConceptId();
-        } else if (type == IdType.DESCRIPTOR) {
-          terminologyId = atom.getDescriptorId();
-        } else {
-          continue;
-        }
-        final String entry = type + ":" + atom.getTerminology() + ":"
-            + atom.getVersion() + ":" + terminologyId;
-        // If new entry
-        if (!uniqueSet.contains(entry)) {
-          // Break if we've reached the limit
-          if (ct >= 100) {
-            break;
-          }
-
-          // See if there is a tree position
-          final TreePosition<?> treePos = getTreePosition(type, terminologyId,
-              atom.getTerminology(), atom.getVersion());
-          // Increment if so
-          if (treePos != null) {
-            ++ct;
-            treePositionList.add(treePos);
-          }
-
-          // Get tree position
-        }
-        uniqueSet.add(entry);
-      }
-
-      // Sort tree positions by terminology
-      Collections.sort(treePositionList,
-          (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
+      TreePositionList treePositionList = findConceptDeepTreePositions(
+          concept.getTerminologyId(), concept.getTerminology(),
+          concept.getVersion(), Branch.ROOT, null, new PfsParameterJpa());
 
       // display context for each tree position
-      for (final TreePosition<?> treePos : treePositionList) {
+      for (final TreePosition<?> treePos : treePositionList.getObjects()) {
 
         if (treePos.getAncestorPath().equals(""))
           continue;
@@ -634,8 +588,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
           continue;
         }
 
-        cxtBuilder.append(treePos.getNode().getTerminology()).append("_")
-            .append(treePos.getNode().getVersion());
+        cxtBuilder.append(getTerminologyAndVersion(treePos.getNode()));
         cxtBuilder.append("/").append(treePos.getNode().getTerminologyId())
             .append(lineEnd);
 
@@ -645,7 +598,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
         indent = "";
         cxtBuilder.append(tree.getNodeName()).append(lineEnd);
         indent += "  ";
-        indent = printAncestors(sb, tree, null, indent);
+        indent = printAncestors(cxtBuilder, tree, null, indent);
         // "parent" is the tree position above the bottom one
         parent = tree;
         while (parent.getChildren().size() > 0) {
@@ -723,7 +676,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
 
             // children
             indent += "  ";
-            printChildren(sb, treePos, children, indent);
+            printChildren(cxtBuilder, treePos, children, indent);
             if (children.getTotalCount() > 10) {
               cxtBuilder.append(indent).append(
                   "..." + (children.getTotalCount() - 10) + " more ...");
@@ -800,6 +753,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @return the tree position
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private TreePosition<?> getTreePosition(IdType type, String terminologyId,
     String terminology, String version) throws Exception {
     // for each unique entry, get all tree positions
@@ -922,14 +876,13 @@ public class ReportServiceJpa extends HistoryServiceJpa
       // Name/termgroup/code
       sb.append(rel.getTo().getName()).append(" [");
       /*
-       * TODO NE-143 sb.append(" [");
-       * sb.append(rel.getTo().getTerminology()).append("_").append(rel.
-       * getVersion()) .append("/"); // TODO termType - only ifneeded
+       * TODO NE-143 sb.append(" ["); sb.append(getVsab(rel) .append("/"); //
+       * TODO termType - only ifneeded
        */
       sb.append("|");
       sb.append(rel.getAdditionalRelationshipType());
       sb.append("|");
-      sb.append(rel.getTerminology()).append("_").append(rel.getVersion());
+      sb.append(getTerminologyAndVersion(rel));
       sb.append("|");
       sb.append(rel.getLastModifiedBy());
       sb.append("]");
@@ -1122,6 +1075,18 @@ public class ReportServiceJpa extends HistoryServiceJpa
       // If things are STILL equal, compare the ranks
       return atomRanks.get(a2.getId()).compareTo(atomRanks.get(a1.getId()));
     }
+  }
+
+  /**
+   * Returns the vsab.
+   *
+   * @param t the t
+   * @return the vsab
+   */
+  @SuppressWarnings("static-method")
+  private String getTerminologyAndVersion(HasTerminology t) {
+    return t.getTerminology()
+        + (t.getVersion().equals("latest") ? "" : ("_" + t.getVersion()));
   }
 
   /**

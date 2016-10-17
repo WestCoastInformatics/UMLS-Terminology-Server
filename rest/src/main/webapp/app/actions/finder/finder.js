@@ -135,11 +135,13 @@ tsApp.directive('finder', [ function() {
 
         // Lookup component, if valid, add it
         $scope.lookupComponent = function(componentId) {
-          if (componentId.match(/\d+/)) {
+          // componentId is a number
+          if ((componentId+'').match(/^\d+$/)) {
             contentService.getConcept(componentId, $scope.selected.project.id).then(
             // Success
             function(data) {
               $scope.callbacks.addComponent(data);
+              $scope.lookupText = '';
             });
           }
         }

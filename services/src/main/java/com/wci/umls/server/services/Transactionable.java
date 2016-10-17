@@ -4,7 +4,7 @@
 package com.wci.umls.server.services;
 
 /**
- * Represents a service.
+ * Represents something with transactions.
  */
 public interface Transactionable {
 
@@ -93,7 +93,8 @@ public interface Transactionable {
    * @param commitCt the commit ct
    * @throws Exception the exception
    */
-  public void logAndCommit(String preMessage, int objectCt, int logCt, int commitCt)
-    throws Exception;  
+  public void logAndCommit(String preMessage, int objectCt, int logCt,
+    int commitCt) throws Exception;
   
+
 }

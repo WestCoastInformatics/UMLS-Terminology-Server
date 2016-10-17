@@ -38,8 +38,10 @@ import com.wci.umls.server.services.UmlsIdentityService;
 public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     implements UmlsIdentityService {
 
+  /** The uncommited id map. */
   private static Map<Object, Long> uncommitedIdMap = new HashMap<>();
 
+  /** The max ids. */
   private static Map<String, Long> maxIds = new HashMap<>();
 
   /**
@@ -113,13 +115,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     final List<String> clauses = new ArrayList<>();
 
-    clauses.add(ConfigUtility.composeClause("terminology",
-        identity.getTerminology(), false));
-    clauses.add(ConfigUtility.composeClause("terminologyId",
-        identity.getTerminologyId(), false));
-    clauses.add(ConfigUtility.composeClause("componentId",
-        identity.getComponentId(), false));
-    clauses.add(ConfigUtility.composeClause("componentType",
+    clauses.add(composeClause("terminology", identity.getTerminology(), false));
+    clauses.add(
+        composeClause("terminologyId", identity.getTerminologyId(), false));
+    clauses.add(composeClause("componentId", identity.getComponentId(), false));
+    clauses.add(composeClause("componentType",
         identity.getComponentType().toString(), false));
     clauses.add(ConfigUtility.composeClause("componentTerminology",
         identity.getComponentTerminology(), false));

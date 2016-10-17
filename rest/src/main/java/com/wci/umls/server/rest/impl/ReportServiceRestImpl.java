@@ -70,7 +70,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Report): /report");
+    Logger.getLogger(getClass()).info("RESTful call (Report): /report " + projectId);
 
     final ReportService reportService = new ReportServiceJpa();
     try {

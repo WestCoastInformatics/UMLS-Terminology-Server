@@ -30,6 +30,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -50,6 +51,7 @@ import com.wci.umls.server.jpa.helpers.content.SubsetListJpa;
 import com.wci.umls.server.jpa.helpers.content.SubsetMemberListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
+import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -62,8 +64,8 @@ import com.wci.umls.server.model.meta.IdType;
 /**
  * A client for connecting to a content REST service.
  */
-public class ContentClientRest extends RootClientRest implements
-    ContentServiceRest {
+public class ContentClientRest extends RootClientRest
+    implements ContentServiceRest {
 
   /** The config. */
   private Properties config = null;
@@ -79,28 +81,53 @@ public class ContentClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - load terminology rrf " + terminology + ", " + version
-            + ", " + inputDir);
+  public void loadTerminologySimple(String terminology, String version,
+    String inputDir, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology simple " + terminology + ", "
+            + version + ", " + inputDir);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(inputDir, "inputDir");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/terminology/load/rrf?terminology=" + terminology + "&version="
-            + version + "&prefix=" + prefix + "&singleMode="
-            + (singleMode == null ? false : singleMode)
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/terminology/load/simple?terminology="
+            + terminology + "&version=" + version);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing
+    } else {
+      throw new Exception("Unexpected status " + response.getStatus());
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public void loadTerminologyRrf(String terminology, String version,
+    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - load terminology rrf "
+        + terminology + ", " + version + ", " + inputDir);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+    validateNotEmpty(inputDir, "inputDir");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/terminology/load/rrf?terminology="
+            + terminology + "&version=" + version + "&prefix=" + prefix
+            + "&singleMode=" + (singleMode == null ? false : singleMode)
             + (codeFlag == null ? "" : "&codeFlag=" + codeFlag));
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputDir));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -114,20 +141,18 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void computeTransitiveClosure(String terminology, String version,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - compute transitive closure " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - compute transitive closure " + terminology
+            + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/terminology/closure/compute/" + terminology + "/"
-            + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(""));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/terminology/closure/compute/"
+            + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -141,20 +166,18 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void computeTreePositions(String terminology, String version,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - compute tree positions " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - compute tree positions " + terminology + ", "
             + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/terminology/treepos/compute/" + terminology + "/"
-            + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(""));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/terminology/treepos/compute/"
+            + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -168,16 +191,14 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void luceneReindex(String indexedObjects, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - lucene reindex " + indexedObjects);
+    Logger.getLogger(getClass())
+        .debug("Content Client - lucene reindex " + indexedObjects);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/reindex");
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .post(Entity.text(indexedObjects));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(indexedObjects));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -198,13 +219,11 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/terminology/remove/" + terminology + "/" + version);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/terminology/remove/" + terminology + "/" + version);
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -226,13 +245,11 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId
-            + (projectId == null ? "" : "?projectId=" + projectId));
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/concept/" + terminology + "/" + version + "/"
+        + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -249,17 +266,15 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Concept getConcept(Long conceptId, Long projectId, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get concept " + conceptId + ", " + "," + projectId
-            + "," + authToken);
+    Logger.getLogger(getClass()).debug("Content Client - get concept "
+        + conceptId + ", " + "," + projectId + "," + authToken);
     validateNotEmpty(conceptId, "conceptId");
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/concept/"
             + conceptId + (projectId == null ? "" : "?projectId=" + projectId));
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -276,29 +291,21 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SearchResultList findConcepts(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + terminology + ", " + version + ", "
-            + query + ", " + pfs);
+    Logger.getLogger(getClass()).debug("Content Client - find concepts "
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
 
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/concept/"
-            + terminology
-            + "/"
-            + version
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/concept/" + terminology + "/" + version + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -320,21 +327,16 @@ public class ContentClientRest extends RootClientRest implements
         "Content Client - find concepts " + query + ", " + jql + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/concept"
-            + "?query="
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/concept" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql="
-            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
-                "\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -352,9 +354,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public StringList autocompleteConcepts(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - autocomplete concepts " + terminology + ", "
-            + version + ", " + searchTerm);
+    Logger.getLogger(getClass()).debug("Content Client - autocomplete concepts "
+        + terminology + ", " + version + ", " + searchTerm);
     validateNotEmpty(searchTerm, "searchTerm");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -363,9 +364,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -382,21 +382,18 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Descriptor getDescriptor(String terminologyId, String terminology,
     String version, Long projectId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get descriptor " + terminologyId + ", " + terminology
-            + ", " + version);
+    Logger.getLogger(getClass()).debug("Content Client - get descriptor "
+        + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/descriptor/"
-            + terminology + "/" + version + "/" + terminologyId
-            + (projectId == null ? "" : "?projectId=" + projectId));
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/descriptor/" + terminology + "/" + version + "/"
+        + terminologyId + (projectId == null ? "" : "?projectId=" + projectId));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -413,28 +410,20 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SearchResultList findDescriptors(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + terminology + ", " + version
-            + ", " + query + ", " + pfs);
+    Logger.getLogger(getClass()).debug("Content Client - find descriptors "
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/descriptor/"
-            + terminology
-            + "/"
-            + version
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/descriptor/" + terminology + "/" + version + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -456,21 +445,16 @@ public class ContentClientRest extends RootClientRest implements
         "Content Client - find descriptors " + query + ", " + jql + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/descriptor"
-            + "?query="
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/descriptor" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql="
-            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
-                "\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -488,8 +472,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public StringList autocompleteDescriptors(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - autocomplete descriptors " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - autocomplete descriptors " + terminology + ", "
             + version + ", " + searchTerm);
     validateNotEmpty(searchTerm, "searchTerm");
     validateNotEmpty(terminology, "terminology");
@@ -499,9 +483,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/descriptor/"
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -518,20 +501,18 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Code getCode(String terminologyId, String terminology, String version,
     Long projectId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get code " + terminologyId + ", " + terminology
+    Logger.getLogger(getClass())
+        .debug("Content Client - get code " + terminologyId + ", " + terminology
             + ", " + version + ", " + projectId + ", " + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/code/" + terminology + "/" + version + "/" + terminologyId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -548,28 +529,20 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SearchResultList findCodes(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find codes " + terminology + ", " + version + ", "
-            + query + ", " + pfs);
+    Logger.getLogger(getClass()).debug("Content Client - find codes "
+        + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/code/"
-            + terminology
-            + "/"
-            + version
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/code/" + terminology + "/" + version + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -591,21 +564,16 @@ public class ContentClientRest extends RootClientRest implements
         "Content Client - find codes " + query + ", " + jql + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/code"
-            + "?query="
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/code" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql="
-            + URLEncoder.encode(jql == null ? "" : jql, "UTF-8").replaceAll(
-                "\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -623,9 +591,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public StringList autocompleteCodes(String terminology, String version,
     String searchTerm, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - autocomplete codes " + terminology + ", " + version
-            + ", " + searchTerm);
+    Logger.getLogger(getClass()).debug("Content Client - autocomplete codes "
+        + terminology + ", " + version + ", " + searchTerm);
     validateNotEmpty(searchTerm, "searchTerm");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -634,9 +601,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/code/"
             + terminology + "/" + version + "/autocomplete/" + searchTerm);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -653,8 +619,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
     String version, Long projectId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get lexical class " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - get lexical class " + terminologyId + ", "
             + terminology + ", " + version + ", " + projectId + ", "
             + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
@@ -662,13 +628,11 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/lui/"
-            + terminology + "/" + version + "/" + terminologyId
-            + (projectId == null ? "" : "?projectId=" + projectId));
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/lui/" + terminology + "/" + version + "/" + terminologyId
+        + (projectId == null ? "" : "?projectId=" + projectId));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -685,8 +649,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public StringClass getStringClass(String terminologyId, String terminology,
     String version, Long projectId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get string class " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - get string class " + terminologyId + ", "
             + terminology + ", " + version + ", " + projectId + ", "
             + authToken);
     validateNotEmpty(terminologyId, "terminologyId");
@@ -694,13 +658,11 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/sui/"
-            + terminology + "/" + version + "/" + terminologyId
-            + (projectId == null ? "" : "?projectId=" + projectId));
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/sui/" + terminology + "/" + version + "/" + terminologyId
+        + (projectId == null ? "" : "?projectId=" + projectId));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -718,24 +680,21 @@ public class ContentClientRest extends RootClientRest implements
   public ConceptList findAncestorConcepts(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find ancestor concepts " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find ancestor concepts " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
-            + parentsOnly);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/" + terminology + "/"
+            + version + "/" + terminologyId + "/ancestors/" + parentsOnly);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -753,24 +712,22 @@ public class ContentClientRest extends RootClientRest implements
   public ConceptList findDescendantConcepts(String terminologyId,
     String terminology, String version, boolean childrenOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find descendant concepts " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find descendant concepts " + terminologyId
+            + ", " + terminology + ", " + version + ", " + childrenOnly + ", "
+            + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/descendants/" + childrenOnly);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/" + terminology + "/"
+            + version + "/" + terminologyId + "/descendants/" + childrenOnly);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -788,24 +745,22 @@ public class ContentClientRest extends RootClientRest implements
   public DescriptorList findAncestorDescriptors(String terminologyId,
     String terminology, String version, boolean parentsOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find ancestor descriptors " + terminologyId + ", "
-            + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find ancestor descriptors " + terminologyId
+            + ", " + terminology + ", " + version + ", " + parentsOnly + ", "
+            + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/descriptor/"
-            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
-            + parentsOnly);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/descriptor/" + terminology + "/" + version + "/"
+        + terminologyId + "/ancestors/" + parentsOnly);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -824,24 +779,22 @@ public class ContentClientRest extends RootClientRest implements
   public DescriptorList findDescendantDescriptors(String terminologyId,
     String terminology, String version, boolean childrenOnly,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find descendant descriptors " + terminologyId + ", "
-            + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find descendant descriptors " + terminologyId
+            + ", " + terminology + ", " + version + ", " + childrenOnly + ", "
+            + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/descriptor/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/descendants/" + childrenOnly);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/descriptor/" + terminology + "/" + version + "/"
+        + terminologyId + "/descendants/" + childrenOnly);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -860,25 +813,22 @@ public class ContentClientRest extends RootClientRest implements
   public CodeList findAncestorCodes(String terminologyId, String terminology,
     String version, boolean parentsOnly, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find ancestor codes " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find ancestor codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + parentsOnly + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId + "/ancestors/"
-            + parentsOnly);
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/code/" + terminology + "/"
+            + version + "/" + terminologyId + "/ancestors/" + parentsOnly);
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -896,24 +846,21 @@ public class ContentClientRest extends RootClientRest implements
   public CodeList findDescendantCodes(String terminologyId, String terminology,
     String version, boolean childrenOnly, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find descendant codes " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find descendant codes " + terminologyId + ", "
             + terminology + ", " + version + ", " + childrenOnly + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/code/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/descendants/" + childrenOnly);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/code/" + terminology + "/"
+            + version + "/" + terminologyId + "/descendants/" + childrenOnly);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -930,9 +877,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SubsetMemberList getConceptSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get subset members for concept " + terminologyId
-            + ", " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get subset members for concept "
+            + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -941,9 +888,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/concept/"
             + terminology + "/" + version + "/" + terminologyId + "/members");
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -961,9 +907,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SubsetMemberList getAtomSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get subset members for atom " + terminologyId + ", "
-            + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get subset members for atom " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -972,9 +918,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/aui/"
             + terminology + "/" + version + "/" + terminologyId + "/members");
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -992,19 +937,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyRf2Snapshot(String terminology, String version,
     String inputDir, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - load terminology rf2 snapshot " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology rf2 snapshot " + terminology
+            + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/terminology/load/rf2/snapshot/" + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputDir));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/load/rf2/snapshot/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -1018,19 +961,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyRf2Full(String terminology, String version,
     String inputDir, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - load terminology rf2 full " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology rf2 full " + terminology
+            + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/terminology/load/rf2/full/" + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputDir));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/load/rf2/full/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -1044,18 +985,16 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyRf2Delta(String terminology, String inputDir,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - load terminology rf2 delta " + terminology);
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology rf2 delta " + terminology);
     validateNotEmpty(inputDir, "inputDir");
     validateNotEmpty(terminology, "terminology");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/terminology/load/rf2/delta/" + terminology);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputDir));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/load/rf2/delta/" + terminology);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputDir));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -1069,20 +1008,18 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyClaml(String terminology, String version,
     String inputFile, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - load terminology ClaML " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - load terminology ClaML " + terminology + ", "
             + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(inputFile, "inputFile");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/terminology/load/claml/" + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputFile));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/load/claml/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputFile));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -1095,21 +1032,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void loadTerminologyOwl(String terminology, String version,
     String inputFile, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug(
-            "Content Client - load terminology Owl " + terminology + ", "
-                + version);
+    Logger.getLogger(getClass()).debug("Content Client - load terminology Owl "
+        + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(inputFile, "inputFile");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/terminology/load/owl/"
-            + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.text(inputFile));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/load/owl/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.text(inputFile));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -1128,12 +1061,10 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/aui/subset/all/" + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/aui/subset/all/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1156,12 +1087,10 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/concept/subset/all/" + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/concept/subset/all/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1179,8 +1108,8 @@ public class ContentClientRest extends RootClientRest implements
   public SubsetMemberList findAtomSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get atom subset members " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - get atom subset members " + terminology + ", "
             + version);
     validateNotEmpty(subsetId, "subsetId");
     validateNotEmpty(terminology, "terminology");
@@ -1188,23 +1117,14 @@ public class ContentClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/aui/subset/"
-            + subsetId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/members"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        client.target(config.getProperty("base.url") + "/content/aui/subset/"
+            + subsetId + "/" + terminology + "/" + version + "/members"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1222,32 +1142,23 @@ public class ContentClientRest extends RootClientRest implements
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get concept subset members " + terminology + ", "
-            + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get concept subset members " + terminology
+            + ", " + version);
     validateNotEmpty(subsetId, "subsetId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/concept/subset/"
-            + subsetId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/members"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/concept/subset/"
+            + subsetId + "/" + terminology + "/" + version + "/members"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1283,24 +1194,21 @@ public class ContentClientRest extends RootClientRest implements
     boolean includeConceptRels, boolean preferredOnly,
     boolean includeSelfReferential, PfsParameterJpa pfs, String filter,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find deep relationships for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find deep relationships for concept "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/relationships/deep" );
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/" + terminology + "/"
+            + version + "/" + terminologyId + "/relationships/deep");
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1319,16 +1227,17 @@ public class ContentClientRest extends RootClientRest implements
   public RelationshipList findConceptRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for concept " + terminologyId
-            + ", " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for concept "
+            + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for concept "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
     return findRelationshipsHelper("concept", terminologyId, terminology,
         version, query, pfs, authToken);
   }
@@ -1338,35 +1247,24 @@ public class ContentClientRest extends RootClientRest implements
   public RelationshipList findComponentInfoRelationships(String terminologyId,
     String terminology, String version, IdType type, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for component info " + type + ", "
-            + terminologyId + ", " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for component info " + type
+            + ", " + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/component/"
-            + type
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/"
-            + terminologyId
-            + "/relationships"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/component/" + type + "/" + terminology + "/" + version + "/"
+        + terminologyId + "/relationships" + "?query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1385,9 +1283,10 @@ public class ContentClientRest extends RootClientRest implements
   public RelationshipList findDescriptorRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for descriptor " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for descriptor "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs
+            + ", " + query);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1400,9 +1299,9 @@ public class ContentClientRest extends RootClientRest implements
   public RelationshipList findCodeRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find relationships for code " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs + ", " + query);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find relationships for code " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1427,27 +1326,16 @@ public class ContentClientRest extends RootClientRest implements
     String terminologyId, String terminology, String version, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/"
-            + type
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/"
-            + terminologyId
-            + "/relationships"
-            + "?query="
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/" + type + "/" + terminology
+            + "/" + version + "/" + terminologyId + "/relationships" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1466,16 +1354,16 @@ public class ContentClientRest extends RootClientRest implements
   public MappingList findConceptMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for concept " + terminologyId + ", "
-            + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for concept " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for concept " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs + ", " + query);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for concept " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
     return findMappingsHelper("concept", terminologyId, terminology, version,
         query, pfs, authToken);
   }
@@ -1485,15 +1373,15 @@ public class ContentClientRest extends RootClientRest implements
   public MappingList findCodeMappings(String terminologyId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for code " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for code " + terminologyId + ", "
             + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for code " + terminologyId + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for code " + terminologyId + ", "
             + terminology + ", " + version + ", " + pfs + ", " + query);
     return findMappingsHelper("code", terminologyId, terminology, version,
         query, pfs, authToken);
@@ -1504,18 +1392,18 @@ public class ContentClientRest extends RootClientRest implements
   public MappingList findDescriptorMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for descriptor " + terminologyId + ", "
-            + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for descriptor " + terminologyId
+            + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for descriptor " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs + ", " + query);
-    return findMappingsHelper("descriptor", terminologyId, terminology,
-        version, query, pfs, authToken);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for descriptor " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs + ", " + query);
+    return findMappingsHelper("descriptor", terminologyId, terminology, version,
+        query, pfs, authToken);
   }
 
   /**
@@ -1536,26 +1424,15 @@ public class ContentClientRest extends RootClientRest implements
     String authToken) throws Exception {
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/"
-            + type
-            + "/"
-            + terminologyId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/mappings"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        client.target(config.getProperty("base.url") + "/content/" + type + "/"
+            + terminologyId + "/" + terminology + "/" + version + "/mappings"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1572,9 +1449,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get tree positions for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get tree positions for concept "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1586,9 +1463,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public TreeList findDescriptorTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get tree positions for descriptor " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get tree positions for descriptor "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1600,9 +1477,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public TreeList findCodeTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get tree positions for code " + terminologyId + ", "
-            + terminology + ", " + version + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get tree positions for code " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1629,12 +1506,10 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/" + type + "/"
             + terminology + "/" + version + "/" + terminologyId + "/trees");
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1652,9 +1527,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Tree findConceptTree(String terminology, String version, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get concept tree for query " + ", " + terminology
-            + ", " + version + ", " + query + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get concept tree for query " + ", "
+            + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     return findTreeForQueryHelper("concept", terminology, version, query, pfs,
@@ -1665,9 +1540,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Tree findDescriptorTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get descriptor tree for query " + ", " + terminology
-            + ", " + version + ", " + query + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get descriptor tree for query " + ", "
+            + terminology + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     return findTreeForQueryHelper("descriptor", terminology, version, query,
@@ -1678,9 +1553,9 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Tree findCodeTree(String terminology, String version, String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get code tree for query " + ", " + terminology + ", "
-            + version + ", " + query + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get code tree for query " + ", " + terminology
+            + ", " + version + ", " + query + ", " + pfs);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     return findTreeForQueryHelper("code", terminology, version, query, pfs,
@@ -1703,25 +1578,15 @@ public class ContentClientRest extends RootClientRest implements
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/"
-            + type
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/trees"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-                .replaceAll("\\+", "%20"));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/" + type + "/" + terminology + "/" + version + "/trees"
+        + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1744,12 +1609,10 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/" + "/concept"
             + "/" + terminology + "/" + version + "/trees/children");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1765,21 +1628,18 @@ public class ContentClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+  public TreeList findDescriptorTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception {
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/"
-            + "/descriptor" + "/" + terminology + "/" + version
-            + "/trees/children");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/" + "/descriptor"
+            + "/" + terminology + "/" + version + "/trees/children");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1802,12 +1662,10 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/" + "/code"
             + "/" + terminology + "/" + version + "/trees/children");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1829,12 +1687,10 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/" + "/concept"
             + "/" + terminology + "/" + version + "/trees/roots");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1856,12 +1712,10 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/" + "/code"
             + "/" + terminology + "/" + version + "/trees/roots");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1879,17 +1733,14 @@ public class ContentClientRest extends RootClientRest implements
   public Tree findDescriptorTreeRoots(String terminology, String version,
     PfsParameterJpa pfs, String authToken) throws Exception {
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/"
-            + "/descriptor" + "/" + terminology + "/" + version
-            + "/trees/roots");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/" + "/descriptor"
+            + "/" + terminology + "/" + version + "/trees/roots");
 
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1906,9 +1757,8 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public MapSet getMapSet(String terminologyId, String terminology,
     String version, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get mapSet " + terminologyId + ", " + terminology
-            + ", " + version);
+    Logger.getLogger(getClass()).debug("Content Client - get mapSet "
+        + terminologyId + ", " + terminology + ", " + version);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
@@ -1916,9 +1766,8 @@ public class ContentClientRest extends RootClientRest implements
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/mapset/"
             + terminology + "/" + version + "/" + terminologyId);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1935,18 +1784,16 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public MapSetList getMapSets(String terminology, String version,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get mapsets " + terminology + ", " + version);
+    Logger.getLogger(getClass())
+        .debug("Content Client - get mapsets " + terminology + ", " + version);
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/mapset/all/"
-            + terminology + "/" + version);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/mapset/all/" + terminology + "/" + version);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1964,8 +1811,8 @@ public class ContentClientRest extends RootClientRest implements
   public MappingList findMappings(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find mappings for mapset " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - find mappings for mapset " + terminology + ", "
             + version);
     validateNotEmpty(mapSetId, "subsetId");
     validateNotEmpty(terminology, "terminology");
@@ -1973,23 +1820,14 @@ public class ContentClientRest extends RootClientRest implements
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/mapset/"
-            + mapSetId
-            + "/"
-            + terminology
-            + "/"
-            + version
-            + "/mappings"
-            + "?query="
-            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        client.target(config.getProperty("base.url") + "/content/mapset/"
+            + mapSetId + "/" + terminology + "/" + version + "/mappings"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2005,21 +1843,19 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void computeExpressionIndexes(String terminology, String version,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - reindex Ecl indexes for " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - reindex Ecl indexes for " + terminology + ", "
             + version);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/expression/index/" + terminology + "/" + version);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/expression/index/" + terminology + "/" + version);
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -2032,23 +1868,21 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public Integer getEclExpressionResultCount(String query, String terminology,
     String version, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - check if ECL expression for " + terminology + ", "
-            + version + ", for query: " + query);
+    Logger.getLogger(getClass())
+        .debug("Content Client - check if ECL expression for " + terminology
+            + ", " + version + ", for query: " + query);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(query, "query");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/ecl/isExpression/" + terminology + "/" + version + "/"
-            + query);
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/ecl/isExpression/"
+            + terminology + "/" + version + "/" + query);
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     Integer result = response.readEntity(Integer.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2062,30 +1896,26 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SearchResultList getEclExpressionResults(String terminology,
     String version, String query, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get ECL results for " + terminology + ", " + version
-            + ", for query: " + query);
+    Logger.getLogger(getClass()).debug("Content Client - get ECL results for "
+        + terminology + ", " + version + ", for query: " + query);
 
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
     validateNotEmpty(query, "query");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/expression/query/" + terminology + "/" + version + "/"
-            + query);
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/expression/query/"
+            + terminology + "/" + version + "/" + query);
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // converting to object
-      SearchResultListJpa list =
-          ConfigUtility.getGraphForString(resultString,
-              SearchResultListJpa.class);
+      SearchResultListJpa list = ConfigUtility.getGraphForString(resultString,
+          SearchResultListJpa.class);
       return list;
     } else {
       throw new Exception(response.toString());
@@ -2101,12 +1931,10 @@ public class ContentClientRest extends RootClientRest implements
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/content/favorites");
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2125,9 +1953,9 @@ public class ContentClientRest extends RootClientRest implements
   public void addConceptNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - add concept note for " + terminology + ", " + version
-            + ", " + terminologyId + ", with text " + noteText);
+    Logger.getLogger(getClass())
+        .debug("Content Client - add concept note for " + terminology + ", "
+            + version + ", " + terminologyId + ", with text " + noteText);
 
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(version, "version");
@@ -2138,9 +1966,8 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/concept/note/"
             + terminology + "/" + version + "/" + terminologyId + "/add");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(noteText));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(noteText));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -2151,20 +1978,19 @@ public class ContentClientRest extends RootClientRest implements
 
   /* see superclass */
   @Override
-  public void removeConceptNote(Long noteId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - remove concept note for id " + noteId);
+  public void removeConceptNote(Long noteId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Client - remove concept note for id " + noteId);
 
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/note/"
-            + noteId + "/remove");
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/concept/note/" + noteId + "/remove");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {
@@ -2178,8 +2004,8 @@ public class ContentClientRest extends RootClientRest implements
   public void addDescriptorNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - add descriptor note for " + terminology + ", "
+    Logger.getLogger(getClass())
+        .debug("Content Client - add descriptor note for " + terminology + ", "
             + version + ", " + terminologyId + ", with text " + noteText);
 
     validateNotEmpty(terminologyId, "terminologyId");
@@ -2187,14 +2013,12 @@ public class ContentClientRest extends RootClientRest implements
     validateNotEmpty(terminology, "terminology");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/descriptor/note/" + terminology + "/" + version + "/"
-            + terminologyId + "/add");
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/content/descriptor/note/"
+            + terminology + "/" + version + "/" + terminologyId + "/add");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(noteText));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(noteText));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -2207,19 +2031,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public void removeDescriptorNote(Long noteId, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - remove descriptor note for id " + noteId);
+    Logger.getLogger(getClass())
+        .debug("Content Client - remove descriptor note for id " + noteId);
 
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/descriptor/note/" + noteId + "/remove");
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/descriptor/note/" + noteId + "/remove");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {
@@ -2233,9 +2055,9 @@ public class ContentClientRest extends RootClientRest implements
   public void addCodeNote(String terminology, String version,
     String terminologyId, String noteText, String authToken) throws Exception {
 
-    Logger.getLogger(getClass()).debug(
-        "Content Client - add code note for " + terminology + ", " + version
-            + ", " + terminologyId + ", with text " + noteText);
+    Logger.getLogger(getClass())
+        .debug("Content Client - add code note for " + terminology + ", "
+            + version + ", " + terminologyId + ", with text " + noteText);
 
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(version, "version");
@@ -2246,9 +2068,8 @@ public class ContentClientRest extends RootClientRest implements
         client.target(config.getProperty("base.url") + "/content/code/note/"
             + terminology + "/" + version + "/" + terminologyId + "/add");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(noteText));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(noteText));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -2260,19 +2081,17 @@ public class ContentClientRest extends RootClientRest implements
   /* see superclass */
   @Override
   public void removeCodeNote(Long noteId, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - remove code note for id " + noteId);
+    Logger.getLogger(getClass())
+        .debug("Content Client - remove code note for id " + noteId);
 
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/code/note/"
-            + noteId + "/remove");
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/code/note/" + noteId + "/remove");
 
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
     } else {
@@ -2285,19 +2104,16 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public SearchResultList getComponentsWithNotes(String query,
     PfsParameterJpa pfs, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - get components with notes for query");
+    Logger.getLogger(getClass())
+        .debug("Content Client - get components with notes for query");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/component/notes?query=" + query);
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/component/notes?query=" + query);
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2315,19 +2131,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - validate concept " + concept);
+    Logger.getLogger(getClass())
+        .debug("Content Client - validate concept " + concept);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/validate/concept?projectId=" + projectId);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/validate/concept?projectId=" + projectId);
 
     final String conceptString =
         (concept != null ? ConfigUtility.getStringForGraph(concept) : null);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(conceptString));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(conceptString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2350,15 +2164,13 @@ public class ContentClientRest extends RootClientRest implements
         .debug("Content Client - validate atom " + atom);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/validate/atom?projectId=" + projectId);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/validate/atom?projectId=" + projectId);
 
     final String atomString =
         (atom != null ? ConfigUtility.getStringForGraph(atom) : null);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(atomString));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(atomString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2376,21 +2188,17 @@ public class ContentClientRest extends RootClientRest implements
   @Override
   public ValidationResult validateDescriptor(Long projectId,
     DescriptorJpa descriptor, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - validate descriptor " + descriptor);
+    Logger.getLogger(getClass())
+        .debug("Content Client - validate descriptor " + descriptor);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/validate/descriptor?projectId=" + projectId);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/validate/descriptor?projectId=" + projectId);
 
-    final String descriptorString =
-        (descriptor != null ? ConfigUtility.getStringForGraph(descriptor)
-            : null);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken)
-            .post(Entity.xml(descriptorString));
+    final String descriptorString = (descriptor != null
+        ? ConfigUtility.getStringForGraph(descriptor) : null);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(descriptorString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2412,15 +2220,13 @@ public class ContentClientRest extends RootClientRest implements
         .debug("Content Client - validate code " + code);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/content/validate/code?projectId=" + projectId);
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/content/validate/code?projectId=" + projectId);
 
     final String codeString =
         (code != null ? ConfigUtility.getStringForGraph(code) : null);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(codeString));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(codeString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2435,4 +2241,41 @@ public class ContentClientRest extends RootClientRest implements
 
   }
 
+
+  /* see superclass */
+  @Override
+  public TreePositionList findConceptDeepTreePositions(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String filter,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - find deep tree positions for concept " + terminologyId
+            + ", " + terminology + ", " + version + ", " + pfs);
+    validateNotEmpty(terminologyId, "terminologyId");
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/content/concept/"
+            + terminology + "/" + version + "/" + terminologyId
+            + "/treePositions/deep" );
+    final String pfsString =
+        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
+            : pfs);
+    final Response response =
+        target.request(MediaType.APPLICATION_XML)
+            .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TreePositionListJpa.class);
+  }
+  
 }

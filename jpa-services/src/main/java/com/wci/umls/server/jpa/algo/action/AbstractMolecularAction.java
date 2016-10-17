@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.google.common.base.CaseFormat;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;

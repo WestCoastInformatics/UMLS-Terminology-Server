@@ -22,7 +22,7 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 /**
  * Represents a service.
  */
-public interface RootService extends Transactionable{
+public interface RootService extends Transactionable {
 
   /** The logging object ct threshold. */
   public final static int logCt = 2000;

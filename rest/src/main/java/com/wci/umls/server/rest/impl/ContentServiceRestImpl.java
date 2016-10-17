@@ -57,6 +57,7 @@ import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.SimpleLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -385,7 +386,92 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  @Override
+  @PUT
+  @Path("/terminology/load/simple")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @ApiOperation(value = "Load simple terminology from directory", notes = "Loads simple terminology from specified directory")
+  public void loadTerminologySimple(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
 
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /terminology/load/simple " + terminology
+            + ", " + version + " from input directory " + inputDir);
+
+    // Track system level information
+    ContentService contentService = null;
+    SimpleLoaderAlgorithm algo = new SimpleLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "load simple", UserRole.ADMINISTRATOR);
+
+      algo = new SimpleLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
+      algo.compute();
+      algo.close();
+
+      contentService = new ContentServiceJpa();
+      final TerminologyList list =
+          contentService.getTerminologyLatestVersions();
+      for (final Terminology t : list.getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          algo2 = new TransitiveClosureAlgorithm();
+          algo2.setLastModifiedBy(userName);
+          algo2.setTerminology(t.getTerminology());
+          algo2.setVersion(t.getVersion());
+          algo2.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo2.setCycleTolerant(true);
+          algo2.compute();
+          algo2.close();
+        }
+      }
+
+      //
+      // Compute tree positions
+      // Refresh caches after metadata has changed in loader
+      for (final Terminology t : list.getObjects()) {
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          algo3 = new TreePositionAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(t.getTerminology());
+          algo3.setVersion(t.getVersion());
+          algo3.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo3.setCycleTolerant(true);
+          // compute "semantic types" for concept hierarchies
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo3.setComputeSemanticType(true);
+          }
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+    } catch (Exception e) {
+      handleException(e, "trying to load simple terminology from directory");
+    } finally {
+      algo.close();
+      algo2.close();
+      algo3.close();
+
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
   @Override
   @PUT
   @Path("/terminology/load/rrf")
@@ -2118,8 +2204,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
       return contentService.findConceptDeepRelationships(terminologyId,
-          terminology, version, Branch.ROOT, query, inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential,
-          pfs);
+          terminology, version, Branch.ROOT, query, inverseFlag,
+          includeConceptRels, preferredOnly, includeSelfReferential, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve deep relationships for a concept");
@@ -3904,4 +3990,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/{terminologyId}/treePositions/deep")
+  @ApiOperation(value = "Get deep tree positions with this terminologyId", notes = "Get the tree positions for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = TreePositionListJpa.class)
+  public TreePositionList findConceptDeepTreePositions(
+    @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "/" + terminologyId + "/treePositions/deep with query: " + query);
+    
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve deep relationships for the concept", UserRole.VIEWER);
+
+      return contentService.findConceptDeepTreePositions(terminologyId,
+          terminology, version, Branch.ROOT, query, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve deep tree positions for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 }

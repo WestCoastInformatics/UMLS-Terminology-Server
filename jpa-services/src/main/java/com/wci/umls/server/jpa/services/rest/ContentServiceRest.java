@@ -19,6 +19,7 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.helpers.content.TreePositionList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -459,6 +460,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Load terminology simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologySimple(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
    * Load terminology rrf.
    *
    * @param terminology the terminology
@@ -711,8 +724,8 @@ public interface ContentServiceRest {
    * @return the tree list
    * @throws Exception the exception
    */
-  public TreeList findDescriptorTreeChildren(String terminology,
-    String version, String terminologyId, PfsParameterJpa pfs, String authToken)
+  public TreeList findDescriptorTreeChildren(String terminology, String version,
+    String terminologyId, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
   /**
@@ -879,8 +892,8 @@ public interface ContentServiceRest {
    * @return the ecl expression result count
    * @throws Exception the exception
    */
-  public Integer getEclExpressionResultCount(String terminology,
-    String version, String query, String authToken) throws Exception;
+  public Integer getEclExpressionResultCount(String terminology, String version,
+    String query, String authToken) throws Exception;
 
   /**
    * Gets the ecl expression results.
@@ -1056,4 +1069,19 @@ public interface ContentServiceRest {
     boolean includeSelfReferential, PfsParameterJpa pfs, String query,
     String authToken) throws Exception;
 
+  /**
+   * Find concept deep tree positions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptDeepTreePositions(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String query,
+    String authToken) throws Exception;
 }

@@ -29,7 +29,8 @@ tsApp.directive('reportPre', [ '$window', '$routeParams', function($window, $rou
       // Get the report
       $scope.getReport = function(component) {
         $scope.report = "Loading...";
-        reportService.getComponentReport(null, component).then(
+        reportService.getComponentReport($scope.selected.project ?
+          $scope.selected.project.id : null, component).then(
         // Success
         function(data) {
           $scope.report = data;

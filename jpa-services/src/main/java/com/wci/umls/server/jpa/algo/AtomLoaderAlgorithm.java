@@ -695,6 +695,11 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     results.close();
   }
 
+  /**
+   * Cache existing descriptors.
+   *
+   * @throws Exception the exception
+   */
   private void cacheExistingDescriptors() throws Exception {
 
     // Pre-populate descriptorIdMap (for all terminologies from this insertion)
@@ -721,7 +726,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "ATOMLOADING progress: " + currentProgress + "%");

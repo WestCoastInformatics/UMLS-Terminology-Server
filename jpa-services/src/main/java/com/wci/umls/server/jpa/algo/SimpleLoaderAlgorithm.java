@@ -93,7 +93,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void compute() throws Exception {
 
-    logInfo("Start loading RRF");
+    logInfo("Start simple load");
     logInfo("  terminology = " + getTerminology());
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
@@ -212,8 +212,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
 
-      if (!ConfigUtility.isEmpty(fields[2])) {
-        types.add(fields[2]);
+      if (!ConfigUtility.isEmpty(fields[1])) {
+        types.add(fields[1]);
       }
     }
     reader.close();
@@ -349,6 +349,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Additional rel types - none
     // Attribute names - none
+    
+    commitClearBegin();
   }
 
   /**
@@ -367,10 +369,10 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         new FileReader(new File(getInputPath(), "concepts.txt")));
     final String[] fields = new String[10];
     while ((line = reader.readLine()) != null) {
-
+System.out.println("line="+line);
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
-
+            
       // Field Description
       // 0 conceptid
       // 1 type
