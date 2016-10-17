@@ -1537,7 +1537,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           getRelationshipType(relationship.getRelationshipType(),
               relationship.getTerminology(), relationship.getVersion())
                   .getInverse().getAbbreviation());
-      inverseRelationship.setAssertedDirection(false);
+      inverseRelationship.setAssertedDirection(!relationship.isAssertedDirection());
 
       return inverseRelationship;
     } else {

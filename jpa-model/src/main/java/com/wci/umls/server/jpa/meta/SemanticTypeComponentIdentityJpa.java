@@ -10,6 +10,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
+
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 
 /**
@@ -20,6 +28,7 @@ import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
     "conceptTerminologyId", "semanticType", "terminology"
 }))
 @XmlRootElement(name = "styIdentity")
+@Indexed
 public class SemanticTypeComponentIdentityJpa
     implements SemanticTypeComponentIdentity {
 
@@ -78,6 +87,8 @@ public class SemanticTypeComponentIdentityJpa
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.YES)
   public Long getId() {
     return id;
   }
@@ -90,6 +101,7 @@ public class SemanticTypeComponentIdentityJpa
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getTerminology() {
     return terminology;
   }
@@ -102,6 +114,7 @@ public class SemanticTypeComponentIdentityJpa
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getConceptTerminologyId() {
     return conceptTerminologyId;
   }
@@ -128,6 +141,7 @@ public class SemanticTypeComponentIdentityJpa
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getSemanticType() {
     return semanticType;
   }

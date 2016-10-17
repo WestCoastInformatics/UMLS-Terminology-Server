@@ -408,8 +408,8 @@ public class ProjectClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/project/log?" + "projectId="
-            + projectId + "&objectId=" + objectId +  
-            "&message=" + message + "&lines=" + lines);
+            + projectId + "&objectId=" + objectId + (message == null ? "" : 
+            "&message=" + message ) + "&lines=" + lines);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 

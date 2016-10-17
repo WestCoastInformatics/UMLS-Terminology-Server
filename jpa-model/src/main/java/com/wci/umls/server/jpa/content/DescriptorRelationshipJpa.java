@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -30,6 +31,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link DescriptorRelationship}.
@@ -79,8 +81,10 @@ public class DescriptorRelationshipJpa
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /**
@@ -410,6 +414,20 @@ public class DescriptorRelationshipJpa
     }
     alternateTerminologyIds.remove(terminology);
 
+  }
+
+  /* see superclass */
+  @Override
+  public Relationship<Descriptor, Descriptor> createInverseRelationship(
+    Relationship<Descriptor, Descriptor> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Create inverse of descriptor relationship " + relationship);
+    DescriptorRelationship inverseRelationship = new DescriptorRelationshipJpa(
+        (DescriptorRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /**

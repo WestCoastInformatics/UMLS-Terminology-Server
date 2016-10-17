@@ -109,7 +109,7 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
        // Result is to get through this all without throwing an error    
        
     } catch (Exception e) {
-      algo.rollback();
+      e.printStackTrace();
     } finally {
       algo.close();
     }

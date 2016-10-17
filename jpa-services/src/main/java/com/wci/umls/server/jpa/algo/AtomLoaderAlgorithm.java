@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -68,13 +67,10 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   /** The steps completed. */
   private int stepsCompleted;
 
-  /** The loader. */
-  private final String loader = "loader";
-
   /**
    * The aui ID map. Key = AlternateTerminologyId Value = atomJpa Id
    */
-  private Map<String, String> auiIdMap = new HashMap<String, String>();
+  private Map<String, Long> auiIdMap = new HashMap<>();
 
   /**
    * The loaded termTypes. Key = abbreviation Value = TermType object
@@ -110,9 +106,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
    * classes_atoms.src file
    */
   private Set<String> allTerminologiesFromInsertion = new HashSet<>();
-
-  /** The run date. */
-  private Date runDate = null;
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -233,7 +226,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList("classes_atoms.src", null);
+      List<String> lines =
+          loadFileIntoStringList("classes_atoms_TEST.src", null);
 
       logInfo("[AtomLoader] Loading associated resources");
 
@@ -251,7 +245,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
 
-      runDate = new Date();
       previousProgress = 0;
       stepsCompleted = 0;
 
@@ -266,8 +259,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         // Print progress and check for a cancelled call once every 100 atoms
         // (doing it for every atom
         // makes things too slow)
-        // logInfo("[AtomLoader] " + stepsCompleted + " out of " + steps + "
-        // atoms processed.");
         if (stepsCompleted % 100 == 0) {
           if (isCancelled()) {
             throw new CancelException("Cancelled");
@@ -336,8 +327,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         newAtom.setConceptId(fields[10]);
         newAtom.setDescriptorId(fields[11]);
         newAtom.setLanguage(fields[12]);
-        newAtom.setLastModified(runDate);
-        newAtom.setLastModifiedBy(loader);
         if (!ConfigUtility.isEmpty(fields[13])) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology() + "-ORDER", fields[13]);
@@ -363,134 +352,37 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         String newAtomAui = handler.getTerminologyId(newAtom);
 
         // Check to see if atom with matching AUI already exists in the database
-        String oldAtomId = auiIdMap.get(newAtomAui);
+        Long oldAtomId = auiIdMap.get(newAtomAui);
 
         // If no atom with the same AUI exists, add this new Atom.
-        if (auiIdMap.get(newAtomAui) == null) {
-          newAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology(), newAtomAui);
+        if (oldAtomId == null) {
+          newAtom.getAlternateTerminologyIds().put("SRC", newAtomAui);
           newAtom = addAtom(newAtom);
           addCount++;
-          auiIdMap.put(newAtomAui, newAtom.getId().toString());
+          auiIdMap.put(newAtomAui, newAtom.getId());
 
-          //
           // Reconcile code/concept/descriptor
-          //
-
-          // Reconcile codes
-          // Check map to see if code already exists
-          if (!newAtom.getCodeId().isEmpty()) {
-
-            if (codeIdMap
-                .containsKey(newAtom.getCodeId() + newAtom.getTerminology())) {
-              final Code code = getCode(codeIdMap
-                  .get(newAtom.getCodeId() + newAtom.getTerminology()));
-              code.getAtoms().add(newAtom);
-              updateCode(code);
-            }
-
-            // else create a new code
-            else {
-              final Code code = new CodeJpa();
-              code.setTerminology(newAtom.getTerminology());
-              code.setTerminologyId(newAtom.getCodeId());
-              code.setVersion(newAtom.getVersion());
-              code.setBranch(Branch.ROOT);
-              code.setName(newAtom.getName());
-              code.setObsolete(false);
-              code.setPublished(false);
-              code.setPublishable(true);
-              code.setSuppressible(false);
-              code.setWorkflowStatus(newAtom.getWorkflowStatus());
-
-              code.getAtoms().add(newAtom);
-              addCode(code);
-              codeIdMap.put(code.getTerminologyId() + code.getTerminology(),
-                  code.getId());
-            }
-          }
-
-          // Reconcile concepts
-          // Check map to see if concept already exists
-          if (!newAtom.getConceptId().isEmpty()) {
-
-            if (conceptIdMap.containsKey(
-                newAtom.getConceptId() + newAtom.getTerminology())) {
-              final Concept concept = getConcept(conceptIdMap
-                  .get(newAtom.getConceptId() + newAtom.getTerminology()));
-              concept.getAtoms().add(newAtom);
-              updateConcept(concept);
-            }
-
-            // else create a new concept
-            else {
-              final Concept concept = new ConceptJpa();
-              concept.setTerminology(newAtom.getTerminology());
-              concept.setTerminologyId(newAtom.getConceptId());
-              concept.setVersion(newAtom.getVersion());
-              concept.setBranch(Branch.ROOT);
-              concept.setName(newAtom.getName());
-              concept.setObsolete(false);
-              concept.setPublished(false);
-              concept.setPublishable(true);
-              concept.setSuppressible(false);
-              concept.setWorkflowStatus(newAtom.getWorkflowStatus());
-
-              concept.getAtoms().add(newAtom);
-              addConcept(concept);
-              conceptIdMap.put(
-                  concept.getTerminologyId() + concept.getTerminology(),
-                  concept.getId());
-            }
-          }
-          // Reconcile descriptors
-          // Check map to see if descriptor already exists
-          if (!newAtom.getDescriptorId().isEmpty()) {
-
-            if (descriptorIdMap.containsKey(
-                newAtom.getDescriptorId() + newAtom.getTerminology())) {
-              final Descriptor descriptor = getDescriptor(descriptorIdMap
-                  .get(newAtom.getDescriptorId() + newAtom.getTerminology()));
-              descriptor.getAtoms().add(newAtom);
-              updateDescriptor(descriptor);
-            }
-
-            // else create a new descriptor
-            else {
-              final Descriptor descriptor = new DescriptorJpa();
-              descriptor.setTerminology(newAtom.getTerminology());
-              descriptor.setTerminologyId(newAtom.getDescriptorId());
-              descriptor.setVersion(newAtom.getVersion());
-              descriptor.setBranch(Branch.ROOT);
-              descriptor.setName(newAtom.getName());
-              descriptor.setObsolete(false);
-              descriptor.setPublished(false);
-              descriptor.setPublishable(true);
-              descriptor.setSuppressible(false);
-              descriptor.setWorkflowStatus(newAtom.getWorkflowStatus());
-
-              descriptor.getAtoms().add(newAtom);
-              addDescriptor(descriptor);
-              descriptorIdMap.put(
-                  descriptor.getTerminologyId() + descriptor.getTerminology(),
-                  descriptor.getId());
-            }
-          }
+          reconcileCodeConceptDescriptor(newAtom);
 
         }
         // If a previous atom with same AUI exists, load that object.
         else {
-          Atom oldAtom = getAtom(Long.parseLong(oldAtomId));
+          final Atom oldAtom = getAtom(oldAtomId);
 
           boolean oldAtomChanged = false;
 
-          // If this loaded Atom is exactly the same as the new Atom:
-          if (oldAtom.equals(newAtom)) {
-            // Update the version
-            if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
-              oldAtom.setVersion(newAtom.getVersion());
-              oldAtomChanged = true;
-            }
+          // Create an "alternateTerminologyId" for the atom
+          oldAtom.getAlternateTerminologyIds().put("UMLS-SRC", newAtomAui);
+
+          // Update the version
+          if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
+            oldAtom.setVersion(newAtom.getVersion());
+            oldAtomChanged = true;
+          }
+
+          // If this loaded Atom is not exactly the same as the new Atom:
+          if (!oldAtom.equals(newAtom)) {
+
             // Update obsolete and suppresible.
             // If the old version of the atom is suppresible, and its term type
             // is not, keep the old atom's suppresibility. Otherwise, use the
@@ -519,13 +411,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
             RootService.logCt, RootService.commitCt);
-        handler.logAndCommit("[Atom Loader] Identifiers processed ",
-            stepsCompleted, RootService.logCt, RootService.commitCt);
-
-        if (stepsCompleted % 2000 == 0) {
-          logInfo("[AtomLoader] Adding " + addCount + " new Atoms.");
-          logInfo("[AtomLoader] Updating " + updateCount + " existing Atoms.");
-        }
+        handler.commitClearBegin();
 
       }
 
@@ -550,6 +436,106 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       throw e;
     }
 
+  }
+
+  private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {
+    // Check map to see if code already exists
+    if (!atom.getCodeId().isEmpty()) {
+
+      if (codeIdMap.containsKey(atom.getCodeId() + atom.getTerminology())) {
+        final Code code =
+            getCode(codeIdMap.get(atom.getCodeId() + atom.getTerminology()));
+        code.getAtoms().add(atom);
+        code.setVersion(atom.getVersion());
+        updateCode(code);
+      }
+
+      // else create a new code
+      else {
+        final Code code = new CodeJpa();
+        code.setTerminology(atom.getTerminology());
+        code.setTerminologyId(atom.getCodeId());
+        code.setVersion(atom.getVersion());
+        code.setBranch(Branch.ROOT);
+        code.setName(atom.getName());
+        code.setObsolete(false);
+        code.setPublished(false);
+        code.setPublishable(true);
+        code.setSuppressible(false);
+        code.setWorkflowStatus(atom.getWorkflowStatus());
+
+        code.getAtoms().add(atom);
+        addCode(code);
+        codeIdMap.put(code.getTerminologyId() + code.getTerminology(),
+            code.getId());
+      }
+    }
+
+    // Check map to see if concept already exists
+    if (!atom.getConceptId().isEmpty()) {
+
+      if (conceptIdMap
+          .containsKey(atom.getConceptId() + atom.getTerminology())) {
+        final Concept concept = getConcept(
+            conceptIdMap.get(atom.getConceptId() + atom.getTerminology()));
+        concept.getAtoms().add(atom);
+        concept.setVersion(atom.getVersion());
+        updateConcept(concept);
+      }
+
+      // else create a new concept
+      else {
+        final Concept concept = new ConceptJpa();
+        concept.setTerminology(atom.getTerminology());
+        concept.setTerminologyId(atom.getConceptId());
+        concept.setVersion(atom.getVersion());
+        concept.setBranch(Branch.ROOT);
+        concept.setName(atom.getName());
+        concept.setObsolete(false);
+        concept.setPublished(false);
+        concept.setPublishable(true);
+        concept.setSuppressible(false);
+        concept.setWorkflowStatus(atom.getWorkflowStatus());
+
+        concept.getAtoms().add(atom);
+        addConcept(concept);
+        conceptIdMap.put(concept.getTerminologyId() + concept.getTerminology(),
+            concept.getId());
+      }
+    }
+    // Check map to see if descriptor already exists
+    if (!atom.getDescriptorId().isEmpty()) {
+
+      if (descriptorIdMap
+          .containsKey(atom.getDescriptorId() + atom.getTerminology())) {
+        final Descriptor descriptor = getDescriptor(descriptorIdMap
+            .get(atom.getDescriptorId() + atom.getTerminology()));
+        descriptor.getAtoms().add(atom);
+        descriptor.setVersion(atom.getVersion());
+        updateDescriptor(descriptor);
+      }
+
+      // else create a new descriptor
+      else {
+        final Descriptor descriptor = new DescriptorJpa();
+        descriptor.setTerminology(atom.getTerminology());
+        descriptor.setTerminologyId(atom.getDescriptorId());
+        descriptor.setVersion(atom.getVersion());
+        descriptor.setBranch(Branch.ROOT);
+        descriptor.setName(atom.getName());
+        descriptor.setObsolete(false);
+        descriptor.setPublished(false);
+        descriptor.setPublishable(true);
+        descriptor.setSuppressible(false);
+        descriptor.setWorkflowStatus(atom.getWorkflowStatus());
+
+        descriptor.getAtoms().add(atom);
+        addDescriptor(descriptor);
+        descriptorIdMap.put(
+            descriptor.getTerminologyId() + descriptor.getTerminology(),
+            descriptor.getId());
+      }
+    }
   }
 
   /**
@@ -617,7 +603,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       objects = query.getResultList();
 
       for (final Object[] result : objects) {
-        auiIdMap.put(result[0].toString(), result[1].toString());
+        auiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
       }
       iteration++;
     } while (objects.size() > 0);

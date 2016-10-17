@@ -8,4 +8,5 @@ package com.wci.umls.server.model.content;
  */
 public interface ConceptRelationship extends Relationship<Concept, Concept> {
   // nothing extra, connects two concepts
+  
 }
