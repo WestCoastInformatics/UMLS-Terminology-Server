@@ -370,3 +370,9 @@ h5 {
 	vertical-align: middle;
 	white-space: normal;
 }
+
+.pagination-sm>li>a, .pagination-sm>li>span {
+    padding: 3px 5.5px;
+    font-size: 12px;
+    line-height: 1.5;
+}

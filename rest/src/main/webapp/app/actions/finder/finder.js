@@ -141,6 +141,7 @@ tsApp.directive('finder', [ function() {
             // Success
             function(data) {
               $scope.callbacks.addComponent(data);
+              $scope.lookupText = '';
             });
           }
         }

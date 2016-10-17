@@ -3387,6 +3387,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
         && pfs.getQueryRestriction().equals("suppressible:false"))
             ? " and a.suppressible = false " : "";
 
+    final String relTypeClause =
+        " and a.relationshipType not in ('PAR', 'CHD','AQ','QB')";
+
     // Verify no query restriction except for suppressible:false
     if (ConfigUtility.isEmpty(suppressibleClause) && pfs != null
         && pfs.getQueryRestriction() != null
@@ -3413,8 +3416,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + ", a.lastModifiedBy, a.lastModified "
             + "from ConceptRelationshipJpa a " + "where "
             + (inverseFlag ? "a.to" : "a.from") + ".id = :conceptId "
-            + " and a.relationshipType not in ('PAR', 'CHD')"
-            + suppressibleClause;
+            + relTypeClause + suppressibleClause;
         query = manager.createQuery(queryStr);
         query.setParameter("conceptId", concept.getId());
         results.addAll(query.getResultList());
@@ -3429,8 +3431,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "where c2.terminology = :terminology and c2.version = :version and "
           + (inverseFlag ? "a.from.id in (ca.id) " : "a.to.id in (ca.id) ")
           + " and " + (inverseFlag ? "a.to" : "a.from") + ".id in (:atomIds)"
-          + " and a.relationshipType not in ('PAR', 'CHD')"
-          + suppressibleClause;
+          + relTypeClause + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3457,10 +3458,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) "
-              : "e.id in (ca.id) " 
-          + " and a.relationshipType not in ('PAR', 'CHD')"
-          + suppressibleClause);
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
+          + relTypeClause + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3483,9 +3482,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) "
-              : "e.id in (ca.id) "
-          + " and a.relationshipType not in ('PAR', 'CHD')" + suppressibleClause);
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
+          + relTypeClause + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -3508,9 +3506,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
           + "and d.terminology = e.terminology and d.version = e.version "
           + "and d.name = e.name "
           + "and c2.terminology = :terminology and c2.version = :version and "
-          + (inverseFlag ? "e.id in (ca.id) "
-              : "e.id in (ca.id) "
-          + " and a.relationshipType not in ('PAR', 'CHD')" + suppressibleClause);
+          + (inverseFlag ? "e.id in (ca.id) " : "e.id in (ca.id) ")
+          + relTypeClause + suppressibleClause;
       query = manager.createQuery(queryStr);
       query.setParameter("terminology", terminology);
       query.setParameter("version", version);
@@ -4575,22 +4572,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings({
-      "unchecked"
-  })
+  @SuppressWarnings("rawtypes")
   @Override
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query, PfsParameter pfs)
-    throws Exception {
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass())
-    .debug("Content Service - find tree positions for concept "
-        + terminologyId + "/" + terminology + "/" + version + "/" + query);
-    
+        .debug("Content Service - find tree positions for concept "
+            + terminologyId + "/" + terminology + "/" + version + "/" + query);
+
+    String lterminologyId = terminologyId;
     try {
-      ConceptJpa concept = getComponent(terminologyId, terminology, version,
+      ConceptJpa concept = getComponent(lterminologyId, terminology, version,
           branch, ConceptJpa.class);
-      boolean firstContext = true;
       final Set<String> uniqueSet = new HashSet<>();
       List<TreePosition> treePositionList = new ArrayList<>();
       // collect all unique terminology, version, terminologyId, type combos
@@ -4604,22 +4599,22 @@ public class ContentServiceJpa extends MetadataServiceJpa
         final IdType type = fullTerminology.getOrganizingClassType();
 
         if (type == IdType.CODE) {
-          terminologyId = atom.getCodeId();
+          lterminologyId = atom.getCodeId();
         } else if (type == IdType.CONCEPT) {
-          terminologyId = atom.getConceptId();
+          lterminologyId = atom.getConceptId();
         } else if (type == IdType.DESCRIPTOR) {
-          terminologyId = atom.getDescriptorId();
+          lterminologyId = atom.getDescriptorId();
         } else {
           continue;
         }
-        
+
         // skip all non-english contexts
-        if(!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
+        if (!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
           continue;
         }
-        
+
         final String entry = type + ":" + atom.getTerminology() + ":"
-            + atom.getVersion() + ":" + terminologyId;
+            + atom.getVersion() + ":" + lterminologyId;
         // If new entry
         if (!uniqueSet.contains(entry)) {
           // Break if we've reached the limit
@@ -4628,7 +4623,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
           }
 
           // See if there is a tree position
-          final TreePosition<?> treePos = getTreePosition(type, terminologyId,
+          final TreePosition<?> treePos = getTreePosition(type, lterminologyId,
               atom.getTerminology(), atom.getVersion());
           // Increment if so
           if (treePos != null) {
@@ -4650,7 +4645,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // set filter as query restriction for use in applyPfsToList
       final PfsParameter pfsLocal = new PfsParameterJpa(pfs);
       pfsLocal.setQueryRestriction(query);
-
 
       final int[] totalCt = new int[1];
       treePositionList = applyPfsToList(treePositionList, TreePosition.class,
@@ -4702,7 +4696,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return null;
 
   }
-  
+
   /* see superclass */
   @Override
   public ValidationResult validateConcept(Project project, Concept concept) {

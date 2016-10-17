@@ -12,8 +12,8 @@ tsApp
       'securityService',
       'projectService',
       'workflowService',
-      function($uibModal, $window, $sce, $interval, utilService, securityService,
-        projectService, workflowService) {
+      function($uibModal, $window, $sce, $interval, utilService, securityService, projectService,
+        workflowService) {
         console.debug('configure worklistTable directive');
         return {
           restrict : 'A',
@@ -173,6 +173,7 @@ tsApp
                     .then(function(data) {
                       $scope.worklists = data.worklists;
                       $scope.worklists.totalCount = data.totalCount;
+                      $scope.lists.worklistCt = data.totalCount;
                       if (worklist) {
                         for (var i = 0; i < data.worklists.length; i++) {
                           if (data.worklists[i].id == worklist.id) {
@@ -187,6 +188,7 @@ tsApp
                     .then(function(data) {
                       $scope.worklists = data.checklists;
                       $scope.worklists.totalCount = data.totalCount;
+                      $scope.lists.checklistCt = data.totalCount;
                       if (worklist) {
                         for (var i = 0; i < data.checklists.length; i++) {
                           if (data.checklists[i].id == worklist.id) {
@@ -329,15 +331,15 @@ tsApp
               // Selects a worklist (setting $scope.selected.worklist).
               // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {
-                workflowService['get'+$scope.type]($scope.selected.project.id, worklist.id).then(
+                workflowService['get' + $scope.type]($scope.selected.project.id, worklist.id).then(
                   function(data) {
-                  $scope.selected.worklist = data;
-                  if ($scope.type == 'Worklist') {
-                    $scope.parseStateHistory(data);
-                  }
-                  $scope.getRecords(data);
-                  $scope.findGeneratedConceptReports();
-                });
+                    $scope.selected.worklist = data;
+                    if ($scope.type == 'Worklist') {
+                      $scope.parseStateHistory(data);
+                    }
+                    $scope.getRecords(data);
+                    $scope.findGeneratedConceptReports();
+                  });
               };
 
               // parse workflow state history

@@ -28,7 +28,8 @@
             </tr>
           </tbody>
         </table>
-        <table class="slim table" ng-show="action == 'Split' || action == 'Move'">
+        <table class="slim table"
+          ng-show="action == 'Split' || action == 'Move'">
           <thead>
             <th>Atoms:</th>
           </thead>
@@ -94,7 +95,8 @@
             </tr>
           </tbody>
         </table>
-        <table class="slim table" ng-show="action == 'Split' || action == 'Move'">
+        <table class="slim table"
+          ng-show="action == 'Split' || action == 'Move'">
           <thead>
             <th>Atoms:</th>
           </thead>
@@ -111,7 +113,9 @@
     </tr>
     <tr ng-show="action == 'Split'">
       <td>
-        <span title="Copy relationships & semantic types to new concept."><b>Copy</b></span>
+        <span title="Copy relationships & semantic types to new concept.">
+          <b>Copy</b>
+        </span>
       </td>
       <td>
         <input type="checkbox" ng-model="copy"
@@ -148,7 +152,7 @@
 
 
 <div class="modal-footer">
-  <span style="float: left;">
+  <span ng-if="action != 'Split'" style="float: left;">
     <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
   </span>
   <span ng-show="action == 'Merge'">

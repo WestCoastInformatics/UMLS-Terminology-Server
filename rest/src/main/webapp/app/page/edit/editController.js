@@ -77,7 +77,6 @@ tsApp
         $scope.paging = {};
         $scope.paging['worklists'] = utilService.getPaging();
         $scope.paging['worklists'].sortField = 'lastModified';
-        $scope.paging['worklists'].pageSize = 5;
         $scope.paging['worklists'].callbacks = {
           getPagedList : getWorklists
         };
