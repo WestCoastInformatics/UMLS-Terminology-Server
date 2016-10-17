@@ -113,76 +113,67 @@ tsApp
         });
 
         // Handle changes from actions performed by this user
-        $scope
-          .$on(
-            'termServer::conceptChange',
-            function(event, concept) {
+        $scope.$on('termServer::conceptChange', function(event, concept) {
+          console.debug('abc');
+          // Refresh the selected concept
+          if ($scope.selected.component.id == concept.id) {
+            console.debug('abc  conceptId matches selected', concept.id);
+            contentService.getConcept(concept.id, $scope.selected.project.id).then(
+            // Success - concept exists
+            function(data) {
+              $scope.selectConcept(data);
+              $scope.getRecords();
 
-              // Refresh the selected concept
-              if ($scope.selected.component.id == concept.id) {
-                contentService.getConcept(concept.id, $scope.selected.project.id).then(
-                // Success
+            },
+            // Fail - concept does not exist
+            function(data) {
+              // if selected concept no longer exists, just bail from this
+              $scope.removeConceptFromList(concept);
+            }
+
+            );
+          }
+
+          // If a concept is referenced that isn't selected,
+          // update the concept in the list, and/or add to the list
+          else {
+            // well
+            var found = false;
+
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              var c = $scope.lists.concepts[i];
+              if (c.id == concept.id) {
+                contentService.getConcept(c.id, $scope.selected.project.id).then(
+                // Success - concept exists
                 function(data) {
-                  if (!data) {
-                    // if selected concept no longer exists, just bail from this
-                    $scope.removeConceptFromList(concept);
-                  } else {
-                    $scope.selectConcept(data);
-                  }
+                  $scope.lists.concepts[i] = data;
+                  $scope.selectConcept($scope.lists.concepts[0]);
                   $scope.getRecords();
-
+                },
+                // Fail - concept does not exist
+                function(data) {
+                  // if selected concept no longer exists, just bail from this
+                  $scope.removeConceptFromList(concept);
                 });
+                found = true;
               }
+            }
 
-              // If a concept is referenced that isn't selected,
-              // update the concept in the list, and/or add to the list
-              else {
-                // well
-                var found = false;
-
-                for (var i = 0; i < $scope.lists.concepts.length; i++) {
-                  var c = $scope.lists.concepts[i];
-                  if (c.id == concept.id) {
-                    contentService
-                      .getConcept(c.id, $scope.selected.project.id)
-                      .then(
-                        // Success
-                        function(data) {
-                          if (!data) {
-                            $scope.removeConceptFromList(concept);
-                          } else {
-                            $scope.lists.concepts[i] = data;
-
-                            if ($scope.user.userPreferences.properties['editConcept']) {
-                              for (var i = 0; i < $scope.lists.concepts.length; i++) {
-                                if ($scope.lists.concepts[i].id == $scope.user.userPreferences.properties['editConcept']) {
-                                  $scope.selectConcept($scope.lists.concepts[i]);
-                                }
-                                ;
-                              }
-                            } else {
-                              $scope.selectConcept($scope.lists.concepts[0]);
-                            }
-                          }
-                          $scope.getRecords();
-                        });
-                    found = true;
-                  }
+            // If no matching concept found, add it to to the list
+            if (!found) {
+              console.debug('abc    concept not found in list, add it', concept.id);
+              contentService.getConcept(concept.id, $scope.selected.project.id).then(
+              // Success
+              function(data) {
+                if (data) { // no need to remove anything or select anything
+                  $scope.lists.concepts.push(data);
+                  $scope.refreshWindows();
+                  $scope.getRecords();
                 }
-
-                // If no matching concept found, add it to to the list
-                if (!found) {
-                  contentService.getConcept(concept.id, $scope.selected.project.id).then(
-                  // Success
-                  function(data) {
-                    // no need to remove anything or select anything
-                    $scope.lists.concepts.push(data);
-                    $scope.refreshWindows();
-                    $scope.getRecords();
-                  });
-                }
-              }
-            });
+              });
+            }
+          }
+        });
 
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
@@ -628,8 +619,8 @@ tsApp
             }
           }
 
-          if ($scope.selected.worklistMode == 'Available'
-            || $scope.selected.worklistMode == 'Assigned') {
+          if ($scope.selected.worklist
+            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
             workflowService
               .findTrackingRecordsForWorklist($scope.selected.project.id,
                 $scope.selected.worklist.id, pfs)
@@ -651,7 +642,7 @@ tsApp
                     $scope.selectRecord($scope.lists.records[0]);
                   }
                 });
-          } else if ($scope.selected.worklistMode == 'Checklists') {
+          } else if ($scope.selected.worklist && $scope.selected.worklistMode == 'Checklists') {
             workflowService
               .findTrackingRecordsForChecklist($scope.selected.project.id,
                 $scope.selected.worklist.id, pfs)
@@ -872,23 +863,25 @@ tsApp
           var newUrl = utilService.composeUrl('/edit/semantic-types');
           window.$windowScope = $scope;
 
-          if (width == null && height == null && $scope.user.userPreferences.properties['semanticTypeWidth']) {
+          if (width == null && height == null
+            && $scope.user.userPreferences.properties['semanticTypeWidth']) {
             width = $scope.user.userPreferences.properties['semanticTypeWidth'];
             height = $scope.user.userPreferences.properties['semanticTypeHeight'];
-          } else if (!$scope.user.userPreferences.properties['semanticTypeWidth']){
+          } else if (!$scope.user.userPreferences.properties['semanticTypeWidth']) {
             width = 600;
             height = 600;
           }
-          $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow',
-            'width=' + width + ', height=' + height + ', scrollbars=yes');
+          $scope.windows['semanticType'] = $window.open(newUrl, 'styWindow', 'width=' + width
+            + ', height=' + height + ', scrollbars=yes');
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
           if ($scope.user.userPreferences.properties['semanticTypeX']) {
-            $scope.windows['semanticType'].moveTo($scope.user.userPreferences.properties['semanticTypeX'],
+            $scope.windows['semanticType'].moveTo(
+              $scope.user.userPreferences.properties['semanticTypeX'],
               $scope.user.userPreferences.properties['semanticTypeY']);
           }
-          
-          securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);          
+
+          securityService.saveProperty($scope.user.userPreferences, 'semanticType', true);
         };
 
         // open atoms editor window
@@ -896,23 +889,24 @@ tsApp
 
           var newUrl = utilService.composeUrl('/edit/atoms');
           window.$windowScope = $scope;
-          
-          if (width == null && height == null && $scope.user.userPreferences.properties['atomWidth']) {
+
+          if (width == null && height == null
+            && $scope.user.userPreferences.properties['atomWidth']) {
             width = $scope.user.userPreferences.properties['atomWidth'];
             height = $scope.user.userPreferences.properties['atomHeight'];
-          } else if (!$scope.user.userPreferences.properties['atomWidth']){
+          } else if (!$scope.user.userPreferences.properties['atomWidth']) {
             width = 600;
             height = 600;
           }
-          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 
-            'width=' + width + ', height=' + height + ', scrollbars=yes');
+          $scope.windows['atom'] = $window.open(newUrl, 'atomWindow', 'width=' + width
+            + ', height=' + height + ', scrollbars=yes');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
           if ($scope.user.userPreferences.properties['atomX']) {
             $scope.windows['atom'].moveTo($scope.user.userPreferences.properties['atomX'],
               $scope.user.userPreferences.properties['atomY']);
           }
-          
+
           securityService.saveProperty($scope.user.userPreferences, 'atom', true);
         };
 
@@ -921,19 +915,21 @@ tsApp
 
           var newUrl = utilService.composeUrl('/edit/relationships');
           window.$windowScope = $scope;
-          if (width == null && height == null && $scope.user.userPreferences.properties['relationshipWidth']) {
+          if (width == null && height == null
+            && $scope.user.userPreferences.properties['relationshipWidth']) {
             width = $scope.user.userPreferences.properties['relationshipWidth'];
             height = $scope.user.userPreferences.properties['relationshipHeight'];
-          } else if (!$scope.user.userPreferences.properties['relationshipWidth']){
+          } else if (!$scope.user.userPreferences.properties['relationshipWidth']) {
             width = 600;
             height = 600;
           }
-          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow',
-            'width=' + width + ', height=' + height + ', scrollbars=yes');
+          $scope.windows['relationship'] = $window.open(newUrl, 'relationshipWindow', 'width='
+            + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
           if ($scope.user.userPreferences.properties['relationshipX']) {
-            $scope.windows['relationship'].moveTo($scope.user.userPreferences.properties['relationshipX'],
+            $scope.windows['relationship'].moveTo(
+              $scope.user.userPreferences.properties['relationshipX'],
               $scope.user.userPreferences.properties['relationshipY']);
           }
           securityService.saveProperty($scope.user.userPreferences, 'relationship', true);
@@ -945,22 +941,23 @@ tsApp
           var newUrl = utilService.composeUrl('contexts');
           window.$windowScope = $scope;
 
-          if (width == null && height == null && $scope.user.userPreferences.properties['contextWidth']) {
+          if (width == null && height == null
+            && $scope.user.userPreferences.properties['contextWidth']) {
             width = $scope.user.userPreferences.properties['contextWidth'];
             height = $scope.user.userPreferences.properties['contextHeight'];
-          } else if (!$scope.user.userPreferences.properties['contextWidth']){
+          } else if (!$scope.user.userPreferences.properties['contextWidth']) {
             width = 600;
             height = 600;
           }
-          $scope.windows['context'] = $window.open(newUrl, 'contextWindow',
-            'width=' + width + ', height=' + height + ', scrollbars=yes');
+          $scope.windows['context'] = $window.open(newUrl, 'contextWindow', 'width=' + width
+            + ', height=' + height + ', scrollbars=yes');
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
           if ($scope.user.userPreferences.properties['contextX']) {
             $scope.windows['context'].moveTo($scope.user.userPreferences.properties['contextX'],
               $scope.user.userPreferences.properties['contextY']);
           }
-          
+
           securityService.saveProperty($scope.user.userPreferences, 'context', true);
         };
 
@@ -968,8 +965,8 @@ tsApp
         $window.onbeforeunload = function(evt) {
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
-                $scope.windows[key].$windowScope.parentClosing = true;
-            	$scope.windows[key].close();
+              $scope.windows[key].$windowScope.parentClosing = true;
+              $scope.windows[key].close();
             }
           }
         }
@@ -978,8 +975,8 @@ tsApp
         $scope.$on('$destroy', function() {
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
-                $scope.windows[key].$windowScope.parentClosing = true;
-            	$scope.windows[key].close();
+              $scope.windows[key].$windowScope.parentClosing = true;
+              $scope.windows[key].close();
             }
           }
         });

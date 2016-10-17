@@ -3,12 +3,22 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.Date;
+
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -130,6 +140,11 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
       getConcept().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
     }
 
+    // Handle codeId, descriptorId, conceptId
+    handleCode(atom);
+    handleConcept(atom);
+    handleDescriptor(atom);
+
     // Add the atom to concept
     getConcept().getAtoms().add(atom);
 
@@ -150,4 +165,93 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
             + atom.getCodeId());
   }
 
+  /**
+   * Handle code.
+   *
+   * @param atom the atom
+   * @throws Exception
+   */
+  private void handleCode(Atom atom) throws Exception {
+    if (!ConfigUtility.isEmpty(atom.getCodeId())) {
+      Code code = getCode(atom.getCodeId(), atom.getTerminology(),
+          atom.getVersion(), Branch.ROOT);
+      if (code == null) {
+        code = new CodeJpa();
+        code.setName(atom.getName());
+        code.setObsolete(atom.isObsolete());
+        code.setSuppressible(atom.isSuppressible());
+        code.setPublishable(atom.isPublishable());
+        code.setPublished(false);
+        code.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+        code.setTimestamp(new Date());
+        code.setTerminology(atom.getTerminology());
+        code.setTerminology(atom.getVersion());
+        code.getAtoms().add(atom);
+        code = addCode(code);
+      } else {
+        code.getAtoms().add(atom);
+        updateCode(code);
+      }
+    }
+  }
+
+  /**
+   * Handle concept.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
+  private void handleConcept(Atom atom) throws Exception {
+    if (!ConfigUtility.isEmpty(atom.getConceptId())) {
+      Concept concept = getConcept(atom.getConceptId(), atom.getTerminology(),
+          atom.getVersion(), Branch.ROOT);
+      if (concept == null) {
+        concept = new ConceptJpa();
+        concept.setName(atom.getName());
+        concept.setObsolete(atom.isObsolete());
+        concept.setSuppressible(atom.isSuppressible());
+        concept.setPublishable(atom.isPublishable());
+        concept.setPublished(false);
+        concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+        concept.setTimestamp(new Date());
+        concept.setTerminology(atom.getTerminology());
+        concept.setTerminology(atom.getVersion());
+        concept.getAtoms().add(atom);
+        concept = addConcept(concept);
+      } else {
+        concept.getAtoms().add(atom);
+        updateConcept(concept);
+      }
+    }
+  }
+
+  /**
+   * Handle descriptor.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
+  private void handleDescriptor(Atom atom) throws Exception {
+    if (!ConfigUtility.isEmpty(atom.getDescriptorId())) {
+      Descriptor descriptor = getDescriptor(atom.getDescriptorId(),
+          atom.getTerminology(), atom.getVersion(), Branch.ROOT);
+      if (descriptor == null) {
+        descriptor = new DescriptorJpa();
+        descriptor.setName(atom.getName());
+        descriptor.setObsolete(atom.isObsolete());
+        descriptor.setSuppressible(atom.isSuppressible());
+        descriptor.setPublishable(atom.isPublishable());
+        descriptor.setPublished(false);
+        descriptor.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+        descriptor.setTimestamp(new Date());
+        descriptor.setTerminology(atom.getTerminology());
+        descriptor.setTerminology(atom.getVersion());
+        descriptor.getAtoms().add(atom);
+        descriptor = addDescriptor(descriptor);
+      } else {
+        descriptor.getAtoms().add(atom);
+        updateDescriptor(descriptor);
+      }
+    }
+  }
 }
