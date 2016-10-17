@@ -37,7 +37,18 @@ tsApp.controller('ContextsCtrl', [
     $scope.paging['entries'].callbacks = {
       getPagedList : getPagedEntries
     };
-
+    $scope.paging['attributes'] = utilService.getPaging();
+    $scope.paging['attributes'].sortField = 'name';
+    $scope.paging['attributes'].pageSize = 5;
+    $scope.paging['attributes'].filterFields = {};
+    $scope.paging['attributes'].filterFields.id = 1;
+    $scope.paging['attributes'].filterFields.name = 1;
+    $scope.paging['attributes'].filterFields.value = 1;
+    $scope.paging['attributes'].sortAscending = false;
+    $scope.paging['attributes'].callbacks = {
+      getPagedList : getPagedAttributes
+    };
+    
     $scope.$watch('selected.component', function() {
       console.debug('in watch');
       $scope.getPagedEntries();
@@ -58,39 +69,30 @@ tsApp.controller('ContextsCtrl', [
     }
     function getPagedEntries() {
       $scope.entries = [];
-      for (var i = 0; i < $scope.selected.component.atoms.length; i++) {
-        var entry = {};
-        var fullTerminology = $scope.getTerminology($scope.selected.component.atoms[i].terminology)
-        entry.type = fullTerminology.organizingClassType;
-        entry.terminology = fullTerminology.terminology;
-        entry.version = fullTerminology.version;
-        entry.terminologyId = null;
-        if (entry.type == 'CODE') {
-          entry.terminologyId = $scope.selected.component.atoms[i].codeId;
-        } else if (entry.type == 'CONCEPT') {
-          entry.terminologyId = $scope.selected.component.atoms[i].conceptId;
-        } else if (entry.type == 'DESCRIPTOR') {
-          entry.terminologyId = $scope.selected.component.atoms[i].descriptorId;
-        } else {
-          continue;
-        }
-        // Add to entries if not already there
-        var found = false;
-        for (var j = 0; j < $scope.entries.length; j++) {
-          if ($scope.entries[j].terminology == entry.terminology
-            && $scope.entries[j].terminologyId == entry.terminologyId
-            && $scope.entries[j].version == entry.version)
-            found = true;
-        }
-        if (!found) {
-          $scope.entries.push(entry);
-        }
+      contentService.findDeepTreePositions({
+          terminology : $scope.selected.project.terminology,
+          version : $scope.selected.project.version,
+          terminologyId : $scope.selected.component.terminologyId,
+          type : $scope.selected.component.type
+        }, $scope.paging['entries']).then(
+        // Success
+        function(data) {
+          $scope.pagedEntries = data.treePositions;
+          $scope.pagedEntries.totalCount = data.totalCount;
+          $scope.selectEntry(null, data.treePositions[0]);
+        });
+      } ;
+
+      // Get paged attributes (assume all are loaded)
+      $scope.getPagedAttributes = function() {
+        getPagedAttributes();
       }
-
-      $scope.pagedEntries = utilService.getPagedArray($scope.entries, $scope.paging['entries']);
-    }
-    ;
-
+      function getPagedAttributes() {
+        // page from the stys that are available to add
+        $scope.pagedAttributes = utilService.getPagedArray($scope.component.attributes,
+          $scope.paging['attributes']);
+      }
+      
     // refresh
     $scope.refresh = function() {
       $scope.$apply();
@@ -128,7 +130,18 @@ tsApp.controller('ContextsCtrl', [
     // selects an entry
     $scope.selectEntry = function(event, entry) {
       $scope.selected.entry = entry;
-      $scope.component = entry;
+      var lcomponent = {
+    	        id: entry.nodeId, 
+    	        type: entry.type, 
+    	        terminology: entry.nodeTerminology,
+    	        version: entry.nodeVersion,
+    	        terminologyId: entry.nodeTerminologyId
+    	      };
+    	      contentService.getComponent(lcomponent, $scope.selected.project.id).then(
+    	        function(data) {
+    	          $scope.component = data;
+    	          $scope.getPagedAttributes();
+    	        });
     };
 
     // indicates if a particular row is selected

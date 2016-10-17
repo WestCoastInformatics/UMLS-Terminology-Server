@@ -1924,4 +1924,20 @@ public interface ContentService extends MetadataService {
    */
   IdentifierAssignmentHandler newIdentifierAssignmentHandler(String terminology)
     throws Exception;
+  
+
+  /**
+   * Find concept deep tree positions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptDeepTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
 }

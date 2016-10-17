@@ -3990,4 +3990,38 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/{terminologyId}/treePositions/deep")
+  @ApiOperation(value = "Get deep tree positions with this terminologyId", notes = "Get the tree positions for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = TreePositionListJpa.class)
+  public TreePositionList findConceptDeepTreePositions(
+    @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "/" + terminologyId + "/treePositions/deep with query: " + query);
+    
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve deep relationships for the concept", UserRole.VIEWER);
+
+      return contentService.findConceptDeepTreePositions(terminologyId,
+          terminology, version, Branch.ROOT, query, pfs);
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve deep tree positions for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 }
