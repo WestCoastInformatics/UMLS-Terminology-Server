@@ -13,7 +13,6 @@ import javax.persistence.NoResultException;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -115,11 +114,13 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     final List<String> clauses = new ArrayList<>();
 
-    clauses.add(composeClause("terminology", identity.getTerminology(), false));
-    clauses.add(
-        composeClause("terminologyId", identity.getTerminologyId(), false));
-    clauses.add(composeClause("componentId", identity.getComponentId(), false));
-    clauses.add(composeClause("componentType",
+    clauses.add(ConfigUtility.composeClause("terminology",
+        identity.getTerminology(), false));
+    clauses.add(ConfigUtility.composeClause("terminologyId",
+        identity.getTerminologyId(), false));
+    clauses.add(ConfigUtility.composeClause("componentId",
+        identity.getComponentId(), false));
+    clauses.add(ConfigUtility.composeClause("componentType",
         identity.getComponentType().toString(), false));
     clauses.add(ConfigUtility.composeClause("componentTerminology",
         identity.getComponentTerminology(), false));
