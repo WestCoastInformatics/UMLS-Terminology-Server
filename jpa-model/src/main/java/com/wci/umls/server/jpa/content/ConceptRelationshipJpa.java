@@ -382,14 +382,13 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public Relationship<Concept,Concept> createInverseRelationship(
-    Relationship<Concept,Concept> relationship, String inverseRelType,
+  public Relationship<Concept, Concept> createInverseRelationship(
+    Relationship<Concept, Concept> relationship, String inverseRelType,
     String inverseAdditionalRelType) throws Exception {
     Logger.getLogger(getClass())
-        .debug("Create inverse of concept relationship "
-            + relationship);
+        .debug("Create inverse of concept relationship " + relationship);
     ConceptRelationship inverseRelationship =
-        new ConceptRelationshipJpa((ConceptRelationship)relationship, false);
+        new ConceptRelationshipJpa((ConceptRelationship) relationship, false);
 
     return populateInverseRelationship(relationship, inverseRelationship,
         inverseRelType, inverseAdditionalRelType);
@@ -400,8 +399,6 @@ public class ConceptRelationshipJpa extends
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((alternateTerminologyIds == null) ? 0
-        : alternateTerminologyIds.hashCode());
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
@@ -417,11 +414,6 @@ public class ConceptRelationshipJpa extends
     if (getClass() != obj.getClass())
       return false;
     ConceptRelationshipJpa other = (ConceptRelationshipJpa) obj;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
-      return false;
     if (from == null) {
       if (other.from != null)
         return false;

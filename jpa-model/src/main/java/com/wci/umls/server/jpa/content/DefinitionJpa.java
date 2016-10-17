@@ -31,8 +31,8 @@ import com.wci.umls.server.model.content.Definition;
 }))
 @Audited
 @XmlRootElement(name = "definition")
-public class DefinitionJpa extends AbstractComponentHasAttributes implements
-    Definition {
+public class DefinitionJpa extends AbstractComponentHasAttributes
+    implements Definition {
 
   /** The value. */
   @Column(nullable = false, length = 4000)
@@ -94,7 +94,8 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>();
     }
@@ -117,11 +118,6 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((value == null) ? 0 : value.hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
     return result;
   }
 
@@ -140,11 +136,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
         return false;
     } else if (!value.equals(other.value))
       return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
-      return false;
+
     return true;
   }
 

@@ -438,6 +438,12 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
   }
 
+  /**
+   * Reconcile code concept descriptor.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
   private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {

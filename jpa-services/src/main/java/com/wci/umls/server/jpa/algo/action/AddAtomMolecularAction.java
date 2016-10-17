@@ -185,7 +185,8 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         code.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
         code.setTimestamp(new Date());
         code.setTerminology(atom.getTerminology());
-        code.setTerminology(atom.getVersion());
+        code.setVersion(atom.getVersion());
+        code.setTerminologyId(atom.getCodeId());
         code.getAtoms().add(atom);
         code = addCode(code);
       } else {
@@ -215,8 +216,9 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
         concept.setTimestamp(new Date());
         concept.setTerminology(atom.getTerminology());
-        concept.setTerminology(atom.getVersion());
+        concept.setVersion(atom.getVersion());
         concept.getAtoms().add(atom);
+        concept.setTerminologyId(atom.getConceptId());
         concept = addConcept(concept);
       } else {
         concept.getAtoms().add(atom);
@@ -245,8 +247,9 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         descriptor.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
         descriptor.setTimestamp(new Date());
         descriptor.setTerminology(atom.getTerminology());
-        descriptor.setTerminology(atom.getVersion());
+        descriptor.setVersion(atom.getVersion());
         descriptor.getAtoms().add(atom);
+        descriptor.setTerminologyId(atom.getDescriptorId());
         descriptor = addDescriptor(descriptor);
       } else {
         descriptor.getAtoms().add(atom);

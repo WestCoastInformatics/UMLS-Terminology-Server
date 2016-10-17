@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -572,6 +572,12 @@ public class UmlsIdentifierAssignmentHandler
     return convertedId;
   }
 
+  /**
+   * Returns the service.
+   *
+   * @return the service
+   * @throws Exception the exception
+   */
   public UmlsIdentityService getService() throws Exception {
     if (service != null && !service.getTransactionPerOperation()) {
       return service;
@@ -583,6 +589,13 @@ public class UmlsIdentifierAssignmentHandler
     }
   }
 
+  /**
+   * Close service.
+   *
+   * @param aService the a service
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
   public void closeService(UmlsIdentityService aService) throws Exception {
     if (aService != null && !aService.getTransactionPerOperation()) {
       // N/A
