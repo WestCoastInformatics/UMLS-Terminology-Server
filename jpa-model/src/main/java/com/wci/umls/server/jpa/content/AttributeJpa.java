@@ -133,7 +133,8 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
    * @param terminologyId the terminology id
    */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>();
     }
@@ -166,11 +167,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     int result = super.hashCode();
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
     return result;
   }
 
@@ -198,11 +194,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
       if (other.value != null)
         return false;
     } else if (!value.equals(other.value))
-      return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     return true;
   }

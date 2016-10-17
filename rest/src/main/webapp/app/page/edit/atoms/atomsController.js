@@ -79,13 +79,15 @@ tsApp
 
         // add atom
         $scope.addAtomToConcept = function(atom) {
-          metaEditingService.addAtom($scope.selected.project.id, null, $scope.selected.component,
-            atom);
+          metaEditingService.addAtom($scope.selected.project.id,
+            $scope.selected.activityId,
+            $scope.selected.component, atom);
         }
 
         // remove atom
         $scope.removeAtomFromConcept = function(atom) {
-          metaEditingService.removeAtom($scope.selected.project.id, null,
+          metaEditingService.removeAtom($scope.selected.project.id,
+            $scope.selected.activityId,
             $scope.selected.component, atom.id, true);
         }
 
@@ -204,10 +206,10 @@ tsApp
         $scope.getSelectedAtomCount = function() {
           return Object.keys($scope.selected.atoms).length;
         }
-        
+
         // only atoms from allowed termgroups can be deleted
         $scope.isAtomDeleteable = function(atom) {
-          for (var i = 0; i<$scope.selected.project.newAtomTermgroups.length; i++) {
+          for (var i = 0; i < $scope.selected.project.newAtomTermgroups.length; i++) {
             if ((atom.terminology + '/' + atom.termType) == $scope.selected.project.newAtomTermgroups[i]) {
               return true;
             }

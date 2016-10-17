@@ -87,6 +87,10 @@ public class EqualsHashcodeBadFieldTest extends ModelUnitSupport {
         assertFalse(path.getFileName().toString()
             + " has an equals method that uses 'timestamp' ",
             method.contains("timestamp == null"));
+        // Assert id is not used
+        assertFalse(path.getFileName().toString()
+            + " has an equals method that uses 'alternateTerminologyIds' ",
+            method.contains("alternateTerminologyIds == null"));
       }
     }
 

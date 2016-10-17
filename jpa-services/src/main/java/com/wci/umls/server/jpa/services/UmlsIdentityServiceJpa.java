@@ -75,7 +75,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager
             .createQuery("select max(a.id) from AttributeIdentityJpa a ");
-        Long attId2 = (Long) query.getSingleResult();
+        final Long attId2 = (Long) query.getSingleResult();
         attId = attId2 != null ? attId2 : attId;
       } catch (NoResultException e) {
         attId = 0L;
@@ -83,7 +83,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager.createQuery(
             "select max(a.id) from SemanticTypeComponentIdentityJpa a ");
-        Long styId2 = (Long) query.getSingleResult();
+        final Long styId2 = (Long) query.getSingleResult();
         styId = styId2 != null ? styId2 : styId;
       } catch (NoResultException e) {
         styId = 0L;
@@ -128,9 +128,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(
         ConfigUtility.composeClause("hashcode", identity.getHashcode(), false));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -175,7 +174,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - remove attribute identity "
             + attributeIdentityId);
 
-    AttributeIdentity identity = getAttributeIdentity(attributeIdentityId);
+    final AttributeIdentity identity =
+        getAttributeIdentity(attributeIdentityId);
     removeObject(identity);
   }
 
@@ -202,7 +202,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager
             .createQuery("select max(a.id) from AttributeIdentityJpa a ");
-        Long attId2 = (Long) query.getSingleResult();
+        final Long attId2 = (Long) query.getSingleResult();
         attId = attId2 != null ? attId2 : attId;
       } catch (NoResultException e) {
         attId = 0L;
@@ -210,7 +210,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager.createQuery(
             "select max(a.id) from SemanticTypeComponentIdentityJpa a ");
-        Long styId2 = (Long) query.getSingleResult();
+        final Long styId2 = (Long) query.getSingleResult();
         styId = styId2 != null ? styId2 : styId;
       } catch (NoResultException e) {
         styId = 0L;
@@ -249,9 +249,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(ConfigUtility.composeClause("semanticType",
         identity.getSemanticType(), true));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -299,7 +298,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - remove semanticTypeComponent identity "
             + semanticTypeComponentIdentityId);
 
-    SemanticTypeComponentIdentity identity =
+    final SemanticTypeComponentIdentity identity =
         getSemanticTypeComponentIdentity(semanticTypeComponentIdentityId);
     removeObject(identity);
   }
@@ -324,7 +323,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query =
             manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
-        Long atomId2 = (Long) query.getSingleResult();
+        final Long atomId2 = (Long) query.getSingleResult();
         atomId = atomId2 != null ? atomId2 : atomId;
       } catch (NoResultException e) {
         atomId = 0L;
@@ -367,9 +366,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(ConfigUtility.composeClause("descriptorId",
         identity.getDescriptorId(), false));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -410,7 +408,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - remove atom identity " + atomIdentityId);
 
-    AtomIdentity identity = getAtomIdentity(atomIdentityId);
+    final AtomIdentity identity = getAtomIdentity(atomIdentityId);
     removeObject(identity);
   }
 
@@ -436,7 +434,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager
             .createQuery("select max(a.id) from StringClassIdentityJpa a ");
-        Long stringId2 = (Long) query.getSingleResult();
+        final Long stringId2 = (Long) query.getSingleResult();
         stringId = stringId2 != null ? stringId2 : stringId;
       } catch (NoResultException e) {
         stringId = 0L;
@@ -469,9 +467,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         ConfigUtility.composeClause("language", identity.getLanguage(), false));
     clauses.add(ConfigUtility.composeClause("name", identity.getName(), true));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -516,7 +513,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - remove string identity "
             + stringClassIdentityId);
 
-    StringClassIdentity identity =
+    final StringClassIdentity identity =
         getStringClassIdentity(stringClassIdentityId);
     removeObject(identity);
   }
@@ -543,7 +540,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager
             .createQuery("select max(a.id) from LexicalClassIdentityJpa a ");
-        Long lexicalId2 = (Long) query.getSingleResult();
+        final Long lexicalId2 = (Long) query.getSingleResult();
         lexicalId = lexicalId2 != null ? lexicalId2 : lexicalId;
       } catch (NoResultException e) {
         lexicalId = 0L;
@@ -577,9 +574,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(ConfigUtility.composeClause("normalizedName",
         identity.getNormalizedName(), true));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -647,11 +643,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         "Umls Identity Service - creating inverse of relationship identity "
             + identity);
 
-    // Create an inverse of the relationship
-    String version =
-        getTerminologyLatestVersion(identity.getTerminology()).getVersion();
-
-    RelationshipIdentity inverseIdentity =
+    final RelationshipIdentity inverseIdentity =
         new RelationshipIdentityJpa(identity);
     inverseIdentity.setId(identity.getInverseId());
     inverseIdentity.setFromId(identity.getToId());
@@ -683,7 +675,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       try {
         final javax.persistence.Query query = manager
             .createQuery("select max(a.id) from RelationshipIdentityJpa a ");
-        Long relationshipId2 = (Long) query.getSingleResult();
+        final Long relationshipId2 = (Long) query.getSingleResult();
         relationshipId =
             relationshipId2 != null ? relationshipId2 : relationshipId;
       } catch (NoResultException e) {
@@ -735,9 +727,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(ConfigUtility.composeClause("toTerminology",
         identity.getToTerminology(), false));
 
-    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-
-    Long id = getIdentityId(identity.getClass(), fullQuery);
+    final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+    final Long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
     if (id == null) {
@@ -782,7 +773,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         .debug("Umls Identity Service - remove relationship identity "
             + relationshipIdentityId);
 
-    RelationshipIdentity identity =
+    final RelationshipIdentity identity =
         getRelationshipIdentity(relationshipIdentityId);
     removeObject(identity);
   }

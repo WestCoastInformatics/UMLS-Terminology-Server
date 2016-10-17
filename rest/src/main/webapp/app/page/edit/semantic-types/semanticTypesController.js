@@ -53,13 +53,15 @@ tsApp
 
         // add semantic type
         $scope.addSemanticTypeToConcept = function(semanticType) {
-          metaEditingService.addSemanticType($scope.selected.project.id, $scope.selected.worklist.name,
+          metaEditingService.addSemanticType($scope.selected.project.id,
+            $scope.selected.activityId,
             $scope.selected.component, semanticType);
         }
 
         // remove semantic type
         $scope.removeSemanticTypeFromConcept = function(semanticType) {
-          metaEditingService.removeSemanticType($scope.selected.project.id, $scope.selected.worklist.name,
+          metaEditingService.removeSemanticType($scope.selected.project.id,
+            $scope.selected.activityId,
             $scope.selected.component, semanticType.id, true);
         }
 
@@ -114,20 +116,21 @@ tsApp
             $scope.parentWindowScope.removeWindow('semanticType');
           }
         }
-        
-        // on window resize, save dimensions and screen location to user preferences
+
+        // on window resize, save dimensions and screen location to user
+        // preferences
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
-          window.resizedFinished = setTimeout(function(){
-              console.log('Resized finished.');
-              $scope.user.userPreferences.properties['semanticTypeWidth'] = window.outerWidth;
-              $scope.user.userPreferences.properties['semanticTypeHeight'] = window.outerHeight;
-              $scope.user.userPreferences.properties['semanticTypeX'] = window.screenX;
-              $scope.user.userPreferences.properties['semanticTypeY'] = window.screenY;
-              securityService.updateUserPreferences($scope.user.userPreferences);
+          window.resizedFinished = setTimeout(function() {
+            console.log('Resized finished.');
+            $scope.user.userPreferences.properties['semanticTypeWidth'] = window.outerWidth;
+            $scope.user.userPreferences.properties['semanticTypeHeight'] = window.outerHeight;
+            $scope.user.userPreferences.properties['semanticTypeX'] = window.screenX;
+            $scope.user.userPreferences.properties['semanticTypeY'] = window.screenY;
+            securityService.updateUserPreferences($scope.user.userPreferences);
           }, 250);
         }
-       
+
         // Table sorting mechanism
         $scope.setSortField = function(table, field, object) {
           utilService.setSortField(table, field, $scope.paging);

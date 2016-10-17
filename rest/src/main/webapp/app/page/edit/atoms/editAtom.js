@@ -8,7 +8,8 @@ tsApp.controller('AtomModalCtrl', [
   'action',
   'selected',
   'lists',
-  function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected, lists) {
+  function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected,
+    lists) {
     console.debug('Entered atom modal control', atom, action);
 
     // Scope vars
@@ -81,7 +82,8 @@ tsApp.controller('AtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
-        metaEditingService.updateAtom($scope.selected.project.id, $scope.selected.activityId,
+        metaEditingService.updateAtom($scope.selected.project.id,
+          $scope.selected.activityId,
           $scope.selected.component, atom, $scope.overrideWarnings).then(
         // Success
         function(data) {

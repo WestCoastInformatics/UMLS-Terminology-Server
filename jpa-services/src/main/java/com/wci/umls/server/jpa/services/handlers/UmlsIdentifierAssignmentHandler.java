@@ -595,6 +595,7 @@ public class UmlsIdentifierAssignmentHandler
    * @param aService the a service
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public void closeService(UmlsIdentityService aService) throws Exception {
     if (aService != null && !aService.getTransactionPerOperation()) {
       // N/A

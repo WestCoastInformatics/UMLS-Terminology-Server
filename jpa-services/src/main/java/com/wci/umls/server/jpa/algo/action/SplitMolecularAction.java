@@ -122,6 +122,10 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     // Perform action specific validation - n/a
 
     // Metadata referential integrity checking
+    if (atomIds == null || atomIds.size() == 0) {
+      throw new LocalException(
+          "Split action requires at least one selected atom");
+    }
 
     // Populate move-atom list, and exists check
     moveAtoms = new ArrayList<Atom>();
@@ -218,6 +222,16 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     getToConcept().setPublished(false);
     getToConcept().setPublishable(true);
     getToConcept().setTerminologyId("");
+    getToConcept().setTerminology(getFromConcept().getTerminology());
+    getToConcept().setVersion(getFromConcept().getVersion());
+    getToConcept().setWorkflowStatus(getChangeStatusFlag()
+        ? WorkflowStatus.NEEDS_REVIEW : WorkflowStatus.READY_FOR_PUBLICATION);
+    // Compute preferred name - assumes moveAtoms has at least one
+    getToConcept().setName(getComputePreferredNameHandler(getTerminology())
+        .sortAtoms(moveAtoms, getPrecedenceList(getTerminology(), getVersion()))
+        .get(0).getName());
+
+    // Add the concept and lookup the terminology id
     setToConcept(new ConceptJpa(addConcept(getToConcept()), false));
     getToConcept().setTerminologyId(getToConcept().getId().toString());
 

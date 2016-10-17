@@ -1,12 +1,16 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -88,6 +92,11 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
+    // Handle codeId, descriptorId, conceptId
+    handleCode(atom);
+    handleConcept(atom);
+    handleDescriptor(atom);
+
     // Remove the atom from the concept
     getConcept().getAtoms().remove(atom);
 
@@ -118,4 +127,48 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
             + atom.getCodeId());
   }
 
+  /**
+   * Handle code.
+   *
+   * @param atom the atom
+   * @throws Exception
+   */
+  private void handleCode(Atom atom) throws Exception {
+    Code code = getCode(atom.getCodeId(), atom.getTerminology(),
+        atom.getVersion(), Branch.ROOT);
+    if (code != null) {
+      code.getAtoms().remove(atom);
+      updateCode(code);
+    }
+  }
+
+  /**
+   * Handle concept.
+   *
+   * @param atom the atom
+   * @throws Exception
+   */
+  private void handleConcept(Atom atom) throws Exception {
+    Concept concept = getConcept(atom.getConceptId(), atom.getTerminology(),
+        atom.getVersion(), Branch.ROOT);
+    if (concept != null) {
+      concept.getAtoms().remove(atom);
+      updateConcept(concept);
+    }
+  }
+
+  /**
+   * Handle descriptor.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
+  private void handleDescriptor(Atom atom) throws Exception {
+    Descriptor descriptor = getDescriptor(atom.getDescriptorId(),
+        atom.getTerminology(), atom.getVersion(), Branch.ROOT);
+    if (descriptor != null) {
+      descriptor.getAtoms().remove(atom);
+      updateDescriptor(descriptor);
+    }
+  }
 }

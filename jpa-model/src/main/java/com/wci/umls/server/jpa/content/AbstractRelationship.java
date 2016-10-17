@@ -88,9 +88,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
       boolean collectionCopy) {
     super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
-    if (collectionCopy) {
-      additionalRelationshipType = relationship.getAdditionalRelationshipType();
-    }
+    additionalRelationshipType = relationship.getAdditionalRelationshipType();
     group = relationship.getGroup();
     inferred = relationship.isInferred();
     stated = relationship.isStated();

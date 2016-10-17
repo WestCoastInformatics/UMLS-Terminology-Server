@@ -58,13 +58,13 @@ tsApp
         // add relationship
         $scope.addRelationshipToConcept = function(relationship) {
           metaEditingService.addRelationship($scope.selected.project.id,
-            $scope.selected.worklist.name, $scope.selected.component, relationship);
+            $scope.selected.activityId, $scope.selected.component, relationship);
         }
 
         // remove relationship
         $scope.removeRelationshipFromConcept = function(relationship) {
           metaEditingService.removeRelationship($scope.selected.project.id,
-            $scope.selected.worklist.name, $scope.selected.component, relationship.id, true);
+            $scope.selected.activityId, $scope.selected.component, relationship.id, true);
         }
 
         // Get paged relationships
