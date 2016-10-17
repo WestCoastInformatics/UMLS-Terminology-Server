@@ -9,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -87,7 +88,9 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
       boolean collectionCopy) {
     super(relationship, collectionCopy);
     relationshipType = relationship.getRelationshipType();
-    additionalRelationshipType = relationship.getAdditionalRelationshipType();
+    if (collectionCopy) {
+      additionalRelationshipType = relationship.getAdditionalRelationshipType();
+    }
     group = relationship.getGroup();
     inferred = relationship.isInferred();
     stated = relationship.isStated();
@@ -214,6 +217,41 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
     // n/a
   }
 
+  /**
+   * Populate inverse relationship.
+   *
+   * @param relationship the relationship
+   * @param inverseRelationship the inverse relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the relationship
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public Relationship<S, T> populateInverseRelationship(
+    Relationship<S, T> relationship, Relationship<S, T> inverseRelationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - create inverse of concept relationship "
+            + relationship);
+    if (relationship != null && inverseRelationship != null) {
+      inverseRelationship.setId(null);
+      inverseRelationship.setTerminologyId("");
+      inverseRelationship.setFrom((S) relationship.getTo());
+      inverseRelationship.setTo((T) relationship.getFrom());
+      inverseRelationship.setRelationshipType(inverseRelType);
+      inverseRelationship
+          .setAdditionalRelationshipType(inverseAdditionalRelType);
+      inverseRelationship
+          .setAssertedDirection(!relationship.isAssertedDirection());
+
+      return inverseRelationship;
+    } else {
+
+      return null;
+    }
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -271,7 +309,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getName() + " [from=" + ", to=" + getTo().getName() + " "
+    return getClass().getName() + " [from=" + getFrom().getName() + ", to="
         + getTo().getName() + ", relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType
         + ", group=" + group + ", assertedDirection=" + assertedDirection

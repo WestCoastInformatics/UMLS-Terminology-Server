@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -30,6 +31,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link AtomRelationship}.
@@ -77,8 +79,10 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -281,6 +285,20 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     }
     alternateTerminologyIds.remove(terminology);
 
+  }
+
+  /* see superclass */
+  @Override
+  public Relationship<Atom, Atom> createInverseRelationship(
+    Relationship<Atom, Atom> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Create inverse of atom relationship " + relationship);
+    AtomRelationship inverseRelationship =
+        new AtomRelationshipJpa((AtomRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /* see superclass */

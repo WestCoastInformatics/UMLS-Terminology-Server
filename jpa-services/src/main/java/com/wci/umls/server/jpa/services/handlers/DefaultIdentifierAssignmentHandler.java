@@ -93,14 +93,14 @@ public class DefaultIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
     throws Exception {
     return relationship.getTerminologyId();
   }
 
   @Override
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
     throws Exception {
     return relationship.getTerminologyId();
   }

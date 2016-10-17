@@ -56,6 +56,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -1132,6 +1133,31 @@ public class ConfigUtility {
     return sb.toString();
   }
 
+
+  /**
+   * Compose clause.
+   *
+   * @param fieldName the field name
+   * @param fieldValue the field value
+   * @param escapeValue - whether the value can have characters that need to be
+   *          escaped
+   * @return the string
+   * @throws Exception the exception
+   */
+  public static String composeClause(String fieldName, String fieldValue,
+    boolean escapeValue) throws Exception {
+
+    if (!ConfigUtility.isEmpty(fieldValue)) {
+      if (escapeValue) {
+        return fieldName + ":\"" + QueryParserBase.escape(fieldValue) + "\"";
+      } else {
+        return fieldName + ":" + fieldValue;
+      }
+    } else {
+      return "NOT " + fieldName + ":[* TO *]";
+    }
+  }  
+  
   /**
    * Returns the name from class by stripping package and putting spaces where
    * CamelCase is used.

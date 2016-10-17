@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -30,6 +31,7 @@ import org.hibernate.search.annotations.Store;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link CodeRelationship}.
@@ -72,12 +74,15 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * @param relationship the relationship
    * @param collectionCopy the deep copy
    */
-  public CodeRelationshipJpa(CodeRelationship relationship, boolean collectionCopy) {
+  public CodeRelationshipJpa(CodeRelationship relationship,
+      boolean collectionCopy) {
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -350,7 +355,8 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -369,14 +375,25 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /* see superclass */
   @Override
+  public Relationship<Code, Code> createInverseRelationship(
+    Relationship<Code, Code> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Create inverse of code relationship " + relationship);
+    CodeRelationship inverseRelationship =
+        new CodeRelationshipJpa((CodeRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;

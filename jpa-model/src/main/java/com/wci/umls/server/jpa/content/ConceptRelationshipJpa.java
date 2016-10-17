@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -31,6 +32,7 @@ import org.hibernate.search.bridge.builtin.LongBridge;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link ConceptRelationship}.
@@ -80,8 +82,10 @@ public class ConceptRelationshipJpa extends
     super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -102,7 +106,7 @@ public class ConceptRelationshipJpa extends
    *
    * @return the from id
    */
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getFromId() {
     return from == null ? null : from.getId();
@@ -229,7 +233,7 @@ public class ConceptRelationshipJpa extends
    *
    * @return the to id
    */
-  @FieldBridge(impl=LongBridge.class)
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
@@ -358,7 +362,8 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -377,14 +382,26 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
+  public Relationship<Concept,Concept> createInverseRelationship(
+    Relationship<Concept,Concept> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Create inverse of concept relationship "
+            + relationship);
+    ConceptRelationship inverseRelationship =
+        new ConceptRelationshipJpa((ConceptRelationship)relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
     result = prime * result + ((from == null) ? 0 : from.hashCode());
     result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;

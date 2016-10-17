@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
@@ -111,22 +111,28 @@ public interface IdentifierAssignmentHandler extends Configurable, Transactionab
    * Returns the terminology id.
    *
    * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
    * @return the string
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType,
+    String inverseAdditionalRelType)
     throws Exception;
 
   /**
    * Returns the inverse terminology id.
    *
    * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
    * @return the inverse terminology id
    * @throws Exception the exception
    */
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType,
+    String inverseAdditionalRelType)
     throws Exception;
 
   /**

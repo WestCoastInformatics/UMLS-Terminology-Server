@@ -146,7 +146,7 @@ public class UuidHashIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
     throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,
@@ -163,7 +163,7 @@ public class UuidHashIdentifierAssignmentHandler
 
   @Override
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
     throws Exception {
     // TODO: Lookup inverse rel type
     StringBuilder hashKey = new StringBuilder();

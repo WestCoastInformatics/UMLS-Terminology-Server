@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
@@ -160,4 +160,18 @@ public interface Relationship<S extends ComponentInfo, T extends ComponentInfo>
    * @param workflowStatus the workflow status
    */
   public void setWorkflowStatus(WorkflowStatus workflowStatus);
+
+  /**
+   * Creates the inverse relationship.
+   *
+   * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the relationship
+   * @throws Exception the exception
+   */
+  public Relationship<S, T> createInverseRelationship(
+    Relationship<S, T> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception;
+
 }

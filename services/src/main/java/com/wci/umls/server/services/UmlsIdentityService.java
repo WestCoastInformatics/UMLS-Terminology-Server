@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -332,11 +332,13 @@ public interface UmlsIdentityService extends MetadataService {
    * Creates the inverse relationship identity.
    *
    * @param identity the identity
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
    * @return the relationship identity
    * @throws Exception the exception
    */
   public RelationshipIdentity createInverseRelationshipIdentity(
-    RelationshipIdentity identity) throws Exception;
+    RelationshipIdentity identity, String inverseRelType, String inverseAdditionalRelType) throws Exception;
 
   /**
    * Adds the relationship identity.

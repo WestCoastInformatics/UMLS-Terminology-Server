@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -15,6 +15,7 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -29,6 +30,7 @@ import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
@@ -41,9 +43,9 @@ import com.wci.umls.server.model.meta.IdType;
 @Audited
 @Indexed
 @XmlRootElement(name = "componentInfoRelationship")
-public class ComponentInfoRelationshipJpa extends
-    AbstractRelationship<ComponentInfo, ComponentInfo> implements
-    ComponentInfoRelationship {
+public class ComponentInfoRelationshipJpa
+    extends AbstractRelationship<ComponentInfo, ComponentInfo>
+    implements ComponentInfoRelationship {
 
   /** The from terminology id. */
   private String fromTerminologyId;
@@ -110,8 +112,10 @@ public class ComponentInfoRelationshipJpa extends
     toName = relationship.getTo().getName();
     toType = relationship.getTo().getType();
 
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -376,7 +380,8 @@ public class ComponentInfoRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
+  public void putAlternateTerminologyId(String terminology,
+    String terminologyId) {
     if (alternateTerminologyIds == null) {
       alternateTerminologyIds = new HashMap<>(2);
     }
@@ -398,29 +403,37 @@ public class ComponentInfoRelationshipJpa extends
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .hashCode());
-    result =
-        prime * result
-            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
-    result =
-        prime * result
-            + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
+    result = prime * result + ((alternateTerminologyIds == null) ? 0
+        : alternateTerminologyIds.hashCode());
+    result = prime * result
+        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result = prime * result
+        + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
-    result =
-        prime * result
-            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
-    result =
-        prime * result
-            + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
+    result = prime * result
+        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result = prime * result
+        + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
     result = prime * result + ((toType == null) ? 0 : toType.hashCode());
     result = prime * result + ((toVersion == null) ? 0 : toVersion.hashCode());
     return result;
+  }
+
+  /* see superclass */
+  @Override
+  public Relationship<ComponentInfo, ComponentInfo> createInverseRelationship(
+    Relationship<ComponentInfo, ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Create inverse of component info relationship " + relationship);
+    ComponentInfoRelationship inverseRelationship =
+        new ComponentInfoRelationshipJpa(
+            (ComponentInfoRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /* see superclass */
@@ -480,12 +493,11 @@ public class ComponentInfoRelationshipJpa extends
   public String toString() {
     return "ComponentInfoRelationshipJpa [" + "getFrom()=" + getFrom()
         + ", getFromTerminology()=" + getFromTerminology()
-        + ", getFromVersion()=" + getFromVersion()
-        + ", getFromTerminologyId()=" + getFromTerminologyId()
-        + ", getFromName()=" + getFromName() + ", getTo()=" + getTo()
-        + ", getToTerminologyId()=" + getToTerminologyId()
-        + ", getToTerminology()=" + getToTerminology() + ", getToVersion()="
-        + getToVersion() + ", getToName()=" + getToName()
+        + ", getFromVersion()=" + getFromVersion() + ", getFromTerminologyId()="
+        + getFromTerminologyId() + ", getFromName()=" + getFromName()
+        + ", getTo()=" + getTo() + ", getToTerminologyId()="
+        + getToTerminologyId() + ", getToTerminology()=" + getToTerminology()
+        + ", getToVersion()=" + getToVersion() + ", getToName()=" + getToName()
         + ", getAlternateTerminologyIds()=" + getAlternateTerminologyIds()
         + ", hashCode()=" + hashCode() + ", getRelationshipType()="
         + getRelationshipType() + ", getAdditionalRelationshipType()="
@@ -499,9 +511,9 @@ public class ComponentInfoRelationshipJpa extends
         + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
         + isObsolete() + ", isPublished()=" + isPublished()
         + ", isPublishable()=" + isPublishable() + ", getBranch()="
-        + getBranch() + ", getVersion()=" + getVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + ", getClass()=" + getClass() + "]";
+        + getBranch() + ", getVersion()=" + getVersion() + ", getTerminology()="
+        + getTerminology() + ", getTerminologyId()=" + getTerminologyId()
+        + ", getClass()=" + getClass() + "]";
   }
 
 }

@@ -128,9 +128,7 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }
+    UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -140,7 +138,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setLanguage(stringClass.getLanguage());
 
         final StringClassIdentity identity2 =
-            service.getStringClassIdentity(identity);
+            localService.getStringClassIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -149,10 +147,10 @@ public class UmlsIdentifierAssignmentHandler
         // else generate a new one and add it
         else {
           // Get next id
-          final Long nextId = service.getNextStringClassId();
+          final Long nextId = localService.getNextStringClassId();
           // Add new identity object
           identity.setId(nextId);
-          service.addStringClassIdentity(identity);
+          localService.addStringClassIdentity(identity);
           return convertId(nextId, "SUI");
         }
       }
@@ -160,9 +158,7 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
@@ -174,9 +170,7 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }
+    UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -186,7 +180,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setNormalizedName(lexicalClass.getNormalizedName());
 
         final LexicalClassIdentity identity2 =
-            service.getLexicalClassIdentity(identity);
+            localService.getLexicalClassIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -195,10 +189,10 @@ public class UmlsIdentifierAssignmentHandler
         // else generate a new one and add it
         else {
           // Get next id
-          final Long nextId = service.getNextLexicalClassId();
+          final Long nextId = localService.getNextLexicalClassId();
           // Add new identity object
           identity.setId(nextId);
-          service.addLexicalClassIdentity(identity);
+          localService.addLexicalClassIdentity(identity);
           return convertId(nextId, "LUI");
         }
       }
@@ -206,9 +200,7 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
@@ -220,10 +212,7 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }
-
+    UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -237,7 +226,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setTerminologyId(atom.getTerminologyId());
         identity.setTermType(atom.getTermType());
 
-        final AtomIdentity identity2 = service.getAtomIdentity(identity);
+        final AtomIdentity identity2 = localService.getAtomIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -246,10 +235,10 @@ public class UmlsIdentifierAssignmentHandler
         // else generate a new one and add it
         else {
           // Get next id
-          final Long nextId = service.getNextAtomId();
+          final Long nextId = localService.getNextAtomId();
           // Add new identity object
           identity.setId(nextId);
-          service.addAtomIdentity(identity);
+          localService.addAtomIdentity(identity);
           return convertId(nextId, "AUI");
         }
       }
@@ -257,9 +246,7 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
@@ -272,9 +259,7 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }
+    UmlsIdentityService localService = getService();
     try {
       synchronized (LOCK) {
         // Create AttributeIdentity and populate from the attribute.
@@ -288,7 +273,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setTerminologyId(attribute.getTerminologyId());
 
         final AttributeIdentity identity2 =
-            service.getAttributeIdentity(identity);
+            localService.getAttributeIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -298,10 +283,10 @@ public class UmlsIdentifierAssignmentHandler
         else {
           // Block between getting next id and saving the id value
           // Get next id
-          final Long nextId = service.getNextAttributeId();
+          final Long nextId = localService.getNextAttributeId();
           // Add new identity object
           identity.setId(nextId);
-          service.addAttributeIdentity(identity);
+          localService.addAttributeIdentity(identity);
           return convertId(nextId, "ATUI");
         }
       }
@@ -309,9 +294,7 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
@@ -326,16 +309,14 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
 
     if (!relationship.isPublishable()) {
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }
+    UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
@@ -355,7 +336,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setToType(relationship.getTo().getType());
 
         final RelationshipIdentity identity2 =
-            service.getRelationshipIdentity(identity);
+            localService.getRelationshipIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -363,11 +344,8 @@ public class UmlsIdentifierAssignmentHandler
         }
         // else generate a new one and add it
         else {
-
-          final RelationshipIdentity inverseIdentity =
-              service.createInverseRelationshipIdentity(identity);
           // Get next id and inverse ID
-          final Long nextId = service.getNextRelationshipId();
+          final Long nextId = localService.getNextRelationshipId();
 
           // Set ID for the relationship. Set inverseId to bogus number for now
           // - it will be updated later.
@@ -375,22 +353,27 @@ public class UmlsIdentifierAssignmentHandler
           identity.setInverseId(0L);
 
           // Add new identity object
-          service.addRelationshipIdentity(identity);
+          localService.addRelationshipIdentity(identity);
+
+          // Create inverse Relationship identity
+          final RelationshipIdentity inverseIdentity =
+              localService.createInverseRelationshipIdentity(identity,
+                  inverseRelType, inverseAdditionalRelType);
 
           // Get next id for inverse relationship
           // TODO confirm this gives different number. If not, add 1 to nextId;
-          final Long nextIdInverse = service.getNextRelationshipId();
+          final Long nextIdInverse = localService.getNextRelationshipId();
 
           // Set ID and inverse IDs for the inverse Id
           inverseIdentity.setId(nextIdInverse);
           inverseIdentity.setInverseId(nextId);
 
           // Add inverse identity objects
-          service.addRelationshipIdentity(inverseIdentity);
+          localService.addRelationshipIdentity(inverseIdentity);
 
           // Update the identity objects with the true InverseId
           identity.setInverseId(nextIdInverse);
-          service.updateRelationshipIdentity(identity);
+          localService.updateRelationshipIdentity(identity);
 
           // return ID for called relationship (inverse can get called later)
           return convertId(nextId, "RUI");
@@ -400,23 +383,21 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
   /* see superclass */
   @Override
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
 
     if (!relationship.isPublishable()) {
       return "";
     }
 
-    if (getTransactionPerOperation()) {
+    if (service == null) {
       service = new UmlsIdentityServiceJpa();
     }
     try {
@@ -436,7 +417,8 @@ public class UmlsIdentifierAssignmentHandler
       identity.setToType(relationship.getTo().getType());
 
       final RelationshipIdentity inverseIdentity =
-          service.createInverseRelationshipIdentity(identity);
+          service.createInverseRelationshipIdentity(identity, inverseRelType,
+              inverseAdditionalRelType);
 
       final RelationshipIdentity identity2 =
           service.getRelationshipIdentity(inverseIdentity);
@@ -501,9 +483,8 @@ public class UmlsIdentifierAssignmentHandler
       return "";
     }
 
-    if (getTransactionPerOperation()) {
-      service = new UmlsIdentityServiceJpa();
-    }    try {
+    UmlsIdentityService localService = getService();
+    try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
 
@@ -535,9 +516,7 @@ public class UmlsIdentifierAssignmentHandler
     } catch (Exception e) {
       throw e;
     } finally {
-      if (getTransactionPerOperation()) {
-        service.close();
-      }
+      closeService(localService);
     }
   }
 
@@ -591,6 +570,28 @@ public class UmlsIdentifierAssignmentHandler
     final String convertedId = prefixMap.get(type)
         + ("000000000000000000" + idStr).substring(startIndex);
     return convertedId;
+  }
+
+  public UmlsIdentityService getService() throws Exception {
+    if (service != null && !service.getTransactionPerOperation()) {
+      return service;
+    } else if (service == null) {
+      return new UmlsIdentityServiceJpa();
+    } else {
+      throw new Exception(
+          "Illegal state - service not null with transactionPerOperation.");
+    }
+  }
+
+  public void closeService(UmlsIdentityService aService) throws Exception {
+    if (aService != null && !aService.getTransactionPerOperation()) {
+      // N/A
+    } else if (aService != null) {
+      aService.close();
+    } else {
+      throw new Exception(
+          "Illegal state - service not null with transactionPerOperation.");
+    }
   }
 
   @Override
