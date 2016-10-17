@@ -86,7 +86,6 @@ public class AttributeJpaUnitTest extends ModelUnitSupport {
     tester.include("branch");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("alternateTerminologyIds");
     tester.include("name");
     tester.include("value");
 

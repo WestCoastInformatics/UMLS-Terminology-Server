@@ -122,7 +122,6 @@ public class DescriptorRelationshipJpaUnitTest extends ModelUnitSupport {
     tester.include("branch");
     tester.include("terminology");
     tester.include("terminologyId");
-    tester.include("alternateTerminologyIds");
     tester.include("assertedDirection");
     tester.include("additionalRelationshipType");
     tester.include("group");
