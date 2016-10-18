@@ -167,13 +167,13 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : inverseFromRelsMap.values()) {
       // If this is a rel between "from" and "to" remove it
       if (rel.getFrom().getId().equals(getToConcept().getId())) {
-        getToConcept().getRelationships().remove(rel);
+        removeById(getToConcept().getRelationships(),rel.getId());
       }
       // Otherwise remove it from the concept on the other end of the
       // relationship
       else {
         final Concept inverseConcept = new ConceptJpa(rel.getFrom(), true);
-        inverseConcept.getRelationships().remove(rel);
+        removeById(inverseConcept.getRelationships(),rel.getId());
         conceptsChanged.add(inverseConcept);
       }
     }

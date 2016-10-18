@@ -88,7 +88,7 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
     //
 
     // Remove the semantic type from the concept
-    getConcept().getSemanticTypes().remove(sty);
+    removeById(getConcept().getSemanticTypes(), sty.getId());
 
     // Update Concept
     updateConcept(getConcept());
@@ -104,17 +104,17 @@ public class RemoveSemanticTypeMolecularAction extends AbstractMolecularAction {
     // Update Concept
     updateConcept(getConcept());
 
-
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
-        getActivityId(), getWorkId(), getName() + " from concept "
-            + getConcept().getId() + " " + sty);
+        getActivityId(), getWorkId(),
+        getName() + " from concept " + getConcept().getId() + " " + sty);
 
     // Log for the molecular action report
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getMolecularAction().getId(), getActivityId(), getWorkId(),
-        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " " + getConcept().getName() +
-        "\n  semantic type = " + sty.getSemanticType());
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  semantic type = "
+            + sty.getSemanticType());
   }
 
 }

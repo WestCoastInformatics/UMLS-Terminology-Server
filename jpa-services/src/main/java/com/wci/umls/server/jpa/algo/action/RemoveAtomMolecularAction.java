@@ -7,6 +7,9 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
@@ -98,7 +101,7 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     handleDescriptor(atom);
 
     // Remove the atom from the concept
-    getConcept().getAtoms().remove(atom);
+    removeById(getConcept().getAtoms(), atom.getId());
 
     // Update Concept
     updateConcept(getConcept());
@@ -131,24 +134,14 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * Handle code.
    *
    * @param atom the atom
-   * @throws Exception
+   * @throws Exception the exception
    */
   private void handleCode(Atom atom) throws Exception {
-    Code code = getCode(atom.getCodeId(), atom.getTerminology(),
-        atom.getVersion(), Branch.ROOT);
+    final Code code = new CodeJpa(getCode(atom.getCodeId(),
+        atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
     if (code != null) {
-      // Note: a code can contain multiple atoms that are identical except for
-      // ID, so make sure we remove the correct one
-      int index = 0;
-      for (Atom codeAtom : code.getAtoms()) {
-        if (!codeAtom.getId().equals(atom.getId())) {
-          index++;
-          continue;
-        }
-        code.getAtoms().remove(index);
-        updateCode(code);
-        break;
-      }
+      removeById(code.getAtoms(), atom.getId());
+      updateCode(code);
     }
   }
 
@@ -156,24 +149,14 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * Handle concept.
    *
    * @param atom the atom
-   * @throws Exception
+   * @throws Exception the exception
    */
   private void handleConcept(Atom atom) throws Exception {
-    Concept concept = getConcept(atom.getConceptId(), atom.getTerminology(),
-        atom.getVersion(), Branch.ROOT);
+    final Concept concept = new ConceptJpa(getConcept(atom.getConceptId(),
+        atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
     if (concept != null) {
-      // Note: a concept can contain multiple atoms that are identical except
-      // for ID, so make sure we remove the correct one
-      int index = 0;
-      for (Atom conceptAtom : concept.getAtoms()) {
-        if (!conceptAtom.getId().equals(atom.getId())) {
-          index++;
-          continue;
-        }
-        concept.getAtoms().remove(index);
-        updateConcept(concept);
-        break;
-      }
+      removeById(concept.getAtoms(), atom.getId());
+      updateConcept(concept);
     }
   }
 
@@ -184,21 +167,12 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * @throws Exception the exception
    */
   private void handleDescriptor(Atom atom) throws Exception {
-    Descriptor descriptor = getDescriptor(atom.getDescriptorId(),
-        atom.getTerminology(), atom.getVersion(), Branch.ROOT);
+    final Descriptor descriptor =
+        new DescriptorJpa(getDescriptor(atom.getDescriptorId(),
+            atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
     if (descriptor != null) {
-      // Note: a descriptor can contain multiple atoms that are identical except
-      // for ID, so make sure we remove the correct one
-      int index = 0;
-      for (Atom descriptorAtom : descriptor.getAtoms()) {
-        if (!descriptorAtom.getId().equals(atom.getId())) {
-          index++;
-          continue;
-        }
-        descriptor.getAtoms().remove(index);
-        updateDescriptor(descriptor);
-        break;
-      }
+      removeById(descriptor.getAtoms(), atom.getId());
+      updateDescriptor(descriptor);
     }
   }
 }

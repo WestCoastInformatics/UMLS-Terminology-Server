@@ -135,6 +135,16 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     }
 
     //
+    // Remove demotions from appropriate atoms
+    //
+    for (Map.Entry<Atom, AtomRelationship> atomDemotion : atomsDemotions
+        .entrySet()) {
+      Atom atom = atomDemotion.getKey();
+      AtomRelationship demotion = atomDemotion.getValue();
+      removeById(atom.getRelationships(),demotion.getId());
+    }
+
+    //
     // Update any atom that had demotion removed from it
     //
     for (final Atom atom : changedAtoms) {

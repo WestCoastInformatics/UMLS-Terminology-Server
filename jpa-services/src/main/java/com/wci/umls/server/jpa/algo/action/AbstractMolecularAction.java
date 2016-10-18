@@ -19,6 +19,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -653,18 +654,19 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    */
   public void postActionMaintenance() throws Exception {
 
-    List<Concept> conceptList = new ArrayList<Concept>();
-    conceptList.add(getConcept());
-    conceptList.add(getConcept2());
+    final Set<Concept> concepts = new HashSet<>();
+    concepts.add(getConcept());
+    concepts.add(getConcept2());
+
+    // Start a new action that doesn't create molecular/atomic actions
+    beginTransaction();
+    setMolecularActionFlag(false);
 
     // Only concepts that exist and contain atoms will need to go through this
     // process
-    for (Concept c : conceptList) {
+    final Set<Long> recordsSeen = new HashSet<>();
+    for (final Concept c : concepts) {
       if (c != null && !c.getAtoms().isEmpty()) {
-
-        // Start a new action that doesn't create molecular/atomic actions
-        beginTransaction();
-        setMolecularActionFlag(false);
 
         //
         // Recompute tracking record workflow status
@@ -672,16 +674,22 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
         // Any tracking record that references this concept may potentially be
         // updated.
-        final TrackingRecordList trackingRecords =
+        final TrackingRecordList records =
             findTrackingRecordsForConcept(getProject(), c, null, null);
 
         // Set trackingRecord to READY_FOR_PUBLICATION if all contained
         // concepts and atoms are all set to READY_FOR_PUBLICATION.
-        if (trackingRecords != null) {
-          for (TrackingRecord rec : trackingRecords.getObjects()) {
-            final WorkflowStatus status = computeTrackingRecordStatus(rec);
-            rec.setWorkflowStatus(status);
-            updateTrackingRecord(rec);
+        if (records != null) {
+          for (final TrackingRecord record : records.getObjects()) {
+            if (!recordsSeen.contains(record.getId())) {
+              final WorkflowStatus status = computeTrackingRecordStatus(record);
+              if (record.getWorkflowStatus() != status) {
+                record.setWorkflowStatus(status);
+                updateTrackingRecord(record);
+              }
+              recordsSeen.add(record.getId());
+            }
+
           }
         }
 
@@ -691,11 +699,10 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         c.setName(getComputePreferredNameHandler(c.getTerminology())
             .computePreferredName(c.getAtoms(),
                 getPrecedenceList(c.getTerminology(), c.getVersion())));
-
-        commit();
+        updateConcept(c);
       }
     }
-
+    commit();
   }
 
   /* see superclass */
@@ -704,4 +711,21 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return false;
   }
 
+  /**
+   * Removes the by id.
+   *
+   * @param list the list
+   * @param id the id
+   */
+  @SuppressWarnings("static-method")
+  public void removeById(List<? extends HasId> list, Long id) {
+    int index = 0;
+    for (final HasId obj : list) {
+      if (obj.getId().equals(id)) {
+        list.remove(index);
+        break;
+      }
+      index++;
+    }
+  }
 }

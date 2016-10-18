@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -30,6 +30,7 @@ import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
@@ -187,8 +188,9 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         .map(a -> "componentIds:" + a.getId()).collect(Collectors.toList());
     final String atomQuery = ConfigUtility.composeQuery("OR", clauses);
 
+    // Avoid searching ready for publication lists
     final String finalQuery = ConfigUtility.composeQuery("AND", atomQuery,
-        composeQuery(project, query));
+        composeQuery(project, query), "NOT workflowStatus:READY_FOR_PUBLICATION");
 
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
@@ -803,32 +805,17 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final String query = ConfigUtility.composeQuery("OR", clauses);
 
     WorkflowStatus status = WorkflowStatus.READY_FOR_PUBLICATION;
-    // add concepts
-    for (final SearchResult result : findConcepts(record.getTerminology(), null,
-        Branch.ROOT, query, null).getObjects()) {
-      final Concept concept = getConcept(result.getId());
 
-      // Add all atom ids as component ids
-      for (final Atom atom : concept.getAtoms()) {
-        record.getComponentIds().add(atom.getId());
-
-        // look for needs review atoms
-        if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-          status = WorkflowStatus.NEEDS_REVIEW;
-          break;
-        }
-      }
-
-      // if already needs review, break out of concept loop
-      if (status == WorkflowStatus.NEEDS_REVIEW) {
-        break;
-      }
-
-      // Compute workflow status for tracking record
-      if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-        status = WorkflowStatus.NEEDS_REVIEW;
-      }
-
+    // find all cases of concepts with atom ids in the list that are either
+    // NEEDS review or that have needs review atoms
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    if (findConcepts(record.getTerminology(), null, Branch.ROOT,
+        query
+            + " AND (atoms.workflowStatus:NEEDS_REVIEW OR workflowStatus:NEEDS_REVIEW)",
+        pfs).getObjects().size() > 0) {
+      status = WorkflowStatus.NEEDS_REVIEW;
     }
     // Return final computed value
     return status;

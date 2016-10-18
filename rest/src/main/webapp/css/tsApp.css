@@ -371,6 +371,7 @@ h5 {
 	white-space: normal;
 }
 
+/* Make the pagination control smaller so it works with btn-xs */
 .pagination-sm>li>a, .pagination-sm>li>span {
     padding: 3px 5.5px;
     font-size: 12px;

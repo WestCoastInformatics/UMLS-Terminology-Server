@@ -98,7 +98,7 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     //
 
     // Remove the attribute from the concept
-    getConcept().getAttributes().remove(attribute);
+    removeById(getConcept().getAttributes(),attribute.getId());
 
     // Update Concept
     updateConcept(getConcept());

@@ -1463,7 +1463,9 @@ public abstract class RootServiceJpa implements RootService {
     action.commit();
 
     // Perform post-action maintenance on affected concept(s)
+    // DO this in a separate transaction - maybe some issues with 
     action.postActionMaintenance();
+
 
     return validationResult;
 

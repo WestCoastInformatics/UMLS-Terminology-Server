@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -134,8 +134,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       if (rel.getTo().getId().equals(relationship.getTo().getId())) {
 
         // Remove the relationship from the concepts
-        getConcept().getRelationships().remove(rel);
-        getConcept2().getRelationships().remove(findInverseRelationship(rel));
+        removeById(getConcept().getRelationships(), rel.getId());
+        removeById(getConcept2().getRelationships(),
+            findInverseRelationship(rel).getId());
 
         // Update Concepts
         updateConcept(getConcept());
@@ -163,9 +164,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     if (demotion != null) {
       // Remove the demotions from the atoms
-      demotion.getFrom().getRelationships().remove(demotion);
-      demotion.getTo().getRelationships()
-          .remove(findInverseRelationship(demotion));
+      removeById(demotion.getFrom().getRelationships(),demotion.getId());
+      removeById(demotion.getTo().getRelationships()
+          ,findInverseRelationship(demotion).getId());
 
       // Update Atoms
       updateAtom(demotion.getFrom());

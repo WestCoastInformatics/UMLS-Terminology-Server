@@ -216,7 +216,9 @@ public class SplitMolecularAction extends AbstractMolecularAction {
     //
     // Only done for atoms - semantic types and relationships are kept in
     // originating Concept
-    getFromConcept().getAtoms().removeAll(moveAtomsCopies);
+    for (final Atom atom : moveAtomsCopies) {
+      removeById(getFromConcept().getAtoms(), atom.getId());
+    }
 
     //
     // Update originatingConcept

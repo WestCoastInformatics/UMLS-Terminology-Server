@@ -130,7 +130,7 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     // Remove all atoms from the fromConcept
     //
     for (final Atom atom : moveAtomsList) {
-      getFromConcept().getAtoms().remove(atom);
+      removeById(getFromConcept().getAtoms(),atom.getId());
     }
 
     //
