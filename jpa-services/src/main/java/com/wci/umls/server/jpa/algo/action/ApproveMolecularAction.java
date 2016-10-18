@@ -119,7 +119,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
         .entrySet()) {
       Atom atom = atomDemotion.getKey();
       AtomRelationship demotion = atomDemotion.getValue();
-      atom.getRelationships().remove(demotion);
+      removeById(atom.getRelationships(),demotion.getId());
     }
 
     //

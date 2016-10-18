@@ -19,6 +19,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -667,7 +668,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     for (final Concept c : concepts) {
       if (c != null && !c.getAtoms().isEmpty()) {
 
-
         //
         // Recompute tracking record workflow status
         //
@@ -711,4 +711,21 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return false;
   }
 
+  /**
+   * Removes the by id.
+   *
+   * @param list the list
+   * @param id the id
+   */
+  @SuppressWarnings("static-method")
+  public void removeById(List<? extends HasId> list, Long id) {
+    int index = 0;
+    for (final HasId obj : list) {
+      if (obj.getId().equals(id)) {
+        list.remove(index);
+        break;
+      }
+      index++;
+    }
+  }
 }

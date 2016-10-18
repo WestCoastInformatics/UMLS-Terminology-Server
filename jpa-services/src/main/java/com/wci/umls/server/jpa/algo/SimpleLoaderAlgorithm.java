@@ -285,6 +285,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     lat.setPublished(true);
     lat.setPublishable(true);
     lat.setISO3Code("ENG");
+    lat.setISOCode("en");
     addLanguage(lat);
 
     // Term types (PT, SY)
@@ -398,6 +399,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Concept concept = new ConceptJpa();
       setCommonFields(concept);
       concept.setTerminologyId(fields[0]);
+      concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
       // Add preferred term
       final Atom atom = new AtomJpa();
@@ -409,6 +411,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setLanguage("en");
       atom.setCodeId("");
       atom.setConceptId(fields[0]);
+      atom.setDescriptorId("");
       atom.setStringClassId("");
       atom.setLexicalClassId("");
       // Add atom
@@ -436,6 +439,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           sy.setLanguage("en");
           sy.setCodeId("");
           sy.setConceptId(fields[0]);
+          sy.setDescriptorId("");
           sy.setStringClassId("");
           sy.setLexicalClassId("");
           // Add atom
@@ -448,6 +452,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
       setCommonFields(sty);
       sty.setSemanticType(fields[1]);
+      sty.setTerminologyId("");
       sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       addSemanticTypeComponent(sty, concept);
       concept.getSemanticTypes().add(sty);
@@ -502,6 +507,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       par.setAdditionalRelationshipType("");
       par.setFrom(from);
       par.setTo(to);
+      par.setTerminologyId("");
+      par.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       addRelationship(par);
 
       final ConceptRelationship chd = new ConceptRelationshipJpa();
@@ -510,6 +517,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       chd.setAdditionalRelationshipType("isa");
       chd.setFrom(to);
       chd.setTo(from);
+      par.setTerminologyId("");
+      par.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       addRelationship(chd);
 
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
