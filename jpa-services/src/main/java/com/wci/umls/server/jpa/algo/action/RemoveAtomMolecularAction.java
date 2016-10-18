@@ -137,9 +137,10 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * @throws Exception the exception
    */
   private void handleCode(Atom atom) throws Exception {
-    final Code code = new CodeJpa(getCode(atom.getCodeId(),
-        atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
+    Code code = getCode(atom.getCodeId(), atom.getTerminology(),
+        atom.getVersion(), Branch.ROOT);
     if (code != null) {
+      code = new CodeJpa(code, true);
       removeById(code.getAtoms(), atom.getId());
       updateCode(code);
     }
@@ -152,9 +153,10 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * @throws Exception the exception
    */
   private void handleConcept(Atom atom) throws Exception {
-    final Concept concept = new ConceptJpa(getConcept(atom.getConceptId(),
-        atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
+    Concept concept = getConcept(atom.getConceptId(), atom.getTerminology(),
+        atom.getVersion(), Branch.ROOT);
     if (concept != null) {
+      concept = new ConceptJpa(concept, true);
       removeById(concept.getAtoms(), atom.getId());
       updateConcept(concept);
     }
@@ -167,10 +169,10 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
    * @throws Exception the exception
    */
   private void handleDescriptor(Atom atom) throws Exception {
-    final Descriptor descriptor =
-        new DescriptorJpa(getDescriptor(atom.getDescriptorId(),
-            atom.getTerminology(), atom.getVersion(), Branch.ROOT), true);
+    Descriptor descriptor = getDescriptor(atom.getDescriptorId(),
+        atom.getTerminology(), atom.getVersion(), Branch.ROOT);
     if (descriptor != null) {
+      descriptor = new DescriptorJpa(descriptor, true);
       removeById(descriptor.getAtoms(), atom.getId());
       updateDescriptor(descriptor);
     }

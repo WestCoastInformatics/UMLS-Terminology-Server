@@ -90,32 +90,31 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     final List<Atom> atoms = new ArrayList<>();
     for (final Atom atom : getConcept().getAtoms()) {
       atoms.add(new AtomJpa(atom, true));
-    }    
-    
+    }
+
     final List<SemanticTypeComponent> stys = new ArrayList<>();
-    for (final SemanticTypeComponent sty : getConcept()
-        .getSemanticTypes()) {
+    for (final SemanticTypeComponent sty : getConcept().getSemanticTypes()) {
       stys.add(new SemanticTypeComponentJpa(sty));
     }
 
     final List<ConceptRelationship> relationships = new ArrayList<>();
     for (final ConceptRelationship rel : getConcept().getRelationships()) {
       relationships.add(new ConceptRelationshipJpa(rel, true));
-    }    
-    
+    }
+
     List<ConceptRelationship> inverseRelationships =
         new ArrayList<>(inverseRelsMap.values());
 
     //
     // Any demotion relationship (AND its inverse) need to be removed
     //
-    final Set<AtomRelationship> atomsDemotions = new HashSet<>();
+    final Map<Atom, AtomRelationship> atomsDemotions = new HashMap<>();
     final Set<Atom> changedAtoms = new HashSet<>();
     for (final Atom atom : atoms) {
       for (final AtomRelationship atomRel : new ArrayList<>(
           atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          atomsDemotions.add(atomRel);
+          atomsDemotions.put(atom, atomRel);
           changedAtoms.add(atom);
           atom.getRelationships().remove(atomRel);
 
@@ -125,7 +124,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
               inverseAtom.getRelationships())) {
             if (inverseRel.getTo().getId().equals(atom.getId()) && inverseRel
                 .getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-              atomsDemotions.add(inverseRel);
+              atomsDemotions.put(inverseAtom, inverseRel);
               changedAtoms.add(inverseAtom);
               inverseAtom.getRelationships().remove(inverseRel);
             }
@@ -141,7 +140,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
         .entrySet()) {
       Atom atom = atomDemotion.getKey();
       AtomRelationship demotion = atomDemotion.getValue();
-      removeById(atom.getRelationships(),demotion.getId());
+      removeById(atom.getRelationships(), demotion.getId());
     }
 
     //
@@ -154,7 +153,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     //
     // Remove the demotions from the database
     //
-    for (final AtomRelationship demotion : atomsDemotions) {
+    for (final AtomRelationship demotion : atomsDemotions.values()) {
       removeRelationship(demotion.getId(), demotion.getClass());
     }
 
