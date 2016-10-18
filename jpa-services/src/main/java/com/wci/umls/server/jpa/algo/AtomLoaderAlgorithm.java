@@ -227,7 +227,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       // Load the classes_atoms.src file
       //
       List<String> lines =
-          loadFileIntoStringList("classes_atoms_TEST.src", null);
+          loadFileIntoStringList("classes_atoms.src", null);
 
       logInfo("[AtomLoader] Loading associated resources");
 

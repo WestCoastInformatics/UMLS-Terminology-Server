@@ -137,8 +137,18 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     Code code = getCode(atom.getCodeId(), atom.getTerminology(),
         atom.getVersion(), Branch.ROOT);
     if (code != null) {
-      code.getAtoms().remove(atom);
-      updateCode(code);
+      // Note: a code can contain multiple atoms that are identical except for
+      // ID, so make sure we remove the correct one
+      int index = 0;
+      for (Atom codeAtom : code.getAtoms()) {
+        if (!codeAtom.getId().equals(atom.getId())) {
+          index++;
+          continue;
+        }
+        code.getAtoms().remove(index);
+        updateCode(code);
+        break;
+      }
     }
   }
 
@@ -152,8 +162,18 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     Concept concept = getConcept(atom.getConceptId(), atom.getTerminology(),
         atom.getVersion(), Branch.ROOT);
     if (concept != null) {
-      concept.getAtoms().remove(atom);
-      updateConcept(concept);
+      // Note: a concept can contain multiple atoms that are identical except
+      // for ID, so make sure we remove the correct one
+      int index = 0;
+      for (Atom conceptAtom : concept.getAtoms()) {
+        if (!conceptAtom.getId().equals(atom.getId())) {
+          index++;
+          continue;
+        }
+        concept.getAtoms().remove(index);
+        updateConcept(concept);
+        break;
+      }
     }
   }
 
@@ -167,8 +187,18 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     Descriptor descriptor = getDescriptor(atom.getDescriptorId(),
         atom.getTerminology(), atom.getVersion(), Branch.ROOT);
     if (descriptor != null) {
-      descriptor.getAtoms().remove(atom);
-      updateDescriptor(descriptor);
+      // Note: a descriptor can contain multiple atoms that are identical except
+      // for ID, so make sure we remove the correct one
+      int index = 0;
+      for (Atom descriptorAtom : descriptor.getAtoms()) {
+        if (!descriptorAtom.getId().equals(atom.getId())) {
+          index++;
+          continue;
+        }
+        descriptor.getAtoms().remove(index);
+        updateDescriptor(descriptor);
+        break;
+      }
     }
   }
 }

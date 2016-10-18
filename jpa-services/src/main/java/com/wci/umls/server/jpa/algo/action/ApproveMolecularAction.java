@@ -3,19 +3,25 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -54,6 +60,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("rawtypes")
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -62,86 +69,91 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     // operations)
     //
 
-    //
-    // Get each object in the Concept
-    //
-    List<Atom> atoms = getConcept().getAtoms();
-    List<SemanticTypeComponent> stys = getConcept().getSemanticTypes();
-    List<ConceptRelationship> relationships = new CopyOnWriteArrayList<>();
-    for (final ConceptRelationship rel : getConcept().getRelationships()) {
-      relationships.add(rel);
+    // Get all "inverse" relationships for the concept (e.g.
+    // where toId is the id)
+    final Map<Long, ConceptRelationship> inverseRelsMap = new HashMap<>();
+    for (final Relationship rel : findConceptRelationships(null,
+        getTerminology(), getVersion(), Branch.ROOT,
+        "toId:" + getConcept().getId(), false, null).getObjects()) {
+      final ConceptRelationship crel =
+          new ConceptRelationshipJpa((ConceptRelationship) rel, false);
+      if (inverseRelsMap.containsKey(crel.getFrom().getId())) {
+        throw new Exception("Multiple concept level relationships from "
+            + crel.getFrom().getId());
+      }
+      inverseRelsMap.put(crel.getFrom().getId(), crel);
     }
+
+    //
+    // Copy each object in the Concept
+    //
+    final List<Atom> atoms = new ArrayList<>();
+    for (final Atom atom : getConcept().getAtoms()) {
+      atoms.add(new AtomJpa(atom, true));
+    }    
+    
+    final List<SemanticTypeComponent> stys = new ArrayList<>();
+    for (final SemanticTypeComponent sty : getConcept()
+        .getSemanticTypes()) {
+      stys.add(new SemanticTypeComponentJpa(sty));
+    }
+
+    final List<ConceptRelationship> relationships = new ArrayList<>();
+    for (final ConceptRelationship rel : getConcept().getRelationships()) {
+      relationships.add(new ConceptRelationshipJpa(rel, true));
+    }    
+    
     List<ConceptRelationship> inverseRelationships =
-        new CopyOnWriteArrayList<>();
-    for (final ConceptRelationship rel : getConcept().getRelationships()) {
-      ConceptRelationship inverseRel =
-          (ConceptRelationship) findInverseRelationship(rel);
-      inverseRelationships.add(inverseRel);
-    }
+        new ArrayList<>(inverseRelsMap.values());
 
     //
     // Any demotion relationship (AND its inverse) need to be removed
     //
-    final Map<Atom, AtomRelationship> atomsDemotions = new HashMap<>();
+    final Set<AtomRelationship> atomsDemotions = new HashSet<>();
+    final Set<Atom> changedAtoms = new HashSet<>();
     for (final Atom atom : atoms) {
-      for (AtomRelationship atomRel : atom.getRelationships()) {
+      for (final AtomRelationship atomRel : new ArrayList<>(
+          atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          atomsDemotions.put(atom, atomRel);
+          atomsDemotions.add(atomRel);
+          changedAtoms.add(atom);
+          atom.getRelationships().remove(atomRel);
 
-          final AtomRelationship inverseRel =
-              (AtomRelationship) findInverseRelationship(atomRel);
+          final Atom inverseAtom = new AtomJpa(atomRel.getTo(), true);
 
-          // If the inverseDemotion's atom is also in the concept being
-          // approved, use That copy of the atom, instead of the one pulled from
-          // the demotion (which can cause errors due to making different
-          // changes to the different copies of the same atom)
-          boolean inverseRelAdded = false;
-          for (Atom inverseAtom : atoms) {
-            if (inverseAtom.getId().equals(inverseRel.getFrom().getId())) {
-              atomsDemotions.put(inverseAtom, inverseRel);
-              inverseRelAdded = true;
-              break;
+          for (final AtomRelationship inverseRel : new ArrayList<>(
+              inverseAtom.getRelationships())) {
+            if (inverseRel.getTo().getId().equals(atom.getId()) && inverseRel
+                .getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+              atomsDemotions.add(inverseRel);
+              changedAtoms.add(inverseAtom);
+              inverseAtom.getRelationships().remove(inverseRel);
             }
-          }
-          // If the inverseDemotion's atom is NOT in the concept, create a new
-          // AtomJpa copy, and use that instead
-          if (!inverseRelAdded) {
-            atomsDemotions.put(new AtomJpa(inverseRel.getFrom()), inverseRel);
           }
         }
       }
     }
 
     //
-    // Remove demotions from appropriate atoms
-    //
-    for (Map.Entry<Atom, AtomRelationship> atomDemotion : atomsDemotions
-        .entrySet()) {
-      Atom atom = atomDemotion.getKey();
-      AtomRelationship demotion = atomDemotion.getValue();
-      atom.getRelationships().remove(demotion);
-    }
-
-    //
     // Update any atom that had demotion removed from it
     //
-    for (Atom atom : atomsDemotions.keySet()) {
+    for (final Atom atom : changedAtoms) {
       updateAtom(atom);
     }
 
     //
     // Remove the demotions from the database
     //
-    for (AtomRelationship demotion : atomsDemotions.values()) {
+    for (final AtomRelationship demotion : atomsDemotions) {
       removeRelationship(demotion.getId(), demotion.getClass());
     }
 
     //
-    // Change status of the components
+    // Change status and update the components
     //
 
     // For each atom, set workflow status to READY_FOR_PUBLICATION if
-    // NEEDS_REVIEW
+    // NEEDS_REVIEW, and update
     for (final Atom atm : atoms) {
       if (atm.getWorkflowStatus().equals(WorkflowStatus.NEEDS_REVIEW)) {
         atm.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);

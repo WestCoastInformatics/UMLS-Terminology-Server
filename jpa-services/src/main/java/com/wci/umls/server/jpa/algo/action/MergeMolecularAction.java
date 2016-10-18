@@ -106,7 +106,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     //
 
     // Get all "inverse" relationships for the "to" and "from" concepts (e.g.
-    // where toId is the id)
+    // where toId is the id)   
     final Map<Long, ConceptRelationship> inverseFromRelsMap = new HashMap<>();
     final Map<Long, ConceptRelationship> inverseToRelsMap = new HashMap<>();
     for (final Relationship rel : findConceptRelationships(null,
@@ -242,7 +242,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       getToConcept().getAtoms().add(atom);
     }
 
-    // Add new semantic types and wire them to "to" concept (unless tye match)
+    // Add new semantic types and wire them to "to" concept (unless they match)
     final Set<String> toConceptStys = getToConcept().getSemanticTypes().stream()
         .map(sty -> sty.getSemanticType()).collect(Collectors.toSet());
     for (SemanticTypeComponent sty : fromStysCopies) {

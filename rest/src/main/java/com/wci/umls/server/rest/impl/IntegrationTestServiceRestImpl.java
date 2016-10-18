@@ -182,7 +182,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
           for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService
               .getInverseRelationships(rel).getObjects()) {
             // TODO - figure out what distinguishing feature is
-            if (true) {
+            if (inverseRel.getTo().getId().equals(rel.getFrom().getId())) {
               contentService.removeRelationship(inverseRel.getId(),
                   rel.getClass());
             }

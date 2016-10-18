@@ -190,6 +190,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         code.getAtoms().add(atom);
         code = addCode(code);
       } else {
+        code = new CodeJpa(code, true);
         code.getAtoms().add(atom);
         updateCode(code);
       }
@@ -221,6 +222,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         concept.setTerminologyId(atom.getConceptId());
         concept = addConcept(concept);
       } else {
+        concept = new ConceptJpa(concept, true);
         concept.getAtoms().add(atom);
         updateConcept(concept);
       }
@@ -252,6 +254,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
         descriptor.setTerminologyId(atom.getDescriptorId());
         descriptor = addDescriptor(descriptor);
       } else {
+        descriptor = new DescriptorJpa(descriptor, true);
         descriptor.getAtoms().add(atom);
         updateDescriptor(descriptor);
       }
