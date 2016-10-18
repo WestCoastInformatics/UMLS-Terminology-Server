@@ -5,10 +5,10 @@ tsApp
     [
       '$http',
       '$q',
-      '$rootScope',
+      '$window',
       'gpService',
       'utilService',
-      function($http, $q, $rootScope, gpService, utilService) {
+      function($http, $q, $window, gpService, utilService) {
         console.debug('configure metaEditingService');
 
         // add atom
@@ -32,6 +32,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Add atom failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -42,7 +47,7 @@ tsApp
           });
           return deferred.promise;
         };
-        
+
         // update atom
         this.updateAtom = function(projectId, activityId, concept, atom, overrideWarnings) {
           console.debug('update atom');
@@ -64,6 +69,10 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Update atom failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -96,6 +105,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Add attribute failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -129,6 +143,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Add relationship failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -164,6 +183,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Add semantic type failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -196,6 +220,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Approve concept failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -231,6 +260,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Merge concepts failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -266,6 +300,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Move atoms failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -300,6 +339,12 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Remove atom failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
+
             deferred.resolve(response.data);
           },
           // error
@@ -335,6 +380,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Remove attribute failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -370,6 +420,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Remove relationship failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -405,6 +460,11 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Remove semantic type failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error
@@ -417,8 +477,8 @@ tsApp
         };
 
         // split concept
-        this.splitConcept = function(projectId, activityId, concept1, atomIds,
-          copyRelationships, copySemanticTypes, relationshipType, overrideWarnings) {
+        this.splitConcept = function(projectId, activityId, concept1, atomIds, copyRelationships,
+          copySemanticTypes, relationshipType, overrideWarnings) {
           console.debug('split concept');
           var deferred = $q.defer();
 
@@ -437,13 +497,18 @@ tsApp
               + (copyRelationships != null && copyRelationships != '' ? '&copyRelationships='
                 + copyRelationships : '')
               + (copySemanticTypes != null && copySemanticTypes != '' ? '&copySemanticTypes='
-                + copySemanticTypes : '') 
-              + (relationshipType != null && relationshipType != '' ? '&relationshipType=' 
+                + copySemanticTypes : '')
+              + (relationshipType != null && relationshipType != '' ? '&relationshipType='
                 + relationshipType : ''), atomIds).then(
           // success
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
+            if (response.data.errors.length > 0) {
+              $window.alert('Split concept failed\n' + response.data.errors[0]);
+              deferred.reject(response.data);
+              return;
+            }
             deferred.resolve(response.data);
           },
           // error

@@ -619,51 +619,54 @@ tsApp
             }
           }
 
-          if ($scope.selected.worklist
-            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
-            workflowService
-              .findTrackingRecordsForWorklist($scope.selected.project.id,
-                $scope.selected.worklist.id, pfs)
-              .then(
-                // Success
-                function(data) {
-                  $scope.lists.records = data.records;
-                  $scope.lists.records.totalCount = data.totalCount;
+          // If no selected component, then try to recover from last saved
+          if (!$scope.selected.component) {
+            if ($scope.selected.worklist
+              && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
+              workflowService
+                .findTrackingRecordsForWorklist($scope.selected.project.id,
+                  $scope.selected.worklist.id, pfs)
+                .then(
+                  // Success
+                  function(data) {
+                    $scope.lists.records = data.records;
+                    $scope.lists.records.totalCount = data.totalCount;
 
-                  // select previously selected record if saved in user
-                  // preferences
-                  if ($scope.user.userPreferences.properties['editRecord']) {
-                    for (var i = 0; i < $scope.lists.records.length; i++) {
-                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                        $scope.selectRecord($scope.lists.records[i]);
+                    // select previously selected record if saved in user
+                    // preferences
+                    if ($scope.user.userPreferences.properties['editRecord']) {
+                      for (var i = 0; i < $scope.lists.records.length; i++) {
+                        if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                          $scope.selectRecord($scope.lists.records[i]);
+                        }
                       }
+                    } else if (selectFirst) {
+                      $scope.selectRecord($scope.lists.records[0]);
                     }
-                  } else if (selectFirst) {
-                    $scope.selectRecord($scope.lists.records[0]);
-                  }
-                });
-          } else if ($scope.selected.worklist && $scope.selected.worklistMode == 'Checklists') {
-            workflowService
-              .findTrackingRecordsForChecklist($scope.selected.project.id,
-                $scope.selected.worklist.id, pfs)
-              .then(
-                // Success
-                function(data) {
-                  $scope.lists.records = data.records;
-                  $scope.lists.records.totalCount = data.totalCount;
+                  });
+            } else if ($scope.selected.worklist && $scope.selected.worklistMode == 'Checklists') {
+              workflowService
+                .findTrackingRecordsForChecklist($scope.selected.project.id,
+                  $scope.selected.worklist.id, pfs)
+                .then(
+                  // Success
+                  function(data) {
+                    $scope.lists.records = data.records;
+                    $scope.lists.records.totalCount = data.totalCount;
 
-                  // select previously selected record if saved in user
-                  // preferences
-                  if ($scope.user.userPreferences.properties['editRecord']) {
-                    for (var i = 0; i < $scope.lists.records.length; i++) {
-                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                        $scope.selectRecord($scope.lists.records[i]);
+                    // select previously selected record if saved in user
+                    // preferences
+                    if ($scope.user.userPreferences.properties['editRecord']) {
+                      for (var i = 0; i < $scope.lists.records.length; i++) {
+                        if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                          $scope.selectRecord($scope.lists.records[i]);
+                        }
                       }
+                    } else if (selectFirst) {
+                      $scope.selectRecord($scope.lists.records[0]);
                     }
-                  } else if (selectFirst) {
-                    $scope.selectRecord($scope.lists.records[0]);
-                  }
-                });
+                  });
+            }
           }
 
         }
@@ -1119,12 +1122,12 @@ tsApp
               if ($scope.user.userPreferences.properties['editWorklistPaging']) {
                 var savedPaging = JSON
                   .parse($scope.user.userPreferences.properties['editWorklistPaging']);
-                $scope.paging['worklists'].page = savedPaging.page;
+                angular.copy(savedPaging, $scope.paging['worklists']);
               }
               if ($scope.user.userPreferences.properties['editRecordPaging']) {
                 var savedPaging = JSON
                   .parse($scope.user.userPreferences.properties['editRecordPaging']);
-                $scope.paging['records'].page = savedPaging.page;
+                angular.copy(savedPaging, $scope.paging['records']);
               }
             });
 

@@ -33,6 +33,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.LanguageJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
@@ -44,6 +45,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.CodeVariantType;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Language;
@@ -286,7 +288,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     addLanguage(lat);
 
     // Term types (PT, SY)
-    final TermType tty = new TermTypeJpa();
+    TermType tty = new TermTypeJpa();
     tty.setAbbreviation("PT");
     tty.setExpandedForm("Preferred term");
     tty.setTimestamp(date);
@@ -304,13 +306,14 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     tty.setUsageType(UsageType.UNDEFINED);
     addTermType(tty);
 
+    tty = new TermTypeJpa(tty);
     tty.setId(null);
     tty.setAbbreviation("SY");
     tty.setExpandedForm("Synonym");
     addTermType(tty);
 
     // Rel types (PAR,CHD) - inverses of each other.
-    final RelationshipType rel = new RelationshipTypeJpa();
+    RelationshipType rel = new RelationshipTypeJpa();
     rel.setAbbreviation("PAR");
     rel.setExpandedForm("Parent of");
     rel.setTimestamp(date);
@@ -323,6 +326,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     rel.setHierarchical(true);
     final RelationshipType par = addRelationshipType(rel);
 
+    rel = new RelationshipTypeJpa(rel);
     rel.setId(null);
     rel.setAbbreviation("CHD");
     rel.setAbbreviation("Child of");
@@ -347,9 +351,21 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         .addKeyValuePair(new KeyValuePair(getTerminology(), "SY"));
     addPrecedenceList(list);
 
-    // Additional rel types - none
+    AdditionalRelationshipType rela = new AdditionalRelationshipTypeJpa();
+    rela.setAbbreviation("isa");
+    rela.setExpandedForm("Is a");
+    rela.setTimestamp(date);
+    rela.setLastModified(date);
+    rela.setLastModifiedBy(loader);
+    rela.setTerminology(getTerminology());
+    rela.setVersion(getVersion());
+    rela.setPublished(true);
+    rela.setPublishable(true);
+    rela.setHierarchical(true);
+    addAdditionalRelationshipType(rela);
+
     // Attribute names - none
-    
+
     commitClearBegin();
   }
 
@@ -369,10 +385,10 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         new FileReader(new File(getInputPath(), "concepts.txt")));
     final String[] fields = new String[10];
     while ((line = reader.readLine()) != null) {
-System.out.println("line="+line);
+      System.out.println("line=" + line);
       line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
-            
+
       // Field Description
       // 0 conceptid
       // 1 type
@@ -491,7 +507,7 @@ System.out.println("line="+line);
       final ConceptRelationship chd = new ConceptRelationshipJpa();
       setCommonFields(chd);
       chd.setRelationshipType("CHD");
-      chd.setAdditionalRelationshipType("");
+      chd.setAdditionalRelationshipType("isa");
       chd.setFrom(to);
       chd.setTo(from);
       addRelationship(chd);
