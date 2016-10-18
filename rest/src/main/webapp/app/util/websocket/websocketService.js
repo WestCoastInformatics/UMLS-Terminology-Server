@@ -117,7 +117,7 @@ tsApp.service('websocketService',
         // First, if it's a "change event", then we can determine what changed
         // and whether to fire "concept changed" or "atom changed"
         var object = JSON.parse(event.data);
-        console.debug('MESSAGE', object);
+        //console.debug('MESSAGE', object);
 
         // Handle changes involving concepts
         if (object.container && object.container.type == 'CONCEPT') {

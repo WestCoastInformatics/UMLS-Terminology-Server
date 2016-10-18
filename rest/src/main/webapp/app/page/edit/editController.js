@@ -63,7 +63,7 @@ tsApp
           worklists : [],
           configs : [],
           projects : [],
-          components : [],
+          concepts : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
           worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
@@ -987,10 +987,7 @@ tsApp
 
         // Merge modal
         $scope.openMergeModal = function() {
-          if ($scope.lists.concepts.length < 2) {
-            window.alert('Merge requires at least two concepts in the list.');
-            return;
-          }
+
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/mergeMoveSplit.html',
             controller : 'MergeMoveSplitModalCtrl',

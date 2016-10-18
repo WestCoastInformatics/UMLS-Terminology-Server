@@ -241,12 +241,12 @@
       <span style="float: right;">
         <button ng-click="approveConcept(selected.component)" title="Approve"
           ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
-        <button ng-click="next()" title="Next" ng-disabled="!selected.component"
+        <button ng-click="next()" title="Next" ng-disabled="!selected.component || !selected.worklist"
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve/Next</button>
+          ng-disabled="!selected.component || !selected.worklist" class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>         
       </span>
     </div>
     <div class="col-md-6 col-xs-12">
