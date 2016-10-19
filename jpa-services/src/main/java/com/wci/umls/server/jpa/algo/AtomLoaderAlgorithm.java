@@ -226,8 +226,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines =
-          loadFileIntoStringList("classes_atoms.src", null);
+      List<String> lines = loadFileIntoStringList("classes_atoms.src", null);
 
       logInfo("[AtomLoader] Loading associated resources");
 
@@ -354,10 +353,16 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         // Check to see if atom with matching AUI already exists in the database
         Long oldAtomId = auiIdMap.get(newAtomAui);
 
-        // If no atom with the same AUI exists, add this new Atom.
+        // If no atom with the same AUI exists, add this new Atom and a concept
+        // to put it into.
         if (oldAtomId == null) {
-          newAtom.getAlternateTerminologyIds().put("SRC", newAtomAui);
+          newAtom.getAlternateTerminologyIds()
+              .put(getProject().getTerminology() + "-SRC", newAtomAui);
           newAtom = addAtom(newAtom);
+
+          // TODO - create concept, with terminology=project.getTerminology, and
+          // version=project.getVersion(), and add the atom into it
+
           addCount++;
           auiIdMap.put(newAtomAui, newAtom.getId());
 
@@ -372,7 +377,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
           boolean oldAtomChanged = false;
 
           // Create an "alternateTerminologyId" for the atom
-          oldAtom.getAlternateTerminologyIds().put("UMLS-SRC", newAtomAui);
+          oldAtom.getAlternateTerminologyIds()
+              .put(getProject().getTerminology() + "-SRC", newAtomAui);
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
