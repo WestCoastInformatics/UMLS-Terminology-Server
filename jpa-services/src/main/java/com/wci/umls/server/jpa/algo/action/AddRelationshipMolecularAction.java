@@ -96,6 +96,15 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       }
     }
 
+    // bequeathal rel check, must be a publishable concept on other end
+    if ((relationship.getRelationshipType().equals("BRO")
+        || relationship.getRelationshipType().equals("BRN")
+        || relationship.getRelationshipType().equals("BRT"))
+        && !relationship.getTo().isPublishable()) {
+      throw new LocalException(
+          "Concepts may not be bequeathed to unpublishable 'to' concepts ");
+    }
+
     validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
@@ -164,9 +173,9 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     if (demotion != null) {
       // Remove the demotions from the atoms
-      removeById(demotion.getFrom().getRelationships(),demotion.getId());
-      removeById(demotion.getTo().getRelationships()
-          ,findInverseRelationship(demotion).getId());
+      removeById(demotion.getFrom().getRelationships(), demotion.getId());
+      removeById(demotion.getTo().getRelationships(),
+          findInverseRelationship(demotion).getId());
 
       // Update Atoms
       updateAtom(demotion.getFrom());

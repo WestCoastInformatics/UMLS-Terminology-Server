@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
