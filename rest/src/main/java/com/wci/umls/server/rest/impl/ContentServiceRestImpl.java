@@ -439,7 +439,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       //
       // Compute tree positions
-      // Refresh caches after metadata has changed in loader
+      // 
       for (final Terminology t : list.getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {

@@ -320,7 +320,6 @@ tsApp
             $scope.searchResults.tree.push(data); // treeList
             // array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.objects.length = data.objects.length;
             // Load first functionality is not obvious here
             // so leave it alone for now.
 

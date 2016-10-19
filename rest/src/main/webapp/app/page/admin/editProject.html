@@ -4,79 +4,82 @@
 
 <div class="modal-body">
   <div class="row">
-    <table class="slim table">
-      <tr ng-show="project.id">
-        <td>
-          <b>Project Id</b>
-        </td>
-        <td>{{project.id}}</td>
-      </tr>
-      <tr>
-        <td>
-          <b>Name</b>
-        </td>
-        <td>
-          <input ng-model="project.name" size="40" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Description</b>
-        </td>
-        <td>
-          <textarea rows="4" cols="40" ng-model="project.description"
-            placeholder="Basic description of the project"></textarea>
-        </td>
-      </tr>
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr ng-show="project.id">
+          <td>
+            <b>Project Id</b>
+          </td>
+          <td>{{project.id}}</td>
+        </tr>
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <input ng-model="project.name" size="40" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Description</b>
+          </td>
+          <td>
+            <textarea rows="4" cols="40" ng-model="project.description"
+              placeholder="Basic description of the project"></textarea>
+          </td>
+        </tr>
 
-      <tr>
-        <td>
-          <b>Feedback Email</b>
-        </td>
-        <td>
-          <input ng-model="project.feedbackEmail" size="40"
-            placeholder="e.g. FreshDesk or Siebel email" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Terminology</b>
-        </td>
-        <td>
-          <input class="input-filter" placeholder="Enter terminology"
-            ng-change="setTerminology(project.terminology)" type="text"
-            ng-model="project.terminology" list="project-terminologies">
-          <datalist id="project-terminologies">
-            <option
-              ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
-          </datalist>
-          <button class="btn btn-xs btn-warning" ng-show="project.terminology"
-            ng-click="project.terminology=''">Clear</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Version</b>
-        </td>
-        <td>
-          <input class="input-filter" placeholder="Enter version"
-            ng-blur="setVersion(project.version)" type="text"
-            ng-model="project.version">
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Language</b>
-        </td>
-        <td>
-          <span>
-            <select ng-disabled="!project.language" ng-model="project.language"
-              ng-options="item.key as item.value for item in languages"></select>
-          </span>
-          <span>{{project.language}}</span>
-        </td>
-      </tr>
-    </table>
+        <tr>
+          <td>
+            <b>Feedback Email</b>
+          </td>
+          <td>
+            <input ng-model="project.feedbackEmail" size="40"
+              placeholder="e.g. FreshDesk or Siebel email" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Terminology</b>
+          </td>
+          <td>
+            <input class="input-filter" placeholder="Enter terminology"
+              ng-change="setTerminology(project.terminology)" type="text"
+              ng-model="project.terminology" list="project-terminologies">
+            <datalist id="project-terminologies">
+              <option
+                ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+            </datalist>
+            <button class="btn btn-xs btn-warning" ng-show="project.terminology"
+              ng-click="project.terminology=''">Clear</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Version</b>
+          </td>
+          <td>
+            <input class="input-filter" placeholder="Enter version"
+              ng-blur="setVersion(project.version)" type="text"
+              ng-model="project.version">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Language</b>
+          </td>
+          <td>
+            <span>
+              <select ng-disabled="!project.language"
+                ng-model="project.language"
+                ng-options="item.key as item.value for item in languages"></select>
+            </span>
+            <span>{{project.language}}</span>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
   <div class="row">
     <div class="col-md-6 col-xs-12">
@@ -88,12 +91,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="check in availableChecks">
+          <tr ng-repeat="check in availableChecks | orderBy">
             <td>{{check}}</td>
             <td>
-              <i ng-click="selectValidationCheck(check)"
+              <button ng-click="selectValidationCheck(check)"
                 title="Select validation check for project"
-                class="noul glyphicon glyphicon-plus"></i>
+                class="btn btn-xs btn-primary">Add</button>
             </td>
           </tr>
         </tbody>
@@ -108,7 +111,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="check in selectedChecks">
+          <tr ng-repeat="check in selectedChecks | orderBy">
             <td>{{check}}</td>
             <td>
               <i ng-click="removeValidationCheck(check)"

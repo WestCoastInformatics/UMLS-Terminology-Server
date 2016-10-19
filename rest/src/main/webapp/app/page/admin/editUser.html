@@ -4,59 +4,61 @@
 
 <div class="modal-body">
   <div class="row">
-    <table class="slim table">
-      <tr>
-        <td>
-          <b>Username</b>
-        </td>
-        <td>
-          <input ng-show="action == 'Add'" ng-model="user.userName">
-          <span ng-show="action != 'Add'">{{user.userName}}</span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Name</b>
-        </td>
-        <td>
-          <input ng-show="action == 'Add'" ng-model="user.name">
-          <span ng-show="action != 'Add'">{{user.name}}</span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Email</b>
-        </td>
-        <td>
-          <input ng-show="action == 'Add'" ng-model="user.email" size="40">
-          <span ng-show="action != 'Add'">{{user.email}}</span>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Editor Level</b>
-        </td>
-        <td>
-          <input ng-model="user.editorLevel" size="5" list="levels">
-          <datalist id="levels">
-            <option>0</option>
-            <option>5</option>
-          </datalist>
-          <button class="btn btn-xs btn-warning"
-            ng-show="user.editorLevel || user.editorLevel == '0'"
-            ng-click="user.editorLevel=''">Clear</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Application Role</b>
-        </td>
-        <td>
-          <select ng-model="user.applicationRole"
-            ng-options="item for item in applicationRoles"></select>
-        </td>
-      </tr>
-    </table>
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr>
+          <td>
+            <b>Username</b>
+          </td>
+          <td>
+            <input ng-show="action == 'Add'" ng-model="user.userName">
+            <span ng-show="action != 'Add'">{{user.userName}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <input ng-show="action == 'Add'" ng-model="user.name">
+            <span ng-show="action != 'Add'">{{user.name}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Email</b>
+          </td>
+          <td>
+            <input ng-show="action == 'Add'" ng-model="user.email" size="40">
+            <span ng-show="action != 'Add'">{{user.email}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Editor Level</b>
+          </td>
+          <td>
+            <input ng-model="user.editorLevel" size="5" list="levels">
+            <datalist id="levels">
+              <option>0</option>
+              <option>5</option>
+            </datalist>
+            <button class="btn btn-xs btn-warning"
+              ng-show="user.editorLevel || user.editorLevel == '0'"
+              ng-click="user.editorLevel=''">Clear</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Application Role</b>
+          </td>
+          <td>
+            <select ng-model="user.applicationRole"
+              ng-options="item for item in applicationRoles"></select>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
 
   <!-- Errors -->

@@ -1,22 +1,19 @@
 <div class="row">
   <!-- Edit -->
   <div class="col-md-12 col-xs-12">
-    <h6>
-      <span>
-        Project: <select ng-model="selected.project"
-          ng-show="lists.projects.length > 1"
-          ng-options="item.name for item in lists.projects"
-          ng-change="setProject(selected.project);"></select>
-        <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
-      </span>
-      <span>
-        &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
-          ng-show="lists.projectRoles.length > 1"
-          ng-change="changeProjectRole()"
-          ng-options="projectRole for projectRole in lists.projectRoles"></select>
-        <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
-      </span>
-    </h6>
+    <span>
+      Project: <select ng-model="selected.project"
+        ng-show="lists.projects.length > 1"
+        ng-options="item.name for item in lists.projects"
+        ng-change="setProject(selected.project);"></select>
+      <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
+    </span>
+    <span>
+      &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
+        ng-show="lists.projectRoles.length > 1" ng-change="changeProjectRole()"
+        ng-options="projectRole for projectRole in lists.projectRoles"></select>
+      <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
+    </span>
   </div>
   <div class="col-md-12 col-xs-12">
     <uib-accordion close-others="false"> <uib-accordion-group
@@ -180,8 +177,7 @@
       <span uib-tooltip="Workflow Worklists">Concepts/Reports</span>
     </h5>
     </uib-accordion-heading> <!-- CONCEPTS LIST  -->
-    <div class="col-md-6 col-xs-12"
-      ng-show="selected.worklistMode != 'Available'">
+    <div class="col-md-6 col-xs-12">
       <span>
         <h5 style="display: inline">Concept List</h5>
         <span style="float: right;">
@@ -241,12 +237,14 @@
       <span style="float: right;">
         <button ng-click="approveConcept(selected.component)" title="Approve"
           ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
-        <button ng-click="next()" title="Next" ng-disabled="!selected.component || !selected.worklist"
+        <button ng-click="next()" title="Next"
+          ng-disabled="!selected.component || !selected.worklist"
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component || !selected.worklist" class="btn btn-xs btn-primary">Approve/Next</button>
+          ng-disabled="!selected.component || !selected.worklist"
+          class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>         
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>
       </span>
     </div>
     <div class="col-md-6 col-xs-12">

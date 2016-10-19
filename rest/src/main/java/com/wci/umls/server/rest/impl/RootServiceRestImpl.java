@@ -209,7 +209,9 @@ public class RootServiceRestImpl {
   }
 
   /**
-   * Returns the precedence list.
+   * Returns the precedence list. If the user has a local one, use that, if the
+   * project has a local one, use that, otherwise use the defaults for the
+   * object's terminology/version.
    *
    * @param service the service
    * @param contentService the content service
@@ -229,19 +231,19 @@ public class RootServiceRestImpl {
         && user.getUserPreferences().getPrecedenceList() != null) {
       list = user.getUserPreferences().getPrecedenceList();
     } else if (project != null) {
-      if (contentService == null) {
-        throw new Exception(
-            "Project service not specified, could not retrieve precedence list");
-      } else {
-        final PrecedenceList projectList = project.getPrecedenceList();
-        if (projectList != null) {
-          list = projectList;
-        } else {
-          list = contentService.getPrecedenceList(obj.getTerminology(),
-              obj.getVersion());
-        }
+      final Project lproject = (project != null ? project : contentService
+          .getProject(user.getUserPreferences().getLastProjectId()));
+      final PrecedenceList projectList = lproject.getPrecedenceList();
+      if (projectList != null) {
+        list = projectList;
       }
     }
+    // If nothing else, use the terminology/version of the object
+    if (list == null) {
+      list = contentService.getPrecedenceList(obj.getTerminology(),
+          obj.getVersion());
+    }
+
     obj.setAtoms(
         contentService.getComputePreferredNameHandler(obj.getTerminology())
             .sortAtoms(obj.getAtoms(), list));

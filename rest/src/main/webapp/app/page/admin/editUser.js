@@ -18,19 +18,15 @@ tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'user', '
     }
 
     $scope.submitUser = function(user) {
-      if ($scope.action == 'Add') {
-        $scope.addUser(user);
-      } else if ($scope.action == 'Edit') {
-        $scope.updateUser(user);
+      var fn = 'addUser';
+      if ($scope.action == 'Edit') {
+        fn = 'updateUser';
       }
-    }
-    // Add user
-    $scope.addUser = function(user) {
       if (!user || !user.name || !user.userName || !user.applicationRole) {
         window.alert('The name, user name, and application role fields cannot be blank. ');
         return;
       }
-      securityService.addUser(user).then(
+      securityService[fn](user).then(
       // Success
       function(data) {
         $uibModalInstance.close(data);
@@ -40,28 +36,7 @@ tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'user', '
         $scope.errors[0] = data;
         utilService.clearError();
       });
-
-    };
-
-    // Save the user
-    $scope.updateUser = function(user) {
-
-      if (!user || !user.name || !user.userName || !user.applicationRole) {
-        window.alert('The name, user name, and application role fields cannot be blank. ');
-        return;
-      }
-
-      securityService.updateUser(user).then(
-      // Success
-      function(data) {
-        $uibModalInstance.close(data);
-      },
-      // Error
-      function(data) {
-        $scope.error[0] = data;
-        utilService.clearError();
-      });
-    };
+    }
 
     // Dismiss the modal
     $scope.cancel = function() {

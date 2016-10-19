@@ -32,9 +32,7 @@
             <th class="col-md-4 col-xs-4"
               ng-click="setSortField('project','name')">Name<span
                 ng-bind="getSortIndicator('project','name')"></span></th>
-            <th class="col-md-4 col-xs-4"
-              ng-click="setSortField('project','description')">Description<span
-                ng-bind="getSortIndicator('project','description')"></span></th>
+            <th class="col-md-4 col-xs-4">Description</th>
 
             <th class="col-md-1 col-xs-1"><span style="float: right;">
                 <button ng-click="openAddProjectModal()" title="Add project"
@@ -158,9 +156,7 @@
           title="Reset user preferences to defaults">Reset Preferences</button>
       </div>
       <div class="col-md-12 col-xs-12">
-        <h6>
-          <b>Default Project Settings</b>
-        </h6>
+        <b>Default Project Settings</b>
       </div>
       <div class="col-md-12 col-xs-12">
         <table class="slim table pointer">
@@ -189,9 +185,7 @@
       </div>
 
       <div class="col-md-12 col-xs-12">
-        <h6>
-          <b>Other Settings</b>
-        </h6>
+        <b>Other Settings</b>
       </div>
       <div class="col-md-12 col-xs-12">
         <table class="slim table pointer">
@@ -246,9 +240,7 @@
           <th class="col-md-5 col-xs-5"
             ng-click="setSortField('candidateProject','name')">Name<span
               ng-bind="getSortIndicator('candidateProject','name')"></span></th>
-          <th class="col-md-6 col-xs-6"
-            ng-click="setSortField('candidateProject','description')">Description<span
-              ng-bind="getSortIndicator('candidateProject','description')"></span></th>
+          <th class="col-md-6 col-xs-6">Description</th>
         </tr>
       </thead>
       <tbody>
@@ -302,10 +294,10 @@
             </td>
             <td>
 
-              <i
+              <button
                 ng-click="assignUserToProject(selected.project.id, unassigned.userName, unassigned.projectRole)"
                 title="Add user to project with selected role."
-                class="noul glyphicon glyphicon-plus"></i>
+                class="btn btn-xs btn-primary">Add</button>
             </td>
           </tr>
         </tbody>

@@ -8,13 +8,13 @@
   <!-- if not the component viewed, render with hyperlink -->
   <span ng-show="tree.nodeTerminologyId != component.terminologyId">
     {{mode}}
-    <a ng-show="callbacks.getComponentFromTree"
+    <a class="pointer" ng-show="callbacks.getComponentFromTree"
       ng-click="callbacks.getComponentFromTree(metadata.terminology.organizingClassType, this)">
       {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
     <span ng-show="!callbacks.getComponentFromTree">
-      {{tree.nodeTerminologyId}}</span>
-    : {{tree.nodeName}}
+      {{tree.nodeTerminologyId}}
+    : {{tree.nodeName}}</span>
   </span>
   <!-- if the component displayed, render in bold without hyperlink -->
   <span ng-show="tree.nodeTerminologyId === component.terminologyId">

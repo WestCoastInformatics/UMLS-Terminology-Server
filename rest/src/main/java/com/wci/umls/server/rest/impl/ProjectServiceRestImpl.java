@@ -148,7 +148,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       }
 
       // Update project
-
+      project.setUserRoleMap(origProject.getUserRoleMap());
       project.setPrecedenceList(origProject.getPrecedenceList());
       projectService.updateProject(project);
 
