@@ -55,7 +55,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public AttributeIdentity getAttributeIdentity(Long id) throws Exception {
+  public AttributeIdentity getAttributeIdentity(long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get attribute identity " + id);
     return getObject(id, AttributeIdentity.class);
@@ -63,12 +63,12 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextAttributeId() throws Exception {
+  public long getNextAttributeId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next attribute id");
 
-    Long attId = 0L;
-    Long styId = 0L;
+    long attId = 0L;
+    long styId = 0L;
 
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("ATUI")) {
@@ -94,7 +94,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
           .info("Initializing max ATUI = " + Math.max(attId, styId));
 
     }
-    final Long result = maxIds.get("ATUI") + 1;
+    final long result = maxIds.get("ATUI") + 1;
     maxIds.put("ATUI", result);
 
     return result;
@@ -129,10 +129,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         ConfigUtility.composeClause("hashcode", identity.getHashcode(), false));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -168,7 +168,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeAttributeIdentity(Long attributeIdentityId)
+  public void removeAttributeIdentity(long attributeIdentityId)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - remove attribute identity "
@@ -181,7 +181,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(Long id)
+  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(long id)
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get semanticTypeComponent identity " + id);
@@ -190,12 +190,12 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextSemanticTypeComponentId() throws Exception {
+  public long getNextSemanticTypeComponentId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next semanticTypeComponent id");
 
-    Long attId = 0L;
-    Long styId = 0L;
+    long attId = 0L;
+    long styId = 0L;
 
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("ATUI")) {
@@ -221,7 +221,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
           .info("Initializing max ATUI = " + Math.max(attId, styId));
 
     }
-    final Long result = maxIds.get("ATUI") + 1;
+    final long result = maxIds.get("ATUI") + 1;
     maxIds.put("ATUI", result);
 
     return result;
@@ -250,10 +250,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getSemanticType(), true));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -293,7 +293,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void removeSemanticTypeComponentIdentity(
-    Long semanticTypeComponentIdentityId) throws Exception {
+    long semanticTypeComponentIdentityId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - remove semanticTypeComponent identity "
             + semanticTypeComponentIdentityId);
@@ -305,7 +305,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public AtomIdentity getAtomIdentity(Long id) throws Exception {
+  public AtomIdentity getAtomIdentity(long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get atom identity " + id);
     return getObject(id, AtomIdentity.class);
@@ -313,11 +313,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextAtomId() throws Exception {
+  public long getNextAtomId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next atom id");
 
-    Long atomId = 0L;
+    long atomId = 0L;
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("AUI")) {
       try {
@@ -332,7 +332,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       maxIds.put("AUI", atomId);
       Logger.getLogger(getClass()).info("Initializing max AUI = " + atomId);
     }
-    final Long result = maxIds.get("AUI") + 1;
+    final long result = maxIds.get("AUI") + 1;
     maxIds.put("AUI", result);
 
     return result;
@@ -367,10 +367,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getDescriptorId(), false));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -404,7 +404,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeAtomIdentity(Long atomIdentityId) throws Exception {
+  public void removeAtomIdentity(long atomIdentityId) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - remove atom identity " + atomIdentityId);
 
@@ -414,7 +414,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public StringClassIdentity getStringClassIdentity(Long id) throws Exception {
+  public StringClassIdentity getStringClassIdentity(long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get string identity " + id);
 
@@ -423,11 +423,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextStringClassId() throws Exception {
+  public long getNextStringClassId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next string id");
 
-    Long stringId = 0L;
+    long stringId = 0L;
 
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("SUI")) {
@@ -443,7 +443,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       maxIds.put("SUI", stringId);
       Logger.getLogger(getClass()).info("Initializing max SUI = " + stringId);
     }
-    final Long result = maxIds.get("SUI") + 1;
+    final long result = maxIds.get("SUI") + 1;
     maxIds.put("SUI", result);
 
     return result;
@@ -468,10 +468,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     clauses.add(ConfigUtility.composeClause("name", identity.getName(), true));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -507,7 +507,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeStringClassIdentity(Long stringClassIdentityId)
+  public void removeStringClassIdentity(long stringClassIdentityId)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - remove string identity "
@@ -520,7 +520,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public LexicalClassIdentity getLexicalClassIdentity(Long id)
+  public LexicalClassIdentity getLexicalClassIdentity(long id)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get lexical class identity " + id);
@@ -529,11 +529,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextLexicalClassId() throws Exception {
+  public long getNextLexicalClassId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next lexicalClass id");
 
-    Long lexicalId = 0L;
+    long lexicalId = 0L;
 
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("LUI")) {
@@ -549,7 +549,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       maxIds.put("LUI", lexicalId);
       Logger.getLogger(getClass()).info("Initializing max LUI = " + lexicalId);
     }
-    final Long result = maxIds.get("LUI") + 1;
+    final long result = maxIds.get("LUI") + 1;
     maxIds.put("LUI", result);
 
     return result;
@@ -575,10 +575,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getNormalizedName(), true));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -614,7 +614,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeLexicalClassIdentity(Long lexicalClassIdentityId)
+  public void removeLexicalClassIdentity(long lexicalClassIdentityId)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - remove lexicalClass identity "
@@ -627,7 +627,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipIdentity getRelationshipIdentity(Long id)
+  public RelationshipIdentity getRelationshipIdentity(long id)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get relationship identity " + id);
@@ -665,11 +665,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Long getNextRelationshipId() throws Exception {
+  public long getNextRelationshipId() throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get next relationship id");
 
-    Long relationshipId = 0L;
+    long relationshipId = 0L;
     // If this is the first time this is called, lookup max ID from the database
     if (!maxIds.containsKey("RUI")) {
       try {
@@ -687,7 +687,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
           .info("Initializing max RUI = " + relationshipId);
     }
 
-    final Long result = maxIds.get("RUI") + 1;
+    final long result = maxIds.get("RUI") + 1;
     maxIds.put("RUI", result);
 
     return result;
@@ -728,10 +728,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getToTerminology(), false));
 
     final String fullQuery = ConfigUtility.composeQuery("AND", clauses);
-    final Long id = getIdentityId(identity.getClass(), fullQuery);
+    final long id = getIdentityId(identity.getClass(), fullQuery);
 
     // If no id found, return null.
-    if (id == null) {
+    if (id == -1) {
       return null;
     }
 
@@ -767,7 +767,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public void removeRelationshipIdentity(Long relationshipIdentityId)
+  public void removeRelationshipIdentity(long relationshipIdentityId)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - remove relationship identity "
@@ -787,7 +787,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  public Long getIdentityId(Class<? extends HasId> objectClass, String query)
+  public long getIdentityId(Class<? extends HasId> objectClass, String query)
     throws Exception {
 
     // Set up the "full text query"
@@ -806,7 +806,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     fullTextQuery.setProjection("id");
     final List<Object[]> results = fullTextQuery.getResultList();
     if (results.isEmpty()) {
-      return null;
+      return -1L;
     }
     // If more than one result returned, print up to 10, and then throw an
     // error.
@@ -823,10 +823,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
           + objectClass.getSimpleName() + ", " + query);
     }
 
-    final Long id = Long.valueOf(results.get(0)[0].toString());
-    return id;
+    return Long.parseLong(results.get(0)[0].toString());
   }
 
+  /* see superclass */
   @Override
   public void commit() throws Exception {
     super.commit();
@@ -835,6 +835,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /* see superclass */
   @Override
   public void rollback() throws Exception {
     super.rollback();

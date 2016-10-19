@@ -7,14 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.persistence.NoResultException;
+
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -51,7 +57,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UmlsIdentifierAssignmentHandler
     implements IdentifierAssignmentHandler {
 
-  /**  The service. */
+  /** The service. */
   private UmlsIdentityService service = null;
 
   /** The lock. */
@@ -62,6 +68,9 @@ public class UmlsIdentifierAssignmentHandler
 
   /** The ui lengths. */
   private Map<String, Integer> lengthMap = new HashMap<>();
+
+  /** The max concept id. */
+  private long maxConceptId = -1;
 
   /* see superclass */
   @Override
@@ -104,8 +113,42 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(Concept concept) throws Exception {
-    // TODO
-    return "";
+    // Unpublishable concepts don't get assigned ids
+    if (!concept.isPublishable()) {
+      return concept.getTerminologyId();
+    }
+
+    // Return the id if it's already a CUI
+    if (concept.getTerminologyId().startsWith(prefixMap.get("CUI"))) {
+      return concept.getTerminologyId();
+    }
+    long conceptId = 0L;
+    // If this is the first time this is called, lookup max ID from the database
+    if (maxConceptId == -1) {
+      final ContentServiceJpa service = new ContentServiceJpa();
+      try {
+        final javax.persistence.Query query = service.getEntityManager()
+            .createQuery("select max(terminologyId) from ConceptJpa "
+                + "where terminology = :terminology "
+                + "  and version = :version "
+                + "  and terminologyId like :prefix");
+        query.setParameter("terminology", concept.getTerminology());
+        query.setParameter("version", concept.getVersion());
+        query.setParameter("prefix", prefixMap.get("CUI") + "%");
+        final Long conceptId2 = (Long) query.getSingleResult();
+        conceptId = conceptId2 != null ? conceptId2 : conceptId;
+      } catch (NoResultException e) {
+        conceptId = 0L;
+      } finally {
+        service.close();
+      }
+      // Set the maxConceptId
+      maxConceptId = conceptId;
+      Logger.getLogger(getClass())
+          .info("Initializing max CUI = " + maxConceptId);
+    }
+    final long result = ++maxConceptId;
+    return convertId(result, "CUI");
   }
 
   /* see superclass */
@@ -125,7 +168,11 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(StringClass stringClass) throws Exception {
 
     if (!stringClass.isPublishable()) {
-      return "";
+      return stringClass.getTerminologyId();
+    }
+    // Return the id if it's already a SUI
+    if (stringClass.getTerminologyId().startsWith(prefixMap.get("SUI"))) {
+      return stringClass.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -167,7 +214,12 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
 
     if (!lexicalClass.isPublishable()) {
-      return "";
+      return lexicalClass.getTerminologyId();
+    }
+
+    // Return the id if it's already a LUI
+    if (lexicalClass.getTerminologyId().startsWith(prefixMap.get("LUI"))) {
+      return lexicalClass.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -209,7 +261,11 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(Atom atom) throws Exception {
 
     if (!atom.isPublishable()) {
-      return "";
+      return atom.getTerminologyId();
+    }
+    // Return the id if it's already a AUI
+    if (atom.getTerminologyId().startsWith(prefixMap.get("AUI"))) {
+      return atom.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -256,7 +312,11 @@ public class UmlsIdentifierAssignmentHandler
     throws Exception {
 
     if (!attribute.isPublishable()) {
-      return "";
+      return attribute.getTerminologyId();
+    }
+    // Return the id if it's already a ATUI
+    if (attribute.getTerminologyId().startsWith(prefixMap.get("ATUI"))) {
+      return attribute.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -302,8 +362,17 @@ public class UmlsIdentifierAssignmentHandler
   @Override
   public String getTerminologyId(Definition definition,
     ComponentHasDefinitions component) throws Exception {
-    // TODO:
-    return "";
+    final Attribute attribute = new AttributeJpa();
+    attribute.setName("DEFINITION");
+    attribute.setValue(definition.getValue());
+    attribute.setObsolete(definition.isObsolete());
+    attribute.setSuppressible(definition.isSuppressible());
+    attribute.setPublishable(definition.isPublishable());
+    attribute.setPublished(definition.isPublished());
+    attribute.setTerminologyId(definition.getTerminologyId());
+    attribute.setTerminology(definition.getTerminology());
+    attribute.setVersion(definition.getVersion());
+    return getTerminologyId(attribute, component);
   }
 
   /* see superclass */
@@ -314,6 +383,10 @@ public class UmlsIdentifierAssignmentHandler
 
     if (!relationship.isPublishable()) {
       return "";
+    }
+    // Return the id if it's already a RUI
+    if (relationship.getTerminologyId().startsWith(prefixMap.get("RUI"))) {
+      return relationship.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -361,7 +434,6 @@ public class UmlsIdentifierAssignmentHandler
                   inverseRelType, inverseAdditionalRelType);
 
           // Get next id for inverse relationship
-          // TODO confirm this gives different number. If not, add 1 to nextId;
           final Long nextIdInverse = localService.getNextRelationshipId();
 
           // Set ID and inverse IDs for the inverse Id
@@ -460,7 +532,10 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(Subset subset) throws Exception {
-    throw new UnsupportedOperationException();
+    // Map sets are represented by CUIs -> at release time
+    // when the concept is assigned a CUI, the corresponding map set should
+    // be as well
+    return null;
   }
 
   /* see superclass */
@@ -468,7 +543,8 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
     throws Exception {
-    // TODO
+    // Subset members don't themselves get ATUIs, their attributes do
+    // but with the SUBSET_MEMBER=12345~ATN~atv attribute format
     return "";
   }
 
@@ -477,10 +553,14 @@ public class UmlsIdentifierAssignmentHandler
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
 
-    // TODO (? - the below may not be correct)
-
     if (!semanticTypeComponent.isPublishable()) {
       return "";
+    }
+
+    // Return the id if it's already a ATUI
+    if (semanticTypeComponent.getTerminologyId()
+        .startsWith(prefixMap.get("ATUI"))) {
+      return semanticTypeComponent.getTerminologyId();
     }
 
     UmlsIdentityService localService = getService();
@@ -523,14 +603,17 @@ public class UmlsIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(Mapping mapping) throws Exception {
-    // TODO
+    // mappings don't themselves get ATUIs, their XMAPFROM, XMAP, and XMAPTO
+    // renderings do which populate various ids of the mapping
     return "";
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(MapSet mapSet) throws Exception {
-    // TODO
+    // Map sets are represented by CUIs -> at release time
+    // when the concept is assigned a CUI, the corresponding map set should
+    // be as well
     return "";
   }
 
