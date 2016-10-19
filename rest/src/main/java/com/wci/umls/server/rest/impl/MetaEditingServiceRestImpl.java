@@ -120,13 +120,12 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
       sty.setTerminologyId("");
       sty.setObsolete(false);
-      sty.setPublishable(false);
+      sty.setPublishable(true);
       sty.setPublished(false);
       sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       sty.setSemanticType(semanticTypeValue);
       sty.setTerminology(project.getTerminology());
-      // TODO: don't hardcode latest
-      sty.setVersion("latest");
+      sty.setVersion(project.getVersion());
       sty.setTimestamp(new Date());
 
       // Configure the action
@@ -283,6 +282,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      
+      // All new content is unpublished and publishable
+      attribute.setPublished(false);
+      attribute.setPublishable(true);
 
       // Configure the action
       action.setProject(project);
@@ -438,6 +441,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
+      // All new content is unpublished and publishable
+      atom.setPublished(false);
+      atom.setPublishable(true);
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -668,6 +675,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
 
+      // All new content is unpublished and publishable
+      relationship.setPublished(false);
+      relationship.setPublishable(true);
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -14,6 +15,7 @@ import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -198,7 +200,11 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
         // If the action was to remove from the collection, remove it
         else if (a.getNewValue() == null && a.getOldValue() != null) {
-          collection.remove(referencedObject);
+          // In case there are multiple hash-identical objects contained in the
+          // same object, remove by index.
+          Predicate<HasId> predicate =
+              p -> p.getId().toString().equals(a.getOldValue());
+          collection.removeIf(predicate);
         }
 
         // otherwise fail

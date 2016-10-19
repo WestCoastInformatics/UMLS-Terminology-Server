@@ -3186,22 +3186,22 @@ public class ContentServiceJpa extends MetadataServiceJpa
       for (final Method m : oneToManyMethods) {
 
         // Obtain the old/new identifier lists
-        final Set<?> oldSet = new HashSet<>(
+        final List<?> oldList = new ArrayList<>(
             (Collection<?>) m.invoke(oldComponent, new Object[] {}));
-        final Set<Long> oldIds = (oldSet.stream().map(x -> ((HasId) x).getId())
+        final Set<Long> oldIds = (oldList.stream().map(x -> ((HasId) x).getId())
             .collect(Collectors.toSet()));
 
-        final Set<?> newSet = new HashSet<>(
+        final List<?> newList = new ArrayList<>(
             (Collection<?>) m.invoke(newComponent, new Object[] {}));
-        final Set<Long> newIds = (newSet.stream().map(x -> ((HasId) x).getId())
+        final Set<Long> newIds = (newList.stream().map(x -> ((HasId) x).getId())
             .collect(Collectors.toSet()));
 
         // Get the collection class name
         String collectionClassName = null;
-        if (oldSet.size() > 0) {
-          collectionClassName = oldSet.iterator().next().getClass().getName();
-        } else if (newSet.size() > 0) {
-          collectionClassName = newSet.iterator().next().getClass().getName();
+        if (oldList.size() > 0) {
+          collectionClassName = oldList.iterator().next().getClass().getName();
+        } else if (newList.size() > 0) {
+          collectionClassName = newList.iterator().next().getClass().getName();
         }
 
         // Obtain (old MINUS new) and create "remove" actions

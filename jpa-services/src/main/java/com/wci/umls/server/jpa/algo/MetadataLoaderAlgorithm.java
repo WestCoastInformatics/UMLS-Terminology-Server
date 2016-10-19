@@ -558,7 +558,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    // TODO - test if this works once database is reset
     // For every Term about to be added, find any previously existing terms with
     // the same root terminology, and set their current to false.
     for (Terminology newTerm : termsToAddMap.values()) {

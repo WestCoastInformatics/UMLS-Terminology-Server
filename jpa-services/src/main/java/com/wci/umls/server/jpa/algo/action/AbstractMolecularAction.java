@@ -655,8 +655,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   public void postActionMaintenance() throws Exception {
 
     final Set<Concept> concepts = new HashSet<>();
-    concepts.add(getConcept());
-    concepts.add(getConcept2());
+    if (getConcept() != null) {
+      concepts.add(getConcept(getConcept().getId()));
+    }
+    if (getConcept2() != null) {
+      concepts.add(getConcept(getConcept2().getId()));
+    }
 
     // Start a new action that doesn't create molecular/atomic actions
     beginTransaction();

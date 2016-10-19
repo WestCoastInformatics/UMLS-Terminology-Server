@@ -51,7 +51,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class UmlsIdentifierAssignmentHandler
     implements IdentifierAssignmentHandler {
 
-  /** The service */
+  /**  The service. */
   private UmlsIdentityService service = null;
 
   /** The lock. */
@@ -607,11 +607,13 @@ public class UmlsIdentifierAssignmentHandler
     }
   }
 
+  /* see superclass */
   @Override
   public boolean getTransactionPerOperation() throws Exception {
     return service.getTransactionPerOperation();
   }
 
+  /* see superclass */
   @Override
   public void setTransactionPerOperation(boolean transactionPerOperation)
     throws Exception {
@@ -623,42 +625,50 @@ public class UmlsIdentifierAssignmentHandler
     }
   }
 
+  /* see superclass */
   @Override
   public void commit() throws Exception {
     service.commit();
   }
 
+  /* see superclass */
   @Override
   public void rollback() throws Exception {
     service.rollback();
   }
 
+  /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
     service.beginTransaction();
   }
 
+  /* see superclass */
   @Override
   public void close() throws Exception {
     service.close();
   }
 
+  /* see superclass */
   @Override
   public void clear() throws Exception {
     service.clear();
   }
 
+  /* see superclass */
   @Override
   public void commitClearBegin() throws Exception {
     service.commitClearBegin();
   }
 
+  /* see superclass */
   @Override
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
     service.logAndCommit(objectCt, logCt, commitCt);
   }
 
+  /* see superclass */
   @Override
   public void logAndCommit(String preMessage, int objectCt, int logCt,
     int commitCt) throws Exception {

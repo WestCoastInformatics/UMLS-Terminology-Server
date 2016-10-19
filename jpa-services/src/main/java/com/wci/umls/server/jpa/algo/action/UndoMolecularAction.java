@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
@@ -14,6 +15,7 @@ import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -137,6 +139,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
         // Get the object that was added, and make sure it still exists
         final HasLastModified referencedObject = getReferencedObject(a);
+
+        // If the object has connected objects that would preclude removal,
+        // un-attach those first
         removeObject(referencedObject);
 
       }
@@ -150,12 +155,14 @@ public class UndoMolecularAction extends AbstractMolecularAction {
         // the Hibernate query
 
         final AuditReader reader = AuditReaderFactory.get(manager);
-        final AuditQuery query = reader.createQuery()
-            // last updated revision
-            .forRevisionsOfEntity(Class.forName(a.getClassName()), true, true)
-            .addProjection(AuditEntity.revisionNumber().max())
-            // add id and owner as constraints
-            .add(AuditEntity.property("id").eq(a.getObjectId()));
+        final AuditQuery query =
+            reader.createQuery()
+                // last updated revision
+                .forRevisionsOfEntity(Class.forName(a.getClassName()), true,
+                    true)
+                .addProjection(AuditEntity.revisionNumber().max())
+                // add id and owner as constraints
+                .add(AuditEntity.property("id").eq(a.getObjectId()));
         final Number revision = (Number) query.getSingleResult();
         HasLastModified returnedObject =
             (HasLastModified) reader.find(Class.forName(a.getClassName()),
@@ -190,10 +197,14 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
         // If the action was to add to the collection, remove it
         if (a.getOldValue() == null && a.getNewValue() != null) {
-          collection.remove(referencedObject);
+          // In case there are multiple hash-identical objects contained in the
+          // same object, remove by index.
+          Predicate<HasId> predicate =
+              p -> p.getId().toString().equals(a.getNewValue());
+          collection.removeIf(predicate);
         }
 
-        // If the action was to remove from the collection, remove it
+        // If the action was to remove from the collection, add it
         else if (a.getNewValue() == null && a.getOldValue() != null) {
           collection.add(referencedObject);
         }
@@ -212,7 +223,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
       //
       // Undo a field change
       //
-      else if (isChangeAction(a)) {
+      else if (
+
+      isChangeAction(a)) {
 
         // Get the object that was modified, and make sure it still exists
         final HasLastModified referencedObject = getReferencedObject(a);
