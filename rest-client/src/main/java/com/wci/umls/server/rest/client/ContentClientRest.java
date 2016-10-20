@@ -110,8 +110,8 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
-    String authToken) throws Exception {
+    Boolean singleMode, Boolean editMode, Boolean codeFlag, String prefix,
+    String inputDir, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - load terminology rrf "
         + terminology + ", " + version + ", " + inputDir);
 
@@ -124,6 +124,7 @@ public class ContentClientRest extends RootClientRest
         config.getProperty("base.url") + "/terminology/load/rrf?terminology="
             + terminology + "&version=" + version + "&prefix=" + prefix
             + "&singleMode=" + (singleMode == null ? false : singleMode)
+            + "&editMode=" + (editMode == null ? false : editMode)
             + (codeFlag == null ? "" : "&codeFlag=" + codeFlag));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
@@ -2241,30 +2242,26 @@ public class ContentClientRest extends RootClientRest
 
   }
 
-
   /* see superclass */
   @Override
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String filter,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Content Client - find deep tree positions for concept " + terminologyId
-            + ", " + terminology + ", " + version + ", " + pfs);
+    Logger.getLogger(getClass())
+        .debug("Content Client - find deep tree positions for concept "
+            + terminologyId + ", " + terminology + ", " + version + ", " + pfs);
     validateNotEmpty(terminologyId, "terminologyId");
     validateNotEmpty(terminology, "terminology");
     validateNotEmpty(version, "version");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + terminology + "/" + version + "/" + terminologyId
-            + "/treePositions/deep" );
-    final String pfsString =
-        ConfigUtility.getStringForGraph(pfs == null ? new PfsParameterJpa()
-            : pfs);
-    final Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(pfsString));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/" + terminology + "/"
+            + version + "/" + terminologyId + "/treePositions/deep");
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -2277,5 +2274,5 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         TreePositionListJpa.class);
   }
-  
+
 }
