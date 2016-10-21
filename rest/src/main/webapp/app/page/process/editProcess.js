@@ -17,6 +17,7 @@ tsApp.controller('ProcessModalCtrl', [
     $scope.action = action;
     $scope.process = process;
     $scope.bins = lists.bins;
+    $scope.lists = lists;
     $scope.project = selected.project;
     $scope.errors = [];
     $scope.messages = [];
@@ -28,7 +29,7 @@ tsApp.controller('ProcessModalCtrl', [
         function(data) {
           $scope.process = data;
         });
-    }
+    } 
 
 
 
@@ -47,6 +48,7 @@ tsApp.controller('ProcessModalCtrl', [
         });
 
       } else if (action == 'Add') {
+    	process.type = selected.processType;
         processService.addProcessConfig($scope.project.id, process).then(
         // Success - add definition
         function(data) {

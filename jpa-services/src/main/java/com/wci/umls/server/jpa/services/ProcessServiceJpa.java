@@ -286,7 +286,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     final ProcessConfigList processConfigList = new ProcessConfigListJpa();
     processConfigList.setObjects(results);
-    processConfigList.setTotalCount(processConfigs.size());
+    processConfigList.setTotalCount(totalCt[0]);
 
     return processConfigList;
   }
@@ -370,6 +370,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final ProcessExecutionList processExecutionList =
         new ProcessExecutionListJpa();
     processExecutionList.setObjects(results);
+    processExecutionList.setTotalCount(totalCt[0]);
 
     return processExecutionList;
   }

@@ -307,14 +307,14 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public AlgorithmConfig addAlgorithmConfig(Long projectId,
+  public AlgorithmConfig addAlgorithmConfig(Long projectId, Long processId, 
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "AlgorithmConfig Client - add algorithmConfig" + algorithmConfig);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/add" + "?projectId=" + projectId);
+        + "/process/config/algo/add" + "?projectId=" + projectId + "&processId=" + processId);
 
     final String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);

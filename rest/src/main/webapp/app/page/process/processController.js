@@ -9,8 +9,9 @@ tsApp.controller('ProcessCtrl', [
   'securityService',
   'projectService',
   'processService',
+  'metadataService',
   function($scope, $location, $uibModal, configureService, tabService, utilService,
-    securityService, projectService, processService) {
+    securityService, projectService, processService, metadataService) {
     console.debug("configure ProcessCtrl");
 
     // Set up tabs and controller
@@ -22,7 +23,7 @@ tsApp.controller('ProcessCtrl', [
 
     // Scope vars
     $scope.counts = {
-      Configuration : 0,
+      Config : 0,
       Execution : 0
     }
 
@@ -33,7 +34,7 @@ tsApp.controller('ProcessCtrl', [
       process : null,
       algorithm : null,
       processType : 'Insertion',
-      mode : 'Configuration' // vs 'Execution'
+      mode : 'Config' // vs 'Execution'
     };
 
     // Lists
@@ -44,7 +45,7 @@ tsApp.controller('ProcessCtrl', [
       projectRoles : [],
       processTypes : ['Insertion', 'Maintenance', 'Release'],
       algorithmConfigTypes : [],
-      modes : [ 'Configuration', 'Execution' ]
+      modes : [ 'Config', 'Execution' ]
     }
 
     // Paging variables
@@ -123,12 +124,11 @@ tsApp.controller('ProcessCtrl', [
     }
 
     // Get $scope.lists.processes
-    // switch based on mode
     $scope.getProcesses = function(process) {
       getProcesses(process);
     }
     function getProcesses(process) {
-      if ($scope.selected.mode == 'Configuration') {
+      if ($scope.selected.mode == 'Config') {
         $scope.getProcessConfigs();
       } else if ($scope.selected.mode == 'Execution') {
         $scope.getProcessExecutions();
@@ -140,41 +140,42 @@ tsApp.controller('ProcessCtrl', [
 
     $scope.selectProcess = function(process) {
       $scope.selected.process = process;
-      // TODO processService['getProcess'+$scope.mode]()
-      processService.getProcessConfig($scope.selected.project.id, process.id).then(
-        function(data) {
-          $scope.selected.process = data;
-        });
+      processService['getProcess' + $scope.selected.mode]($scope.selected.project.id, process.id).then(
+    	function(data) {
+    	  $scope.selected.process = data;
+    	});
+      
       $scope.lists.algorithmConfigTypes = [];
-      // TODO use brackets here too
-      if ($scope.selected.processType == 'Insertion') {
-        processService.getInsertionAlgorithms($scope.selected.project.id).then(
-          function(data) {
-            for (var i = 0; i<data.keyValuePairs.length; i++) {
-              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
-            }
-            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
-          });
-      }
-      if ($scope.selected.processType == 'Maintenance') {
-        processService.getMaintenanceAlgorithms($scope.selected.project.id).then(
-          function(data) {
-            for (var i = 0; i<data.keyValuePairs.length; i++) {
-              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
-            }
-            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
-          });
-      }
-      if ($scope.selected.processType == 'Release') {
-        processService.getReleaseAlgorithms($scope.selected.project.id).then(
-          function(data) {
-            for (var i = 0; i<data.keyValuePairs.length; i++) {
-              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
-            }
-            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
-          });
-      }
+      processService['get'+ $scope.selected.processType + 'Algorithms']($scope.selected.project.id).then(
+        function(data) {
+          for (var i = 0; i<data.keyValuePairs.length; i++) {
+            $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
+          }
+          $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+        });
     }
+    
+    $scope.executeProcess = function() {
+      //$scope.selected.mode = 'Execution';
+      processService.executeProcess($scope.selected.project.id, $scope.selected.process.id, true).then(
+    	function(data) {
+    		$scope.selected.process.id = data;
+    		wait(3000);
+    		$scope.setMode('Execution');
+    	  	processService.getProcessExecution($scope.selected.project.id, data).then(
+    	  			function(result) {
+    	  				$scope.selectProcess(result);
+    	  			});
+    	});
+    }
+    
+    function wait(ms){
+    	   var start = new Date().getTime();
+    	   var end = start;
+    	   while(end < start + ms) {
+    	     end = new Date().getTime();
+    	  }
+    	}
     
     $scope.getProcessConfigs = function() {
       var paging = $scope.paging['process'];
@@ -183,52 +184,103 @@ tsApp.controller('ProcessCtrl', [
         maxResults : paging.pageSize,
         sortField : paging.sortField,
         ascending : paging.sortAscending,
-        queryRestriction : $scope.selected.processType
+        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '') 
+        + $scope.selected.processType
       };
       processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
         function(data) {
           $scope.lists.processes = data.processes;
           $scope.lists.processes.totalCount = data.totalCount;
+          $scope.counts[$scope.selected.mode] = data.totalCount;
           $scope.selected.process = null;
 
-          // TODO In "then" call getProcessExecutionsCt
+          $scope.getProcessExecutionsCt();
         });
 
     }
     
-    $scope.removeProcessConfig = function(processConfigId) {
-      processService.removeProcessConfig($scope.selected.project.id, processConfigId).then(
-        function(data) {
-          
-        });
+    $scope.removeProcess = function(processId) {
+    	processService['removeProcess'+ $scope.selected.mode]($scope.selected.project.id, processId).then(
+          function(data) {
+            $scope.getProcesses();
+          });
     }
+    
+    $scope.cancelProcess = function(processId) {
+        processService.cancelProcess($scope.selected.project.id, processId).then(
+          function() {
+        	  // TODO: need to update process and details to show CANCELLED state
+            //$scope.getProcesses();
+          });
+    }
+    
+    $scope.restartProcess = function(processId) {
+        processService.restartProcess($scope.selected.project.id, processId).then(
+          function() {
+        	  // TODO: need to update process and details to show RUNNING state
+            //$scope.getProcesses();
+          });
+      }
 
     $scope.getProcessExecutions = function() {
       var paging = $scope.paging['process'];
       var pfs = {
         startIndex : (paging.page - 1) * paging.pageSize,
         maxResults : paging.pageSize,
-        sortField : paging.sortField,
-        ascending : paging.sortAscending,
-        queryRestriction : paging.filter
+        sortField : 'lastModified',
+        ascending : false,
+        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '') 
+          + $scope.selected.processType 
       };
       processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
         function(data) {
-          $scope.lists.executions = data.executions;
-          $scope.lists.executions.totalCount = data.totalCount;
+          $scope.lists.processes = data.processes;
+          $scope.lists.processes.totalCount = data.totalCount;
+          $scope.counts[$scope.selected.mode] = data.totalCount;
           
-
-          // TODO In "then" call getProcessConfigsCt
+          $scope.getProcessConfigsCt();
         });
 
     }
+    
+    // compute execution state based on process flags
+    $scope.getExecutionState = function(execution) {
+    	if (!execution) {
+    		return '';
+    	}
+    	if (!execution.failDate && !execution.finishDate) {
+    		return 'RUNNING';
+    	} else if (execution.failDate && execution.finishDate) {
+    		return 'CANCELLED';
+    	} else if (!execution.failDate && execution.finishDate) {
+    		return 'COMPLETE';
+    	} else if (execution.failDate && !execution.finishDate) {
+    		return 'FAILED';
+    	}
+    }
 
     $scope.getProcessConfigsCt = function() {
-      // TBD - process service with pfs 0->1, totalCt
+        var pfs = {
+          startIndex : 0,
+          maxResults : 1,
+          queryRestriction : $scope.selected.processType
+        };
+        processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
+          function(data) {
+            $scope.counts['Config'] = data.totalCount;
+          });
     }
 
     $scope.getProcessExecutionsCt = function() {
-      // TBD - process service with pfs 0->1, totalCt
+        var pfs = {
+          startIndex : 0,
+          maxResults : 1,
+          queryRestriction : $scope.selected.processType
+        };
+        processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
+          function(data) {
+            $scope.counts['Execution'] = data.totalCount;
+        });
     }
 
     // Set $scope.selected.process
@@ -242,7 +294,7 @@ tsApp.controller('ProcessCtrl', [
       getAlgorithms(algorithm);
     }
     function getAlgorithms(algorithm) {
-      if ($scope.selected.mode == 'Configuration') {
+      if ($scope.selected.mode == 'Config') {
         $scope.getAlgorithmConfigs();
       } else if ($scope.selected.mode == 'Execution') {
         $scope.getAlgorithmExecutions();
@@ -301,6 +353,9 @@ tsApp.controller('ProcessCtrl', [
           user : function() {
             return $scope.user;
           },
+          process : function() {
+              return null;
+          },
           action : function() {
             return 'Add';
           }
@@ -310,7 +365,7 @@ tsApp.controller('ProcessCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.regenerateBins();
+          $scope.getProcessConfigs();
       });
     };
 
@@ -377,7 +432,7 @@ tsApp.controller('ProcessCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.regenerateBins();
+          $scope.selectProcess($scope.selected.process);
       });
     };
     // edit algorithm
@@ -409,7 +464,7 @@ tsApp.controller('ProcessCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.getProcessConfigs();
+        $scope.selectProcess($scope.selected.process);
       });
     };
     
@@ -420,6 +475,13 @@ tsApp.controller('ProcessCtrl', [
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/process');
       $scope.getProjects();
+      
+      // Get all terminologies
+      metadataService.getTerminologies().then(
+      // Success
+      function(data) {
+        $scope.lists.terminologies = data.terminologies;
+      });
     };
 
     //
