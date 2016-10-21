@@ -189,6 +189,7 @@ public class ProcessConfigJpaUnitTest extends ModelUnitSupport {
     // Test analyzed fields - none
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");
+    tester.include("description");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields - none
