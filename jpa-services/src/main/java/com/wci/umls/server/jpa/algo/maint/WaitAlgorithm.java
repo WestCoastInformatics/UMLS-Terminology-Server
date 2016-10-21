@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
@@ -57,11 +56,9 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       Thread.sleep(1000);
-      int currentProgress = (int) ((100 / num) * i);
+      int currentProgress = (int) ((100.0 / num) * i);
       if(currentProgress > previousProgress){
       fireProgressEvent(currentProgress,
           "WAIT progress: " + currentProgress + "%");

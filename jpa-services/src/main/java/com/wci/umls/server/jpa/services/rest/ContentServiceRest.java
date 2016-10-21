@@ -477,6 +477,7 @@ public interface ContentServiceRest {
    * @param terminology the terminology
    * @param version the version
    * @param singleMode the single mode
+   * @param editMode the edit mode
    * @param codeFlag the code flag
    * @param prefix the prefix
    * @param inputDir the input dir
@@ -484,8 +485,8 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
-    String authToken) throws Exception;
+    Boolean singleMode, Boolean editMode, Boolean codeFlag, String prefix,
+    String inputDir, String authToken) throws Exception;
 
   /**
    * Load terminology rf2 snapshot.

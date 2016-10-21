@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
@@ -59,7 +59,15 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
   private boolean server = false;
 
   /**
-   * Mode - for recreating db
+   * Whether to run this in edit mode.
+   *
+   * @parameter
+   */
+  private boolean editMode = false;
+
+  /**
+   * Mode - for recreating db.
+   *
    * @parameter
    */
   private String mode = null;
@@ -82,22 +90,23 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
       getLog().info("  Terminology        : " + terminology);
       getLog().info("  version: " + version);
       getLog().info("  Input directory    : " + inputDir);
+      getLog().info("  Edit Mode          : " + editMode);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      //Rebuild the database
+      // Rebuild the database
       if (mode != null && mode.equals("create")) {
         createDb(ConfigUtility.isServerActive());
-      }        
-      
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
-      service.close();      
+      service.close();
 
       boolean serverRunning = ConfigUtility.isServerActive();
       getLog()
@@ -111,14 +120,14 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
       if (!serverRunning && server) {
         throw new MojoFailureException(
             "Mojo expects server to be running, but server is down");
-      }  
+      }
 
       if (!serverRunning) {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, false, true,
-            prefix == null ? "MR" : prefix, inputDir, authToken);
+        contentService.loadTerminologyRrf(terminology, version, false, editMode,
+            true, prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
         getLog().info("Running against server");
@@ -127,7 +136,7 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
         ContentClientRest client = new ContentClientRest(properties);
 
         // load terminology
-        client.loadTerminologyRrf(terminology, version, false, true,
+        client.loadTerminologyRrf(terminology, version, false, editMode, true,
             prefix == null ? "MR" : prefix, inputDir, authToken);
       }
 

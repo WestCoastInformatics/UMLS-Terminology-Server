@@ -1466,8 +1466,8 @@ public abstract class RootServiceJpa implements RootService {
     // DO this in a separate transaction - maybe some issues with 
     action.postActionMaintenance();
 
-
-    return validationResult;
+    // no errors/warnings at this point.
+    return new ValidationResultJpa();
 
   }
 

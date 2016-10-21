@@ -74,6 +74,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
     try {
       // precollect records based on if checklistId or worklistId is set
+      fireProgressEvent(0, "Starting...find tracking records");
       List<TrackingRecord> records = new ArrayList<>();
       if (worklistId != null) {
         final Worklist worklist = getWorklist(worklistId);
@@ -84,8 +85,21 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       } else {
         throw new Exception("Expecting either a worklist or checklist id.");
       }
+      fireProgressEvent(5, "Iterate through tracking records...");
       int ct = 0;
+      int prevProgress = 5;
+      final int total = records.size();
       for (final TrackingRecord record : records) {
+        
+        // Handle progress
+        int progress = (int) (5.0
+            + ((ct * 95.0) / total));
+        if (progress != prevProgress) {
+          fireProgressEvent(progress, "Iterate through tracking records...");
+          checkCancel();
+          prevProgress = progress;
+        }
+        
         lookupTrackingRecordConcepts(record);
         for (final Concept c : record.getConcepts()) {
           // skip those that don't need action

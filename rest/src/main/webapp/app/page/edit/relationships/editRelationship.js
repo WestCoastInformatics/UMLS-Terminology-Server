@@ -96,6 +96,13 @@ tsApp.controller('EditRelationshipModalCtrl', [
     $scope.addRelationship = function() {
       $scope.errors = [];
 
+      // Only allow bequeathal to publishable
+      if (!$scope.toConcept.publishable && $scope.selectedRelationshipType.match(/BR./)) {
+        $scope.errors
+          .push("Illegal attempt to create a bequeathal relationship to an unpublishable concept");
+        return;
+      }
+      
       var relationship = {
         assertedDirection : false,
         fromId : $scope.selected.component.id,

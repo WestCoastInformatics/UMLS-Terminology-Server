@@ -102,24 +102,24 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
             "Mojo expects server to be running, but server is down");
       }
 
-      //Create the database
+      // Create the database
       if (mode != null && mode.equals("create")) {
         createDb(serverRunning);
-      }        
-      
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
-      service.close();        
-      
+      service.close();
+
       if (!serverRunning) {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, true, true,
-            prefix == null ? "MR" : prefix, inputDir, authToken);
+        contentService.loadTerminologyRrf(terminology, version, true, false,
+            true, prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
         getLog().info("Running against server");
@@ -128,8 +128,8 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
         ContentClientRest client = new ContentClientRest(properties);
 
         // load terminology
-        client.loadTerminologyRrf(terminology, version, true, true, inputDir,
-            prefix == null ? "MR" : prefix, authToken);
+        client.loadTerminologyRrf(terminology, version, true, false, true,
+            inputDir, prefix == null ? "MR" : prefix, authToken);
       }
 
     } catch (Exception e) {

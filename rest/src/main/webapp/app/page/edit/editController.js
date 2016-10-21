@@ -198,9 +198,11 @@ tsApp
         // Get $scope.lists.worklists
         // switch based on type
         $scope.getWorklists = function(worklist) {
+          console.debug('getworklists1');
           getWorklists(worklist);
         }
         function getWorklists(worklist) {
+          console.debug('getworklists2');
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
             $scope.getAvailableWorklists();
@@ -1123,11 +1125,17 @@ tsApp
                 var savedPaging = JSON
                   .parse($scope.user.userPreferences.properties['editWorklistPaging']);
                 angular.copy(savedPaging, $scope.paging['worklists']);
+                $scope.paging['worklists'].callbacks = {
+                  getPagedList : getWorklists
+                };
               }
               if ($scope.user.userPreferences.properties['editRecordPaging']) {
                 var savedPaging = JSON
                   .parse($scope.user.userPreferences.properties['editRecordPaging']);
                 angular.copy(savedPaging, $scope.paging['records']);
+                $scope.paging['records'].callbacks = {
+                  getPagedList : getRecords
+                };
               }
             });
 

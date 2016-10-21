@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -165,6 +165,17 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    */
   public boolean isCancelled() {
     return cancelFlag;
+  }
+
+  /**
+   * Check cancel.
+   *
+   * @throws CancelException the cancel exception
+   */
+  public void checkCancel() throws CancelException {
+    if (isCancelled()) {
+      throw new CancelException("Operation cancelled");
+    }
   }
 
   /**

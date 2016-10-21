@@ -439,7 +439,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       //
       // Compute tree positions
-      // 
+      //
       for (final Terminology t : list.getObjects()) {
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
@@ -471,6 +471,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /**
+   * Load terminology rrf.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param singleMode the single mode
+   * @param editMode the edit mode
+   * @param codeFlag the code flag
+   * @param prefix the prefix
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
   @PUT
@@ -481,6 +494,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
     @ApiParam(value = "Single mode, e.g. false", required = true) @QueryParam("singleMode") Boolean singleMode,
+    @ApiParam(value = "Edit mode, e.g. false", required = true) @QueryParam("editMode") Boolean editMode,
     @ApiParam(value = "Code flag, e.g. false", required = true) @QueryParam("codeFlag") Boolean codeFlag,
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
@@ -504,6 +518,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo = new RrfLoaderAlgorithm();
       algo.setLastModifiedBy(userName);
       algo.setSingleMode(singleMode);
+      algo.setEditMode(editMode);
       algo.setCodesFlag(codeFlag);
       algo.setPrefix(prefix);
       algo.setTerminology(terminology);
@@ -4007,7 +4022,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept/" + terminology + "/" + version
             + "/" + terminologyId + "/treePositions/deep with query: " + query);
-    
+
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
@@ -4017,7 +4032,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminology, version, Branch.ROOT, query, pfs);
 
     } catch (Exception e) {
-      handleException(e, "trying to retrieve deep tree positions for a concept");
+      handleException(e,
+          "trying to retrieve deep tree positions for a concept");
       return null;
     } finally {
       contentService.close();
