@@ -98,6 +98,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     workId = exec.getWorkId();
     steps = new ArrayList<>(exec.getSteps());
     type = exec.getType();
+    inputPath = exec.getInputPath();
   }
 
   /**
@@ -111,6 +112,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     this.setId(null);
     processConfigId = config.getId();
     type = config.getType();
+    inputPath = config.getInputPath();
   }
 
   /* see superclass */

@@ -67,6 +67,7 @@ public class ProcessConfigJpa extends AbstractProcessInfo<AlgorithmConfig>
     super(config);
     steps = new ArrayList<>(config.getSteps());
     type = config.getType();
+    inputPath = config.getInputPath();
   }
 
   /* see superclass */
