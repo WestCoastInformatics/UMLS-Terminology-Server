@@ -55,7 +55,7 @@ public class DT_M1 extends AbstractValidationCheck {
     }
 
     //
-    // Check that there is a publishable, approved STY
+    // Check that there is a publishable STY
     //
     boolean hasPublishableSty = false;
     for (SemanticTypeComponent sty : stys) {

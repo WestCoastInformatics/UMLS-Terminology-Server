@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo;
+package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,6 +29,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -51,9 +52,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Implementation of an algorithm to import atoms.
  */
 public class AtomLoaderAlgorithm extends AbstractAlgorithm {
-
-  /** The directory (relative to source.data.dir). */
-  private String directory = null;
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -119,15 +117,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Sets the directory.
-   *
-   * @param directory the directory
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
-  }
-
-  /**
    * Check preconditions.
    *
    * @return the validation result
@@ -142,15 +131,12 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     if (getProject() == null) {
       throw new Exception("Atom Loading requires a project to be set");
     }
-    if (directory == null) {
-      throw new Exception("Atom Loading requires a directory to be set.");
-    }
 
     // Check the input directories
 
     String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + directory;
+            + File.separator + getProcess().getInputPath();
 
     srcDirFile = new File(srcFullPath);
     if (!srcDirFile.exists()) {
@@ -759,8 +745,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         // TODO - handle problem with config.properties needing properties
     }, p);
 
-    directory = String.valueOf(p.getProperty("directory"));
-
   }
 
   /**
@@ -772,11 +756,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param = new AlgorithmParameterJpa("Directory",
-        "directory", "Directory of input files, relative to source.data.dir.",
-        "e.g. terminologies/NCI_INSERT", 2000, AlgorithmParameter.Type.STRING);
-    params.add(param);
-
     return params;
   }
 

@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo;
+package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,8 +27,8 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
@@ -45,9 +45,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Implementation of an algorithm to import relationships.
  */
 public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
-
-  /** The directory (relative to source.data.dir). */
-  private String directory = null;
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -100,15 +97,6 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Sets the directory.
-   *
-   * @param directory the directory
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
-  }
-
-  /**
    * Check preconditions.
    *
    * @return the validation result
@@ -123,16 +111,12 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
     if (getProject() == null) {
       throw new Exception("Relationship Loading requires a project to be set");
     }
-    if (directory == null) {
-      throw new Exception(
-          "Relationship Loading requires a directory to be set.");
-    }
 
     // Check the input directories
 
     String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + directory;
+            + File.separator + getProcess().getInputPath();
 
     srcDirFile = new File(srcFullPath);
     if (!srcDirFile.exists()) {
@@ -202,7 +186,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
 
-    // Count number of added and updated Atoms, for logging
+    // Count number of added and updated Relationships, for logging
     int addCount = 0;
     int updateCount = 0;
 
@@ -796,7 +780,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
     int currentProgress = (int) ((100 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
-          "ATOMLOADING progress: " + currentProgress + "%");
+          "RELATIONSHIPLOADING progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
@@ -814,8 +798,6 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         // TODO - handle problem with config.properties needing properties
     }, p);
 
-    directory = String.valueOf(p.getProperty("directory"));
-
   }
 
   /**
@@ -827,10 +809,6 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param = new AlgorithmParameterJpa("Directory",
-        "directory", "Directory of input files, relative to source.data.dir.",
-        "e.g. terminologies/NCI_INSERT", 2000, AlgorithmParameter.Type.STRING);
-    params.add(param);
 
     return params;
   }

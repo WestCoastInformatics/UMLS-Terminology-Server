@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.algo.AtomLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.AtomLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
