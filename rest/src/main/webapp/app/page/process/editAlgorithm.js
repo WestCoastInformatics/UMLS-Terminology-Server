@@ -27,9 +27,16 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
       });
     }
-    if ($scope.action == 'Add') {
-      $scope.algorithm = '';
-    }
+    else if ($scope.action == 'Add') {
+        processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType )
+          .then(
+          function(data) {
+            $scope.algorithm = data;
+            $scope.algorithm.algorithmKey = selected.algorithmConfigType;
+            $scope.algorithm.name = selected.algorithmConfigType + ' algorithm';
+            $scope.algorithm.description = selected.algorithmConfigType + ' description';
+          });
+      }
 
     // Update algorithm
     $scope.submitAlgorithm = function(algorithm) {
@@ -46,7 +53,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         });
 
       } else if (action == 'Add') {
-        processService.addAlgorithmConfig($scope.project.id, algorithm).then(
+        processService.addAlgorithmConfig($scope.project.id,  selected.process.id, algorithm).then(
         // Success - add definition
         function(data) {
           $uibModalInstance.close(algorithm);

@@ -156,7 +156,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Override
   @XmlElement(type = AlgorithmExecutionJpa.class)
   public List<AlgorithmExecution> getSteps() {
-    return steps;
+	  if (steps == null) {
+	      steps = new ArrayList<>();
+	  }
+	  return steps;
   }
 
   /* see superclass */

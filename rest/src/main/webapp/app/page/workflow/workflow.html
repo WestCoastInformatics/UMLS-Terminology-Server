@@ -2,7 +2,7 @@
 <div class="row">
   <!-- Workflow -->
   <div class="col-md-12 col-xs-12">
-    <h6>
+    <h5>
       <span>
         Project: <select ng-model="selected.project"
           ng-show="lists.projects.length > 1"
@@ -17,7 +17,7 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
-    </h6>
+    </h5>
   </div>
   <div class="col-md-12 col-xs-12">
     <!-- Accordion -->
@@ -156,14 +156,16 @@
     </div>
     </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Checklists">Checklists ({{lists.checklistCt}})</span>
+      <span uib-tooltip="Workflow Checklists">Checklists
+        ({{lists.checklistCt}})</span>
     </h5>
     </uib-accordion-heading>
     <div worklists-table type="Checklist" selected="selected" lists="lists"
       user="user"></div>
     </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Worklists">Worklists ({{lists.worklistCt}})</span>
+      <span uib-tooltip="Workflow Worklists">Worklists
+        ({{lists.worklistCt}})</span>
     </h5>
     </uib-accordion-heading>
     <div worklists-table type="Worklist" selected="selected" lists="lists"

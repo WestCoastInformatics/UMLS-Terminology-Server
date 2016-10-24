@@ -111,6 +111,8 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("branch");
     tester.include("public");
     tester.include("teamBased");
+    tester.include("editingEnabled");
+    tester.include("automationsEnabled");
     tester.include("feedbackEmail");
 
     // Set up objects
@@ -181,6 +183,8 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     tester.include("description");
     tester.include("isPublic");
     tester.include("teamBased");
+    tester.include("editingEnabled");
+    tester.include("automationsEnabled");
     tester.include("language");
     tester.include("terminology");
     tester.include("version");
@@ -210,6 +214,7 @@ public class ProjectJpaUnitTest extends ModelUnitSupport {
     // Test non analyzed fields
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("nameSort");
     tester.include("terminology");
     tester.include("lastModified");

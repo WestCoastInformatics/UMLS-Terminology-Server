@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.mojo;
 
@@ -70,6 +70,7 @@ public class ResetDevDatabase {
     request.setGoals(Arrays.asList("clean", "install"));
     Properties p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("editMode", "true");
     p.setProperty("server", server);
     p.setProperty("mode", "create");
     p.setProperty("terminology", "UMLS");

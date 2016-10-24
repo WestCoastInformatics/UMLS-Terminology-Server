@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
@@ -18,7 +19,7 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
  * Implementation of an algorithm to wait for a second and print to the log.
  * This will be used for testing purposes only
  */
-public class WaitAlgorithm extends AbstractAlgorithm {
+public class DummyAlgorithm extends AbstractAlgorithm {
 
   /**
    * The number of times the algorithm will print to the log before finishing.
@@ -26,13 +27,13 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   private Double num;
 
   /**
-   * Instantiates an empty {@link WaitAlgorithm}.
+   * Instantiates an empty {@link DummyAlgorithm}.
    * @throws Exception if anything goes wrong
    */
-  public WaitAlgorithm() throws Exception {
+  public DummyAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("WAIT");
+    setWorkId("DUMMY");
     setLastModifiedBy("admin");
 
   }
@@ -51,22 +52,24 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting WAIT");
+    logInfo("Starting DUMMY");
 
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
-      checkCancel();
+      if (isCancelled()) {
+        throw new CancelException("Cancelled");
+      }
       Thread.sleep(1000);
-      int currentProgress = (int) ((100.0 / num) * i);
+      int currentProgress = (int) ((100 / num) * i);
       if(currentProgress > previousProgress){
       fireProgressEvent(currentProgress,
-          "WAIT progress: " + currentProgress + "%");
+          "DUMMY progress: " + currentProgress + "%");
       previousProgress = currentProgress;
       }
     }
 
-    logInfo("Finished WAIT");
+    logInfo("Finished DUMMY");
 
   }
 

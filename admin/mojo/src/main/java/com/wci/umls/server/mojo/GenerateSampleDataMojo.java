@@ -351,7 +351,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     algoProperties.put("num", "10");
     algoConfig.setProperties(algoProperties);
 
-    algoConfig = process.addAlgorithmConfig(projectId,
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
 

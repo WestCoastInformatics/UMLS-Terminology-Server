@@ -9,8 +9,8 @@ tsApp.directive('log', [ function() {
       lines : '@'
     },
     templateUrl : 'app/actions/log/log.html',
-    controller : [ '$scope', '$uibModal', 'utilService', 'projectService', 'workflowService',
-      function($scope, $uibModal, utilService, projectService, workflowService) {
+    controller : [ '$scope', '$uibModal', 'utilService', 'projectService', 'workflowService', 'processService',
+      function($scope, $uibModal, utilService, projectService, workflowService, processService) {
         console.debug('configure LogDirective', $scope.selected);
 
         // Log modal
@@ -56,6 +56,18 @@ tsApp.directive('log', [ function() {
                 utilService.handleDialogError($scope.errors, data);
               });
 
+            }
+            
+            else if (type == 'Process') {
+                processService.getProcessLog(selected.project.id, selected.process.id).then(
+                // Success
+                function(data) {
+                  $scope.log = data;
+                },
+                // Error
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
             }
 
             // Project/component

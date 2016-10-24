@@ -150,7 +150,6 @@ tsApp
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
         this.getComponent = function(component, projectId) {
-
           console.debug('getComponent', component, projectId);
 
           var deferred = $q.defer();
@@ -298,6 +297,7 @@ tsApp
 
         // Retrieve a component from history based on the index
         this.getComponentFromHistory = function(index) {
+          console.debug('getComponentFromHistory', index);
           var deferred = $q.defer();
 
           if (index < 0 || index > history.components.length) {
@@ -333,7 +333,6 @@ tsApp
 
         // Gets the tree for the specified component
         this.getTree = function(component, startIndex) {
-
           console.debug('getTree', component, startIndex);
 
           if (startIndex === undefined) {
@@ -372,8 +371,8 @@ tsApp
 
         // Get child trees for the tree (and start index)
         this.getChildTrees = function(tree, type, startIndex) {
-
           console.debug('getChildTrees', tree, type, startIndex);
+
           // Set up deferred
           var deferred = $q.defer();
 
@@ -410,6 +409,8 @@ tsApp
 
         // Gets the tree roots for the specified params
         this.getTreeRoots = function(type, terminology, version) {
+          console.debug('getTreeRoots', type, terminology, version);
+
           // Setup deferred
           var deferred = $q.defer();
 
@@ -417,7 +418,7 @@ tsApp
           // degenerate cases
           var pageSize = 30;
           var pfs = {
-            startIndex : (page - 1) * pageSize,
+            startIndex : 0,
             maxResults : pageSize,
             sortField : metadata.treeSortField,
             queryRestriction : null
@@ -610,7 +611,6 @@ tsApp
         // Handle paging of relationships (requires content service
         // call).
         this.findRelationships = function(component, paging) {
-
           console.debug('findRelationships', component, paging);
           var deferred = $q.defer();
 
@@ -683,6 +683,8 @@ tsApp
         // call).
         this.findDeepRelationships = function(component, inverseFlag, includeConceptRels,
           preferredOnly, includeSelfReferential, paging) {
+          console.debug('findDeepRelationships', component, inverseFlag, includeConceptRels,
+            preferredOnly, includeSelfReferential, paging);
 
           var deferred = $q.defer();
 
@@ -764,6 +766,7 @@ tsApp
         // Handle paging of tree positions (requires content service
         // call).
         this.findDeepTreePositions = function(component, paging) {
+          console.debug('findDeepTreePositions', component, paging);
 
           var deferred = $q.defer();
 
@@ -794,34 +797,23 @@ tsApp
           // concept load
           // i.e. retrieve concept, THEN get deep tree positions
           // gpService.increment();
-          $http
-            .post(
-              contentUrl
-                + '/'
-                + component.type.toLowerCase()
-                + "/"
-                + component.terminology
-                + "/"
-                + component.version
-                + "/"
-                + component.terminologyId
-                + "/treePositions/deep?query="
-                + encodeURIComponent(utilService.cleanQuery(query))
-                , pfs).then(function(response) {
-              deferred.resolve(response.data);
-            }, function(response) {
-              utilService.handleError(response);
-              // gpService.decrement();
-              deferred.reject(response.data);
-            });
+          $http.post(
+            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+              + component.version + "/" + component.terminologyId + "/treePositions/deep?query="
+              + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            // gpService.decrement();
+            deferred.reject(response.data);
+          });
 
           return deferred.promise;
         };
 
-        
-        
         // function for testing whether a query is a valid expression
         this.isExpressionConstraintLanguage = function(terminology, version, query) {
+          console.debug('isExpressionConstraintLanguage', terminology, version, query);
           var deferred = $q.defer();
           if (!query || query.length == 0) {
             deferred.reject('Cannot check empty query for expressions');
@@ -842,6 +834,7 @@ tsApp
 
         // Add a component note
         this.addComponentNote = function(component, note) {
+          console.debug('addComponentNote', component, note);
           var deferred = $q.defer();
           if (!component || !note) {
             deferred.reject('Concept id and note must be specified');
@@ -925,6 +918,7 @@ tsApp
           return deferred.promise;
         };
 
+        // Get components with notes
         this.getComponentsWithNotesForUser = function(query, paging) {
           console.debug('get components with notes', query, paging);
           var deferred = $q.defer();
@@ -969,28 +963,7 @@ tsApp
           };
         };
 
-        // validate concept
-        this.validateConcept = function(concept, projectId) {
-          console.debug('validateConcept');
-          var deferred = $q.defer();
-
-          // validate concept
-          gpService.increment();
-          $http.put(contentUrl + '/concept?projectId' + projectId, concept).then(
-          // success
-          function(response) {
-            console.debug('  result = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
-          return deferred.promise;
-        };
+      
         // end
 
         // function for getting concept

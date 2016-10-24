@@ -16,10 +16,12 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -94,7 +96,7 @@ public class ConfigUtility {
   public final static FastDateFormat DATE_FORMAT4 =
       FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
 
-  /**  The Constant DATE_FORMAT5. */
+  /** The Constant DATE_FORMAT5. */
   public final static FastDateFormat DATE_FORMAT5 =
       FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
@@ -1064,6 +1066,34 @@ public class ConfigUtility {
   }
 
   /**
+   * Compose url.
+   *
+   * @param clauses the clauses
+   * @return the string
+   * @throws Exception the exception
+   */
+  public static String composeUrl(Map<String, String> clauses)
+    throws Exception {
+    final StringBuilder sb = new StringBuilder();
+    for (final String key : clauses.keySet()) {
+      if (ConfigUtility.isEmpty(clauses.get(key))) {
+        continue;
+      }
+      if (sb.length() > 1) {
+        sb.append("&");
+      }
+      sb.append(key).append("=");
+      final String value = clauses.get(key);
+      if (value.matches("^[0-9a-zA-Z\\-\\.]*$")) {
+        sb.append(value);
+      } else {
+        sb.append(URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20"));
+      }
+    }
+    return (sb.length() > 0 ? "?" + sb.toString() : "");
+  }
+
+  /**
    * Compose query from a list of possibly empty/null clauses and an operator
    * (typically OR or AND).
    *
@@ -1133,7 +1163,6 @@ public class ConfigUtility {
     return sb.toString();
   }
 
-
   /**
    * Compose clause.
    *
@@ -1156,8 +1185,8 @@ public class ConfigUtility {
     } else {
       return "NOT " + fieldName + ":[* TO *]";
     }
-  }  
-  
+  }
+
   /**
    * Returns the name from class by stripping package and putting spaces where
    * CamelCase is used.

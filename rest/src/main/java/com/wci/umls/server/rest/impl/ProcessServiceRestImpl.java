@@ -682,12 +682,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Add new algorithm config", notes = "Creates a new algorithm config", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig addAlgorithmConfig(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process id, e.g. 1", required = true) @QueryParam("processId") Long processId,
     @ApiParam(value = "AlgorithmConfig, e.g. newAlgorithmConfig", required = true) AlgorithmConfigJpa algorithmConfig,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Process): /config/algo/add for user " + authToken
-            + ", " + algorithmConfig);
+        .info("RESTful call (Process): /config/algo/add for user " + processId + ", " 
+            + authToken + ", " + algorithmConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -700,9 +701,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Load processConfig
       if (algorithmConfig.getProcess() != null) {
         processConfig = (ProcessConfigJpa) processService
-            .getProcessConfig(algorithmConfig.getProcess().getId());
+            .getProcessConfig(processId);
       }
-
+     
       // Re-add processConfig to algorithmConfig (it does not make it intact
       // through XML)
       algorithmConfig.setProcess(processConfig);
@@ -1185,6 +1186,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final ProcessExecution execution = new ProcessExecutionJpa(processConfig);
       execution.setStartDate(new Date());
       execution.setWorkId(UUID.randomUUID().toString());
+      execution.setSteps(new ArrayList<>());
       final ProcessExecution processExecution =
           processService.addProcessExecution(execution);
       executionId = processExecution.getId();
@@ -1772,7 +1774,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Get an empty new algorithm config", notes = "Returns an empty new algorithm config", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig newAlgorithmConfig(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Algorithm config key, e.g. MATRIXINT", required = true) @QueryParam("key") String key,
+    @ApiParam(value = "Algorithm config key, e.g. MATRIXINT", required = true) @PathParam("key") String key,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"

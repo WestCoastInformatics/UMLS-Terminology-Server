@@ -26,7 +26,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @throws Exception the exception
    */
 
-  public AttributeIdentity getAttributeIdentity(Long id) throws Exception;
+  public AttributeIdentity getAttributeIdentity(long id) throws Exception;
 
   /**
    * Returns the next attribute id.
@@ -34,7 +34,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next attribute id
    * @throws Exception the exception
    */
-  public Long getNextAttributeId() throws Exception;
+  public long getNextAttributeId() throws Exception;
 
   /**
    * Gets the attribute identity, returning an object with an assigned id.
@@ -74,7 +74,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @throws Exception the exception
    */
 
-  public void removeAttributeIdentity(Long attributeIdentityId)
+  public void removeAttributeIdentity(long attributeIdentityId)
     throws Exception;
 
   /**
@@ -85,7 +85,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @throws Exception the exception
    */
 
-  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(Long id)
+  public SemanticTypeComponentIdentity getSemanticTypeComponentIdentity(long id)
     throws Exception;
 
   /**
@@ -94,7 +94,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next semantic type component id
    * @throws Exception the exception
    */
-  public Long getNextSemanticTypeComponentId() throws Exception;
+  public long getNextSemanticTypeComponentId() throws Exception;
 
   /**
    * Returns the semantic type component identity.
@@ -138,7 +138,7 @@ public interface UmlsIdentityService extends MetadataService {
    */
 
   public void removeSemanticTypeComponentIdentity(
-    Long semanticTypeComponentIdentityId) throws Exception;
+    long semanticTypeComponentIdentityId) throws Exception;
 
   /**
    * Returns the atom identity.
@@ -147,7 +147,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the atom identity
    * @throws Exception the exception
    */
-  public AtomIdentity getAtomIdentity(Long id) throws Exception;
+  public AtomIdentity getAtomIdentity(long id) throws Exception;
 
   /**
    * Returns the next atom id.
@@ -155,7 +155,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next atom id
    * @throws Exception the exception
    */
-  public Long getNextAtomId() throws Exception;
+  public long getNextAtomId() throws Exception;
 
   /**
    * Returns the atom identity.
@@ -190,7 +190,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @param atomIdentityId the atom identity id
    * @throws Exception the exception
    */
-  public void removeAtomIdentity(Long atomIdentityId) throws Exception;
+  public void removeAtomIdentity(long atomIdentityId) throws Exception;
 
   /**
    * Returns the string identity.
@@ -199,7 +199,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the string identity
    * @throws Exception the exception
    */
-  public StringClassIdentity getStringClassIdentity(Long id) throws Exception;
+  public StringClassIdentity getStringClassIdentity(long id) throws Exception;
 
   /**
    * Returns the next string id.
@@ -207,7 +207,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next string id
    * @throws Exception the exception
    */
-  public Long getNextStringClassId() throws Exception;
+  public long getNextStringClassId() throws Exception;
 
   /**
    * Returns the string identity.
@@ -244,7 +244,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @param stringIdentityId the string identity id
    * @throws Exception the exception
    */
-  public void removeStringClassIdentity(Long stringIdentityId) throws Exception;
+  public void removeStringClassIdentity(long stringIdentityId) throws Exception;
 
   /**
    * Returns the lexical class identity.
@@ -253,7 +253,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the lexical class identity
    * @throws Exception the exception
    */
-  public LexicalClassIdentity getLexicalClassIdentity(Long id) throws Exception;
+  public LexicalClassIdentity getLexicalClassIdentity(long id) throws Exception;
 
   /**
    * Returns the next lexical class id.
@@ -261,7 +261,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next lexical class id
    * @throws Exception the exception
    */
-  public Long getNextLexicalClassId() throws Exception;
+  public long getNextLexicalClassId() throws Exception;
 
   /**
    * Returns the lexical class identity.
@@ -298,7 +298,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @param lexicalClassIdentityId the lexical class identity id
    * @throws Exception the exception
    */
-  public void removeLexicalClassIdentity(Long lexicalClassIdentityId)
+  public void removeLexicalClassIdentity(long lexicalClassIdentityId)
     throws Exception;
 
   /**
@@ -308,7 +308,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the relationship identity
    * @throws Exception the exception
    */
-  public RelationshipIdentity getRelationshipIdentity(Long id) throws Exception;
+  public RelationshipIdentity getRelationshipIdentity(long id) throws Exception;
 
   /**
    * Returns the next relationship id.
@@ -316,7 +316,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @return the next relationship id
    * @throws Exception the exception
    */
-  public Long getNextRelationshipId() throws Exception;
+  public long getNextRelationshipId() throws Exception;
 
   /**
    * Returns the relationship identity.
@@ -338,7 +338,8 @@ public interface UmlsIdentityService extends MetadataService {
    * @throws Exception the exception
    */
   public RelationshipIdentity createInverseRelationshipIdentity(
-    RelationshipIdentity identity, String inverseRelType, String inverseAdditionalRelType) throws Exception;
+    RelationshipIdentity identity, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception;
 
   /**
    * Adds the relationship identity.
@@ -365,7 +366,7 @@ public interface UmlsIdentityService extends MetadataService {
    * @param relationshipIdentityId the relationship identity id
    * @throws Exception the exception
    */
-  public void removeRelationshipIdentity(Long relationshipIdentityId)
+  public void removeRelationshipIdentity(long relationshipIdentityId)
     throws Exception;
 
 }

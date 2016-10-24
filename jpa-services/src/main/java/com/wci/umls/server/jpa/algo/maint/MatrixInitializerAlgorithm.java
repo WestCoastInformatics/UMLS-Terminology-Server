@@ -59,7 +59,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting MATRIXINIT");
-
+    fireProgressEvent(0, "Starting...find publishable atoms");
     try {
 
       // Get all concepts having at least one releasable atom
@@ -71,6 +71,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get all concepts where any of its atoms are set to NEEDS REVIEW or
       // DEMOTION
+      fireProgressEvent(5, "Find needs review atoms...");
+      checkCancel();
+
       list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
           "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
               + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
@@ -81,6 +84,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get all concepts where any of its semantic type components are set to
       // NEEDS REVIEW
+      fireProgressEvent(10, "Find needs review STYs...");
+      checkCancel();
+
       list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
           "semanticTypes.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
       final Set<Long> styConceptIds = list.getObjects().stream()
@@ -88,6 +94,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review sty = " + list.getTotalCount());
 
       // Get all concepts where any of its relationships are set to NEEDS REVIEW
+      fireProgressEvent(15, "Find needs review relationships...");
+      checkCancel();
       javax.persistence.Query query =
           manager.createQuery("select r from ConceptRelationshipJpa r "
               + " where terminology = :terminology and version = :version "
@@ -106,6 +114,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
+      fireProgressEvent(20, "Find validation failures...");
+      checkCancel();
       final Set<Long> conceptIds = new HashSet<>(
           getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
       final Set<Long> failures = validateConcepts(getProject(), conceptIds);
@@ -120,6 +130,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       // NOTE: Hibernate-specific to support iterating
       // Restrict to timestamp used for THESE atoms, in case multiple RRF
       // files are loaded
+      fireProgressEvent(25, "Iterate through all concepts...");
+      checkCancel();
       final Session session = manager.unwrap(Session.class);
       org.hibernate.Query hQuery = session.createQuery(
           "select c from ConceptJpa c " + "where terminology = :terminology "
@@ -129,6 +141,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       hQuery.setReadOnly(true).setFetchSize(2000);
       ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
 
+      int prevProgress = 25;
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
       while (results.next()) {
@@ -144,11 +157,19 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         WorkflowStatus status = initialStatus;
 
         // determine status change
-        if (allNeedsReviewConceptIds.contains(concept.getId())
-            && status != WorkflowStatus.NEEDS_REVIEW) {
-          logInfo("  status change  = " + concept.getId());
-          status = WorkflowStatus.NEEDS_REVIEW;
-          statusChangeCt++;
+        if (allNeedsReviewConceptIds.contains(concept.getId())) {
+          int progress = (int) (25.0
+              + ((statusChangeCt * 75.0) / allNeedsReviewConceptIds.size()));
+          if (progress != prevProgress) {
+            fireProgressEvent(progress, "Iterate through all concepts...");
+            checkCancel();
+            prevProgress = progress;
+          }
+          if (status != WorkflowStatus.NEEDS_REVIEW) {
+            logInfo("  status change  = " + concept.getId());
+            status = WorkflowStatus.NEEDS_REVIEW;
+            statusChangeCt++;
+          }
         }
 
         // determine publishable change
@@ -199,6 +220,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       logInfo("  publishable changed = " + publishableChangeCt);
       logInfo("  status changed = " + statusChangeCt);
+      fireProgressEvent(100, "Finished ...");
       logInfo("Finished MATRIXINIT");
 
     } catch (Exception e) {

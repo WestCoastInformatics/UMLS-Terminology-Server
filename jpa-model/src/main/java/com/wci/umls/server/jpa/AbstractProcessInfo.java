@@ -179,6 +179,7 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public String getDescription() {
     return description;
   }

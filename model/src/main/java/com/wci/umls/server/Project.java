@@ -10,6 +10,7 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.TypeKeyValue;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents an project with users, roles, and configuration for editing.
  */
@@ -281,5 +282,33 @@ public interface Project extends HasLastModified {
    * @param language the language
    */
   public void setLanguage(String language);
+
+  /**
+   * Checks if is editing enabled.
+   *
+   * @return true, if is editing enabled
+   */
+  public boolean isEditingEnabled();
+
+  /**
+   * Sets the editing enabled.
+   *
+   * @param editingEnabled the new editing enabled
+   */
+  public void setEditingEnabled(boolean editingEnabled);
+
+  /**
+   * Checks if is automations enabled.
+   *
+   * @return true, if is automations enabled
+   */
+  public boolean isAutomationsEnabled();
+
+  /**
+   * Sets the automations enabled.
+   *
+   * @param automationsEnabled the new automations enabled
+   */
+  public void setAutomationsEnabled(boolean automationsEnabled);
 
 }

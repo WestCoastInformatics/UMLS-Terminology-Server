@@ -172,6 +172,17 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   }
 
   /**
+   * Check cancel.
+   *
+   * @throws CancelException the cancel exception
+   */
+  public void checkCancel() throws CancelException {
+    if (isCancelled()) {
+      throw new CancelException("Operation cancelled");
+    }
+  }
+
+  /**
    * Returns the total elapsed time str.
    *
    * @param time the time

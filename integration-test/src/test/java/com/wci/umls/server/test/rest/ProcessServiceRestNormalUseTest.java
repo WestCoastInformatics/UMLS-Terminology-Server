@@ -208,7 +208,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig1.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig1 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
-            algorithmConfig1, authToken);
+            processConfig.getId(), algorithmConfig1, authToken);
 
     // TEST: retrieve the algorithmConfig and verify it is equal
     assertEquals(algorithmConfig1, addedAlgorithmConfig1);
@@ -236,7 +236,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig2 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
-            algorithmConfig2, authToken);
+            processConfig.getId(), algorithmConfig2, authToken);
 
     // Confirm the processConfig contains both algorithmConfigs
     ProcessConfig pc = processService.getProcessConfig(project.getId(),
@@ -399,7 +399,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -420,7 +420,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 
@@ -535,7 +535,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig2.getSteps().add(algorithmConfig);
 
@@ -556,7 +556,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig2.getSteps().add(algorithmConfig2);
 
@@ -756,7 +756,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setVersion(umlsVersion);
     algorithmConfig.setParameters(new ArrayList<AlgorithmParameter>());
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -858,7 +858,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -879,7 +879,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 

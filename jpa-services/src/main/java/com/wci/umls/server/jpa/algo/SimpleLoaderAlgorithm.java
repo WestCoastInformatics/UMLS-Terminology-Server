@@ -100,6 +100,8 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
 
+    // Set the "release version"
+    setReleaseVersion(ConfigUtility.DATE_FORMAT.format(date));
     // Track system level information
     long startTimeOrig = System.nanoTime();
     // control transaction scope
@@ -154,10 +156,10 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final Terminology terminology =
         getTerminologyLatestVersion(getTerminology());
     ReleaseInfo info =
-        getReleaseInfo(terminology.getTerminology(), this.getReleaseVersion());
+        getReleaseInfo(terminology.getTerminology(), getReleaseVersion());
     if (info == null) {
       info = new ReleaseInfoJpa();
-      info.setName(getReleaseVersion());
+      info.setName(getTerminology());
       info.setDescription(terminology.getTerminology() + " "
           + getReleaseVersion() + " release");
       info.setPlanned(false);
@@ -165,7 +167,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       info.setReleaseBeginDate(null);
       info.setTerminology(terminology.getTerminology());
       info.setVersion(getReleaseVersion());
-      info.setLastModified(new Date());
+      info.setLastModified(date);
       info.setLastModifiedBy(loader);
       addReleaseInfo(info);
     } else {
@@ -269,7 +271,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     term.setTerminology(getTerminology());
     term.setVersion(getVersion());
     term.setDescriptionLogicTerminology(false);
-    term.setMetathesaurus(true);
+    term.setMetathesaurus(false);
     term.setRootTerminology(root);
     addTerminology(term);
 
@@ -384,11 +386,11 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int objectCt = 0;
     final PushBackReader reader = new PushBackReader(
         new FileReader(new File(getInputPath(), "concepts.txt")));
-    final String[] fields = new String[10];
+
     while ((line = reader.readLine()) != null) {
-      System.out.println("line=" + line);
+
       line = line.replace("\r", "");
-      FieldedStringTokenizer.split(line, "|", 10, fields);
+      final String[] fields = FieldedStringTokenizer.split(line, "|");
 
       // Field Description
       // 0 conceptid
@@ -420,32 +422,30 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       concept.setName(atom.getName());
 
       // Add any synonyms
-      for (int i = 3; i < 10; i++) {
-        if (!ConfigUtility.isEmpty(fields[i])) {
-          final Atom sy = new AtomJpa();
-          sy.setTimestamp(date);
-          sy.setLastModified(date);
-          sy.setLastModifiedBy(loader);
-          sy.setObsolete(false);
-          sy.setSuppressible(false);
-          sy.setPublished(true);
-          sy.setPublishable(true);
-          sy.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          sy.setName(fields[2]);
-          sy.setTerminology(getTerminology());
-          sy.setVersion(getVersion());
-          sy.setTerminologyId("");
-          sy.setTermType("SY");
-          sy.setLanguage("en");
-          sy.setCodeId("");
-          sy.setConceptId(fields[0]);
-          sy.setDescriptorId("");
-          sy.setStringClassId("");
-          sy.setLexicalClassId("");
-          // Add atom
-          addAtom(sy);
-          concept.getAtoms().add(sy);
-        }
+      for (int i = 3; i < fields.length; i++) {
+        final Atom sy = new AtomJpa();
+        sy.setTimestamp(date);
+        sy.setLastModified(date);
+        sy.setLastModifiedBy(loader);
+        sy.setObsolete(false);
+        sy.setSuppressible(false);
+        sy.setPublished(true);
+        sy.setPublishable(true);
+        sy.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        sy.setName(fields[i]);
+        sy.setTerminology(getTerminology());
+        sy.setVersion(getVersion());
+        sy.setTerminologyId("");
+        sy.setTermType("SY");
+        sy.setLanguage("en");
+        sy.setCodeId("");
+        sy.setConceptId(fields[0]);
+        sy.setDescriptorId("");
+        sy.setStringClassId("");
+        sy.setLexicalClassId("");
+        // Add atom
+        addAtom(sy);
+        concept.getAtoms().add(sy);
       }
 
       // Add semantic type
@@ -509,16 +509,21 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       par.setTo(to);
       par.setTerminologyId("");
       par.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+      par.setStated(true);
+      par.setInferred(true);
       addRelationship(par);
 
       final ConceptRelationship chd = new ConceptRelationshipJpa();
       setCommonFields(chd);
       chd.setRelationshipType("CHD");
+      chd.setHierarchical(true);
       chd.setAdditionalRelationshipType("isa");
       chd.setFrom(to);
       chd.setTo(from);
-      par.setTerminologyId("");
-      par.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+      chd.setTerminologyId("");
+      chd.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+      chd.setStated(true);
+      chd.setInferred(true);
       addRelationship(chd);
 
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);

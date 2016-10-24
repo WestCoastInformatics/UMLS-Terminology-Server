@@ -100,6 +100,7 @@ tsApp.controller('EditProjectModalCtrl', [
         window.alert('The name, description, and terminology fields cannot be blank. ');
         return;
       }
+      
       // Connect validation checks
       project.validationChecks = [];
       for (var i = 0; i < $scope.validationChecks.length; i++) {
@@ -108,12 +109,16 @@ tsApp.controller('EditProjectModalCtrl', [
         }
       }
 
+      var fn = 'addProject';
+      if ($scope.action == 'Edit') {
+        fn = 'updateProject';
+      }
       // Add project - this will validate the expression
-      projectService.addProject(project).then(
+      projectService[fn](project).then(
         // Success
         function(data) {
           // if not an admin, add user as a project admin
-          if ($scope.user.applicationRole != 'ADMINISTRATOR') {
+          if ($scope.action == 'Add' && $scope.user.applicationRole != 'ADMINISTRATOR') {
             var projectId = data.id;
             projectService.assignUserToProject(data.id, $scope.user.userName, 'ADMINISTRATOR')
               .then(function(data) {

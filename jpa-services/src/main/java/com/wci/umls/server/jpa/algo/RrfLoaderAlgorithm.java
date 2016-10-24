@@ -128,6 +128,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The single mode. */
   private boolean singleMode = false;
 
+  /** The edit mode - true when loading RRF for an editing environment. */
+  private boolean editMode = false;
+
   /** The codes flag. */
   private boolean codesFlag = true;
 
@@ -275,6 +278,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
+   * Sets the edits the mode.
+   *
+   * @param editMode the edits the mode
+   */
+  public void setEditMode(boolean editMode) {
+    this.editMode = editMode;
+  }
+
+  /**
    * Sets the codes flag.
    *
    * @param codesFlag the codes flag
@@ -419,8 +431,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     loadExtensionLabelSets();
 
     // Load terminology-specific metadata
-    loadTerminologyMetadata();
 
+    if (!singleMode && editMode) {
+      loadTerminologyMetadata();
+    }
     // Commit
     commitClearBegin();
 

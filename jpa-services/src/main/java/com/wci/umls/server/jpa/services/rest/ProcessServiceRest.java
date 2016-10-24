@@ -130,12 +130,13 @@ public interface ProcessServiceRest {
    * Adds the algorithm config.
    *
    * @param projectId the project id
+   * @param processId the process id
    * @param algorithmConfig the algorithm config
    * @param authToken the auth token
    * @return the algorithm config
    * @throws Exception the exception
    */
-  public AlgorithmConfig addAlgorithmConfig(Long projectId,
+  public AlgorithmConfig addAlgorithmConfig(Long projectId, Long processId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
 
   /**

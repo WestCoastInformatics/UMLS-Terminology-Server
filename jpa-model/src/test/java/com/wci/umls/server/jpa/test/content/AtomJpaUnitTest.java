@@ -103,6 +103,7 @@ public class AtomJpaUnitTest extends ModelUnitSupport {
     tester.include("lexicalClassId");
     tester.include("stringClassId");
     tester.include("termType");
+    tester.include("lastPublishedRank");
 
     tester.proxy(Map.class, 1, map1);
     tester.proxy(Map.class, 2, map2);

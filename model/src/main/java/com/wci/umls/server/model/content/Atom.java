@@ -166,4 +166,8 @@ public interface Atom extends ComponentHasAttributesAndName,
    */
   public String getLowerNameHash();
 
+String getLastPublishedRank();
+
+void setLastPublishedRank(String lastPublishedRank);
+
 }

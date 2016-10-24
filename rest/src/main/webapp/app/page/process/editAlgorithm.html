@@ -1,4 +1,4 @@
-<div class="modal-header">
+<div ng-show="action == 'Edit'" class="modal-header">
   <h4>{{action}} Algorithm</h4>
   <h5>{{algorithm.name}}</h5>
   <h5>{{algorithm.description}}</h5>
@@ -7,6 +7,56 @@
 
 <div class="modal-body">
   <table class="table">
+    <tr ng-show="action == 'Add'">
+      <td>
+        Name
+      </td>
+      <td>
+        <input type="text" ng-model="algorithm.name" size="40"/>
+      </td>
+    </tr>
+    <tr ng-show="action == 'Add'">
+      <td>
+        Description
+      </td>
+      <td>
+        <input type="text" ng-model="algorithm.description" size="40"/>
+      </td>
+    </tr>
+    <tr ng-show="action == 'Add'">
+      <td>
+        Key
+      </td>
+      <td>
+        {{algorithm.algorithmKey}}
+      </td>
+    </tr>
+    <tr ng-show="action == 'Add'">
+          <td>
+            <b>Terminology</b>
+          </td>
+          <td>
+            <input class="input-filter" placeholder="Enter terminology"
+              ng-change="setTerminology(project.terminology)" type="text"
+              ng-model="algorithm.terminology" list="project-terminologies">
+            <datalist id="project-terminologies">
+              <option
+                ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+            </datalist>
+            <button class="btn btn-xs btn-warning" ng-show="algorithm.terminology"
+              ng-click="project.terminology=''">Clear</button>
+          </td>
+        </tr>
+        <tr  ng-show="action == 'Add'">
+          <td>
+            <b>Version</b>
+          </td>
+          <td>
+            <input class="input-filter" placeholder="Enter version"
+              ng-blur="setVersion(algorithm.version)" type="text"
+              ng-model="algorithm.version">
+          </td>
+        </tr>
     <tr ng-repeat="parameter in algorithm.parameters">
       <td>
         <b>{{parameter.name}}</b>
@@ -35,9 +85,6 @@
         </span>
       </td>
     </tr>
-    
-    
- 
   </table>
 
   <!-- Errors -->
