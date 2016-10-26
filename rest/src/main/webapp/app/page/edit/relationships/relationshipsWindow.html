@@ -1,4 +1,6 @@
-
+<span
+        ng-show="!selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
 <h4>
   <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Relationships
     ({{pagedRelationships.totalCount}})</b>
@@ -42,6 +44,7 @@
         <span ng-bind="getSortIndicator('relationships','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openInsertModal()" title="Add relationship"
+            ng-disabled="!selected.project.editingEnabled"
             class="btn btn-xs btn-primary">Add Rel</button>
         </span></th>
     </tr>
@@ -62,7 +65,7 @@
 
         <i
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
-          ng-show="relationship.level != 'S'"
+          ng-show="relationship.level != 'S' && selected.project.editingEnabled"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
@@ -78,12 +81,13 @@
 
     <span style="float: right;">
       <input type="checkbox" ng-model="preferredOnly"
+        ng-disabled="!selected.project.editingEnabled"
         ng-click="getPagedRelationships()" title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
-        ng-disabled="!selected.relationship" title="Transfer concept to editor"
+        ng-disabled="!selected.relationship || !selected.project.editingEnabled" title="Transfer concept to editor"
         class="btn btn-xs btn-primary">Transfer</button>
-      <button ng-click="openMergeModal()" ng-disabled="!selected.relationship"
+      <button ng-click="openMergeModal()" ng-disabled="!selected.relationship || !selected.project.editingEnabled"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>
