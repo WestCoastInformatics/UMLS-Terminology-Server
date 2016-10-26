@@ -332,7 +332,7 @@ public abstract class AbstractProcessInfo<T extends AlgorithmInfo<?>>
     return "AbstractProcessInfo [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", description=" + description + ", terminology="
-        + terminology + ", version=" + version + ", project=" + project.getId()
+        + terminology + ", version=" + version + ", project=" + getProjectId()
         + ", feedbackEmail=" + feedbackEmail + "]";
   }
 
