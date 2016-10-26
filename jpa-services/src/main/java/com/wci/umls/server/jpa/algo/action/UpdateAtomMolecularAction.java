@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -94,7 +95,9 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
       if (!changeAllowedGetMethods.contains(method.getName())) {
         final Object origValue = method.invoke(oldAtom);
         final Object newValue = method.invoke(getAtom());
-        if (!origValue.toString().equals(newValue.toString())) {
+        final String origValueStr = origValue != null ? origValue.toString() : "";
+        final String newValueStr = newValue != null ? newValue.toString() : "";
+        if (!origValueStr.toString().equals(newValueStr.toString())) {
           final String fieldName =
               method.toString().substring(3, 4).toLowerCase()
                   + method.toString().substring(4);

@@ -16,10 +16,12 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
@@ -106,7 +108,7 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     //
 
     // Get all "inverse" relationships for the "to" and "from" concepts (e.g.
-    // where toId is the id)   
+    // where toId is the id)
     final Map<Long, ConceptRelationship> inverseFromRelsMap = new HashMap<>();
     final Map<Long, ConceptRelationship> inverseToRelsMap = new HashMap<>();
     for (final Relationship rel : findConceptRelationships(null,
@@ -132,10 +134,36 @@ public class MergeMolecularAction extends AbstractMolecularAction {
       inverseToRelsMap.put(crel.getTo().getId(), crel);
     }
 
-    // Copy atoms in "from" concept
+    // Copy atoms in "from" concept.
+    // Also, if any atom has a demotion to the "to" concept, remove it, and
+    // create a copy for later deletion.
     final List<Atom> fromAtomsCopies = new ArrayList<>();
+    final List<AtomRelationship> demotionCopies = new ArrayList<>();
     for (final Atom atom : getFromConcept().getAtoms()) {
-      fromAtomsCopies.add(new AtomJpa(atom));
+      Atom atomCopy = new AtomJpa(atom, true);
+      fromAtomsCopies.add(atomCopy);
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+            && getToConcept().getAtoms().contains(atomRel.getTo())) {
+          atomCopy.getRelationships().remove(atomRel);
+          updateAtom(atomCopy);
+          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+        }
+      }
+    }
+
+    // If any atom in the toConcept has a demotion to the "from" concept, remove
+    // it, update the atom, and create a copy of the demotion for later deletion.
+    for (final Atom atom : getToConcept().getAtoms()) {
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+            && getFromConcept().getAtoms().contains(atomRel.getTo())) {
+          Atom atomCopy = new AtomJpa(atom, true);
+          atomCopy.getRelationships().remove(atomRel);
+          updateAtom(atomCopy);
+          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+        }
+      }
     }
 
     // Copy stys in "from" concept
@@ -167,13 +195,13 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     for (final ConceptRelationship rel : inverseFromRelsMap.values()) {
       // If this is a rel between "from" and "to" remove it
       if (rel.getFrom().getId().equals(getToConcept().getId())) {
-        removeById(getToConcept().getRelationships(),rel.getId());
+        removeById(getToConcept().getRelationships(), rel.getId());
       }
       // Otherwise remove it from the concept on the other end of the
       // relationship
       else {
         final Concept inverseConcept = new ConceptJpa(rel.getFrom(), true);
-        removeById(inverseConcept.getRelationships(),rel.getId());
+        removeById(inverseConcept.getRelationships(), rel.getId());
         conceptsChanged.add(inverseConcept);
       }
     }
@@ -199,6 +227,10 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     }
     // Remove the inverses of the "from" relationships
     for (final ConceptRelationship rel : inverseFromRelsMap.values()) {
+      removeRelationship(rel.getId(), rel.getClass());
+    }
+    // Remove demotions between atoms in the "to" and "from" concepts
+    for (final AtomRelationship rel : demotionCopies){
       removeRelationship(rel.getId(), rel.getClass());
     }
 
