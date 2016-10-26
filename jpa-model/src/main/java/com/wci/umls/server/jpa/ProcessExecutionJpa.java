@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -67,7 +67,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /** The type. */
   @Column(nullable = false)
   private String type;
-  
+
+  /** The input path. */
+  @Column(nullable = true)
+  private String inputPath;
+
   /** The steps . */
   @OneToMany(mappedBy = "process", targetEntity = AlgorithmExecutionJpa.class)
   @OrderColumn
@@ -94,6 +98,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     workId = exec.getWorkId();
     steps = new ArrayList<>(exec.getSteps());
     type = exec.getType();
+    inputPath = exec.getInputPath();
   }
 
   /**
@@ -107,6 +112,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     this.setId(null);
     processConfigId = config.getId();
     type = config.getType();
+    inputPath = config.getInputPath();
   }
 
   /* see superclass */
@@ -203,7 +209,19 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   public void setType(String type) {
     this.type = type;
   }
-  
+
+  /* see superclass */
+  @Override
+  public String getInputPath() {
+    return inputPath;
+  }
+
+  /* see superclass */
+  @Override
+  public void setInputPath(String inputPath) {
+    this.inputPath = inputPath;
+  }
+
   /* see superclass */
   @Override
   public int hashCode() {
@@ -249,9 +267,8 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   public String toString() {
     return "ProcessExecutionJpa [startDate=" + startDate + ", finishDate="
         + finishDate + ", failDate=" + failDate + ", steps=" + steps
-        + ", workId=" + workId + ", processConfigId=" + processConfigId 
-        + ", type=" + type + "] "
-        + super.toString();
+        + ", workId=" + workId + ", processConfigId=" + processConfigId
+        + ", type=" + type + "] " + super.toString();
 
   }
 }

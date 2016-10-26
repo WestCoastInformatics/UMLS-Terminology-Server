@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
@@ -45,6 +46,9 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
   /** The project. */
   private Project project;
+
+  /** The process. */
+  private ProcessExecution process;
 
   /**
    * Instantiates an empty {@link AbstractAlgorithm}.
@@ -294,6 +298,22 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   @Override
   public String getName() {
     return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /**
+   * Returns the process.
+   *
+   * @return the process
+   */
+  @Override
+  public ProcessExecution getProcess() {
+    return process;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProcess(ProcessExecution process) {
+    this.process = process;
   }
 
   /**

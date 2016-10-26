@@ -121,7 +121,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Process): /config/add for user " + authToken);
+        .info("RESTful call (Process): /config/add for user " + authToken + ", "
+            + processConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -259,8 +260,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Cascade, e.g. true", required = true) @QueryParam("cascade") Boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config/"
-        + id + "/remove, for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/" + id
+        + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -394,8 +395,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The paging/sorting/filtering parameter", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config "
-        + query + ", for user " + authToken);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Process): /config " + query + ", for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -616,9 +617,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Cascade, e.g. true", required = true) @QueryParam("cascade") Boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /execution/" + id
-            + "/remove, for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
+        + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -860,9 +860,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "AlgorithmConfig id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /config/algo/" + id
-            + "/remove, for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
+        + id + "/remove, for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -1455,6 +1454,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
     final Thread t = new Thread(new Runnable() {
 
+      /* see superclass */
       @SuppressWarnings("cast")
       @Override
       public void run() {
@@ -1544,6 +1544,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             final Algorithm algorithm = processService
                 .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
             algorithm.setProject(processExecution.getProject());
+            algorithm.setProcess(processExecution);
             algorithm.setWorkId(processExecution.getWorkId());
             algorithm.setActivityId(algorithmExecution.getActivityId());
             algorithm.setLastModifiedBy(userName);
@@ -1588,7 +1589,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // Execute algorithm
             algorithm.compute();
-            
+
             // Commit any changes the algorithm wants to make
             algorithm.commit();
 
@@ -1779,12 +1780,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
         + key + "/new, for user " + authToken);
 
-
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "adding a new algorithm config", UserRole.ADMINISTRATOR);
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken, "adding a new algorithm config",
+          UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Load project
@@ -1805,5 +1805,5 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
 }

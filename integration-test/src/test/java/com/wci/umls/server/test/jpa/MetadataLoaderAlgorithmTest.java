@@ -1,11 +1,9 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
-
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -14,9 +12,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.jpa.algo.MetadataLoaderAlgorithm;
+import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
+import com.wci.umls.server.jpa.algo.insert.MetadataLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
@@ -28,8 +29,14 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The algorithm. */
   MetadataLoaderAlgorithm algo = null;
 
+  /** The process execution. */
+  ProcessExecution processExecution = null;
+
   /** The process service. */
   ProcessServiceJpa processService = null;
+
+  /** The project. */
+  Project project = null;
 
   /**
    * Setup class.
@@ -46,33 +53,33 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
    */
   @Before
   public void setup() throws Exception {
+
     processService = new ProcessServiceJpa();
 
-    // If the algorithm is defined in the config.properties, get from there.
-    try {
-      algo = (MetadataLoaderAlgorithm) processService
-          .getAlgorithmInstance("METADATALOADER");
-    }
-    // If not, create and configure from scratch
-    catch (Exception e) {
-      algo = new MetadataLoaderAlgorithm();
+    // load the project (should be only one)
+    ProjectList projects = processService.getProjects();
+    assertTrue(projects.size() > 0);
+    project = projects.getObjects().get(0);
 
-      // Also need to create and pass in required parameters.
-      List<AlgorithmParameter> algoParams = algo.getParameters();
-      for (AlgorithmParameter algoParam : algoParams) {
-        if (algoParam.getFieldName().equals("directory")) {
-          algoParam.setValue("terminologies/NCI_INSERT");
-        }
-      }
-      algo.setParameters(algoParams);
-    }
+    // Create a dummy process execution, to store some information the algorithm
+    // needs (specifically input Path)
+    processExecution = new ProcessExecutionJpa();
+    processExecution.setProject(project);
+    processExecution.setTerminology(project.getTerminology());
+    processExecution.setVersion(project.getVersion());
+    processExecution.setInputPath("terminologies/NCI_INSERT");
+
+    // Create and configure the algorithm
+    algo = new MetadataLoaderAlgorithm();
 
     // Configure the algorithm (need to do either way)
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
-    algo.setProject(algo.getProjects().getObjects().get(0));
-    algo.setTerminology("UMLS");
-    algo.setVersion("latest");
+    algo.setProcess(processExecution);
+    algo.setProject(processExecution.getProject());
+    algo.setTerminology(processExecution.getTerminology());
+    algo.setVersion(processExecution.getVersion());
+
   }
 
   /**
@@ -115,9 +122,9 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
       // Perform the algorithm
       //
       algo.compute();
-      
+
       // Result is to get through this all without throwing an error
-      
+
     } catch (Exception e) {
       algo.rollback();
     } finally {

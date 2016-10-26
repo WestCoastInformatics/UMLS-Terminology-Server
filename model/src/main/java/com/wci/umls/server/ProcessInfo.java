@@ -89,4 +89,17 @@ public interface ProcessInfo<T extends AlgorithmInfo<?>>
    */
   public void setType(String type);
 
+  /**
+   * Returns the input path.
+   *
+   * @return the input path
+   */
+  public String getInputPath();
+  
+  /**
+   * Sets the input path.
+   *
+   * @param inputPath the input path
+   */
+  public void setInputPath(String inputPath); 
 }
