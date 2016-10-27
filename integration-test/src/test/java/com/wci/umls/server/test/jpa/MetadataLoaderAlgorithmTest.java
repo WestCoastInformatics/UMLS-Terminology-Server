@@ -94,6 +94,9 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
     // Run the METADATALOADER algorithm
     try {
 
+      algo.setTransactionPerOperation(false);
+      algo.beginTransaction();
+      
       //
       // Check prerequisites
       //
@@ -126,7 +129,7 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
       // Result is to get through this all without throwing an error
 
     } catch (Exception e) {
-      algo.rollback();
+      e.printStackTrace();
     } finally {
       algo.close();
     }
