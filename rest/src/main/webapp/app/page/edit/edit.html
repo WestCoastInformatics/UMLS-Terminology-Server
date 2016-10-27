@@ -16,6 +16,9 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
+      <span
+        ng-show="!selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
     </h5>
   </div>
   <div class="col-md-12 col-xs-12">
@@ -238,16 +241,16 @@
       </span>
       <!-- Concept actions -->
       <span style="float: right;">
-        <button ng-click="approveConcept(selected.component)" title="Approve"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
+      <button ng-click="approveConcept(selected.component)" title="Approve"
+          ng-disabled="!selected.component || !selected.project.editingEnabled" class="btn btn-xs btn-primary">Approve</button>
         <button ng-click="next()" title="Next"
-          ng-disabled="!selected.component || !selected.worklist"
+          ng-disabled="!selected.component || !selected.worklist || !selected.project.editingEnabled" 
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component || !selected.worklist"
+          ng-disabled="!selected.component || !selected.worklist || !selected.project.editingEnabled"
           class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>
+          ng-disabled="!selected.component || !selected.project.editingEnabled" class="btn btn-xs btn-primary">Merge</button>
       </span>
     </div>
     <div class="col-md-6 col-xs-12">

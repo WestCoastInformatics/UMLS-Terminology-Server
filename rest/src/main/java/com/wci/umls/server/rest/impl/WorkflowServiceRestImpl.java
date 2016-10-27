@@ -946,6 +946,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Load the project and workflow config
         Project project = workflowService.getProject(projectId);
         // verifyProject -> n/a because we're getting bins for a project
+        if (!project.isEditingEnabled()) {
+      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        }
 
         // Start by clearing the bins
         // remove bins and all of the tracking records in the bins
@@ -1439,6 +1442,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       verifyProject(worklist, projectId);
 
       final Project project = workflowService.getProject(projectId);
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist = workflowService
           .performWorkflowAction(project, worklist, userName, userRole, action);
@@ -1628,6 +1635,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         workflowService.setLastModifiedBy(userName);
 
         final Project project = workflowService.getProject(projectId);
+        if (!project.isEditingEnabled()) {
+      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        }
+        
         final WorkflowBin workflowBin =
             workflowService.getWorkflowBin(workflowBinId);
         final WorkflowEpoch currentEpoch =
@@ -2244,7 +2255,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         final WorkflowBin bin = workflowService.getWorkflowBin(id);
         verifyProject(bin, projectId);
         final Project project = workflowService.getProject(projectId);
-
+        if (!project.isEditingEnabled()) {
+      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        }
+        
         // Remove the workflow bin
         workflowService.removeWorkflowBin(id, true);
 

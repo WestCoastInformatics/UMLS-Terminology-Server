@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
@@ -115,7 +117,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Create semantic type component
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
       sty.setTerminologyId("");
@@ -205,7 +210,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -282,6 +290,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
       
       // All new content is unpublished and publishable
       attribute.setPublished(false);
@@ -364,7 +375,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -440,6 +454,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
 
       // All new content is unpublished and publishable
       atom.setPublished(false);
@@ -521,7 +538,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -596,7 +616,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -674,6 +697,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
 
       // All new content is unpublished and publishable
       relationship.setPublished(false);
@@ -759,7 +785,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Look up second conceptId.
       final Long conceptId2 =
           action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
@@ -841,7 +870,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -923,7 +955,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -1008,7 +1043,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -1093,7 +1131,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -1167,7 +1208,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're undoing a merge, ComponentId won't point to an
@@ -1269,7 +1313,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Retrieve the project
       final Project project = action.getProject(projectId);
-
+      if (!project.isEditingEnabled()) {
+    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+      }
+      
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an

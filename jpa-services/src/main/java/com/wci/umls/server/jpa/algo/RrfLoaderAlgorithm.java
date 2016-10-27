@@ -2747,6 +2747,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
+      
+      // Calculate last release rank
+      String ts = fields[2];
+      String stt = fields[4];
+      if (ts.equals("P") && stt.equals("PF")) {
+        atom.setLastPublishedRank("4");
+      } else if (ts.equals("S") && stt.equals("PF")) {
+    	atom.setLastPublishedRank("2");   			
+      } else if (ts.equals("P") && stt.startsWith("V")) {
+    	atom.setLastPublishedRank("3");
+      } else if (ts.equals("S") && stt.startsWith("V")) {
+    	atom.setLastPublishedRank("1");
+      }
+    	  
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {

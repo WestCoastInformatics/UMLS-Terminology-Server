@@ -1,4 +1,6 @@
-
+<span
+        ng-show="!selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
 <h4>
   <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Atoms
     ({{selected.component.atoms.length}})</b>
@@ -41,6 +43,7 @@
           ng-bind="getSortIndicator('atoms','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openAddAtomModal(luser)" title="Add atom"
+            ng-disabled="!selected.project.editingEnabled"
             class="btn btn-xs btn-primary">Add Atom</button>
         </span></th>
     </tr>
@@ -60,9 +63,10 @@
       <td class="nobreak">
 
         <i ng-click="openEditAtomModal(atom); $event.stopPropagation()"
+          ng-show="selected.project.editingEnabled"
           title="Edit" class="noul glyphicon glyphicon-pencil"></i>
 
-        <i ng-show="isAtomDeleteable(atom)" confirm="Are you sure you want to remove the atom ({{atom.name}})?"
+        <i ng-show="isAtomDeleteable(atom) && selected.project.editingEnabled" confirm="Are you sure you want to remove the atom ({{atom.name}})?"
           ng-click="removeAtomFromConcept(atom); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
@@ -82,18 +86,21 @@
     </span>
     <span style="float: right;">
       <button ng-click="approveConcept()" title="Approve"
+        ng-disabled="!selected.project.editingEnabled"
         class="btn btn-xs btn-primary">Approve</button>
-      <button ng-click="next()" title="Next" class="btn btn-xs btn-primary">Next</button>
+      <button ng-click="next()" title="Next" 
+        ng-disabled="!selected.project.editingEnabled" class="btn btn-xs btn-primary">Next</button>
       <button ng-click="approveNext()" title="Approve/Next"
+        ng-disabled="!selected.project.editingEnabled"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="getSelectedAtomCount() == 0" title="Merge"
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Merge"
         class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
-        ng-disabled="getSelectedAtomCount() == 0" title="Move"
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Move"
         class="btn btn-xs btn-primary">Move</button>
       <button ng-click="openSplitModal()"
-        ng-disabled="getSelectedAtomCount() == 0" title="Split"
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Split"
         class="btn btn-xs btn-primary">Split</button>
     </span>
   </div>

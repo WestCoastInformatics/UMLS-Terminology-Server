@@ -17,6 +17,9 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
+      <span
+        ng-show="!selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
     </h5>
   </div>
   <div class="col-md-12 col-xs-12">
@@ -37,6 +40,7 @@
         </span>
         <button confirm="Are you sure you want to regenerate bins?"
           title="Regenerate bins" ng-click="regenerateBins()"
+          ng-disabled="!selected.project.editingEnabled"
           class="ml20 btn btn-xs btn-primary">R</button>
         <button confirm="Are you sure you want to recompute concept status?"
           title="Recompute concept status" ng-click="recomputeConceptStatus()"
@@ -137,7 +141,7 @@
                   ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
                 &nbsp;
-                <i ng-show="stats.clusterType != 'all' && bin.enabled"
+                <i ng-show="stats.clusterType != 'all' && bin.enabled && selected.project.editingEnabled"
                   ng-click="openAddWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
                   title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
               </td>
