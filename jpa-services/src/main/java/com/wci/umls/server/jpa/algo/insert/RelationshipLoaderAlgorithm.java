@@ -30,6 +30,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -515,6 +516,9 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         break;
       case "SOURCE_CUI":
         objectClass = ConceptJpa.class;
+        break;
+      case "SRC_ATOM_ID":
+        objectClass = AtomJpa.class;
         break;
       default:
         throw new IllegalArgumentException("Invalid class type: " + string);
