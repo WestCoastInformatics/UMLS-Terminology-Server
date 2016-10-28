@@ -171,7 +171,8 @@ public class UmlsIdentifierAssignmentHandler
       return stringClass.getTerminologyId();
     }
     // Return the id if it's already a SUI
-    if (stringClass.getTerminologyId().startsWith(prefixMap.get("SUI"))) {
+    if (stringClass.getTerminologyId() != null
+        && stringClass.getTerminologyId().startsWith(prefixMap.get("SUI"))) {
       return stringClass.getTerminologyId();
     }
 
@@ -218,7 +219,8 @@ public class UmlsIdentifierAssignmentHandler
     }
 
     // Return the id if it's already a LUI
-    if (lexicalClass.getTerminologyId().startsWith(prefixMap.get("LUI"))) {
+    if (lexicalClass.getTerminologyId() != null
+        && lexicalClass.getTerminologyId().startsWith(prefixMap.get("LUI"))) {
       return lexicalClass.getTerminologyId();
     }
 
@@ -264,7 +266,7 @@ public class UmlsIdentifierAssignmentHandler
       return atom.getTerminologyId();
     }
     // Return the id if it's already a AUI
-    if (atom.getTerminologyId().startsWith(prefixMap.get("AUI"))) {
+    if (atom.getTerminologyId() != null && atom.getTerminologyId().startsWith(prefixMap.get("AUI"))) {
       return atom.getTerminologyId();
     }
 

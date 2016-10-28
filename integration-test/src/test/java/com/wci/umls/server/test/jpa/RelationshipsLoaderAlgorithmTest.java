@@ -5,8 +5,6 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,8 +12,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.RelationshipLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
@@ -28,8 +29,14 @@ public class RelationshipsLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The algorithm. */
   RelationshipLoaderAlgorithm algo = null;
 
+  /** The process execution. */
+  ProcessExecution processExecution = null;
+
   /** The process service. */
   ProcessServiceJpa processService = null;
+
+  /** The project. */
+  Project project = null;
 
   /**
    * Setup class.
@@ -45,34 +52,33 @@ public class RelationshipsLoaderAlgorithmTest extends IntegrationUnitSupport {
    * @throws Exception the exception
    */
   @Before
-  public void setup() throws Exception {
+  public void setup() throws Exception {   
+
     processService = new ProcessServiceJpa();
 
-    // If the algorithm is defined in the config.properties, get from there.
-    try {
-      algo = (RelationshipLoaderAlgorithm) processService
-          .getAlgorithmInstance("RELATIONSHIPSLOADER");
-    }
-    // If not, create and configure from scratch
-    catch (Exception e) {
-      algo = new RelationshipLoaderAlgorithm();
+    // load the project (should be only one)
+    ProjectList projects = processService.getProjects();
+    assertTrue(projects.size() > 0);
+    project = projects.getObjects().get(0);
 
-      // Also need to create and pass in required parameters.
-      List<AlgorithmParameter> algoParams = algo.getParameters();
-      for (AlgorithmParameter algoParam : algoParams) {
-        if (algoParam.getFieldName().equals("directory")) {
-          algoParam.setValue("terminologies/NCI_INSERT");
-        }
-      }
-      algo.setParameters(algoParams);
-    }
+    // Create a dummy process execution, to store some information the algorithm
+    // needs (specifically input Path)
+    processExecution = new ProcessExecutionJpa();
+    processExecution.setProject(project);
+    processExecution.setTerminology(project.getTerminology());
+    processExecution.setVersion(project.getVersion());
+    processExecution.setInputPath("terminologies/NCI_INSERT");
+
+    // Create and configure the algorithm
+    algo = new RelationshipLoaderAlgorithm();
 
     // Configure the algorithm (need to do either way)
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
-    algo.setProject(algo.getProjects().getObjects().get(0));
-    algo.setTerminology("UMLS");
-    algo.setVersion("latest");
+    algo.setProcess(processExecution);
+    algo.setProject(processExecution.getProject());
+    algo.setTerminology(processExecution.getTerminology());
+    algo.setVersion(processExecution.getVersion());    
   }
 
   /**

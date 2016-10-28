@@ -9,7 +9,10 @@ import java.util.List;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -123,14 +126,45 @@ public class MoveMolecularAction extends AbstractMolecularAction {
 
     //
     // Make a copy of the atoms to be moved
-    //
+    // If any of these atom has a demotion to the "to" concept, remove it,
+    // update the atom, and create a copy for later deletion.
     List<Atom> moveAtomsList = moveAtoms;
+    List<Atom> moveAtomsCopies = new ArrayList<>();
+    final List<AtomRelationship> demotionCopies = new ArrayList<>();
+    for (final Atom atom : moveAtoms) {
+      Atom atomCopy = new AtomJpa(atom, true);
+      moveAtomsCopies.add(atomCopy);
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+            && getToConcept().getAtoms().contains(atomRel.getTo())) {
+          atomCopy.getRelationships().remove(atomRel);
+          updateAtom(atomCopy);
+          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+        }
+      }
+    }
+
+    // If any atom in the toConcept has a demotion to any of the move atoms in
+    // "from" concept, remove it, update the atom, and create a copy of the
+    // demotion for later deletion.
+    for (final Atom atom : getToConcept().getAtoms()) {
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom.getRelationships())) {
+        if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+            && moveAtoms.contains(atomRel.getTo())) {
+          Atom atomCopy = new AtomJpa(atom, true);
+          atomCopy.getRelationships().remove(atomRel);
+          updateAtom(atomCopy);
+          demotionCopies.add(new AtomRelationshipJpa(atomRel, false));
+        }
+      }
+    }
 
     //
     // Remove all atoms from the fromConcept
     //
     for (final Atom atom : moveAtomsList) {
-      removeById(getFromConcept().getAtoms(),atom.getId());
+      removeById(getFromConcept().getAtoms(), atom.getId());
     }
 
     //
@@ -141,14 +175,19 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     //
     // Remove the objects from the database
     //
-    // Not done for Atoms
+
+    // Remove demotions between atoms that will be both in the "to" concept
+    for (final AtomRelationship rel : demotionCopies) {
+      removeRelationship(rel.getId(), rel.getClass());
+    }
 
     //
     // Change status of the atoms to be added
     //
     if (getChangeStatusFlag()) {
-      for (final Atom atom : moveAtomsList) {
+      for (final Atom atom : moveAtomsCopies) {
         atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        updateAtom(atom);
       }
     }
 
