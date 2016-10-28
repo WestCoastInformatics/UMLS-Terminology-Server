@@ -622,7 +622,7 @@ tsApp
           }
 
           // If no selected component, then try to recover from last saved
-          if (!$scope.selected.component) {
+          //if (!$scope.selected.component) {
             if ($scope.selected.worklist
               && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
               workflowService
@@ -669,7 +669,7 @@ tsApp
                     }
                   });
             }
-          }
+          //}
 
         }
 

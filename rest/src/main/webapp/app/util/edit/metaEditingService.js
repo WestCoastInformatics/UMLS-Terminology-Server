@@ -8,7 +8,8 @@ tsApp
       '$window',
       'gpService',
       'utilService',
-      function($http, $q, $window, gpService, utilService) {
+      '$uibModal',
+      function($http, $q, $window, gpService, utilService, $uibModal) {
         console.debug('configure metaEditingService');
 
         // add atom
@@ -201,6 +202,7 @@ tsApp
 
         // approve concept
         this.approveConcept = function(projectId, activityId, concept, overrideWarnings) {
+        
           console.debug('approve concept');
           var deferred = $q.defer();
 
@@ -220,10 +222,37 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Approve concept failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
+            
+            if (response.data.errors.length > 0 ||
+            	response.data.warnings.length > 0) {
+              
+            	/*var result = utilService.openActionErrorsModal(response, activityId);
+            	console.debug(result);*/
+            	
+            	/*var modalInstance = $uibModal.open({
+                    templateUrl : 'app/actions/errors-warnings/actionErrors/actionErrorsWarnings.html',
+                    controller : 'ActionErrorsCtrl',
+                    backdrop : 'static',
+                    resolve : {
+                      warnings : function() {
+                    	return response.data.warnings;
+                      },
+                      errors : function() {
+                    	return response.data.errors;
+                      },
+                      action : function() {
+                        return activityId;
+                      }
+                    }
+                  });
+
+                  modalInstance.result.then(
+                  // Success
+                  function(data) {
+                	  //deferred.reject(response.data);
+                      //return;
+                	  approveConcept(projectId, activityId, concept, true);
+                  });          	*/
             }
             deferred.resolve(response.data);
           },
@@ -236,6 +265,7 @@ tsApp
           return deferred.promise;
         };
 
+        
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
           console.debug('merge concepts', concept1.lastModified);

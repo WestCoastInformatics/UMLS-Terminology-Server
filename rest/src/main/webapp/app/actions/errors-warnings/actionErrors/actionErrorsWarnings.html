@@ -1,0 +1,14 @@
+<div class="modal-header">
+  <h4>{{action}} Validation Issues</h4>
+</div>
+
+
+ <div errors="errors" warnings="warnings"></div>  
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-show="warnings.length > 0"
+    ng-click="overrideWarnings();"
+    title="Override warnings and complete action.">Override Warnings</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

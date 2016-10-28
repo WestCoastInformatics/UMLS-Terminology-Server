@@ -1153,6 +1153,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {
+          // TODO for testing
+          //validationResult.addWarning("test warning");
         return validationResult;
       }
 
