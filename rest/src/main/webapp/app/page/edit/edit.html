@@ -257,5 +257,172 @@
       <!-- CONCEPT REPORT -->
       <div report-panel selected="selected" callbacks="callbacks"></div>
     </div>
-    </uib-accordion-group></uib-accordion>
+    </uib-accordion-group>
+    <!--  METADATA EDITING -->
+    <!-- <uib-accordion-group is-open="false"> <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Metadata Editing">Metadata</span>
+    </h5>
+    </uib-accordion-heading>
+    <div class="col-md-6 col-xs-12">
+      <div class="row">
+      <table class="slim table">
+        <tr ng-show="project.id">
+          <td>
+            <b>Project Id</b>
+          </td>
+          <td>{{project.id}}</td>
+        </tr>
+        <tr>
+          <td>
+            <b>Root Terminology</b>
+          </td>
+          <td>
+            {{metadataTerminology.rootTerminologyAbbreviation}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Description</b>
+          </td>
+          <td>
+            <textarea rows="4" cols="40" ng-model="project.description"
+              placeholder="Basic description of the project"></textarea>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Term Types</b>
+          </td>
+          <td>
+          <span ng-show="pagedTermTypes.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['termTypes'].pageSize" title="Page Size"
+    ng-change="paging['termTypes'].callbacks.getPagedList()">
+    <option value="10">10</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="1000000">All</option>
+  </select>
+</span>
+<div pager paging="paging['termTypes']" count="selected.metadata.termTypes.length"
+  callbacks="paging['termTypes'].callbacks"></div>
+          
+            <table class="slim table">
+             <tr ng-repeat="entry in pagedTermTypes.data">
+             <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             </tr>
+            </table>
+          </td>
+        </tr>
+        
+        
+        <tr>
+          <td>
+            <b>Attribute Names</b>
+          </td>
+          <td>
+          <span ng-show="pagedAttributeNames.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['attributeNames'].pageSize" title="Page Size"
+    ng-change="paging['attributeNames'].callbacks.getPagedList()">
+    <option value="10">10</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="1000000">All</option>
+  </select>
+</span>
+<div pager paging="paging['attributeNames']" count="selected.metadata.attributeNames.length"
+  callbacks="paging['attributeNames'].callbacks"></div>
+          
+            <table class="slim table">
+             <tr ng-repeat="entry in pagedAttributeNames.data">
+             <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             </tr>
+            </table>
+          </td>
+        </tr>
+        
+        
+        <tr>
+          <td>
+            <b>Relationship Types</b>
+          </td>
+          <td>
+          <span ng-show="pagedRelationshipTypes.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['relationshipTypes'].pageSize" title="Page Size"
+    ng-change="paging['relationshipTypes'].callbacks.getPagedList()">
+    <option value="10">10</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="1000000">All</option>
+  </select>
+</span>
+<div pager paging="paging['relationshipTypes']" count="selected.metadata.relationshipTypes.length"
+  callbacks="paging['relationshipTypes'].callbacks"></div>
+          
+            <table class="slim table">
+             <tr ng-repeat="entry in pagedRelationshipTypes.data">
+             <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             </tr>
+            </table>
+          </td>
+        </tr>
+        
+        
+        <tr>
+          <td>
+            <b>Add Relationship Types</b>
+          </td>
+          <td>
+          <span ng-show="pagedAdditionalRelationshipTypes.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['additionalRelationshipTypes'].pageSize" title="Page Size"
+    ng-change="paging['additionalRelationshipTypes'].callbacks.getPagedList()">
+    <option value="10">10</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+    <option value="1000000">All</option>
+  </select>
+</span>
+<div pager paging="paging['additionalRelationshipTypes']" count="selected.metadata.additionalRelationshipTypes.length"
+  callbacks="paging['additionalRelationshipTypes'].callbacks"></div>
+          
+            <table class="slim table">
+             <tr ng-repeat="entry in pagedAdditionalRelationshipTypes.data">
+             <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             </tr>
+            </table>
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <b>Language</b>
+          </td>
+          <td>
+            <span>
+              <select ng-disabled="!project.language"
+                ng-model="project.language"
+                ng-options="item.key as item.value for item in list.languages"></select>
+            </span>
+            <span>{{project.language}}</span>
+          </td>
+        </tr>
+        <tr>
+        <td>
+          <b>Editing enabled</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="project.editingEnabled"
+            title="Project is editable.">
+        </td>
+        </tr>
+
+      </table>
+    </div>
+    </uib-accordion-group> -->
+    </uib-accordion>
   </div>

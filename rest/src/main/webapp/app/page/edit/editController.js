@@ -67,7 +67,8 @@ tsApp
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
           worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
-          terminologies : []
+          terminologies : [],
+          languages : []
         }
 
         // Windows
@@ -86,6 +87,30 @@ tsApp
         $scope.paging['records'].callbacks = {
           getPagedList : getRecords
         };
+        
+        $scope.paging['termTypes'] = utilService.getPaging();
+        $scope.paging['termTypes'].sortField = 'clusterId';
+        $scope.paging['termTypes'].callbacks = {
+          getPagedList : getPagedTermTypes
+        };
+        
+        $scope.paging['attributeNames'] = utilService.getPaging();
+        $scope.paging['attributeNames'].sortField = 'clusterId';
+        $scope.paging['attributeNames'].callbacks = {
+          getPagedList : getPagedAttributeNames
+        };
+        
+        $scope.paging['relationshipTypes'] = utilService.getPaging();
+        $scope.paging['relationshipTypes'].sortField = 'clusterId';
+        $scope.paging['relationshipTypes'].callbacks = {
+          getPagedList : getPagedRelationshipTypes
+        };
+        
+        $scope.paging['additionalRelationshipTypes'] = utilService.getPaging();
+        $scope.paging['additionalRelationshipTypes'].sortField = 'clusterId';
+        $scope.paging['additionalRelationshipTypes'].callbacks = {
+          getPagedList : getPagedAdditionalRelationshipTypes
+        };        
 
         // Handle workflow changes
         $scope.$on('termServer::checklistChange', function(event, data) {
@@ -121,6 +146,7 @@ tsApp
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success - concept exists
             function(data) {
+              wait(1000);
               $scope.selectConcept(data);
               $scope.getRecords();
 
@@ -146,6 +172,7 @@ tsApp
                 contentService.getConcept(c.id, $scope.selected.project.id).then(
                 // Success - concept exists
                 function(data) {
+            	  wait(1000);
                   $scope.lists.concepts[i] = data;
                   $scope.selectConcept($scope.lists.concepts[0]);
                   $scope.getRecords();
@@ -375,6 +402,11 @@ tsApp
             // Get worklists
             // $scope.resetPaging();
             $scope.getWorklists();
+            
+            metadataService.getTerminology($scope.selected.project.terminology, $scope.selected.project.version).then(
+          		  function(data) {
+          			  $scope.metadataTerminology = data;
+          		  });
           });
 
           // $scope.lists.terminologies exists here
@@ -393,6 +425,14 @@ tsApp
           // Success
           function(data) {
             metadataService.setModel(data);
+            $scope.lists.languages = data.languages;
+            if ($scope.project && !$scope.project.language) {
+              $scope.project.language = 'ENG';
+            }
+            $scope.getPagedTermTypes();
+            $scope.getPagedAttributeNames();
+            $scope.getPagedRelationshipTypes();
+            $scope.getPagedAdditionalRelationshipTypes();
           });
 
           $scope.removeWindows();
@@ -986,6 +1026,45 @@ tsApp
           }
         });
 
+        
+        // METADATA FUNCTIONS
+        
+        $scope.getPagedTermTypes = function() {
+          console.debug('gettermtypes');
+          getPagedTermTypes();
+        }
+        function getPagedTermTypes() {
+        	$scope.pagedTermTypes = utilService.getPagedArray($scope.selected.metadata.termTypes,
+                    $scope.paging['termTypes']);
+        };
+        
+        $scope.getPagedAttributeNames = function() {
+            console.debug('getAttributeNames');
+            getPagedAttributeNames();
+          }
+          function getPagedAttributeNames() {
+          	$scope.pagedAttributeNames = utilService.getPagedArray($scope.selected.metadata.attributeNames,
+                      $scope.paging['attributeNames']);
+          };
+        
+          $scope.getPagedRelationshipTypes = function() {
+              console.debug('getRelationshipTypes');
+              getPagedRelationshipTypes();
+            }
+            function getPagedRelationshipTypes() {
+            	$scope.pagedRelationshipTypes = utilService.getPagedArray($scope.selected.metadata.relationshipTypes,
+                        $scope.paging['relationshipTypes']);
+            };
+         
+            $scope.getPagedAdditionalRelationshipTypes = function() {
+                console.debug('getAdditionalRelationshipTypes');
+                getPagedAdditionalRelationshipTypes();
+              }
+              function getPagedAdditionalRelationshipTypes() {
+              	$scope.pagedAdditionalRelationshipTypes = utilService.getPagedArray($scope.selected.metadata.attributeNames,
+                          $scope.paging['additionalRelationshipTypes']);
+              };
+            
         //
         // MODALS
         //
@@ -1138,6 +1217,7 @@ tsApp
                 };
               }
             });
+          
 
         };
 
