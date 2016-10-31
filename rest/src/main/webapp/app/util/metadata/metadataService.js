@@ -14,6 +14,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         entries : null,
         languages : null,
         relationshipTypes : null,
+        additionalRelationshipTypes : null,
         attributeNames : null,
         termTypes : null,
         generalEntries : null,
@@ -74,6 +75,9 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
           // convenience
           if (metadata.entries[i].name === 'Relationship_Types') {
             metadata.relationshipTypes = metadata.entries[i].keyValuePairs;
+          }
+          if (metadata.entries[i].name === 'Additional_Relationship_Types') {
+              metadata.additionalRelationshipTypes = metadata.entries[i].keyValuePairs;
           }
           if (metadata.entries[i].name === 'Languages') {
             metadata.languages = metadata.entries[i].keyValuePairs;
@@ -222,6 +226,115 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       return deferred.promise;
     };
 
+    // Remove term type
+    this.removeTermType = function(type, terminology, version) {
+      console.debug('removeTermType', type, terminology, version);
+      var deferred = $q.defer();
+      if (!type || !terminology || !version) {
+        deferred.reject('Type, terminology and version must be specified');
+      } else {
+
+        gpService.increment();
+        $http['delete'](
+          metadataUrl + '/termType/' + type + '/remove/'
+          + terminology + '/' + version)
+          .then(function(response) {
+            console.debug('  successful remove term type');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            // return the original concept without additional annotation
+            deferred.reject();
+          });
+
+        return deferred.promise;
+      }
+    };
+ 
+    // Remove attribute name
+    this.removeAttributeName = function(type, terminology, version) {
+      console.debug('removeAttributeName', type, terminology, version);
+      var deferred = $q.defer();
+      if (!type || !terminology || !version) {
+        deferred.reject('Type, terminology and version must be specified');
+      } else {
+
+        gpService.increment();
+        $http['delete'](
+          metadataUrl + '/attributeName/' + type + '/remove/'
+          + terminology + '/' + version)
+          .then(function(response) {
+            console.debug('  successful remove atn');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            // return the original concept without additional annotation
+            deferred.reject();
+          });
+
+        return deferred.promise;
+      }
+    };
+    
+    // Remove relationship type
+    this.removeRelationshipType = function(type, terminology, version) {
+      console.debug('removeRelationshipType', type, terminology, version);
+      var deferred = $q.defer();
+      if (!type || !terminology || !version) {
+        deferred.reject('Type, terminology and version must be specified');
+      } else {
+
+        gpService.increment();
+        $http['delete'](
+          metadataUrl + '/relationshipType/' + type + '/remove/'
+          + terminology + '/' + version)
+          .then(function(response) {
+            console.debug('  successful remove relationship type');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            // return the original concept without additional annotation
+            deferred.reject();
+          });
+
+        return deferred.promise;
+      }
+    };
+    
+    // Remove add relationship type
+    this.removeAdditionalRelationshipType = function(type, terminology, version) {
+      console.debug('removeAddRelationshipType', type, terminology, version);
+      var deferred = $q.defer();
+      if (!type || !terminology || !version) {
+        deferred.reject('Type, terminology and version must be specified');
+      } else {
+
+        gpService.increment();
+        $http['delete'](
+          metadataUrl + '/addRelType/' + type + '/remove/'
+          + terminology + '/' + version)
+          .then(function(response) {
+            console.debug('  successful remove add rel type');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          }, function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            // return the original concept without additional annotation
+            deferred.reject();
+          });
+
+        return deferred.promise;
+      }
+    };
+    
+    
     // get relationship type name from its abbreviation
     this.getRelationshipTypeName = function(abbr, metadata) {
       for (var i = 0; i < metadata.relationshipTypes.length; i++) {
@@ -232,6 +345,16 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       return null;
     };
 
+    // get additional relationship type name from its abbreviation
+    this.getAdditionalRelationshipTypeName = function(abbr, metadata) {
+      for (var i = 0; i < metadata.additionalRelationshipTypes.length; i++) {
+        if (metadata.additionalRelationshipTypes[i].key === abbr) {
+          return metadata.additionalRelationshipTypes[i].value;
+        }
+      }
+      return null;
+    };    
+    
     // get attribute name name from its abbreviation
     this.getAttributeNameName = function(abbr, metadata) {
       for (var i = 0; i < metadata.attributeNames.length; i++) {
@@ -390,5 +513,6 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     };
 
   }
+
 
 ]);

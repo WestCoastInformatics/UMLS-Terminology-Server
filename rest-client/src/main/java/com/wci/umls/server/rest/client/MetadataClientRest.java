@@ -244,6 +244,79 @@ public class MetadataClientRest extends RootClientRest
 
   }
 
+  @Override
+  public void removeTermType(String type, String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - remove term type ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/termType/" + type + "/remove/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+  
+  @Override
+  public void removeAttributeName(String type, String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - remove attribute name ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/attributeName/" + type + "/remove/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+  @Override
+  public void removeRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - remove rel type ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/relationshipType/" + type + "/remove/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
+  @Override
+  public void removeAdditionalRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - remove add rel type ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/addRelType/" + type + "/remove/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+  }
   /* see superclass */
   @Override
   public SemanticTypeList getSemanticTypes(String terminology, String version,

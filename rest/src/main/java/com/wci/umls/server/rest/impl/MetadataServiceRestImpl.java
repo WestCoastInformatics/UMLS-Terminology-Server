@@ -31,7 +31,11 @@ import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
@@ -405,9 +409,142 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
       metadataService.close();
       securityService.close();
     }
+  }
+    
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/termType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a term type", notes = "Remove a term type")
+    public void removeTermType(
+      @ApiParam(value = "Term type, e.g. AB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /termType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove term type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        TermType tty = metadataService.getTermType(type, terminology, version);
+        metadataService.removeTermType(tty.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the term type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
 
   }
 
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/attributeName/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a attribute name", notes = "Remove a attribute name")
+    public void removeAttributeName(
+      @ApiParam(value = "Attribute name, e.g. AMT", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /attributeName/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove attribute name ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        AttributeName atn = metadataService.getAttributeName(type, terminology, version);
+        metadataService.removeAttributeName(atn.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the attribute name");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/addRelType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a add relationship type", notes = "Remove a additional relationship type")
+    public void removeAdditionalRelationshipType(
+      @ApiParam(value = "Additional Relationship type, e.g. RB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /addRelType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove add relationship type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        AdditionalRelationshipType relType = metadataService.getAdditionalRelationshipType(type, terminology, version);
+        metadataService.removeAdditionalRelationshipType(relType.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the add relationship type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/relationshipType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a rel type", notes = "Remove a rel type")
+    public void removeRelationshipType(
+      @ApiParam(value = "Relationship type, e.g. AB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /relationshipType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove rel type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        RelationshipType relType = metadataService.getRelationshipType(type, terminology, version);
+        metadataService.removeRelationshipType(relType.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the rel type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    
   /* see superclass */
   @Override
   @GET

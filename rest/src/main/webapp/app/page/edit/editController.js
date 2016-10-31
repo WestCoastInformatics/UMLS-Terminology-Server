@@ -1028,6 +1028,61 @@ tsApp
 
         
         // METADATA FUNCTIONS
+        $scope.removeTermType = function(type) {
+          metadataService.removeTermType(type, $scope.selected.project.terminology, $scope.selected.project.version).then(
+            function(data) {
+            	console.debug('termType removed', type);
+            	metadataService.getAllMetadata($scope.selected.project.terminology,
+                        $scope.selected.project.version).then(
+                      // Success
+                      function(data) {
+                        metadataService.setModel(data);
+                        $scope.getPagedTermTypes();
+                      });
+            });
+        }
+        
+        $scope.removeRelationshipType = function(type) {
+            metadataService.removeRelationshipType(type, $scope.selected.project.terminology, $scope.selected.project.version).then(
+              function(data) {
+              	console.debug('relType removed', type);
+              	metadataService.getAllMetadata($scope.selected.project.terminology,
+                          $scope.selected.project.version).then(
+                        // Success
+                        function(data) {
+                          metadataService.setModel(data);
+                          $scope.getPagedRelationshipTypes();
+                        });
+              });
+          }
+        
+        $scope.removeAttributeName = function(type) {
+            metadataService.removeAttributeName(type, $scope.selected.project.terminology, $scope.selected.project.version).then(
+              function(data) {
+              	console.debug('atn removed', type);
+              	metadataService.getAllMetadata($scope.selected.project.terminology,
+                          $scope.selected.project.version).then(
+                        // Success
+                        function(data) {
+                          metadataService.setModel(data);
+                          $scope.getPagedAttributeNames();
+                        });
+              });
+          }
+        
+        $scope.removeAdditionalRelationshipType = function(type) {
+            metadataService.removeAdditionalRelationshipType(type, $scope.selected.project.terminology, $scope.selected.project.version).then(
+              function(data) {
+              	console.debug('addrelType removed', type);
+              	metadataService.getAllMetadata($scope.selected.project.terminology,
+                          $scope.selected.project.version).then(
+                        // Success
+                        function(data) {
+                          metadataService.setModel(data);
+                          $scope.getPagedAdditionalRelationshipTypes();
+                        });
+              });
+          }
         
         $scope.getPagedTermTypes = function() {
           console.debug('gettermtypes');
@@ -1061,7 +1116,7 @@ tsApp
                 getPagedAdditionalRelationshipTypes();
               }
               function getPagedAdditionalRelationshipTypes() {
-              	$scope.pagedAdditionalRelationshipTypes = utilService.getPagedArray($scope.selected.metadata.attributeNames,
+              	$scope.pagedAdditionalRelationshipTypes = utilService.getPagedArray($scope.selected.metadata.additionalRelationshipTypes,
                           $scope.paging['additionalRelationshipTypes']);
               };
             

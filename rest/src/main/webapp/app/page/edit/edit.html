@@ -259,7 +259,7 @@
     </div>
     </uib-accordion-group>
     <!--  METADATA EDITING -->
-    <!-- <uib-accordion-group is-open="false"> <uib-accordion-heading>
+    <uib-accordion-group is-open="false" ng-show="selected.projectRole == 'ADMINISTRATOR'"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Metadata Editing">Metadata</span>
     </h5>
@@ -312,6 +312,16 @@
             <table class="slim table">
              <tr ng-repeat="entry in pagedTermTypes.data">
              <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             <td class="nobreak">
+
+              <i ng-click="openEditTermTypeModal(proj); $event.stopPropagation()"
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+
+              <i
+                confirm="Are you sure you want to remove {{entry.key}}?"
+                ng-click="removeTermType(entry.key); $event.stopPropagation()"
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
+            </td>
              </tr>
             </table>
           </td>
@@ -339,6 +349,16 @@
             <table class="slim table">
              <tr ng-repeat="entry in pagedAttributeNames.data">
              <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             <td class="nobreak">
+
+              <i ng-click="openEditAttributeNameModal(proj); $event.stopPropagation()"
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+
+              <i
+                confirm="Are you sure you want to remove {{entry.key}}?"
+                ng-click="removeAttributeName(entry.key); $event.stopPropagation()"
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
+            </td>
              </tr>
             </table>
           </td>
@@ -366,6 +386,16 @@
             <table class="slim table">
              <tr ng-repeat="entry in pagedRelationshipTypes.data">
              <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             <td class="nobreak">
+
+              <i ng-click="openEditRelationshipTypeModal(proj); $event.stopPropagation()"
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+
+              <i
+                confirm="Are you sure you want to remove {{entry.key}}?"
+                ng-click="removeRelationshipType(entry.key); $event.stopPropagation()"
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
+            </td>
              </tr>
             </table>
           </td>
@@ -393,6 +423,16 @@
             <table class="slim table">
              <tr ng-repeat="entry in pagedAdditionalRelationshipTypes.data">
              <td>{{entry.key}}</td><td>{{entry.value}}</td>
+             <td class="nobreak">
+
+              <i ng-click="openEditAdditionalRelationshipModal(proj); $event.stopPropagation()"
+                title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+
+              <i
+                confirm="Are you sure you want to remove {{entry.key}}?"
+                ng-click="removeAdditionalRelationshipType(entry.key); $event.stopPropagation()"
+                title="Delete" class="noul glyphicon glyphicon-trash"></i>
+            </td>
              </tr>
             </table>
           </td>
@@ -423,6 +463,6 @@
 
       </table>
     </div>
-    </uib-accordion-group> -->
+    </uib-accordion-group>
     </uib-accordion>
   </div>

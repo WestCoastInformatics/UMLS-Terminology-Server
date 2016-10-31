@@ -114,4 +114,50 @@ public interface MetadataServiceRest {
    */
   public SemanticTypeList getSemanticTypes(String terminology, String version,
     String authToken) throws Exception;
+
+
+  /**
+   * Removes the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeTermType(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the attribute name.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAttributeName(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeRelationshipType(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAdditionalRelationshipType(String type, String terminology, String version, String authToken)
+		throws Exception;
 }
