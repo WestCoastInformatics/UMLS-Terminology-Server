@@ -1,0 +1,78 @@
+<div class="modal-header">
+  <h4>{{action}} Term Type</h4> 
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr>
+          <td>
+            <b>Abbreviation</b>
+          </td>
+          <td>{{termType.abbreviation}}</td>
+        </tr>
+        <tr>
+          <td>
+            <b>Expanded Form</b>
+          </td>
+          <td>
+            <input ng-model="termType.expandedForm" size="40" />
+          </td>
+        </tr>
+        
+        <tr>
+        <td>
+          <b>Suppressible</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="termType.suppressible"
+            title="Term type is suppressible.">
+        </td>
+        </tr>
+        
+        <tr>
+        <td>
+          <b>Hierarchical Type</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="termType.hierarchicalType"
+            title="Hierarchical type flag.">
+        </td>
+        </tr>
+
+        <tr>
+        <td>
+          <b>Exclude</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="termType.exclude"
+            title="Exclude flag.">
+        </td>
+        </tr>
+        
+        <tr>
+        <td>
+          <b>Norm Exclude</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="termType.normExclude"
+            title="Norm exclude flag.">
+        </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+</div>
+
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submitTermType(termType);">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitTermType(termType);">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
