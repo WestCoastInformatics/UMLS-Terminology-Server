@@ -224,7 +224,28 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       return deferred.promise;
     };
 
-    
+    // update terminology
+    this.updateTerminology = function(terminology) {
+      console.debug('update terminology');
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(
+        metadataUrl
+          + '/terminology/update', terminology).then(
+      // success
+      function(response) {        
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };    
     
     // update term type
     this.updateTermType = function(termType) {
@@ -797,7 +818,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       function(response) {
         console.debug('  validation = ', response.data);
         gpService.decrement();
-        if (response.data.errors.length > 0) {
+        if (response.data.errors && response.data.errors.length > 0) {
           $window.alert('Add term type failed\n' + response.data.errors[0]);
           deferred.reject(response.data);
           return;
@@ -826,7 +847,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       function(response) {
         console.debug('  validation = ', response.data);
         gpService.decrement();
-        if (response.data.errors.length > 0) {
+        if (response.data.errors && response.data.errors.length > 0) {
           $window.alert('Add attribute name failed\n' + response.data.errors[0]);
           deferred.reject(response.data);
           return;
@@ -855,7 +876,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       function(response) {
         console.debug('  validation = ', response.data);
         gpService.decrement();
-        if (response.data.errors.length > 0) {
+        if (response.data.errors && response.data.errors.length > 0) {
           $window.alert('Add relationship type failed\n' + response.data.errors[0]);
           deferred.reject(response.data);
           return;
@@ -885,7 +906,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       function(response) {
         console.debug('  validation = ', response.data);
         gpService.decrement();
-        if (response.data.errors.length > 0) {
+        if (response.data.errors && response.data.errors.length > 0) {
           $window.alert('Add additional relationship type failed\n' + response.data.errors[0]);
           deferred.reject(response.data);
           return;

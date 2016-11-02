@@ -13,6 +13,7 @@ import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
 import com.wci.umls.server.jpa.meta.TermTypeJpa;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.RelationshipType;
@@ -325,4 +326,14 @@ public interface MetadataServiceRest {
    */
   public void updateRootTerminology(RootTerminologyJpa rootTerminology,
     String authToken) throws Exception;
+
+  /**
+   * Update terminology.
+   *
+   * @param terminology the terminology
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateTerminology(TerminologyJpa terminology, String authToken)
+    throws Exception;
 }

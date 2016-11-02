@@ -22,9 +22,9 @@
   </div>
   <div class="col-md-12 col-xs-12">
     <uib-accordion close-others="false"> <uib-accordion-group
-      is-open="false"> <uib-accordion-heading>
+      is-open="groups[0].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Checklists">Worklists/Clusters</span>
+      <span uib-tooltip="Workflow Checklists">{{groups[0].title}}</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-6 col-xs-12">
@@ -173,10 +173,10 @@
         </div>
       </span>
     </div>
-    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group is-open="true">
+    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group is-open="groups[1].open" ng-click="saveAccordionStatus()">
     <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Worklists">Concepts/Reports</span>
+      <span uib-tooltip="Workflow Worklists">{{groups[1].title}}</span>
     </h5>
     </uib-accordion-heading> <!-- CONCEPTS LIST  -->
     <div class="col-md-6 col-xs-12">
@@ -255,10 +255,10 @@
       <!-- CONCEPT REPORT -->
       <div report-panel selected="selected" callbacks="callbacks"></div>
     </div>
-    </uib-accordion-group> <!--  METADATA EDITING --> <uib-accordion-group is-open="false"
-      ng-show="selected.projectRole == 'ADMINISTRATOR'"> <uib-accordion-heading>
+    </uib-accordion-group> <!--  METADATA EDITING --> <uib-accordion-group is-open="groups[2].open"
+      ng-show="selected.projectRole == 'ADMINISTRATOR'"  ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Metadata Editing">Metadata</span>
+      <span uib-tooltip="Metadata Editing">{{groups[2].title}}</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-6 col-xs-12">
@@ -277,9 +277,20 @@
           </tr>
           <tr>
             <td>
+              <b>Terminology</b>
+            </td>
+            <td>{{metadataTerminology.preferredName}}
+                    <i
+                      ng-click="openEditTerminologyModal(); $event.stopPropagation()"
+                      title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+            </td>
+          </tr>
+          <tr>
+            <td>
               <b>Term Types</b>
             </td>
             <td>
+            
               <span ng-show="pagedTermTypes.totalCount > 10"
                 style="float: right;">
                 Page size: <select ng-model="paging['termTypes'].pageSize"
@@ -296,13 +307,16 @@
                 count="selected.metadata.termTypes.length"
                 callbacks="paging['termTypes'].callbacks"></div>
 
+              <span style="float: right;">
+                <button ng-click="openEditTermTypeModal('Add')" title="Add"
+                class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedTermTypes.data">
                   <td>{{entry.key}}</td>
                   <td>{{entry.value}}</td>
                   <td class="nobreak">
                     <i
-                      ng-click="openEditTermTypeModal(entry); $event.stopPropagation()"
+                      ng-click="openEditTermTypeModal('Edit', entry); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
                     <i confirm="Are you sure you want to remove {{entry.key}}?"
                       ng-click="removeTermType(entry.key); $event.stopPropagation()"
@@ -334,7 +348,9 @@
               <div pager paging="paging['attributeNames']"
                 count="selected.metadata.attributeNames.length"
                 callbacks="paging['attributeNames'].callbacks"></div>
-
+              <span style="float: right;">
+                <button ng-click="openEditAttributeNameModal('Add')" title="Add"
+                class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedAttributeNames.data">
                   <td>{{entry.key}}</td>
@@ -437,7 +453,9 @@
               <div pager paging="paging['relationshipTypes']"
                 count="selected.metadata.relationshipTypes.length"
                 callbacks="paging['relationshipTypes'].callbacks"></div>
-
+              <span style="float: right;">
+                <button ng-click="openEditRelationshipTypeModal('Add')" title="Add"
+                class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedRelationshipTypes.data">
                   <td>{{entry.key}}</td>
@@ -477,7 +495,9 @@
               <div pager paging="paging['additionalRelationshipTypes']"
                 count="selected.metadata.additionalRelationshipTypes.length"
                 callbacks="paging['additionalRelationshipTypes'].callbacks"></div>
-
+              <span style="float: right;">
+                <button ng-click="openEditAdditionalRelationshipTypeModal('Add')" title="Add"
+                class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedAdditionalRelationshipTypes.data">
                   <td>{{entry.key}}</td>

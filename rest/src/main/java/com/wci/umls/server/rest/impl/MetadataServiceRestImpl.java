@@ -857,6 +857,35 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/terminology/update")
+  @ApiOperation(value = "Update a terminology", notes = "Update a terminology", response = TerminologyJpa.class)
+  public void updateTerminology(
+    @ApiParam(value = "Terminology to update", required = true) TerminologyJpa terminology,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /terminology/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update terminology", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateTerminology(terminology);
+    } catch (Exception e) {
+      handleException(e, "trying to update terminology");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
   /* see superclass */
   @Override
   @POST

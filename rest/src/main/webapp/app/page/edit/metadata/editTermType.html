@@ -10,7 +10,8 @@
           <td>
             <b>Abbreviation</b>
           </td>
-          <td>{{termType.abbreviation}}</td>
+          <td ng-show="action == 'Edit'">{{termType.abbreviation}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="termType.abbreviation" size="40" /></td>
         </tr>
         <tr>
           <td>

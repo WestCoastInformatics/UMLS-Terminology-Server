@@ -35,7 +35,7 @@ tsApp.controller('EditTermTypeModalCtrl', [
       if ($scope.action == 'Edit') {
         fn = 'updateTermType';
       }
-      // Add term type
+      // Add/Edit term type
       metadataService[fn](termType).then(
         // Success
         function(data) {          
@@ -57,22 +57,20 @@ tsApp.controller('EditTermTypeModalCtrl', [
     //
     // INITIALIZE
     //
-
-    // Configure validation checks
+    // Edit case
     if (termType) {
       metadataService.getTermType(termType.key, $scope.selected.project.terminology,
         $scope.selected.project.version).then(
           function(data) {
             $scope.termType = data;
           });
-      
+    // Add new term type case  
     } else {
+      $scope.termType = {};
       $scope.termType.terminology = $scope.selected.project.terminology;
       $scope.termType.version = $scope.selected.project.version;
     }
-    if (action == 'Add') {
-      //$scope.termType.editingEnabled = true;
-    }
+    
 
     // end
   } ]);

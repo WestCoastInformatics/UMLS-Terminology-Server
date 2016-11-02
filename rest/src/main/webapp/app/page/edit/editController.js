@@ -74,6 +74,18 @@ tsApp
 
         // Windows
         $scope.windows = {};
+        
+        // Accordion Groups
+        $scope.groups = [ {
+          title : "Worklists/Clusters",
+          open : true
+        }, {
+          title : "Concepts/Reports",
+          open : true
+        }, {
+          title : "Metadata",
+          open : true
+        } ];
 
         // Paging variables
         $scope.paging = {};
@@ -429,20 +441,6 @@ tsApp
 
           // Initialize metadata - this also sets the model
           $scope.getAllMetadata();
-          /*metadataService.getAllMetadata($scope.selected.project.terminology,
-            $scope.selected.project.version).then(
-          // Success
-          function(data) {
-            metadataService.setModel(data);
-            $scope.lists.languages = data.languages;
-            if ($scope.project && !$scope.project.language) {
-              $scope.project.language = 'ENG';
-            }
-            $scope.getPagedTermTypes();
-            $scope.getPagedAttributeNames();
-            $scope.getPagedRelationshipTypes();
-            $scope.getPagedAdditionalRelationshipTypes();
-          });*/
 
           metadataService.getPrecedenceList($scope.selected.project.terminology,
             $scope.selected.project.version).then(
@@ -1060,6 +1058,13 @@ tsApp
             }
           }
         });
+        
+        $scope.saveAccordionStatus = function() {
+          console.debug('saveAccordionStatus', $scope.groups);
+          $scope.user.userPreferences.properties['editGroups'] = JSON
+            .stringify($scope.groups);
+          securityService.updateUserPreferences($scope.user.userPreferences);
+        }
 
         // METADATA FUNCTIONS
         $scope.removeTermType = function(type) {
@@ -1341,8 +1346,8 @@ tsApp
         };
 
         // Edit term types modal
-        $scope.openEditTermTypeModal = function(ltermType) {
-          console.debug('openEditTermTypeModal ', ltermType);
+        $scope.openEditTermTypeModal = function(laction, ltermType) {
+          console.debug('openEditTermTypeModal ', laction, ltermType);
 
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/metadata/editTermType.html',
@@ -1359,7 +1364,7 @@ tsApp
                 return $scope.user;
               },
               action : function() {
-                return 'Edit';
+                return laction;
               },
               termType : function() {
                 return ltermType;
@@ -1407,6 +1412,38 @@ tsApp
 
         };
         
+        // Edit terminology modal
+        $scope.openEditTerminologyModal = function() {
+          console.debug('openEditTerminologyModal ');
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editTerminology.html',
+            controller : 'EditTerminologyModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              terminology : function() {
+                return $scope.metadataTerminology;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
@@ -1435,6 +1472,11 @@ tsApp
                 $scope.paging['records'].callbacks = {
                   getPagedList : getRecords
                 };
+              }
+              if ($scope.user.userPreferences.properties['editGroups']) {
+                var savedEditGroups = JSON
+                  .parse($scope.user.userPreferences.properties['editGroups']);
+                angular.copy(savedEditGroups, $scope.groups);
               }
             });
 

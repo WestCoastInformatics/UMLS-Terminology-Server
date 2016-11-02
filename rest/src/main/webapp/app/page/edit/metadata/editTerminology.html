@@ -1,0 +1,76 @@
+<div class="modal-header">
+  <h4>Edit Terminology</h4> 
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>{{terminology.terminology}}</td>
+        </tr>       
+        
+        <tr>
+        <td>
+          <b>Citation</b>
+        </td>
+        <td>
+          <input ng-model="terminology.citation" size="40" />
+        </td>
+        </tr>
+
+        <tr>
+        <td>
+          <b>Inverter Email</b>
+        </td>
+        <td>
+          <input ng-model="terminology.inverterEmail" size="40" />
+        </td>
+        </tr>
+
+        <tr>
+        <td>
+          <b>Asserts Rels Direction</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="terminology.assertsRelsDirection"
+            title="Terminology asserts rels direction.">
+        </td>
+        </tr>
+                
+        <tr>
+        <td>
+          <b>Current</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="terminology.current"
+            title="Terminology is current.">
+        </td>
+        </tr>
+        
+        <tr>
+        <td>
+          <b>Include Siblings</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="terminology.includeSiblings"
+            title="Terminology includes siblings.">
+        </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+</div>
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary"
+    ng-click="submitTerminology(terminology);">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

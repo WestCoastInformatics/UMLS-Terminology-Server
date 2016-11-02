@@ -336,11 +336,11 @@ public class MetadataClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target = client
         .target(config.getProperty("base.url") + "/metadata/rootTerminology/update");
-    final String relationshipTypeString = ConfigUtility.getStringForGraph(
+    final String rootTerminologyString = ConfigUtility.getStringForGraph(
         rootTerminology == null ? new RootTerminologyJpa() : rootTerminology);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(relationshipTypeString));
+        .post(Entity.xml(rootTerminologyString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -348,6 +348,29 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
+  
+  @Override
+  public void updateTerminology(TerminologyJpa terminology,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - update terminology ");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/terminology/update");
+    final String terminologyString = ConfigUtility.getStringForGraph(
+        terminology == null ? new TerminologyJpa() : terminology);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.xml(terminologyString));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+  }
+  
   @Override
   public void updateAdditionalRelationshipType(AdditionalRelationshipTypeJpa additionalRelationshipType,
     String authToken) throws Exception {

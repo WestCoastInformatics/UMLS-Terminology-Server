@@ -13,9 +13,9 @@
     <uib-accordion
       ng-show="user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER'">
 
-    <!-- A1 - Projects --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- A1 - Projects --> <uib-accordion-group is-open="groups[0].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Add, edit, and remove projects">Projects</span>
+      <span uib-tooltip="Add, edit, and remove projects">{{groups[0].title}}</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
@@ -71,9 +71,9 @@
     <!--  end A2 - Projects --> </uib-accordion-group>
     <div></div>
 
-    <!-- Accordion 2 - Users --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- Accordion 2 - Users --> <uib-accordion-group is-open="groups[1].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Add, edit, and remove users"> Users </span>
+      <span uib-tooltip="Add, edit, and remove users"> {{groups[1].title}} </span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
@@ -131,9 +131,9 @@
     <!--  end A2 Users --> </uib-accordion-group>
     <div></div>
 
-    <!-- A3 - User Preferences --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- A3 - User Preferences --> <uib-accordion-group is-open="groups[2].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Manage user preferences"> User Preferences </span>
+      <span uib-tooltip="Manage user preferences"> {{groups[2].title}} </span>
     </h5>
     </uib-accordion-heading> <!--  end A3 User Prefs-->
 
