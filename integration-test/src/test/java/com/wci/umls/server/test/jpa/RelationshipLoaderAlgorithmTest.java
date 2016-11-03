@@ -24,7 +24,7 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class RelationshipsLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
   RelationshipLoaderAlgorithm algo = null;
@@ -72,7 +72,7 @@ public class RelationshipsLoaderAlgorithmTest extends IntegrationUnitSupport {
     // Create and configure the algorithm
     algo = new RelationshipLoaderAlgorithm();
 
-    // Configure the algorithm (need to do either way)
+    // Configure the algorithm
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProcess(processExecution);
@@ -87,7 +87,7 @@ public class RelationshipsLoaderAlgorithmTest extends IntegrationUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testRelationshipsLoader() throws Exception {
+  public void testRelationshipLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Run the RELATIONSHIPLOADER algorithm
