@@ -604,9 +604,16 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
         final String userName = authorizeApp(securityService, authToken,
             "remove add relationship type ", UserRole.USER);
         metadataService.setLastModifiedBy(userName);
-
+        
         AdditionalRelationshipType relType = metadataService.getAdditionalRelationshipType(type, terminology, version);
+        AdditionalRelationshipType inverse = relType.getInverse();
+        relType.setInverse(null);
+        metadataService.updateAdditionalRelationshipType(relType);
+        inverse.setInverse(null);
+        metadataService.updateAdditionalRelationshipType(inverse);
         metadataService.removeAdditionalRelationshipType(relType.getId());
+        metadataService.removeAdditionalRelationshipType(inverse.getId());
+        
       } catch (Exception e) {
 
         handleException(e, "trying to remove the add relationship type");
@@ -671,8 +678,15 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
             "remove rel type ", UserRole.USER);
         metadataService.setLastModifiedBy(userName);
 
+        // must also remove the inverse to avoid foreign key constraint
         RelationshipType relType = metadataService.getRelationshipType(type, terminology, version);
+        RelationshipType inverse = relType.getInverse();
+        relType.setInverse(null);
+        metadataService.updateRelationshipType(relType);
+        inverse.setInverse(null);
+        metadataService.updateRelationshipType(inverse);
         metadataService.removeRelationshipType(relType.getId());
+        metadataService.removeRelationshipType(inverse.getId());
       } catch (Exception e) {
 
         handleException(e, "trying to remove the rel type");

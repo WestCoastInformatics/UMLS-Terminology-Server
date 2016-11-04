@@ -23,6 +23,20 @@
             <input ng-model="object.expandedForm" size="40" />
           </td>
         </tr>
+        <tr>
+          <td>
+            <b>Inverse Abbreviation</b>
+          </td>
+          <td ng-show="action == 'Edit'">{{inverse.abbreviation}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="inverse.abbreviation" size="40" /></td>
+        </tr>
+        <tr>
+          <td>
+            <b>Inverse Expanded Form</b>
+          </td>
+          <td ng-show="action == 'Edit'">{{inverse.expandedForm}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="inverse.expandedForm" size="40" /></td>
+        </tr>
       </table>
     </div>
   </div>

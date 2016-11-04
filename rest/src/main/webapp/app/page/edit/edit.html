@@ -464,7 +464,7 @@
                     <i
                       ng-click="openEditRelationshipTypeModal('Edit', entry, 'relationshipType'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
-                    <i confirm="Are you sure you want to remove {{entry.key}}?"
+                    <i confirm="Are you sure you want to remove {{entry.key}}?  Its inverse will also be removed."
                       ng-click="removeRelationshipType(entry.key); $event.stopPropagation()"
                       title="Delete" class="noul glyphicon glyphicon-trash"></i>
                   </td>
@@ -506,7 +506,7 @@
                     <i
                       ng-click="openEditRelationshipTypeModal('Edit', entry, 'addRelType'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
-                    <i confirm="Are you sure you want to remove {{entry.key}}?"
+                    <i confirm="Are you sure you want to remove {{entry.key}}?   Its inverse will also be removed."
                       ng-click="removeAdditionalRelationshipType(entry.key); $event.stopPropagation()"
                       title="Delete" class="noul glyphicon glyphicon-trash"></i>
                   </td>

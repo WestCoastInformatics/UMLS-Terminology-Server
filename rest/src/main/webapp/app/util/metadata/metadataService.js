@@ -324,7 +324,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       gpService.increment();
       $http.post(
         metadataUrl
-          + '/addRelType/update', relType).then(
+          + '/addRelType/update', addRelType).then(
       // success
       function(response) {        
         gpService.decrement();

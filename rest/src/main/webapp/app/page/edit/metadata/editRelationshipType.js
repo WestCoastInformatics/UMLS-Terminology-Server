@@ -33,15 +33,15 @@ tsApp.controller('EditRelationshipTypeModalCtrl', [
       }
       
   
-      var fn = 'addTermType';
-      if ($scope.action == 'Edit' && $scope.mode == 'termType') {
-        fn = 'updateTermType';
-      } else if ($scope.action == 'Add' && $scope.mode == 'termType') {
-        fn = 'addTermType';
-      } else if ($scope.action == 'Edit' && $scope.mode == 'attributeName') {
-        fn = 'updateAttributeName';
-      } else if ($scope.action == 'Add' && $scope.mode == 'attributeName') {
-        fn = 'addAttributeName';
+      var fn = 'addRelationshipType';
+      if ($scope.action == 'Edit' && $scope.mode == 'relationshipType') {
+        fn = 'updateRelationshipType';
+      } else if ($scope.action == 'Add' && $scope.mode == 'relationshipType') {
+        fn = 'addRelationshipType';
+      } else if ($scope.action == 'Edit' && $scope.mode == 'addRelType') {
+        fn = 'updateAdditionalRelationshipType';
+      } else if ($scope.action == 'Add' && $scope.mode == 'addRelType') {
+        fn = 'addAdditionalRelationshipType';
       }
       
       // Add/Edit term type
@@ -72,12 +72,23 @@ tsApp.controller('EditRelationshipTypeModalCtrl', [
         $scope.selected.project.version).then(
           function(data) {
             $scope.object = data;
+            metadataService.getRelationshipType($scope.object.inverseAbbreviation, $scope.selected.project.terminology,
+              $scope.selected.project.version).then(
+                function(data) {
+                  $scope.inverse = data;
+                });
           });
+      
     } else if ($scope.mode == 'addRelType' && object) {
       metadataService.getAdditionalRelationshipType(object.key, $scope.selected.project.terminology,
         $scope.selected.project.version).then(
           function(data) {
             $scope.object = data;
+            metadataService.getAdditionalRelationshipType($scope.object.inverseAbbreviation, $scope.selected.project.terminology,
+              $scope.selected.project.version).then(
+                function(data) {
+                  $scope.inverse = data;
+                });
           });   
     // Add new term type / attribute name
     } else {
