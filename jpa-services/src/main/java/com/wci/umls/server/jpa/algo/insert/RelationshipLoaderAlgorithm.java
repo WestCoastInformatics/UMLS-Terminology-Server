@@ -30,6 +30,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -344,12 +345,12 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         newRelationship.setInferred(true);
         newRelationship.setName(fields[4]);
         newRelationship.setObsolete(false);
-        newRelationship.setPublishable(lookupBoolean(fields[9]));
-        newRelationship.setPublished(lookupBoolean(fields[10]));
+        newRelationship.setPublishable(fields[9].equals("Y"));
+        newRelationship.setPublished(fields[10].equals("Y"));
         newRelationship.setRelationshipType(lookupRelationshipType(fields[3]));
         newRelationship.setHierarchical(false);
         newRelationship.setStated(true);
-        newRelationship.setSuppressible(lookupBoolean(fields[11]));
+        newRelationship.setSuppressible(fields[11].equals("Y"));
         Terminology term = loadedTerminologies.get(fields[6]);
         if (term == null) {
           throw new Exception(
@@ -406,6 +407,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
 
           addCount++;
           ruiIdMap.put(newRelationshipRui, newRelationship.getId());
+          
         }
         // If an existing relationship DOES exist, update the version
         else {
@@ -516,6 +518,9 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
       case "SOURCE_CUI":
         objectClass = ConceptJpa.class;
         break;
+      case "SRC_ATOM_ID":
+        objectClass = AtomJpa.class;
+        break;
       default:
         throw new IllegalArgumentException("Invalid class type: " + string);
     }
@@ -587,31 +592,6 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Lookup boolean.
-   *
-   * @param string the string
-   * @return the boolean
-   * @throws Exception the exception
-   */
-  private Boolean lookupBoolean(String string) throws Exception {
-
-    Boolean trueFalse = null;
-
-    switch (string) {
-      case "Y":
-        trueFalse = true;
-        break;
-      case "N":
-        trueFalse = false;
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid boolean type: " + string);
-    }
-
-    return trueFalse;
-  }
-
-  /**
    * Lookup relationship type.
    *
    * @param string the string
@@ -662,7 +642,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Cache existing atoms' RUIs and IDs.
+   * Cache existing relationships' RUIs and IDs.
    *
    * @throws Exception the exception
    */

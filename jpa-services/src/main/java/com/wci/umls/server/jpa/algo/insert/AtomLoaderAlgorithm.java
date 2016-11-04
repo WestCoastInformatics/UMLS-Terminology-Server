@@ -27,7 +27,6 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -343,7 +342,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         // to put it into.
         if (oldAtomId == null) {
           newAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newAtomAui);
+              .put(getProject().getTerminology() + "-SRC", fields[0]);
           newAtom = addAtom(newAtom);
 
           // TODO - create concept, with terminology=project.getTerminology, and
@@ -364,7 +363,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
           // Create an "alternateTerminologyId" for the atom
           oldAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newAtomAui);
+              .put(getProject().getTerminology() + "-SRC", fields[0]);
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -10,13 +11,17 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
- * Implementation of an algorithm to add or remove integrity checks to the project.
+ * Implementation of an algorithm to add or remove integrity checks to the
+ * project.
  */
 public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
@@ -28,6 +33,18 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
+
+  /** The add remove. */
+  private String addRemove;
+
+  /** The check name. */
+  private String checkName;
+
+  /** The value 1. */
+  private String value1;
+
+  /** The value 2. */
+  private String value2;
 
   /**
    * Instantiates an empty {@link AddRemoveIntegrityCheckAlgorithm}.
@@ -53,7 +70,8 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
     ValidationResult validationResult = new ValidationResultJpa();
 
     if (getProject() == null) {
-      throw new Exception("Add/Remove Integrity Check requires a project to be set");
+      throw new Exception(
+          "Add/Remove Integrity Check requires a project to be set");
     }
 
     return validationResult;
@@ -80,10 +98,40 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
     try {
 
+      logInfo(
+          "[Add/Remove Integrity Check] Adding/Removing Integrity Checks to the project");
+
+      // Each AddRemove check has only a single step
+      steps = 1;
+
       previousProgress = 0;
       stepsCompleted = 0;
 
-      logInfo("[Add/Remove Integrity Check] Adding/Removing Integrity Checks to the project");
+      TypeKeyValue validationCheckData = this.addTypeKeyValue(
+          new TypeKeyValueJpa(checkName, value1, value2));
+
+      List<TypeKeyValue> validationData = getProject().getValidationData();
+      if (addRemove.equals("Remove")) {
+        if (validationData.contains(validationCheckData)) {
+          getProject().getValidationData().remove(validationCheckData);
+          updateProject(getProject());
+        } else {
+          // Do nothing - removal is successful by default.
+        }
+      }
+
+      else if (addRemove.equals("Add")) {
+        if (validationData.contains(validationCheckData)) {
+          // Do nothing - addition has already been done.
+        } else {
+          getProject().getValidationData().add(validationCheckData);
+          updateProject(getProject());
+        }
+      }
+
+      else {
+        throw new LocalException("Invalid value for AddRemove: " + addRemove);
+      }
 
       // Update the progress
       updateProgress();
@@ -141,6 +189,20 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
     checkRequiredProperties(new String[] {
         // TODO - handle problem with config.properties needing properties
     }, p);
+
+    if (p.getProperty("addRemove") != null) {
+      addRemove = String.valueOf(p.getProperty("addRemove"));
+    }
+    if (p.getProperty("checkName") != null) {
+      checkName = String.valueOf(p.getProperty("checkName"));
+    }
+    if (p.getProperty("value1") != null) {
+      value1 = String.valueOf(p.getProperty("value1"));
+    }
+    if (p.getProperty("value2") != null) {
+      value2 = String.valueOf(p.getProperty("value2"));
+    }
+
   }
 
   /**
@@ -153,13 +215,42 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    AlgorithmParameter param = new AlgorithmParameterJpa("ObjectType", "objectType",
-        "Type of object an action will be performed on",
-        "e.g. Concept", 200, AlgorithmParameter.Type.ENUM);
-    //TODO - flesh out 'etc.'
-    param.setPossibleValues(Arrays.asList("Concept","Relationship","Demotion","Semantic Type","Attribute","Atom","etc."));
-    params.add(param);    
-    
+    AlgorithmParameter param = new AlgorithmParameterJpa("AddRemove",
+        "addRemove", "Adding or Removing integrity check", "e.g. Add", 10,
+        AlgorithmParameter.Type.ENUM);
+    param.setPossibleValues(Arrays.asList("Add", "Remove"));
+    params.add(param);
+
+    param = new AlgorithmParameterJpa("CheckName", "checkName",
+        "The name of the check to add or remove", "e.g. MGV_B", 10,
+        AlgorithmParameter.Type.ENUM);
+    // Get the valid validation checks from the config.properties file
+    List<String> validationChecks = new ArrayList<>();
+    try {
+      final String key = "validation.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handler Name to ENUM list
+        validationChecks.add(handlerName);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    param.setPossibleValues(validationChecks);
+    params.add(param);
+
+    param = new AlgorithmParameterJpa("Value1", "value1",
+        "Value 1 of the validation check  (often the Terminology)", "e.g. NCI",
+        20, AlgorithmParameter.Type.STRING);
+    params.add(param);
+
+    param = new AlgorithmParameterJpa("Value2", "value2",
+        "Value 2 of the validation check  (often blank)", "e.g. \"\"", 20,
+        AlgorithmParameter.Type.STRING);
+    params.add(param);
+
     return params;
   }
 

@@ -4,6 +4,10 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -16,18 +20,20 @@ import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.MetadataLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.maint.AddRemoveIntegrityCheckAlgorithm;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working.
  */
-public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class AddRemoveIntegrityCheckAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  MetadataLoaderAlgorithm algo = null;
+  AddRemoveIntegrityCheckAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -70,7 +76,7 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setInputPath("terminologies/NCI_INSERT");
 
     // Create and configure the algorithm
-    algo = new MetadataLoaderAlgorithm();
+    algo = new AddRemoveIntegrityCheckAlgorithm();
 
     // Configure the algorithm (need to do either way)
     algo.setLastModifiedBy("admin");
@@ -83,16 +89,27 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test metadata loader normal use.
+   * Test add remove integrity check normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testMetadataLoader() throws Exception {
+  public void testAddRemoveIntegrityCheckAlgorithm() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the METADATALOADER algorithm
+    // Run the ADDREMOVEINTEGRITYCHECK algorithm
     try {
+      
+      //
+      // Add an integrity check to the project
+      //
+      TypeKeyValue integrityCheck = new TypeKeyValueJpa("MGV_I","NCI","");
+      Properties algoProperties = new Properties();
+      algoProperties.put("addRemove", "Add");
+      algoProperties.put("checkName", integrityCheck.getType());
+      algoProperties.put("value1", integrityCheck.getKey());
+      algoProperties.put("value2", integrityCheck.getValue());
+      algo.setProperties(algoProperties);
       
       //
       // Check prerequisites
@@ -123,7 +140,62 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      // Result is to get through this all without throwing an error
+      // Assert that the newly added integrity check is present in the project
+      ProjectList projects = processService.getProjects();
+      assertTrue(projects.size() > 0);
+      project = projects.getObjects().get(0);
+      
+      List<TypeKeyValue> validationData = project.getValidationData();
+      assertTrue(validationData.contains(integrityCheck));
+      
+      
+      //
+      // Remove an integrity check to the project
+      //
+      algoProperties = new Properties();
+      algoProperties.put("addRemove", "Remove");
+      algoProperties.put("checkName", integrityCheck.getType());
+      algoProperties.put("value1", integrityCheck.getKey());
+      algoProperties.put("value2", integrityCheck.getValue());
+      algo.setProperties(algoProperties);
+      
+      //
+      // Check prerequisites
+      //
+      validationResult = algo.checkPreconditions();
+      // if prerequisites fail, return validation result
+      // for this algorithm, warnings are OK, so only rollback if errors.
+      // rollback -- unlocks the concept and closes transaction
+      if (!validationResult.getErrors().isEmpty()) {
+        Logger.getLogger(getClass())
+            .info("Stopping algorithm - Precondition Errors identified:");
+        for (String error : validationResult.getErrors()) {
+          Logger.getLogger(getClass()).info(error);
+        }
+        algo.rollback();
+      }
+      if (!validationResult.getWarnings().isEmpty()) {
+        Logger.getLogger(getClass()).info(
+            "Precondition Warnings identified, but continuing algorithm run:");
+        for (String warning : validationResult.getWarnings()) {
+          Logger.getLogger(getClass()).info(warning);
+        }
+      }
+      assertTrue(validationResult.getErrors().isEmpty());
+
+      //
+      // Perform the algorithm
+      //
+      algo.compute();
+
+      // Assert that the newly added integrity check is present in the project
+      projects = processService.getProjects();
+      assertTrue(projects.size() > 0);
+      project = projects.getObjects().get(0);
+      
+      validationData = project.getValidationData();
+      assertFalse(validationData.contains(integrityCheck));      
+      
 
     } catch (Exception e) {
       e.printStackTrace();

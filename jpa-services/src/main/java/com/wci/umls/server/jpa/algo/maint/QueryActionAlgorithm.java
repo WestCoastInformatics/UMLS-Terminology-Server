@@ -4,9 +4,11 @@
 package com.wci.umls.server.jpa.algo.maint;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -14,6 +16,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -223,8 +226,9 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa("ObjectType",
         "objectType", "Type of object an action will be performed on",
         "e.g. Concept", 200, AlgorithmParameter.Type.ENUM);
-    param.setPossibleValues(Arrays.asList("Concept", "Relationship",
-        "SemanticTypeComponent", "Attribute", "Atom"));
+    param.setPossibleValues(Arrays.asList(IdType.CONCEPT.toString(),
+        IdType.RELATIONSHIP.toString(), IdType.SEMANTIC_TYPE.toString(),
+        IdType.ATTRIBUTE.toString(), IdType.ATOM.toString()));
     params.add(param);
 
     param = new AlgorithmParameterJpa("Action", "action",
@@ -237,7 +241,8 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
     param = new AlgorithmParameterJpa("QueryType", "queryType",
         "The language the query is written in", "e.g. JQL", 200,
         AlgorithmParameter.Type.ENUM);
-    param.setPossibleValues(Arrays.asList(QueryType.values().toString()));
+    param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
+        .map(e -> e.toString()).collect(Collectors.toList()));
     params.add(param);
 
     param = new AlgorithmParameterJpa("Query", "query",

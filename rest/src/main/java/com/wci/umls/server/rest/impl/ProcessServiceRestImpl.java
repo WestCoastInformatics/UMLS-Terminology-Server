@@ -697,12 +697,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessConfigJpa processConfig = null;
-      // Load processConfig
-      if (algorithmConfig.getProcess() != null) {
-        processConfig = (ProcessConfigJpa) processService
+      ProcessConfigJpa processConfig = (ProcessConfigJpa) processService
             .getProcessConfig(processId);
-      }
      
       // Re-add processConfig to algorithmConfig (it does not make it intact
       // through XML)
@@ -726,13 +722,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         if (!param.getValues().isEmpty()) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               StringUtils.join(param.getValues(), ','));
-        } else if (param.getValue() != null && !param.getValue().isEmpty()) {
+        } else if (!ConfigUtility.isEmpty(param.getValue())) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               param.getValue());
-        } else {
-          throw new Exception(
-              "Parameter " + param + " does not have valid value(s).");
-        }
+        } 
       }
 
       // Add algorithmConfig
