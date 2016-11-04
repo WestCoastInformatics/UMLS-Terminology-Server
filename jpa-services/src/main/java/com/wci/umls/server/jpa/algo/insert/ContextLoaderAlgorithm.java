@@ -4,15 +4,24 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
+import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
@@ -32,6 +41,12 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
+
+  /**
+   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
+   * if Version = "latest") Value = Terminology object
+   */
+  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
 
   /**
    * Instantiates an empty {@link ContextLoaderAlgorithm}.
@@ -104,6 +119,54 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
 
       logInfo("[ContextLoader] Checking for new/updated Contexts");
 
+      // TODO - scan the contexts.src file and see if HCD (hierarchical code)
+      // for a given terminology is populated. If so we are loading transitive
+      // closure and tree positions for that terminology, otherwise we are
+      // computing it.
+      
+      for (Terminology t : referencedTerminologies){
+        if(!hcdTerminologies.contains(t)){
+          
+          TransitiveClosureAlgorithm algo2 = null;
+          TreePositionAlgorithm algo3 = null;
+          
+            // Only compute for organizing class types
+            if (t.getOrganizingClassType() != null) {
+              algo2 = new TransitiveClosureAlgorithm();
+              algo2.setTerminology(t.getTerminology());
+              algo2.setVersion(t.getVersion());
+              algo2.setIdType(t.getOrganizingClassType());
+              // some terminologies may have cycles, allow these for now.
+              algo2.setCycleTolerant(true);
+              algo2.compute();
+              algo2.close();
+            }
+
+          //
+          // Compute tree positions
+          // Refresh caches after metadata has changed in loader
+            if (t.getOrganizingClassType() != null) {
+              algo3 = new TreePositionAlgorithm();
+              algo3.setTerminology(t.getTerminology());
+              algo3.setVersion(t.getVersion());
+              algo3.setIdType(t.getOrganizingClassType());
+              // some terminologies may have cycles, allow these for now.
+              algo3.setCycleTolerant(true);
+              // compute "semantic types" for concept hierarchies
+              if (t.getOrganizingClassType() == IdType.CONCEPT) {
+                algo3.setComputeSemanticType(true);
+              }
+              algo3.compute();
+              algo3.close();
+            }
+          }
+        
+        else{
+          //TODO - load the transitive relationships and tree positions from the file
+          
+        }
+        }
+
       // Update the progress
       updateProgress();
 
@@ -128,6 +191,65 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
 
   }
 
+  /**
+   * Cache existing terminologies. Key = Terminology_Version, or just
+   * Terminology if version = "latest"
+   *
+   * @throws Exception the exception
+   */
+  private void cacheExistingTerminologies() throws Exception {
+
+    for (final Terminology term : getTerminologies().getObjects()) {
+      // lazy init
+      term.getSynonymousNames().size();
+      term.getRootTerminology().getTerminology();
+      if (term.getVersion().equals("latest")) {
+        loadedTerminologies.put(term.getTerminology(), term);
+      } else {
+        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
+            term);
+      }
+    }
+  }  
+  
+
+  /**
+   * Identify all terminologies from insertion.
+   *
+   * @param lines the lines
+   * @throws Exception the exception
+   */
+  private void identifyAllTerminologiesFromInsertion(List<String> lines)
+    throws Exception {
+
+    String fields[] = new String[18];
+    steps = lines.size();
+    stepsCompleted = 0;
+
+    for (String line : lines) {
+
+      FieldedStringTokenizer.split(line, "|", 18, fields);
+
+      // For the purpose of this method, all we care about:
+      // fields[6]: source
+      // fields[13]: id_qualifier_1
+      // fields[15]: id_qualifier_2
+
+      String terminology = fields[6].contains("_")
+          ? fields[6].substring(0, fields[6].indexOf('_')) : fields[6];
+      allTerminologiesFromInsertion.add(terminology);
+
+      terminology = fields[13].contains("_")
+          ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
+      allTerminologiesFromInsertion.add(terminology);
+
+      terminology = fields[15].contains("_")
+          ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
+
+      allTerminologiesFromInsertion.add(terminology);
+    }
+  }  
+  
   /**
    * Reset.
    *

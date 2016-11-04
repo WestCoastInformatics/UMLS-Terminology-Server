@@ -29,6 +29,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
@@ -37,6 +38,7 @@ import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Implementation of an algorithm to import semantic types.
@@ -135,8 +137,10 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
     // Set up the handler for identifier assignment
     final IdentifierAssignmentHandler handler =
         newIdentifierAssignmentHandler(getProject().getTerminology());
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
+    
 
     // Count number of added and updated Semantic Types, for logging
     int addCount = 0;
@@ -234,6 +238,16 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
             // fromVersion);
           }
 
+          //TODO - get concept from atom
+          //Use Lucene query:
+          // terminology: project.getTerm(), version:project.getVersion(),
+          // atoms.id:atom.getId()
+          
+          List<ConceptJpa> concepts = searchHandler.getQueryResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT, "", null, ConceptJpa.class, null, new int[1], getEntityManager());
+          if(concepts.size()!=1){
+            throw new Exception("UNexpected number of concepts: " + concepts.size() + ", for atom: " + atomId);
+          }
+          
           conceptTermId = atomComponent.getConceptId();
         } else if (fields[10].equals("SOURCE_CUI")) {
           conceptTermId = fields[1];

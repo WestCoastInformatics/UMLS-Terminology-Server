@@ -463,7 +463,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
                 "Invalid class type: " + containerClass);
           }
 
-          ComponentHasDefinitions containerComponent =
+          final ComponentHasDefinitions containerComponent =
               containerComponentId == null ? null
                   : (ComponentHasDefinitions) getComponent(containerComponentId,
                       containerClass);

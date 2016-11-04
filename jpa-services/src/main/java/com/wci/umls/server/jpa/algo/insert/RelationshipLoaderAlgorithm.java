@@ -204,7 +204,9 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
       List<String> lines = loadFileIntoStringList("relationships.src", null);
 
       // TODO - will need to for contexts.src once working for relationships.src
-
+      // Use sg_type_1 and sg_type_2 to get to/from components
+      // if sg_type_2 = SCR_ATOM_ID, skip.
+      
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
 
@@ -230,7 +232,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         if (stepsCompleted % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
-
+        
         FieldedStringTokenizer.split(line, "|", 18, fields);
 
         // Fields:
@@ -277,7 +279,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
 
         Component fromComponent = fromComponentId == null ? null
             : getComponent(fromComponentId, fromClass);
-
+        
         if (fromComponent == null) {
           // TODO - remove update and continue, and uncomment Exception once
           // testing is completed.
@@ -363,7 +365,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         newRelationship.setTerminologyId(fields[16]);
         newRelationship.setTo(toComponent);
         newRelationship.setWorkflowStatus(lookupWorkflowStatus(fields[8]));
-
+        
         // Calculate inverseRel and inverseAdditionalRel types, to use in the
         // RUI handler and the inverse relationship creation
         String inverseRelType =
@@ -408,6 +410,8 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
           addCount++;
           ruiIdMap.put(newRelationshipRui, newRelationship.getId());
           
+          // No need to explicitly attach to component - will be done automatically by addRelationship.
+          
         }
         // If an existing relationship DOES exist, update the version
         else {
@@ -441,6 +445,9 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
           addCount++;
           ruiIdMap.put(newInverseRelationshipRui,
               newInverseRelationship.getId());
+          
+          // No need to explicitly attach to component - will be done automatically by addRelationship.
+          
         }
         // If an existing inverse relationship DOES exist, update the version,
         // add an
