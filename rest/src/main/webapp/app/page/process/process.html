@@ -33,13 +33,12 @@
   <div class="col-md-6 col-xs-12">
     <h4>Processes</h4>
      
-    <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
-            style="float: right;">
+    <span style="float: right;">
             <select ng-model="selected.processType"
             ng-change="getProcesses()"
             ng-options="processType for processType in lists.processTypes"></select>
             <button ng-click="openAddProcessModal()" title="Add new process"
-              ng-show="selected.mode != 'Execution'"
+              ng-show="selected.mode != 'Execution' && selected.projectRole == 'ADMINISTRATOR'"
               class="btn btn-xs btn-primary">Add Process</button>
     </span>
     
@@ -120,7 +119,7 @@
             </td>
             <td>{{selected.process.description}}</td>
           </tr>
-         
+
           <tr>
             <td>
               <b>Terminology</b>
@@ -129,64 +128,141 @@
           </tr>
 
           <tr>
-            <td><b>Version</b>
+            <td>
+              <b>Version</b>
             </td>
             <td>{{selected.project.version}}</td>
           </tr>
-    
-    	  <tr ng-show="selected.mode == 'Execution'">
-            <td><b>Log</b>
+
+          <tr>
+            <td>
+              <b>Input Path</b>
             </td>
-            <td><div log selected="selected" type="Process"></div></td>
+            <td>{{selected.process.inputPath}}</td>
           </tr>
-          
+
           <tr ng-show="selected.mode == 'Execution'">
-            <td><b>State</b>
+            <td>
+              <b>Log</b>
+            </td>
+            <td>
+              <div log selected="selected" type="Process"></div>
+            </td>
+          </tr>
+
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.startDate">
+            <td>
+              <b>Start date</b>
+            </td>
+            <td>{{toDate(selected.process.startDate)}}</td>
+          </tr>
+
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.failDate">
+            <td>
+              <b>Fail date</b>
+            </td>
+            <td>{{toDate(selected.process.failDate)}}</td>
+          </tr>
+
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.finishDate">
+            <td>
+              <b>Finish date</b>
+            </td>
+            <td>{{toDate(selected.process.finishDate)}}</td>
+          </tr>
+
+          <tr ng-show="selected.mode == 'Execution'">
+            <td>
+              <b>State</b>
             </td>
             <td>{{getExecutionState(selected.process)}}</td>
           </tr>
-                
-        </tbody>
-      </table> 
-      <h5><b>Steps</b></h5>
-      <span ng-show="selected.projectRole == 'ADMINISTRATOR'   && selected.mode != 'Execution'"
-            style="float: right;">
-            <select ng-model="selected.algorithmConfigType"
-            ng-change="changeAlgorithmConfigType()"
-            ng-options="configType for configType in lists.algorithmConfigTypes"></select>
-            <button ng-click="openAddAlgorithmModal()" title="Add"
-              class="btn btn-xs btn-primary">Add</button>
-            </span>
-              <table class="slim table pointer">
-                <tr ng-repeat="step in selected.process.steps">
-                  <td class="col-md-4 col-xs-4">{{step.name}}</td>
-                  <td class="col-md-4 col-xs-4">{{step.description}}</td>
-                  <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
-                  <td  class="col-md-1 col-xs-1 nobreak">
-                    <i title="Edit step"
-                      ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
-                      ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
-                      class="noul glyphicon glyphicon-pencil"></i> <i
-                      title="Remove step"
-                      ng-show="selected.projectRole == 'ADMINISTRATOR'"
-                      confirm="Are you sure you want to remove the step ({{step.name}})?"
-                      ng-click="removeAlgorithm(step); $event.stopPropagation()"
-                      class="noul glyphicon glyphicon-trash"></i>
-                  </td>
-                </tr>
-                <span ng-show="selected.process.steps.length == 0"
-      class="alert alert-warning">There are no steps.  Add a step. </span>
-              </table>
 
-    <button ng-show="selected.process && selected.mode == 'Config'" class="btn btn-primary"
-    confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
-      ng-click="executeProcess(); ">Execute</button>
-    <button ng-show="selected.process && selected.mode == 'Execution' && !selected.process.failDate && !selected.process.finishDate" class="btn btn-primary"
-     ng-click="cancelProcess(selected.process.id); ">Cancel</button>
-    <button ng-show="selected.process && selected.mode == 'Execution' && 
-      (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'CANCELLED')" class="btn btn-primary"
-     ng-click="restartProcess(selected.process.id); ">Restart</button>
+          <tr ng-show="selected.mode == 'Execution'">
+            <td>
+              <b>Progress</b>
+            </td>
+            <td>
+              <uib-progressbar max="max" value="dynamic">
+              <span style="color: white; white-space: nowrap;">{{dynamic}}
+                / {{max}}</span></uib-progressbar>
+            </td>
+          </tr>
+          
+          <tr ng-show="selected.mode == 'Execution'">
+            <td>
+              <b>{{stepName}}</b>
+            </td>
+            <td>
+              <uib-progressbar max="max" value="stepDynamic">
+              <span style="color: white; white-space: nowrap;">{{stepDynamic}}
+                / {{max}}</span></uib-progressbar>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+      <h5>
+        <b>Steps</b>
+      </h5>
+      <span
+        ng-show="selected.projectRole == 'ADMINISTRATOR'   && selected.mode != 'Execution'"
+        style="float: right;">
+        <select ng-model="selected.algorithmConfigType"
+          ng-change="changeAlgorithmConfigType()"
+          ng-options="configType.value for configType in lists.algorithmConfigTypes"></select>
+        <button ng-click="openAddAlgorithmModal()" title="Add"
+          class="btn btn-xs btn-primary">Add</button>
+      </span>
+      <table class="slim table pointer">
+        <tr ng-repeat="step in selected.process.steps"
+          ng-click="selectStep(step);"
+          ng-class="{selected: step.id == selected.step.id}">
+          <td class="col-md-4 col-xs-4">{{step.name}}</td>
+          <td class="col-md-4 col-xs-4">{{step.description}}</td>
+          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
+          <td class="col-md-1 col-xs-1 nobreak">
+            <span ng-show="selected.mode == 'Execution'" log selected="selected" type="Step"></span>
+            <span ng-show="selected.mode != 'Execution'" class="nobreak">
+              <!-- Actions - move up-->
+              <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
+                title="Move step up" class="noul material-icons md-18">file_upload</i>
+              <!-- Actions - move down-->
+              <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
+                title="Move step down" class="noul material-icons md-18">file_download</i>
+
+            </span>
+
+            <i title="Edit step"
+              ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
+              ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-pencil"></i> <i
+              title="Remove step"
+              ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
+              confirm="Are you sure you want to remove the step ({{step.name}})?"
+              ng-click="removeAlgorithmConfig(step.id); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-trash"></i>
+          </td>
+        </tr>
+        <span ng-show="selected.process.steps.length == 0"
+          class="alert alert-warning">There are no steps. Add a step. </span>
+      </table>
+
+      <button ng-show="selected.process && selected.mode == 'Config'"
+        class="btn btn-primary"
+        confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
+        ng-click="executeProcess(); ">Execute</button>
+      <button
+        ng-show="selected.process && selected.mode == 'Execution' && !selected.process.failDate && !selected.process.finishDate"
+        class="btn btn-primary" ng-click="cancelProcess(selected.process.id); ">Cancel</button>
+      <button
+        ng-show="selected.process && selected.mode == 'Execution' && 
+      (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'CANCELLED')"
+        class="btn btn-primary" ng-click="restartProcess(selected.process.id); ">Restart</button>
+    </div>
   </div>
-</div>
 
 

@@ -1345,9 +1345,9 @@ tsApp
            });
         };
 
-        // Edit term types modal
-        $scope.openEditTermTypeModal = function(laction, ltermType) {
-          console.debug('openEditTermTypeModal ', laction, ltermType);
+        // Edit term types / attribute names modal
+        $scope.openEditTermTypeModal = function(laction, lobject, lmode) {
+          console.debug('openEditTermTypeModal ', laction, lobject, lmode);
 
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/metadata/editTermType.html',
@@ -1366,8 +1366,49 @@ tsApp
               action : function() {
                 return laction;
               },
-              termType : function() {
-                return ltermType;
+              object : function() {
+                return lobject;
+              },
+              mode : function() {
+                return lmode;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
+        // Edit relationship types modal
+        $scope.openEditRelationshipTypeModal = function(laction, lobject, lmode) {
+          console.debug('openEditRelationshipTypeModal ', laction, lobject, lmode);
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editRelationshipType.html',
+            controller : 'EditRelationshipTypeModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              action : function() {
+                return laction;
+              },
+              object : function() {
+                return lobject;
+              },
+              mode : function() {
+                return lmode;
               }
             }
           });

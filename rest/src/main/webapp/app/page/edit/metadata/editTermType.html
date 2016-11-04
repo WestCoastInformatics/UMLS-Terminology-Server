@@ -1,33 +1,57 @@
 <div class="modal-header">
-  <h4>{{action}} Term Type</h4> 
+  <h4 ng-show="mode == 'termType'">{{action}} Term Type</h4> 
+  <h4 ng-show="mode == 'attributeName'">{{action}} Attribute Name</h4> 
 </div>
 
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12 col-xs-12">
-      <table class="slim table">
+      <table ng-show="mode == 'termType' " class="slim table">
         <tr>
           <td>
             <b>Abbreviation</b>
           </td>
-          <td ng-show="action == 'Edit'">{{termType.abbreviation}}</td>
-          <td ng-show="action == 'Add'"><input ng-model="termType.abbreviation" size="40" /></td>
+          <td ng-show="action == 'Edit'">{{object.abbreviation}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="object.abbreviation" size="40" /></td>
         </tr>
         <tr>
           <td>
             <b>Expanded Form</b>
           </td>
           <td>
-            <input ng-model="termType.expandedForm" size="40" />
+            <input ng-model="object.expandedForm" size="40" />
           </td>
         </tr>
-        
+        <tr ng-show="action == 'Edit'">
+          <td>
+            <b>Term Type Style</b>
+          </td>
+          <td>{{object.style}}</td>
+        </tr>   
+        <tr ng-show="action == 'Edit'">
+          <td>
+            <b>Usage Type</b>
+          </td>
+          <td>{{object.usageType}}</td>
+        </tr>   
+        <tr ng-show="action == 'Edit'">
+          <td>
+            <b>Name Variant Type</b>
+          </td>
+          <td>{{object.nameVariantType}}</td>
+        </tr>   
+        <tr ng-show="action == 'Edit'">
+          <td>
+            <b>Code Variant Type</b>
+          </td>
+          <td>{{object.codeVariantType}}</td>
+        </tr>        
         <tr>
         <td>
           <b>Suppressible</b>
         </td>
         <td>
-          <input type="checkbox" ng-model="termType.suppressible"
+          <input type="checkbox" ng-model="object.suppressible"
             title="Term type is suppressible.">
         </td>
         </tr>
@@ -37,7 +61,7 @@
           <b>Hierarchical Type</b>
         </td>
         <td>
-          <input type="checkbox" ng-model="termType.hierarchicalType"
+          <input type="checkbox" ng-model="object.hierarchicalType"
             title="Hierarchical type flag.">
         </td>
         </tr>
@@ -47,7 +71,7 @@
           <b>Exclude</b>
         </td>
         <td>
-          <input type="checkbox" ng-model="termType.exclude"
+          <input type="checkbox" ng-model="object.exclude"
             title="Exclude flag.">
         </td>
         </tr>
@@ -57,9 +81,27 @@
           <b>Norm Exclude</b>
         </td>
         <td>
-          <input type="checkbox" ng-model="termType.normExclude"
+          <input type="checkbox" ng-model="object.normExclude"
             title="Norm exclude flag.">
         </td>
+        </tr>
+      </table>
+      
+      <table ng-show="mode == 'attributeName' " class="slim table">
+        <tr>
+          <td>
+            <b>Abbreviation</b>
+          </td>
+          <td ng-show="action == 'Edit'">{{object.abbreviation}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="object.abbreviation" size="40" /></td>
+        </tr>
+        <tr>
+          <td>
+            <b>Expanded Form</b>
+          </td>
+          <td>
+            <input ng-model="object.expandedForm" size="40" />
+          </td>
         </tr>
       </table>
     </div>
@@ -72,8 +114,8 @@
 
 <div class="modal-footer">
   <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitTermType(termType);">Add</button>
+    ng-click="submit(object);">Add</button>
   <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitTermType(termType);">Save</button>
+    ng-click="submit(object);">Save</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

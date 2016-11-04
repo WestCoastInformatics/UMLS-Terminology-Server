@@ -1,5 +1,5 @@
 // Edit term type / attribute name modal controller
-tsApp.controller('EditTermTypeModalCtrl', [
+tsApp.controller('EditRelationshipTypeModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
@@ -67,14 +67,14 @@ tsApp.controller('EditTermTypeModalCtrl', [
     // INITIALIZE
     //
     // Edit case
-    if ($scope.mode == 'termType' && object) {
-      metadataService.getTermType(object.key, $scope.selected.project.terminology,
+    if ($scope.mode == 'relationshipType' && object) {
+      metadataService.getRelationshipType(object.key, $scope.selected.project.terminology,
         $scope.selected.project.version).then(
           function(data) {
             $scope.object = data;
           });
-    } else if ($scope.mode == 'attributeName' && object) {
-      metadataService.getAttributeName(object.key, $scope.selected.project.terminology,
+    } else if ($scope.mode == 'addRelType' && object) {
+      metadataService.getAdditionalRelationshipType(object.key, $scope.selected.project.terminology,
         $scope.selected.project.version).then(
           function(data) {
             $scope.object = data;

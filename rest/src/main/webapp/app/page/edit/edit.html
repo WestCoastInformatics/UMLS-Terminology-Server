@@ -308,7 +308,7 @@
                 callbacks="paging['termTypes'].callbacks"></div>
 
               <span style="float: right;">
-                <button ng-click="openEditTermTypeModal('Add')" title="Add"
+                <button ng-click="openEditTermTypeModal('Add', null, 'termType')" title="Add"
                 class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedTermTypes.data">
@@ -316,7 +316,7 @@
                   <td>{{entry.value}}</td>
                   <td class="nobreak">
                     <i
-                      ng-click="openEditTermTypeModal('Edit', entry); $event.stopPropagation()"
+                      ng-click="openEditTermTypeModal('Edit', entry, 'termType'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
                     <i confirm="Are you sure you want to remove {{entry.key}}?"
                       ng-click="removeTermType(entry.key); $event.stopPropagation()"
@@ -349,7 +349,7 @@
                 count="selected.metadata.attributeNames.length"
                 callbacks="paging['attributeNames'].callbacks"></div>
               <span style="float: right;">
-                <button ng-click="openEditAttributeNameModal('Add')" title="Add"
+                <button ng-click="openEditTermTypeModal('Add', null, 'attributeName')" title="Add"
                 class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedAttributeNames.data">
@@ -357,7 +357,7 @@
                   <td>{{entry.value}}</td>
                   <td class="nobreak">
                     <i
-                      ng-click="openEditAttributeNameModal(proj); $event.stopPropagation()"
+                      ng-click="openEditTermTypeModal('Edit', entry, 'attributeName'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
                     <i confirm="Are you sure you want to remove {{entry.key}}?"
                       ng-click="removeAttributeName(entry.key); $event.stopPropagation()"
@@ -454,7 +454,7 @@
                 count="selected.metadata.relationshipTypes.length"
                 callbacks="paging['relationshipTypes'].callbacks"></div>
               <span style="float: right;">
-                <button ng-click="openEditRelationshipTypeModal('Add')" title="Add"
+                <button ng-click="openEditRelationshipTypeModal('Add', null, 'relationshipType')" title="Add"
                 class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedRelationshipTypes.data">
@@ -462,7 +462,7 @@
                   <td>{{entry.value}}</td>
                   <td class="nobreak">
                     <i
-                      ng-click="openEditRelationshipTypeModal(proj); $event.stopPropagation()"
+                      ng-click="openEditRelationshipTypeModal('Edit', entry, 'relationshipType'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
                     <i confirm="Are you sure you want to remove {{entry.key}}?"
                       ng-click="removeRelationshipType(entry.key); $event.stopPropagation()"
@@ -496,7 +496,7 @@
                 count="selected.metadata.additionalRelationshipTypes.length"
                 callbacks="paging['additionalRelationshipTypes'].callbacks"></div>
               <span style="float: right;">
-                <button ng-click="openEditAdditionalRelationshipTypeModal('Add')" title="Add"
+                <button ng-click="openEditRelationshipTypeModal('Add', null, 'addRelType')" title="Add"
                 class="btn btn-xs btn-primary">Add</button></span>
               <table class="slim table">
                 <tr ng-repeat="entry in pagedAdditionalRelationshipTypes.data">
@@ -504,7 +504,7 @@
                   <td>{{entry.value}}</td>
                   <td class="nobreak">
                     <i
-                      ng-click="openEditAdditionalRelationshipModal(proj); $event.stopPropagation()"
+                      ng-click="openEditRelationshipTypeModal('Edit', entry, 'addRelType'); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
                     <i confirm="Are you sure you want to remove {{entry.key}}?"
                       ng-click="removeAdditionalRelationshipType(entry.key); $event.stopPropagation()"

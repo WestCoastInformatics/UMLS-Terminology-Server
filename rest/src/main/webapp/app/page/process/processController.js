@@ -43,11 +43,17 @@ tsApp.controller('ProcessCtrl', [
       algorithms : [],
       projects : [],
       projectRoles : [],
-      processTypes : ['Insertion', 'Maintenance', 'Release'],
+      processTypes : [ 'Insertion', 'Maintenance', 'Release' ],
       algorithmConfigTypes : [],
       modes : [ 'Config', 'Execution' ]
     }
 
+    // Progress Monitor variables
+    $scope.max = 100;
+    $scope.dynamic = 0;
+    $scope.stepDynamic = 0;
+    $scope.stepName = 0;
+    
     // Paging variables
     $scope.paging = {};
     $scope.paging['process'] = {
@@ -140,42 +146,58 @@ tsApp.controller('ProcessCtrl', [
 
     $scope.selectProcess = function(process) {
       $scope.selected.process = process;
-      processService['getProcess' + $scope.selected.mode]($scope.selected.project.id, process.id).then(
-    	function(data) {
-    	  $scope.selected.process = data;
-    	});
-      
+      processService['getProcess' + $scope.selected.mode]($scope.selected.project.id, process.id)
+        .then(function(data) {
+          $scope.selected.process = data;
+        });
+
       $scope.lists.algorithmConfigTypes = [];
-      processService['get'+ $scope.selected.processType + 'Algorithms']($scope.selected.project.id).then(
-        function(data) {
-          for (var i = 0; i<data.keyValuePairs.length; i++) {
-            $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i].key);
+      processService['get' + $scope.selected.processType + 'Algorithms']
+        ($scope.selected.project.id).then(function(data) {
+          for (var i = 0; i < data.keyValuePairs.length; i++) {
+            $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i]);
           }
           $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
         });
     }
-    
+
+    // execute process
     $scope.executeProcess = function() {
-      //$scope.selected.mode = 'Execution';
-      processService.executeProcess($scope.selected.project.id, $scope.selected.process.id, true).then(
-    	function(data) {
-    		$scope.selected.process.id = data;
-    		wait(3000);
-    		$scope.setMode('Execution');
-    	  	processService.getProcessExecution($scope.selected.project.id, data).then(
-    	  			function(result) {
-    	  				$scope.selectProcess(result);
-    	  			});
-    	});
+      processService.executeProcess($scope.selected.project.id, $scope.selected.process.id, true)
+        .then(
+          function(data) {
+            $scope.selected.process.id = data;
+            wait(1000);
+            $scope.setMode('Execution');
+            processService.getProcessExecution($scope.selected.project.id, data).then(
+              function(result) {
+                $scope.selectProcess(result);
+                getProcessProgress($scope.selected.project.id, result.id);
+              });
+          });
+    }
+
+    function wait(ms) {
+      var start = new Date().getTime();
+      var end = start;
+      while (end < start + ms) {
+        end = new Date().getTime();
+      }
+    }
+
+    function getProcessProgress(projectId, processId) {
+      processService.getProcessProgress($scope.selected.project.id, processId).then(
+        function(result2) {
+          $scope.dynamic = result2;
+          if (result2 < 100) {
+            wait(1000);
+            getProcessProgress(projectId, processId);
+          } else {
+            //$scope.selectProcess(processId);
+          }
+        });
     }
     
-    function wait(ms){
-    	   var start = new Date().getTime();
-    	   var end = start;
-    	   while(end < start + ms) {
-    	     end = new Date().getTime();
-    	  }
-    	}
     
     $scope.getProcessConfigs = function() {
       var paging = $scope.paging['process'];
@@ -184,43 +206,49 @@ tsApp.controller('ProcessCtrl', [
         maxResults : paging.pageSize,
         sortField : paging.sortField,
         ascending : paging.sortAscending,
-        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '') 
-        + $scope.selected.processType
+        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '')
+          + $scope.selected.processType
       };
-      processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
-        function(data) {
-          $scope.lists.processes = data.processes;
-          $scope.lists.processes.totalCount = data.totalCount;
-          $scope.counts[$scope.selected.mode] = data.totalCount;
-          $scope.selected.process = null;
+      processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(function(data) {
+        $scope.lists.processes = data.processes;
+        $scope.lists.processes.totalCount = data.totalCount;
+        $scope.counts[$scope.selected.mode] = data.totalCount;
+        $scope.selected.process = null;
 
-          $scope.getProcessExecutionsCt();
-        });
+        $scope.getProcessExecutionsCt();
+      });
 
     }
-    
+
     $scope.removeProcess = function(processId) {
-    	processService['removeProcess'+ $scope.selected.mode]($scope.selected.project.id, processId).then(
-          function(data) {
-            $scope.getProcesses();
-          });
+      processService['removeProcess' + $scope.selected.mode]($scope.selected.project.id, processId)
+        .then(function(data) {
+          $scope.getProcesses();
+        });
     }
     
+    $scope.removeAlgorithmConfig = function(algorithmId) {
+      processService.removeAlgorithmConfig($scope.selected.project.id, algorithmId)
+        .then(function(data) {
+          $scope.getProcesses();
+        });
+    }
+
     $scope.cancelProcess = function(processId) {
-        processService.cancelProcess($scope.selected.project.id, processId).then(
-          function() {
-        	  // TODO: need to update process and details to show CANCELLED state
-            //$scope.getProcesses();
-          });
+      processService.cancelProcess($scope.selected.project.id, processId).then(function() {
+        console.debug('cancelled process');
+        wait(2000);
+        $scope.selectProcess($scope.selected.process);
+      });
     }
-    
+
     $scope.restartProcess = function(processId) {
-        processService.restartProcess($scope.selected.project.id, processId).then(
-          function() {
-        	  // TODO: need to update process and details to show RUNNING state
-            //$scope.getProcesses();
-          });
-      }
+      processService.restartProcess($scope.selected.project.id, processId).then(function() {
+        console.debug('restarted process');
+        wait(1000);
+        $scope.selectProcess($scope.selected.process);
+      });
+    }
 
     $scope.getProcessExecutions = function() {
       var paging = $scope.paging['process'];
@@ -229,63 +257,64 @@ tsApp.controller('ProcessCtrl', [
         maxResults : paging.pageSize,
         sortField : 'lastModified',
         ascending : false,
-        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '') 
-          + $scope.selected.processType 
+        queryRestriction : (paging.filter ? paging.filter + ' AND ' : '')
+          + $scope.selected.processType
       };
-      processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
-        function(data) {
-          $scope.lists.processes = data.processes;
-          $scope.lists.processes.totalCount = data.totalCount;
-          $scope.counts[$scope.selected.mode] = data.totalCount;
-          
-          $scope.getProcessConfigsCt();
-        });
+      processService.findProcessExecs($scope.selected.project.id, null, pfs).then(function(data) {
+        $scope.lists.processes = data.processes;
+        $scope.lists.processes.totalCount = data.totalCount;
+        $scope.counts[$scope.selected.mode] = data.totalCount;
+
+        $scope.getProcessConfigsCt();
+      });
 
     }
-    
+
     // compute execution state based on process flags
     $scope.getExecutionState = function(execution) {
-    	if (!execution) {
-    		return '';
-    	}
-    	if (!execution.failDate && !execution.finishDate) {
-    		return 'RUNNING';
-    	} else if (execution.failDate && execution.finishDate) {
-    		return 'CANCELLED';
-    	} else if (!execution.failDate && execution.finishDate) {
-    		return 'COMPLETE';
-    	} else if (execution.failDate && !execution.finishDate) {
-    		return 'FAILED';
-    	}
+      if (!execution) {
+        return '';
+      }
+      if (!execution.failDate && !execution.finishDate) {
+        return 'RUNNING';
+      } else if (execution.failDate && execution.finishDate) {
+        return 'CANCELLED';
+      } else if (!execution.failDate && execution.finishDate) {
+        return 'COMPLETE';
+      } else if (execution.failDate && !execution.finishDate) {
+        return 'FAILED';
+      }
     }
 
     $scope.getProcessConfigsCt = function() {
-        var pfs = {
-          startIndex : 0,
-          maxResults : 1,
-          queryRestriction : $scope.selected.processType
-        };
-        processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
-          function(data) {
-            $scope.counts['Config'] = data.totalCount;
-          });
+      var pfs = {
+        startIndex : 0,
+        maxResults : 1,
+        queryRestriction : $scope.selected.processType
+      };
+      processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(function(data) {
+        $scope.counts['Config'] = data.totalCount;
+      });
     }
 
     $scope.getProcessExecutionsCt = function() {
-        var pfs = {
-          startIndex : 0,
-          maxResults : 1,
-          queryRestriction : $scope.selected.processType
-        };
-        processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
-          function(data) {
-            $scope.counts['Execution'] = data.totalCount;
-        });
+      var pfs = {
+        startIndex : 0,
+        maxResults : 1,
+        queryRestriction : $scope.selected.processType
+      };
+      processService.findProcessExecs($scope.selected.project.id, null, pfs).then(function(data) {
+        $scope.counts['Execution'] = data.totalCount;
+      });
     }
 
     // Set $scope.selected.process
     $scope.setProcess = function(process) {
       $scope.selected.process = process;
+    }
+    
+    $scope.selectStep = function(step) {
+      $scope.selected.step = step;
     }
 
     // Get $scope.lists.algorithms
@@ -308,10 +337,51 @@ tsApp.controller('ProcessCtrl', [
     $scope.setAlgorithm = function(algorithm) {
       $scope.selected.algorithm = algorithm;
     }
+    
+    // Move a step up in step order
+    $scope.moveStepUp = function(step) {
+      // Start at index 1 because we can't move the top one up
+      for (var i = 1; i < $scope.selected.process.steps.length; i++) {
+        if (step.id == $scope.selected.process.steps[i].id) {
+          $scope.selected.process.steps.splice(i, 1);
+          $scope.selected.process.steps.splice(i - 1, 0, step);
+        }
+      }
+      processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process).then(
+        function(data) {
+        });
+    };
+
+    // Move a step down in step order
+    $scope.moveStepDown = function(step) {
+      // end at index -1 because we can't move the last one down
+      for (var i = 0; i < $scope.selected.process.steps.length - 1; i++) {
+        if (step.id == $scope.selected.process.steps[i].id) {
+          $scope.selected.process.steps.splice(i, 2, $scope.selected.process.steps[i + 1],
+            step);
+          break;
+        }
+      }
+      processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process).then(
+        function(data) {
+        });
+    };
+    
+    
+
+    $scope.isFirstIndex = function(entry) {
+      return entry.id == $scope.selected.process.steps[0].id;
+    }
+
+    $scope.isLastIndex = function(entry) {
+      return entry.id == 
+        $scope.selected.process.steps[$scope.selected.process.steps.length - 1].id;
+    }
+
 
     // Convert date to a string
-    $scope.toDate = function(lastModified) {
-      return utilService.toDate(lastModified);
+    $scope.toDate = function(date) {
+      return utilService.toDate(date);
     };
 
     // Table sorting mechanism
@@ -331,6 +401,8 @@ tsApp.controller('ProcessCtrl', [
     $scope.getSortIndicator = function(table, field) {
       return utilService.getSortIndicator(table, field, $scope.paging);
     };
+
+
 
     //
     // MODALS
@@ -354,7 +426,7 @@ tsApp.controller('ProcessCtrl', [
             return $scope.user;
           },
           process : function() {
-              return null;
+            return null;
           },
           action : function() {
             return 'Add';
@@ -365,11 +437,10 @@ tsApp.controller('ProcessCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-          $scope.getProcessConfigs();
+        $scope.getProcessConfigs();
       });
     };
 
-    
     // Add new process
     $scope.openEditProcessModal = function(lprocess) {
 
@@ -402,7 +473,7 @@ tsApp.controller('ProcessCtrl', [
         $scope.getProcessConfigs();
       });
     };
-    
+
     // Add new algorithm
     $scope.openAddAlgorithmModal = function() {
 
@@ -432,7 +503,7 @@ tsApp.controller('ProcessCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-          $scope.selectProcess($scope.selected.process);
+        $scope.selectProcess($scope.selected.process);
       });
     };
     // edit algorithm
@@ -467,7 +538,7 @@ tsApp.controller('ProcessCtrl', [
         $scope.selectProcess($scope.selected.process);
       });
     };
-    
+
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
     //
@@ -475,7 +546,7 @@ tsApp.controller('ProcessCtrl', [
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/process');
       $scope.getProjects();
-      
+
       // Get all terminologies
       metadataService.getTerminologies().then(
       // Success

@@ -1,0 +1,41 @@
+<div class="modal-header">
+  <h4 ng-show="mode == 'relationshipType'">{{action}} Relationship Type</h4> 
+  <h4 ng-show="mode == 'addRelType'">{{action}} Additional Relationship Type</h4> 
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+
+      <table class="slim table">
+        <tr>
+          <td>
+            <b>Abbreviation</b>
+          </td>
+          <td ng-show="action == 'Edit'">{{object.abbreviation}}</td>
+          <td ng-show="action == 'Add'"><input ng-model="object.abbreviation" size="40" /></td>
+        </tr>
+        <tr>
+          <td>
+            <b>Expanded Form</b>
+          </td>
+          <td>
+            <input ng-model="object.expandedForm" size="40" />
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+</div>
+
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submit(object);">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submit(object);">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

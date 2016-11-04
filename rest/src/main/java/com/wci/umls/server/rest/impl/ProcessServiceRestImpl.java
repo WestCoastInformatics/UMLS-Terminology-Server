@@ -726,7 +726,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         if (!param.getValues().isEmpty()) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               StringUtils.join(param.getValues(), ','));
-        } else if (!param.getValue().isEmpty()) {
+        } else if (param.getValue() != null && !param.getValue().isEmpty()) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               param.getValue());
         } else {
