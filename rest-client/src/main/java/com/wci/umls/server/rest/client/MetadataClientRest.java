@@ -21,6 +21,8 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -627,7 +629,7 @@ public class MetadataClientRest extends RootClientRest
   }
   
   @Override
-  public RelationshipType addRelationshipType(RelationshipTypeJpa relationshipType,
+  public RelationshipType addRelationshipType(RelationshipTypeListJpa relationshipTypeList,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - add relationship type ");
@@ -636,7 +638,7 @@ public class MetadataClientRest extends RootClientRest
     WebTarget target = client
         .target(config.getProperty("base.url") + "/metadata/relationshipType/add");
     final String relationshipTypeString = ConfigUtility.getStringForGraph(
-        relationshipType == null ? new RelationshipTypeJpa() : relationshipType);
+        relationshipTypeList == null ? new RelationshipTypeListJpa() : relationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(relationshipTypeString));
 
@@ -653,7 +655,7 @@ public class MetadataClientRest extends RootClientRest
   }
   
   @Override
-  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipTypeJpa additionalRelationshipType,
+  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipTypeListJpa additionalRelationshipTypeList,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - add additionalRelationship type ");
@@ -662,7 +664,7 @@ public class MetadataClientRest extends RootClientRest
     WebTarget target = client
         .target(config.getProperty("base.url") + "/metadata/addRelType/add");
     final String additionalRelationshipTypeString = ConfigUtility.getStringForGraph(
-        additionalRelationshipType == null ? new AdditionalRelationshipTypeJpa() : additionalRelationshipType);
+        additionalRelationshipTypeList == null ? new AdditionalRelationshipTypeListJpa() : additionalRelationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(additionalRelationshipTypeString));
 

@@ -864,14 +864,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     };
     
     // add relationship type
-    this.addRelationshipType = function(relationshipType) {
-      console.debug('add relationshipType');
+    this.addRelationshipType = function(relationshipTypeList) {
+      console.debug('add relationshipType and its inverse');
       var deferred = $q.defer();
 
       gpService.increment();
       $http.post(
         metadataUrl
-          + '/relationshipType/add', relationshipType).then(
+          + '/relationshipType/add', relationshipTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -894,14 +894,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
     
     
     // add additional relationship type
-    this.addAdditionalRelationshipType = function(addRelType) {
+    this.addAdditionalRelationshipType = function(addRelTypeList) {
       console.debug('add addRelType');
       var deferred = $q.defer();
 
       gpService.increment();
       $http.post(
         metadataUrl
-          + '/addRelType/add', addRelType).then(
+          + '/addRelType/add', addRelTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);

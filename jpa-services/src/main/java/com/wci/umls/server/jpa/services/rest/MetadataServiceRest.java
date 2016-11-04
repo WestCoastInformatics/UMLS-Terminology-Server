@@ -8,6 +8,8 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
@@ -276,24 +278,24 @@ public interface MetadataServiceRest {
   /**
    * Add additional relationship type.
    *
-   * @param addRelType the add rel type
+   * @param addRelTypeList the add rel type and its inverse
    * @param authToken the auth token
    * @return the additional relationship type
    * @throws Exception the exception
    */
   public AdditionalRelationshipType addAdditionalRelationshipType(
-    AdditionalRelationshipTypeJpa addRelType, String authToken)
+    AdditionalRelationshipTypeListJpa addRelTypeList, String authToken)
     throws Exception;
 
   /**
    * Add relationship type.
    *
-   * @param relationshipType the relationship type
+   * @param relationshipTypeList the relationship type and its inverse
    * @param authToken the auth token
    * @return the relationship type
    * @throws Exception the exception
    */
-  public RelationshipType addRelationshipType(RelationshipTypeJpa relationshipType,
+  public RelationshipType addRelationshipType(RelationshipTypeListJpa relationshipTypeList,
     String authToken) throws Exception;
 
   /**

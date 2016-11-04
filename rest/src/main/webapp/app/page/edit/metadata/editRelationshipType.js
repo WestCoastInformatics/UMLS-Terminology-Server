@@ -38,10 +38,12 @@ tsApp.controller('EditRelationshipTypeModalCtrl', [
         fn = 'updateRelationshipType';
       } else if ($scope.action == 'Add' && $scope.mode == 'relationshipType') {
         fn = 'addRelationshipType';
+        object = { types: [$scope.object, $scope.inverse]};
       } else if ($scope.action == 'Edit' && $scope.mode == 'addRelType') {
         fn = 'updateAdditionalRelationshipType';
       } else if ($scope.action == 'Add' && $scope.mode == 'addRelType') {
         fn = 'addAdditionalRelationshipType';
+        object = { types: [$scope.object, $scope.inverse]};
       }
       
       // Add/Edit term type
@@ -95,6 +97,9 @@ tsApp.controller('EditRelationshipTypeModalCtrl', [
       $scope.object = {};
       $scope.object.terminology = $scope.selected.project.terminology;
       $scope.object.version = $scope.selected.project.version;
+      $scope.inverse = {};
+      $scope.inverse.terminology = $scope.selected.project.terminology;
+      $scope.inverse.version = $scope.selected.project.version;
     }
     
 

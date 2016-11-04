@@ -25,6 +25,8 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -679,6 +681,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
         metadataService.setLastModifiedBy(userName);
 
         // must also remove the inverse to avoid foreign key constraint
+        // TODO setTranPerOper begin
         RelationshipType relType = metadataService.getRelationshipType(type, terminology, version);
         RelationshipType inverse = relType.getInverse();
         relType.setInverse(null);
@@ -687,6 +690,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
         metadataService.updateRelationshipType(inverse);
         metadataService.removeRelationshipType(relType.getId());
         metadataService.removeRelationshipType(inverse.getId());
+        // commit
       } catch (Exception e) {
 
         handleException(e, "trying to remove the rel type");
@@ -992,9 +996,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/relationshipType/add")
-  @ApiOperation(value = "Add a relationship type", notes = "Add a relationship type", response = RelationshipTypeJpa.class)
+  @ApiOperation(value = "Add a relationship type (and its inverse)", notes = "Add a relationship type and its inverse", response = RelationshipTypeJpa.class)
   public RelationshipType addRelationshipType(
-    @ApiParam(value = "Relationship type to add", required = true) RelationshipTypeJpa relationshipType,
+    @ApiParam(value = "Relationship type (and its inverse) to add", required = true) RelationshipTypeListJpa relationshipTypeList,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1007,9 +1011,25 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
           "add relationship type", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
-      return metadataService.addRelationshipType(relationshipType);
+      // add relType and its inverse
+      metadataService.setTransactionPerOperation(false);
+      metadataService.beginTransaction();
+      RelationshipType relType1 = relationshipTypeList.getObjects().get(0);
+      RelationshipType relType2 = relationshipTypeList.getObjects().get(1);
+      relType1.setInverse(null);
+      relType2.setInverse(null);
+      relType1 = metadataService.addRelationshipType(relType1);
+      relType2 = metadataService.addRelationshipType(relType2);
+      relType1.setInverse(relType2);
+      metadataService.updateRelationshipType(relType1);
+      relType2.setInverse(relType1);
+      metadataService.updateRelationshipType(relType2);
+      metadataService.commit();
+      
+      return relType1;
+      
     } catch (Exception e) {
-      handleException(e, "trying to add relationship type");
+      handleException(e, "trying to add relationship type and its inverse");
       return null;
     } finally {
       metadataService.close();
@@ -1022,9 +1042,9 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/addRelType/add")
-  @ApiOperation(value = "Add a term type", notes = "Add a term type", response = AdditionalRelationshipTypeJpa.class)
+  @ApiOperation(value = "Add an additional relationship type and its inverse", notes = "Add an additional relationship type and its inverse", response = AdditionalRelationshipTypeJpa.class)
   public AdditionalRelationshipType addAdditionalRelationshipType(
-    @ApiParam(value = "AdditionalRelationship type to add", required = true) AdditionalRelationshipTypeJpa addRelType,
+    @ApiParam(value = "AdditionalRelationship type (and its inverse) to add", required = true) AdditionalRelationshipTypeListJpa addRelTypeList,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1037,7 +1057,23 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
           "add term type", UserRole.USER);
       metadataService.setLastModifiedBy(userName);
 
-      return metadataService.addAdditionalRelationshipType(addRelType);
+      // add relType and its inverse
+      metadataService.setTransactionPerOperation(false);
+      metadataService.beginTransaction();
+      AdditionalRelationshipType relType1 = addRelTypeList.getObjects().get(0);
+      AdditionalRelationshipType relType2 = addRelTypeList.getObjects().get(1);
+      relType1.setInverse(null);
+      relType2.setInverse(null);
+      relType1 = metadataService.addAdditionalRelationshipType(relType1);
+      relType2 = metadataService.addAdditionalRelationshipType(relType2);
+      relType1.setInverse(relType2);
+      metadataService.updateAdditionalRelationshipType(relType1);
+      relType2.setInverse(relType1);
+      metadataService.updateAdditionalRelationshipType(relType2);
+      metadataService.commit();
+      
+      return relType1;
+      
     } catch (Exception e) {
       handleException(e, "trying to add term type");
       return null;
