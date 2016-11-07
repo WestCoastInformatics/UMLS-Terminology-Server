@@ -285,6 +285,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         new PrecedenceListJpa(metadataService.getDefaultPrecedenceList(
             project1.getTerminology(), "latest", authToken));
     list.setId(null);
+    list.setTerminology("");
+    list.setVersion("");
     metadataService = new MetadataServiceRestImpl();
     list =
         (PrecedenceListJpa) metadataService.addPrecedenceList(list, authToken);
