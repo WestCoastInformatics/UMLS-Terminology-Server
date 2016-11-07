@@ -79,7 +79,6 @@ public class RelationshipIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("toId");
     tester.include("toType");
     tester.include("toTerminology");
-    tester.include("inverseId");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
