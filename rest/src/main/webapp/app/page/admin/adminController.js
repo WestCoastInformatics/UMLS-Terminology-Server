@@ -49,6 +49,18 @@ tsApp
           terminologies : []
         }
 
+        // Accordion Groups
+        $scope.groups = [ {
+          title : "Projects",
+          open : false
+        }, {
+          title : "Users",
+          open : false
+        }, {
+          title : "User Preferences",
+          open : false
+        } ];
+        
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -380,6 +392,14 @@ tsApp
           securityService.resetUserPreferences(user);
         }
         
+        
+        $scope.saveAccordionStatus = function() {
+          console.debug('saveAccordionStatus', $scope.groups);
+          $scope.user.userPreferences.properties['adminGroups'] = JSON
+            .stringify($scope.groups);
+          securityService.updateUserPreferences($scope.user.userPreferences);
+        }
+
         //
         // MODALS
         //
@@ -617,6 +637,12 @@ tsApp
           // Handle users with user preferences
           if ($scope.user.userPreferences) {
             $scope.configureTab();
+          }
+          
+          if ($scope.user.userPreferences.properties['adminGroups']) {
+            var savedAdminGroups = JSON
+              .parse($scope.user.userPreferences.properties['adminGroups']);
+            angular.copy(savedAdminGroups, $scope.groups);
           }
         };
 

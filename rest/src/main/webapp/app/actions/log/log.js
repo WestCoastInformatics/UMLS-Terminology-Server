@@ -69,6 +69,18 @@ tsApp.directive('log', [ function() {
                   utilService.handleDialogError($scope.errors, data);
                 });
             }
+            
+            else if (type == 'Step') {
+              processService.getAlgorithmLog(selected.project.id, selected.step.id).then(
+              // Success
+              function(data) {
+                $scope.log = data;
+              },
+              // Error
+              function(data) {
+                utilService.handleDialogError($scope.errors, data);
+              });
+            }
 
             // Project/component
             else if (type == 'Project' || type == 'Concept'

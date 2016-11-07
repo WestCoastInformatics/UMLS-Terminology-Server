@@ -17,6 +17,7 @@ tsApp.controller('AlgorithmModalCtrl', [
     $scope.action = action;
     $scope.algorithm = algorithm;
     $scope.project = selected.project;
+    $scope.steps = selected.process.steps;
     $scope.errors = [];
     $scope.messages = [];
 
@@ -28,13 +29,15 @@ tsApp.controller('AlgorithmModalCtrl', [
       });
     }
     else if ($scope.action == 'Add') {
-        processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType )
+        processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType.key )
           .then(
           function(data) {
             $scope.algorithm = data;
-            $scope.algorithm.algorithmKey = selected.algorithmConfigType;
-            $scope.algorithm.name = selected.algorithmConfigType + ' algorithm';
-            $scope.algorithm.description = selected.algorithmConfigType + ' description';
+            $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
+            $scope.algorithm.name = selected.algorithmConfigType.value + ' algorithm';
+            $scope.algorithm.description = selected.algorithmConfigType.value + ' description';
+            $scope.algorithm.terminology = selected.project.terminology;
+            $scope.algorithm.version = selected.project.version;
           });
       }
 

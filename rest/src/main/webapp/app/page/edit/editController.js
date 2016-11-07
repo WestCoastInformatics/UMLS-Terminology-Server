@@ -67,11 +67,25 @@ tsApp
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
           worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
-          terminologies : []
+          terminologies : [],
+          languages : [],
+          precedenceList : []
         }
 
         // Windows
         $scope.windows = {};
+        
+        // Accordion Groups
+        $scope.groups = [ {
+          title : "Worklists/Clusters",
+          open : true
+        }, {
+          title : "Concepts/Reports",
+          open : true
+        }, {
+          title : "Metadata",
+          open : true
+        } ];
 
         // Paging variables
         $scope.paging = {};
@@ -85,6 +99,31 @@ tsApp
         $scope.paging['records'].sortField = 'clusterId';
         $scope.paging['records'].callbacks = {
           getPagedList : getRecords
+        };
+
+        $scope.paging['termTypes'] = utilService.getPaging();
+        $scope.paging['termTypes'].callbacks = {
+          getPagedList : getPagedTermTypes
+        };
+
+        $scope.paging['attributeNames'] = utilService.getPaging();
+        $scope.paging['attributeNames'].callbacks = {
+          getPagedList : getPagedAttributeNames
+        };
+
+        $scope.paging['relationshipTypes'] = utilService.getPaging();
+        $scope.paging['relationshipTypes'].callbacks = {
+          getPagedList : getPagedRelationshipTypes
+        };
+
+        $scope.paging['additionalRelationshipTypes'] = utilService.getPaging();
+        $scope.paging['additionalRelationshipTypes'].callbacks = {
+          getPagedList : getPagedAdditionalRelationshipTypes
+        };
+
+        $scope.paging['precedenceList'] = utilService.getPaging();
+        $scope.paging['precedenceList'].callbacks = {
+          getPagedList : getPagedPrecedenceList
         };
 
         // Handle workflow changes
@@ -121,6 +160,7 @@ tsApp
             contentService.getConcept(concept.id, $scope.selected.project.id).then(
             // Success - concept exists
             function(data) {
+              wait(1000);
               $scope.selectConcept(data);
               $scope.getRecords();
 
@@ -146,6 +186,7 @@ tsApp
                 contentService.getConcept(c.id, $scope.selected.project.id).then(
                 // Success - concept exists
                 function(data) {
+                  wait(1000);
                   $scope.lists.concepts[i] = data;
                   $scope.selectConcept($scope.lists.concepts[0]);
                   $scope.getRecords();
@@ -366,16 +407,27 @@ tsApp
 
           // Get role for project (requires a lookup and will save user prefs
           projectService.getRoleForProject($scope.user, $scope.selected.project.id).then(
-          // Success
-          function(data) {
-            // Get role and set role options
-            $scope.selected.projectRole = data.role;
-            $scope.lists.projectRoles = data.options;
+            // Success
+            function(data) {
+              // Get role and set role options
+              $scope.selected.projectRole = data.role;
+              $scope.lists.projectRoles = data.options;
 
-            // Get worklists
-            // $scope.resetPaging();
-            $scope.getWorklists();
-          });
+              // Get worklists
+              // $scope.resetPaging();
+              $scope.getWorklists();
+
+              metadataService.getTerminology($scope.selected.project.terminology,
+                $scope.selected.project.version).then(
+                function(data) {
+                  $scope.metadataTerminology = data;
+                  metadataService.getRootTerminology($scope.selected.project.terminology).then(
+                    function(result) {
+                      $scope.rootTerminology = result;
+                      console.log('rootTerminology', $scope.rootTerminology);
+                    });
+                });
+            });
 
           // $scope.lists.terminologies exists here
           // set the metadata service terminology to match
@@ -388,17 +440,38 @@ tsApp
           }
 
           // Initialize metadata - this also sets the model
-          metadataService.getAllMetadata($scope.selected.project.terminology,
+          $scope.getAllMetadata();
+
+          metadataService.getPrecedenceList($scope.selected.project.terminology,
             $scope.selected.project.version).then(
           // Success
           function(data) {
-            metadataService.setModel(data);
+            $scope.lists.precedenceList = data.precedence.keyValuePairs;
+            $scope.getPagedPrecedenceList();
           });
 
           $scope.removeWindows();
 
         }
 
+        $scope.getAllMetadata = function() {
+          // Initialize metadata - this also sets the model
+          metadataService.getAllMetadata($scope.selected.project.terminology,
+            $scope.selected.project.version).then(
+          // Success
+          function(data) {
+            metadataService.setModel(data);
+            $scope.lists.languages = data.languages;
+            if ($scope.project && !$scope.project.language) {
+              $scope.project.language = 'ENG';
+            }
+            $scope.getPagedTermTypes();
+            $scope.getPagedAttributeNames();
+            $scope.getPagedRelationshipTypes();
+            $scope.getPagedAdditionalRelationshipTypes();
+          });
+        }
+        
         // Reset paging
         $scope.resetPaging = function() {
           $scope.paging['worklists'].page = 1;
@@ -623,52 +696,52 @@ tsApp
 
           // If no selected component, then try to recover from last saved
           //if (!$scope.selected.component) {
-            if ($scope.selected.worklist
-              && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
-              workflowService
-                .findTrackingRecordsForWorklist($scope.selected.project.id,
-                  $scope.selected.worklist.id, pfs)
-                .then(
-                  // Success
-                  function(data) {
-                    $scope.lists.records = data.records;
-                    $scope.lists.records.totalCount = data.totalCount;
+          if ($scope.selected.worklist
+            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
+            workflowService
+              .findTrackingRecordsForWorklist($scope.selected.project.id,
+                $scope.selected.worklist.id, pfs)
+              .then(
+                // Success
+                function(data) {
+                  $scope.lists.records = data.records;
+                  $scope.lists.records.totalCount = data.totalCount;
 
-                    // select previously selected record if saved in user
-                    // preferences
-                    if ($scope.user.userPreferences.properties['editRecord']) {
-                      for (var i = 0; i < $scope.lists.records.length; i++) {
-                        if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                          $scope.selectRecord($scope.lists.records[i]);
-                        }
+                  // select previously selected record if saved in user
+                  // preferences
+                  if ($scope.user.userPreferences.properties['editRecord']) {
+                    for (var i = 0; i < $scope.lists.records.length; i++) {
+                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                        $scope.selectRecord($scope.lists.records[i]);
                       }
-                    } else if (selectFirst) {
-                      $scope.selectRecord($scope.lists.records[0]);
                     }
-                  });
-            } else if ($scope.selected.worklist && $scope.selected.worklistMode == 'Checklists') {
-              workflowService
-                .findTrackingRecordsForChecklist($scope.selected.project.id,
-                  $scope.selected.worklist.id, pfs)
-                .then(
-                  // Success
-                  function(data) {
-                    $scope.lists.records = data.records;
-                    $scope.lists.records.totalCount = data.totalCount;
+                  } else if (selectFirst) {
+                    $scope.selectRecord($scope.lists.records[0]);
+                  }
+                });
+          } else if ($scope.selected.worklist && $scope.selected.worklistMode == 'Checklists') {
+            workflowService
+              .findTrackingRecordsForChecklist($scope.selected.project.id,
+                $scope.selected.worklist.id, pfs)
+              .then(
+                // Success
+                function(data) {
+                  $scope.lists.records = data.records;
+                  $scope.lists.records.totalCount = data.totalCount;
 
-                    // select previously selected record if saved in user
-                    // preferences
-                    if ($scope.user.userPreferences.properties['editRecord']) {
-                      for (var i = 0; i < $scope.lists.records.length; i++) {
-                        if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
-                          $scope.selectRecord($scope.lists.records[i]);
-                        }
+                  // select previously selected record if saved in user
+                  // preferences
+                  if ($scope.user.userPreferences.properties['editRecord']) {
+                    for (var i = 0; i < $scope.lists.records.length; i++) {
+                      if ($scope.lists.records[i].id == $scope.user.userPreferences.properties['editRecord']) {
+                        $scope.selectRecord($scope.lists.records[i]);
                       }
-                    } else if (selectFirst) {
-                      $scope.selectRecord($scope.lists.records[0]);
                     }
-                  });
-            }
+                  } else if (selectFirst) {
+                    $scope.selectRecord($scope.lists.records[0]);
+                  }
+                });
+          }
           //}
 
         }
@@ -985,7 +1058,171 @@ tsApp
             }
           }
         });
+        
+        $scope.saveAccordionStatus = function() {
+          console.debug('saveAccordionStatus', $scope.groups);
+          $scope.user.userPreferences.properties['editGroups'] = JSON
+            .stringify($scope.groups);
+          securityService.updateUserPreferences($scope.user.userPreferences);
+        }
 
+        // METADATA FUNCTIONS
+        $scope.removeTermType = function(type) {
+          metadataService.removeTermType(type, $scope.selected.project.terminology,
+            $scope.selected.project.version).then(
+            function(data) {
+              console.debug('termType removed', type);
+              metadataService.getAllMetadata($scope.selected.project.terminology,
+                $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                metadataService.setModel(data);
+                $scope.getPagedTermTypes();
+              });
+            });
+        }
+
+        $scope.removeRelationshipType = function(type) {
+          metadataService.removeRelationshipType(type, $scope.selected.project.terminology,
+            $scope.selected.project.version).then(
+            function(data) {
+              console.debug('relType removed', type);
+              metadataService.getAllMetadata($scope.selected.project.terminology,
+                $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                metadataService.setModel(data);
+                $scope.getPagedRelationshipTypes();
+              });
+            });
+        }
+
+        $scope.removeAttributeName = function(type) {
+          metadataService.removeAttributeName(type, $scope.selected.project.terminology,
+            $scope.selected.project.version).then(
+            function(data) {
+              console.debug('atn removed', type);
+              metadataService.getAllMetadata($scope.selected.project.terminology,
+                $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                metadataService.setModel(data);
+                $scope.getPagedAttributeNames();
+              });
+            });
+        }
+
+        $scope.removeAdditionalRelationshipType = function(type) {
+          metadataService.removeAdditionalRelationshipType(type,
+            $scope.selected.project.terminology, $scope.selected.project.version).then(
+            function(data) {
+              console.debug('addrelType removed', type);
+              metadataService.getAllMetadata($scope.selected.project.terminology,
+                $scope.selected.project.version).then(
+              // Success
+              function(data) {
+                metadataService.setModel(data);
+                $scope.getPagedAdditionalRelationshipTypes();
+              });
+            });
+        }
+
+        $scope.getPagedTermTypes = function() {
+          console.debug('gettermtypes');
+          getPagedTermTypes();
+        }
+        function getPagedTermTypes() {
+          $scope.pagedTermTypes = utilService.getPagedArray($scope.selected.metadata.termTypes,
+            $scope.paging['termTypes']);
+        }
+        ;
+
+        $scope.getPagedAttributeNames = function() {
+          console.debug('getAttributeNames');
+          getPagedAttributeNames();
+        }
+        function getPagedAttributeNames() {
+          $scope.pagedAttributeNames = utilService.getPagedArray(
+            $scope.selected.metadata.attributeNames, $scope.paging['attributeNames']);
+        }
+        ;
+
+        $scope.getPagedRelationshipTypes = function() {
+          console.debug('getRelationshipTypes');
+          getPagedRelationshipTypes();
+        }
+        function getPagedRelationshipTypes() {
+          $scope.pagedRelationshipTypes = utilService.getPagedArray(
+            $scope.selected.metadata.relationshipTypes, $scope.paging['relationshipTypes']);
+        }
+        ;
+
+        $scope.getPagedAdditionalRelationshipTypes = function() {
+          console.debug('getAdditionalRelationshipTypes');
+          getPagedAdditionalRelationshipTypes();
+        }
+        function getPagedAdditionalRelationshipTypes() {
+          $scope.pagedAdditionalRelationshipTypes = utilService.getPagedArray(
+            $scope.selected.metadata.additionalRelationshipTypes,
+            $scope.paging['additionalRelationshipTypes']);
+        }
+        ;
+
+        $scope.getPagedPrecedenceList = function() {
+          console.debug('getprecedencelist');
+          getPagedPrecedenceList();
+        }
+        function getPagedPrecedenceList() {
+          $scope.pagedPrecedenceList = utilService.getPagedArray($scope.lists.precedenceList,
+            $scope.paging['precedenceList']);
+          $scope.pagedPrecedenceList.totalCount = $scope.lists.precedenceList.length;
+        }
+        ;
+
+        // Move a termgroup up in precedence list
+        $scope.moveTermgroupUp = function(termgroup) {
+          // Start at index 1 because we can't move the top one up
+          for (var i = 1; i < $scope.lists.precedenceList.length; i++) {
+            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceList[i])) {
+              $scope.lists.precedenceList.splice(i, 1);
+              $scope.lists.precedenceList.splice(i - 1, 0, termgroup);
+            }
+          }
+          $scope.getPagedPrecedenceList();
+        };
+
+        // Move a termgroup down in precedence list
+        $scope.moveTermgroupDown = function(termgroup) {
+          // end at index -11 because we can't move the last one down
+          for (var i = 0; i < $scope.lists.precedenceList.length - 1; i++) {
+            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceList[i])) {
+              $scope.lists.precedenceList.splice(i, 2, $scope.lists.precedenceList[i + 1],
+                termgroup);
+              break;
+            }
+          }
+          $scope.getPagedPrecedenceList();
+        };
+        
+        // equivalent test for termgroups
+        $scope.isEquivalent = function(tgrp1, tgrp2) {
+          return tgrp1.key == tgrp2.key && tgrp1.value == tgrp2.value;
+        };
+
+        $scope.isFirstIndex = function(entry) {
+          return $scope.isEquivalent(entry, $scope.lists.precedenceList[0]);
+        }
+
+        $scope.isLastIndex = function(entry) {
+          return $scope.isEquivalent(entry,
+            $scope.lists.precedenceList[$scope.lists.precedenceList.length - 1]);
+        }
+
+        $scope.updatePrecedenceList = function() {
+          metadataService.updatePrecedenceList($scope.lists.precedenceList).then(function(data) {
+            console.debug('precedenceList updated', precedenceList);
+          });
+        }
         //
         // MODALS
         //
@@ -1105,9 +1342,149 @@ tsApp
           modalInstance.result.then(
           // Success
           function(data) {
-          });
+           });
         };
 
+        // Edit term types / attribute names modal
+        $scope.openEditTermTypeModal = function(laction, lobject, lmode) {
+          console.debug('openEditTermTypeModal ', laction, lobject, lmode);
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editTermType.html',
+            controller : 'EditTermTypeModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              action : function() {
+                return laction;
+              },
+              object : function() {
+                return lobject;
+              },
+              mode : function() {
+                return lmode;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
+        // Edit relationship types modal
+        $scope.openEditRelationshipTypeModal = function(laction, lobject, lmode) {
+          console.debug('openEditRelationshipTypeModal ', laction, lobject, lmode);
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editRelationshipType.html',
+            controller : 'EditRelationshipTypeModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              action : function() {
+                return laction;
+              },
+              object : function() {
+                return lobject;
+              },
+              mode : function() {
+                return lmode;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
+        // Edit root terminology modal
+        $scope.openEditRootTerminologyModal = function() {
+          console.debug('openEditRootTerminologyModal ');
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editRootTerminology.html',
+            controller : 'EditRootTerminologyModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              rootTerminology : function() {
+                return $scope.rootTerminology;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
+        // Edit terminology modal
+        $scope.openEditTerminologyModal = function() {
+          console.debug('openEditTerminologyModal ');
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/metadata/editTerminology.html',
+            controller : 'EditTerminologyModalCtrl',
+            backdrop : 'static',
+            resolve : {
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              },
+              user : function() {
+                return $scope.user;
+              },
+              terminology : function() {
+                return $scope.metadataTerminology;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(data) {
+            $scope.getAllMetadata();
+          });
+
+        };
+        
         //
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
@@ -1136,6 +1513,11 @@ tsApp
                 $scope.paging['records'].callbacks = {
                   getPagedList : getRecords
                 };
+              }
+              if ($scope.user.userPreferences.properties['editGroups']) {
+                var savedEditGroups = JSON
+                  .parse($scope.user.userPreferences.properties['editGroups']);
+                angular.copy(savedEditGroups, $scope.groups);
               }
             });
 

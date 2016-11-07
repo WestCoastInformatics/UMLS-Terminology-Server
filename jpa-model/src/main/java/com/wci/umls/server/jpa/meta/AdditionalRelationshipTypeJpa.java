@@ -166,6 +166,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param inverseAbbreviation the inverse type abbreviation
    */
   public void setInverseAbbreviation(String inverseAbbreviation) {
+    if (inverseAbbreviation == null) {
+      return;
+    }
     if (inverse == null) {
       inverse = new AdditionalRelationshipTypeJpa();
     }
@@ -178,6 +181,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param inverseId the inverse type id
    */
   public void setInverseId(Long inverseId) {
+    if (inverseId == null) {
+      return;
+    }
     if (inverse == null) {
       inverse = new AdditionalRelationshipTypeJpa();
     }
@@ -307,6 +313,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param equivalentTypeAbbreviation the equivalent type abbreviation
    */
   public void setEquivalentTypeAbbreviation(String equivalentTypeAbbreviation) {
+    if (equivalentTypeAbbreviation == null) {
+      return;
+    }
     if (equivalentType == null) {
       equivalentType = new AdditionalRelationshipTypeJpa();
     }
@@ -319,6 +328,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param equivalentTypeId the equivalent type id
    */
   public void setEquivalentTypeId(Long equivalentTypeId) {
+    if (equivalentTypeId == null) {
+      return;
+    }
     if (equivalentType == null) {
       equivalentType = new AdditionalRelationshipTypeJpa();
     }
@@ -364,6 +376,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param superTypeAbbreviation the super type abbreviation
    */
   public void setSuperTypeAbbreviation(String superTypeAbbreviation) {
+    if (superTypeAbbreviation == null) {
+      return;
+    }
     if (superType == null) {
       superType = new AdditionalRelationshipTypeJpa();
     }
@@ -376,6 +391,9 @@ public class AdditionalRelationshipTypeJpa extends AbstractAbbreviation
    * @param superTypeId the super type id
    */
   public void setSuperTypeId(Long superTypeId) {
+    if (superTypeId == null) {
+      return;
+    }
     if (superType == null) {
       superType = new AdditionalRelationshipTypeJpa();
     }
