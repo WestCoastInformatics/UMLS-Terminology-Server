@@ -402,7 +402,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
             RootService.logCt, RootService.commitCt);
-        handler.commitClearBegin();
+        handler.logAndCommit("[Atom Loader] Atom identities processed ", stepsCompleted,
+            RootService.logCt, RootService.commitCt);
 
       }
 

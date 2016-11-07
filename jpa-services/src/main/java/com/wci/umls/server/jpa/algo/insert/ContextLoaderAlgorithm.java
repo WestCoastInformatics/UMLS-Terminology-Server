@@ -124,48 +124,48 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
       // closure and tree positions for that terminology, otherwise we are
       // computing it.
       
-      for (Terminology t : referencedTerminologies){
-        if(!hcdTerminologies.contains(t)){
-          
-          TransitiveClosureAlgorithm algo2 = null;
-          TreePositionAlgorithm algo3 = null;
-          
-            // Only compute for organizing class types
-            if (t.getOrganizingClassType() != null) {
-              algo2 = new TransitiveClosureAlgorithm();
-              algo2.setTerminology(t.getTerminology());
-              algo2.setVersion(t.getVersion());
-              algo2.setIdType(t.getOrganizingClassType());
-              // some terminologies may have cycles, allow these for now.
-              algo2.setCycleTolerant(true);
-              algo2.compute();
-              algo2.close();
-            }
-
-          //
-          // Compute tree positions
-          // Refresh caches after metadata has changed in loader
-            if (t.getOrganizingClassType() != null) {
-              algo3 = new TreePositionAlgorithm();
-              algo3.setTerminology(t.getTerminology());
-              algo3.setVersion(t.getVersion());
-              algo3.setIdType(t.getOrganizingClassType());
-              // some terminologies may have cycles, allow these for now.
-              algo3.setCycleTolerant(true);
-              // compute "semantic types" for concept hierarchies
-              if (t.getOrganizingClassType() == IdType.CONCEPT) {
-                algo3.setComputeSemanticType(true);
-              }
-              algo3.compute();
-              algo3.close();
-            }
-          }
-        
-        else{
-          //TODO - load the transitive relationships and tree positions from the file
-          
-        }
-        }
+//      for (Terminology t : referencedTerminologies){
+//        if(!hcdTerminologies.contains(t)){
+//          
+//          TransitiveClosureAlgorithm algo2 = null;
+//          TreePositionAlgorithm algo3 = null;
+//          
+//            // Only compute for organizing class types
+//            if (t.getOrganizingClassType() != null) {
+//              algo2 = new TransitiveClosureAlgorithm();
+//              algo2.setTerminology(t.getTerminology());
+//              algo2.setVersion(t.getVersion());
+//              algo2.setIdType(t.getOrganizingClassType());
+//              // some terminologies may have cycles, allow these for now.
+//              algo2.setCycleTolerant(true);
+//              algo2.compute();
+//              algo2.close();
+//            }
+//
+//          //
+//          // Compute tree positions
+//          // Refresh caches after metadata has changed in loader
+//            if (t.getOrganizingClassType() != null) {
+//              algo3 = new TreePositionAlgorithm();
+//              algo3.setTerminology(t.getTerminology());
+//              algo3.setVersion(t.getVersion());
+//              algo3.setIdType(t.getOrganizingClassType());
+//              // some terminologies may have cycles, allow these for now.
+//              algo3.setCycleTolerant(true);
+//              // compute "semantic types" for concept hierarchies
+//              if (t.getOrganizingClassType() == IdType.CONCEPT) {
+//                algo3.setComputeSemanticType(true);
+//              }
+//              algo3.compute();
+//              algo3.close();
+//            }
+//          }
+//        
+//        else{
+//          //TODO - load the transitive relationships and tree positions from the file
+//          
+//        }
+//        }
 
       // Update the progress
       updateProgress();
@@ -213,42 +213,42 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
   }  
   
 
-  /**
-   * Identify all terminologies from insertion.
-   *
-   * @param lines the lines
-   * @throws Exception the exception
-   */
-  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-    throws Exception {
-
-    String fields[] = new String[18];
-    steps = lines.size();
-    stepsCompleted = 0;
-
-    for (String line : lines) {
-
-      FieldedStringTokenizer.split(line, "|", 18, fields);
-
-      // For the purpose of this method, all we care about:
-      // fields[6]: source
-      // fields[13]: id_qualifier_1
-      // fields[15]: id_qualifier_2
-
-      String terminology = fields[6].contains("_")
-          ? fields[6].substring(0, fields[6].indexOf('_')) : fields[6];
-      allTerminologiesFromInsertion.add(terminology);
-
-      terminology = fields[13].contains("_")
-          ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
-      allTerminologiesFromInsertion.add(terminology);
-
-      terminology = fields[15].contains("_")
-          ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
-
-      allTerminologiesFromInsertion.add(terminology);
-    }
-  }  
+//  /**
+//   * Identify all terminologies from insertion.
+//   *
+//   * @param lines the lines
+//   * @throws Exception the exception
+//   */
+//  private void identifyAllTerminologiesFromInsertion(List<String> lines)
+//    throws Exception {
+//
+//    String fields[] = new String[18];
+//    steps = lines.size();
+//    stepsCompleted = 0;
+//
+//    for (String line : lines) {
+//
+//      FieldedStringTokenizer.split(line, "|", 18, fields);
+//
+//      // For the purpose of this method, all we care about:
+//      // fields[6]: source
+//      // fields[13]: id_qualifier_1
+//      // fields[15]: id_qualifier_2
+//
+//      String terminology = fields[6].contains("_")
+//          ? fields[6].substring(0, fields[6].indexOf('_')) : fields[6];
+//      allTerminologiesFromInsertion.add(terminology);
+//
+//      terminology = fields[13].contains("_")
+//          ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
+//      allTerminologiesFromInsertion.add(terminology);
+//
+//      terminology = fields[15].contains("_")
+//          ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
+//
+//      allTerminologiesFromInsertion.add(terminology);
+//    }
+//  }  
   
   /**
    * Reset.

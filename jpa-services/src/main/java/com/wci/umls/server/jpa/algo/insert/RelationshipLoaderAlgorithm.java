@@ -481,6 +481,9 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Relationship Loader] Relationships processed ",
             stepsCompleted, RootService.logCt, RootService.commitCt);
+        handler.
+        logAndCommit("[Relationship Loader] Relationship Identities processed ",
+            stepsCompleted, RootService.logCt, RootService.commitCt);
 
       }
 

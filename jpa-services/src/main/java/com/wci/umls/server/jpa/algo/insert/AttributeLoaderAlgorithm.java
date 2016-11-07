@@ -662,7 +662,9 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Attribute Loader] Attributes processed ", stepsCompleted,
             RootService.logCt, RootService.commitCt);
-      }
+        handler.logAndCommit("[Attribute Loader] Attribute identities processed ", stepsCompleted,
+            RootService.logCt, RootService.commitCt);      
+        }
 
       commitClearBegin();
       handler.commitClearBegin();

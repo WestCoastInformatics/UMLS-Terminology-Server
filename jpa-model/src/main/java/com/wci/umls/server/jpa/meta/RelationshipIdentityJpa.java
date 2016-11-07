@@ -281,7 +281,6 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
     result = prime * result
         + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result = prime * result + ((fromType == null) ? 0 : fromType.hashCode());
-    result = prime * result + ((inverseId == null) ? 0 : inverseId.hashCode());
     result = prime * result
         + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result =
@@ -322,11 +321,6 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
     } else if (!fromTerminology.equals(other.fromTerminology))
       return false;
     if (fromType != other.fromType)
-      return false;
-    if (inverseId == null) {
-      if (other.inverseId != null)
-        return false;
-    } else if (!inverseId.equals(other.inverseId))
       return false;
     if (relationshipType == null) {
       if (other.relationshipType != null)
