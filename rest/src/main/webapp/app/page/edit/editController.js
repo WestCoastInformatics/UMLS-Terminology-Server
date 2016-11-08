@@ -69,7 +69,7 @@ tsApp
           worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
           terminologies : [],
           languages : [],
-          precedenceList : []
+          precedenceOrder : []
         }
 
         // Windows
@@ -436,19 +436,12 @@ tsApp
             // this works because we're only getting current terminologies
             if (terminology.terminology == project.terminology) {
               metadataService.setTerminology(terminology);
+              $scope.selected.terminology = terminology;
             }
           }
 
           // Initialize metadata - this also sets the model
           $scope.getAllMetadata();
-
-          metadataService.getPrecedenceList($scope.selected.project.terminology,
-            $scope.selected.project.version).then(
-          // Success
-          function(data) {
-            $scope.lists.precedenceList = data.precedence.keyValuePairs;
-            $scope.getPagedPrecedenceList();
-          });
 
           $scope.removeWindows();
 
@@ -470,6 +463,15 @@ tsApp
             $scope.getPagedRelationshipTypes();
             $scope.getPagedAdditionalRelationshipTypes();
           });
+          
+          metadataService.getPrecedenceList($scope.selected.project.terminology,
+            $scope.selected.project.version).then(
+          // Success
+          function(data) {
+            $scope.precedenceList = data;
+            $scope.lists.precedenceOrder = data.precedence.keyValuePairs;
+            $scope.getPagedPrecedenceList();
+          });
         }
         
         // Reset paging
@@ -480,6 +482,19 @@ tsApp
           $scope.paging['records'].filter = null;
         }
 
+        $scope.changeTerminology = function() {
+          metadataService.getTerminology($scope.selected.terminology.terminology,
+            $scope.selected.terminology.version).then(
+            function(data) {
+              $scope.metadataTerminology = data;
+              metadataService.getRootTerminology($scope.selected.terminology.terminology).then(
+                function(result) {
+                  $scope.rootTerminology = result;
+                  console.log('rootTerminology', $scope.rootTerminology);
+                });
+            });
+        }
+        
         // Get all projects for the user
         $scope.getProjects = function() {
           projectService.getProjectsForUser($scope.user).then(
@@ -1173,19 +1188,19 @@ tsApp
           getPagedPrecedenceList();
         }
         function getPagedPrecedenceList() {
-          $scope.pagedPrecedenceList = utilService.getPagedArray($scope.lists.precedenceList,
+          $scope.pagedPrecedenceList = utilService.getPagedArray($scope.lists.precedenceOrder,
             $scope.paging['precedenceList']);
-          $scope.pagedPrecedenceList.totalCount = $scope.lists.precedenceList.length;
+          $scope.pagedPrecedenceList.totalCount = $scope.lists.precedenceOrder.length;
         }
         ;
 
         // Move a termgroup up in precedence list
         $scope.moveTermgroupUp = function(termgroup) {
           // Start at index 1 because we can't move the top one up
-          for (var i = 1; i < $scope.lists.precedenceList.length; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceList[i])) {
-              $scope.lists.precedenceList.splice(i, 1);
-              $scope.lists.precedenceList.splice(i - 1, 0, termgroup);
+          for (var i = 1; i < $scope.lists.precedenceOrder.length; i++) {
+            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
+              $scope.lists.precedenceOrder.splice(i, 1);
+              $scope.lists.precedenceOrder.splice(i - 1, 0, termgroup);
             }
           }
           $scope.getPagedPrecedenceList();
@@ -1194,9 +1209,9 @@ tsApp
         // Move a termgroup down in precedence list
         $scope.moveTermgroupDown = function(termgroup) {
           // end at index -11 because we can't move the last one down
-          for (var i = 0; i < $scope.lists.precedenceList.length - 1; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceList[i])) {
-              $scope.lists.precedenceList.splice(i, 2, $scope.lists.precedenceList[i + 1],
+          for (var i = 0; i < $scope.lists.precedenceOrder.length - 1; i++) {
+            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
+              $scope.lists.precedenceOrder.splice(i, 2, $scope.lists.precedenceOrder[i + 1],
                 termgroup);
               break;
             }
@@ -1210,17 +1225,17 @@ tsApp
         };
 
         $scope.isFirstIndex = function(entry) {
-          return $scope.isEquivalent(entry, $scope.lists.precedenceList[0]);
+          return $scope.isEquivalent(entry, $scope.lists.precedenceOrder[0]);
         }
 
         $scope.isLastIndex = function(entry) {
           return $scope.isEquivalent(entry,
-            $scope.lists.precedenceList[$scope.lists.precedenceList.length - 1]);
+            $scope.lists.precedenceOrder[$scope.lists.precedenceOrder.length - 1]);
         }
 
         $scope.updatePrecedenceList = function() {
-          metadataService.updatePrecedenceList($scope.lists.precedenceList).then(function(data) {
-            console.debug('precedenceList updated', precedenceList);
+          $scope.precedenceList.precedence.keyValuePairs = $scope.lists.precedenceOrder;
+          metadataService.updatePrecedenceList($scope.precedenceList).then(function(data) {
           });
         }
         //
@@ -1491,6 +1506,7 @@ tsApp
         $scope.initialize = function() {
           // configure tab
           securityService.saveTab($scope.user.userPreferences, '/edit');
+          // gets current terminologies
           metadataService.getTerminologies().then(
             // Success
             function(data) {

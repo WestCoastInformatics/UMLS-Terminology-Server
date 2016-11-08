@@ -186,8 +186,8 @@
               <b>Progress</b>
             </td>
             <td>
-              <uib-progressbar max="max" value="dynamic">
-              <span style="color: white; white-space: nowrap;">{{dynamic}}
+              <uib-progressbar max="max" value="processProgress[process.id]">
+              <span style="color: white; white-space: nowrap;">{{processProgress[process.id]}}
                 / {{max}}</span></uib-progressbar>
             </td>
           </tr>
@@ -197,8 +197,8 @@
               <b>{{stepName}}</b>
             </td>
             <td>
-              <uib-progressbar max="max" value="stepDynamic">
-              <span style="color: white; white-space: nowrap;">{{stepDynamic}}
+              <uib-progressbar max="max" value="processProgress[step.id]">
+              <span style="color: white; white-space: nowrap;">{{processProgress[step.id]}}
                 / {{max}}</span></uib-progressbar>
             </td>
           </tr>

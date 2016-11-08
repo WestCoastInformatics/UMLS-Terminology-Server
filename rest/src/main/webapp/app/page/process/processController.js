@@ -3,6 +3,7 @@ tsApp.controller('ProcessCtrl', [
   '$scope',
   '$location',
   '$uibModal',
+  '$interval',
   'configureService',
   'tabService',
   'utilService',
@@ -10,7 +11,7 @@ tsApp.controller('ProcessCtrl', [
   'projectService',
   'processService',
   'metadataService',
-  function($scope, $location, $uibModal, configureService, tabService, utilService,
+  function($scope, $location, $uibModal, $interval, configureService, tabService, utilService,
     securityService, projectService, processService, metadataService) {
     console.debug("configure ProcessCtrl");
 
@@ -53,6 +54,8 @@ tsApp.controller('ProcessCtrl', [
     $scope.dynamic = 0;
     $scope.stepDynamic = 0;
     $scope.stepName = 0;
+    $scope.processProgress = {};
+    $scope.processInterval = null;
     
     // Paging variables
     $scope.paging = {};
@@ -172,11 +175,51 @@ tsApp.controller('ProcessCtrl', [
             processService.getProcessExecution($scope.selected.project.id, data).then(
               function(result) {
                 $scope.selectProcess(result);
-                getProcessProgress($scope.selected.project.id, result.id);
+                $scope.processProgress[result.id] = 1;
+                console.debug('processProgress started', $scope.processProgress);
+                // Start if not already running
+                if (!$scope.processInterval) {
+                  $scope.processInterval = $interval(function() {
+                    $scope.refreshProgress(result);
+                  }, 2000);
+                }
               });
           });
     }
 
+
+    // Refresh process progress
+    $scope.refreshProgress = function(process) {
+      processService.getProcessProgress($scope.selected.project.id, process.id).then(
+      // Success
+      function(data) {
+        if (data === "100" || data == 100) {
+          process.lookupInProgress = false;
+        }
+        $scope.processProgress[process.id] = data;
+        console.debug('refreshProgress', data, $scope.processProgress);
+        // If all lookups in progress are at 100%, stop interval
+        var found = true;
+        for ( var key in $scope.processProgress) {
+          if ($scope.processProgress[key] < 100) {
+            found = false;
+            break;
+          }
+        }
+        if (found) {
+          $interval.cancel($scope.lookupInterval);
+          $scope.lookupInterval = null;
+        }
+
+      },
+      // Error
+      function(data) {
+        // Cancel automated lookup on error
+        $interval.cancel($scope.lookupInterval);
+      });
+    };
+    
+    
     function wait(ms) {
       var start = new Date().getTime();
       var end = start;
@@ -185,19 +228,6 @@ tsApp.controller('ProcessCtrl', [
       }
     }
 
-    function getProcessProgress(projectId, processId) {
-      processService.getProcessProgress($scope.selected.project.id, processId).then(
-        function(result2) {
-          $scope.dynamic = result2;
-          if (result2 < 100) {
-            wait(1000);
-            getProcessProgress(projectId, processId);
-          } else {
-            //$scope.selectProcess(processId);
-          }
-        });
-    }
-    
     
     $scope.getProcessConfigs = function() {
       var paging = $scope.paging['process'];
