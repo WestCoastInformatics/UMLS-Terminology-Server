@@ -45,11 +45,6 @@ tsApp.controller('EditRootTerminologyModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
-    //
-    // INITIALIZE
-    //
-
-    
 
     // end
   } ]);

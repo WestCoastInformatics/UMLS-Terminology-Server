@@ -269,7 +269,10 @@
             <td>
               <b>Root Terminology</b>
             </td>
-            <td>{{metadataTerminology.rootTerminologyAbbreviation}}
+            <td><select ng-model="selected.terminology"
+          ng-change="changeTerminology()"
+          ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies"></select>
+            {{selected.rootTerminology.rootTerminologyAbbreviation}}
                     <i
                       ng-click="openEditRootTerminologyModal(); $event.stopPropagation()"
                       title="Edit" class="noul glyphicon glyphicon-pencil"></i>
