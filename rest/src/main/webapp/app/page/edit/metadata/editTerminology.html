@@ -13,14 +13,7 @@
           <td>{{terminology.terminology}}</td>
         </tr>       
         
-        <tr>
-        <td>
-          <b>Citation</b>
-        </td>
-        <td>
-          <input ng-model="terminology.citation" size="40" />
-        </td>
-        </tr>
+       
 
         <tr>
         <td>
@@ -58,6 +51,68 @@
         <td>
           <input type="checkbox" ng-model="terminology.includeSiblings"
             title="Terminology includes siblings.">
+        </td>
+        </tr>
+        
+        <tr>
+        <td>
+          <b>Citation</b>
+        </td>
+        <td>
+          <table class="slim table">
+            <tr>
+              <td>Organization</td>
+              <td><input ng-model="terminology.citation.organization" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Place of Publication</td>
+              <td><input ng-model="terminology.citation.placeOfPublication" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Editor</td>
+              <td><input ng-model="terminology.citation.editor" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Edition</td>
+              <td><input ng-model="terminology.citation.edition" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Content Designator</td>
+              <td><input ng-model="terminology.citation.contentDesignator" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Author</td>
+              <td><input ng-model="terminology.citation.author" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Series</td>
+              <td><input ng-model="terminology.citation.series" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Title</td>
+              <td><input ng-model="terminology.citation.title" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Notes</td>
+              <td><input ng-model="terminology.citation.notes" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Location</td>
+              <td><input ng-model="terminology.citation.location" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Extent</td>
+              <td><input ng-model="terminology.citation.extent" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Availability Statement</td>
+              <td><input ng-model="terminology.citation.availabilityStatement" size="40" /></td>
+            </tr>
+            <tr>
+              <td>Date of Revision</td>
+              <td><input ng-model="terminology.citation.dateOfRevision" size="40" /></td>
+            </tr>
+          </table>
         </td>
         </tr>
       </table>

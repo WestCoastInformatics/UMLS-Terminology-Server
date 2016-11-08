@@ -409,7 +409,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /precedence/add");
+        .info("RESTful call (Metadata): /precedence/update");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -437,7 +437,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /precedence/add");
+        .info("RESTful call (Metadata): /precedence/remove");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
