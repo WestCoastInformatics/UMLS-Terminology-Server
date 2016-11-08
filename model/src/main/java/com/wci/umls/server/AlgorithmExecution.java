@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -38,4 +38,18 @@ public interface AlgorithmExecution
    * @param activityId the activity id
    */
   public void setActivityId(String activityId);
+  
+  /**
+   * Is warning.
+   *
+   * @return the boolean
+   */
+  public Boolean isWarning();
+  
+  /**
+   * Sets the warning.
+   *
+   * @param warning the warning
+   */
+  public void setWarning(Boolean warning);
 }

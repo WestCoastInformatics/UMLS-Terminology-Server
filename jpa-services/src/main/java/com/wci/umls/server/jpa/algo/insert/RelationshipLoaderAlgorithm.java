@@ -28,9 +28,8 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -45,7 +44,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import relationships.
  */
-public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
+public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -281,16 +280,11 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
             : getComponent(fromComponentId, fromClass);
         
         if (fromComponent == null) {
-          // TODO - remove update and continue, and uncomment Exception once
-          // testing is completed.
+          logWarn("Warning - could not find from Component for the following line:\n\t" + line);
           updateProgress();
           logAndCommit("[Relationship Loader] Relationships processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
           continue;
-          // throw new Exception("Error - lookup returned no object: " +
-          // fromClass.getSimpleName() + " with terminologyId=" +
-          // fromTerminologyId
-          // + ", terminology=" + fromTerminology + ", version=" + fromVersion);
         }
 
         final String toTerminologyId = fields[2];
@@ -308,16 +302,12 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
             toComponentId == null ? null : getComponent(toComponentId, toClass);
 
         if (toComponent == null) {
-          // TODO - remove update and continue, and uncomment Exception once
-          // testing is completed.
+          logWarn("Warning - could not find to Component for the following line:\n\t" + line);
           updateProgress();
           logAndCommit("[Relationship Loader] Relationships processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
           continue;
-          // throw new Exception("Error - lookup returned no object: " +
-          // toClass.getSimpleName() + ", terminologyId=" + toTerminologyId
-          // + ", terminology=" + toTerminology + ", version=" + toVersion);
-        }
+         }
 
         // Create the relationship.
         // If id_type_1 equals id_type_2, the relationship is of that type.
@@ -511,34 +501,6 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Class lookup.
-   *
-   * @param string the string
-   * @return the class<? extends hasid>
-   */
-  private Class<? extends Component> lookupClass(String string)
-    throws Exception {
-
-    Class<? extends Component> objectClass = null;
-
-    switch (string) {
-      case "CODE_SOURCE":
-        objectClass = CodeJpa.class;
-        break;
-      case "SOURCE_CUI":
-        objectClass = ConceptJpa.class;
-        break;
-      case "SRC_ATOM_ID":
-        objectClass = AtomJpa.class;
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid class type: " + string);
-    }
-
-    return objectClass;
-  }
-
-  /**
    * Lookup workflow status.
    *
    * @param string the string
@@ -557,7 +519,7 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         workflowStatus = WorkflowStatus.NEEDS_REVIEW;
         break;
       default:
-        throw new IllegalArgumentException(
+        throw new Exception(
             "Invalid workflowStatus type: " + string);
     }
 
@@ -632,8 +594,8 @@ public class RelationshipLoaderAlgorithm extends AbstractAlgorithm {
         relationshipType = "SY";
         break;
       default:
-        throw new IllegalArgumentException(
-            "Invalid day of the week: " + relationshipType);
+        throw new Exception(
+            "Invalid relationship type: " + relationshipType);
     }
 
     return relationshipType;

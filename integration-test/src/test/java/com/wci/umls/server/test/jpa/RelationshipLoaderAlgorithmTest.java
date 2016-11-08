@@ -46,9 +46,9 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The process service. */
   ProcessService processService = null;
 
-  /**  The content service. */
+  /** The content service. */
   ContentService contentService = null;
-  
+
   /** The project. */
   Project project = null;
 
@@ -73,7 +73,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     processService = new ProcessServiceJpa();
     contentService = new ContentServiceJpa();
-    
+
     // load the project (should be only one)
     ProjectList projects = processService.getProjects();
     assertTrue(projects.size() > 0);
@@ -96,10 +96,12 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
             + File.separator + processExecution.getInputPath() + File.separator
             + "test" + File.separator + "src");
     FileUtils.mkdir(tempSrcDir.toString());
-    
-    //Reset the processExecution input path to /test (the algorithm itself will look in the 'src' subfolder
-    processExecution.setInputPath(processExecution.getInputPath() + File.separator + "test");
-    
+
+    // Reset the processExecution input path to /test (the algorithm itself will
+    // look in the 'src' subfolder
+    processExecution.setInputPath(
+        processExecution.getInputPath() + File.separator + "test");
+
     // Create and populate a relationships.src document in the /test/src
     // temporary subfolder
     outputFile = new File(tempSrcDir, "relationships.src");
@@ -109,8 +111,8 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
         "1|S|V-NCI_2016_05E|BT|has_version|V-NCI|SRC|SRC|R|Y|N|N|CODE_SOURCE|SRC|CODE_SOURCE|SRC|||");
     out.println(
         "31|S|C63923|RT|Concept_In_Subset|C98033|NCI_2016_05E|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E|SOURCE_CUI|NCI_2016_05E|||");
-    out.close();    
-        
+    out.close();
+
     // Create and configure the algorithm
     algo = new RelationshipLoaderAlgorithm();
 
@@ -155,13 +157,15 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       algo.compute();
 
       // Make sure the relationships in the temporary input file are added.
-      RelationshipList relList = contentService.findCodeRelationships("V-NCI", "SRC", "latest", Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
-      assertTrue(relList.size()==1);
+      RelationshipList relList =
+          contentService.findCodeRelationships("V-NCI", "SRC", "latest",
+              Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
+      assertTrue(relList.size() == 1);
 
-      relList = contentService.findCodeRelationships("V-NCI", "SRC", "latest", Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
-      assertTrue(relList.size()==1);
-      
-      
+      relList = contentService.findConceptRelationships("C98033", "NCI",
+          "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
+      assertTrue(relList.size() == 1);
+
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -180,9 +184,8 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     FileUtils.deleteDirectory(new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "test"));
-    
+            + File.separator + processExecution.getInputPath()));
+
     processService.close();
     contentService.close();
   }
