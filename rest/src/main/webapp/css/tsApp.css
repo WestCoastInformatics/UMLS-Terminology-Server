@@ -245,8 +245,14 @@ h5 {
 .mb10 {
 	margin-bottom: 10px;
 }
+
 .mt5 {
 	margin-top: 5px;
+}
+
+.w100 {
+	width: 100%;
+	max-width: 100%;
 }
 
 .tab-disabled {

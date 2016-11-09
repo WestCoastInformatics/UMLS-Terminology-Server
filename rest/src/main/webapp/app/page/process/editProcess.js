@@ -11,27 +11,19 @@ tsApp.controller('ProcessModalCtrl', [
   'action',
   function($scope, $uibModalInstance, utilService, processService, selected, lists, user, process,
     action) {
-    console.debug("configure ProcessModalCtrl", process, action);
+    console.debug("configure ProcessModalCtrl", process, action, selected);
 
     // Scope vars
     $scope.action = action;
-    $scope.process = process;
+    $scope.process = process ? process : {
+      terminology : null,
+      version : null
+    };
     $scope.bins = lists.bins;
     $scope.lists = lists;
     $scope.project = selected.project;
     $scope.errors = [];
     $scope.messages = [];
-
-    if ($scope.action == 'Edit') {
-      processService.getProcessConfig($scope.project.id, $scope.process.id)
-        .then(
-        // Success
-        function(data) {
-          $scope.process = data;
-        });
-    } 
-
-
 
     // Update process
     $scope.submitProcess = function(process) {
@@ -48,7 +40,7 @@ tsApp.controller('ProcessModalCtrl', [
         });
 
       } else if (action == 'Add') {
-    	process.type = selected.processType;
+        process.type = selected.processType;
         processService.addProcessConfig($scope.project.id, process).then(
         // Success - add definition
         function(data) {
@@ -66,6 +58,36 @@ tsApp.controller('ProcessModalCtrl', [
     $scope.cancel = function() {
       $uibModalInstance.dismiss('cancel');
     };
+
+    // Handler for the terminology changing
+    $scope.setTerminology = function(terminology) {
+      $scope.process.terminology = terminology;
+      $scope.process.version = $scope.getTerminology(terminology).version;
+    }
+    // get the terminology object for an abbreviation
+    $scope.getTerminology = function(terminology) {
+      for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+        if ($scope.lists.terminologies[i].terminology == terminology) {
+          return $scope.lists.terminologies[i];
+        }
+      }
+      return {
+        version : null
+      };
+    }
+
+    // Initialize
+
+    if ($scope.action == 'Edit') {
+      processService.getProcessConfig($scope.project.id, $scope.process.id).then(
+      // Success
+      function(data) {
+        $scope.process = data;
+      });
+    }
+    if ($scope.action == 'Add') {
+      $scope.setTerminology($scope.project.terminology);
+    }
 
     // end
   } ]);
