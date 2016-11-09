@@ -225,28 +225,38 @@
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
           ng-class="{selected: step.id == selected.step.id}">
-          <td class="col-md-4 col-xs-4">{{step.name}}</td>
+          <td class="col-md-4 col-xs-4">
+
+            <span ng-show="selected.mode != 'Execution'" class="nobreak">
+              <!-- Actions - move up-->
+              <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
+                title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>
+              <i ng-if="isFirstIndex(step)"
+                class="glyphicon glyphicon-plus glyphicon-none"></i>
+              <!-- Actions - move down-->
+              <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
+                title="Move step down"
+                class="noul glyphicon glyphicon-arrow-down"></i>
+              <i ng-if="isLastIndex(step)"
+                class="glyphicon glyphicon-plus glyphicon-none"></i>
+
+            </span>
+
+
+            {{step.name}}
+          </td>
           <td class="col-md-4 col-xs-4">{{step.description}}</td>
           <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
           <td class="col-md-1 col-xs-1 nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
               type="Step"></span>
-            <span ng-show="selected.mode != 'Execution'" class="nobreak">
-              <!-- Actions - move up-->
-              <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
-                title="Move step up" class="noul material-icons md-18">file_upload</i>
-              <!-- Actions - move down-->
-              <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
-                title="Move step down" class="noul material-icons md-18">file_download</i>
-
-            </span>
 
             <i title="Edit step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
               class="noul glyphicon glyphicon-pencil"></i>
 
-            <i title="Remove step" class="noul glyphicon glyphicon-pencil"
+            <i title="Remove step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               confirm="Are you sure you want to remove the step ({{step.name}})?"
               ng-click="removeAlgorithmConfig(step.id); $event.stopPropagation()"

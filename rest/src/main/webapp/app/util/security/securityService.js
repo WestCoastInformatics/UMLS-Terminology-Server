@@ -264,7 +264,7 @@ tsApp.service('securityService', [
         userProjectRole = 'EDITOR5';
       }
  
-      console.debug('permissions', action, userProjectRole);
+      //console.debug('permissions', action, userProjectRole);
       return this.permissions[action][userProjectRole];      
     }
     
