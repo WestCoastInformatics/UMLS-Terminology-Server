@@ -65,9 +65,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Password, as string post data, e.g. 'guest'", required = true) String password)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful call (Security): /authentication for user = "
-            + username);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Security): /authentication for user = " + username);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       User user = securityService.authenticate(username, password);
@@ -93,8 +92,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @PathParam("authToken") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Security): /logout for authToken = " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Security): /logout for authToken = " + authToken);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       securityService.logout(authToken);
@@ -277,9 +276,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Security): /user/preferences/add "
-            + userPreferences);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Security): /user/preferences/add " + userPreferences);
 
     SecurityService securityService = new SecurityServiceJpa();
     try {
@@ -333,9 +331,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Security): /user/preferences/update "
-            + userPreferences);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Security): /user/preferences/update " + userPreferences);
     SecurityService securityService = new SecurityServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
@@ -372,13 +369,16 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
 
     final SecurityService securityService = new SecurityServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "get application roles",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "get application roles", UserRole.VIEWER);
       final StringList list = new StringList();
       list.setTotalCount(3);
       list.getObjects().add(UserRole.VIEWER.toString());
       list.getObjects().add(UserRole.USER.toString());
-      list.getObjects().add(UserRole.ADMINISTRATOR.toString());
+      if (securityService.getUser(userName)
+          .getApplicationRole() == UserRole.ADMINISTRATOR) {
+        list.getObjects().add(UserRole.ADMINISTRATOR.toString());
+      }
       return list;
     } catch (Exception e) {
       handleException(e, "trying to get roles");
@@ -397,9 +397,8 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Security): /user/find "
-            + (query == null ? "" : "query=" + query));
+    Logger.getLogger(getClass()).info("RESTful call (Security): /user/find "
+        + (query == null ? "" : "query=" + query));
 
     // Track system level information
     final SecurityService securityService = new SecurityServiceJpa();
