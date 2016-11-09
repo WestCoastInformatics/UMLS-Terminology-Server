@@ -5,12 +5,10 @@ tsApp
     [
       '$http',
       '$q',
-      '$window',
+      '$uibModal',
       'gpService',
       'utilService',
-      '$uibModal',
-      function($http, $q, $window, gpService, utilService, $uibModal) {
-        console.debug('configure metaEditingService');
+      function($http, $q, $uibModal, gpService, utilService) {
 
         // add atom
         this.addAtom = function(projectId, activityId, concept, atom, overrideWarnings) {
@@ -33,11 +31,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Add atom failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -70,10 +63,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Update atom failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -106,11 +95,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Add attribute failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -144,11 +128,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Add relationship failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -184,11 +163,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Add semantic type failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -202,6 +176,9 @@ tsApp
 
         // approve concept
         this.approveConcept = function(projectId, activityId, concept, overrideWarnings) {
+          return approveConcept(projectId, activityId, concept, overrideWarnings);
+        }
+        function approveConcept(projectId, activityId, concept, overrideWarnings) {
 
           console.debug('approve concept');
           var deferred = $q.defer();
@@ -223,19 +200,26 @@ tsApp
               console.debug('  validation = ', response.data);
               gpService.decrement();
 
-              if (response.data.errors.length > 0 || response.data.warnings.length > 0) {
-
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, activityId);
+                  response.data.warnings, 'Approve Concept');
                 modalInstance.result.then(
                 // Success
                 function(data) {
                   if (data) {
-                    this.approveConcept(projectId, activityId, concept, true);
+                    approveConcept(projectId, activityId, concept, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
                   }
                 });
               }
-              deferred.resolve(response.data);
+
+              else {
+                deferred.resolve(response.data);
+              }
             },
             // error
             function(response) {
@@ -244,7 +228,8 @@ tsApp
               deferred.reject(response.data);
             });
           return deferred.promise;
-        };
+        }
+        ;
 
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
@@ -270,11 +255,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Merge concepts failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -310,11 +290,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Move atoms failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -349,11 +324,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Remove atom failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
 
             deferred.resolve(response.data);
           },
@@ -390,11 +360,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Remove attribute failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -430,11 +395,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Remove relationship failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -470,11 +430,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Remove semantic type failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error
@@ -514,11 +469,6 @@ tsApp
           function(response) {
             console.debug('  validation = ', response.data);
             gpService.decrement();
-            if (response.data.errors.length > 0) {
-              $window.alert('Split concept failed\n' + response.data.errors[0]);
-              deferred.reject(response.data);
-              return;
-            }
             deferred.resolve(response.data);
           },
           // error

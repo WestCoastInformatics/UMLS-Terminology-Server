@@ -56,6 +56,7 @@ import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.ValidationCheck;
 
@@ -808,11 +809,11 @@ public abstract class RootServiceJpa implements RootService {
       commitClearBegin();
     }
   }
-  
+
   /* see superclass */
   @Override
-  public void logAndCommit(final String preMessage, final int objectCt, final int logCt,
-    final int commitCt) throws Exception {
+  public void logAndCommit(final String preMessage, final int objectCt,
+    final int logCt, final int commitCt) throws Exception {
     // log at regular intervals
     if (objectCt % logCt == 0) {
       Logger.getLogger(getClass()).info(preMessage + "    count = " + objectCt);
@@ -820,7 +821,7 @@ public abstract class RootServiceJpa implements RootService {
     if (objectCt % commitCt == 0) {
       commitClearBegin();
     }
-  }  
+  }
 
   /**
    * Returns the query results.
@@ -1446,10 +1447,30 @@ public abstract class RootServiceJpa implements RootService {
     //
     final ValidationResult validationResult = action.checkPreconditions();
     // if prerequisites fail, return validation result
-    if (!validationResult.getErrors().isEmpty()
+    if (!validationResult.isValid()
         || (!validationResult.getWarnings().isEmpty()
             && !action.isOverrideWarnings())) {
+
+      // IF the user is level 5 editor or greater, make all errors into warnings
+      final SecurityService service = new SecurityServiceJpa();
+      try {
+        final User user = service.getUser(action.getLastModifiedBy());
+        if (user.getEditorLevel() >= 5) {
+          for (final String error : validationResult.getErrors()) {
+            if (!validationResult.getWarnings().contains(error)) {
+              validationResult.getWarnings().add(error);
+            }
+            validationResult.getErrors().clear();
+          }
+        }
+      } catch (Exception e) {
+        throw e;
+      } finally {
+        service.close();
+      }
+
       // rollback -- unlocks the concept and closes transaction
+
       action.rollback();
       return validationResult;
     }
@@ -1463,7 +1484,7 @@ public abstract class RootServiceJpa implements RootService {
     action.commit();
 
     // Perform post-action maintenance on affected concept(s)
-    // DO this in a separate transaction - maybe some issues with 
+    // DO this in a separate transaction - maybe some issues with
     action.postActionMaintenance();
 
     // no errors/warnings at this point.

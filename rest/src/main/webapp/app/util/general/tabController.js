@@ -9,7 +9,6 @@ tsApp.controller('TabCtrl', [
   '$location',
   function($scope, $routeParams, securityService, tabService, projectService, configureService,
     $location) {
-    console.debug('configure TabCtrl');
 
     // Setup tabs
     $scope.tabs = tabService.tabs;

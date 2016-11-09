@@ -6,7 +6,6 @@ tsApp.service('websocketService',
     '$http',
     'utilService',
     function($rootScope, $location, $http, utilService) {
-      console.debug('configure websocketService');
 
       // Data model
       this.data = {

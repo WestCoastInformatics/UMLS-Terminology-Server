@@ -153,7 +153,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -235,7 +236,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -320,7 +322,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -402,7 +405,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -486,7 +490,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -567,7 +572,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -646,7 +652,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -734,7 +741,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -822,10 +830,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
-
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
@@ -901,7 +909,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -988,7 +997,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -1078,7 +1088,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -1161,9 +1172,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
           action.performMolecularAction(action);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
-        // TODO for testing
-        // validationResult.addWarning("test warning");
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 

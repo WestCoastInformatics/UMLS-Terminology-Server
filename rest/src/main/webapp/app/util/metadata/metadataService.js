@@ -1,8 +1,12 @@
 // MetadataService
 var metadataUrl = 'metadata';
-tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 'tabService',
+tsApp.service('metadataService', [
+  '$http',
+  '$q',
+  'gpService',
+  'utilService',
+  'tabService',
   function($http, $q, gpService, utilService, tabService) {
-    console.debug('configure metadataService');
 
     var metadata = getDefaultMetadata();
 
@@ -77,7 +81,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
             metadata.relationshipTypes = metadata.entries[i].keyValuePairs;
           }
           if (metadata.entries[i].name === 'Additional_Relationship_Types') {
-              metadata.additionalRelationshipTypes = metadata.entries[i].keyValuePairs;
+            metadata.additionalRelationshipTypes = metadata.entries[i].keyValuePairs;
           }
           if (metadata.entries[i].name === 'Languages') {
             metadata.languages = metadata.entries[i].keyValuePairs;
@@ -184,11 +188,9 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/precedence/update', precedenceList).then(
+      $http.post(metadataUrl + '/precedence/update', precedenceList).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -207,11 +209,9 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/rootTerminology/update', rootTerminology).then(
+      $http.post(metadataUrl + '/rootTerminology/update', rootTerminology).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -230,11 +230,9 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/terminology/update', terminology).then(
+      $http.post(metadataUrl + '/terminology/update', terminology).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -245,19 +243,17 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         deferred.reject(response.data);
       });
       return deferred.promise;
-    };    
-    
+    };
+
     // update term type
     this.updateTermType = function(termType) {
       console.debug('update termType');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/termType/update', termType).then(
+      $http.post(metadataUrl + '/termType/update', termType).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -276,11 +272,9 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/attributeName/update', atn).then(
+      $http.post(metadataUrl + '/attributeName/update', atn).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -292,18 +286,16 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
+
     // update rel type
     this.updateRelationshipType = function(relType) {
       console.debug('update relType');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/relationshipType/update', relType).then(
+      $http.post(metadataUrl + '/relationshipType/update', relType).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -315,18 +307,16 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
+
     // update add rel type
     this.updateAdditionalRelationshipType = function(addRelType) {
       console.debug('update addRelType');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/addRelType/update', addRelType).then(
+      $http.post(metadataUrl + '/addRelType/update', addRelType).then(
       // success
-      function(response) {        
+      function(response) {
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -338,7 +328,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
+
     // Returns the terminology object for the terminology name
     this.getTerminology = function(terminology, version) {
       console.debug('getTerminology', terminology, version);
@@ -422,9 +412,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
 
         gpService.increment();
         $http['delete'](
-          metadataUrl + '/termType/' + type + '/remove/'
-          + terminology + '/' + version)
-          .then(function(response) {
+          metadataUrl + '/termType/' + type + '/remove/' + terminology + '/' + version).then(
+          function(response) {
             console.debug('  successful remove term type');
             gpService.decrement();
             deferred.resolve(response.data);
@@ -438,7 +427,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
- 
+
     // Retrieve term type
     this.getTermType = function(type, terminology, version) {
       console.debug('retrieveTermType', type, terminology, version);
@@ -448,10 +437,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       } else {
 
         gpService.increment();
-        $http['get'](
-          metadataUrl + '/termType/' + type + '/'
-          + terminology + '/' + version)
-          .then(function(response) {
+        $http['get'](metadataUrl + '/termType/' + type + '/' + terminology + '/' + version).then(
+          function(response) {
             console.debug('  successful retrieve term type');
             gpService.decrement();
             deferred.resolve(response.data);
@@ -465,7 +452,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
- 
+
     // Retrieve atn
     this.getAttributeName = function(type, terminology, version) {
       console.debug('retrieveAttributeName', type, terminology, version);
@@ -475,9 +462,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       } else {
 
         gpService.increment();
-        $http['get'](
-          metadataUrl + '/attributeName/' + type + '/'
-          + terminology + '/' + version)
+        $http['get'](metadataUrl + '/attributeName/' + type + '/' + terminology + '/' + version)
           .then(function(response) {
             console.debug('  successful retrieve atn');
             gpService.decrement();
@@ -492,7 +477,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
-    
+
     // Retrieve relationship type
     this.getRelationshipType = function(type, terminology, version) {
       console.debug('retrieveRelationshipType', type, terminology, version);
@@ -502,9 +487,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       } else {
 
         gpService.increment();
-        $http['get'](
-          metadataUrl + '/relationshipType/' + type + '/'
-          + terminology + '/' + version)
+        $http['get'](metadataUrl + '/relationshipType/' + type + '/' + terminology + '/' + version)
           .then(function(response) {
             console.debug('  successful retrieve relationship type');
             gpService.decrement();
@@ -519,7 +502,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
-    
+
     // Retrieve add rel type
     this.getAdditionalRelationshipType = function(type, terminology, version) {
       console.debug('retrieveAdditionalRelationshipType', type, terminology, version);
@@ -529,10 +512,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       } else {
 
         gpService.increment();
-        $http['get'](
-          metadataUrl + '/addRelType/' + type + '/'
-          + terminology + '/' + version)
-          .then(function(response) {
+        $http['get'](metadataUrl + '/addRelType/' + type + '/' + terminology + '/' + version).then(
+          function(response) {
             console.debug('  successful retrieve add rel type');
             gpService.decrement();
             deferred.resolve(response.data);
@@ -556,9 +537,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
 
         gpService.increment();
         $http['delete'](
-          metadataUrl + '/attributeName/' + type + '/remove/'
-          + terminology + '/' + version)
-          .then(function(response) {
+          metadataUrl + '/attributeName/' + type + '/remove/' + terminology + '/' + version).then(
+          function(response) {
             console.debug('  successful remove atn');
             gpService.decrement();
             deferred.resolve(response.data);
@@ -572,7 +552,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
-    
+
     // Remove relationship type
     this.removeRelationshipType = function(type, terminology, version) {
       console.debug('removeRelationshipType', type, terminology, version);
@@ -583,8 +563,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
 
         gpService.increment();
         $http['delete'](
-          metadataUrl + '/relationshipType/' + type + '/remove/'
-          + terminology + '/' + version)
+          metadataUrl + '/relationshipType/' + type + '/remove/' + terminology + '/' + version)
           .then(function(response) {
             console.debug('  successful remove relationship type');
             gpService.decrement();
@@ -599,7 +578,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
-    
+
     // Remove add relationship type
     this.removeAdditionalRelationshipType = function(type, terminology, version) {
       console.debug('removeAddRelationshipType', type, terminology, version);
@@ -610,9 +589,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
 
         gpService.increment();
         $http['delete'](
-          metadataUrl + '/addRelType/' + type + '/remove/'
-          + terminology + '/' + version)
-          .then(function(response) {
+          metadataUrl + '/addRelType/' + type + '/remove/' + terminology + '/' + version).then(
+          function(response) {
             console.debug('  successful remove add rel type');
             gpService.decrement();
             deferred.resolve(response.data);
@@ -626,8 +604,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         return deferred.promise;
       }
     };
-    
-    
+
     // get relationship type name from its abbreviation
     this.getRelationshipTypeName = function(abbr, metadata) {
       for (var i = 0; i < metadata.relationshipTypes.length; i++) {
@@ -646,8 +623,8 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
         }
       }
       return null;
-    };    
-    
+    };
+
     // get attribute name name from its abbreviation
     this.getAttributeNameName = function(abbr, metadata) {
       for (var i = 0; i < metadata.attributeNames.length; i++) {
@@ -804,16 +781,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
+
     // add term type
     this.addTermType = function(termType) {
       console.debug('add termType');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/termType/add', termType).then(
+      $http.post(metadataUrl + '/termType/add', termType).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -840,9 +815,7 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/attributeName/add', attributeName).then(
+      $http.post(metadataUrl + '/attributeName/add', attributeName).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -862,16 +835,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
+
     // add relationship type
     this.addRelationshipType = function(relationshipTypeList) {
       console.debug('add relationshipType and its inverse');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/relationshipType/add', relationshipTypeList).then(
+      $http.post(metadataUrl + '/relationshipType/add', relationshipTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -891,17 +862,14 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       });
       return deferred.promise;
     };
-    
-    
+
     // add additional relationship type
     this.addAdditionalRelationshipType = function(addRelTypeList) {
       console.debug('add addRelType');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(
-        metadataUrl
-          + '/addRelType/add', addRelTypeList).then(
+      $http.post(metadataUrl + '/addRelType/add', addRelTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -922,7 +890,5 @@ tsApp.service('metadataService', [ '$http', '$q', 'gpService', 'utilService', 't
       return deferred.promise;
     };
   }
-
-
 
 ]);

@@ -10,7 +10,6 @@ tsApp
       'securityService',
       'appConfig',
       function($route, $location, utilService, gpService, securityService, appConfig) {
-        console.debug('configure tabService');
 
         this.showTabs = true;
 

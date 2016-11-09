@@ -9,7 +9,6 @@ tsApp
       '$uibModal',
       'appConfig',
       function($location, $anchorScroll, $cookies, $uibModal, appConfig) {
-        console.debug('configure utilService');
 
         this.showHeaderFooter = true;
 

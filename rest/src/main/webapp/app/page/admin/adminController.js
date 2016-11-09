@@ -60,7 +60,7 @@ tsApp
           title : "User Preferences",
           open : false
         } ];
-        
+
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -184,11 +184,13 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          projectService.findAssignedUsersForProject($scope.selected.project.id, '', pfs).then(
-            function(data) {
-              $scope.lists.assignedUsers = data.users;
-              $scope.lists.assignedUsers.totalCount = data.totalCount;
-            });
+          if ($scope.selected.project) {
+            projectService.findAssignedUsersForProject($scope.selected.project.id, '', pfs).then(
+              function(data) {
+                $scope.lists.assignedUsers = data.users;
+                $scope.lists.assignedUsers.totalCount = data.totalCount;
+              });
+          }
 
         }
 
@@ -207,12 +209,14 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          var query = '(applicationRole:USER OR applicationRole:ADMINISTRATOR)';
-          projectService.findUnassignedUsersForProject($scope.selected.project.id, query, pfs)
-            .then(function(data) {
-              $scope.lists.unassignedUsers = data.users;
-              $scope.lists.unassignedUsers.totalCount = data.totalCount;
-            });
+          if ($scope.selected.project) {
+            var query = '(applicationRole:USER OR applicationRole:ADMINISTRATOR)';
+            projectService.findUnassignedUsersForProject($scope.selected.project.id, query, pfs)
+              .then(function(data) {
+                $scope.lists.unassignedUsers = data.users;
+                $scope.lists.unassignedUsers.totalCount = data.totalCount;
+              });
+          }
         }
 
         // Get $scope.lists.applicationRoles
@@ -391,12 +395,10 @@ tsApp
         $scope.resetUserPreferences = function(user) {
           securityService.resetUserPreferences(user);
         }
-        
-        
+
         $scope.saveAccordionStatus = function() {
           console.debug('saveAccordionStatus', $scope.groups);
-          $scope.user.userPreferences.properties['adminGroups'] = JSON
-            .stringify($scope.groups);
+          $scope.user.userPreferences.properties['adminGroups'] = JSON.stringify($scope.groups);
           securityService.updateUserPreferences($scope.user.userPreferences);
         }
 
@@ -638,7 +640,7 @@ tsApp
           if ($scope.user.userPreferences) {
             $scope.configureTab();
           }
-          
+
           if ($scope.user.userPreferences.properties['adminGroups']) {
             var savedAdminGroups = JSON
               .parse($scope.user.userPreferences.properties['adminGroups']);

@@ -7,7 +7,6 @@ tsApp.directive('favorites', [
   '$uibModal',
   '$timeout',
   function($rootScope, utilService, contentService, securityService, $uibModal, $timeout) {
-    console.debug('configure favorites directive');
     return {
       restrict : 'A',
       scope : {

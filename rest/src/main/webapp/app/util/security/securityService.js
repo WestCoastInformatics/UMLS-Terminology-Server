@@ -9,7 +9,6 @@ tsApp.service('securityService', [
   'gpService',
   'appConfig',
   function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
-    console.debug('configure securityService');
 
     // Declare the user
     var user = {
@@ -60,7 +59,7 @@ tsApp.service('securityService', [
         this.updateUserPreferences(prefs);
       }
     };
-    
+
     // save properties
     this.saveProperty = function(prefs, key, value) {
       if (prefs) {
@@ -68,7 +67,7 @@ tsApp.service('securityService', [
         this.updateUserPreferences(prefs);
       }
     }
-    
+
     // reset user preferences
     this.resetUserPreferences = function(user) {
       user.userPreferences.properties = {};
@@ -145,6 +144,7 @@ tsApp.service('securityService', [
       user.password = "";
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
+      user.editorLevel = data.editorLevel;
       $http.defaults.headers.common.Authorization = data.authToken;
 
       // Whenever set user is called, we should save a cookie

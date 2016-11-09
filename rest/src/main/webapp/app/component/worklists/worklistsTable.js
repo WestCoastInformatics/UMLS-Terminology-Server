@@ -14,7 +14,6 @@ tsApp
       'workflowService',
       function($uibModal, $window, $sce, $interval, utilService, securityService, projectService,
         workflowService) {
-        console.debug('configure worklistTable directive');
         return {
           restrict : 'A',
           scope : {

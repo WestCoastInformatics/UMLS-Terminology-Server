@@ -1,7 +1,6 @@
 // Actions/Errors controller
 tsApp.controller('ActionErrorsCtrl', [ '$scope', '$uibModalInstance', 'utilService', 'errors',
   'warnings', 'action', function($scope, $uibModalInstance, utilService, errors, warnings, action) {
-    console.debug("configure ActionErrorsCtrl");
 
     // Scope variables
     $scope.action = action;
