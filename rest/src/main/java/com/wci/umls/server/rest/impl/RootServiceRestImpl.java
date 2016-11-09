@@ -9,10 +9,12 @@ import javax.ws.rs.core.Response;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.ChangeEventList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasProject;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.helpers.content.ChangeEventListJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.services.ContentService;
@@ -188,6 +190,22 @@ public class RootServiceRestImpl {
   public static void sendChangeEvent(ChangeEvent event) throws Exception {
     if (websocket != null) {
       websocket.send(ConfigUtility.getJsonForGraph(event));
+    }
+  }
+
+  /**
+   * Send change events.
+   *
+   * @param events the events
+   * @throws Exception the exception
+   */
+  public static void sendChangeEvents(ChangeEvent... events) throws Exception {
+    if (websocket != null) {
+      final ChangeEventList list = new ChangeEventListJpa();
+      for (final ChangeEvent event : events) {
+        list.getObjects().add(event);
+      }
+      websocket.send(ConfigUtility.getJsonForGraph(list));
     }
   }
 

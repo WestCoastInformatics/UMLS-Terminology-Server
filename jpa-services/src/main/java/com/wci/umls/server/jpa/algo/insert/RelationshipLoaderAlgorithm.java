@@ -148,7 +148,6 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Set the number of steps to the number of relationships to be processed
       steps = lines.size() + lines2.size();
 
-
       // 
       // Process relationships.src lines
       //

@@ -12,7 +12,6 @@ tsApp
       'tabService',
       'metadataService',
       function($http, $q, $window, gpService, utilService, tabService, metadataService) {
-        console.debug("configure contentService");
 
         var metadata = metadataService.getModel();
 
@@ -963,7 +962,6 @@ tsApp
           };
         };
 
-      
         // end
 
         // function for getting concept

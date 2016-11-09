@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -85,32 +86,43 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT"); // <- Set this to
-                                                               // the standard
-                                                               // folder
-                                                               // location
+    processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
+                                                                   // this to
+    // the standard
+    // folder
+    // location
 
     // Create the /test/src subdirectories
     final File tempSrcDir = new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + processExecution.getInputPath() + File.separator
-            + "test" + File.separator + "src");
+            + "temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
-    // Reset the processExecution input path to /test (the algorithm itself will
-    // look in the 'src' subfolder
+    // Reset the processExecution input path to /temp
     processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "test");
+        processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate a relationships.src document in the /test/src
+    // Create and populate a relationships.src document in the /temp
     // temporary subfolder
     outputFile = new File(tempSrcDir, "relationships.src");
 
-    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
         "1|S|V-NCI_2016_05E|BT|has_version|V-NCI|SRC|SRC|R|Y|N|N|CODE_SOURCE|SRC|CODE_SOURCE|SRC|||");
     out.println(
         "31|S|C63923|RT|Concept_In_Subset|C98033|NCI_2016_05E|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E|SOURCE_CUI|NCI_2016_05E|||");
+    out.close();
+
+    // Also create and populate a contexts.src document in the /temp
+    // temporary subfolder
+    outputFile = new File(tempSrcDir, "contexts.src");
+
+    out = new PrintWriter(new FileWriter(outputFile));
+    out.println(
+        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
+    out.println(
+        "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
     out.close();
 
     // Create and configure the algorithm
@@ -160,11 +172,11 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       RelationshipList relList =
           contentService.findCodeRelationships("V-NCI", "SRC", "latest",
               Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
-      assertTrue(relList.size() == 1);
+      assertEquals(1, relList.size());
 
       relList = contentService.findConceptRelationships("C98033", "NCI",
           "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
-      assertTrue(relList.size() == 1);
+      assertEquals(1, relList.size());
 
     } catch (Exception e) {
       e.printStackTrace();

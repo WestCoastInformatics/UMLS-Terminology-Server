@@ -1,6 +1,5 @@
 // Errors directive
 tsApp.directive('errors', [ function() {
-  console.debug('configure errors directive');
   return {
     restrict : 'A',
     scope : {

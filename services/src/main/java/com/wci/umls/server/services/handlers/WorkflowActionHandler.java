@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
@@ -24,37 +24,41 @@ public interface WorkflowActionHandler extends Configurable {
    * worklists.
    *
    * @param project the project
+   * @param userName the user name
    * @param role the user
    * @param pfs the pfs
    * @param service WorkflowService
    * @return the tracking record list
    * @throws Exception the exception
    */
-  public TrackingRecordList findAvailableWork(Project project, UserRole role,
-    PfsParameter pfs, WorkflowService service) throws Exception;
+  public TrackingRecordList findAvailableWork(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception;
 
   /**
    * Find available worklists. Worklists not assigned.
    *
    * @param project the project
+   * @param userName the user name
    * @param role the role
    * @param pfs the pfs
    * @param service workflowService
    * @return the worklist list
    * @throws Exception the exception
    */
-  public WorklistList findAvailableWorklists(Project project, UserRole role,
-    PfsParameter pfs, WorkflowService service) throws Exception;
+  public WorklistList findAvailableWorklists(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception;
 
   /**
    * Indicates whether or not available is the case.
    *
    * @param worklist the worklist
+   * @param userName the user name
    * @param role the role
    * @return <code>true</code> if so, <code>false</code> otherwise
    * @throws Exception the exception
    */
-  public boolean isAvailable(Worklist worklist, UserRole role) throws Exception;
+  public boolean isAvailable(Worklist worklist, String userName, UserRole role)
+    throws Exception;
 
   /**
    * Validate workflow action.

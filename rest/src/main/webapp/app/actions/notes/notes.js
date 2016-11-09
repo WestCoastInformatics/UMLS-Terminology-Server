@@ -17,7 +17,7 @@ tsApp.directive('notes', [ function() {
       'contentService',
       function($scope, $uibModal, $sce, utilService, workflowService, contentService) {
         console.debug("configure notes directive", $scope.type);
-        
+
         $scope.field = $scope.type.toLowerCase();
         if ($scope.type == 'Checklist') {
           $scope.field = 'worklist';
@@ -48,6 +48,7 @@ tsApp.directive('notes', [ function() {
         }
 
         var NotesModalCtrl = function($scope, $uibModalInstance, selected, type) {
+          console.debug("configure NotesModalCtrl");
           // Scope vars
           $scope.field = type.toLowerCase();
           if (type == 'Checklist') {
@@ -131,23 +132,23 @@ tsApp.directive('notes', [ function() {
               });
             } else if ($scope.type == 'Concept') {
               contentService.removeComponentNote(object, note.id).then(
-                // Success - remove concept note
-                function(data) {
-                  $scope.newNote = null;
-                  contentService.getConcept(object.id, $scope.project.id).then(function(data) {
-                    object.notes = data.notes;
-                    $scope.getPagedNotes();
-                  },
-                  // Error 
-                  function(data) {
-                    utilService.handleDialogError($scope.errors, data);
-                  });
+              // Success - remove concept note
+              function(data) {
+                $scope.newNote = null;
+                contentService.getConcept(object.id, $scope.project.id).then(function(data) {
+                  object.notes = data.notes;
+                  $scope.getPagedNotes();
                 },
-                // Error - remove concept note
+                // Error
                 function(data) {
                   utilService.handleDialogError($scope.errors, data);
                 });
-              }
+              },
+              // Error - remove concept note
+              function(data) {
+                utilService.handleDialogError($scope.errors, data);
+              });
+            }
           };
 
           // add new note
@@ -191,23 +192,23 @@ tsApp.directive('notes', [ function() {
               });
             } else if ($scope.type == 'Concept') {
               contentService.addComponentNote(object, text).then(
-                // Success - add concept note
-                function(data) {
-                  $scope.newNote = null;
-                  contentService.getConcept(object.id, $scope.project.id).then(function(data) {
-                    object.notes = data.notes;
-                    $scope.getPagedNotes();
-                  },
-                  // Error - add worklist note
-                  function(data) {
-                    utilService.handleDialogError($scope.errors, data);
-                  });
+              // Success - add concept note
+              function(data) {
+                $scope.newNote = null;
+                contentService.getConcept(object.id, $scope.project.id).then(function(data) {
+                  object.notes = data.notes;
+                  $scope.getPagedNotes();
                 },
                 // Error - add worklist note
                 function(data) {
                   utilService.handleDialogError($scope.errors, data);
                 });
-              }
+              },
+              // Error - add worklist note
+              function(data) {
+                utilService.handleDialogError($scope.errors, data);
+              });
+            }
           };
 
           // Convert date to a string

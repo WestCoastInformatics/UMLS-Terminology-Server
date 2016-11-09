@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4>Finish {{worklist.name}}</h4>
+  <h4>{{action}} {{worklist.name}}</h4>
 
 </div>
 
@@ -7,15 +7,16 @@
 
   <table class="slim table">
     <tr>
+      <td colspan="2">Enter time spent editing or reviewing worklist:</td>
+    <tr>
       <td>
         <b>Hours</b>
       </td>
       <td>
         <input ng-model="hours" type="number" size="3" />
-      </td>
-    </tr>
-    <tr>
+      </td><tr>
       <td>
+    
         <b>Minutes</b>
       </td>
       <td>
@@ -31,6 +32,6 @@
 
 <div class="modal-footer">
   <button class="btn btn-primary"
-    ng-click="finish()">Finish</button>
+    ng-click="finish()">{{action}}</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

@@ -170,6 +170,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @return the list
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
     String keepRegexFilter, String skipRegexFilter) throws Exception {
     String sourcesFile = srcDirFile + File.separator + fileName;
@@ -637,6 +638,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @param id the id
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public void putId(Class<?> idType, String terminologyId, String terminology,
     Long id) throws Exception {
     if (idType.equals(AtomJpa.class)) {
@@ -845,6 +847,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @return the class<? extends hasid>
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public Class<? extends Component> lookupClass(String string)
     throws Exception {
 
@@ -895,6 +898,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Clear out all of the caches.
    */
+  @SuppressWarnings("static-method")
   public void clearCaches() {
     atomCachedTerms.clear();
     atomIdCache.clear();

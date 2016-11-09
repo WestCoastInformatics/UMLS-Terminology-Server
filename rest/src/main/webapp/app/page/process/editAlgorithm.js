@@ -52,7 +52,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         },
         // Error - update definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
 
       } else if (action == 'Add') {
@@ -63,7 +63,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         },
         // Error - add definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       }
 

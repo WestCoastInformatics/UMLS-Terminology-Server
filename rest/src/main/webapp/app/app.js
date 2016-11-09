@@ -148,3 +148,16 @@ tsApp.filter('toArrayKeys', function() {
     return arr;
   };
 });
+
+// Filter for ordering by key
+tsApp.filter('toArrayValues', function() {
+  return function(obj, field, reverse) {
+    var arr = [];
+    for ( var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        arr.push(obj[key]);
+      }
+    }
+    return arr;
+  };
+});

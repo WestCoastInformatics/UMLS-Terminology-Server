@@ -13,14 +13,8 @@ import java.util.UUID;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
-import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -197,6 +191,7 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unused")
   private void cacheExistingTerminologies() throws Exception {
 
     for (final Terminology term : getTerminologies().getObjects()) {
@@ -268,7 +263,7 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "CONTEXTLOADING progress: " + currentProgress + "%");

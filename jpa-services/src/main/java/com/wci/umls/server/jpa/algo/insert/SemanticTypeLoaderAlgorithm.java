@@ -327,7 +327,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "SEMANTICTYPELOADING progress: " + currentProgress + "%");

@@ -3,7 +3,6 @@ tsApp.directive('reportAction', [
   '$window',
   '$routeParams',
   function($window, $routeParams) {
-    console.debug('configure action report directive');
     return {
       restrict : 'A',
       scope : {

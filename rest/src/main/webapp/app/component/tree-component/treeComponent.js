@@ -4,7 +4,6 @@ tsApp.directive('treeComponent', [
   'contentService',
   'utilService',
   function($q, contentService, utilService) {
-    console.debug('configure trees directive');
     return {
       restrict : 'A',
       scope : {

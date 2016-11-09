@@ -1,7 +1,7 @@
 // Edit user modal controller
-tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'user', 'applicationRoles',
-  'action', function($scope, $uibModalInstance, user, applicationRoles, action) {
-
+tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'securityService', 'user',
+  'applicationRoles', 'action',
+  function($scope, $uibModalInstance, securityService, user, applicationRoles, action) {
     // Scope vars
     $scope.action = action;
     $scope.applicationRoles = applicationRoles;

@@ -178,7 +178,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // GSC - George Chang
     // HAG - Alpha Garrett
     // TPW - Tammy Powell
-    // MJA - Miranda Jarnot 
+    // MJA - Miranda Jarnot
     final String[] initials = new String[] {
         "CFC", "BAC", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR", "LLW",
         "TAQ", "GSC", "HAG", "TPW", "MJA"
@@ -201,9 +201,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       UserJpa user = (UserJpa) security.getUser(inits, authToken);
       if (user == null) {
         user = makeUser(inits, name);
-        if (user.getUserName().equals("LAR")
-            || user.getUserName().equals("LLW")
-          || user.getUserName().equals("TPW")) {
+        if (user.getUserName().equals("LAR") || user.getUserName().equals("LLW")
+            || user.getUserName().equals("TPW")) {
           user.setEditorLevel(5);
         }
         user.setApplicationRole(UserRole.valueOf("USER"));
@@ -387,7 +386,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       action.setConceptId(id1s[i]);
       action.setConceptId2(id2s[i]);
       action.setLastModifiedBy("loader");
-      action.performMolecularAction(action);
+      action.performMolecularAction(action, "loader");
       action.close();
     }
 

@@ -3,7 +3,6 @@ tsApp.directive('reportPanel', [
   '$window',
   '$routeParams',
   function($window, $routeParams) {
-    console.debug('configure reportPanel directive');
     return {
       restrict : 'A',
       scope : {

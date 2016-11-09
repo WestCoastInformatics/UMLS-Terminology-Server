@@ -7,7 +7,6 @@ tsApp.service('processService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-    console.debug('configure processService');
 
     // add algorithm config
     this.addAlgorithmConfig = function(projectId, processId, algo) {
