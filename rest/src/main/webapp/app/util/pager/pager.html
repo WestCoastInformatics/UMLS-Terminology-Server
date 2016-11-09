@@ -10,8 +10,7 @@
   <!--  Filters  -->
 
   <!--  TODO Add generalization note to Wiki -->
-  <input class="input-filter"
-    ng-show="!paging.disableFilter && (paging.filter || count > 5)"
+  <input ng-show="!paging.disableFilter && (paging.filter || count > 5)"
     placeholder="Enter filter text" type="text" ng-model="paging.filter"
     ng-model-options="{ debounce: 500 }" ng-change="callbacks.getPagedList()"
     list="filter-list">

@@ -23,63 +23,46 @@
       <td>{{selected[field].description}}</td>
     </tr>
   </table>
-  <div class="row">
-    <!--  Left hand side -->
-    <div class="col-md-12 col-xs-12">
 
-      <div>
+  <div pager paging="paging" count="pagedNotes.totalCount"
+    callbacks="paging.callbacks"></div>
 
-        <h5 ng-show="selected[field].notes.length > 0">
-          <b>Notes<span ng-show="pagedNotes.length > 0">
-              ({{pagedNotes.totalCount}})</span></b>
-        </h5>
+  <table class="slim table" ng-show="pagedNotes.length>0">
+    <thead>
+      <tr>
+        <th class="col-md-8 col-xs-8">Checklist Notes
+          ({{pagedNotes.totalCount}})</th>
+        <th class="col-md-2 col-xs-2">Date</th>
+        <th class="col-md-1 col-xs-1">Author</th>
+        <th class="col-md-1 col-xs-1">&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="note in pagedNotes">
+        <td>
+          <div ng-bind-html="getNoteValue(note)"></div>
+        </td>
+        <td>{{toDate(note.lastModified)}}</td>
+        <td>{{note.lastModifiedBy}}</td>
+        <td>
+          <i ng-click="removeNote(selected[field], note);" title="Remove note"
+            class="noul glyphicon glyphicon-trash"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <span style="display: block" ng-show="pagedNotes.length == 0 && paging.filter"
+    class="alert alert-warning"> No notes matching filter </span>
+  <span style="display: block"
+    ng-show="pagedNotes.length == 0 && !paging.filter"
+    class="alert alert-warning"> No notes </span>
 
+  <textarea rows="4" cols="40" ng-model="newNote" ui-tinymce="tinymceOptions"></textarea>
 
-        <div pager paging="paging" count="pagedNotes.totalCount"
-          callbacks="paging.callbacks"></div>
+</div>
 
-        </span>
-
-        <span style="display: block"
-          ng-show="pagedNotes.length == 0 && paging.filter"
-          class="alert alert-warning"> No notes matching filter </span>
-        <span style="display: block"
-          ng-show="pagedNotes.length == 0 && !paging.filter"
-          class="alert alert-warning"> No notes </span>
-
-        <table ng-show="pagedNotes.length > 0" class="slim table">
-          <thead>
-            <tr>
-              <th class="col-md-6 col-xs-6">{{type}} Notes</th>
-              <th class="col-md-2 col-xs-2">Date</th>
-              <th class="col-md-2 col-xs-2">Author</th>
-              <th class="col-md-2 col-xs-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="note in pagedNotes">
-              <td>
-                <div ng-bind-html="getNoteValue(note)"></div>
-              </td>
-              <td>{{toDate(note.lastModified)}}</td>
-              <td>{{note.lastModifiedBy}}</td>
-              <td>
-                <i ng-click="removeNote(selected[field], note);"
-                  title="Remove note" class="noul glyphicon glyphicon-trash"></i>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <textarea rows="4" cols="40" ng-model="newNote"
-        ui-tinymce="tinymceOptions"></textarea>
-    </div>
-
-
-  </div>
-
-  <!-- Errors -->
-  <div errors="errors"></div>
+<!-- Errors -->
+<div errors="errors"></div>
 
 </div>
 <div class="modal-footer">

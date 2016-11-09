@@ -389,7 +389,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
             .getObjects().stream().map(c -> c.getId())
             .collect(Collectors.toList()).toArray(new Long[] {});
     for (int i = 0; i < id1s.length; i++) {
-      
+
       contentService = new ContentServiceRestImpl();
       final Atom from = contentService.getConcept(id1s[i], projectId, authToken)
           .getAtoms().iterator().next();
@@ -397,7 +397,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
       final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
           .getAtoms().iterator().next();
 
-      final AddDemotionMolecularAction action = new AddDemotionMolecularAction();
+      final AddDemotionMolecularAction action =
+          new AddDemotionMolecularAction();
       action.setTransactionPerOperation(false);
       action.setProject(project1);
       action.setTerminology(project1.getTerminology());
@@ -410,7 +411,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
       action.setConceptId(id1s[i]);
       action.setConceptId2(id2s[i]);
       action.setLastModifiedBy("loader");
-      action.performMolecularAction(action);
+      action.performMolecularAction(action, "loader");
       action.close();
     }
 

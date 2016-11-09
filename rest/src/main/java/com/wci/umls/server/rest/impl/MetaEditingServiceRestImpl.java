@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +21,6 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
@@ -118,9 +118,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Create semantic type component
       final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
       sty.setTerminologyId("");
@@ -149,10 +150,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -211,9 +213,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -230,10 +233,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -291,9 +295,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // All new content is unpublished and publishable
       attribute.setPublished(false);
       attribute.setPublishable(true);
@@ -314,10 +319,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -376,9 +382,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -395,10 +402,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -455,13 +463,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
 
       // All new content is unpublished and publishable
       atom.setPublished(false);
       atom.setPublishable(true);
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -478,10 +487,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -539,9 +549,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -558,10 +569,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -617,9 +629,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -636,10 +649,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -698,13 +712,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
 
       // All new content is unpublished and publishable
       relationship.setPublished(false);
       relationship.setPublishable(true);
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -723,10 +738,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -786,9 +802,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Look up second conceptId.
       final Long conceptId2 =
           action.getRelationship(relationshipId, ConceptRelationshipJpa.class)
@@ -810,13 +827,13 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
-
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.RELATIONSHIP.toString(), action.getRelationship().getId(),
@@ -871,9 +888,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -888,24 +906,24 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
       // Websocket notification - one for the updating of the toConcept, and one
       // for the deletion of the fromConcept
+
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getToConcept().getId(),
           action.getToConcept());
-      sendChangeEvent(event);
-
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      sendChangeEvent(event2);
+      sendChangeEvents(event2, event);
 
       return validationResult;
 
@@ -956,9 +974,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -975,10 +994,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -987,12 +1007,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getToConcept().getId(),
           action.getToConcept());
-      sendChangeEvent(event);
-
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      sendChangeEvent(event2);
+      sendChangeEvents(event, event2);
 
       return validationResult;
 
@@ -1044,9 +1062,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -1066,10 +1085,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -1079,12 +1099,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getFromConcept().getId(),
           action.getFromConcept());
-      sendChangeEvent(event);
 
       final ChangeEvent event2 = new ChangeEventJpa(action.getName(), authToken,
           IdType.CONCEPT.toString(), action.getToConcept().getId(),
           action.getToConcept());
-      sendChangeEvent(event2);
+      sendChangeEvents(event, event2);
 
       return validationResult;
 
@@ -1132,9 +1151,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Configure the action
       action.setProject(project);
       action.setActivityId(activityId);
@@ -1149,12 +1169,11 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
-      if (!validationResult.getErrors().isEmpty()) {
-          // TODO for testing
-          //validationResult.addWarning("test warning");
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
         return validationResult;
       }
 
@@ -1211,9 +1230,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're undoing a merge, ComponentId won't point to an
@@ -1244,7 +1264,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {
@@ -1252,13 +1272,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       }
 
       // Websocket notification
+      final List<ChangeEvent> events = new ArrayList<>();
       if (action.getMolecularAction(molecularActionId).getComponentId() != null
           && action.getConcept(action.getMolecularAction(molecularActionId)
               .getComponentId()) != null) {
         final ChangeEvent event = new ChangeEventJpa(action.getName(),
             authToken, IdType.CONCEPT.toString(), null, action.getConcept(
                 action.getMolecularAction(molecularActionId).getComponentId()));
-        sendChangeEvent(event);
+        events.add(event);
       }
 
       if (action.getMolecularAction(molecularActionId).getComponentId2() != null
@@ -1267,8 +1288,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         final ChangeEvent event2 = new ChangeEventJpa(action.getName(),
             authToken, IdType.CONCEPT.toString(), null, action.getConcept(action
                 .getMolecularAction(molecularActionId).getComponentId2()));
-        sendChangeEvent(event2);
+        events.add(event2);
       }
+      sendChangeEvents(events.toArray(new ChangeEvent[] {}));
 
       return validationResult;
 
@@ -1316,9 +1338,10 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       // Retrieve the project
       final Project project = action.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
       // Note - if we're redoing a split, ComponentId2 won't point to an
@@ -1349,7 +1372,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action);
+          action.performMolecularAction(action, userName);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {
@@ -1357,13 +1380,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       }
 
       // Websocket notification
+      final List<ChangeEvent> events = new ArrayList<>();
       if (action.getMolecularAction(molecularActionId).getComponentId() != null
           && action.getConcept(action.getMolecularAction(molecularActionId)
               .getComponentId()) != null) {
         final ChangeEvent event = new ChangeEventJpa(action.getName(),
             authToken, IdType.CONCEPT.toString(), null, action.getConcept(
                 action.getMolecularAction(molecularActionId).getComponentId()));
-        sendChangeEvent(event);
+        events.add(event);
       }
 
       if (action.getMolecularAction(molecularActionId).getComponentId2() != null
@@ -1372,8 +1396,9 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         final ChangeEvent event2 = new ChangeEventJpa(action.getName(),
             authToken, IdType.CONCEPT.toString(), null, action.getConcept(action
                 .getMolecularAction(molecularActionId).getComponentId2()));
-        sendChangeEvent(event2);
+        events.add(event2);
       }
+      sendChangeEvents(events.toArray(new ChangeEvent[] {}));
 
       return validationResult;
 

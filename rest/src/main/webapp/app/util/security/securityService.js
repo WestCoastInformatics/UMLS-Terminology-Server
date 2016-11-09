@@ -9,7 +9,6 @@ tsApp.service('securityService', [
   'gpService',
   'appConfig',
   function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
-    console.debug('configure securityService');
 
     // Declare the user
     var user = {
@@ -61,7 +60,7 @@ tsApp.service('securityService', [
         this.updateUserPreferences(prefs);
       }
     };
-    
+
     // save properties
     this.saveProperty = function(prefs, key, value) {
       if (prefs) {
@@ -69,7 +68,7 @@ tsApp.service('securityService', [
         this.updateUserPreferences(prefs);
       }
     }
-    
+
     // reset user preferences
     this.resetUserPreferences = function(user) {
       user.userPreferences.properties = {};
@@ -265,7 +264,7 @@ tsApp.service('securityService', [
         userProjectRole = 'EDITOR5';
       }
  
-      console.debug('permissions', action, userProjectRole);
+      //console.debug('permissions', action, userProjectRole);
       return this.permissions[action][userProjectRole];      
     }
     

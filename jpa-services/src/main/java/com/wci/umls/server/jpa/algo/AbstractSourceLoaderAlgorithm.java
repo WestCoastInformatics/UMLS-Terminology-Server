@@ -35,6 +35,7 @@ import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Abstract support for source-file loader algorithms.
@@ -168,6 +169,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @return the list
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
     String regexFilter) throws Exception {
     String sourcesFile =
@@ -222,7 +224,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[AtomLoader] Loading atom AUIs from database for terminology "
+      logInfo("[SourceLoader] Loading atom AUIs from database for terminology "
           + terminology + ": " + query.getFirstResult() + " - "
           + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
@@ -262,7 +264,8 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[AttributeLoader] Loading attribute ATUIs from database: "
+      logInfo("[SourceLoader] Loading attribute ATUIs from database for terminology "
+          + terminology + ": "
           + query.getFirstResult() + " - "
           + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
@@ -302,7 +305,8 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[DefinitionLoader] Loading definition ATUIs from database: "
+      logInfo("[SourceLoader] Loading definition ATUIs from database for terminology "
+          + terminology + ": "
           + query.getFirstResult() + " - "
           + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
@@ -354,7 +358,8 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[RelationshipLoader] Loading relationship RUIs from database: "
+      logInfo("[SourceLoader] Loading relationship RUIs from database for terminology "
+          + terminology + ": "
           + query.getFirstResult() + " - "
           + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
@@ -466,6 +471,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
             + "from CodeJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
+    
+    logInfo("[SourceLoader] Loading code Terminology Ids from database for terminology "
+        + terminology);
+    
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -493,6 +502,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
             + "from ConceptJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
+
+    logInfo("[SourceLoader] Loading concept Terminology Ids from database for terminology "
+        + terminology);
+    
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -520,6 +533,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
             + "from DescriptorJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
+
+    logInfo("[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
+        + terminology);
+    
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -551,7 +568,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       return atomIdCache.get(terminologyId);
     }
 
-    if (idType.equals(AttributeJpa.class)) {
+    else if (idType.equals(AttributeJpa.class)) {
       if (!attributeCachedTerms.contains(terminology)) {
         cacheExistingAttributeIds(terminology);
       }
@@ -572,7 +589,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       return conceptIdCache.get(terminologyId + terminology);
     }
 
-    if (idType.equals(DefinitionJpa.class)) {
+    else if (idType.equals(DefinitionJpa.class)) {
       if (!definitionCachedTerms.contains(terminology)) {
         cacheExistingDefinitionIds(terminology);
       }
@@ -592,7 +609,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       if (!relCachedTerms.contains(terminology)) {
         cacheExistingRelationshipIds(terminology);
       }
-      return relIdCache.get(terminologyId + terminology);
+      return relIdCache.get(terminologyId);
     }
 
     else {
@@ -610,13 +627,14 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @param id the id
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public void putId(Class<?> idType, String terminologyId, String terminology,
     Long id) throws Exception {
     if (idType.equals(AtomJpa.class)) {
       atomIdCache.put(terminologyId, id);
     }
 
-    if (idType.equals(AttributeJpa.class)) {
+    else if (idType.equals(AttributeJpa.class)) {
       attributeIdCache.put(terminologyId, id);
     }
 
@@ -818,6 +836,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @return the class<? extends hasid>
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public Class<? extends Component> lookupClass(String string)
     throws Exception {
 
@@ -841,8 +860,36 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
+   * Lookup workflow status.
+   *
+   * @param string the string
+   * @return the workflow status
+   * @throws Exception the exception
+   */
+  public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
+
+    WorkflowStatus workflowStatus = null;
+
+    switch (string) {
+      case "R":
+        workflowStatus = WorkflowStatus.READY_FOR_PUBLICATION;
+        break;
+      case "N":
+        workflowStatus = WorkflowStatus.NEEDS_REVIEW;
+        break;
+      default:
+        throw new Exception(
+            "Invalid workflowStatus type: " + string);
+    }
+
+    return workflowStatus;
+  }
+  
+  
+  /**
    * Clear out all of the caches.
    */
+  @SuppressWarnings("static-method")
   public void clearCaches() {
     atomCachedTerms.clear();
     atomIdCache.clear();

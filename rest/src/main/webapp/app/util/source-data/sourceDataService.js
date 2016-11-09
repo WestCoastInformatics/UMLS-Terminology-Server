@@ -9,7 +9,6 @@ tsApp.service('sourceDataService',
     'utilService',
     'gpService',
     function($http, $location, $q, ngCookies, utilService, gpService) {
-      console.debug('configure sourceDataService');
 
       // cached loader names
       var sourceDataHandlers = null;

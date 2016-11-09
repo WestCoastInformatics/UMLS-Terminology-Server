@@ -3,8 +3,9 @@
 
 <span ng-show="selected.project">
   <!-- Title -->
-  <span ng-show="selected.component.name"><h5>
-    {{selected.component.terminologyId}} {{selected.component.name}} ({{molecularActions.totalCount}})</span>
+  <h5>
+    {{selected.component.terminologyId}} {{selected.component.name}}
+    <span ng-show="pagedActions.totalCount>0"> ({{molecularActions.totalCount}})</span>
     <span class="label label-warning"
       ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
       uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
@@ -25,8 +26,7 @@
   <div pager paging="paging" count="pagedActions.totalCount"
     callbacks="paging.callbacks"></div>
 
-  <table
-    ng-show="pagedActions.totalCount > 0 || paging.filter"
+  <table ng-show="pagedActions.totalCount > 0 || paging.filter"
     class="slim table">
     <thead>
       <tr>

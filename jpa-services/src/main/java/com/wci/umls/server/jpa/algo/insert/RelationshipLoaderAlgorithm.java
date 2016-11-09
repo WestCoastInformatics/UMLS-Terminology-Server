@@ -205,7 +205,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // TODO - will need to for contexts.src once working for relationships.src
       // Use sg_type_1 and sg_type_2 to get to/from components
       // if sg_type_2 = SCR_ATOM_ID, skip.
-      
+
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
 
@@ -231,7 +231,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         if (stepsCompleted % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
-        
+
         FieldedStringTokenizer.split(line, "|", 18, fields);
 
         // Fields:
@@ -278,9 +278,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         Component fromComponent = fromComponentId == null ? null
             : getComponent(fromComponentId, fromClass);
-        
+
         if (fromComponent == null) {
-          logWarn("Warning - could not find from Component for the following line:\n\t" + line);
+          logWarn(
+              "Warning - could not find from Component for the following line:\n\t"
+                  + line);
           updateProgress();
           logAndCommit("[Relationship Loader] Relationships processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
@@ -302,12 +304,14 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             toComponentId == null ? null : getComponent(toComponentId, toClass);
 
         if (toComponent == null) {
-          logWarn("Warning - could not find to Component for the following line:\n\t" + line);
+          logWarn(
+              "Warning - could not find to Component for the following line:\n\t"
+                  + line);
           updateProgress();
           logAndCommit("[Relationship Loader] Relationships processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
           continue;
-         }
+        }
 
         // Create the relationship.
         // If id_type_1 equals id_type_2, the relationship is of that type.
@@ -355,7 +359,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         newRelationship.setTerminologyId(fields[16]);
         newRelationship.setTo(toComponent);
         newRelationship.setWorkflowStatus(lookupWorkflowStatus(fields[8]));
-        
+
         // Calculate inverseRel and inverseAdditionalRel types, to use in the
         // RUI handler and the inverse relationship creation
         String inverseRelType =
@@ -399,9 +403,10 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           addCount++;
           ruiIdMap.put(newRelationshipRui, newRelationship.getId());
-          
-          // No need to explicitly attach to component - will be done automatically by addRelationship.
-          
+
+          // No need to explicitly attach to component - will be done
+          // automatically by addRelationship.
+
         }
         // If an existing relationship DOES exist, update the version
         else {
@@ -435,9 +440,10 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           addCount++;
           ruiIdMap.put(newInverseRelationshipRui,
               newInverseRelationship.getId());
-          
-          // No need to explicitly attach to component - will be done automatically by addRelationship.
-          
+
+          // No need to explicitly attach to component - will be done
+          // automatically by addRelationship.
+
         }
         // If an existing inverse relationship DOES exist, update the version,
         // add an
@@ -471,8 +477,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         logAndCommit("[Relationship Loader] Relationships processed ",
             stepsCompleted, RootService.logCt, RootService.commitCt);
-        handler.
-        logAndCommit("[Relationship Loader] Relationship Identities processed ",
+        handler.logAndCommit(
+            "[Relationship Loader] Relationship Identities processed ",
             stepsCompleted, RootService.logCt, RootService.commitCt);
 
       }
@@ -507,7 +513,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @return the workflow status
    * @throws Exception the exception
    */
-  private WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
+  @Override
+  public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
 
     WorkflowStatus workflowStatus = null;
 
@@ -519,8 +526,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         workflowStatus = WorkflowStatus.NEEDS_REVIEW;
         break;
       default:
-        throw new Exception(
-            "Invalid workflowStatus type: " + string);
+        throw new Exception("Invalid workflowStatus type: " + string);
     }
 
     return workflowStatus;
@@ -570,6 +576,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @return the string
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private String lookupRelationshipType(String string) throws Exception {
 
     String relationshipType = null;
@@ -594,8 +601,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         relationshipType = "SY";
         break;
       default:
-        throw new Exception(
-            "Invalid relationship type: " + relationshipType);
+        throw new Exception("Invalid relationship type: " + relationshipType);
     }
 
     return relationshipType;
@@ -729,7 +735,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "RELATIONSHIPLOADING progress: " + currentProgress + "%");

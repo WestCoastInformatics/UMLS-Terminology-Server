@@ -947,7 +947,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         Project project = workflowService.getProject(projectId);
         // verifyProject -> n/a because we're getting bins for a project
         if (!project.isEditingEnabled()) {
-      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
         }
 
         // Start by clearing the bins
@@ -1061,16 +1062,17 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
-      authorizeProject(workflowService, projectId, securityService, authToken,
-          "trying to find available work", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "trying to find available work", UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
 
       // find available tracking records
       final WorkflowActionHandler handler =
           workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
-      final TrackingRecordList trackingRecords =
-          handler.findAvailableWork(project, role, pfs, workflowService);
+      final TrackingRecordList trackingRecords = handler
+          .findAvailableWork(project, userName, role, pfs, workflowService);
       for (final TrackingRecord tr : trackingRecords.getObjects()) {
         workflowService.handleLazyInit(tr);
       }
@@ -1340,9 +1342,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       // authorize and get user name from the token
-      authorizeProject(workflowService, projectId, securityService, authToken,
+      final String userName = authorizeProject(workflowService, projectId, securityService, authToken,
           action, UserRole.AUTHOR);
-      Project project = workflowService.getProject(projectId);
+      final Project project = workflowService.getProject(projectId);
 
       // Assume current epoch unless explicit
       final String localQuery = (query != null && !query.contains("epoch:"))
@@ -1365,9 +1367,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             worklist.getTrackingRecords().stream().collect(
                 Collectors.summingInt(w -> w.getOrigConceptIds().size())));
         worklist.setIsAuthorAvailable(
-            handler.isAvailable(worklist, UserRole.AUTHOR));
+            handler.isAvailable(worklist, userName, UserRole.AUTHOR));
         worklist.setIsReviewerAvailable(
-            handler.isAvailable(worklist, UserRole.REVIEWER));
+            handler.isAvailable(worklist, userName, UserRole.REVIEWER));
       }
 
       // websocket - n/a
@@ -1443,9 +1445,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final Project project = workflowService.getProject(projectId);
       if (!project.isEditingEnabled()) {
-    	  throw new LocalException("Editing is disabled on project: " + project.getName());
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
       }
-      
+
       // UserRole role = UserRole.valueOf(userRole);
       final Worklist returnWorklist = workflowService
           .performWorkflowAction(project, worklist, userName, userRole, action);
@@ -1485,15 +1488,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
-      authorizeProject(workflowService, projectId, securityService, authToken,
-          "trying to find available worklists", UserRole.AUTHOR);
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "trying to find available worklists", UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
 
       final WorkflowActionHandler handler =
           workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
-      final WorklistList list =
-          handler.findAvailableWorklists(project, role, pfs, workflowService);
+      final WorklistList list = handler.findAvailableWorklists(project,
+          userName, role, pfs, workflowService);
 
       // websocket - n/a
 
@@ -1636,9 +1640,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
         final Project project = workflowService.getProject(projectId);
         if (!project.isEditingEnabled()) {
-      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
         }
-        
+
         final WorkflowBin workflowBin =
             workflowService.getWorkflowBin(workflowBinId);
         final WorkflowEpoch currentEpoch =
@@ -2256,9 +2261,10 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         verifyProject(bin, projectId);
         final Project project = workflowService.getProject(projectId);
         if (!project.isEditingEnabled()) {
-      	  throw new LocalException("Editing is disabled on project: " + project.getName());
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
         }
-        
+
         // Remove the workflow bin
         workflowService.removeWorkflowBin(id, true);
 

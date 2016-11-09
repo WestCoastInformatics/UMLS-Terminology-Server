@@ -11,7 +11,6 @@ tsApp
       'utilService',
       'securityService',
       function($http, $q, $rootScope, gpService, utilService, securityService) {
-        console.debug('configure projectService');
 
         // Declare the model
         var userProjectsInfo = {
@@ -354,17 +353,16 @@ tsApp
           return deferred.promise();
         };
 
-        // get log 
+        // get log
         this.getLog = function(projectId, objectId, message, lines) {
           console.debug('getLog');
           var deferred = $q.defer();
           var llines = lines ? lines : 1000;
           // Assign user to project
-          //gpService.increment();
+          // gpService.increment();
           $http.get(
             projectUrl + '/log?projectId=' + projectId + (objectId ? '&objectId=' + objectId : '')
-              + (message ? '&message=' + message : '')
-              + '&lines=' + llines, {
+              + (message ? '&message=' + message : '') + '&lines=' + llines, {
               transformResponse : [ function(response) {
                 // Data response is plain text at this point
                 // So just return it, or do your parsing here
@@ -373,13 +371,13 @@ tsApp
             }).then(
           // success
           function(response) {
-            //gpService.decrement();
+            // gpService.decrement();
             deferred.resolve(response.data);
           },
           // error
           function(response) {
             utilService.handleError(response);
-            //gpService.decrement();
+            // gpService.decrement();
             deferred.reject(response.data);
           });
           return deferred.promise;
@@ -394,8 +392,9 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(projectUrl + '/actions/molecular?componentId=' + componentId + '&terminology=' + terminology 
-            + '&version=' + version + '&query=' + utilService.prepQuery(query),
+          $http.post(
+            projectUrl + '/actions/molecular?componentId=' + componentId + '&terminology='
+              + terminology + '&version=' + version + '&query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -413,7 +412,6 @@ tsApp
           return deferred.promise;
         };
 
-        
         // get all validation check names
         this.getValidationCheckNames = function() {
           var deferred = $q.defer();

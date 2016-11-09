@@ -3,25 +3,12 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -476,7 +463,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "ATTRIBUTELOADING progress: " + currentProgress + "%");

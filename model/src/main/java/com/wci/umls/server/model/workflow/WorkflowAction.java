@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -17,7 +17,9 @@ public enum WorkflowAction {
   /** The finish action. */
   FINISH,
   /** The cancel action. */
-  CANCEL,   
-  /**  The reassign. */
+  CANCEL,
+  /** The reassign. */
   REASSIGN,
+  /** The approve action. */
+  APPROVE;
 }
