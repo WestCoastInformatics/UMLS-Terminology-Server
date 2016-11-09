@@ -432,7 +432,9 @@ tsApp.controller('ProcessCtrl', [
       return utilService.getSortIndicator(table, field, $scope.paging);
     };
 
-
+    $scope.hasPermissions = function(action) {
+      return securityService.hasPermissions(action);
+    }
 
     //
     // MODALS

@@ -70,11 +70,10 @@
             <td>{{toDate(worklist.lastModified)}}</td>
             <!--  actions -->
             <td class="nobreak">
-              <span
-                ng-show="selected.worklistMode == 'Checklists' && selected.projectRole != 'ADMINISTRATOR'">n/a</span>
-              <i title="Remove {{selected.worklistMode}}"
-                ng-show="selected.projectRole == 'ADMINISTRATOR'"
-                confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
+
+              <i title="Remove"
+                ng-show="hasPermissions('RemoveWorklist')"
+                confirm="Are you sure you want to remove ({{worklist.name}})?"
                 ng-click="removeWorklist(worklist); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-trash"></i>
               <span ng-show="selected.worklistMode != 'Checklists'">
