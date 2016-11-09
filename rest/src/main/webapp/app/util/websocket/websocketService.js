@@ -117,23 +117,44 @@ tsApp.service('websocketService',
         // First, if it's a "change event", then we can determine what changed
         // and whether to fire "concept changed" or "atom changed"
         var object = JSON.parse(event.data);
-        //console.debug('MESSAGE', object);
+        console.debug('MESSAGE', object);
 
         // Handle changes involving concepts
-        if (object.container && object.container.type == 'CONCEPT') {
-          // Only report if from this session
-          // TODO: make this configurable (by role?)
-          if (object.sessionId === $http.defaults.headers.common.Authorization) {
+        if (object.container && object.container.type == 'CONCEPT'
+          && object.sessionId === $http.defaults.headers.common.Authorization) {
 
-            // Handle ignore counter
-            if (ignoreConcepts[object.container.id]) {
-              decrementConceptIgnore(object.container.id);
-            }
-            // fire event
-            else {
-              fireConceptChange(object.container);
+          // Handle ignore counter
+          if (ignoreConcepts[object.container.id]) {
+            decrementConceptIgnore(object.container.id);
+          }
+          // fire event
+          else {
+            fireConceptChange(object.container);
+          }
+        }
+
+        // Handle multiple events
+        if (object.events && object.events.length > 0) {
+          for (var i = 0; i < object.events.length; i++) {
+            var comp = object.events[i];
+            if (comp.container && comp.container.type == 'CONCEPT'
+              && comp.sessionId === $http.defaults.headers.common.Authorization) {
+              // Only report if from this session
+
+              // Handle ignore counter
+              if (ignoreConcepts[comp.container.id]) {
+                decrementConceptIgnore(comp.container.id);
+              }
+              // fire event
+              else {
+                // Fire an event with the first one, which selects the
+                // concept.
+                fireConceptChange(comp.container);
+              }
+
             }
           }
+
         }
 
         // Handle workflow changes if the session id does not match

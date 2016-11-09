@@ -31,7 +31,7 @@ tsApp
             function($scope) {
 
               // Reset some scope settings
-              $scope.selected.worklist = null;
+              $scope.selectedWorklist = null;
               $scope.selected.record = null;
               $scope.lists.records = [];
               $scope.worklistReport = null;
@@ -67,7 +67,7 @@ tsApp
               $scope.$watch('selected.refreshCt', function() {
                 // Skip initial setting
                 if ($scope.selected.refreshCt) {
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
               });
 
@@ -75,14 +75,14 @@ tsApp
               $scope.$on('termServer::checklistChange', function(event, data) {
                 if (data.id == $scope.selected.project.id && $scope.type == 'Checklist') {
                   // refresh the list
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
               });
 
               $scope.$on('termServer::worklistChange', function(event, data) {
                 if (data.id == $scope.selected.project.id && $scope.type == 'Worklist') {
                   // refresh the list
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
               });
 
@@ -233,7 +233,7 @@ tsApp
                 if ($scope.type == 'Worklist') {
 
                   workflowService.findTrackingRecordsForWorklist($scope.selected.project.id,
-                    $scope.selected.worklist.id, pfs).then(
+                    $scope.selectedWorklist.id, pfs).then(
                   // Success
                   function(data) {
                     $scope.lists.records = data.records;
@@ -241,7 +241,7 @@ tsApp
                   });
                 } else if ($scope.type == 'Checklist') {
                   workflowService.findTrackingRecordsForChecklist($scope.selected.project.id,
-                    $scope.selected.worklist.id, pfs).then(
+                    $scope.selectedWorklist.id, pfs).then(
                   // Success
                   function(data) {
                     $scope.lists.records = data.records;
@@ -255,7 +255,7 @@ tsApp
               $scope.findGeneratedConceptReports = function() {
                 $scope.worklistReport = null;
                 workflowService.findGeneratedConceptReports($scope.selected.project.id,
-                  $scope.selected.worklist.name, {
+                  $scope.selectedWorklist.name, {
                     startIndex : 0,
                     maxResults : 1
                   }).then(
@@ -272,14 +272,14 @@ tsApp
               $scope.getGeneratedConceptReport = function() {
                 // Download report
                 workflowService.getGeneratedConceptReport($scope.selected.project.id,
-                  $scope.selected.worklist.name + '_rpt.txt');
+                  $scope.selectedWorklist.name + '_rpt.txt');
               }
 
               // Export a report
               $scope.removeGeneratedConceptReport = function() {
                 // Download report
                 workflowService.removeGeneratedConceptReport($scope.selected.project.id,
-                  $scope.selected.worklist.name + '_rpt.txt').then(
+                  $scope.selectedWorklist.name + '_rpt.txt').then(
                 // Success
                 function(data) {
                   $scope.worklistReport = null;
@@ -290,7 +290,7 @@ tsApp
               // "refresh" icon
               $scope.generateConceptReport = function() {
                 workflowService.generateConceptReport($scope.selected.project.id,
-                  $scope.selected.worklist.id);
+                  $scope.selectedWorklist.id);
                 $scope.reportRefresh = true;
                 $scope.refresh = $interval(function() {
                   if (!$scope.reportRefresh) {
@@ -316,10 +316,10 @@ tsApp
 
                 // retrieve the correct table
                 if (table === 'worklists') {
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
                 if (table === 'records') {
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
               };
 
@@ -328,12 +328,12 @@ tsApp
                 return utilService.getSortIndicator(table, field, $scope.paging);
               };
 
-              // Selects a worklist (setting $scope.selected.worklist).
+              // Selects a worklist (setting $scope.selectedWorklist).
               // Looks up current release info and records.
               $scope.selectWorklist = function(worklist) {
                 workflowService['get' + $scope.type]($scope.selected.project.id, worklist.id).then(
                   function(data) {
-                    $scope.selected.worklist = data;
+                    $scope.selectedWorklist = data;
                     if ($scope.type == 'Worklist') {
                       $scope.parseStateHistory(data);
                     }
@@ -378,13 +378,13 @@ tsApp
                 if ($scope.type == 'Worklist') {
                   workflowService.removeWorklist($scope.selected.project.id, worklist.id).then(
                     function() {
-                      $scope.selected.worklist = null;
+                      $scope.selectedWorklist = null;
                       $scope.getWorklists();
                     });
                 } else {
                   workflowService.removeChecklist($scope.selected.project.id, worklist.id).then(
                     function() {
-                      $scope.selected.worklist = null;
+                      $scope.selectedWorklist = null;
                       $scope.getWorklists();
                     });
                 }
@@ -403,7 +403,7 @@ tsApp
                   && (worklist.workflowStatus == 'NEW' || worklist.workflowStatus == 'READY_FOR_PUBLICATION')) {
                   $scope.performWorkflowAction(worklist, 'SAVE', $scope.user.userName);
                 } else {
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 }
               };
 
@@ -414,13 +414,13 @@ tsApp
                   workflowService
                     .stampWorklist($scope.selected.project.id, worklist, approve, true).then(
                       function() {
-                        $scope.selected.worklist = null;
+                        $scope.selectedWorklist = null;
                         $scope.getWorklists();
                       });
                 } else if ($scope.type == 'Checklist') {
                   workflowService.stampChecklist($scope.selected.project.id, worklist, approve,
                     true).then(function() {
-                    $scope.selected.worklist = null;
+                    $scope.selectedWorklist = null;
                     $scope.getWorklists();
                   });
                 }
@@ -431,7 +431,7 @@ tsApp
 
                 workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
                   userName, $scope.selected.projects.role, action).then(function(data) {
-                  $scope.getWorklists($scope.selected.worklist);
+                  $scope.getWorklists($scope.selectedWorklist);
                 });
               };
 

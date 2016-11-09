@@ -175,34 +175,7 @@ tsApp
           return this.showHeaderFooter;
         };
 
-        this.openActionErrorsModal = function(response, activityId) {
-
-        	var modalInstance = $uibModal.open({
-                templateUrl : 'app/actions/errors-warnings/actionErrors/actionErrorsWarnings.html',
-                controller : 'ActionErrorsCtrl',
-                backdrop : 'static',
-                resolve : {
-                  warnings : function() {
-                	return response.data.warnings;
-                  },
-                  errors : function() {
-                	return response.data.errors;
-                  },
-                  action : function() {
-                    return activityId;
-                  }
-                }
-              });
-
-              modalInstance.result.then(
-              // Success
-              function(data) {
-            	  return true;
-              });
-
-          };
-
-        
+        // Compose a URL properly for opening new window
         this.composeUrl = function(extension) {
           var currentUrl = $location.absUrl();
           var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);

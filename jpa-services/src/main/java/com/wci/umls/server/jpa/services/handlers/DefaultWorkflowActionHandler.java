@@ -175,6 +175,15 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         flag = authorFlag || reviewerFlag;
         break;
 
+      case APPROVE:
+        // ONLY FOR REVIEWER
+        flag = role == UserRole.REVIEWER && EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS,
+                WorkflowStatus.REVIEW_DONE)
+            .contains(worklist.getWorkflowStatus());
+
+        break;
+
       case FINISH:
         // dependent on project role
         authorFlag = role == UserRole.AUTHOR && EnumSet
@@ -268,6 +277,19 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         // EDITING_IN_PROGRESS, EDITING_DONE, REVIEW_IN_PROGRESS, REVIEW_DONE
         break;
 
+      case APPROVE:
+
+        // REVIEW_NEW, REVIEW_IN_PROGRESS => READY_FOR_PUBLICATION
+        if (EnumSet
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
+            .contains(worklist.getWorkflowStatus())) {
+          worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          worklist.getWorkflowStateHistory().put("Stamped", new Date());
+        }
+
+        // Otherwise status stays the same
+        break;
+
       case FINISH:
         // EDITING_IN_PROGRESS => EDITING_DONE (and mark as not for authoring)
         if (EnumSet.of(WorkflowStatus.NEW, WorkflowStatus.EDITING_IN_PROGRESS)
@@ -280,20 +302,12 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
         else if (EnumSet
             .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
             .contains(worklist.getWorkflowStatus())) {
-          worklist.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
-          worklist.getWorkflowStateHistory().put("Stamped", new Date());
-        }
-
-        // REVIEW_DONE => READY_FOR_PUBLICATION
-        else if (EnumSet.of(WorkflowStatus.REVIEW_DONE)
-            .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           worklist.getWorkflowStateHistory().put("Done", new Date());
         }
 
         // Otherwise status stays the same
         break;
-
       default:
         throw new LocalException("Illegal workflow action - " + workflowAction);
     }

@@ -202,7 +202,7 @@ tsApp
 
         // approve concept
         this.approveConcept = function(projectId, activityId, concept, overrideWarnings) {
-        
+
           console.debug('approve concept');
           var deferred = $q.defer();
 
@@ -218,54 +218,34 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            
-            if (response.data.errors.length > 0 ||
-            	response.data.warnings.length > 0) {
-              
-            	/*var result = utilService.openActionErrorsModal(response, activityId);
-            	console.debug(result);*/
-            	
-            	/*var modalInstance = $uibModal.open({
-                    templateUrl : 'app/actions/errors-warnings/actionErrors/actionErrorsWarnings.html',
-                    controller : 'ActionErrorsCtrl',
-                    backdrop : 'static',
-                    resolve : {
-                      warnings : function() {
-                    	return response.data.warnings;
-                      },
-                      errors : function() {
-                    	return response.data.errors;
-                      },
-                      action : function() {
-                        return activityId;
-                      }
-                    }
-                  });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
 
-                  modalInstance.result.then(
-                  // Success
-                  function(data) {
-                	  //deferred.reject(response.data);
-                      //return;
-                	  approveConcept(projectId, activityId, concept, true);
-                  });          	*/
-            }
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+              if (response.data.errors.length > 0 || response.data.warnings.length > 0) {
+
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, activityId);
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    this.approveConcept(projectId, activityId, concept, true);
+                  }
+                });
+              }
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
         };
 
-        
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
           console.debug('merge concepts', concept1.lastModified);
@@ -600,5 +580,28 @@ tsApp
           return deferred.promise;
         };
 
+        // MODALS
+
+        // Open the actions/errors modal following a molecular action
+        var openActionErrorsModal = function(errors, warnings, activityId) {
+
+          return $uibModal.open({
+            templateUrl : 'app/util/edit/actionErrorsWarnings.html',
+            controller : 'ActionErrorsCtrl',
+            backdrop : 'static',
+            resolve : {
+              errors : function() {
+                return errors;
+              },
+              warnings : function() {
+                return warnings;
+              },
+              action : function() {
+                return activityId;
+              }
+            }
+          });
+
+        };
         // end
       } ]);

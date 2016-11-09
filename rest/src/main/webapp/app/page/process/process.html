@@ -31,10 +31,8 @@
 
   <!-- C1 -->
   <div class="col-md-6 col-xs-12">
-    <h4>Processes</h4>
-     
-    <span style="float: right;">
-            <select ng-model="selected.processType"
+    <span class="mt5">
+            Type: <select ng-model="selected.processType"
             ng-change="getProcesses()"
             ng-options="processType for processType in lists.processTypes"></select>
             <button ng-click="openAddProcessModal()" title="Add new process"
