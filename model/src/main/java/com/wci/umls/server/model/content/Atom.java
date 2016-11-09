@@ -3,11 +3,13 @@
  */
 package com.wci.umls.server.model.content;
 
+import java.util.List;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -166,8 +168,32 @@ public interface Atom extends ComponentHasAttributesAndName,
    */
   public String getLowerNameHash();
 
-String getLastPublishedRank();
+  /**
+   * Gets the last published rank.
+   *
+   * @return the last published rank
+   */
+  public String getLastPublishedRank();
 
-void setLastPublishedRank(String lastPublishedRank);
+  /**
+   * Sets the last published rank.
+   *
+   * @param lastPublishedRank the new last published rank
+   */
+  public void setLastPublishedRank(String lastPublishedRank);
+
+  /**
+   * Sets the notes.
+   *
+   * @param notes the new notes
+   */
+  public void setNotes(List<Note> notes);
+
+  /**
+   * Gets the notes.
+   *
+   * @return the notes
+   */
+  public List<Note> getNotes();
 
 }

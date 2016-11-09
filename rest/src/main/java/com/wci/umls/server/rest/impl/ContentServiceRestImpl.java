@@ -61,6 +61,7 @@ import com.wci.umls.server.jpa.algo.SimpleLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomNoteJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -89,6 +90,7 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
@@ -1180,6 +1182,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeApp(securityService, authToken,
           "retrieve the concept", UserRole.VIEWER);
       final Concept concept = contentService.getConcept(conceptId);
+      
+      // lazy initialization
+      for(Atom atom : concept.getAtoms()) {
+        atom.getNotes().size();
+      }
+      
       final Project project =
           projectId == null ? null : contentService.getProject(projectId);
 
@@ -1199,6 +1207,42 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  @Override
+  @GET
+  @Path("/atom/{atomId}")
+  @ApiOperation(value = "Get atom by atom id", notes = "Get the root branch atom matching the specified parameters", response = AtomJpa.class)
+  public Atom getAtom(
+    @ApiParam(value = "Atom id, e.g. 2145", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "retrieve the atom", UserRole.VIEWER);
+      final Atom atom = contentService.getAtom(atomId);
+      
+      // lazy initialization
+      atom.getNotes().size();
+      
+      if (atom != null) {
+        final String terminology = atom.getTerminology();
+        contentService.getGraphResolutionHandler(terminology).resolve(atom);
+      }
+      return atom;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve a atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+  
   /* see superclass */
 
   @Override
@@ -3468,28 +3512,25 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/concept/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/concept/{id}/note/add")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a concept", notes = "Adds a user note to a concept", response = String.class)
   @Override
   public void addConceptNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /concept/note/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    .info("RESTful call (Content): /concept/" + id + "note/add for authToken " + authToken);
+
 
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add concept note", UserRole.VIEWER);
       contentService.setLastModifiedBy(userName);
-      final Concept concept = contentService.getConcept(terminologyId,
-          terminology, version, Branch.ROOT);
+      final Concept concept = contentService.getConcept(id);
 
       if (concept == null) {
         throw new Exception("Could not retrieve concept for note addition");
@@ -3507,7 +3548,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       contentService.updateConcept(concept);
 
     } catch (Exception e) {
-      handleException(e, "trying to add user favorite");
+      handleException(e, "trying to add concept note");
     } finally {
       securityService.close();
     }
@@ -3515,7 +3556,55 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  @POST
+  @Path("/atom/{id}/note/add")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user note to a atom", notes = "Adds a user note to a atom", response = String.class)
+  @Override
+  public void addAtomNote(
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Note to add", required = true) String noteText,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + id + "note/add for authToken " + authToken);
 
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add atom note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+      final Atom atom = contentService.getAtom(id);
+
+      if (atom == null) {
+        throw new Exception("Could not retrieve atom for note addition");
+      }
+      final AtomNoteJpa note = new AtomNoteJpa();
+      note.setNote(noteText);
+      note.setLastModifiedBy(userName);
+      note.setTimestamp(new Date());
+      note.setAtom(atom);
+
+      // add the note, add it to the atom, and update the atom
+      final Note newNote = contentService.addNote(note);
+      atom.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
+      contentService.updateAtom(atom);
+
+    } catch (Exception e) {
+      handleException(e, "trying to add atom note");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  
+  
+  /* see superclass */
+
+
+  
   @DELETE
   @Path("/concept/note/{id}/remove")
   @Produces("text/plain")
@@ -3552,23 +3641,58 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  @DELETE
+  @Path("/atom/note/{id}/remove")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a atom", notes = "Remove a note from a atom", response = String.class)
+  @Override
+  public void removeAtomNote(
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /atom/note"
+        + noteId + "/remove for authToken " + authToken);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "remove atom note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+
+      final AtomNoteJpa note =
+          (AtomNoteJpa) contentService.getNote(noteId, AtomNoteJpa.class);
+      final Atom atom = note.getAtom();
+
+      atom.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
+      contentService.updateAtom(atom);
+      contentService.removeNote(noteId, AtomNoteJpa.class);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove note from atom");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+  
+
   /* see superclass */
 
   @POST
-  @Path("/code/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/code/{id}/note/add")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a code", notes = "Adds a user note to a code", response = String.class)
   @Override
   public void addCodeNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /code/note/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    .info("RESTful call (Content): /code/" + id + "note/add for authToken " + authToken);
+
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3576,8 +3700,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "add code note", UserRole.VIEWER);
       contentService.setLastModifiedBy(userName);
 
-      Code code = contentService.getCode(terminologyId, terminology, version,
-          Branch.ROOT);
+      Code code = contentService.getCode(id);
 
       if (code == null) {
         throw new Exception("Could not retrieve code for note addition");
@@ -3640,20 +3763,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/descriptor/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/descriptor/{id}/note/add")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a descriptor", notes = "Adds a user note to a descriptor", response = String.class)
   @Override
   public void addDescriptorNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /descriptor/note/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    .info("RESTful call (Content): /descriptor/" + id + "note/add for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3661,8 +3781,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "add descriptor note", UserRole.VIEWER);
       contentService.setLastModifiedBy(userName);
 
-      Descriptor descriptor = contentService.getDescriptor(terminologyId,
-          terminology, version, Branch.ROOT);
+      Descriptor descriptor = contentService.getDescriptor(id);
 
       if (descriptor == null) {
         throw new Exception("Could not retrieve descriptor for note addition");

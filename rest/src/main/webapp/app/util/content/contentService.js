@@ -188,23 +188,25 @@ tsApp
                 data.type = component.type;
 
                 // cycle over all atoms for pre-processing
-                for (var i = 0; i < data.atoms.length; i++) {
+                if (component.type != 'ATOM') {
+                  for (var i = 0; i < data.atoms.length; i++) {
 
-                  // push any definitions up to top level
-                  for (var j = 0; j < data.atoms[i].definitions.length; j++) {
-                    var definition = data.atoms[i].definitions[j];
+                    // push any definitions up to top level
+                    for (var j = 0; j < data.atoms[i].definitions.length; j++) {
+                      var definition = data.atoms[i].definitions[j];
 
-                    // set the atom element flag
-                    definition.atomElement = true;
+                      // set the atom element flag
+                      definition.atomElement = true;
 
-                    // add the atom information for tooltip
-                    // display
-                    definition.atomElementStr = data.atoms[i].name + " ["
-                      + data.atoms[i].terminology + "/" + data.atoms[i].termType + "]";
+                      // add the atom information for tooltip
+                      // display
+                      definition.atomElementStr = data.atoms[i].name + " ["
+                        + data.atoms[i].terminology + "/" + data.atoms[i].termType + "]";
 
-                    // add the definition to the top level
-                    // component
-                    data.definitions.push(definition);
+                      // add the definition to the top level
+                      // component
+                      data.definitions.push(definition);
+                    }
                   }
                 }
 
@@ -842,8 +844,7 @@ tsApp
 
             gpService.increment();
             $http.post(
-              contentUrl + '/' + component.type.toLowerCase() + '/note/' + component.terminology
-                + '/' + component.version + '/' + component.terminologyId + '/add', note).then(
+              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note/add', note).then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
@@ -974,6 +975,15 @@ tsApp
           }, projectId);
         };
 
+        // function for getting atom
+        this.getAtom = function(atomId, projectId) {
+          return this.getComponent({
+            id : atomId,
+            type : 'ATOM'
+          }, projectId);
+        };
+        
+        
         // Find mappings
         this.findMappings = function(component, pfs) {
           console.debug('findMappings', component, pfs);

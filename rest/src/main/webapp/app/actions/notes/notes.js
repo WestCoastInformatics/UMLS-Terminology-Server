@@ -21,7 +21,7 @@ tsApp.directive('notes', [ function() {
         $scope.field = $scope.type.toLowerCase();
         if ($scope.type == 'Checklist') {
           $scope.field = 'worklist';
-        } else if ($scope.type == 'Concept') {
+        } else if ($scope.type == 'Concept' || $scope.type == 'Atom') {
           $scope.field = 'component';
         }
 
@@ -52,7 +52,7 @@ tsApp.directive('notes', [ function() {
           $scope.field = type.toLowerCase();
           if (type == 'Checklist') {
             $scope.field = 'worklist';
-          } else if (type == 'Concept') {
+          } else if (type == 'Concept' || type == 'Atom') {
             $scope.field = 'component';
           }
 
@@ -147,7 +147,27 @@ tsApp.directive('notes', [ function() {
                 function(data) {
                   utilService.handleDialogError($scope.errors, data);
                 });
+            } else if ($scope.type == 'Atom') {
+              contentService.removeComponentNote(object, note.id).then(
+                // Success - remove atom note
+                function(data) {
+                  $scope.newNote = null;
+                  contentService.getAtom(object.id, $scope.project.id).then(function(data) {
+                    object.notes = data.notes;
+                    $scope.getPagedNotes();
+                  },
+                  // Error 
+                  function(data) {
+                    utilService.handleDialogError($scope.errors, data);
+                  });
+                },
+                // Error - remove atom note
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
+              
               }
+            
           };
 
           // add new note
@@ -198,12 +218,31 @@ tsApp.directive('notes', [ function() {
                     object.notes = data.notes;
                     $scope.getPagedNotes();
                   },
-                  // Error - add worklist note
+                  // Error - add concept note
                   function(data) {
                     utilService.handleDialogError($scope.errors, data);
                   });
                 },
-                // Error - add worklist note
+                // Error - add concept note
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
+              
+            } else if ($scope.type == 'Atom') {
+              contentService.addComponentNote(object, text).then(
+                // Success - add atom note
+                function(data) {
+                  $scope.newNote = null;
+                  contentService.getAtom(object.id, $scope.project.id).then(function(data) {
+                    object.notes = data.notes;
+                    $scope.getPagedNotes();
+                  },
+                  // Error - add atom note
+                  function(data) {
+                    utilService.handleDialogError($scope.errors, data);
+                  });
+                },
+                // Error - add atom note
                 function(data) {
                   utilService.handleDialogError($scope.errors, data);
                 });
