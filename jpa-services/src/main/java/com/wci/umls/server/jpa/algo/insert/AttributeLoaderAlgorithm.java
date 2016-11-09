@@ -30,11 +30,9 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Attribute;
@@ -48,7 +46,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import attributes.
  */
-public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
+public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -61,29 +59,6 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-
-  /**
-   * The atui ID map. Key = AlternateTerminologyId Value = attributeJpa Id
-   */
-  private Map<String, Long> atuiIdMap = new HashMap<>();
-
-  /**
-   * The concept ID map. Key = ConceptJpa.TerminologyId Value = ConceptJpa.Id
-   */
-  private Map<String, Long> conceptIdMap = new HashMap<String, Long>();
-
-  /**
-   * Set containing the name of all terminologies referenced in the
-   * attributes.src file
-   */
-  private Set<String> allTerminologiesFromInsertion = new HashSet<>();
-
-  /**
-   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
-   * if Version = "latest") Value = Terminology object
-   */
-  private Map<String, Terminology> loadedTerminologies =
-      new HashMap<String, Terminology>();
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -127,209 +102,6 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-  sources.close();
-
-  return lines;
-
-  }
-
-  /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTerminologies() throws Exception {
-
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
-        loadedTerminologies.put(term.getTerminology(), term);
-      } else {
-        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-      }
-    }
-  }
-
-  /**
-   * Cache existing concepts.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingConcepts() throws Exception {
-
-    // Pre-populate conceptIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from ConceptJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      conceptIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
-  }
-
-  /**
-   * Identify all terminologies from insertion.
-   *
-   * @param lines the lines
-   * @throws Exception the exception
-   */
-  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-    throws Exception {
-
-    String fields[] = new String[15];
-    steps = lines.size();
-    stepsCompleted = 0;
-
-    for (String line : lines) {
-
-      FieldedStringTokenizer.split(line, "|", 15, fields);
-
-      // For the purpose of this method, all we care about is fields[1]: source
-      final String terminology = fields[1].contains("_")
-          ? fields[1].substring(0, fields[1].indexOf('_')) : fields[1];
-
-      allTerminologiesFromInsertion.add(terminology);
-    }
-  }
-
-  /**
-   * Cache existing attributes' ATUIs and IDs.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingAttributes() throws Exception {
-
-    int iteration = 0;
-    int batchSize = 10000;
-
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from attributes a join attributejpa_alternateterminologyids b where a.id = b.AttributeJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[AttributeLoader] Loading attribute ATUIs from database: "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        atuiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-  }
-
-  /**
-   * Cache existing definitions' ATUIs and IDs.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingDefinitions() throws Exception {
-
-    int iteration = 0;
-    int batchSize = 10000;
-
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from definitions a join definitionjpa_alternateterminologyids b where a.id = b.DefinitionJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[AttributeLoader] Loading definitions ATUIs from database: "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        atuiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-  }
-
-  /**
-   * Class lookup.
-   *
-   * @param string the string
-   * @return the class<? extends hasid>
-   */
-  private Class<? extends Component> lookupClass(String string)
-    throws Exception {
-
-    Class<? extends Component> objectClass = null;
-
-    switch (string) {
-      case "CODE_SOURCE":
-        objectClass = CodeJpa.class;
-        break;
-      case "SOURCE_CUI":
-        objectClass = ConceptJpa.class;
-        break;
-      case "SRC_ATOM_ID":
-        objectClass = AtomJpa.class;
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid class type: " + string);
-    }
-
-    return objectClass;
-  }
-
-  /**
    * Compute.
    *
    * @throws Exception the exception
@@ -366,17 +138,10 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Load the attributes.src file
       //
-      List<String> lines = loadFileIntoStringList("attributes.src", null);
+      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src", null);
 
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
-
-      // Cache all of the currently existing atom RUIs and Terminologies
-      cacheExistingTerminologies();
-      cacheExistingAttributes();
-      cacheExistingDefinitions();
-      identifyAllTerminologiesFromInsertion(lines);
-      cacheExistingConcepts();
 
       String fields[] = new String[14];
 
@@ -433,7 +198,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
           newDefinition.setName(fields[3]);
           newDefinition.setValue(fields[4]);
           newDefinition.setTerminologyId("TestId");
-          Terminology term = loadedTerminologies.get(fields[5]);
+          Terminology term = getCachedTerminology(fields[5]);
           if (term == null) {
             throw new Exception(
                 "ERROR: lookup for " + fields[5] + " returned no terminology");
@@ -457,7 +222,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
           Long containerComponentId = null;
           if (containerClass.equals(ConceptJpa.class)) {
             containerComponentId =
-                conceptIdMap.get(containerTerminologyId + containerTerminology);
+                getId(ConceptJpa.class, containerTerminology, containerTerminologyId);
           } else {
             throw new IllegalArgumentException(
                 "Invalid class type: " + containerClass);
@@ -488,7 +253,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldDefinitionId = atuiIdMap.get(newDefinitionAtui);
+          Long oldDefinitionId = getId(DefinitionJpa.class, newDefinitionAtui, newDefinition.getTerminology());
 
           // If no attribute with the same ATUI exists, create this new
           // Attribute, and add it to its containing component
@@ -498,7 +263,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
             newDefinition = addDefinition(newDefinition, containerComponent);
 
             definitionAddCount++;
-            atuiIdMap.put(newDefinitionAtui, newDefinition.getId());
+            putId(DefinitionJpa.class, newDefinitionAtui, newDefinition.getTerminology(), newDefinition.getId());
 
             // TODO - find out if this is needed.
             // If so, create a cache-map, so that all updates are made to same
@@ -552,7 +317,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
           newAttribute.setName(fields[3]);
           newAttribute.setValue(fields[4]);
           newAttribute.setTerminologyId("TestId");
-          Terminology term = loadedTerminologies.get(fields[5]);
+          Terminology term = getCachedTerminology(fields[5]);
           if (term == null) {
             throw new Exception(
                 "ERROR: lookup for " + fields[5] + " returned no terminology");
@@ -576,7 +341,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
           Long containerComponentId = null;
           if (containerClass.equals(ConceptJpa.class)) {
             containerComponentId =
-                conceptIdMap.get(containerTerminologyId + containerTerminology);
+                getId(ConceptJpa.class, containerTerminologyId, containerTerminology);
           } else {
             throw new IllegalArgumentException(
                 "Invalid class type: " + containerClass);
@@ -607,7 +372,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldAttributeId = atuiIdMap.get(newAttributeAtui);
+          Long oldAttributeId = getId(AttributeJpa.class, newAttributeAtui, newAttribute.getTerminology());
 
           // If no attribute with the same ATUI exists, create this new
           // Attribute, and add it to its containing component
@@ -617,7 +382,7 @@ public class AttributeLoaderAlgorithm extends AbstractAlgorithm {
             newAttribute = addAttribute(newAttribute, containerComponent);
 
             attributeAddCount++;
-            atuiIdMap.put(newAttributeAtui, newAttribute.getId());
+            putId(AttributeJpa.class, newAttributeAtui, newAttribute.getTerminology(), newAttribute.getId());
 
             // TODO - find out if this is needed.
             // If so, create a cache-map, so that all updates are made to same

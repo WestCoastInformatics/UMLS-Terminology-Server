@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
@@ -24,8 +24,8 @@ import com.wci.umls.server.helpers.LocalException;
 public class ExceptionHandler {
 
   /** Date format */
-  public final static FastDateFormat df = FastDateFormat
-      .getInstance("hh:mm:ss a");
+  public final static FastDateFormat df =
+      FastDateFormat.getInstance("hh:mm:ss a");
 
   /**
    * Handle exception.
@@ -73,18 +73,15 @@ public class ExceptionHandler {
       }
 
       Properties props = new Properties();
-      props.put("mail.smtp.user", config.getProperty("mail.smtp.user"));
-      props.put("mail.smtp.password", config.getProperty("mail.smtp.password"));
-      props.put("mail.smtp.host", config.getProperty("mail.smtp.host"));
-      props.put("mail.smtp.port", config.getProperty("mail.smtp.port"));
-      props.put("mail.smtp.starttls.enable", "true");
-      props.put("mail.smtp.auth", "true");
-
+      for (final Object prop : config.keySet()) {
+        if (prop.toString().startsWith("mail.smtp")) {
+          props.put(prop.toString(), config.getProperty(prop.toString()));
+        }
+      }
       StringBuilder body = new StringBuilder();
       if (!(e instanceof LocalException))
-        body.append(
-            "Unexpected error " + whatIsHappening
-                + ". Please contact the administrator.").append("\n\n");
+        body.append("Unexpected error " + whatIsHappening
+            + ". Please contact the administrator.").append("\n\n");
 
       try {
         body.append("HOST: " + InetAddress.getLocalHost().getHostName())
@@ -100,20 +97,19 @@ public class ExceptionHandler {
       PrintWriter pw = new PrintWriter(out);
       e.printStackTrace(pw);
       body.append(out.getBuffer());
-      Logger.getLogger(ExceptionHandler.class).info(
-          "Sending error email : " + props);
-      if (config.getProperty("mail.enabled") != null
-          && config.getProperty("mail.enabled").equals("true")) {
+      Logger.getLogger(ExceptionHandler.class)
+          .info("Sending error email : " + props);
+      if ("true".equals(config.getProperty("mail.enabled"))) {
         ConfigUtility.sendEmail(subject, from, recipients, body.toString(),
             props, "true".equals(props.get("mail.smtp.auth")));
       } else {
-        Logger.getLogger(ExceptionHandler.class).info(
-            "Sending mail is disabled.");
+        Logger.getLogger(ExceptionHandler.class)
+            .info("Sending mail is disabled.");
       }
     } catch (Exception ex) {
       ex.printStackTrace();
-      Logger.getLogger(ExceptionHandler.class).error(
-          "Unable to handle exception");
+      Logger.getLogger(ExceptionHandler.class)
+          .error("Unable to handle exception");
     }
 
   }

@@ -266,7 +266,8 @@ public class UmlsIdentifierAssignmentHandler
       return atom.getTerminologyId();
     }
     // Return the id if it's already a AUI
-    if (atom.getTerminologyId() != null && atom.getTerminologyId().startsWith(prefixMap.get("AUI"))) {
+    if (atom.getTerminologyId() != null
+        && atom.getTerminologyId().startsWith(prefixMap.get("AUI"))) {
       return atom.getTerminologyId();
     }
 
@@ -650,11 +651,16 @@ public class UmlsIdentifierAssignmentHandler
       throw new Exception("Identifier type " + type + " is not configured");
     }
     final int length = lengthMap.get(type);
-    final String idStr = id.toString();
-    final int startIndex = idStr.length() + 19 - length;
-    final String convertedId = prefixMap.get(type)
-        + ("000000000000000000" + idStr).substring(startIndex);
-    return convertedId;
+    if (id.toString().length() < length) {
+      final String idStr = id.toString();
+      final int startIndex = idStr.length() + 19 - length;
+      final String convertedId = prefixMap.get(type)
+          + ("000000000000000000" + idStr).substring(startIndex);
+      return convertedId;
+    } else {
+      return prefixMap.get(type) + id;
+    }
+
   }
 
   /**
