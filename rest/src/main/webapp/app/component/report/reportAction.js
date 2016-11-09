@@ -19,7 +19,8 @@ tsApp.directive('reportAction', [
         'projectService',
         'utilService',
         'metaEditingService',
-        function($scope, $sce, projectService, utilService, metaEditingService) {
+        'securityService',
+        function($scope, $sce, projectService, utilService, metaEditingService, securityService) {
           // Scope vars
           $scope.molecularActions = [];
           $scope.lowestNotUndone;
@@ -137,6 +138,23 @@ tsApp.directive('reportAction', [
           $scope.toDate = function(lastModified) {
             return utilService.toDate(lastModified);
           };
+          
+          $scope.hasPermissions = function(action) {
+            return securityService.hasPermissions(action);
+          }
+          
+          $scope.selfResolved = function(action) {
+            var user = securityService.getUser();
+            if (user.userPreferences.lastProjectRole != 'AUTHOR') {
+              return true;
+            }
+            else if (user.userPreferences.lastProjectRole == 'AUTHOR' && 
+              user.editorLevel == 5 && 
+              action.lastModifiedBy.indexOf(user.userName) > 0) {
+                return true;
+            }
+            return false;
+          }
 
           $scope.displayLog = function(action) {
             var objectId = action.id;

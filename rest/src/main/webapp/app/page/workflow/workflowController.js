@@ -313,7 +313,10 @@ tsApp.controller('WorkflowCtrl', [
       securityService.updateUserPreferences($scope.user.userPreferences);
     }
 
-
+    $scope.hasPermissions = function(action) {
+      return securityService.hasPermissions(action);
+    }
+    
     //
     // MODALS
     //

@@ -107,11 +107,8 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          var query = 'userRoleMap:' + $scope.user.userName + 'ADMINISTRATOR';
-          // no restrictions for application admin
-          if ($scope.user.applicationRole == 'ADMINISTRATOR') {
-            query = '';
-          }
+          
+          var query = '';
           projectService.findProjects(query, pfs).then(function(data) {
             $scope.lists.projects = data.projects;
             $scope.lists.projects.totalCount = data.totalCount;
@@ -228,6 +225,10 @@ tsApp
             $scope.lists.projectRoles = data.strings;
           });
         };
+        
+        $scope.hasPermissions = function(action) {
+          return securityService.hasPermissions(action);
+        }
 
         // Sets the selected project
         $scope.setProject = function(project) {

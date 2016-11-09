@@ -19,7 +19,8 @@ tsApp.service('securityService', [
       email : null,
       authToken : null,
       applicationRole : null,
-      userPreferences : null
+      userPreferences : null,
+      editorLevel : null
     };
 
     // Search results
@@ -145,6 +146,7 @@ tsApp.service('securityService', [
       user.password = "";
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
+      user.editorLevel = data.editorLevel;
       $http.defaults.headers.common.Authorization = data.authToken;
 
       // Whenever set user is called, we should save a cookie
@@ -238,6 +240,40 @@ tsApp.service('securityService', [
     this.isViewer = function() {
       return user.applicationRole === 'VIEWER';
     };
+    
+    // permissions for determining visibility in ui
+    this.permissions = {};
+    this.permissions['CreateWorklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['CreateChecklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['RegenerateBins'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['RecomputeConceptStatus'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['UndoRedo'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['GenerateReport'] = {'REVIEWER': true, 'AUTHOR': true, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['ImportChecklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['RemoveChecklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['RemoveWorklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['Stamp'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['Unapprove'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['AssignWorklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['UnassignWorklist'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': true, 'ADMINISTRATOR': true};
+    this.permissions['EditProjectOrUser'] = {'REVIEWER': false, 'AUTHOR': false, 'EDITOR5': false, 'ADMINISTRATOR': true};
+    this.permissions['EditProcessOrStep'] = {'REVIEWER': true, 'AUTHOR': false, 'EDITOR5': false, 'ADMINISTRATOR': true};
+    
+    this.hasPermissions = function(action) {
+      var userProjectRole = user.userPreferences.lastProjectRole;
+      if (userProjectRole == 'AUTHOR' && user.editorLevel == 5) {
+        userProjectRole = 'EDITOR5';
+      }
+ 
+      console.debug('permissions', action, userProjectRole);
+      return this.permissions[action][userProjectRole];      
+    }
+    
+    // add a new action and roleMap to the permissions map
+    this.addPermission = function(action, roleMap) {
+      this.permissions[action] = roleMap;
+    }
+    
     // Authenticate user
     this.authenticate = function(userName, password) {
 
