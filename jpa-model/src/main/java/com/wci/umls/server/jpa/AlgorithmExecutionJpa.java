@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -64,6 +64,9 @@ public class AlgorithmExecutionJpa extends
   /** The project. */
   @ManyToOne(targetEntity = ProcessExecutionJpa.class, optional = false)
   private ProcessExecution process;
+  
+  /**   Has the algorithm had a warning fired during its execution?. */
+  private Boolean warning;
 
   /**
    * Instantiates an empty {@link AlgorithmExecutionJpa}.
@@ -85,6 +88,7 @@ public class AlgorithmExecutionJpa extends
     failDate = exec.getFailDate();
     algorithmConfigId = exec.getAlgorithmConfigId();
     activityId = exec.getActivityId();
+    warning = exec.isWarning();
   }
 
   /**
@@ -256,6 +260,26 @@ public class AlgorithmExecutionJpa extends
         + finishDate + ", failDate=" + failDate + ", processId="
         + getProcessId() + ", activityId=" + activityId + ", algorithmConfigId="
         + algorithmConfigId + "] " + super.toString();
+  }
+
+  /**
+   * Indicates whether or not warning is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @Override
+  public Boolean isWarning() {
+    return warning;
+  }
+
+  /**
+   * Sets the warning.
+   *
+   * @param warning the warning
+   */
+  @Override
+  public void setWarning(Boolean warning) {
+    this.warning = warning;
   }
 
 }

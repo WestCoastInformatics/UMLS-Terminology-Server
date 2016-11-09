@@ -687,8 +687,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Process): /config/algo/add for user " + processId + ", " 
-            + authToken + ", " + algorithmConfig);
+        .info("RESTful call (Process): /config/algo/add for user " + processId
+            + ", " + authToken + ", " + algorithmConfig);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -697,9 +697,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessConfigJpa processConfig = (ProcessConfigJpa) processService
-            .getProcessConfig(processId);
-     
+      ProcessConfigJpa processConfig =
+          (ProcessConfigJpa) processService.getProcessConfig(processId);
+
       // Re-add processConfig to algorithmConfig (it does not make it intact
       // through XML)
       algorithmConfig.setProcess(processConfig);
@@ -725,7 +725,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         } else if (!ConfigUtility.isEmpty(param.getValue())) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               param.getValue());
-        } 
+        }
       }
 
       // Add algorithmConfig
@@ -1564,9 +1564,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             final Long aeId = algorithmExecution.getId();
             final int currentCt = stepCt;
+
+            // algorithmExecution needs to be recast as final, so it can be
+            // modified by updateProgress
+            final AlgorithmExecution finalAlgorithmExecution =
+                algorithmExecution;
+
             algorithm.addProgressListener(new ProgressListener() {
               @Override
               public void updateProgress(ProgressEvent processEvent) {
+                if (processEvent.isWarning()) {
+                  finalAlgorithmExecution.setWarning(true);
+                  return;
+                }
                 lookupAeProgressMap.put(aeId, processEvent.getPercent());
 
                 // pe progress is the current progress plus the scaled
@@ -1574,6 +1584,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                 lookupPeProgressMap.put(processExecution.getId(),
                     (int) ((100 * currentCt) / enabledSteps)
                         + (int) (processEvent.getPercent() / enabledSteps));
+
               }
             });
 

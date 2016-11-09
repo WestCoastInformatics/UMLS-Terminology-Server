@@ -3,9 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,9 +20,8 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
@@ -46,7 +43,7 @@ import com.wci.umls.server.model.meta.UsageType;
 /**
  * Implementation of an algorithm to import metadata.
  */
-public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
+public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -59,29 +56,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-
-  /** The loader. */
-  private final String loader = "loader";
-
-  /** The loaded terminologies. */
-  private Map<KeyValuePair, Terminology> loadedTerminologies = new HashMap<>();
-
-  /** The loaded root terminologies. */
-  private Map<String, RootTerminology> loadedRootTerminologies =
-      new HashMap<>();
-
-  /** The loaded term types. */
-  private Map<String, TermType> loadedTermTypes = new HashMap<>();
-
+  
   /** The loaded organizing class types. */
   private Map<String, IdType> loadedOrganizingClassTypes = null;
-
-  /** The loaded attribute names. */
-  private Map<String, AttributeName> loadedAttributeNames = new HashMap<>();
-
-  /** The loaded additional relationship types. */
-  private Map<String, AdditionalRelationshipType> loadedAdditionalRelationshipTypes =
-      new HashMap<>();
 
   /** The run date. */
   private Date runDate = null;
@@ -127,8 +104,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Validate AdditionalRelationshipType inverses
     //
-    cacheExistingAdditionalRelationshipTypes();
-    List<String> lines = loadFileIntoStringList("MRDOC.RRF", "RELA|");
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)");
 
     final Set<String> relaMRDOC = new HashSet<>();
     final Set<String> inverseRelaMRDOC = new HashSet<>();
@@ -160,58 +137,20 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     // exist in the database, fire warning.
     for (String abbreviation : inverseRelaMRDOC) {
       if (!relaMRDOC.contains(abbreviation)
-          && loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
-        validationResult.addWarning(
-            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: "
+          && getCachedAdditionalRelationshipType(abbreviation) == null) {
+        validationResult.addError(
+            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database: "
                 + abbreviation);
       }
       if (!relaMRDOC.contains(abbreviation)
-          && !loadedAdditionalRelationshipTypes.containsKey(abbreviation)) {
-        validationResult.addError(
-            "MRDOC references inverse Additional Relationship Type that does not exist in MRDOC nor in the database: "
+          && getCachedAdditionalRelationshipType(abbreviation) != null) {
+        validationResult.addWarning(
+            "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: "
                 + abbreviation);
       }
     }
 
     return validationResult;
-  }
-
-  /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-    sources.close();
-
-    return lines;
   }
 
   /**
@@ -237,9 +176,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
-      cacheExistingTerminologies();
       handleTerminologies();
-
       updateProgress();
 
       //
@@ -248,9 +185,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
-      cacheExistingTermTypes();
       handleTermTypes();
-
       updateProgress();
 
       //
@@ -259,7 +194,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
-      cacheExistingAttributeNames();
       handleAttributeNames();
 
       updateProgress();
@@ -270,9 +204,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       if (isCancelled()) {
         throw new CancelException("Cancelled");
       }
-      cacheExistingAdditionalRelationshipTypes();
       handleAdditionalRelationshipTypes();
-
       updateProgress();
 
       logInfo("  project = " + getProject().getId());
@@ -300,76 +232,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Cache existing terminologies.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTerminologies() throws Exception {
-
-    for (final RootTerminology root : getRootTerminologies().getObjects()) {
-      // lazy init
-      root.getSynonymousNames().size();
-      loadedRootTerminologies.put(root.getTerminology(), root);
-    }
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      loadedTerminologies.put(
-          new KeyValuePair(term.getTerminology(), term.getVersion()), term);
-    }
-
-  }
-
-  /**
-   * Cache existing termTypes.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTermTypes() throws Exception {
-
-    for (final TermType tty : getTermTypes(getProject().getTerminology(),
-        getProject().getVersion()).getObjects()) {
-      // lazy init
-      tty.getNameVariantType().toString();
-      tty.getCodeVariantType().toString();
-      tty.getStyle().toString();
-      loadedTermTypes.put(tty.getAbbreviation(), tty);
-    }
-  }
-
-  /**
-   * Cache existing additional relationship types.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingAdditionalRelationshipTypes() throws Exception {
-
-    for (final AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
-        getProject().getTerminology(), getProject().getVersion())
-            .getObjects()) {
-      loadedAdditionalRelationshipTypes.put(rela.getAbbreviation(), rela);
-    }
-  }
-
-  /**
-   * Cache existing attributeNames.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingAttributeNames() throws Exception {
-
-    for (final AttributeName atn : getAttributeNames(
-        getProject().getTerminology(), getProject().getVersion())
-            .getObjects()) {
-      // // lazy init
-      // atn.getEquivalentName().toString();
-      // atn.getSuperName().toString();
-      loadedAttributeNames.put(atn.getAbbreviation(), atn);
-    }
-  }
-
-  /**
    * Load sources.src and contexts.src. These are responsible for loading
    * terminologies and root terminologies.
    *
@@ -388,7 +250,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load the sources.src file
     //
-    List<String> lines = loadFileIntoStringList("sources.src", null);
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "sources.src", null);
 
     String fields[] = new String[20];
 
@@ -444,7 +307,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Root Terminology based on input line.
       //
-      if (!loadedRootTerminologies.containsKey(fields[4])) {
+      if (getCachedRootTerminology(fields[4]) == null) {
         // Add if it does not yet exist
         final RootTerminology rootTerm = new RootTerminologyJpa();
         rootTerm.setAcquisitionContact(new ContactInfoJpa(fields[9]));
@@ -461,19 +324,16 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         rootTerm.setPreferredName(fields[7]);
         rootTerm.setRestrictionLevel(Integer.parseInt(fields[2]));
         rootTerm.setTerminology(fields[4]);
-        rootTerm.setTimestamp(runDate);
-        rootTerm.setLastModified(runDate);
-        rootTerm.setLastModifiedBy(loader);
         rootTerm.setLanguage(fields[15]);
 
         logInfo("[MetadataLoader] Adding Root Terminology: " + rootTerm);
         addRootTerminology(rootTerm);
-        loadedRootTerminologies.put(rootTerm.getTerminology(), rootTerm);
+        getCachedRootTerminologies().put(rootTerm.getTerminology(), rootTerm);
       }
       // If it does already exist, update the existing root terminology
       else {
         final RootTerminology existingRootTerm =
-            loadedRootTerminologies.get(fields[4]);
+            getCachedRootTerminology(fields[4]);
         existingRootTerm.setAcquisitionContact(new ContactInfoJpa(fields[9]));
         existingRootTerm.setContentContact(new ContactInfoJpa(fields[10]));
         existingRootTerm.setLicenseContact(new ContactInfoJpa(fields[11]));
@@ -489,24 +349,25 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
         existingRootTerm.setRestrictionLevel(Integer.parseInt(fields[2]));
         existingRootTerm.setTerminology(fields[4]);
         existingRootTerm.setTimestamp(runDate);
-        existingRootTerm.setLastModified(runDate);
-        existingRootTerm.setLastModifiedBy(loader);
         existingRootTerm.setLanguage(fields[15]);
+
+        logInfo(
+            "[MetadataLoader] Updating Root Terminology: " + existingRootTerm);
+
+        updateRootTerminology(existingRootTerm);
+        getCachedRootTerminologies().put(existingRootTerm.getTerminology(),
+            existingRootTerm);
       }
 
       //
       // Terminology based on input line.
       //
-      if (!loadedTerminologies
-          .containsKey(new KeyValuePair(fields[4], fields[5]))) {
+      if (getCachedTerminology(fields[4], fields[5]) == null) {
         // Add if it does not yet exist
-        Terminology term = new TerminologyJpa();
+        final Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
         term.setCurrent(true);
         term.setPreferredName(fields[7]);
-        term.setTimestamp(runDate);
-        term.setLastModified(runDate);
-        term.setLastModifiedBy(loader);
         term.setTerminology(fields[4]);
         term.setVersion(fields[5]);
         term.setDescriptionLogicTerminology(false);
@@ -534,25 +395,67 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
                 + " for field REL_DIRECTIONALITY_FLAG.  Value can only be 0 or 1.");
           }
         }
-        term.setRootTerminology(loadedRootTerminologies.get(fields[4]));
+        term.setRootTerminology(getCachedRootTerminology(fields[4]));
         termsToAddMap.put(fields[0], term);
       }
-      // If it does already exist, update the existing root terminology
+      // If it does already exist, update the existing terminology
       else {
-        //
+        final Terminology existingTerm =
+            getCachedTerminology(fields[4], fields[5]);
+        existingTerm.setCitation(new CitationJpa(fields[16]));
+        existingTerm.setCurrent(true);
+        existingTerm.setPreferredName(fields[7]);
+        existingTerm.setTerminology(fields[4]);
+        existingTerm.setVersion(fields[5]);
+        existingTerm.setDescriptionLogicTerminology(false);
+        if (determineOrganizingClassType(fields[4]) != null) {
+          existingTerm
+              .setOrganizingClassType(determineOrganizingClassType(fields[4]));
+        } else {
+          existingTerm.setOrganizingClassType(IdType.CODE);
+        }
+        existingTerm.setInverterEmail(fields[12]);
+        if (!fields[13].isEmpty()) {
+          if (fields[13].contains("NOSIB")) {
+            existingTerm.setIncludeSiblings(false);
+          } else {
+            existingTerm.setIncludeSiblings(true);
+          }
+        }
+        existingTerm.setUrl(fields[14]);
+        if (!fields[19].isEmpty()) {
+          if (Integer.parseInt(fields[19]) == 1) {
+            existingTerm.setAssertsRelDirection(true);
+          } else if (Integer.parseInt(fields[19]) == 0) {
+            existingTerm.setAssertsRelDirection(false);
+          } else {
+            throw new Exception("Error: Unexpected value " + fields[19]
+                + " for field REL_DIRECTIONALITY_FLAG.  Value can only be 0 or 1.");
+          }
+        }
+        existingTerm.setRootTerminology(getCachedRootTerminology(fields[4]));
+
+        logInfo("[MetadataLoader] Updating Terminology: " + existingTerm);
+
+        updateTerminology(existingTerm);
+        getCachedTerminologies().put(fields[0], existingTerm);
       }
     }
 
     // For every Term about to be added, find any previously existing terms with
     // the same root terminology, and set their current to false.
     for (Terminology newTerm : termsToAddMap.values()) {
-      for (Terminology existingTerm : loadedTerminologies.values()) {
+      for (Terminology existingTerm : getCachedTerminologies().values()) {
         if (newTerm.getRootTerminology()
-            .equals(existingTerm.getRootTerminology())) {
+            .equals(existingTerm.getRootTerminology())
+            && !newTerm.getVersion().equals(existingTerm.getVersion())) {
           if (existingTerm.isCurrent()) {
             existingTerm.setCurrent(false);
             logInfo("[MetadataLoader] Updating Terminology: " + existingTerm);
             updateTerminology(existingTerm);
+            getCachedTerminologies().put(
+                existingTerm.getTerminology() + "_" + existingTerm.getVersion(),
+                existingTerm);
           }
         }
       }
@@ -563,11 +466,9 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     for (Terminology newTerm : termsToAddMap.values()) {
       logInfo("[MetadataLoader] Adding Terminology: " + newTerm);
       newTerm = addTerminology(newTerm);
-      loadedTerminologies.put(
-          new KeyValuePair(newTerm.getTerminology(), newTerm.getVersion()),
-          newTerm);
+      getCachedTerminologies()
+          .put(newTerm.getTerminology() + "_" + newTerm.getVersion(), newTerm);
     }
-
   }
 
   /**
@@ -582,10 +483,15 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
     // If previous version of terminology exists, use previous
     // OrganizingClassType
-    for (Map.Entry<KeyValuePair, Terminology> entry : loadedTerminologies
+    for (Map.Entry<String, Terminology> entry : getCachedTerminologies()
         .entrySet()) {
-      KeyValuePair termNameAndVersion = entry.getKey();
-      String termName = termNameAndVersion.getKey();
+      String termName = null;
+      int indexOfUnderscore = entry.getKey().indexOf("_");
+      if (indexOfUnderscore == -1) {
+        termName = entry.getKey();
+      } else {
+        termName = entry.getKey().substring(0, entry.getKey().indexOf("_"));
+      }
       Terminology term = entry.getValue();
       if (terminology.equals(termName)) {
         return term.getOrganizingClassType();
@@ -602,7 +508,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Load the contexts.src file
       //
-      final List<String> lines = loadFileIntoStringList("contexts.src", null);
+      final List<String> lines =
+          loadFileIntoStringList(srcDirFile, "contexts.src", null);
 
       final String[] fields = new String[17];
 
@@ -733,7 +640,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load TTY lines from the MRDOC file
     //
-    List<String> lines = loadFileIntoStringList("MRDOC.RRF", "TTY|");
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "TTY\\|(.*)");
 
     String fields[] = new String[4];
 
@@ -751,14 +659,11 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       // TTY|PT|tty_class|preferred|
 
       if (fields[2].equals("expanded_form")
-          && !loadedTermTypes.containsKey(fields[1])) {
+          && getCachedTermType(fields[1]) == null) {
         // If it does not yet exist, start setting it up and save it to map
         final TermType tty = new TermTypeJpa();
         tty.setAbbreviation(fields[1]);
         tty.setExpandedForm(fields[3]);
-        tty.setTimestamp(runDate);
-        tty.setLastModified(runDate);
-        tty.setLastModifiedBy(loader);
         tty.setTerminology(getProject().getTerminology());
         tty.setVersion(getProject().getVersion());
         tty.setPublished(false);
@@ -774,7 +679,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       }
 
       else if (fields[2].equals("tty_class")
-          && !loadedTermTypes.containsKey(fields[1])) {
+          && getCachedTermType(fields[1]) == null) {
         // If it doesn't exist, finish setting it up
         if (fields[3].equals("attribute")) {
           ttyToAddMap.get(fields[1])
@@ -821,7 +726,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     // Load the termgroups.src file
     //
 
-    lines = loadFileIntoStringList("termgroups.src", null);
+    lines = loadFileIntoStringList(srcDirFile, "termgroups.src", null);
 
     fields = new String[6];
 
@@ -859,7 +764,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       //
       // TermType based on input line.
       //
-      if (!loadedTermTypes.containsKey(fields[5])) {
+      if (getCachedTermType(fields[5]) == null) {
         // If it doesn't already exist and it was already set up in the map,
         // modify remaining variables
         if (ttyToAddMap.containsKey(fields[5])) {
@@ -876,8 +781,6 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
           termType.setSuppressible(fields[2].equals("Y"));
           termType.setExclude(fields[3].equals("Y"));
           termType.setNormExclude(fields[4].equals("Y"));
-          termType.setLastModified(runDate);
-          termType.setLastModifiedBy(loader);
           termType.setTerminology(getProject().getTerminology());
           termType.setVersion(getProject().getVersion());
           ttyToAddMap.put(fields[5], termType);
@@ -885,7 +788,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       }
       // If it Does already exist, update as necessary
       else {
-        TermType loadedTermType = loadedTermTypes.get(fields[5]);
+        TermType loadedTermType = getCachedTermType(fields[5]);
         Boolean termTypeChanged = false;
 
         if ((loadedTermType.isSuppressible() && !fields[2].equals("Y"))
@@ -933,7 +836,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load ATN lines from the MRDOC file
     //
-    List<String> lines = loadFileIntoStringList("MRDOC.RRF", "ATN|");
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "ATN\\|(.*)");
 
     String fields[] = new String[4];
 
@@ -951,20 +855,17 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
       // Handle AttributeNames
       if (fields[2].equals("expanded_form")
-          && !loadedAttributeNames.containsKey(fields[1])) {
+          && getCachedAttributeName(fields[1]) == null) {
         final AttributeName atn = new AttributeNameJpa();
         atn.setAbbreviation(fields[1]);
         atn.setExpandedForm(fields[3]);
-        atn.setTimestamp(runDate);
-        atn.setLastModified(runDate);
-        atn.setLastModifiedBy(loader);
         atn.setTerminology(getProject().getTerminology());
         atn.setVersion(getProject().getVersion());
         atn.setPublished(false);
         atn.setPublishable(true);
         addAttributeName(atn);
         count++;
-        loadedAttributeNames.put(fields[1], atn);
+        getCachedAttributeNames().put(fields[1], atn);
       }
     }
 
@@ -992,7 +893,8 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
     //
     // Load RELA lines from the MRDOC file
     //
-    List<String> lines = loadFileIntoStringList("MRDOC.RRF", "RELA|");
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)");
 
     String fields[] = new String[4];
 
@@ -1011,15 +913,12 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
       // Handle AdditionalRelationshipTypes
       if (fields[2].equals("expanded_form")
-          && !loadedAdditionalRelationshipTypes.containsKey(fields[1])) {
+          && getCachedAdditionalRelationshipType(fields[1]) == null) {
         // Add if it does not yet exist
         final AdditionalRelationshipType rela =
             new AdditionalRelationshipTypeJpa();
         rela.setAbbreviation(fields[1]);
         rela.setExpandedForm(fields[3]);
-        rela.setTimestamp(runDate);
-        rela.setLastModified(runDate);
-        rela.setLastModifiedBy(loader);
         rela.setTerminology(getProject().getTerminology());
         rela.setVersion(getProject().getVersion());
         rela.setPublished(false);
@@ -1040,7 +939,7 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
 
       rela = addAdditionalRelationshipType(rela);
       count++;
-      loadedAdditionalRelationshipTypes.put(abbreviation, rela);
+      getCachedAdditionalRelationshipTypes().put(abbreviation, rela);
     }
 
     // Set the inverses, if they exist, and update
@@ -1050,11 +949,12 @@ public class MetadataLoaderAlgorithm extends AbstractAlgorithm {
       AdditionalRelationshipType rela = entry.getValue();
       String inverseRelaAbbreviation = inverseRelaMap.get(abbreviation);
       AdditionalRelationshipType inverseRela =
-          loadedAdditionalRelationshipTypes.get(inverseRelaAbbreviation);
+          getCachedAdditionalRelationshipType(inverseRelaAbbreviation);
 
       if (inverseRela != null) {
         rela.setInverse(inverseRela);
         updateAdditionalRelationshipType(rela);
+        getCachedAdditionalRelationshipTypes().put(abbreviation, rela);
       }
     }
 

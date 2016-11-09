@@ -245,7 +245,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
           
           List<ConceptJpa> concepts = searchHandler.getQueryResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT, "", null, ConceptJpa.class, null, new int[1], getEntityManager());
           if(concepts.size()!=1){
-            throw new Exception("UNexpected number of concepts: " + concepts.size() + ", for atom: " + atomId);
+            throw new Exception("Unexpected number of concepts: " + concepts.size() + ", for atom: " + atomId);
           }
           
           conceptTermId = atomComponent.getConceptId();
@@ -308,10 +308,13 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Semantic Type Loader] Semantic Types processed ",
             stepsCompleted, RootService.logCt, RootService.commitCt);
+        handler.logAndCommit("[Semantic Type Loader] Semantic Type identities processed ", stepsCompleted,
+            RootService.logCt, RootService.commitCt);
 
       }
 
       commitClearBegin();
+      handler.commitClearBegin();
 
       logInfo(
           "[SemanticTypeLoader] Added " + addCount + " new Semantic Types.");
