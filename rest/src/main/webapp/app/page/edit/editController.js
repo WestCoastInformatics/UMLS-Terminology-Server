@@ -6,6 +6,7 @@ tsApp
       '$scope',
       '$location',
       '$window',
+      '$interval',
       '$q',
       '$uibModal',
       'tabService',
@@ -20,7 +21,7 @@ tsApp
       'contentService',
       'reportService',
       'metaEditingService',
-      function($scope, $location, $window, $q, $uibModal, tabService, utilService,
+      function($scope, $location, $window, $interval, $q, $uibModal, tabService, utilService,
         configureService, securityService, websocketService, workflowService, configureService,
         projectService, metadataService, contentService, reportService, metaEditingService) {
         console.debug("configure EditCtrl");
@@ -158,9 +159,27 @@ tsApp
         });
 
         // Handle changes from actions performed by this user
+        $scope.queue = {};
         $scope.$on('termServer::conceptChange', function(event, concept) {
-          // Refresh the selected concept
-          // TODO: still need to wait for first event to finish before second
+          var empty = Object.keys($scope.queue).length === 0;
+          $scope.queue[concept.id] = concept;
+          // If not in progress, start it
+          if (empty) {
+            $scope.conceptChange();
+          }
+
+        });
+
+        // Manage a changed concept, pull a value from the queue
+        $scope.conceptChange = function() {
+          // If empty, stop execution
+          var empty = Object.keys($scope.queue).length === 0;
+          if (empty) {
+            return;
+          }
+          // Extract one of the concepts and remove from the queue
+          var concept = $scope.queue[Object.keys($scope.queue)[0]];
+
           // one starts
           // changed concept is the selected one
           if ($scope.selected.component.id == concept.id) {
@@ -169,11 +188,15 @@ tsApp
             function(data) {
               $scope.selectConcept(data);
               $scope.getRecords();
+              delete $scope.queue[concept.id];
+              $scope.conceptChange();
             },
             // Fail - concept does not exist
             function(data) {
               // if selected concept no longer exists, just bail from this
               $scope.removeConceptFromList(concept);
+              delete $scope.queue[concept.id];
+              $scope.conceptChange();
             }
 
             );
@@ -194,11 +217,15 @@ tsApp
                   $scope.lists.concepts[i] = data;
                   $scope.selectConcept($scope.lists.concepts[0]);
                   $scope.getRecords();
+                  delete $scope.queue[concept.id];
+                  $scope.conceptChange();
                 },
                 // Fail - concept does not exist
                 function(data) {
                   // if selected concept no longer exists, just bail from this
                   $scope.removeConceptFromList(concept);
+                  delete $scope.queue[concept.id];
+                  $scope.conceptChange();
                 });
                 found = true;
                 break;
@@ -214,11 +241,13 @@ tsApp
                   // (e.g. split concept)
                   $scope.lists.concepts.push(data);
                   $scope.getRecords();
+                  delete $scope.queue[concept.id];
+                  $scope.conceptChange();
                 }
               });
             }
           }
-        });
+        }
 
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
@@ -748,8 +777,12 @@ tsApp
 
         // claim worklist
         $scope.assignWorklistToSelf = function(worklist) {
+          var role = $scope.selected.projectRole;
+          if (worklist.workflowStatus == 'NEW') {
+            role = 'AUTHOR';
+          }
           workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
-            $scope.user.userName, $scope.selected.projectRole, 'ASSIGN').then(
+            $scope.user.userName, role, 'ASSIGN').then(
           // Success
           function(data) {
             // No need to reload worklist it won't be on available page anymore
@@ -759,9 +792,12 @@ tsApp
 
         // unassign worklist
         $scope.unassignWorklist = function(worklist) {
-          var editor;
+          var role = $scope.selected.projectRole;
+          if (worklist.reviewers.length == 0) {
+            role = 'AUTHOR';
+          }
           workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
-            $scope.user.userName, $scope.selected.projectRole, 'UNASSIGN').then(
+            $scope.user.userName, role, 'UNASSIGN').then(
           // Success
           function(data) {
             // No need to reload worklist it won't be on assigned page anymore
@@ -1210,21 +1246,42 @@ tsApp
           return tgrp1.key == tgrp2.key && tgrp1.value == tgrp2.value;
         };
 
+        // Check whether this is the first entry in the list
         $scope.isFirstIndex = function(entry) {
           return $scope.isEquivalent(entry, $scope.lists.precedenceOrder[0]);
         }
 
+        // Check whether this is the last entry in the list
         $scope.isLastIndex = function(entry) {
           return $scope.isEquivalent(entry,
             $scope.lists.precedenceOrder[$scope.lists.precedenceOrder.length - 1]);
         }
 
+        // Update the precedence list.
         $scope.updatePrecedenceList = function() {
           $scope.entriesTouched = {};
           $scope.precedenceList.precedence.keyValuePairs = $scope.lists.precedenceOrder;
           metadataService.updatePrecedenceList($scope.precedenceList);
         }
 
+        // Get the "max" workflow state
+        $scope.getWorkflowState = function(worklist) {
+          var maxD = 0;
+          var maxState = 'xxx';
+          for ( var k in worklist.workflowStateHistory) {
+            var item = worklist.workflowStateHistory[k];
+
+            if (!maxD) {
+              maxD = item;
+              maxState = k;
+            }
+            if (item > maxD) {
+              maxD = item;
+              maxState = k;
+            }
+          }
+          return maxState;
+        }
         //
         // MODALS
         //
@@ -1288,7 +1345,7 @@ tsApp
 
         // Add time modal
         $scope.openFinishWorkflowModal = function(lworklist, stamp) {
-          console.debug('openFinishWorkflowModal ', lworklist);
+          console.debug('openFinishWorkflowModal ', lworklist, stamp);
 
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',

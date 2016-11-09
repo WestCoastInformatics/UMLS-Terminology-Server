@@ -12,6 +12,9 @@ tsApp
 
         // add atom
         this.addAtom = function(projectId, activityId, concept, atom, overrideWarnings) {
+          return addAtom(projectId, activityId, concept, atom, overrideWarnings);
+        }
+        function addAtom(projectId, activityId, concept, atom, overrideWarnings) {
           console.debug('add atom');
           var deferred = $q.defer();
 
@@ -27,23 +30,43 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), atom).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Add atom');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    addAtom(projectId, activityId, concept, atom, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // update atom
         this.updateAtom = function(projectId, activityId, concept, atom, overrideWarnings) {
+          return updateAtom(projectId, activityId, concept, atom, overrideWarnings);
+        }
+        function updateAtom(projectId, activityId, concept, atom, overrideWarnings) {
           console.debug('update atom');
           var deferred = $q.defer();
 
@@ -59,23 +82,43 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), atom).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Update Atom');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    updateAtom(projectId, activityId, concept, atom, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // add attribute
         this.addAttribute = function(projectId, activityId, concept, attribute, overrideWarnings) {
+          return addAttribute(projectId, activityId, concept, attribute, overrideWarnings);
+        }
+        function addAttribute(projectId, activityId, concept, attribute, overrideWarnings) {
           console.debug('add atom');
           var deferred = $q.defer();
 
@@ -104,11 +147,15 @@ tsApp
             deferred.reject(response.data);
           });
           return deferred.promise;
-        };
+        }
+        ;
 
         // add relationship
         this.addRelationship = function(projectId, activityId, concept, relationship,
           overrideWarnings) {
+          return addRelationship(projectId, activityId, concept, relationship, overrideWarnings);
+        }
+        function addRelationship(projectId, activityId, concept, relationship, overrideWarnings) {
           console.debug('add relationship');
           var deferred = $q.defer();
 
@@ -124,24 +171,45 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), relationship).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Add Relationship');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    addRelationship(projectId, activityId, concept, relationship, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // add semantic type
         this.addSemanticType = function(projectId, activityId, concept, semanticType,
           overrideWarnings) {
+          return addSemanticType(projectId, activityId, concept, semanticType, overrideWarnings);
+        }
+        function addSemanticType(projectId, activityId, concept, semanticType, overrideWarnings) {
+
           console.debug('add semantic type');
           var deferred = $q.defer();
 
@@ -159,20 +227,37 @@ tsApp
               + encodeURIComponent(semanticType)
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Add Semantic Type');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    addSemanticType(projectId, activityId, concept, semanticType, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // approve concept
         this.approveConcept = function(projectId, activityId, concept, overrideWarnings) {
@@ -199,7 +284,6 @@ tsApp
             function(response) {
               console.debug('  validation = ', response.data);
               gpService.decrement();
-
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
@@ -215,9 +299,7 @@ tsApp
                     });
                   }
                 });
-              }
-
-              else {
+              } else {
                 deferred.resolve(response.data);
               }
             },
@@ -229,10 +311,13 @@ tsApp
             });
           return deferred.promise;
         }
-        ;
 
         // merge concepts
         this.mergeConcepts = function(projectId, activityId, concept1, concept2, overrideWarnings) {
+          return mergeConcepts(projectId, activityId, concept1, concept2, overrideWarnings);
+        }
+        function mergeConcepts(projectId, activityId, concept1, concept2, overrideWarnings) {
+
           console.debug('merge concepts', concept1.lastModified);
           var deferred = $q.defer();
 
@@ -251,24 +336,44 @@ tsApp
               + (activityId ? "&activityId=" + activityId : "")
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Merge Concepts');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    mergeConcepts(projectId, activityId, concept1, concept2, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // move atoms
         this.moveAtoms = function(projectId, activityId, concept1, concept2, atomIds,
           overrideWarnings) {
+          return moveAtoms(projectId, activityId, concept1, concept2, atomIds, overrideWarnings);
+        }
+        function moveAtoms(projectId, activityId, concept1, concept2, atomIds, overrideWarnings) {
           console.debug('move atoms');
           var deferred = $q.defer();
 
@@ -286,23 +391,43 @@ tsApp
               + (activityId ? "&activityId=" + activityId : "")
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), atomIds).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Move Concepts');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    moveAtoms(projectId, activityId, concept1, concept2, atomIds, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // remove atom
         this.removeAtom = function(projectId, activityId, concept, atomId, overrideWarnings) {
+          return removeAtom(projectId, activityId, concept, atomId, overrideWarnings);
+        }
+        function removeAtom(projectId, activityId, concept, atomId, overrideWarnings) {
           console.debug('remove atom');
           var deferred = $q.defer();
 
@@ -320,25 +445,44 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Remove Atom');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    removeAtom(projectId, activityId, concept, atomId, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // remove attribute
         this.removeAttribute = function(projectId, activityId, concept, attributeId,
           overrideWarnings) {
+          return removeAttribute(projectId, activityId, concept, attributeId, overrideWarnings);
+        }
+        function removeAttribute(projectId, activityId, concept, attributeId, overrideWarnings) {
           console.debug('remove attribute');
           var deferred = $q.defer();
 
@@ -369,10 +513,15 @@ tsApp
             deferred.reject(response.data);
           });
           return deferred.promise;
-        };
+        }
 
         // remove relationship
         this.removeRelationship = function(projectId, activityId, concept, relationshipId,
+          overrideWarnings) {
+          return removeRelationship(projectId, activityId, concept, relationshipId,
+            overrideWarnings);
+        }
+        function removeRelationship(projectId, activityId, concept, relationshipId,
           overrideWarnings) {
           console.debug('remove relationship');
           var deferred = $q.defer();
@@ -391,23 +540,45 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Remove Relationship');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    removeRelationship(projectId, activityId, concept, relationshipId, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // remove semantic type
         this.removeSemanticType = function(projectId, activityId, concept, semanticTypeId,
+          overrideWarnings) {
+          return removeSemanticType(projectId, activityId, concept, semanticTypeId,
+            overrideWarnings);
+        }
+        function removeSemanticType(projectId, activityId, concept, semanticTypeId,
           overrideWarnings) {
           console.debug('remove semantic type');
           var deferred = $q.defer();
@@ -426,24 +597,47 @@ tsApp
               + concept.lastModified
               + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
                 + overrideWarnings : ''), null).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Remove Semantic Type');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    removeSemanticType(projectId, activityId, concept, semanticTypeId, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // split concept
         this.splitConcept = function(projectId, activityId, concept1, atomIds, copyRelationships,
           copySemanticTypes, relationshipType, overrideWarnings) {
+          return splitConcept(projectId, activityId, concept1, atomIds, copyRelationships,
+            copySemanticTypes, relationshipType, overrideWarnings);
+        }
+        function splitConcept(projectId, activityId, concept1, atomIds, copyRelationships,
+          copySemanticTypes, relationshipType, overrideWarnings) {
+
           console.debug('split concept');
           var deferred = $q.defer();
 
@@ -465,20 +659,38 @@ tsApp
                 + copySemanticTypes : '')
               + (relationshipType != null && relationshipType != '' ? '&relationshipType='
                 + relationshipType : ''), atomIds).then(
-          // success
-          function(response) {
-            console.debug('  validation = ', response.data);
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
+            // success
+            function(response) {
+              console.debug('  validation = ', response.data);
+              gpService.decrement();
+              if (response.data.errors.length > 0
+                || (!overrideWarnings && response.data.warnings.length > 0)) {
+                var modalInstance = openActionErrorsModal(response.data.errors,
+                  response.data.warnings, 'Split Concept');
+                modalInstance.result.then(
+                // Success
+                function(data) {
+                  if (data) {
+                    splitConcept(projectId, activityId, concept1, atomIds, copyRelationships,
+                      copySemanticTypes, relationshipType, true).then(
+                    // Success
+                    function(data) {
+                      deferred.resolve(data);
+                    });
+                  }
+                });
+              } else {
+                deferred.resolve(response.data);
+              }
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
           return deferred.promise;
-        };
+        }
 
         // undo action
         this.undoAction = function(projectId, activityId, molecularActionId, force) {
@@ -503,7 +715,7 @@ tsApp
             deferred.reject(response.data);
           });
           return deferred.promise;
-        };
+        }
 
         // redo action
         this.redoAction = function(projectId, activityId, molecularActionId, force) {
@@ -528,7 +740,7 @@ tsApp
             deferred.reject(response.data);
           });
           return deferred.promise;
-        };
+        }
 
         // MODALS
 

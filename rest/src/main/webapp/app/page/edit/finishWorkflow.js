@@ -16,11 +16,12 @@ tsApp.controller('FinishWorkflowModalCtrl', [
     // Scope
     $scope.worklist = worklist;
     $scope.project = selected.project;
-    $scope.projectRole = selected.projectRole;
+    $scope.projectRole = worklist.reviewers.length == 0 ? 'AUTHOR' : 'REVIEWER';
     $scope.user = user;
-    $scope.hours;
-    $scope.minutes;
+    $scope.hours = 0;
+    $scope.minutes = 0;
     $scope.errors = [];
+    $scope.action = stamp ? "Stamp" : "Finish";
 
     // Finish
     $scope.finish = function() {
@@ -34,17 +35,29 @@ tsApp.controller('FinishWorkflowModalCtrl', [
         $scope.errors.push('Invalid number of minutes, > 59')
       }
 
+      if (!$scope.hours) {
+        $scope.hours = 0;
+      }
+
+      if (!$scope.minutes) {
+        $scope.minutes = 0;
+      }
+
       var seconds = (($scope.hours * 60 * 60) + ($scope.minutes * 60));
+      console.debug('seconds', seconds);
       if ($scope.projectRole == 'AUTHOR') {
         $scope.worklist.authorTime = seconds;
+        console.debug('authorTime', $scope.worklist.authorTime);
       } else if ($scope.projectRole == 'REVIEWER') {
         $scope.worklist.reviewerTime = seconds;
+        console.debug('reviewerTime', $scope.worklist.reviewerTime);
       }
       // update hours/minutes
       workflowService.updateWorklist($scope.project.id, $scope.worklist).then(
 
       // Success
       function(data) {
+        console.debug('xxx=', data);
         // finish workflow
         $scope.finishWorkflow(worklist);
       },
@@ -61,7 +74,7 @@ tsApp.controller('FinishWorkflowModalCtrl', [
         action = 'APPROVE';
       }
       workflowService.performWorkflowAction($scope.project.id, worklist.id, $scope.user.userName,
-        $scope.projectRole, 'FINISH').then(
+        $scope.projectRole, action).then(
       // Success
       function(data) {
         $uibModalInstance.close();

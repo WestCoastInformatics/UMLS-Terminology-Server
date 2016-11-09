@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -1428,11 +1428,12 @@ public abstract class RootServiceJpa implements RootService {
    * Perform molecular action.
    *
    * @param action the action
+   * @param userName the username
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult performMolecularAction(AbstractMolecularAction action)
-    throws Exception {
+  public ValidationResult performMolecularAction(AbstractMolecularAction action,
+    String userName) throws Exception {
 
     // Start transaction
     action.beginTransaction();
@@ -1447,6 +1448,7 @@ public abstract class RootServiceJpa implements RootService {
     //
     final ValidationResult validationResult = action.checkPreconditions();
     // if prerequisites fail, return validation result
+
     if (!validationResult.isValid()
         || (!validationResult.getWarnings().isEmpty()
             && !action.isOverrideWarnings())) {
@@ -1454,8 +1456,8 @@ public abstract class RootServiceJpa implements RootService {
       // IF the user is level 5 editor or greater, make all errors into warnings
       final SecurityService service = new SecurityServiceJpa();
       try {
-        final User user = service.getUser(action.getLastModifiedBy());
-        if (user.getEditorLevel() >= 5) {
+        final User user = service.getUser(userName);
+        if (user != null && user.getEditorLevel() >= 5) {
           for (final String error : validationResult.getErrors()) {
             if (!validationResult.getWarnings().contains(error)) {
               validationResult.getWarnings().add(error);
@@ -1469,10 +1471,14 @@ public abstract class RootServiceJpa implements RootService {
         service.close();
       }
 
-      // rollback -- unlocks the concept and closes transaction
-
-      action.rollback();
-      return validationResult;
+      // Check again in case all errors were turned into warnings and we're overriding warnings
+      if (!validationResult.isValid()
+          || (!validationResult.getWarnings().isEmpty()
+              && !action.isOverrideWarnings())) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
     }
 
     //

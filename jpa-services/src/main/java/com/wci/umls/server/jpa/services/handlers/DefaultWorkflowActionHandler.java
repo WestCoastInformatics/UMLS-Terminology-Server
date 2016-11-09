@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -53,26 +53,27 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
   /* see superclass */
   @Override
-  public TrackingRecordList findAvailableWork(Project project, UserRole role,
-    PfsParameter pfs, WorkflowService service) throws Exception {
+  public TrackingRecordList findAvailableWork(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
     throw new UnsupportedOperationException();
   }
 
   /* see superclass */
   @Override
-  public WorklistList findAvailableWorklists(Project project, UserRole role,
-    PfsParameter pfs, WorkflowService service) throws Exception {
+  public WorklistList findAvailableWorklists(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
 
     final StringBuilder sb = new StringBuilder();
     sb.append("epoch:" + service.getCurrentWorkflowEpoch(project).getName());
     if (UserRole.AUTHOR == role) {
       sb.append(" AND workflowStatus:NEW AND NOT authors:[* TO *]");
     } else if (UserRole.REVIEWER == role) {
-      sb.append(" AND workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]");
-      /*
-       * "NOT reviewers:[* TO *]  AND NOT workflowStatus:NEW  AND NOT workflowStatus:EDITING_IN_PROGRESS"
-       * );
-       */
+      // EITHER things for review, or not yet authored worklists created by this
+      // user
+      sb.append(" AND ((workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *])"
+          + " OR (workflowStatus:NEW AND NOT authors:[* TO *] AND lastModifiedBy:"
+          + userName + "))");
+
     } else if (UserRole.ADMINISTRATOR == role) {
       // n/a, query as is.
     } else {
@@ -83,7 +84,7 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
 
   /* see superclass */
   @Override
-  public boolean isAvailable(Worklist worklist, UserRole role)
+  public boolean isAvailable(Worklist worklist, String userName, UserRole role)
     throws Exception {
     if (role == UserRole.AUTHOR) {
       return worklist.getWorkflowStatus() == WorkflowStatus.NEW
@@ -315,7 +316,8 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     service.updateWorklist(worklist);
 
     // Stamp the worklist when we send it for publication.
-    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION) {
+    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
+        && workflowAction == WorkflowAction.APPROVE) {
       final StampingAlgorithm algo = new StampingAlgorithm();
 
       algo.setProject(worklist.getProject());
@@ -365,8 +367,9 @@ public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
     } else if (role == UserRole.REVIEWER) {
       return service.findWorklists(project,
           "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
-              + " AND reviewers:" + userName
-              + " AND NOT workflowStatus:READY_FOR_PUBLICATION",
+              + " AND NOT workflowStatus:READY_FOR_PUBLICATION AND "
+              + "(reviewers:" + userName + " OR (authors:" + userName
+              + " AND NOT workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]))",
           pfs);
     }
     return new WorklistListJpa();

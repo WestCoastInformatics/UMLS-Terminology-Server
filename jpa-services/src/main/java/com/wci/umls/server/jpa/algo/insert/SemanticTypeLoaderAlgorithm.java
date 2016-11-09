@@ -381,6 +381,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
    * @return the workflow status
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
 
     WorkflowStatus workflowStatus = null;
@@ -523,7 +524,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "SEMANTICTYPELOADING progress: " + currentProgress + "%");
