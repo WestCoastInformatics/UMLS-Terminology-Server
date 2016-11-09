@@ -84,24 +84,23 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT");// <- Set this to
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");// <- Set this to
     // the standard
     // folder
     // location
 
-    // Create the /test/src subdirectories
+    // Create the /temp subdirectory
     final File tempSrcDir = new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + processExecution.getInputPath() + File.separator
-            + "test" + File.separator + "src");
+            + "temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
-    // Reset the processExecution input path to /test (the algorithm itself will
-    // look in the 'src' subfolder
+    // Reset the processExecution input path to /temp
     processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "test");
+        processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate a relationships.src document in the /test/src
+    // Create and populate a relationships.src document in the /temp
     // temporary subfolder
     outputFile = new File(tempSrcDir, "classes_atoms.src");
 

@@ -28,7 +28,8 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -43,7 +44,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * Implementation of an algorithm to import semantic types.
  */
-public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
+public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -56,29 +57,6 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-
-  /**
-   * The aui ID map. Key = AlternateTerminologyId Value = atomJpa Id
-   */
-  private Map<String, Long> auiIdMap = new HashMap<>();
-
-  /**
-   * The concept ID map. Key = ConceptJpa.TerminologyId Value = ConceptJpa.Id
-   */
-  private Map<String, Long> conceptIdMap = new HashMap<String, Long>();
-
-  /**
-   * Set containing the name of all terminologies referenced in the
-   * attributes.src file
-   */
-  private Set<String> allTerminologiesFromInsertion = new HashSet<>();
-
-  /**
-   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
-   * if Version = "latest") Value = Terminology object
-   */
-  private Map<String, Terminology> loadedTerminologies =
-      new HashMap<String, Terminology>();
 
   /**
    * Instantiates an empty {@link SemanticTypeLoaderAlgorithm}.
@@ -154,18 +132,12 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
       logInfo("[SemanticTypeLoader] Checking for new/updated Semantic Types");
 
       //
-      // Load the attributes.src file
+      // Load the attributes.src file, only keeping SEMANTIC_TYPE lines.
       //
-      List<String> lines = loadFileIntoStringList("attributes.src", null);
+      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src", "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
 
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
-
-      // Cache all of the currently existing Terminologies and Concepts
-      cacheExistingTerminologies();
-      identifyAllTerminologiesFromInsertion(lines);
-      cacheExistingConcepts();
-      cacheExistingAtoms();
 
       String fields[] = new String[14];
 
@@ -216,11 +188,12 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
         String conceptTermId = null;
         Long conceptId = null;
         Concept concept = null;
-        if (fields[10].equals("SRC_ATOM_ID")) {
+        Class<?> containingObjectClass = this.lookupClass(fields[10]);
+        if (containingObjectClass.equals(AtomJpa.class)) {
           // Load the containing object
           final String atomAltId = fields[1];
 
-          Long atomId = auiIdMap.get(atomAltId);
+          Long atomId = getId(containingObjectClass, atomAltId, getProject().getTerminology());
 
           Atom atomComponent = atomId == null ? null : getAtom(atomId);
 
@@ -249,12 +222,12 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
           }
           
           conceptTermId = atomComponent.getConceptId();
-        } else if (fields[10].equals("SOURCE_CUI")) {
+        } else if (containingObjectClass.equals(ConceptJpa.class)) {
           conceptTermId = fields[1];
         }
 
         if (conceptTermId != null) {
-          conceptId = conceptIdMap.get(conceptTermId);
+          conceptId = getId(containingObjectClass, conceptTermId, getProject().getTerminology());
         }
         if (conceptId != null) {
           concept = getConcept(conceptId);
@@ -282,7 +255,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
           newSty.setPublished(fields[8].equals("Y"));
           newSty.setSemanticType(fields[4]);
           newSty.setSuppressible(fields[9].equals("Y"));
-          Terminology term = loadedTerminologies.get(fields[5]);
+          Terminology term = getCachedTerminology(fields[5]);
           if (term == null) {
             throw new Exception(
                 "ERROR: lookup for " + fields[5] + " returned no terminology");
@@ -334,175 +307,6 @@ public class SemanticTypeLoaderAlgorithm extends AbstractAlgorithm {
       throw e;
     }
 
-  }
-
-  /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-    sources.close();
-
-    return lines;
-  }
-
-  /**
-   * Lookup workflow status.
-   *
-   * @param string the string
-   * @return the workflow status
-   * @throws Exception the exception
-   */
-  private WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
-
-    WorkflowStatus workflowStatus = null;
-
-    switch (string) {
-      case "R":
-        workflowStatus = WorkflowStatus.READY_FOR_PUBLICATION;
-        break;
-      case "N":
-        workflowStatus = WorkflowStatus.NEEDS_REVIEW;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Invalid workflowStatus type: " + string);
-    }
-
-    return workflowStatus;
-  }
-
-  /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTerminologies() throws Exception {
-
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
-        loadedTerminologies.put(term.getTerminology(), term);
-      } else {
-        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-      }
-    }
-  }
-
-  /**
-   * Cache existing atoms' AUIs and IDs.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingAtoms() throws Exception {
-
-    int iteration = 0;
-    int batchSize = 10000;
-
-    String queryStr =
-        // "select alternateTerminologyIds, AtomJpa_id from
-        // atomjpa_alternateterminologyids";
-        "select b.alternateTerminologyIds, a.id from atoms a join atomjpa_alternateterminologyids b where a.id = b.AtomJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[AtomLoader] Loading atom AUIs from database: "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        auiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-  }
-
-  /**
-   * Identify all terminologies from insertion.
-   *
-   * @param lines the lines
-   * @throws Exception the exception
-   */
-  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-    throws Exception {
-
-    String fields[] = new String[15];
-    steps = lines.size();
-    stepsCompleted = 0;
-
-    for (String line : lines) {
-
-      FieldedStringTokenizer.split(line, "|", 15, fields);
-
-      // For the purpose of this method, all we care about is fields[1]: source
-      final String terminology = fields[1].contains("_")
-          ? fields[1].substring(0, fields[1].indexOf('_')) : fields[1];
-
-      allTerminologiesFromInsertion.add(terminology);
-    }
-  }
-
-  /**
-   * Cache existing concepts.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingConcepts() throws Exception {
-
-    // Pre-populate conceptIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from ConceptJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      conceptIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
   }
 
   /**

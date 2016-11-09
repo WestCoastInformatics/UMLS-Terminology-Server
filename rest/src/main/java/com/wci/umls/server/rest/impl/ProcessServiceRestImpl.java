@@ -1213,8 +1213,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
-        + "/restart?projectId=" + projectId + ((background!=null && background) ? "&background=true" : "") + " for user " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /execution/" + id + "/restart?projectId="
+            + projectId
+            + ((background != null && background) ? "&background=true" : "")
+            + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
 
@@ -1453,6 +1456,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       public void run() {
         // Declare execution so it can be accessed
         AlgorithmExecution algorithmExecution = null;
+        Boolean firstRestartedAlgorithm = false;
         try {
 
           // Set initial progress to zero and count the number of steps to
@@ -1481,6 +1485,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // run
               else if (ae.getFailDate() != null) {
                 algorithmToRestart = ae;
+                firstRestartedAlgorithm = true;
               }
             }
             // Update the processExecution progress and step-count
@@ -1590,6 +1595,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // Start progress at 0 for the algorithm
             lookupAeProgressMap.put(algorithmExecution.getId(), 0);
+
+            // If we're in restart mode, and if this is the First algorithm
+            // we're running, reset the algorithm.
+            if (restart && firstRestartedAlgorithm) {
+              algorithm.reset();
+              // Don't reset on any later algorithms
+              firstRestartedAlgorithm = false;
+            }
 
             // Execute algorithm
             algorithm.compute();

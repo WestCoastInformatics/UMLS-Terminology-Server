@@ -165,14 +165,14 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    *
    * @param srcDirFile the src dir file
    * @param fileName the file name
-   * @param regexFilter the regex filter
+   * @param keepRegexFilter the regex filter
+   * @param skipRegexFilter the skip regex filter
    * @return the list
    * @throws Exception the exception
    */
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
-    String regexFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
+    String keepRegexFilter, String skipRegexFilter) throws Exception {
+    String sourcesFile = srcDirFile + File.separator + fileName;
     BufferedReader sources = null;
     try {
       sources = new BufferedReader(new FileReader(sourcesFile));
@@ -185,11 +185,19 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     while ((linePre = sources.readLine()) != null) {
       linePre = linePre.replace("\r", "");
       // Filter rows if defined
-      if (ConfigUtility.isEmpty(regexFilter)) {
+      if (ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
         lines.add(linePre);
-      } else {
-        if (linePre.matches(regexFilter)) {
+      }
+      if (!ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(skipRegexFilter)) {
+          continue;
+        }
+      }
+      if (!ConfigUtility.isEmpty(keepRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)) {
           lines.add(linePre);
+          continue;
         }
       }
     }
@@ -263,10 +271,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[SourceLoader] Loading attribute ATUIs from database for terminology "
-          + terminology + ": "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
+      logInfo(
+          "[SourceLoader] Loading attribute ATUIs from database for terminology "
+              + terminology + ": " + query.getFirstResult() + " - "
+              + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
 
       for (final Object[] result : objects) {
@@ -304,10 +312,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[SourceLoader] Loading definition ATUIs from database for terminology "
-          + terminology + ": "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
+      logInfo(
+          "[SourceLoader] Loading definition ATUIs from database for terminology "
+              + terminology + ": " + query.getFirstResult() + " - "
+              + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
 
       for (final Object[] result : objects) {
@@ -357,10 +365,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       query.setMaxResults(batchSize);
       query.setFirstResult(batchSize * iteration);
 
-      logInfo("[SourceLoader] Loading relationship RUIs from database for terminology "
-          + terminology + ": "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
+      logInfo(
+          "[SourceLoader] Loading relationship RUIs from database for terminology "
+              + terminology + ": " + query.getFirstResult() + " - "
+              + (query.getFirstResult() + batchSize));
       objects = query.getResultList();
 
       for (final Object[] result : objects) {
@@ -470,10 +478,11 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
             + "from CodeJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
-    
-    logInfo("[SourceLoader] Loading code Terminology Ids from database for terminology "
-        + terminology);
-    
+
+    logInfo(
+        "[SourceLoader] Loading code Terminology Ids from database for terminology "
+            + terminology);
+
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -502,9 +511,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
 
-    logInfo("[SourceLoader] Loading concept Terminology Ids from database for terminology "
-        + terminology);
-    
+    logInfo(
+        "[SourceLoader] Loading concept Terminology Ids from database for terminology "
+            + terminology);
+
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -533,9 +543,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(1000);
 
-    logInfo("[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
-        + terminology);
-    
+    logInfo(
+        "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
+            + terminology);
+
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
@@ -875,14 +886,12 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
         workflowStatus = WorkflowStatus.NEEDS_REVIEW;
         break;
       default:
-        throw new Exception(
-            "Invalid workflowStatus type: " + string);
+        throw new Exception("Invalid workflowStatus type: " + string);
     }
 
     return workflowStatus;
   }
-  
-  
+
   /**
    * Clear out all of the caches.
    */
