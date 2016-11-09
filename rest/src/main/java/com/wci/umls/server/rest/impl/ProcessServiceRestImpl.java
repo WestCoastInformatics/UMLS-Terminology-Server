@@ -137,7 +137,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Load project
-      Project project = processService.getProject(projectId);
+      final Project project = processService.getProject(projectId);
       project.setLastModifiedBy(userName);
 
       // Re-add project to processConfig (it does not make it intact through
@@ -207,7 +207,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Load project
-      Project project = processService.getProject(projectId);
+      final Project project = processService.getProject(projectId);
       project.setLastModifiedBy(userName);
 
       // Re-add project to processConfig (it does not make it intact through
@@ -271,7 +271,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
-      ProcessConfig processConfig = processService.getProcessConfig(id);
+      final ProcessConfig processConfig = processService.getProcessConfig(id);
 
       // Make sure processConfig exists
       if (processConfig == null) {
@@ -284,10 +284,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // If cascade if specified, Remove contained algorithmConfigs, if any, and
       // update ProcessConfig before removing it
       if (cascade && !processConfig.getSteps().isEmpty()) {
-        for (AlgorithmConfig algorithmConfig : new ArrayList<AlgorithmConfig>(
+        for (final AlgorithmConfig algorithmConfig : new ArrayList<AlgorithmConfig>(
             processConfig.getSteps())) {
-          processConfig.getSteps().remove(algorithmConfig);
-          processService.updateProcessConfig(processConfig);
+          // BAC: I dont' think this is necessary on a remove
+          // processConfig.getSteps().remove(algorithmConfig);
+          // processService.updateProcessConfig(processConfig);
           processService.removeAlgorithmConfig(algorithmConfig.getId());
         }
       }
@@ -336,7 +337,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
-      ProcessConfig processConfig = processService.getProcessConfig(id);
+      final ProcessConfig processConfig = processService.getProcessConfig(id);
 
       if (processConfig == null) {
         return processConfig;
@@ -347,11 +348,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
-      for (AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
+      for (final AlgorithmConfig algorithmConfig : processConfig.getSteps()) {
         Algorithm instance = processService
             .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
         algorithmConfig.setParameters(instance.getParameters());
-        for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+        for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
           if (algorithmConfig.getProperties()
@@ -405,11 +406,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process configs", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessConfigList processConfigs =
+      final ProcessConfigList processConfigs =
           processService.findProcessConfigs(projectId, query, pfs);
 
       // Set steps to empty list for all returned processConfigs
-      for (ProcessConfig processConfig : processConfigs.getObjects()) {
+      for (final ProcessConfig processConfig : processConfigs.getObjects()) {
         processConfig.setSteps(new ArrayList<AlgorithmConfig>());
       }
 
@@ -454,7 +455,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
-      ProcessExecution processExecution =
+      final ProcessExecution processExecution =
           processService.getProcessExecution(id);
 
       if (processExecution == null) {
@@ -467,12 +468,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
-      for (AlgorithmExecution algorithmExecution : processExecution
+      for (final AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        Algorithm instance = processService
+        final Algorithm instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
         algorithmExecution.setParameters(instance.getParameters());
-        for (AlgorithmParameter param : algorithmExecution.getParameters()) {
+        for (final AlgorithmParameter param : algorithmExecution
+            .getParameters()) {
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
           if (algorithmExecution.getProperties()
@@ -527,11 +529,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process executions", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessExecutionList processExecutions =
+      final ProcessExecutionList processExecutions =
           processService.findProcessExecutions(projectId, query, pfs);
 
       // Set steps to empty list for all returned processExecutions
-      for (ProcessExecution processExecution : processExecutions.getObjects()) {
+      for (final ProcessExecution processExecution : processExecutions
+          .getObjects()) {
         processExecution.setSteps(new ArrayList<AlgorithmExecution>());
       }
 
@@ -573,13 +576,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process executions", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessExecutionList processExecutions =
+      final ProcessExecutionList processExecutions =
           processService.findProcessExecutions(projectId,
               "NOT failDate:[* TO *] AND NOT finishDate:[* TO *]", null);
 
       // Only keep process Executions if they in the currently
       // executing processes progress map and have a progress of less than 100
-      for (ProcessExecution processExecution : new ArrayList<ProcessExecution>(
+      for (final ProcessExecution processExecution : new ArrayList<ProcessExecution>(
           processExecutions.getObjects())) {
         if (!lookupPeProgressMap.containsKey(processExecution.getId())
             || lookupPeProgressMap.get(processExecution.getId()) == 100) {
@@ -628,7 +631,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
-      ProcessExecution processExecution =
+      final ProcessExecution processExecution =
           processService.getProcessExecution(id);
 
       // Make sure processExecution exists
@@ -644,7 +647,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // and
       // update ProcessExecution before removing it
       if (cascade && !processExecution.getSteps().isEmpty()) {
-        for (AlgorithmExecution algorithmExecution : new ArrayList<AlgorithmExecution>(
+        for (final AlgorithmExecution algorithmExecution : new ArrayList<AlgorithmExecution>(
             processExecution.getSteps())) {
           processExecution.getSteps().remove(algorithmExecution);
           processService.updateProcessExecution(processExecution);
@@ -697,7 +700,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      ProcessConfigJpa processConfig =
+      final ProcessConfigJpa processConfig =
           (ProcessConfigJpa) processService.getProcessConfig(processId);
 
       // Re-add processConfig to algorithmConfig (it does not make it intact
@@ -705,7 +708,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       algorithmConfig.setProcess(processConfig);
 
       // Load project
-      Project project = processService.getProject(projectId);
+      final Project project = processService.getProject(projectId);
       project.setLastModifiedBy(userName);
 
       // Re-add project to algorithmConfig (it does not make it intact through
@@ -717,7 +720,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(algorithmConfig, projectId);
 
       // Populate the algorithm's properties based on its parameters' values.
-      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+      for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
         // Note: map either Value OR Values (comma-delimited)
         if (!param.getValues().isEmpty()) {
           algorithmConfig.getProperties().put(param.getFieldName(),
@@ -787,7 +790,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processConfig
-      ProcessConfigJpa processConfig = (ProcessConfigJpa) processService
+      final ProcessConfigJpa processConfig = (ProcessConfigJpa) processService
           .getProcessConfig(algorithmConfig.getProcess().getId());
 
       // Re-add processConfig to algorithmConfig (it does not make it intact
@@ -815,7 +818,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Populate the algorithm's properties based on its parameters' values.
-      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+      for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
         algorithmConfig.getProperties().put(param.getFieldName(),
             param.getValue());
       }
@@ -864,7 +867,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load algorithmConfig object
-      AlgorithmConfig algorithmConfig = processService.getAlgorithmConfig(id);
+      final AlgorithmConfig algorithmConfig =
+          processService.getAlgorithmConfig(id);
 
       // ensure algorithmConfig exists
       if (algorithmConfig == null) {
@@ -877,18 +881,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // If the algorithm config has an associated processConfig,
       // remove the algorithm from it and update
-      ProcessConfig processConfig = algorithmConfig.getProcess();
-
+      final ProcessConfig processConfig = algorithmConfig.getProcess();
       if (processConfig != null) {
         // Remove algorithmConfig from processConfig
-        processConfig.getSteps().add(algorithmConfig);
+        processConfig.getSteps().remove(algorithmConfig);
 
-        // update the processConfig
-        processService.updateProcessConfig(processConfig);
+      } else {
+        throw new Exception("Process config is unexpectedly null");
       }
 
       // Remove algorithm config
       processService.removeAlgorithmConfig(id);
+      // update the processConfig
+      processService.updateProcessConfig(processConfig);
 
       processService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE algorithmConfig " + id);
@@ -931,7 +936,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load algorithmConfig object
-      AlgorithmConfig algorithmConfig = processService.getAlgorithmConfig(id);
+      final AlgorithmConfig algorithmConfig =
+          processService.getAlgorithmConfig(id);
 
       if (algorithmConfig == null) {
         return algorithmConfig;
@@ -942,10 +948,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(algorithmConfig, projectId);
 
       // Populate the parameters based on its properties' values.
-      Algorithm instance = processService
+      final Algorithm instance = processService
           .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
       algorithmConfig.setParameters(instance.getParameters());
-      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+      for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
         // Populate both Value and Values (UI will determine which is required
         // for each algorithm type)
         if (algorithmConfig.getProperties().get(param.getFieldName()) != null) {
@@ -996,7 +1002,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load algorithmConfig object
-      AlgorithmConfig algorithmConfig =
+      final AlgorithmConfig algorithmConfig =
           (AlgorithmConfig) processService.getAlgorithmInstance(key);
 
       if (algorithmConfig == null) {
@@ -1008,10 +1014,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(algorithmConfig, projectId);
 
       // Populate the parameters based on its properties' values.
-      Algorithm instance = processService
+      final Algorithm instance = processService
           .getAlgorithmInstance(algorithmConfig.getAlgorithmKey());
       algorithmConfig.setParameters(instance.getParameters());
-      for (AlgorithmParameter param : algorithmConfig.getParameters()) {
+      for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
         // Populate both Value and Values (UI will determine which is required
         // for each algorithm type)
         if (algorithmConfig.getProperties().get(param.getFieldName()) != null) {
@@ -1213,8 +1219,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
-        + "/restart?projectId=" + projectId + ((background!=null && background) ? "&background=true" : "") + " for user " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /execution/" + id + "/restart?projectId="
+            + projectId
+            + ((background != null && background) ? "&background=true" : "")
+            + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
 
@@ -1469,9 +1478,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           List<Long> previouslyCompletedAlgorithmIds = new ArrayList<>();
           AlgorithmExecution algorithmToRestart = null;
           if (restart) {
-            List<AlgorithmExecution> previouslyStartedAlgorithms =
+            final List<AlgorithmExecution> previouslyStartedAlgorithms =
                 processExecution.getSteps();
-            for (AlgorithmExecution ae : previouslyStartedAlgorithms) {
+            for (final AlgorithmExecution ae : previouslyStartedAlgorithms) {
               // If the algorithm finished, save the algorithmConfigId (so it
               // can be skipped later)
               if (ae.getFinishDate() != null && ae.getFailDate() == null) {
@@ -1792,10 +1801,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load project
-      Project project = processService.getProject(projectId);
-
-      Algorithm algo = processService.getAlgorithmInstance(key);
-      AlgorithmConfig algorithmConfig = new AlgorithmConfigJpa();
+      final Project project = processService.getProject(projectId);
+      final Algorithm algo = processService.getAlgorithmInstance(key);
+      final AlgorithmConfig algorithmConfig = new AlgorithmConfigJpa();
       algorithmConfig.setParameters(algo.getParameters());
       algorithmConfig.setProject(project);
       return algorithmConfig;

@@ -36,7 +36,7 @@ tsApp.controller('ProcessModalCtrl', [
         },
         // Error - update definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
 
       } else if (action == 'Add') {
@@ -48,7 +48,7 @@ tsApp.controller('ProcessModalCtrl', [
         },
         // Error - add definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       }
 
