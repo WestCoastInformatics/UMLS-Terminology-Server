@@ -1214,7 +1214,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Process): /execution/" + id
-        + "/restart, for user " + authToken);
+        + "/restart?projectId=" + projectId + ((background!=null && background) ? "&background=true" : "") + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
 

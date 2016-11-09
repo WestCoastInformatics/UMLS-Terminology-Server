@@ -273,7 +273,7 @@ tsApp.controller('ProcessCtrl', [
     }
 
     $scope.restartProcess = function(processId) {
-      processService.restartProcess($scope.selected.project.id, processId).then(function() {
+      processService.restartProcess($scope.selected.project.id, processId, true).then(function() {
         console.debug('restarted process');
         wait(1000);
         $scope.selectProcess($scope.selected.process);
