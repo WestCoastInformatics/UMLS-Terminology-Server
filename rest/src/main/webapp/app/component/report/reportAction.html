@@ -47,14 +47,12 @@
         <td>{{toDate(action.timestamp)}}</td>
         <td>{{action.lastModifiedBy}}</td>
         <td class="nobreak" ng-mouseenter="displayLog(action);">
-          <span ng-show="selected.project.editingEnabled">
-            <i title="Undo action" ng-show="isUndoable(action)"
-              ng-click="undoAction(action, false); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-menu-left"></i>
-            <i title="Redo action" ng-show="isRedoable(action)"
-              ng-click="redoAction(action, false); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-menu-right"></i>
-          </span>
+          <span ng-show="selected.project.editingEnabled && hasPermissions('UndoRedo') && selfResolved(action)"><i title="Undo action" ng-show="isUndoable(action)"
+            ng-click="undoAction(action, false); $event.stopPropagation()"
+            class="noul glyphicon glyphicon-menu-left"></i>
+          <i title="Redo action" ng-show="isRedoable(action) && hasPermissions('UndoRedo') && selfResolved(action)"
+            ng-click="redoAction(action, false); $event.stopPropagation()"
+            class="noul glyphicon glyphicon-menu-right"></i></span>
           <i uib-popover-html="action.log" popover-trigger="outsideClick"
             popover-placement="left" class="noul glyphicon glyphicon-file"></i>
         </td>

@@ -667,6 +667,10 @@ tsApp
           }
         }
 
+        $scope.hasPermissions = function(action) {
+          return securityService.hasPermissions(action);
+        }
+        
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
 

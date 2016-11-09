@@ -290,6 +290,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           // Create a new concept to store the atom
           Concept newConcept = new ConceptJpa();
           newConcept.setTerminology(getProject().getTerminology());
+          newConcept.setTerminologyId("");
           newConcept.setVersion(getProject().getVersion());
           newConcept.setObsolete(newAtom.isObsolete());
           newConcept.setSuppressible(newAtom.isSuppressible());

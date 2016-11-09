@@ -414,13 +414,13 @@ tsApp.service('processService', [
     };
     
     // restart process
-    this.restartProcess = function(projectId, id) {
-      console.debug('restart process', projectId, id);
+    this.restartProcess = function(projectId, id, background) {
+      console.debug('restart process', projectId, id, background);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/execution/' + id + '/restart?projectId=' + projectId).then(
+      $http.get(processUrl + '/execution/' + id + '/restart?projectId=' + projectId + '&background=' + background).then(
       // success
       function(response) {
         console.debug('  restart = ', response.data);

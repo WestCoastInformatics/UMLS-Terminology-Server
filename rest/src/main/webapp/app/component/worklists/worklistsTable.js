@@ -308,7 +308,11 @@ tsApp
               $scope.toDate = function(lastModified) {
                 return utilService.toDate(lastModified);
               };
-
+              
+              $scope.hasPermissions = function(action) {
+                return securityService.hasPermissions(action);
+              }
+              
               // Table sorting mechanism
               $scope.setSortField = function(table, field, object) {
                 utilService.setSortField(table, field, $scope.paging);

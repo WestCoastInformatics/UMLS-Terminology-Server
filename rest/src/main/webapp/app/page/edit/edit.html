@@ -71,7 +71,7 @@
             <td>
               {{toDate(worklist.lastModified)}}
               <span
-                ng-show="selected.projectRole != 'AUTHOR' && selected.worklistMode != 'Checklists'">
+                ng-show="hasPermissions('RemoveWorklist') && selected.worklistMode != 'Checklists'">
                 <br />{{getWorkflowState(worklist)}} 
             </td>
             </span>

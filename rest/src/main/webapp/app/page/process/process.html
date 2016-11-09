@@ -36,7 +36,7 @@
         ng-options="processType for processType in lists.processTypes"></select>
       <span style="float: right;">
         <button ng-click="openAddProcessModal()" title="Add new process"
-          ng-show="selected.mode != 'Execution' && selected.projectRole == 'ADMINISTRATOR'"
+          ng-show="selected.mode != 'Execution' && hasPermissions('EditProcessOrStep')"
           class="btn btn-xs btn-primary">Add Process</button>
       </span>
     </div>
@@ -73,11 +73,11 @@
           <!--  actions -->
           <td class="nobreak">
             <i title="Edit process"
-              ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditProcessModal(process); $event.stopPropagation()"
               class="noul glyphicon glyphicon-pencil"></i>
             <i title="Remove process"
-              ng-show="selected.projectRole == 'ADMINISTRATOR'"
+              ng-show="hasPermissions('EditProcessOrStep')"
               confirm="Are you sure you want to remove the process ({{process.name}})?"
               ng-click="removeProcess(process.id); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
@@ -211,7 +211,7 @@
           <b>Steps</b>
         </h5>
         <span
-          ng-show="selected.projectRole == 'ADMINISTRATOR'   && selected.mode != 'Execution'"
+          ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
           style="float: right;">
           <select ng-model="selected.algorithmConfigType"
             ng-change="changeAlgorithmConfigType()"
@@ -220,6 +220,7 @@
             class="btn btn-xs btn-primary">Add</button>
         </span>
       </div>
+
       <table class="slim table pointer">
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
@@ -241,11 +242,12 @@
             </span>
 
             <i title="Edit step"
-              ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
               class="noul glyphicon glyphicon-pencil"></i>
-            <i title="Remove step"
-              ng-show="selected.projectRole == 'ADMINISTRATOR' && selected.mode != 'Execution'"
+
+            <i title="Remove step" class="noul glyphicon glyphicon-pencil"
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               confirm="Are you sure you want to remove the step ({{step.name}})?"
               ng-click="removeAlgorithmConfig(step.id); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
@@ -254,17 +256,20 @@
         <span ng-show="selected.process.steps.length == 0"
           class="alert alert-warning">There are no steps. Add a step. </span>
       </table>
-
-      <button ng-show="selected.process && selected.mode == 'Config'"
-        class="btn btn-primary"
-        confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
-        ng-click="executeProcess(); ">Execute</button>
-      <button
-        ng-show="selected.process && selected.mode == 'Execution' && !selected.process.failDate && !selected.process.finishDate"
-        class="btn btn-primary" ng-click="cancelProcess(selected.process.id); ">Cancel</button>
-      <button
-        ng-show="selected.process && selected.mode == 'Execution' && 
+      <span ng-show="hasPermissions('EditProcessOrStep')">
+        <button ng-show="selected.process && selected.mode == 'Config'"
+          class="btn btn-primary"
+          confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
+          ng-click="executeProcess(); ">Execute</button>
+        <button
+          ng-show="selected.process && selected.mode == 'Execution' && !selected.process.failDate && !selected.process.finishDate"
+          class="btn btn-primary"
+          ng-click="cancelProcess(selected.process.id); ">Cancel</button>
+        <button
+          ng-show="selected.process && selected.mode == 'Execution' && 
       (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'CANCELLED')"
-        class="btn btn-primary" ng-click="restartProcess(selected.process.id); ">Restart</button>
+          class="btn btn-primary"
+          ng-click="restartProcess(selected.process.id); ">Restart</button>
+      </span>
     </div>
   </div>

@@ -6,8 +6,8 @@
 
     <span style="float: right;">
       <!-- Import -->
-      <i ng-show="type == 'Checklist'" ng-click="openImportModal(); "
-        title="Import or compute checklist"
+      <i ng-show="type == 'Checklist' && hasPermissions('ImportChecklist')"
+        ng-click="openImportModal(); " title="Import or compute checklist"
         class="noul glyphicon glyphicon-check"></i>
     </span>
     <div style="display: inline" pager paging="paging['worklists']"
@@ -98,49 +98,47 @@
           <!--  actions -->
 
           <td class="nobreak">
-            <i title="Remove" ng-show="!worklist.staged"
+            <i title="Remove"
+              ng-show="!worklist.staged && hasPermissions('RemoveWorklist')"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
 
             <i
-              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
+              ng-show="hasPermissions('AssignWorklist') 
+                && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN');"
               title="Assign worklist"
               class="noul glyphicon glyphicon-hand-right"></i>
 
             <span
-              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.authors.length > 0 && !worklist.reviewerAvailable && worklist.reviewers.length==0">
-              <i 
-                ng-repeat="author in worklist.authors"
+              ng-show="hasPermissions('UnassignWorklist') && type == 'Worklist' && worklist.authors.length > 0 && !worklist.reviewerAvailable && worklist.reviewers.length==0">
+              <i ng-repeat="author in worklist.authors"
                 ng-click="unassignWorklist(worklist, author); "
                 title="Unassign worklist from {{author}}"
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
 
             <span
-              ng-show="selected.projectRole != 'AUTHOR' && type == 'Worklist' && worklist.reviewers.length > 0 && !worklist.reviewerAvailable && !worklist.workflowStatus =='READY_FOR_PUBLICATION'">
-              <i 
-                ng-repeat="author in worklist.authors"
+              ng-show="hasPermissions('UnassignWorklist') && type == 'Worklist' && worklist.reviewers.length > 0 && !worklist.reviewerAvailable && !worklist.workflowStatus =='READY_FOR_PUBLICATION'">
+              <i ng-repeat="author in worklist.authors"
                 ng-click="unassignWorklist(worklist, author); "
                 title="Unassign worklist from {{author}}"
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
 
-            <span ng-show="selected.projectRole != 'AUTHOR' && type == 'Checklist'">
+            <span ng-show="hasPermissions('Stamp')">
               <i confirm="Are you sure you want to stamp the {{type}}?"
-                ng-click="stamp(worklist, true); "
-                title="Stamp {{type}}"
+                ng-click="stamp(worklist, true); " title="Stamp {{type}}"
                 class="noul glyphicon glyphicon-certificate"></i>
             </span>
-            
-            <span ng-show="selected.projectRole != 'AUTHOR'">
+
+            <span ng-show="hasPermissions('Unapprove')">
               <i confirm="Are you sure you want to unapprove the {{type}}?"
-                ng-click="stamp(worklist, false); "
-                title="Unapprove {{type}}"
+                ng-click="stamp(worklist, false); " title="Unapprove {{type}}"
                 class="noul glyphicon glyphicon-remove-circle"></i>
             </span>
-            
+
           </td>
         </tr>
       </tbody>
@@ -198,10 +196,11 @@
             <td>
               <!-- Export -->
               <i ng-click="exportList(selectedWorklist);"
-                title="Export {{type}}" class="noul glyphicon glyphicon-download"></i>
+                title="Export {{type}}"
+                class="noul glyphicon glyphicon-download"></i>
             </td>
           </tr>
-          
+
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Concept Reports</b>
@@ -219,14 +218,15 @@
                   class="noul glyphicon glyphicon-refresh"></i>
                 ...Generating...
               </span>
-              <span ng-show="!worklistReport && !reportRefresh">
+              <span
+                ng-show="!worklistReport && !reportRefresh && hasPermissions('GenerateReport')">
                 <button ng-click="generateConceptReport(selectedWorklist);"
                   title="Generate concept report" class="btn btn-xs btn-primary">Generate
                   Report</button>
               </span>
             </td>
           </tr>
-          
+
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Bin</b>
@@ -289,54 +289,61 @@
           </tr>
 
           <tr>
-            <td><b>Approved Count</b>
+            <td>
+              <b>Approved Count</b>
             </td>
             <td>{{selectedWorklist.stats.approveCt}}</td>
           </tr>
           <tr ng-show="selectedWorklist.stats.approveByEditorCt">
-            <td><b>Approved by Editors Count</b>
+            <td>
+              <b>Approved by Editors Count</b>
             </td>
             <td>{{selectedWorklist.stats.approveByEditorCt}}</td>
           </tr>
           <tr ng-show="selectedWorklist.stats.stampedCt">
-            <td><b>Stamped Count</b>
+            <td>
+              <b>Stamped Count</b>
             </td>
             <td>{{selectedWorklist.stats.stampedCt}}</td>
           </tr>
           <tr>
-            <td><b>Rels Inserted Count</b>
+            <td>
+              <b>Rels Inserted Count</b>
             </td>
             <td>{{selectedWorklist.stats.relsInsertedCt}}</td>
           </tr>
           <tr>
-            <td><b>Stys Inserted Count</b>
+            <td>
+              <b>Stys Inserted Count</b>
             </td>
             <td>{{selectedWorklist.stats.stysInsertedCt}}</td>
           </tr>
           <tr>
-            <td><b>Splits Count</b>
+            <td>
+              <b>Splits Count</b>
             </td>
             <td>{{selectedWorklist.stats.splitsCt}}</td>
           </tr>
           <tr>
-            <td><b>Merge Count</b>
+            <td>
+              <b>Merge Count</b>
             </td>
             <td>{{selectedWorklist.stats.mergeCt}}</td>
           </tr>
           <tr>
-            <td><b>Not Stamped Count</b>
+            <td>
+              <b>Not Stamped Count</b>
             </td>
             <td>{{selectedWorklist.stats.notStampedCt}}</td>
           </tr>
-          <tr
-            ng-repeat="state in stateHistory">
+          <tr ng-repeat="state in stateHistory">
             <td>
               <b>{{state.name}} date</b>
             </td>
             <td>{{toDate(state.timestamp)}}</td>
           </tr>
 
- 
+
         </tbody>
       </table>
 
