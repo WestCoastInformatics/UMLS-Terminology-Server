@@ -3,11 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -96,44 +94,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   }
 
   /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-    sources.close();
-
-    return lines;
-  }
-
-  /**
    * Compute.
    *
    * @throws Exception the exception
@@ -161,7 +121,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList("classes_atoms.src", null);
+      List<String> lines = loadFileIntoStringList(srcDirFile, "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
 
@@ -283,8 +243,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         if (oldAtomId == null) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology(), newAtomAui);
-          newAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", fields[0]);
           newAtom = addAtom(newAtom);
 
           // Create a new concept to store the atom
@@ -319,11 +277,18 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           boolean oldAtomChanged = false;
 
-          // Add "alternateTerminologyIds" for the atom
-          oldAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", fields[0]);
-          oldAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-ORDER", fields[13]);
+          // Update "alternateTerminologyIds"
+          final Map<String,String> altTermIds = oldAtom.getAlternateTerminologyIds();
+          if(!altTermIds.containsKey(getProject().getTerminology() + "-SRC")){
+            oldAtom.getAlternateTerminologyIds()
+            .put(getProject().getTerminology() + "-SRC", fields[0]);
+            oldAtomChanged = true;
+          }
+          if(!altTermIds.containsKey(getProject().getTerminology() + "-ORDER")){
+            oldAtom.getAlternateTerminologyIds()
+            .put(getProject().getTerminology() + "-ORDER", fields[13]);
+            oldAtomChanged = true;
+          }          
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {

@@ -3,23 +3,13 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -37,7 +27,6 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.meta.Terminology;
-import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
@@ -58,32 +47,14 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   /** The steps completed. */
   private int stepsCompleted;
 
-  /**
-   * The rui ID map. Key = AlternateTerminologyId; Value = relationship Id
-   */
-  private Map<String, Long> ruiIdMap = new HashMap<>();
+  /** The handler. */
+  private IdentifierAssignmentHandler handler = null;
 
-  /**
-   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
-   * if Version = "latest") Value = Terminology object
-   */
-  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+  /** The add count. */
+  private int addCount = 0;
 
-  /**
-   * The code ID map. Key = CodeJpa.TerminologyId Value = CodeJpa.Id
-   */
-  private Map<String, Long> codeIdMap = new HashMap<String, Long>();
-
-  /**
-   * The concept ID map. Key = ConceptJpa.TerminologyId Value = ConceptJpa.Id
-   */
-  private Map<String, Long> conceptIdMap = new HashMap<String, Long>();
-
-  /**
-   * Set containing the name of all terminologies referenced in the
-   * classes_atoms.src file
-   */
-  private Set<String> allTerminologiesFromInsertion = new HashSet<>();
+  /** The update count. */
+  private int updateCount = 0;
 
   /**
    * Instantiates an empty {@link RelationshipLoaderAlgorithm}.
@@ -127,52 +98,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   }
 
   /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-    sources.close();
-
-    return lines;
-  }
-
-  /**
    * Compute.
    *
    * @throws Exception the exception
    */
   /* see superclass */
-  @SuppressWarnings({
-      "rawtypes", "unchecked"
-  })
   @Override
   public void compute() throws Exception {
     logInfo("Starting RELATIONSHIPLOADING");
@@ -181,14 +111,13 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     setMolecularActionFlag(false);
 
     // Set up the handler for identifier assignment
-    final IdentifierAssignmentHandler handler =
-        newIdentifierAssignmentHandler(getProject().getTerminology());
+    handler = newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
 
     // Count number of added and updated Relationships, for logging
-    int addCount = 0;
-    int updateCount = 0;
+    addCount = 0;
+    updateCount = 0;
 
     try {
 
@@ -200,29 +129,29 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the relationships.src file
       //
-      List<String> lines = loadFileIntoStringList("relationships.src", null);
+      List<String> lines =
+          loadFileIntoStringList(srcDirFile, "relationships.src", null, null);
 
-      // TODO - will need to for contexts.src once working for relationships.src
-      // Use sg_type_1 and sg_type_2 to get to/from components
-      // if sg_type_2 = SCR_ATOM_ID, skip.
+      //
+      // Load the contexts.src file
+      //
+      // Only keep "PAR" relationship rows.
+      // If sg_type_1 or sg_type_2 = SCR_ATOM_ID, skip.
+      List<String> lines2 = loadFileIntoStringList(srcDirFile, "contexts.src",
+          "[0-9]+?\\|PAR(.*)", "(.*)SRC_ATOM_ID(.*)");
 
-      // Set the number of steps to the number of atoms to be processed
-      steps = lines.size();
+      // There will be many duplicated lines in the contexts file, since the main
+      // distinguishing field "parent_treenum" is ignored for these purposes.
+      // Remove the dups.
+      lines = removeDups(lines);
 
-      // Cache all of the currently existing atom RUIs and Terminologies
-      cacheExistingTerminologies();
-      cacheExistingRelationships();
-      identifyAllTerminologiesFromInsertion(lines);
-      cacheExistingCodes();
-      cacheExistingConcepts();
+      // Set the number of steps to the number of relationships to be processed
+      steps = lines.size() + lines2.size();
 
+      // 
+      // Process relationships.src lines
+      //
       String fields[] = new String[18];
-
-      // Each line of relationships.src corresponds to one relationship.
-      // Check to make sure the relationship doesn't already exist in the
-      // database
-      // If it does, skip it.
-      // If it does not, add it.
       for (String line : lines) {
 
         // Check for a cancelled call once every 100 relationships (doing it
@@ -262,227 +191,101 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // Relationship based on input line.
         //
 
-        // Load the containing objects based on type
-        final String fromTerminologyId = fields[5];
-        final String fromTerminology = fields[15].contains("_")
-            ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
-        final Class<? extends Component> fromClass = lookupClass(fields[14]);
+        final String fromTermId = fields[5];
+        final String fromTermAndVersion = fields[15];
+        final String fromClassIdType = fields[14];
+        final String toTermId = fields[2];
+        final String toTermAndVersion = fields[13];
+        final String toClassIdType = fields[12];
+        final String additionalRelType = fields[4];
+        final String group = fields[17];
+        final String publishable = fields[9];
+        final String published = fields[10];
+        final String relType = fields[3];
+        final String suppresible = fields[11];
+        final String sourceTermAndVersion = fields[6];
+        final String sourceTermId = fields[16];
+        final String workflowStatusStr = fields[8];
 
-        Long fromComponentId = null;
-        if (fromClass.equals(CodeJpa.class)) {
-          fromComponentId = codeIdMap.get(fromTerminologyId + fromTerminology);
-        } else if (fromClass.equals(ConceptJpa.class)) {
-          fromComponentId =
-              conceptIdMap.get(fromTerminologyId + fromTerminology);
-        }
-
-        Component fromComponent = fromComponentId == null ? null
-            : getComponent(fromComponentId, fromClass);
-
-        if (fromComponent == null) {
-          logWarn(
-              "Warning - could not find from Component for the following line:\n\t"
-                  + line);
-          updateProgress();
-          logAndCommit("[Relationship Loader] Relationships processed ",
-              stepsCompleted, RootService.logCt, RootService.commitCt);
-          continue;
-        }
-
-        final String toTerminologyId = fields[2];
-        final String toTerminology = fields[13].contains("_")
-            ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
-        final Class<? extends Component> toClass = lookupClass(fields[12]);
-
-        Long toComponentId = null;
-        if (toClass.equals(CodeJpa.class)) {
-          toComponentId = codeIdMap.get(toTerminologyId + toTerminology);
-        } else if (toClass.equals(ConceptJpa.class)) {
-          toComponentId = conceptIdMap.get(toTerminologyId + toTerminology);
-        }
-        Component toComponent =
-            toComponentId == null ? null : getComponent(toComponentId, toClass);
-
-        if (toComponent == null) {
-          logWarn(
-              "Warning - could not find to Component for the following line:\n\t"
-                  + line);
-          updateProgress();
-          logAndCommit("[Relationship Loader] Relationships processed ",
-              stepsCompleted, RootService.logCt, RootService.commitCt);
-          continue;
-        }
-
-        // Create the relationship.
-        // If id_type_1 equals id_type_2, the relationship is of that type.
-        // If they are not equal, it's a Component Info Relationship
-        AbstractRelationship newRelationship = null;
-        Class relClass = null;
-
-        if (!fromClass.equals(toClass)) {
-          relClass = ComponentInfoRelationshipJpa.class;
-          newRelationship = new ComponentInfoRelationshipJpa();
-        } else if (fromClass.equals(ConceptJpa.class)
-            && toClass.equals(ConceptJpa.class)) {
-          relClass = ConceptRelationshipJpa.class;
-          newRelationship = new ConceptRelationshipJpa();
-        } else if (fromClass.equals(CodeJpa.class)
-            && toClass.equals(CodeJpa.class)) {
-          relClass = CodeRelationshipJpa.class;
-          newRelationship = new CodeRelationshipJpa();
-        } else {
-          throw new Exception("Error - unhandled class type: " + fromClass);
-        }
-
-        newRelationship.setAdditionalRelationshipType(fields[4]);
-        newRelationship.setBranch(Branch.ROOT);
-        newRelationship.setFrom(fromComponent);
-        newRelationship.setGroup(fields[17]);
-        newRelationship.setInferred(true);
-        newRelationship.setName(fields[4]);
-        newRelationship.setObsolete(false);
-        newRelationship.setPublishable(fields[9].equals("Y"));
-        newRelationship.setPublished(fields[10].equals("Y"));
-        newRelationship.setRelationshipType(lookupRelationshipType(fields[3]));
-        newRelationship.setHierarchical(false);
-        newRelationship.setStated(true);
-        newRelationship.setSuppressible(fields[11].equals("Y"));
-        Terminology term = loadedTerminologies.get(fields[6]);
-        if (term == null) {
-          throw new Exception(
-              "ERROR: lookup for " + fields[6] + " returned no terminology");
-        } else {
-          newRelationship.setAssertedDirection(term.isAssertsRelDirection());
-          newRelationship.setTerminology(term.getTerminology());
-          newRelationship.setVersion(term.getVersion());
-        }
-        newRelationship.setTerminologyId(fields[16]);
-        newRelationship.setTo(toComponent);
-        newRelationship.setWorkflowStatus(lookupWorkflowStatus(fields[8]));
-
-        // Calculate inverseRel and inverseAdditionalRel types, to use in the
-        // RUI handler and the inverse relationship creation
-        String inverseRelType =
-            getRelationshipType(newRelationship.getRelationshipType(),
-                getProject().getTerminology(), getProject().getVersion())
-                    .getInverse().getAbbreviation();
-
-        String inverseAdditionalRelType = "";
-        if (!newRelationship.getAdditionalRelationshipType().equals("")) {
-          inverseAdditionalRelType = getAdditionalRelationshipType(
-              newRelationship.getAdditionalRelationshipType(),
-              getProject().getTerminology(), getProject().getVersion())
-                  .getInverse().getAbbreviation();
-        }
-
-        // Create the inverse relationship
-        AbstractRelationship newInverseRelationship =
-            (AbstractRelationship) newRelationship.createInverseRelationship(
-                newRelationship, inverseRelType, inverseAdditionalRelType);
-
-        // Compute identity for relationship and its inverse
-        // Note: need to pass in the inverse RelType and AdditionalRelType
-        String newRelationshipRui = handler.getTerminologyId(newRelationship,
-            inverseRelType, inverseAdditionalRelType);
-        String newInverseRelationshipRui = handler.getTerminologyId(
-            newInverseRelationship, newRelationship.getRelationshipType(),
-            newRelationship.getAdditionalRelationshipType());
-
-        // Check to see if relationship with matching RUI already exists in the
-        // database
-        Long oldRelationshipId = ruiIdMap.get(newRelationshipRui);
-        Long oldInverseRelationshipId = ruiIdMap.get(newInverseRelationshipRui);
-
-        // If no relationships with the same RUI exists, add this new
-        // relationship
-        if (oldRelationshipId == null) {
-          newRelationship.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
-          newRelationship =
-              (AbstractRelationship) addRelationship(newRelationship);
-
-          addCount++;
-          ruiIdMap.put(newRelationshipRui, newRelationship.getId());
-
-          // No need to explicitly attach to component - will be done
-          // automatically by addRelationship.
-
-        }
-        // If an existing relationship DOES exist, update the version
-        else {
-          final AbstractRelationship oldRelationship =
-              (AbstractRelationship) getRelationship(oldRelationshipId,
-                  relClass);
-          oldRelationship.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
-          oldRelationship.setVersion(newRelationship.getVersion());
-
-          // If the existing relationship doesn't exactly equal the new one,
-          // update obsolete, suppressible, and group as well
-          if (!oldRelationship.equals(newRelationship)) {
-            oldRelationship.setObsolete(newRelationship.isObsolete());
-            oldRelationship.setSuppressible(newRelationship.isSuppressible());
-            oldRelationship.setGroup(newRelationship.getGroup());
-          }
-
-          updateCount++;
-          updateRelationship(oldRelationship);
-        }
-
-        // If no inverse relationships with the same RUI exists, add the new
-        // inverse relationship
-        if (oldInverseRelationshipId == null) {
-          newInverseRelationship.getAlternateTerminologyIds().put("SRC",
-              newInverseRelationshipRui);
-          newInverseRelationship =
-              (AbstractRelationship) addRelationship(newInverseRelationship);
-
-          addCount++;
-          ruiIdMap.put(newInverseRelationshipRui,
-              newInverseRelationship.getId());
-
-          // No need to explicitly attach to component - will be done
-          // automatically by addRelationship.
-
-        }
-        // If an existing inverse relationship DOES exist, update the version,
-        // add an
-        // AlternateTermminologyId, and update
-        else {
-          final AbstractRelationship oldInverseRelationship =
-              (AbstractRelationship) getRelationship(oldInverseRelationshipId,
-                  relClass);
-          oldInverseRelationship.getAlternateTerminologyIds().put("SRC",
-              newInverseRelationshipRui);
-          oldInverseRelationship
-              .setVersion(newInverseRelationship.getVersion());
-
-          // If the existing inverse relationship doesn't exactly equal the new
-          // one,
-          // update obsolete, suppressible, and group as well
-          if (!oldInverseRelationship.equals(newInverseRelationship)) {
-            oldInverseRelationship
-                .setObsolete(newInverseRelationship.isObsolete());
-            oldInverseRelationship
-                .setSuppressible(newInverseRelationship.isSuppressible());
-            oldInverseRelationship.setGroup(newInverseRelationship.getGroup());
-          }
-
-          updateCount++;
-          updateRelationship(oldInverseRelationship);
-        }
-
-        // Update the progress
-        updateProgress();
-
-        logAndCommit("[Relationship Loader] Relationships processed ",
-            stepsCompleted, RootService.logCt, RootService.commitCt);
-        handler.logAndCommit(
-            "[Relationship Loader] Relationship Identities processed ",
-            stepsCompleted, RootService.logCt, RootService.commitCt);
+        handleRelationships(line, fromTermId, fromTermAndVersion,
+            fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
+            additionalRelType, group, publishable, published, relType,
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
 
       }
 
+
+      // 
+      // Process contexts.src lines
+      //
+      String fields2[] = new String[17];
+      for (final String line : lines2) {
+
+        // Check for a cancelled call once every 100 relationships (doing it
+        // every time
+        // makes things too slow)
+        if (stepsCompleted % 100 == 0 && isCancelled()) {
+          throw new CancelException("Cancelled");
+        }
+
+        FieldedStringTokenizer.split(line, "|", 17, fields2);
+
+        // Fields:
+        // 0 source_atom_id_1
+        // 1 relationship_name
+        // 2 relationship_attribute
+        // 3 source_atom_id_2
+        // 4 source
+        // 5 source_of_label
+        // 6 hcd
+        // 7 parent_treenum
+        // 8 release mode
+        // 9 source_rui
+        // 10 relationship_group
+        // 11 sg_id_1
+        // 12 sg_type_1
+        // 13 sg_qualifier_1
+        // 14 sg_id_2
+        // 15 sg_type_2
+        // 16 sg_qualifier_2
+
+        // e.g.
+        // 362241646|PAR|isa|362239326|NCI_2016_05E|NCI_2016_05E||
+        // 31926003.362204588.362250568.362172407.362239326|00|||C90893|
+        // SOURCE_CUI|NCI_2016_05E|C29696|SOURCE_CUI|NCI_2016_05E|
+
+        //
+        // Relationship based on input line.
+        //
+
+        final String fromTermId = fields2[11];
+        final String fromTermAndVersion = fields2[13];
+        final String fromClassIdType = fields2[12];
+        final String toTermId = fields2[14];
+        final String toTermAndVersion = fields2[16];
+        final String toClassIdType = fields2[15];
+        final String additionalRelType = fields2[2];
+        final String group = fields2[10];
+        final String publishable = "Y";
+        final String published = "N";
+        // Note: relType and additionalRelType are swapped in file. We're only
+        // keeping "PAR" rows, so we hard-code relType as "CHD"
+        final String relType = "CHD";
+        final String suppresible = "N";
+        final String sourceTermAndVersion = fields2[4];
+        final String sourceTermId = fields2[9];
+        final String workflowStatusStr = "R";
+
+        handleRelationships(line, fromTermId, fromTermAndVersion,
+            fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
+            additionalRelType, group, publishable, published, relType,
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
+
+      }
+
+      commitClearBegin();
+      handler.commitClearBegin();
+      
       logInfo("[RelationshipLoader] Added " + addCount + " new Relationships.");
       logInfo("[RelationshipLoader] Updated " + updateCount
           + " existing Relationships.");
@@ -507,66 +310,327 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   }
 
   /**
-   * Lookup workflow status.
+   * Removes the dups.
    *
-   * @param string the string
-   * @return the workflow status
-   * @throws Exception the exception
+   * @param lineList the line list
+   * @return the list
    */
-  @Override
-  public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
+  private List<String> removeDups(List<String> lineList) {
+    // Make a set of the rela, ID1, and ID2, so you don't create duplicate
+    // relationships.
+    Set<String> seenLines = new HashSet<>();
+    List<String> lines = new ArrayList<>();
 
-    WorkflowStatus workflowStatus = null;
+    String fields[] = new String[17];
 
-    switch (string) {
-      case "R":
-        workflowStatus = WorkflowStatus.READY_FOR_PUBLICATION;
-        break;
-      case "N":
-        workflowStatus = WorkflowStatus.NEEDS_REVIEW;
-        break;
-      default:
-        throw new Exception("Invalid workflowStatus type: " + string);
+    for (String line : lineList) {
+
+      FieldedStringTokenizer.split(line, "|", 17, fields);
+      String concatedFields = fields[2] + fields[14] + fields[14];
+
+      if (!seenLines.contains(concatedFields)) {
+        lines.add(line);
+        seenLines.add(concatedFields);
+      }
     }
 
-    return workflowStatus;
+    return lines;
   }
 
   /**
-   * Identify all terminologies from insertion.
+   * Handle relationships.
    *
-   * @param lines the lines
+   * @param line the line
+   * @param fromTermId the from term id
+   * @param fromTermAndVersion the from term and version
+   * @param fromClassIdType the from class id type
+   * @param toTermId the to term id
+   * @param toTermAndVersion the to term and version
+   * @param toClassIdType the to class id type
+   * @param additionalRelType the additional rel type
+   * @param group the group
+   * @param publishable the publishable
+   * @param published the published
+   * @param relType the rel type
+   * @param suppresible the suppresible
+   * @param sourceTermAndVersion the source term and version
+   * @param sourceTermId the source term id
+   * @param workflowStatusStr the workflow status str
    * @throws Exception the exception
    */
-  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-    throws Exception {
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
+  private void handleRelationships(String line, String fromTermId,
+    String fromTermAndVersion, String fromClassIdType, String toTermId,
+    String toTermAndVersion, String toClassIdType, String additionalRelType,
+    String group, String publishable, String published, String relType,
+    String suppresible, String sourceTermAndVersion, String sourceTermId,
+    String workflowStatusStr) throws Exception {
 
-    String fields[] = new String[18];
-    steps = lines.size();
-    stepsCompleted = 0;
+    // Load the containing objects based on type
+    final String fromTerminologyId = fromTermId;
+    final String fromTerminology = fromTermAndVersion.contains("_")
+        ? fromTermAndVersion.substring(0, fromTermAndVersion.indexOf('_'))
+        : fromTermAndVersion;
+    final Class<? extends Component> fromClass = lookupClass(fromClassIdType);
 
-    for (String line : lines) {
+    final Long fromComponentId =
+        getId(fromClass, fromTerminologyId, fromTerminology);
 
-      FieldedStringTokenizer.split(line, "|", 18, fields);
+    final Component fromComponent = fromComponentId == null ? null
+        : getComponent(fromComponentId, fromClass);
 
-      // For the purpose of this method, all we care about:
-      // fields[6]: source
-      // fields[13]: id_qualifier_1
-      // fields[15]: id_qualifier_2
-
-      String terminology = fields[6].contains("_")
-          ? fields[6].substring(0, fields[6].indexOf('_')) : fields[6];
-      allTerminologiesFromInsertion.add(terminology);
-
-      terminology = fields[13].contains("_")
-          ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
-      allTerminologiesFromInsertion.add(terminology);
-
-      terminology = fields[15].contains("_")
-          ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
-
-      allTerminologiesFromInsertion.add(terminology);
+    if (fromComponent == null) {
+      logWarn(
+          "Warning - could not find from Component for the following line:\n\t"
+              + line);
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
     }
+
+    final String toTerminologyId = toTermId;
+    final String toTerminology = toTermAndVersion.contains("_")
+        ? toTermAndVersion.substring(0, toTermAndVersion.indexOf('_'))
+        : toTermAndVersion;
+    final Class<? extends Component> toClass = lookupClass(toClassIdType);
+
+    final Long toComponentId = getId(toClass, toTerminologyId, toTerminology);
+
+    final Component toComponent =
+        toComponentId == null ? null : getComponent(toComponentId, toClass);
+
+    if (toComponent == null) {
+      logWarn(
+          "Warning - could not find to Component for the following line:\n\t"
+              + line);
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
+    }
+
+    // Create the relationship.
+    // If id_type_1 equals id_type_2, the relationship is of that type.
+    // If they are not equal, it's a Component Info Relationship
+    AbstractRelationship newRelationship = null;
+    Class relClass = null;
+
+    if (!fromClass.equals(toClass)) {
+      relClass = ComponentInfoRelationshipJpa.class;
+      newRelationship = new ComponentInfoRelationshipJpa();
+    } else if (fromClass.equals(ConceptJpa.class)
+        && toClass.equals(ConceptJpa.class)) {
+      relClass = ConceptRelationshipJpa.class;
+      newRelationship = new ConceptRelationshipJpa();
+    } else if (fromClass.equals(CodeJpa.class)
+        && toClass.equals(CodeJpa.class)) {
+      relClass = CodeRelationshipJpa.class;
+      newRelationship = new CodeRelationshipJpa();
+    } else {
+      throw new Exception("Error - unhandled class type: " + fromClass);
+    }
+
+    newRelationship.setAdditionalRelationshipType(additionalRelType);
+    newRelationship.setBranch(Branch.ROOT);
+    newRelationship.setFrom(fromComponent);
+    newRelationship.setGroup(group);
+    newRelationship.setInferred(true);
+    newRelationship.setObsolete(false);
+    newRelationship.setPublishable(publishable.equals("Y"));
+    newRelationship.setPublished(published.equals("Y"));
+    newRelationship.setRelationshipType(lookupRelationshipType(relType));
+    newRelationship.setHierarchical(false);
+    newRelationship.setStated(true);
+    newRelationship.setSuppressible(suppresible.equals("Y"));
+    Terminology term = getCachedTerminology(sourceTermAndVersion);
+    if (term == null) {
+      throw new Exception("ERROR: lookup for " + sourceTermAndVersion
+          + " returned no terminology");
+    } else {
+      newRelationship.setAssertedDirection(term.isAssertsRelDirection());
+      newRelationship.setTerminology(term.getTerminology());
+      newRelationship.setVersion(term.getVersion());
+    }
+    newRelationship.setTerminologyId(sourceTermId);
+    newRelationship.setTo(toComponent);
+    newRelationship.setWorkflowStatus(lookupWorkflowStatus(workflowStatusStr));
+
+    // Calculate inverseRel and inverseAdditionalRel types, to use in the
+    // RUI handler and the inverse relationship creation
+    String inverseRelType =
+        getRelationshipType(newRelationship.getRelationshipType(),
+            getProject().getTerminology(), getProject().getVersion())
+                .getInverse().getAbbreviation();
+
+    String inverseAdditionalRelType = "";
+    if (!newRelationship.getAdditionalRelationshipType().equals("")) {
+      inverseAdditionalRelType = getAdditionalRelationshipType(
+          newRelationship.getAdditionalRelationshipType(),
+          getProject().getTerminology(), getProject().getVersion()).getInverse()
+              .getAbbreviation();
+    }
+
+    // Create the inverse relationship
+    AbstractRelationship newInverseRelationship =
+        (AbstractRelationship) newRelationship.createInverseRelationship(
+            newRelationship, inverseRelType, inverseAdditionalRelType);
+
+    // Compute identity for relationship and its inverse
+    // Note: need to pass in the inverse RelType and AdditionalRelType
+    String newRelationshipRui = handler.getTerminologyId(newRelationship,
+        inverseRelType, inverseAdditionalRelType);
+    String newInverseRelationshipRui = handler.getTerminologyId(
+        newInverseRelationship, newRelationship.getRelationshipType(),
+        newRelationship.getAdditionalRelationshipType());
+
+    // Check to see if relationship with matching RUI already exists in the
+    // database
+    Long oldRelationshipId =
+        getId(relClass, newRelationshipRui, newRelationship.getTerminology());
+    Long oldInverseRelationshipId = getId(relClass, newInverseRelationshipRui,
+        newInverseRelationship.getTerminology());
+
+    // If no relationships with the same RUI exists, add this new
+    // relationship
+    if (oldRelationshipId == null) {
+      newRelationship.getAlternateTerminologyIds()
+          .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
+      newRelationship = (AbstractRelationship) addRelationship(newRelationship);
+
+      addCount++;
+      putId(relClass, newRelationshipRui, newRelationship.getTerminology(),
+          newRelationship.getId());
+
+      // No need to explicitly attach to component - will be done
+      // automatically by addRelationship.
+
+    }
+    // If an existing relationship DOES exist, update it
+    else {
+      boolean oldRelChanged = false;
+
+      final AbstractRelationship oldRelationship =
+          (AbstractRelationship) getRelationship(oldRelationshipId, relClass);
+
+      // Update "alternateTerminologyIds" for the relationship
+      if (!oldRelationship.getAlternateTerminologyIds()
+          .containsKey(getProject().getTerminology() + "-SRC")) {
+        oldRelationship.getAlternateTerminologyIds()
+            .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
+        oldRelChanged = true;
+      }
+
+      // Update the version
+      if (!oldRelationship.getVersion().equals(newRelationship.getVersion())) {
+        oldRelationship.setVersion(newRelationship.getVersion());
+        oldRelChanged = true;
+      }
+
+      // If the existing relationship doesn't exactly equal the new one,
+      // update obsolete, suppressible, and group as well
+      if (!oldRelationship.equals(newRelationship)) {
+        if (oldRelationship.isObsolete() != newRelationship.isObsolete()) {
+          oldRelationship.setObsolete(newRelationship.isObsolete());
+          oldRelChanged = true;
+        }
+        if (oldRelationship.isSuppressible() != newRelationship
+            .isSuppressible()) {
+          oldRelationship.setSuppressible(newRelationship.isSuppressible());
+          oldRelChanged = true;
+        }
+        if (!oldRelationship.getGroup().equals(newRelationship.getGroup())) {
+          oldRelationship.setGroup(newRelationship.getGroup());
+          oldRelChanged = true;
+        }
+      }
+
+      if (oldRelChanged) {
+        updateCount++;
+        updateRelationship(oldRelationship);
+      }
+    }
+
+    // If no inverse relationships with the same RUI exists, add the new
+    // inverse relationship
+    if (oldInverseRelationshipId == null) {
+      newInverseRelationship.getAlternateTerminologyIds().put("SRC",
+          newInverseRelationshipRui);
+      newInverseRelationship =
+          (AbstractRelationship) addRelationship(newInverseRelationship);
+
+      addCount++;
+      putId(relClass, newInverseRelationshipRui,
+          newInverseRelationship.getTerminology(),
+          newInverseRelationship.getId());
+
+      // No need to explicitly attach to component - will be done
+      // automatically by addRelationship.
+
+    }
+    // If an existing inverse relationship DOES exist, update it
+    else {
+      boolean oldInverseRelChanged = false;
+
+      final AbstractRelationship oldInverseRelationship =
+          (AbstractRelationship) getRelationship(oldInverseRelationshipId,
+              relClass);
+
+      // Update "alternateTerminologyIds" for the atom
+      if (!oldInverseRelationship.getAlternateTerminologyIds()
+          .containsKey(getProject().getTerminology() + "-SRC")) {
+        oldInverseRelationship.getAlternateTerminologyIds().put(
+            getProject().getTerminology() + "-SRC", newInverseRelationshipRui);
+        oldInverseRelChanged = true;
+      }
+
+      // Update the version
+      if (!oldInverseRelationship.getVersion()
+          .equals(newInverseRelationship.getVersion())) {
+        oldInverseRelationship.setVersion(newInverseRelationship.getVersion());
+        oldInverseRelChanged = true;
+      }
+
+      // If the existing inverse relationship doesn't exactly equal the new
+      // one,
+      // update obsolete, suppressible, and group as well
+      if (!oldInverseRelationship.equals(newInverseRelationship)) {
+        if (oldInverseRelationship.isObsolete() != newInverseRelationship
+            .isObsolete()) {
+          oldInverseRelationship
+              .setObsolete(newInverseRelationship.isObsolete());
+          oldInverseRelChanged = true;
+        }
+        if (oldInverseRelationship.isSuppressible() != newInverseRelationship
+            .isSuppressible()) {
+          oldInverseRelationship
+              .setSuppressible(newInverseRelationship.isSuppressible());
+          oldInverseRelChanged = true;
+        }
+        if (!oldInverseRelationship.getGroup()
+            .equals(newInverseRelationship.getGroup())) {
+          oldInverseRelationship.setGroup(newInverseRelationship.getGroup());
+          oldInverseRelChanged = true;
+        }
+      }
+
+      if (oldInverseRelChanged) {
+        updateCount++;
+        updateRelationship(oldInverseRelationship);
+      }
+    }
+
+    // Update the progress
+    updateProgress();
+
+    logAndCommit("[Relationship Loader] Relationships processed ",
+        stepsCompleted, RootService.logCt, RootService.commitCt);
+    handler.logAndCommit(
+        "[Relationship Loader] Relationship Identities processed ",
+        stepsCompleted, RootService.logCt, RootService.commitCt);
+
   }
 
   /**
@@ -576,7 +640,6 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @return the string
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   private String lookupRelationshipType(String string) throws Exception {
 
     String relationshipType = null;
@@ -600,6 +663,12 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       case "SFO/LFO":
         relationshipType = "SY";
         break;
+      case "PAR":
+        relationshipType = "PAR";
+        break;
+      case "CHD":
+        relationshipType = "CHD";
+        break;
       default:
         throw new Exception("Invalid relationship type: " + relationshipType);
     }
@@ -620,122 +689,13 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   }
 
   /**
-   * Cache existing relationships' RUIs and IDs.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingRelationships() throws Exception {
-
-    // Get RUIs for ConceptRelationships, CodeRelationships, and
-    // ComponentInfoRelationships.
-
-    int iteration = 0;
-    int batchSize = 10000;
-
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from concept_relationships a join conceptrelationshipjpa_alternateterminologyids b where a.id = b.ConceptRelationshipJpa_id AND a.publishable = 1"
-            + " UNION ALL "
-            + "select b.alternateTerminologyIds, a.id from code_relationships a join coderelationshipjpa_alternateterminologyids b where a.id = b.CodeRelationshipJpa_id AND a.publishable = 1"
-            + " UNION ALL "
-            + "select b.alternateTerminologyIds, a.id from component_info_relationships a join componentinforelationshipjpa_alternateterminologyids b where a.id = b.ComponentInfoRelationshipJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[RelationshipLoader] Loading relationship RUIs from database: "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        ruiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-  }
-
-  /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTerminologies() throws Exception {
-
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
-        loadedTerminologies.put(term.getTerminology(), term);
-      } else {
-        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-      }
-    }
-  }
-
-  /**
-   * Cache existing codes.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingCodes() throws Exception {
-
-    // Pre-populate codeIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from CodeJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      codeIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
-  }
-
-  /**
-   * Cache existing concepts.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingConcepts() throws Exception {
-
-    // Pre-populate conceptIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from ConceptJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      conceptIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
-  }
-
-  /**
    * Update progress.
    *
    * @throws Exception the exception
    */
   public void updateProgress() throws Exception {
     stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    int currentProgress = (int) ((100 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
       fireProgressEvent(currentProgress,
           "RELATIONSHIPLOADING progress: " + currentProgress + "%");
