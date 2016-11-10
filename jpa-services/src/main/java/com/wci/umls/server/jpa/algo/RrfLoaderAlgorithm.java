@@ -2361,6 +2361,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               getConcept(conceptIdMap.get(getTerminology() + fields[0]));
           conceptRel.setTo(toConcept);
         }
+        // RUI is the terminologyId for concept relationships, not the alt
+        // terminology id
+        conceptRel.setTerminologyId(fields[8]);
         setRelationshipFields(fields, conceptRel);
         conceptRel.setTerminology(getTerminology());
         conceptRel.setVersion(getVersion());
@@ -2550,10 +2553,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     relationship.setHierarchical(fields[3].equals("CHD"));
 
-    if (!singleMode) {
-      relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
+    // If terminology Id was set to RUI for CUI-CUI rel, skip this part
+    if (relationship.getTerminologyId() == null) {
+      if (!singleMode) {
+        relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
+      }
+      relationship.setTerminologyId(fields[9]);
     }
-    relationship.setTerminologyId(fields[9]);
+    
     relationship.setTerminology(fields[10].intern());
     if (loadedTerminologies.get(fields[10]) == null) {
       throw new Exception(
@@ -2747,20 +2754,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
-      
+
       // Calculate last release rank
       String ts = fields[2];
       String stt = fields[4];
       if (ts.equals("P") && stt.equals("PF")) {
         atom.setLastPublishedRank("4");
       } else if (ts.equals("S") && stt.equals("PF")) {
-    	atom.setLastPublishedRank("2");   			
+        atom.setLastPublishedRank("2");
       } else if (ts.equals("P") && stt.startsWith("V")) {
-    	atom.setLastPublishedRank("3");
+        atom.setLastPublishedRank("3");
       } else if (ts.equals("S") && stt.startsWith("V")) {
-    	atom.setLastPublishedRank("1");
+        atom.setLastPublishedRank("1");
       }
-    	  
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {

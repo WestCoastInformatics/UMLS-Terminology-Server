@@ -55,8 +55,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       throw new Exception("Stamping requires a project to be set");
     }
 
-    if (worklistId == null || getWorklist(worklistId) == null) {
-      throw new Exception("Stamping requires a valid worklist id.");
+    if (worklistId == null || (getWorklist(worklistId) == null
+        && getChecklist(worklistId) == null)) {
+      throw new Exception("Stamping requires a valid worklist/checklist id.");
     }
 
     // n/a - NO preconditions

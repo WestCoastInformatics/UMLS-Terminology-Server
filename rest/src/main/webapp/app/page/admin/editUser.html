@@ -11,7 +11,7 @@
             <b>Username</b>
           </td>
           <td>
-            <input ng-show="action == 'Add'" ng-model="user.userName">
+            <input autofocus ng-show="action == 'Add'" ng-model="user.userName">
             <span ng-show="action != 'Add'">{{user.userName}}</span>
           </td>
         </tr>
@@ -67,9 +67,7 @@
 </div>
 
 <div class="modal-footer">
-  <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitUser(user);">Add</button>
-  <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitUser(user);">Save</button>
+  <button ng-bind="action == 'Add' ? 'Add' : 'Save'" class="btn btn-primary"
+    ng-click="submitUser(user);"></button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

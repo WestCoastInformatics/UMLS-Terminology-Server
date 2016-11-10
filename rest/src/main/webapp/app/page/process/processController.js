@@ -131,6 +131,7 @@ tsApp
         // Set worklist mode
         $scope.setMode = function(mode) {
           $scope.selected.mode = mode;
+          $scope.selected.process = null;
           $scope.getProcesses();
         }
 
