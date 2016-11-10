@@ -9,8 +9,14 @@ tsApp.directive('log', [ function() {
       lines : '@'
     },
     templateUrl : 'app/actions/log/log.html',
-    controller : [ '$scope', '$uibModal', 'utilService', 'projectService', 'workflowService',
-      function($scope, $uibModal, utilService, projectService, workflowService) {
+    controller : [
+      '$scope',
+      '$uibModal',
+      'utilService',
+      'projectService',
+      'workflowService',
+      'processService',
+      function($scope, $uibModal, utilService, projectService, workflowService, processService) {
         console.debug('configure LogDirective', $scope.selected);
 
         // Log modal
@@ -35,6 +41,7 @@ tsApp.directive('log', [ function() {
           // modalInstance.result.then(function(data) {});
         };
         var LogModalCtrl = function($scope, $uibModalInstance, selected, type) {
+          console.debug("configure LogModalCtrl");
           $scope.type = type;
           $scope.errors = [];
           $scope.warnings = [];
@@ -58,9 +65,33 @@ tsApp.directive('log', [ function() {
 
             }
 
+            else if (type == 'Process') {
+              processService.getProcessLog(selected.project.id, selected.process.id).then(
+              // Success
+              function(data) {
+                $scope.log = data;
+              },
+              // Error
+              function(data) {
+                utilService.handleDialogError($scope.errors, data);
+              });
+            }
+
+            else if (type == 'Step') {
+              processService.getAlgorithmLog(selected.project.id, selected.step.id).then(
+              // Success
+              function(data) {
+                $scope.log = data;
+              },
+              // Error
+              function(data) {
+                utilService.handleDialogError($scope.errors, data);
+              });
+            }
+
             // Project/component
-            else if (type == 'Project' || type == 'Concept'
-              || type == 'Descriptor'|| type == 'Code') {
+            else if (type == 'Project' || type == 'Concept' || type == 'Descriptor'
+              || type == 'Code') {
 
               // Make different calls depending upon the object type
               var objectId = (type == 'Project' ? null : selected.component.id);

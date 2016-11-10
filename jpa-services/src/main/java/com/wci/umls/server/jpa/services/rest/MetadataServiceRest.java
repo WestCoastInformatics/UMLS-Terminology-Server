@@ -8,6 +8,19 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.AttributeNameJpa;
+import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
+import com.wci.umls.server.jpa.meta.TermTypeJpa;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.RelationshipType;
+import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
@@ -114,4 +127,215 @@ public interface MetadataServiceRest {
    */
   public SemanticTypeList getSemanticTypes(String terminology, String version,
     String authToken) throws Exception;
+
+
+  /**
+   * Removes the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeTermType(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the attribute name.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAttributeName(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeRelationshipType(String type, String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Removes the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAdditionalRelationshipType(String type, String terminology, String version, String authToken)
+		throws Exception;
+
+  /**
+   * Gets the root terminology.
+   *
+   * @param terminology the terminology
+   * @param authToken the auth token
+   * @return the root terminology
+   * @throws Exception the exception
+   */
+  public RootTerminology getRootTerminology(String terminology, String authToken) throws Exception;
+
+  /**
+   * Gets the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public TermType getTermType(String type, String terminology, String version,
+    String authToken) throws Exception;
+
+  /**
+   * Gets the attribute name.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  public AttributeName getAttributeName(String type, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Gets the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the relationship type
+   * @throws Exception the exception
+   */
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version, String authToken) throws Exception;
+
+  /**
+   * Gets the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the additional relationship type
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version, String authToken) throws Exception;
+
+  /**
+   * Update additional relationship type.
+   *
+   * @param relType the rel type
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateAdditionalRelationshipType(AdditionalRelationshipTypeJpa relType,
+    String authToken) throws Exception;
+
+  /**
+   * Update relationship type.
+   *
+   * @param relType the rel type
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateRelationshipType(RelationshipTypeJpa relType, String authToken)
+    throws Exception;
+
+  /**
+   * Update attribute name.
+   *
+   * @param attributeName the attribute name
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateAttributeName(AttributeNameJpa attributeName, String authToken)
+    throws Exception;
+
+  /**
+   * Update term type.
+   *
+   * @param termType the term type
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateTermType(TermTypeJpa termType, String authToken) throws Exception;
+
+  /**
+   * Add additional relationship type.
+   *
+   * @param addRelTypeList the add rel type and its inverse
+   * @param authToken the auth token
+   * @return the additional relationship type
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipType addAdditionalRelationshipType(
+    AdditionalRelationshipTypeListJpa addRelTypeList, String authToken)
+    throws Exception;
+
+  /**
+   * Add relationship type.
+   *
+   * @param relationshipTypeList the relationship type and its inverse
+   * @param authToken the auth token
+   * @return the relationship type
+   * @throws Exception the exception
+   */
+  public RelationshipType addRelationshipType(RelationshipTypeListJpa relationshipTypeList,
+    String authToken) throws Exception;
+
+  /**
+   * Add attribute name.
+   *
+   * @param attributeName the attribute name
+   * @param authToken the auth token
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  public AttributeName addAttributeName(AttributeNameJpa attributeName,
+    String authToken) throws Exception;
+
+  /**
+   * Add term type.
+   *
+   * @param termType the term type
+   * @param authToken the auth token
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public TermType addTermType(TermTypeJpa termType, String authToken) throws Exception;
+
+  /**
+   * Update root terminology.
+   *
+   * @param rootTerminology the root terminology
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateRootTerminology(RootTerminologyJpa rootTerminology,
+    String authToken) throws Exception;
+
+  /**
+   * Update terminology.
+   *
+   * @param terminology the terminology
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateTerminology(TerminologyJpa terminology, String authToken)
+    throws Exception;
 }

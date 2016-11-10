@@ -50,7 +50,7 @@ tsApp.controller('BinModalCtrl', [
         },
         // Error
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
     }
 
@@ -66,7 +66,7 @@ tsApp.controller('BinModalCtrl', [
         },
         // Error
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
     }
 
@@ -81,7 +81,7 @@ tsApp.controller('BinModalCtrl', [
         },
         // Error - update definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       } else if (action == 'Clone') {
         definition.id = null;
@@ -93,7 +93,7 @@ tsApp.controller('BinModalCtrl', [
         },
         // Error - add definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       } else if (action == 'Add') {
         definition.workflowConfigId = $scope.config.id;
@@ -106,7 +106,7 @@ tsApp.controller('BinModalCtrl', [
         },
         // Error - add definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       }
 

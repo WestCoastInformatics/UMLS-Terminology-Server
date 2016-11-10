@@ -25,13 +25,24 @@ import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
+import com.wci.umls.server.jpa.helpers.meta.AdditionalRelationshipTypeListJpa;
+import com.wci.umls.server.jpa.helpers.meta.RelationshipTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.SemanticTypeListJpa;
 import com.wci.umls.server.jpa.helpers.meta.TerminologyListJpa;
+import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.AttributeNameJpa;
+import com.wci.umls.server.jpa.meta.RelationshipTypeJpa;
+import com.wci.umls.server.jpa.meta.RootTerminologyJpa;
+import com.wci.umls.server.jpa.meta.TermTypeJpa;
 import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.RootTerminology;
+import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
@@ -97,7 +108,45 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
 
-      handleException(e, "trying to get the metadata");
+      handleException(e, "trying to get the terminology");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/rootTerminology/{terminology}")
+  @ApiOperation(value = "Get root terminology", notes = "Gets the root terminology for the specified parameters", response = TerminologyJpa.class)
+  public RootTerminology getRootTerminology(
+    @ApiParam(value = "Terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Metadata): /rootTerminology/" + terminology );
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+
+      // authorize call
+      authorizeApp(securityService, authToken, "get root terminology",
+          UserRole.VIEWER);
+
+      final RootTerminology termInfo =
+          metadataService.getRootTerminology(terminology);
+      if (termInfo == null) {
+        return new RootTerminologyJpa();
+      }
+      metadataService.getGraphResolutionHandler(terminology).resolve(termInfo);
+
+      return termInfo;
+
+    } catch (Exception e) {
+
+      handleException(e, "trying to get the root terminology");
       return null;
     } finally {
       metadataService.close();
@@ -356,11 +405,11 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
   @Path("/precedence/update")
   @ApiOperation(value = "Update a precedence list", notes = "Update a precedence list", response = PrecedenceListJpa.class)
   public void updatePrecedenceList(
-    @ApiParam(value = "Precedence list to add", required = true) PrecedenceListJpa precedenceList,
+    @ApiParam(value = "Precedence list to update", required = true) PrecedenceListJpa precedenceList,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /precedence/add");
+        .info("RESTful call (Metadata): /precedence/update");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -388,7 +437,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /precedence/add");
+        .info("RESTful call (Metadata): /precedence/remove");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -405,9 +454,286 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
       metadataService.close();
       securityService.close();
     }
+  }
+    
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/termType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a term type", notes = "Remove a term type")
+    public void removeTermType(
+      @ApiParam(value = "Term type, e.g. AB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /termType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove term type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        TermType tty = metadataService.getTermType(type, terminology, version);
+        metadataService.removeTermType(tty.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the term type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
 
   }
 
+    /* see superclass */
+    @Override
+    @GET
+    @Path("/termType/{type}/{terminology}/{version}")
+    @ApiOperation(value = "Retrieve a term type", notes = "Retrieve a term type", response = TermTypeJpa.class)
+    public TermType getTermType(
+      @ApiParam(value = "Term type, e.g. AB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /termType/" + type);
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "get term type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        return metadataService.getTermType(type, terminology, version);
+      } catch (Exception e) {
+
+        handleException(e, "trying to retrieve the term type");
+        return null;
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/attributeName/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a attribute name", notes = "Remove a attribute name")
+    public void removeAttributeName(
+      @ApiParam(value = "Attribute name, e.g. AMT", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /attributeName/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove attribute name ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        AttributeName atn = metadataService.getAttributeName(type, terminology, version);
+        metadataService.removeAttributeName(atn.getId());
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the attribute name");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    /* see superclass */
+    @Override
+    @GET
+    @Path("/attributeName/{type}/{terminology}/{version}")
+    @ApiOperation(value = "Retrieve a attribute name", notes = "Retrieve a attribute name", response = AttributeNameJpa.class)
+    public AttributeName getAttributeName(
+      @ApiParam(value = "Attribute name, e.g. AMT", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /attributeName/" + type);
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "get attribute name ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        return metadataService.getAttributeName(type, terminology, version);
+      } catch (Exception e) {
+
+        handleException(e, "trying to retrieve the attribute name");
+        return null;
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/addRelType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a add relationship type", notes = "Remove a additional relationship type")
+    public void removeAdditionalRelationshipType(
+      @ApiParam(value = "Additional Relationship type, e.g. RB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /addRelType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove add relationship type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+        
+        AdditionalRelationshipType relType = metadataService.getAdditionalRelationshipType(type, terminology, version);
+        AdditionalRelationshipType inverse = relType.getInverse();
+        relType.setInverse(null);
+        metadataService.updateAdditionalRelationshipType(relType);
+        inverse.setInverse(null);
+        metadataService.updateAdditionalRelationshipType(inverse);
+        metadataService.removeAdditionalRelationshipType(relType.getId());
+        metadataService.removeAdditionalRelationshipType(inverse.getId());
+        
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the add relationship type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    /* see superclass */
+    @Override
+    @GET
+    @Path("/addRelType/{type}/{terminology}/{version}")
+    @ApiOperation(value = "Retrieve a additional relationship type", notes = "Retrieve a additional relationship type", response = AdditionalRelationshipTypeJpa.class)
+    public AdditionalRelationshipType getAdditionalRelationshipType(
+      @ApiParam(value = "Relationship type, e.g. RN", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /addRelType/" + type);
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "get additional relationship type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        return metadataService.getAdditionalRelationshipType(type, terminology, version);
+      } catch (Exception e) {
+
+        handleException(e, "trying to retrieve the additional relationship type");
+        return null;
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+        
+    /* see superclass */
+    @Override
+    @DELETE
+    @Path("/relationshipType/{type}/remove/{terminology}/{version}")
+    @ApiOperation(value = "Remove a rel type", notes = "Remove a rel type")
+    public void removeRelationshipType(
+      @ApiParam(value = "Relationship type, e.g. AB", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /relationshipType/" + type + "/remove");
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "remove rel type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        // must also remove the inverse to avoid foreign key constraint
+        // TODO setTranPerOper begin
+        RelationshipType relType = metadataService.getRelationshipType(type, terminology, version);
+        RelationshipType inverse = relType.getInverse();
+        relType.setInverse(null);
+        metadataService.updateRelationshipType(relType);
+        inverse.setInverse(null);
+        metadataService.updateRelationshipType(inverse);
+        metadataService.removeRelationshipType(relType.getId());
+        metadataService.removeRelationshipType(inverse.getId());
+        // commit
+      } catch (Exception e) {
+
+        handleException(e, "trying to remove the rel type");
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+
+    /* see superclass */
+    @Override
+    @GET
+    @Path("/relationshipType/{type}/{terminology}/{version}")
+    @ApiOperation(value = "Retrieve a relationship type", notes = "Retrieve a relationship type", response = RelationshipTypeJpa.class)
+    public RelationshipType getRelationshipType(
+      @ApiParam(value = "Relationship type, e.g. RN", required = true) @PathParam("type") String type,
+      @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+      @ApiParam(value = "Version, e.g. latest", required = true) @PathParam("version") String version,
+      @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+      throws Exception {
+      Logger.getLogger(getClass())
+          .info("RESTful call (Metadata): /relationshipType/" + type);
+
+      final MetadataService metadataService = new MetadataServiceJpa();
+      try {
+
+        final String userName = authorizeApp(securityService, authToken,
+            "get relationship type ", UserRole.USER);
+        metadataService.setLastModifiedBy(userName);
+
+        return metadataService.getRelationshipType(type, terminology, version);
+      } catch (Exception e) {
+
+        handleException(e, "trying to retrieve the relationship type");
+        return null;
+      } finally {
+        metadataService.close();
+        securityService.close();
+      }
+
+  }
+    
   /* see superclass */
   @Override
   @GET
@@ -437,4 +763,324 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/termType/update")
+  @ApiOperation(value = "Update a term type", notes = "Update a term type", response = TermTypeJpa.class)
+  public void updateTermType(
+    @ApiParam(value = "Term type to update", required = true) TermTypeJpa termType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /termType/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update term type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateTermType(termType);
+    } catch (Exception e) {
+      handleException(e, "trying to update term type");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/attributeName/update")
+  @ApiOperation(value = "Update an attribute name", notes = "Update an attribute name", response = AttributeNameJpa.class)
+  public void updateAttributeName(
+    @ApiParam(value = "Attribute name to update", required = true) AttributeNameJpa attributeName,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /attributeName/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update attribute name", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateAttributeName(attributeName);
+    } catch (Exception e) {
+      handleException(e, "trying to update attribute name");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/relationshipType/update")
+  @ApiOperation(value = "Update a relationship type", notes = "Update a relationship type", response = RelationshipTypeJpa.class)
+  public void updateRelationshipType(
+    @ApiParam(value = "Relationship type to update", required = true) RelationshipTypeJpa relType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /relationshipType/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update rel type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateRelationshipType(relType);
+    } catch (Exception e) {
+      handleException(e, "trying to update rel type");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/rootTerminology/update")
+  @ApiOperation(value = "Update a root terminology", notes = "Update a root terminology", response = RootTerminologyJpa.class)
+  public void updateRootTerminology(
+    @ApiParam(value = "Root terminology to update", required = true) RootTerminologyJpa rootTerminology,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /rootTerminology/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update root terminology", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateRootTerminology(rootTerminology);
+    } catch (Exception e) {
+      handleException(e, "trying to update root terminology");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/terminology/update")
+  @ApiOperation(value = "Update a terminology", notes = "Update a terminology", response = TerminologyJpa.class)
+  public void updateTerminology(
+    @ApiParam(value = "Terminology to update", required = true) TerminologyJpa terminology,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /terminology/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update terminology", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateTerminology(terminology);
+    } catch (Exception e) {
+      handleException(e, "trying to update terminology");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/addRelType/update")
+  @ApiOperation(value = "Update a relationship type", notes = "Update a relationship type", response = AdditionalRelationshipTypeJpa.class)
+  public void updateAdditionalRelationshipType(
+    @ApiParam(value = "AdditionalRelationship type to update", required = true) AdditionalRelationshipTypeJpa relType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /addRelType/update");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "update add rel type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      metadataService.updateAdditionalRelationshipType(relType);
+    } catch (Exception e) {
+      handleException(e, "trying to update add rel type");
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/termType/add")
+  @ApiOperation(value = "Add a term type", notes = "Add a term type", response = TermTypeJpa.class)
+  public TermType addTermType(
+    @ApiParam(value = "Term type to add", required = true) TermTypeJpa termType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /termType/add");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add term type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      return metadataService.addTermType(termType);
+    } catch (Exception e) {
+      handleException(e, "trying to add term type");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/attributeName/add")
+  @ApiOperation(value = "Add an attribute name", notes = "Add an attribute name", response = AttributeNameJpa.class)
+  public AttributeName addAttributeName(
+    @ApiParam(value = "Attribute name to add", required = true) AttributeNameJpa attributeName,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /attributeName/add");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add attribute name", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      return metadataService.addAttributeName(attributeName);
+    } catch (Exception e) {
+      handleException(e, "trying to add attribute name");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/relationshipType/add")
+  @ApiOperation(value = "Add a relationship type (and its inverse)", notes = "Add a relationship type and its inverse", response = RelationshipTypeJpa.class)
+  public RelationshipType addRelationshipType(
+    @ApiParam(value = "Relationship type (and its inverse) to add", required = true) RelationshipTypeListJpa relationshipTypeList,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /relationshipType/add");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add relationship type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      // add relType and its inverse
+      metadataService.setTransactionPerOperation(false);
+      metadataService.beginTransaction();
+      RelationshipType relType1 = relationshipTypeList.getObjects().get(0);
+      RelationshipType relType2 = relationshipTypeList.getObjects().get(1);
+      relType1.setInverse(null);
+      relType2.setInverse(null);
+      relType1 = metadataService.addRelationshipType(relType1);
+      relType2 = metadataService.addRelationshipType(relType2);
+      relType1.setInverse(relType2);
+      metadataService.updateRelationshipType(relType1);
+      relType2.setInverse(relType1);
+      metadataService.updateRelationshipType(relType2);
+      metadataService.commit();
+      
+      return relType1;
+      
+    } catch (Exception e) {
+      handleException(e, "trying to add relationship type and its inverse");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/addRelType/add")
+  @ApiOperation(value = "Add an additional relationship type and its inverse", notes = "Add an additional relationship type and its inverse", response = AdditionalRelationshipTypeJpa.class)
+  public AdditionalRelationshipType addAdditionalRelationshipType(
+    @ApiParam(value = "AdditionalRelationship type (and its inverse) to add", required = true) AdditionalRelationshipTypeListJpa addRelTypeList,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Metadata): /addRelType/add");
+
+    final MetadataService metadataService = new MetadataServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add term type", UserRole.USER);
+      metadataService.setLastModifiedBy(userName);
+
+      // add relType and its inverse
+      metadataService.setTransactionPerOperation(false);
+      metadataService.beginTransaction();
+      AdditionalRelationshipType relType1 = addRelTypeList.getObjects().get(0);
+      AdditionalRelationshipType relType2 = addRelTypeList.getObjects().get(1);
+      relType1.setInverse(null);
+      relType2.setInverse(null);
+      relType1 = metadataService.addAdditionalRelationshipType(relType1);
+      relType2 = metadataService.addAdditionalRelationshipType(relType2);
+      relType1.setInverse(relType2);
+      metadataService.updateAdditionalRelationshipType(relType1);
+      relType2.setInverse(relType1);
+      metadataService.updateAdditionalRelationshipType(relType2);
+      metadataService.commit();
+      
+      return relType1;
+      
+    } catch (Exception e) {
+      handleException(e, "trying to add term type");
+      return null;
+    } finally {
+      metadataService.close();
+      securityService.close();
+    }
+
+  }
 }

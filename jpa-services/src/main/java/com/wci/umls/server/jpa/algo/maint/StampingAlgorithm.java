@@ -90,16 +90,15 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       int prevProgress = 5;
       final int total = records.size();
       for (final TrackingRecord record : records) {
-        
+
         // Handle progress
-        int progress = (int) (5.0
-            + ((ct * 95.0) / total));
+        int progress = (int) (5.0 + ((ct * 95.0) / total));
         if (progress != prevProgress) {
           fireProgressEvent(progress, "Iterate through tracking records...");
           checkCancel();
           prevProgress = progress;
         }
-        
+
         lookupTrackingRecordConcepts(record);
         for (final Concept c : record.getConcepts()) {
           // skip those that don't need action
@@ -135,7 +134,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
           // Perform the action
           final ValidationResult validationResult =
-              action.performMolecularAction(action);
+              action.performMolecularAction(action, getLastModifiedBy());
 
           // If the action failed, bail out now.
           if (!validationResult.isValid()) {
@@ -211,8 +210,10 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
     }, p);
 
-   worklistId = p.getProperty("worklistId") == null ? null : Long.valueOf(p.getProperty("worklistId"));
-   checklistId = p.getProperty("checklistId") == null ? null : Long.valueOf(p.getProperty("checklistId"));
+    worklistId = p.getProperty("worklistId") == null ? null
+        : Long.valueOf(p.getProperty("worklistId"));
+    checklistId = p.getProperty("checklistId") == null ? null
+        : Long.valueOf(p.getProperty("checklistId"));
 
   }
 

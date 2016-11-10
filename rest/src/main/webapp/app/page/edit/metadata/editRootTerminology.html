@@ -1,0 +1,173 @@
+<div class="modal-header">
+  <h4>Edit {{rootTerminology.terminology}} Root Terminology</h4>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Name</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{rootTerminology.preferredName}}</td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Language</b>
+          </td>
+          <td>
+            <span>
+              <select ng-disabled="!rootTerminology.language"
+                ng-model="rootTerminology.language"
+                ng-options="item.key as item.value for item in lists.languages"></select>
+            </span>
+            <span>{{rootTerminology.language}}</span>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Restriction Level</b>
+          </td>
+          <td>
+            <input ng-model="rootTerminology.restrictionLevel" size="3" />
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Contact</b>
+          </td>
+          <td>
+            <ul class="pointer nav nav-tabs">
+              <li ng-class="{active : !tab || tab == 'acquisition'}"><a
+                  ng-click="tab = 'acquisition'">Acquisition</a></li>
+              <li ng-class="{active : tab == 'content'}"><a
+                  ng-click="tab = 'content'">Content</a></li>
+              <li ng-class="{active : tab == 'license'}"><a
+                  ng-click="tab = 'license'">License</a></li>
+            </ul>
+
+            <table class="slim table">
+              <thead>
+                <tr>
+                  <th class="col-md-3 col-xs-3">&nbsp;</th>
+                  <th class="col-md-9 col-md-9">&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Name</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].name"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Address 1</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].address1"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Address 2</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].address2"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>City</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].city"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>State/Province</td>
+                  <td>
+                    <input
+                      ng-model="rootTerminology[tab+'Contact'].stateOrProvince"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Zip Code</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].zipCode"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Country</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].country"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].email"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Telephone</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].telephone"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Fax</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].fax"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Organization</td>
+                  <td>
+                    <input
+                      ng-model="rootTerminology[tab+'Contact'].organization"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Title</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].title"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>URL</td>
+                  <td>
+                    <input ng-model="rootTerminology[tab+'Contact'].url"
+                      size="40" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </td>
+        </tr>
+
+      </table>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+</div>
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary"
+    ng-click="submitRootTerminology(rootTerminology);">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

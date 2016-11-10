@@ -332,7 +332,7 @@ public class SimpleLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     rel = new RelationshipTypeJpa(rel);
     rel.setId(null);
     rel.setAbbreviation("CHD");
-    rel.setAbbreviation("Child of");
+    rel.setExpandedForm("Child of");
     final RelationshipType chd = addRelationshipType(rel);
 
     par.setInverse(chd);

@@ -6,7 +6,6 @@ tsApp.directive('annotatedContent', [
   'securityService',
   '$uibModal',
   function($rootScope, utilService, contentService, securityService, $uibModal) {
-    console.debug('configure note components directive');
     return {
       restrict : 'A',
       scope : {

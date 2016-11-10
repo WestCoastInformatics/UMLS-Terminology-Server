@@ -83,7 +83,7 @@ tsApp.controller('AssignWorklistModalCtrl', [
             },
             // Error
             function(data) {
-              utilService.handleDialogError(errors, data);
+              utilService.handleDialogError($scope.errors, data);
             });
           } else {
             //$uibModalInstance.close(worklist);

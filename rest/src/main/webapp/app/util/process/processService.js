@@ -7,16 +7,16 @@ tsApp.service('processService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-    console.debug('configure processService');
 
     // add algorithm config
-    this.addAlgorithmConfig = function(projectId, algo) {
-      console.debug('addAlgorithmConfig', projectId, algo);
+    this.addAlgorithmConfig = function(projectId, processId, algo) {
+      console.debug('addAlgorithmConfig', projectId, processId, algo);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.put(processUrl + '/config/algo/add?projectId=' + projectId, algo).then(
+      $http.put(processUrl + '/config/algo/add?projectId=' + projectId +
+    		  '&processId=' + processId, algo).then(
       // success
       function(response) {
         console.debug('  algo = ', response.data);
@@ -104,6 +104,29 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // new empty algorithm config
+    this.newAlgorithmConfig = function(projectId, key) {
+      console.debug('newAlgorithmConfig', projectId, key);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/config/algo/' + key + '/new?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  algo = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // get process config
     this.getProcessConfig = function(projectId, id) {
       console.debug('getProcessConfig', projectId, id);
@@ -274,7 +297,14 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/' + processExecutionId + '/log?projectId=' + projectId).then(
+     
+      $http.get(processUrl + '/' + processExecutionId + '/log?projectId=' + projectId, {
+          transformResponse : [ function(response) {
+              // Data response is plain text at this point
+              // So just return it, or do your parsing here
+              return response;
+            } ]
+          }).then(
       // success
       function(response) {
         console.debug('  log = ', response.data);
@@ -384,13 +414,13 @@ tsApp.service('processService', [
     };
     
     // restart process
-    this.restartProcess = function(projectId, id) {
-      console.debug('restart process', projectId, id);
+    this.restartProcess = function(projectId, id, background) {
+      console.debug('restart process', projectId, id, background);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/execution/' + id + '/restart?projectId=' + projectId).then(
+      $http.get(processUrl + '/execution/' + id + '/restart?projectId=' + projectId + '&background=' + background).then(
       // success
       function(response) {
         console.debug('  restart = ', response.data);
@@ -436,7 +466,8 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http['delete'](processUrl + '/config/' + id + '/remove?projectId=' + projectId).then(
+      $http['delete'](processUrl + '/config/' + id + '/remove?projectId=' 
+    		  + projectId + '&cascade=true').then(
       // success
       function(response) {
         console.debug('  successful delete');
@@ -459,7 +490,8 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http['delete'](processUrl + '/execution/' + id + '/remove?projectId=' + projectId).then(
+      $http['delete'](processUrl + '/execution/' + id + '/remove?projectId=' 
+    		  + projectId + '&cascade=true').then(
       // success
       function(response) {
         console.debug('  remove process execution');
@@ -529,7 +561,7 @@ tsApp.service('processService', [
       // Get projects
       gpService.increment();
       $http.post(
-        processUrl + '/exec?projectId=' + projectId
+        processUrl + '/execution?projectId=' + projectId
           + (query ? '&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
         .then(
         // success
@@ -547,14 +579,14 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
-    // get process exec
-    this.getProcessExec = function(projectId, id) {
-      console.debug('getProcessExec', projectId, id);
+    // get process execution
+    this.getProcessExecution = function(projectId, id) {
+      console.debug('getProcessExecution', projectId, id);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/exec/' + id + '?projectId=' + projectId).then(
+      $http.get(processUrl + '/execution/' + id + '?projectId=' + projectId).then(
       // success
       function(response) {
         console.debug('  process = ', response.data);

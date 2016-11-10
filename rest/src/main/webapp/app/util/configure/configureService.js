@@ -1,9 +1,7 @@
 // Configure Service
 var configureUrl = 'configure';
 tsApp.service('configureService', [ '$rootScope', '$http', '$q', '$location', 'gpService',
-  'utilService',
-  function($rootScope, $http, $q, $location, gpService, utilService) {
-    console.debug("configure configureService");
+  'utilService', function($rootScope, $http, $q, $location, gpService, utilService) {
 
     // Configured status flag
     var configured = null;

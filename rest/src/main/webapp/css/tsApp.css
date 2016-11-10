@@ -12,10 +12,14 @@ hr {
 
 h5 {
 	font-weight: 500;
-	font-size :16px;
+	font-size: 16px;
 }
 
 /* Override the 8px default table td padding */
+.slim>tbody>tr>td {
+	padding: 2px;
+}
+
 .slim>tbody>tr>td {
 	padding: 2px;
 }
@@ -36,6 +40,13 @@ h5 {
 	padding-right: 2px;
 	padding-top: 4px;
 	padding-bottom: 4px;
+}
+
+.panel-heading {
+	padding-top: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 5px;
 }
 
 .minibtn {
@@ -235,6 +246,15 @@ h5 {
 	margin-bottom: 10px;
 }
 
+.mt5 {
+	margin-top: 5px;
+}
+
+.w100 {
+	width: 100%;
+	max-width: 100%;
+}
+
 .tab-disabled {
 	color: gray;
 	cursor: pointer;
@@ -373,7 +393,11 @@ h5 {
 
 /* Make the pagination control smaller so it works with btn-xs */
 .pagination-sm>li>a, .pagination-sm>li>span {
-    padding: 3px 5.5px;
-    font-size: 12px;
-    line-height: 1.5;
+	padding: 3px 5.5px;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.yscroll {
+	overflow-y: scroll;
 }

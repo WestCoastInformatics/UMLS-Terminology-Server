@@ -2,7 +2,7 @@
 <div class="row">
   <!-- Workflow -->
   <div class="col-md-12 col-xs-12">
-    <h5>
+    <h6>
       <span>
         Project: <select ng-model="selected.project"
           ng-show="lists.projects.length > 1"
@@ -17,12 +17,15 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
-    </h5>
+      <span
+        ng-show="!selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
+    </h6>
   </div>
   <div class="col-md-12 col-xs-12">
     <!-- Accordion -->
     <uib-accordion> <!-- A1 - Bins --> <uib-accordion-group
-      is-open="true"> <uib-accordion-heading>
+      is-open="groups[0].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Bins">Bins</span>
     </h5>
@@ -37,9 +40,12 @@
         </span>
         <button confirm="Are you sure you want to regenerate bins?"
           title="Regenerate bins" ng-click="regenerateBins()"
+          ng-show="hasPermissions('RegenerateBins')"
+          ng-disabled="!selected.project.editingEnabled"
           class="ml20 btn btn-xs btn-primary">R</button>
         <button confirm="Are you sure you want to recompute concept status?"
           title="Recompute concept status" ng-click="recomputeConceptStatus()"
+          ng-show="hasPermissions('RecomputeConceptStatus')"
           class="ml20 btn btn-xs btn-primary">S</button>
         <!--  consider buttons
         <i title="Regenerate bins"
@@ -133,11 +139,12 @@
                   ng-click="setConfig(selected.config); $event.stopPropagation()"
                   title="Refresh counts"
                   class="noul glyphicon glyphicon-refresh"></i>
-                <i ng-show="stats.clusterType != 'all' && bin.enabled"
+                <i ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
                 &nbsp;
-                <i ng-show="stats.clusterType != 'all' && bin.enabled"
+                <i ng-show="stats.clusterType != 'all' && bin.enabled && 
+                  selected.project.editingEnabled && hasPermissions('CreateWorklist')"
                   ng-click="openAddWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
                   title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
               </td>
@@ -154,7 +161,7 @@
         lists="lists" user="user" paging="paging"></div>
 
     </div>
-    </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group> <uib-accordion-heading>
+    </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group ng-click="saveAccordionStatus()" is-open="groups[1].open"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Checklists">Checklists
         ({{lists.checklistCt}})</span>
@@ -162,7 +169,7 @@
     </uib-accordion-heading>
     <div worklists-table type="Checklist" selected="selected" lists="lists"
       user="user"></div>
-    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group> <uib-accordion-heading>
+    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group ng-click="saveAccordionStatus()" is-open="groups[2].open"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Worklists">Worklists
         ({{lists.worklistCt}})</span>

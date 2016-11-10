@@ -17,6 +17,7 @@ tsApp.controller('AlgorithmModalCtrl', [
     $scope.action = action;
     $scope.algorithm = algorithm;
     $scope.project = selected.project;
+    $scope.steps = selected.process.steps;
     $scope.errors = [];
     $scope.messages = [];
 
@@ -27,9 +28,18 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
       });
     }
-    if ($scope.action == 'Add') {
-      $scope.algorithm = '';
-    }
+    else if ($scope.action == 'Add') {
+        processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType.key )
+          .then(
+          function(data) {
+            $scope.algorithm = data;
+            $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
+            $scope.algorithm.name = selected.algorithmConfigType.value + ' algorithm';
+            $scope.algorithm.description = selected.algorithmConfigType.value + ' description';
+            $scope.algorithm.terminology = selected.project.terminology;
+            $scope.algorithm.version = selected.project.version;
+          });
+      }
 
     // Update algorithm
     $scope.submitAlgorithm = function(algorithm) {
@@ -42,18 +52,18 @@ tsApp.controller('AlgorithmModalCtrl', [
         },
         // Error - update definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
 
       } else if (action == 'Add') {
-        processService.addAlgorithmConfig($scope.project.id, algorithm).then(
+        processService.addAlgorithmConfig($scope.project.id,  selected.process.id, algorithm).then(
         // Success - add definition
         function(data) {
           $uibModalInstance.close(algorithm);
         },
         // Error - add definition
         function(data) {
-          utilService.handleDialogError(errors, data);
+          utilService.handleDialogError($scope.errors, data);
         });
       }
 

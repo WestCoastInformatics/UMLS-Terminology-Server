@@ -56,6 +56,7 @@ tsApp.directive('finder', [ function() {
         // Finder modal controller
         var FinderModalCtrl = function($scope, $uibModalInstance, utilService, metadataService,
           contentService, selected, lists, type, callbacks) {
+          console.debug("configure FinderModalCtrl");
 
           // Scope vars
           $scope.type = type;

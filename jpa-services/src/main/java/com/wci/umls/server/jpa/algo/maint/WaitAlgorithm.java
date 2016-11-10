@@ -96,23 +96,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
         "num", "Number of times the algorithm will run", "e.g. 5", 10,
         AlgorithmParameter.Type.INTEGER);
     params.add(param);
-    param = new AlgorithmParameterJpa("Test boolean",
-        "boo", "Test boolean description", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN);
-    params.add(param);
-    param = new AlgorithmParameterJpa("Test text",
-        "tex", "Test text description", "e.g. abcabc", 0,
-        AlgorithmParameter.Type.TEXT);
-    params.add(param);
-    param = new AlgorithmParameterJpa("Test enum",
-        "enu", "Test enum description", "e.g. enum", 0,
-        AlgorithmParameter.Type.ENUM);
-    List<String> valueList = new ArrayList<>();
-    valueList.add("option1");
-    valueList.add("option2");
-    valueList.add("option3");
-    param.setPossibleValues(valueList);
-    params.add(param);
+    
     return params;
   }
 

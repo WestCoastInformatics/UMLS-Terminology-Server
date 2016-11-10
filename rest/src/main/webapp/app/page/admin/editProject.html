@@ -44,7 +44,7 @@
             <b>Terminology</b>
           </td>
           <td>
-            <input class="input-filter" placeholder="Enter terminology"
+            <input  placeholder="Enter terminology"
               ng-change="setTerminology(project.terminology)" type="text"
               ng-model="project.terminology" list="project-terminologies">
             <datalist id="project-terminologies">
@@ -60,7 +60,7 @@
             <b>Version</b>
           </td>
           <td>
-            <input class="input-filter" placeholder="Enter version"
+            <input placeholder="Enter version"
               ng-blur="setVersion(project.version)" type="text"
               ng-model="project.version">
           </td>
@@ -77,6 +77,25 @@
             </span>
             <span>{{project.language}}</span>
           </td>
+        </tr>
+        <tr>
+        <td>
+          <b>Editing enabled</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="project.editingEnabled"
+            title="Project is editable.">
+        </td>
+        </tr>
+
+        <tr>
+        <td>
+          <b>Automations enabled</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="project.automationsEnabled"
+            title="Automations enabled.">
+        </td>
         </tr>
       </table>
     </div>

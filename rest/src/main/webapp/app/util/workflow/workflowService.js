@@ -7,7 +7,6 @@ tsApp.service('workflowService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-    console.debug('configure workflowService');
 
     this.getRecordTypes = function() {
       return [ 'N', 'R' ];

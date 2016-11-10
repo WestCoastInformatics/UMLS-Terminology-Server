@@ -10,7 +10,6 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
     },
     templateUrl : 'app/component/atoms/atoms.html',
     link : function(scope, element, attrs) {
-      console.debug('configure atoms directive');
 
       scope.expanded = {};
       scope.showing = true;

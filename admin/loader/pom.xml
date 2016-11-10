@@ -37,6 +37,8 @@
     <input.file></input.file>
     <!-- Whether to run against server (default false) -->
     <server>false</server>
+    <!-- Set to 'true' for loaders into dbs for editing, false for browsers -->
+    <edit.mode>false</edit.mode>
     <!-- Set to 'create' for loaders if db should be reset -->
     <mode></mode>
     <!-- Prefix for RRF -->
@@ -105,7 +107,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <!-- Load RRF UMLS, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>RRF-umls</id>
@@ -128,6 +130,7 @@
                   <prefix>${prefix}</prefix>
                   <inputDir>${input.dir}</inputDir>
                   <server>${server}</server>
+                  <editMode>${edit.mode}</editMode>
                   <mode>${mode}</mode>
                 </configuration>
               </execution>

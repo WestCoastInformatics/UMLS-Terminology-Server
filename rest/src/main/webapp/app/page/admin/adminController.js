@@ -49,6 +49,18 @@ tsApp
           terminologies : []
         }
 
+        // Accordion Groups
+        $scope.groups = [ {
+          title : "Projects",
+          open : false
+        }, {
+          title : "Users",
+          open : false
+        }, {
+          title : "User Preferences",
+          open : false
+        } ];
+
         // Track user preferences changes
         $scope.changed = {
           feedbackEmail : false
@@ -95,11 +107,8 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          var query = 'userRoleMap:' + $scope.user.userName + 'ADMINISTRATOR';
-          // no restrictions for application admin
-          if ($scope.user.applicationRole == 'ADMINISTRATOR') {
-            query = '';
-          }
+          
+          var query = '';
           projectService.findProjects(query, pfs).then(function(data) {
             $scope.lists.projects = data.projects;
             $scope.lists.projects.totalCount = data.totalCount;
@@ -172,11 +181,13 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          projectService.findAssignedUsersForProject($scope.selected.project.id, '', pfs).then(
-            function(data) {
-              $scope.lists.assignedUsers = data.users;
-              $scope.lists.assignedUsers.totalCount = data.totalCount;
-            });
+          if ($scope.selected.project) {
+            projectService.findAssignedUsersForProject($scope.selected.project.id, '', pfs).then(
+              function(data) {
+                $scope.lists.assignedUsers = data.users;
+                $scope.lists.assignedUsers.totalCount = data.totalCount;
+              });
+          }
 
         }
 
@@ -195,12 +206,14 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          var query = '(applicationRole:USER OR applicationRole:ADMINISTRATOR)';
-          projectService.findUnassignedUsersForProject($scope.selected.project.id, query, pfs)
-            .then(function(data) {
-              $scope.lists.unassignedUsers = data.users;
-              $scope.lists.unassignedUsers.totalCount = data.totalCount;
-            });
+          if ($scope.selected.project) {
+            var query = '(applicationRole:USER OR applicationRole:ADMINISTRATOR)';
+            projectService.findUnassignedUsersForProject($scope.selected.project.id, query, pfs)
+              .then(function(data) {
+                $scope.lists.unassignedUsers = data.users;
+                $scope.lists.unassignedUsers.totalCount = data.totalCount;
+              });
+          }
         }
 
         // Get $scope.lists.applicationRoles
@@ -216,6 +229,10 @@ tsApp
             $scope.lists.projectRoles = data.strings;
           });
         };
+        
+        $scope.hasPermissions = function(action) {
+          return securityService.hasPermissions(action);
+        }
 
         // Sets the selected project
         $scope.setProject = function(project) {
@@ -379,7 +396,13 @@ tsApp
         $scope.resetUserPreferences = function(user) {
           securityService.resetUserPreferences(user);
         }
-        
+
+        $scope.saveAccordionStatus = function() {
+          console.debug('saveAccordionStatus', $scope.groups);
+          $scope.user.userPreferences.properties['adminGroups'] = JSON.stringify($scope.groups);
+          securityService.updateUserPreferences($scope.user.userPreferences);
+        }
+
         //
         // MODALS
         //
@@ -617,6 +640,12 @@ tsApp
           // Handle users with user preferences
           if ($scope.user.userPreferences) {
             $scope.configureTab();
+          }
+
+          if ($scope.user.userPreferences.properties['adminGroups']) {
+            var savedAdminGroups = JSON
+              .parse($scope.user.userPreferences.properties['adminGroups']);
+            angular.copy(savedAdminGroups, $scope.groups);
           }
         };
 

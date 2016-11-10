@@ -97,6 +97,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfigJpa.setProject(project);
     processConfigJpa.setTerminology(umlsTerminology);
     processConfigJpa.setVersion(umlsVersion);
+    processConfigJpa.setType("MAINTAINENCE");
     processConfigJpa = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfigJpa, authToken);
     processConfig = processService.getProcessConfig(project.getId(),
@@ -121,6 +122,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig1.setProject(project);
     processConfig1.setTerminology(umlsTerminology);
     processConfig1.setVersion(umlsVersion);
+    processConfig1.setType("MAINTAINENCE");
     ProcessConfigJpa addedProcessConfig1 = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfig1, authToken);
 
@@ -146,6 +148,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig2.setProject(project);
     processConfig2.setTerminology(umlsTerminology);
     processConfig2.setVersion(umlsVersion);
+    processConfig2.setType("MAINTAINENCE");
     ProcessConfigJpa addedProcessConfig2 = (ProcessConfigJpa) processService
         .addProcessConfig(project.getId(), processConfig2, authToken);
 
@@ -208,7 +211,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig1.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig1 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
-            algorithmConfig1, authToken);
+            processConfig.getId(), algorithmConfig1, authToken);
 
     // TEST: retrieve the algorithmConfig and verify it is equal
     assertEquals(algorithmConfig1, addedAlgorithmConfig1);
@@ -236,7 +239,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig2 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
-            algorithmConfig2, authToken);
+            processConfig.getId(), algorithmConfig2, authToken);
 
     // Confirm the processConfig contains both algorithmConfigs
     ProcessConfig pc = processService.getProcessConfig(project.getId(),
@@ -374,6 +377,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig.setTerminology(umlsTerminology);
     processConfig.setVersion(umlsVersion);
     processConfig.setTimestamp(new Date());
+    processConfig.setType("MAINTAINENCE");
     processConfig = processService.addProcessConfig(project.getId(),
         (ProcessConfigJpa) processConfig, authToken);
 
@@ -399,7 +403,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -420,7 +424,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 
@@ -505,11 +509,12 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Process for testing use - long");
     processConfig2.setFeedbackEmail(null);
-    processConfig2.setName("Long Test Process");
+    processConfig2.setName("Long Test Process for Cancel and Restart");
     processConfig2.setProject(project);
     processConfig2.setTerminology(umlsTerminology);
     processConfig2.setVersion(umlsVersion);
     processConfig2.setTimestamp(new Date());
+    processConfig2.setType("MAINTAINENCE");
     processConfig2 = processService.addProcessConfig(project.getId(),
         (ProcessConfigJpa) processConfig2, authToken);
 
@@ -535,7 +540,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig2.getSteps().add(algorithmConfig);
 
@@ -556,7 +561,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig2.getSteps().add(algorithmConfig2);
 
@@ -740,6 +745,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig.setTerminology(umlsTerminology);
     processConfig.setVersion(umlsVersion);
     processConfig.setTimestamp(new Date());
+    processConfig.setType("MAINTAINENCE");
     processConfig = processService.addProcessConfig(project.getId(),
         (ProcessConfigJpa) processConfig, authToken);
 
@@ -756,7 +762,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setVersion(umlsVersion);
     algorithmConfig.setParameters(new ArrayList<AlgorithmParameter>());
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -833,6 +839,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     processConfig.setTerminology(umlsTerminology);
     processConfig.setVersion(umlsVersion);
     processConfig.setTimestamp(new Date());
+    processConfig.setType("MAINTAINENCE");
     processConfig = processService.addProcessConfig(project.getId(),
         (ProcessConfigJpa) processConfig, authToken);
 
@@ -858,7 +865,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
 
     processConfig.getSteps().add(algorithmConfig);
 
@@ -879,7 +886,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 
@@ -949,7 +956,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       processService.removeProcessConfig(project.getId(), processConfig.getId(),
           true, authToken);
     }
-    if (processConfig2 != null) {
+    if (processConfig2 != null && processConfig2.getId()!=null) {
       processService.removeProcessConfig(project.getId(),
           processConfig2.getId(), true, authToken);
     }

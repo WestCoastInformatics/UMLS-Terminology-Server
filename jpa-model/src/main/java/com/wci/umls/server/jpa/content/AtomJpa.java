@@ -33,6 +33,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -138,6 +139,15 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = false)
   private WorkflowStatus workflowStatus;
 
+  /** The last published rank. */
+  @Column(nullable = true)
+  private String lastPublishedRank;
+
+  /** The notes. */
+  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class)
+  @IndexedEmbedded(targetElement = AtomNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
+  
   /**
    * Instantiates an empty {@link AtomJpa}.
    */
@@ -173,6 +183,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     setName(atom.getName());
     termType = atom.getTermType();
     workflowStatus = atom.getWorkflowStatus();
+    lastPublishedRank = atom.getLastPublishedRank();
 
     if (collectionCopy) {
       definitions = new ArrayList<>(atom.getDefinitions());
@@ -467,7 +478,36 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public void setComponentHistory(List<ComponentHistory> componentHistory) {
     this.componentHistories = componentHistory;
   }
+  
+  /* see superclass */
+  @Override
+  public String getLastPublishedRank() {
+	return lastPublishedRank;
+  }
+  
+  /* see superclass */
+  @Override
+  public void setLastPublishedRank(String lastPublishedRank) {
+	this.lastPublishedRank = lastPublishedRank;
+  }
 
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {    
+    this.notes = notes;
+
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AtomNoteJpa.class)
+  public List<Note> getNotes() {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>(1);
+    }
+    return this.notes;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -482,6 +522,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     result = prime * result
         + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
+    result = prime * result + ((lastPublishedRank == null) ? 0 : lastPublishedRank.hashCode());
     return result;
   }
 
@@ -529,6 +570,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         return false;
     } else if (!termType.equals(other.termType))
       return false;
+    if (lastPublishedRank == null) {
+        if (other.lastPublishedRank != null)
+          return false;
+      } else if (!lastPublishedRank.equals(other.lastPublishedRank))
+        return false;
     return true;
   }
 
@@ -541,7 +587,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + descriptorId + ", conceptId=" + conceptId + ", language=" + language
         + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
         + stringClassId + ", termType=" + termType + ", workflowStatus="
-        + workflowStatus + "] - " + super.toString();
+        + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - " + super.toString();
   }
 
 }

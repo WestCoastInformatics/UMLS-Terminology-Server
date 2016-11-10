@@ -1,8 +1,6 @@
 tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstance, $sce,
   contentService, utilService, websocketService, component) {
 
-  console.debug('component notes modal opened', component);
-
   // Component wrapper or full component
   $scope.component = component;
   $scope.tinymceOptions = utilService.tinymceOptions;

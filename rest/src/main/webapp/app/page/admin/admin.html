@@ -13,9 +13,9 @@
     <uib-accordion
       ng-show="user.applicationRole == 'ADMINISTRATOR' || user.applicationRole == 'USER'">
 
-    <!-- A1 - Projects --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- A1 - Projects --> <uib-accordion-group is-open="groups[0].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Add, edit, and remove projects">Projects</span>
+      <span uib-tooltip="Add, edit, and remove projects">{{groups[0].title}}</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
@@ -34,7 +34,7 @@
                 ng-bind="getSortIndicator('project','name')"></span></th>
             <th class="col-md-4 col-xs-4">Description</th>
 
-            <th class="col-md-1 col-xs-1"><span style="float: right;">
+            <th class="col-md-1 col-xs-1"><span style="float: right;" ng-show="hasPermissions('EditProjectOrUser')">
                 <button ng-click="openAddProjectModal()" title="Add project"
                   class="btn btn-xs btn-primary">Add Project</button>
               </span></th>
@@ -49,10 +49,12 @@
             <td class="nobreak">
 
               <i ng-click="openEditProjectModal(proj); $event.stopPropagation()"
+                ng-show="hasPermissions('EditProjectOrUser')"
                 title="Edit" class="noul glyphicon glyphicon-pencil"></i>
 
               <i
                 confirm="Are you sure you want to remove the project ({{proj.name}})?"
+                ng-show="hasPermissions('EditProjectOrUser')"
                 ng-click="removeProject(proj); $event.stopPropagation()"
                 title="Delete" class="noul glyphicon glyphicon-trash"></i>
               <span log selected="{ project : proj }" type="Project"></span>
@@ -71,9 +73,9 @@
     <!--  end A2 - Projects --> </uib-accordion-group>
     <div></div>
 
-    <!-- Accordion 2 - Users --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- Accordion 2 - Users --> <uib-accordion-group is-open="groups[1].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Add, edit, and remove users"> Users </span>
+      <span uib-tooltip="Add, edit, and remove users"> {{groups[1].title}} </span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-12 col-xs-12">
@@ -96,7 +98,7 @@
               ng-click="setSortField('user','applicationRole')">Application
               Role<span ng-bind="getSortIndicator('user','applicationRole')"></span>
             </th>
-            <th class="col-md-1 col-xs-1"><span style="float: right;">
+            <th class="col-md-1 col-xs-1"><span style="float: right;" ng-show="hasPermissions('EditProjectOrUser')">
                 <button ng-click="openAddUserModal()" title="Add user"
                   class="btn btn-xs btn-primary">Add User</button>
               </span></th>
@@ -111,10 +113,12 @@
 
             <td class="nobreak">
               <i ng-click="openEditUserModal(user); $event.stopPropagation()"
+                ng-show="hasPermissions('EditProjectOrUser')"
                 title="Edit" class="noul glyphicon glyphicon-pencil"></i>
               <i
                 confirm="Are you sure you want to remove the user ({{user.userName}})?"
                 ng-click="removeUser(user); $event.stopPropagation()"
+                ng-show="hasPermissions('EditProjectOrUser')"
                 title="Delete" class="noul glyphicon glyphicon-trash"></i>
             </td>
           </tr>
@@ -131,9 +135,9 @@
     <!--  end A2 Users --> </uib-accordion-group>
     <div></div>
 
-    <!-- A3 - User Preferences --> <uib-accordion-group> <uib-accordion-heading>
+    <!-- A3 - User Preferences --> <uib-accordion-group is-open="groups[2].open" ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Manage user preferences"> User Preferences </span>
+      <span uib-tooltip="Manage user preferences"> {{groups[2].title}} </span>
     </h5>
     </uib-accordion-heading> <!--  end A3 User Prefs-->
 
@@ -155,11 +159,11 @@
           ng-click="resetUserPreferences(user)"
           title="Reset user preferences to defaults">Reset Preferences</button>
       </div>
-      <div class="col-md-12 col-xs-12">
+      <div class="mt5 col-md-12 col-xs-12">
         <b>Default Project Settings</b>
       </div>
       <div class="col-md-12 col-xs-12">
-        <table class="slim table pointer">
+        <table class="table pointer">
           <thead>
             <tr>
               <th class="col-md-3 col-xs-3"></th>

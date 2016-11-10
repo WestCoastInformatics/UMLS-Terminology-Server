@@ -1,43 +1,72 @@
 <div class="modal-header">
-  <h4>{{action}} Algorithm</h4>
-  <h5>{{algorithm.name}}</h5>
-  <h5>{{algorithm.description}}</h5>
-  <h5>{{algorithm.algorithmKey}}</h5>
+  <h4>{{action}} {{algorithm.name}}</h4>
 </div>
 
 <div class="modal-body">
   <table class="table">
-    <tr ng-repeat="parameter in algorithm.parameters">
-      <td>
-        <b>{{parameter.name}}</b>
-      </td>
-      <td ng-show="parameter.type == 'STRING' || parameter.type == 'TEXT'">
-        <input type="text" ng-model="parameter.value" size="60" uib-tooltip="{{parameter.description}}"
-        placeholder="{{parameter.placeholder}}" />
-      </td>
-      <td ng-show="parameter.type == 'BOOLEAN'">
-        <input type="checkbox" string-to-boolean ng-model="parameter.value" uib-tooltip="{{parameter.description}}">
-      </td>
-      <td ng-show="parameter.type == 'MULTI'">
-        <span uib-tooltip="{{parameter.description}}">
-          <select multiple ng-model="parameter.values"
-            ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
-        </span>
-      </td>
-      <td ng-show="parameter.type == 'INTEGER'"> 
-        <input type="number" string-to-number size="4" ng-model="parameter.value"
-          placeholder="{{parameter.placeholder}}" uib-tooltip="{{parameter.description}}"/>
-      </td>
-      <td ng-show="parameter.type == 'ENUM'">
-        <span uib-tooltip="{{parameter.description}}">
-          <select ng-model="parameter.value"
-            ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
-        </span>
-      </td>
-    </tr>
-    
-    
- 
+    <tbody>
+      <tr>
+        <td class="col-md-3 col-xs-3">
+          <b>Name</b>
+        </td>
+        <td class="col-md-9 col-xs-9">
+          <span ng-if="action == 'Edit'">{{algorithm.name}}</span>
+          <span ng-if="action == 'Add'">
+            <input type="text" ng-model="algorithm.name" size="40" />
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <span ng-if="action == 'Edit'">{{algorithm.description}}</span>
+          <span ng-if="action == 'Add'">
+            <input type="text" ng-model="algorithm.description" size="40" />
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Key</b>
+        </td>
+        <td>{{algorithm.algorithmKey}}</td>
+      </tr>
+
+      <tr ng-repeat="parameter in algorithm.parameters">
+        <td>
+          <b>{{parameter.name}}</b>
+        </td>
+        <td ng-show="parameter.type == 'STRING' || parameter.type == 'TEXT'">
+          <input type="text" ng-model="parameter.value" size="60"
+            uib-tooltip="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}" />
+        </td>
+        <td ng-show="parameter.type == 'BOOLEAN'">
+          <input type="checkbox" string-to-boolean ng-model="parameter.value"
+            uib-tooltip="{{parameter.description}}">
+        </td>
+        <td ng-show="parameter.type == 'MULTI'">
+          <span uib-tooltip="{{parameter.description}}">
+            <select multiple ng-model="parameter.values"
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
+          </span>
+        </td>
+        <td ng-show="parameter.type == 'INTEGER'">
+          <input type="number" string-to-number size="4"
+            ng-model="parameter.value" placeholder="{{parameter.placeholder}}"
+            uib-tooltip="{{parameter.description}}" />
+        </td>
+        <td ng-show="parameter.type == 'ENUM'">
+          <span uib-tooltip="{{parameter.description}}">
+            <select ng-model="parameter.value"
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
+          </span>
+        </td>
+      </tr>
+      
+    </tbody>
   </table>
 
   <!-- Errors -->

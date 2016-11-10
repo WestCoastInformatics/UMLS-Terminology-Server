@@ -208,8 +208,8 @@ public class AddDemotionTest extends IntegrationUnitSupport {
     concept2 = contentService.getConcept(concept2.getId());
   }
 
-  //TODO - make integration tests for UNDO/REDO
-  
+  // TODO - make integration tests for UNDO/REDO
+
   /**
    * /** Test normal use of the helper object.
    *
@@ -248,7 +248,7 @@ public class AddDemotionTest extends IntegrationUnitSupport {
       action.setAtom2(atom2);
 
       // Perform the action
-      validationResult = action.performMolecularAction(action);
+      validationResult = action.performMolecularAction(action, "admin");
 
     } catch (Exception e) {
       action.rollback();
@@ -348,7 +348,6 @@ public class AddDemotionTest extends IntegrationUnitSupport {
     assertNotNull(atomicActions.get(7).getOldValue());
     assertNotNull(atomicActions.get(7).getNewValue());
 
-
   }
 
   /*
@@ -389,7 +388,7 @@ public class AddDemotionTest extends IntegrationUnitSupport {
     contentService = new ContentServiceJpa();
     contentService.setLastModifiedBy("admin");
     contentService.setMolecularActionFlag(false);
-    
+
     if (concept != null && contentService.getConcept(concept.getId()) != null) {
       contentService.removeConcept(concept.getId());
     }
@@ -397,9 +396,10 @@ public class AddDemotionTest extends IntegrationUnitSupport {
         && contentService.getConcept(concept2.getId()) != null) {
       contentService.removeConcept(concept2.getId());
     }
-    //Remove demotions from Atoms
-    if (atom != null && contentService.getAtom(atom.getId()) != null) {      
-      for (AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+    // Remove demotions from Atoms
+    if (atom != null && contentService.getAtom(atom.getId()) != null) {
+      for (AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom.getRelationships())) {
         atom.getRelationships().remove(atomRel);
         contentService.updateAtom(atom);
 
@@ -408,7 +408,8 @@ public class AddDemotionTest extends IntegrationUnitSupport {
       }
     }
     if (atom2 != null && contentService.getAtom(atom2.getId()) != null) {
-      for (AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom2.getRelationships())) {
+      for (AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom2.getRelationships())) {
         atom2.getRelationships().remove(atomRel);
         contentService.updateAtom(atom2);
 
@@ -417,12 +418,12 @@ public class AddDemotionTest extends IntegrationUnitSupport {
 
       }
     }
-    //Once all demotions are gone, remove the atoms
-    if (atom != null && contentService.getAtom(atom.getId()) != null) { 
+    // Once all demotions are gone, remove the atoms
+    if (atom != null && contentService.getAtom(atom.getId()) != null) {
       contentService.removeAtom(atom.getId());
     }
-    if (atom2 != null && contentService.getAtom(atom2.getId()) != null) {   
-      contentService.removeAtom(atom2.getId());   
+    if (atom2 != null && contentService.getAtom(atom2.getId()) != null) {
+      contentService.removeAtom(atom2.getId());
     }
   }
 

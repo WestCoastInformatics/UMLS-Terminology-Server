@@ -177,6 +177,9 @@ tsApp.controller('EditProjectModalCtrl', [
         }
       }
     }
+    if (action == 'Add') {
+      $scope.project.editingEnabled = true;
+    }
 
     // end
   } ]);

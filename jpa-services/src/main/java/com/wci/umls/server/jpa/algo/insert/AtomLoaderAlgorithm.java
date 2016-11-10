@@ -1,25 +1,13 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo;
+package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -27,8 +15,8 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -50,10 +38,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import atoms.
  */
-public class AtomLoaderAlgorithm extends AbstractAlgorithm {
-
-  /** The directory (relative to source.data.dir). */
-  private String directory = null;
+public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -68,46 +53,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   private int stepsCompleted;
 
   /**
-   * The aui ID map. Key = AlternateTerminologyId Value = atomJpa Id
-   */
-  private Map<String, Long> auiIdMap = new HashMap<>();
-
-  /**
-   * The loaded termTypes. Key = abbreviation Value = TermType object
-   */
-  private Map<String, TermType> loadedTermTypes =
-      new HashMap<String, TermType>();
-
-  /**
-   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
-   * if Version = "latest") Value = Terminology object
-   */
-  private Map<String, Terminology> loadedTerminologies =
-      new HashMap<String, Terminology>();
-
-  /**
-   * The code ID map. Key = CodeJpa.TerminologyId Value = CodeJpa.Id
-   */
-  private Map<String, Long> codeIdMap = new HashMap<String, Long>();
-
-  /**
-   * The concept ID map. Key = ConceptJpa.TerminologyId Value = ConceptJpa.Id
-   */
-  private Map<String, Long> conceptIdMap = new HashMap<String, Long>();
-
-  /**
-   * The descriptor ID map. Key = DescriptorJpa.TerminologyId Value =
-   * DescriptorJpa.Id
-   */
-  private Map<String, Long> descriptorIdMap = new HashMap<String, Long>();
-
-  /**
-   * Set containing the name of all terminologies referenced in the
-   * classes_atoms.src file
-   */
-  private Set<String> allTerminologiesFromInsertion = new HashSet<>();
-
-  /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
    */
@@ -116,15 +61,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     setActivityId(UUID.randomUUID().toString());
     setWorkId("ATOMLOADER");
     setLastModifiedBy("admin");
-  }
-
-  /**
-   * Sets the directory.
-   *
-   * @param directory the directory
-   */
-  public void setDirectory(String directory) {
-    this.directory = directory;
   }
 
   /**
@@ -142,15 +78,12 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     if (getProject() == null) {
       throw new Exception("Atom Loading requires a project to be set");
     }
-    if (directory == null) {
-      throw new Exception("Atom Loading requires a directory to be set.");
-    }
 
     // Check the input directories
 
     String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + directory;
+            + File.separator + getProcess().getInputPath();
 
     srcDirFile = new File(srcFullPath);
     if (!srcDirFile.exists()) {
@@ -158,44 +91,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     }
 
     return validationResult;
-  }
-
-  /**
-   * Load file into string list.
-   *
-   * @param fileName the file name
-   * @param startsWithFilter the starts with filter
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<String> loadFileIntoStringList(String fileName,
-    String startsWithFilter) throws Exception {
-    String sourcesFile =
-        srcDirFile + File.separator + "src" + File.separator + fileName;
-    BufferedReader sources = null;
-    try {
-      sources = new BufferedReader(new FileReader(sourcesFile));
-    } catch (Exception e) {
-      throw new Exception("File not found: " + sourcesFile);
-    }
-
-    List<String> lines = new ArrayList<>();
-    String linePre = null;
-    while ((linePre = sources.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
-      // Filter rows if defined
-      if (ConfigUtility.isEmpty(startsWithFilter)) {
-        lines.add(linePre);
-      } else {
-        if (linePre.startsWith(startsWithFilter)) {
-          lines.add(linePre);
-        }
-      }
-    }
-
-    sources.close();
-
-    return lines;
   }
 
   /**
@@ -226,18 +121,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList("classes_atoms.src", null);
-
-      logInfo("[AtomLoader] Loading associated resources");
-
-      // Cache all currently existing objects
-      cacheExistingTermTypes();
-      cacheExistingTerminologies();
-      identifyAllTerminologiesFromInsertion(lines);
-      cacheExistingCodes();
-      cacheExistingConcepts();
-      cacheExistingDescriptors();
-      cacheExistingAtoms();
+      List<String> lines = loadFileIntoStringList(srcDirFile, "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
 
@@ -300,7 +184,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology() + "-SRC", fields[0]);
         }
-        Terminology term = loadedTerminologies.get(fields[1]);
+        Terminology term = getCachedTerminology(fields[1]);
         if (term == null) {
           throw new Exception(
               "ERROR: lookup for " + fields[1] + " returned no terminology");
@@ -351,20 +235,37 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         String newAtomAui = handler.getTerminologyId(newAtom);
 
         // Check to see if atom with matching AUI already exists in the database
-        Long oldAtomId = auiIdMap.get(newAtomAui);
+        Long oldAtomId =
+            getId(AtomJpa.class, newAtomAui, newAtom.getTerminology());
 
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
         if (oldAtomId == null) {
           newAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newAtomAui);
+              .put(getProject().getTerminology(), newAtomAui);
           newAtom = addAtom(newAtom);
 
-          // TODO - create concept, with terminology=project.getTerminology, and
-          // version=project.getVersion(), and add the atom into it
+          // Create a new concept to store the atom
+          Concept newConcept = new ConceptJpa();
+          newConcept.setTerminology(getProject().getTerminology());
+          newConcept.setTerminologyId("");
+          newConcept.setVersion(getProject().getVersion());
+          newConcept.setObsolete(newAtom.isObsolete());
+          newConcept.setSuppressible(newAtom.isSuppressible());
+          newConcept.setPublishable(newAtom.isPublishable());
+          newConcept.setPublished(newAtom.isPublished());
+          newConcept.getAtoms().add(newAtom);
+          newConcept.setName(newAtom.getName());
+          newConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          newConcept = addConcept(newConcept);
+
+          // Set the terminology Id
+          newConcept.setTerminologyId(newConcept.getId().toString());
+          updateConcept(newConcept);
 
           addCount++;
-          auiIdMap.put(newAtomAui, newAtom.getId());
+          putId(AtomJpa.class, newAtom.getTerminology(), newAtomAui,
+              newAtom.getId());
 
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom);
@@ -376,9 +277,18 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
           boolean oldAtomChanged = false;
 
-          // Create an "alternateTerminologyId" for the atom
-          oldAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-SRC", newAtomAui);
+          // Update "alternateTerminologyIds"
+          final Map<String,String> altTermIds = oldAtom.getAlternateTerminologyIds();
+          if(!altTermIds.containsKey(getProject().getTerminology() + "-SRC")){
+            oldAtom.getAlternateTerminologyIds()
+            .put(getProject().getTerminology() + "-SRC", fields[0]);
+            oldAtomChanged = true;
+          }
+          if(!altTermIds.containsKey(getProject().getTerminology() + "-ORDER")){
+            oldAtom.getAlternateTerminologyIds()
+            .put(getProject().getTerminology() + "-ORDER", fields[13]);
+            oldAtomChanged = true;
+          }          
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
@@ -393,7 +303,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
             // If the old version of the atom is suppresible, and its term type
             // is not, keep the old atom's suppresibility. Otherwise, use the
             // new Atom's suppresible value.
-            TermType atomTty = loadedTermTypes.get(oldAtom.getTermType());
+            TermType atomTty = getCachedTermType(oldAtom.getTermType());
             if (oldAtom.isSuppressible() != newAtom.isSuppressible()
                 && !(oldAtom.isSuppressible() && !atomTty.isSuppressible())) {
               oldAtom.setSuppressible(newAtom.isSuppressible());
@@ -417,7 +327,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
             RootService.logCt, RootService.commitCt);
-        handler.commitClearBegin();
+        handler.logAndCommit("[Atom Loader] Atom identities processed ",
+            stepsCompleted, RootService.logCt, RootService.commitCt);
 
       }
 
@@ -454,9 +365,10 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {
 
-      if (codeIdMap.containsKey(atom.getCodeId() + atom.getTerminology())) {
-        final Code code =
-            getCode(codeIdMap.get(atom.getCodeId() + atom.getTerminology()));
+      Long existingCodeId =
+          getId(CodeJpa.class, atom.getCodeId(), atom.getTerminology());
+      if (existingCodeId != null) {
+        final Code code = getCode(existingCodeId);
         code.getAtoms().add(atom);
         code.setVersion(atom.getVersion());
         updateCode(code);
@@ -478,7 +390,7 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         code.getAtoms().add(atom);
         addCode(code);
-        codeIdMap.put(code.getTerminologyId() + code.getTerminology(),
+        putId(CodeJpa.class, code.getTerminologyId(), code.getTerminology(),
             code.getId());
       }
     }
@@ -486,10 +398,10 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
     // Check map to see if concept already exists
     if (!atom.getConceptId().isEmpty()) {
 
-      if (conceptIdMap
-          .containsKey(atom.getConceptId() + atom.getTerminology())) {
-        final Concept concept = getConcept(
-            conceptIdMap.get(atom.getConceptId() + atom.getTerminology()));
+      Long existingConceptId =
+          getId(ConceptJpa.class, atom.getConceptId(), atom.getTerminology());
+      if (existingConceptId != null) {
+        final Concept concept = getConcept(existingConceptId);
         concept.getAtoms().add(atom);
         concept.setVersion(atom.getVersion());
         updateConcept(concept);
@@ -511,17 +423,17 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         concept.getAtoms().add(atom);
         addConcept(concept);
-        conceptIdMap.put(concept.getTerminologyId() + concept.getTerminology(),
-            concept.getId());
+        putId(ConceptJpa.class, concept.getTerminologyId(),
+            concept.getTerminology(), concept.getId());
       }
     }
     // Check map to see if descriptor already exists
     if (!atom.getDescriptorId().isEmpty()) {
 
-      if (descriptorIdMap
-          .containsKey(atom.getDescriptorId() + atom.getTerminology())) {
-        final Descriptor descriptor = getDescriptor(descriptorIdMap
-            .get(atom.getDescriptorId() + atom.getTerminology()));
+      Long existingDescriptorId = getId(DescriptorJpa.class,
+          atom.getDescriptorId(), atom.getTerminology());
+      if (existingDescriptorId != null) {
+        final Descriptor descriptor = getDescriptor(existingDescriptorId);
         descriptor.getAtoms().add(atom);
         descriptor.setVersion(atom.getVersion());
         updateDescriptor(descriptor);
@@ -543,9 +455,8 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
 
         descriptor.getAtoms().add(atom);
         addDescriptor(descriptor);
-        descriptorIdMap.put(
-            descriptor.getTerminologyId() + descriptor.getTerminology(),
-            descriptor.getId());
+        putId(DescriptorJpa.class, descriptor.getTerminologyId(),
+            descriptor.getTerminology(), descriptor.getId());
       }
     }
   }
@@ -559,176 +470,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Identify all terminologies from insertion.
-   *
-   * @param lines the lines
-   * @throws Exception the exception
-   */
-  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-    throws Exception {
-
-    String fields[] = new String[15];
-    steps = lines.size();
-    stepsCompleted = 0;
-
-    for (String line : lines) {
-
-      FieldedStringTokenizer.split(line, "|", 15, fields);
-
-      // For the purpose of this method, all we care about is fields[1]: source
-      final String terminology = fields[1].contains("_")
-          ? fields[1].substring(0, fields[1].indexOf('_')) : fields[1];
-
-      allTerminologiesFromInsertion.add(terminology);
-    }
-  }
-
-  /**
-   * Cache existing atoms' AUIs and IDs.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingAtoms() throws Exception {
-
-    int iteration = 0;
-    int batchSize = 10000;
-
-    String queryStr =
-        // "select alternateTerminologyIds, AtomJpa_id from
-        // atomjpa_alternateterminologyids";
-        "select b.alternateTerminologyIds, a.id from atoms a join atomjpa_alternateterminologyids b where a.id = b.AtomJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[AtomLoader] Loading atom AUIs from database: "
-          + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        auiIdMap.put(result[0].toString(), Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-  }
-
-  /**
-   * Cache existing termTypes.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTermTypes() throws Exception {
-
-    for (final TermType tty : getTermTypes(getProject().getTerminology(),
-        getProject().getVersion()).getObjects()) {
-      // lazy init
-      tty.getNameVariantType().toString();
-      tty.getCodeVariantType().toString();
-      tty.getStyle().toString();
-      loadedTermTypes.put(tty.getAbbreviation(), tty);
-    }
-  }
-
-  /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingTerminologies() throws Exception {
-
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
-        loadedTerminologies.put(term.getTerminology(), term);
-      } else {
-        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-      }
-    }
-  }
-
-  /**
-   * Cache existing codes.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingCodes() throws Exception {
-
-    // Pre-populate codeIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from CodeJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      codeIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
-  }
-
-  /**
-   * Cache existing concepts.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingConcepts() throws Exception {
-
-    // Pre-populate conceptIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from ConceptJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      conceptIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
-  }
-
-  /**
-   * Cache existing descriptors.
-   *
-   * @throws Exception the exception
-   */
-  private void cacheExistingDescriptors() throws Exception {
-
-    // Pre-populate descriptorIdMap (for all terminologies from this insertion)
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
-            + "from DescriptorJpa c where terminology in :terminologies");
-    hQuery.setParameterList("terminologies", allTerminologiesFromInsertion);
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final String terminology = results.get()[1].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
-      conceptIdMap.put(terminologyId + terminology, id);
-    }
-    results.close();
   }
 
   /**
@@ -759,8 +500,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
         // TODO - handle problem with config.properties needing properties
     }, p);
 
-    directory = String.valueOf(p.getProperty("directory"));
-
   }
 
   /**
@@ -772,11 +511,6 @@ public class AtomLoaderAlgorithm extends AbstractAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param = new AlgorithmParameterJpa("Directory",
-        "directory", "Directory of input files, relative to source.data.dir.",
-        "e.g. terminologies/NCI_INSERT", 2000, AlgorithmParameter.Type.STRING);
-    params.add(param);
-
     return params;
   }
 

@@ -1,11 +1,12 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.algo;
 
 import java.util.List;
 
 import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.HasProject;
@@ -63,6 +64,20 @@ public interface Algorithm
    */
   public void setWorkId(String workId);
 
+  /**
+   * Returns the process.
+   *
+   * @return the process
+   */
+  public ProcessExecution getProcess();
+  
+  /**
+   * Sets the process.
+   *
+   * @param process the process
+   */
+  public void setProcess(ProcessExecution process);
+  
   /**
    * Returns the parameters.
    *

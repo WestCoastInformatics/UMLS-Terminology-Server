@@ -175,6 +175,14 @@ public class ProjectJpa implements Project {
   @CollectionTable(name = "valid_categories")
   private List<String> validCategories = new ArrayList<>();
 
+  /** The editing enabled. */
+  @Column(nullable = false)
+  private boolean editingEnabled = true;
+  
+  /** The automations enabled. */
+  @Column(nullable = false)
+  private boolean automationsEnabled = false;
+  
   /**
    * Instantiates an empty {@link ProjectJpa}.
    */
@@ -210,6 +218,8 @@ public class ProjectJpa implements Project {
     language = project.getLanguage();
     workflowPath = project.getWorkflowPath();
     newAtomTermgroups = new ArrayList<>(project.getNewAtomTermgroups());
+    editingEnabled = project.isEditingEnabled();
+    automationsEnabled = project.isAutomationsEnabled();
   }
 
   /* see superclass */
@@ -354,6 +364,30 @@ public class ProjectJpa implements Project {
     this.teamBased = teamBased;
   }
 
+  /* see superclass */
+  @Override
+  public boolean isEditingEnabled() {
+    return editingEnabled;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEditingEnabled(boolean editingEnabled) {
+    this.editingEnabled = editingEnabled;
+  }
+  
+  /* see superclass */
+  @Override
+  public boolean isAutomationsEnabled() {
+    return automationsEnabled;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAutomationsEnabled(boolean automationsEnabled) {
+    this.automationsEnabled = automationsEnabled;
+  }
+  
   /* see superclass */
   @XmlJavaTypeAdapter(UserRoleMapAdapter.class)
   @Fields({
@@ -578,6 +612,8 @@ public class ProjectJpa implements Project {
         prime * result + ((organization == null) ? 0 : organization.hashCode());
     result = prime * result + (isPublic ? 1231 : 1237);
     result = prime * result + (teamBased ? 1231 : 1237);
+    result = prime * result + (editingEnabled ? 1231 : 1237);
+    result = prime * result + (automationsEnabled ? 1231 : 1237);
     result = prime * result
         + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -620,6 +656,10 @@ public class ProjectJpa implements Project {
       return false;
     if (teamBased != other.teamBased)
       return false;
+    if (editingEnabled != other.editingEnabled)
+        return false;
+    if (automationsEnabled != other.automationsEnabled)
+        return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -653,6 +693,7 @@ public class ProjectJpa implements Project {
         + ", version=" + version + ", branch=" + branch + ", userRoleMap="
         + userRoleMap + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
         + precedenceList + ", validationChecks=" + validationChecks
+        + ", editingEnabled=" + editingEnabled + ", automationsEnabled=" + automationsEnabled
         + ", workflowPath=" + workflowPath + ", language=" + language + "]";
   }
 

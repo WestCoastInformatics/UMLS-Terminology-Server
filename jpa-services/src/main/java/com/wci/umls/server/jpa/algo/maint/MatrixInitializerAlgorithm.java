@@ -204,7 +204,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setActivityId(getActivityId());
             action.setWorkId(getWorkId());
 
-            final ValidationResult result = performMolecularAction(action);
+            final ValidationResult result =
+                performMolecularAction(action, getLastModifiedBy());
             if (!result.isValid()) {
               throw new Exception("Invalid action - " + result);
             }

@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -928,21 +929,18 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addConceptNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addConceptNote(Long id, String noteText, String authToken) throws Exception;
+
 
   /**
    * Add code note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addCodeNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addCodeNote(Long id, String noteText, String authToken) throws Exception;
 
   /**
    * Remove code note.
@@ -953,18 +951,16 @@ public interface ContentServiceRest {
    */
   public void removeCodeNote(Long noteId, String authToken) throws Exception;
 
+
   /**
    * Add descriptor note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addDescriptorNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addDescriptorNote(Long id, String noteText, String authToken) throws Exception;
 
   /**
    * Remove descriptor note.
@@ -1085,4 +1081,36 @@ public interface ContentServiceRest {
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
     String terminology, String version, PfsParameterJpa pfs, String query,
     String authToken) throws Exception;
+
+
+  /**
+   * Add atom note.
+   *
+   * @param id the id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void addAtomNote(Long id,
+    String noteText, String authToken) throws Exception;
+
+  /**
+   * Remove atom note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAtomNote(Long noteId, String authToken) throws Exception;
+
+  /**
+   * Gets the atom.
+   *
+   * @param atomId the atom id
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the atom
+   * @throws Exception the exception
+   */
+  public Atom getAtom(Long atomId, Long projectId, String authToken) throws Exception;
 }

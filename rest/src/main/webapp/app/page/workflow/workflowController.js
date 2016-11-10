@@ -48,6 +48,16 @@ tsApp.controller('WorkflowCtrl', [
       queryTypes : [],
       recordTypes : workflowService.getRecordTypes()
     }
+    
+    // Accordion Groups
+    $scope.groups = [ {
+      title : "Bins",
+      open : true
+    }, {
+      open : false
+    }, {
+      open : false
+    } ];
 
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
@@ -294,7 +304,19 @@ tsApp.controller('WorkflowCtrl', [
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
     };
+    
+    
+    $scope.saveAccordionStatus = function() {
+      console.debug('saveAccordionStatus', $scope.groups);
+      $scope.user.userPreferences.properties['workflowGroups'] = JSON
+        .stringify($scope.groups);
+      securityService.updateUserPreferences($scope.user.userPreferences);
+    }
 
+    $scope.hasPermissions = function(action) {
+      return securityService.hasPermissions(action);
+    }
+    
     //
     // MODALS
     //
@@ -546,6 +568,11 @@ tsApp.controller('WorkflowCtrl', [
       projectService.getQueryTypes().then(function(data) {
         $scope.lists.queryTypes = data.strings;
       });
+      if ($scope.user.userPreferences.properties['workflowGroups']) {
+        var savedWorkflowGroups = JSON
+          .parse($scope.user.userPreferences.properties['workflowGroups']);
+        angular.copy(savedWorkflowGroups, $scope.groups);
+      }
     };
 
     //

@@ -19,7 +19,7 @@ tsApp.controller('ConfigModalCtrl', [
 
     // link to error handling
     function handleError(errors, error) {
-      utilService.handleDialogError(errors, error);
+      utilService.handleDialogError($scope.errors, error);
     }
 
     // Add or update the config

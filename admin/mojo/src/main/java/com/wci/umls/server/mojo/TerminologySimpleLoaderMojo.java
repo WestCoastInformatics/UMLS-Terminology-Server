@@ -74,7 +74,7 @@ public class TerminologySimpleLoaderMojo extends AbstractLoaderMojo {
     try {
       getLog().info("Simple Terminology Loader called via mojo.");
       getLog().info("  Terminology        : " + terminology);
-      getLog().info("  version: " + version);
+      getLog().info("  version            : " + version);
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);

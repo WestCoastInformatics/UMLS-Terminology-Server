@@ -6,9 +6,9 @@ tsApp
       '$location',
       '$anchorScroll',
       '$cookies',
+      '$uibModal',
       'appConfig',
-      function($location, $anchorScroll, $cookies, appConfig) {
-        console.debug('configure utilService');
+      function($location, $anchorScroll, $cookies, $uibModal, appConfig) {
 
         this.showHeaderFooter = true;
 
@@ -174,6 +174,7 @@ tsApp
           return this.showHeaderFooter;
         };
 
+        // Compose a URL properly for opening new window
         this.composeUrl = function(extension) {
           var currentUrl = $location.absUrl();
           var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);

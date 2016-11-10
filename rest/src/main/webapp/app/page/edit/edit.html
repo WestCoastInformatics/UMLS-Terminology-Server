@@ -1,7 +1,7 @@
 <div class="row">
   <!-- Edit -->
   <div class="col-md-12 col-xs-12">
-    <h5>
+    <h6>
       <span>
         Project: <select ng-model="selected.project"
           ng-show="lists.projects.length > 1"
@@ -16,13 +16,16 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
-    </h5>
+      <span ng-show="!selected.project.editingEnabled" style="display: block;"
+        class="alert alert-danger">Editing is disabled.</span>
+    </h6>
   </div>
   <div class="col-md-12 col-xs-12">
     <uib-accordion close-others="false"> <uib-accordion-group
-      is-open="false"> <uib-accordion-heading>
+      ng-show="selected.projectRole != 'ADMINISTRATOR'" is-open="groups[0].open"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Checklists">Worklists/Clusters</span>
+      <span uib-tooltip="Workflow Checklists">{{groups[0].title}}</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-6 col-xs-12">
@@ -65,14 +68,20 @@
             ng-click="selectWorklist(worklist);"
             ng-class="{selected: worklist.id == selected.worklist.id}">
             <td>{{worklist.name}}</td>
-            <td>{{toDate(worklist.lastModified)}}</td>
+            <td>
+              {{toDate(worklist.lastModified)}}
+              <span
+                ng-show="hasPermissions('RemoveWorklist') && selected.worklistMode != 'Checklists'">
+                <br />{{getWorkflowState(worklist)}} 
+            </td>
+            </span>
             <!--  actions -->
             <td class="nobreak">
               <span
                 ng-show="selected.worklistMode == 'Checklists' && selected.projectRole != 'ADMINISTRATOR'">n/a</span>
               <i title="Remove {{selected.worklistMode}}"
                 ng-show="selected.projectRole == 'ADMINISTRATOR'"
-                confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
+                confirm="Are you sure you want to remove the worklist)?"
                 ng-click="removeWorklist(worklist); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-trash"></i>
               <span ng-show="selected.worklistMode != 'Checklists'">
@@ -86,14 +95,14 @@
                   ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                   title="Unassign worklist"
                   class="noul glyphicon glyphicon-hand-left"></i>
-                <i
+                <i confirm="Are you sure you want to stamp the worklist?"
+                  ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
+                  ng-click="openFinishWorkflowModal(worklist, true); "
+                  title="Stamp" class="noul glyphicon glyphicon-certificate"></i>
+                <i confirm="Are you sure you want to finish the worklist?"
                   ng-show="worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                   ng-click="openFinishWorkflowModal(worklist);" title="Finish"
                   class="noul glyphicon glyphicon-ok"></i>
-                <i
-                  ng-show="worklist.workflowStatus == 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
-                  ng-click="performWorkflowAction(worklist, 'FINISH');"
-                  title="Finish" class="noul glyphicon glyphicon-ok"></i>
               </span>
               &nbsp;
             </td>
@@ -174,10 +183,10 @@
         </div>
       </span>
     </div>
-    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group is-open="true">
-    <uib-accordion-heading>
+    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group is-open="groups[1].open"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
-      <span uib-tooltip="Workflow Worklists">Concepts/Reports</span>
+      <span uib-tooltip="Workflow Worklists">{{groups[1].title}}</span>
     </h5>
     </uib-accordion-heading> <!-- CONCEPTS LIST  -->
     <div class="col-md-6 col-xs-12">
@@ -239,20 +248,250 @@
       <!-- Concept actions -->
       <span style="float: right;">
         <button ng-click="approveConcept(selected.component)" title="Approve"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Approve</button>
+          ng-disabled="!selected.component || !selected.project.editingEnabled"
+          class="btn btn-xs btn-primary">Approve</button>
         <button ng-click="next()" title="Next"
-          ng-disabled="!selected.component || !selected.worklist"
+          ng-disabled="!selected.component || !selected.worklist || !selected.project.editingEnabled"
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component || !selected.worklist"
+          ng-disabled="!selected.component || !selected.worklist || !selected.project.editingEnabled"
           class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Merge</button>
+          ng-disabled="!selected.component || !selected.project.editingEnabled"
+          class="btn btn-xs btn-primary">Merge</button>
       </span>
     </div>
     <div class="col-md-6 col-xs-12">
       <!-- CONCEPT REPORT -->
       <div report-panel selected="selected" callbacks="callbacks"></div>
     </div>
-    </uib-accordion-group></uib-accordion>
+    </uib-accordion-group> <!--  METADATA EDITING --> <uib-accordion-group is-open="groups[2].open"
+      ng-show="selected.projectRole == 'ADMINISTRATOR'"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Metadata Editing">{{groups[2].title}}</span>
+    </h5>
+    </uib-accordion-heading>
+    <div class="col-md-6 col-xs-12">
+      <div class="row">
+        <table class="table">
+
+          <tr>
+            <td colspan="2">
+              <b>Terminology</b> <select ng-model="selectedTerminology"
+                ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies"></select>
+              <i ng-click="openEditRootTerminologyModal(selectedTerminology)"
+                title="Edit root {{selectedTerminology.terminology}}"
+                class="noul glyphicon glyphicon-pencil"></i>
+              &nbsp; {{selectedTerminology.version}}
+              <i ng-click="openEditTerminologyModal(selectedTerminology)"
+                title="Edit {{selectedTerminology.terminology}}, {{selectedTerminology.version}}"
+                class="noul glyphicon glyphicon-pencil"></i>
+            </td>
+          </tr>
+          <tr>
+            <td class="col-md-3 col-xs-3">
+              <b>Term Types</b>
+            </td>
+            <td>
+              <div>
+                <span pager paging="paging['termTypes']"
+                  count="selected.metadata.termTypes.length"
+                  callbacks="paging['termTypes'].callbacks"> </span>
+                <span style="float: right;">
+                  <button
+                    ng-click="openEditTermTypeModal('Add', null, 'termType')"
+                    title="Add" class="btn btn-xs btn-primary">Add</button>
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table class="slim table">
+                <tr ng-repeat="entry in pagedTermTypes.data">
+                  <td class="col-md-3 col-xs-3">{{entry.key}}</td>
+                  <td class="colo-md-8 col-xs-8">{{entry.value}}</td>
+                  <td class="nobreak col-md-1 col-xs-1">
+                    <i
+                      ng-click="openEditTermTypeModal('Edit', entry, 'termType'); $event.stopPropagation()"
+                      title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+                    <i confirm="Are you sure you want to remove {{entry.key}}?"
+                      ng-click="removeTermType(entry.key); $event.stopPropagation()"
+                      title="Delete" class="noul glyphicon glyphicon-trash"></i>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+
+          <tr>
+            <td class="col-md-3 col-xs-3">
+              <b>Attribute Names</b>
+            </td>
+            <td>
+              <div>
+                <span pager paging="paging['attributeNames']"
+                  count="selected.metadata.attributeNames.length"
+                  callbacks="paging['attributeNames'].callbacks"></span>
+                <span style="float: right;">
+                  <button
+                    ng-click="openEditTermTypeModal('Add', null, 'attributeName')"
+                    title="Add" class="btn btn-xs btn-primary">Add</button>
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table class="slim table">
+                <tr ng-repeat="entry in pagedAttributeNames.data">
+                  <td class="col-md-3 col-xs-3 breakword">{{entry.key}}</td>
+                  <td class="col-md-8 col-xs-8">{{entry.value}}</td>
+                  <td class="col-md-1 col-xs-1 nobreak">
+                    <i
+                      ng-click="openEditTermTypeModal('Edit', entry, 'attributeName'); $event.stopPropagation()"
+                      title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+                    <i confirm="Are you sure you want to remove {{entry.key}}?"
+                      ng-click="removeAttributeName(entry.key); $event.stopPropagation()"
+                      title="Delete" class="noul glyphicon glyphicon-trash"></i>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <b>Precedence List</b>
+            </td>
+            <td>
+              <!-- NO pagign
+              <div pager paging="paging['precedenceList']"
+                count="pagedPrecedenceList.totalCount"
+                callbacks="paging['precedenceList'].callbacks"></div> -->
+              <div>
+                <span style="float: right;">
+                  <button ng-click="updatePrecedenceList()"
+                    title="Save precedence order" class="btn btn-xs btn-primary">Save</button>
+                </span>
+              </div>
+              <!--  precedence table -->
+              <div style="overflow-y: scroll; width: 100%; height: 400px">
+                <table class="yscroll slim table">
+                  <tr ng-repeat="entry in pagedPrecedenceList.data"
+                    ng-class="{selected : entriesTouched[entry.key+entry.value]}">
+                    <td>{{entry.key}}</td>
+                    <td>{{entry.value}}</td>
+                    <td>
+                      <span class="nobreak">
+                        <!-- Actions - move up-->
+                        <i ng-if="!isFirstIndex(entry)"
+                          ng-click="moveTermgroupUp(entry)"
+                          title="Move termgroup up"
+                          class="noul glyphicon glyphicon-arrow-up"></i>
+                        <!-- Actions - move down-->
+                        <i ng-if="!isLastIndex(entry)"
+                          ng-click="moveTermgroupDown(entry)"
+                          title="Move termgroup down"
+                          class="noul glyphicon glyphicon-arrow-down"></i>
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div>
+                <span style="float: right;">
+                  <button ng-click="updatePrecedenceList()"
+                    title="Save precedence order" class="btn btn-xs btn-primary">Save</button>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <div class="row">
+        <table class="table">
+          <tr>
+            <td class="col-md-3 col-xs-3">
+              <b>Relationship Types</b>
+            </td>
+            <td>
+              <div>
+                <span pager paging="paging['relationshipTypes']"
+                  count="selected.metadata.relationshipTypes.length"
+                  callbacks="paging['relationshipTypes'].callbacks"></span>
+                <span style="float: right;">
+                  <button
+                    ng-click="openEditRelationshipTypeModal('Add', null, 'relationshipType')"
+                    title="Add" class="btn btn-xs btn-primary">Add</button>
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table class="slim table">
+                <tr ng-repeat="entry in pagedRelationshipTypes.data">
+                  <td class="col-md-3 col-xs-3">{{entry.key}}</td>
+                  <td class="col-md-8 col-xs-8">{{entry.value}}</td>
+                  <td class="col-md-1 col-xs-1 nobreak">
+                    <i
+                      ng-click="openEditRelationshipTypeModal('Edit', entry, 'relationshipType'); $event.stopPropagation()"
+                      title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+                    <i
+                      confirm="Are you sure you want to remove {{entry.key}}?  Its inverse will also be removed."
+                      ng-click="removeRelationshipType(entry.key); $event.stopPropagation()"
+                      title="Delete" class="noul glyphicon glyphicon-trash"></i>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+
+          <tr>
+            <td class="col-md-3 col-xs-3">
+              <b>Additional Relationship Types</b>
+            </td>
+            <td>
+              <div>
+                <span pager paging="paging['additionalRelationshipTypes']"
+                  count="selected.metadata.additionalRelationshipTypes.length"
+                  callbacks="paging['additionalRelationshipTypes'].callbacks"></span>
+                <span style="float: right;">
+                  <button
+                    ng-click="openEditRelationshipTypeModal('Add', null, 'addRelType')"
+                    title="Add" class="btn btn-xs btn-primary">Add</button>
+                </span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <table class="slim table">
+                <tr ng-repeat="entry in pagedAdditionalRelationshipTypes.data">
+                  <td class="col-md-3 col-xs-3 breakword">{{entry.key}}</td>
+                  <td class="col-md-8 col-xs-8">{{entry.value}}</td>
+                  <td class="col-md-1 col-xs-1 nobreak">
+                    <i
+                      ng-click="openEditRelationshipTypeModal('Edit', entry, 'addRelType'); $event.stopPropagation()"
+                      title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+                    <i
+                      confirm="Are you sure you want to remove {{entry.key}}?   Its inverse will also be removed."
+                      ng-click="removeAdditionalRelationshipType(entry.key); $event.stopPropagation()"
+                      title="Delete" class="noul glyphicon glyphicon-trash"></i>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    </div>
+    </uib-accordion-group> </uib-accordion>
   </div>
