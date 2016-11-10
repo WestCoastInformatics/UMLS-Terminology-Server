@@ -135,7 +135,7 @@
             <td>{{selected.project.version}}</td>
           </tr>
 
-          <tr>
+          <tr ng-show="selected.process.inputPath">
             <td>
               <b>Input Path</b>
             </td>
@@ -187,19 +187,19 @@
               <b>Progress</b>
             </td>
             <td>
-              <uib-progressbar max="max" value="processProgress[process.id]">
-              <span style="color: white; white-space: nowrap;">{{processProgress[process.id]}}
+              <uib-progressbar max="max" value="processProgress">
+              <span style="color: white; white-space: nowrap;">{{processProgress}}
                 / {{max}}</span></uib-progressbar>
             </td>
           </tr>
 
           <tr ng-show="selected.mode == 'Execution'">
             <td>
-              <b>{{stepName}}</b>
+              <b>Step Progress</b>
             </td>
             <td>
-              <uib-progressbar max="max" value="processProgress[step.id]">
-              <span style="color: white; white-space: nowrap;">{{processProgress[step.id]}}
+              <uib-progressbar max="max" value="stepProgress">
+              <span style="color: white; white-space: nowrap;">{{stepProgress}}
                 / {{max}}</span></uib-progressbar>
             </td>
           </tr>

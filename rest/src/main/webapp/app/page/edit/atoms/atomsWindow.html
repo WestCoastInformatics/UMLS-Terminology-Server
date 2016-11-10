@@ -61,7 +61,9 @@
       <td ng-click="toggleSelection(atom)">{{atom.descriptorId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.lastModifiedBy}}</td>
       <td class="nobreak">
-
+        <span notes selected="{component:atom, project:selected.project}" empty="atom.notes"
+                type="Atom"></span>
+                
         <i ng-click="openEditAtomModal(atom); $event.stopPropagation()"
           ng-show="selected.project.editingEnabled"
           title="Edit" class="noul glyphicon glyphicon-pencil"></i>

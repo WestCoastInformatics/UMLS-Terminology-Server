@@ -123,9 +123,12 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           "[AttributeLoader] Checking for new/updated Attributes and Definitions");
 
       //
-      // Load the attributes.src file
+      // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
+      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
       //
-      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src", null);
+      //TODO - fill out the skipRegexFilter
+      List<String> lines =
+          loadFileIntoStringList(srcDirFile, "attributes.src", null, "");
 
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
@@ -208,8 +211,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           Long containerComponentId = null;
           if (containerClass.equals(ConceptJpa.class)) {
-            containerComponentId =
-                getId(ConceptJpa.class, containerTerminology, containerTerminologyId);
+            containerComponentId = getId(ConceptJpa.class, containerTerminology,
+                containerTerminologyId);
           } else {
             throw new IllegalArgumentException(
                 "Invalid class type: " + containerClass);
@@ -240,7 +243,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldDefinitionId = getId(DefinitionJpa.class, newDefinitionAtui, newDefinition.getTerminology());
+          Long oldDefinitionId = getId(DefinitionJpa.class, newDefinitionAtui,
+              newDefinition.getTerminology());
 
           // If no attribute with the same ATUI exists, create this new
           // Attribute, and add it to its containing component
@@ -250,7 +254,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             newDefinition = addDefinition(newDefinition, containerComponent);
 
             definitionAddCount++;
-            putId(DefinitionJpa.class, newDefinitionAtui, newDefinition.getTerminology(), newDefinition.getId());
+            putId(DefinitionJpa.class, newDefinitionAtui,
+                newDefinition.getTerminology(), newDefinition.getId());
 
             // TODO - find out if this is needed.
             // If so, create a cache-map, so that all updates are made to same
@@ -327,8 +332,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           Long containerComponentId = null;
           if (containerClass.equals(ConceptJpa.class)) {
-            containerComponentId =
-                getId(ConceptJpa.class, containerTerminologyId, containerTerminology);
+            containerComponentId = getId(ConceptJpa.class,
+                containerTerminologyId, containerTerminology);
           } else {
             throw new IllegalArgumentException(
                 "Invalid class type: " + containerClass);
@@ -359,7 +364,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldAttributeId = getId(AttributeJpa.class, newAttributeAtui, newAttribute.getTerminology());
+          Long oldAttributeId = getId(AttributeJpa.class, newAttributeAtui,
+              newAttribute.getTerminology());
 
           // If no attribute with the same ATUI exists, create this new
           // Attribute, and add it to its containing component
@@ -369,7 +375,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             newAttribute = addAttribute(newAttribute, containerComponent);
 
             attributeAddCount++;
-            putId(AttributeJpa.class, newAttributeAtui, newAttribute.getTerminology(), newAttribute.getId());
+            putId(AttributeJpa.class, newAttributeAtui,
+                newAttribute.getTerminology(), newAttribute.getId());
 
             // TODO - find out if this is needed.
             // If so, create a cache-map, so that all updates are made to same
@@ -414,9 +421,10 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         logAndCommit("[Attribute Loader] Attributes processed ", stepsCompleted,
             RootService.logCt, RootService.commitCt);
-        handler.logAndCommit("[Attribute Loader] Attribute identities processed ", stepsCompleted,
-            RootService.logCt, RootService.commitCt);      
-        }
+        handler.logAndCommit(
+            "[Attribute Loader] Attribute identities processed ",
+            stepsCompleted, RootService.logCt, RootService.commitCt);
+      }
 
       commitClearBegin();
       handler.commitClearBegin();

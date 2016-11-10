@@ -54,11 +54,10 @@ tsApp
 
         // Progress Monitor variables
         $scope.max = 100;
-        $scope.dynamic = 0;
-        $scope.stepDynamic = 0;
-        $scope.stepName = 0;
-        $scope.processProgress = {};
+        $scope.processProgress = 1;
         $scope.processInterval = null;
+        $scope.stepProgress = 1;
+        $scope.stepInterval = null;
 
         // Paging variables
         $scope.paging = {};
@@ -172,6 +171,7 @@ tsApp
 
         // execute process
         $scope.executeProcess = function() {
+          $scope.processConfig = $scope.selected.process;
           processService.executeProcess($scope.selected.project.id, $scope.selected.process.id,
             true).then(
             function(data) {
@@ -181,12 +181,17 @@ tsApp
               processService.getProcessExecution($scope.selected.project.id, data).then(
                 function(result) {
                   $scope.selectProcess(result);
-                  $scope.processProgress[result.id] = 1;
-                  console.debug('processProgress started', $scope.processProgress);
-                  // Start if not already running
+                  $scope.processProgress = 1;
+                  // Start process progress monitor, if not already running
                   if (!$scope.processInterval) {
                     $scope.processInterval = $interval(function() {
-                      $scope.refreshProgress(result);
+                      $scope.refreshProcessProgress(result);
+                    }, 2000);
+                  }
+                  // Start step progress monitor, if not already running
+                  if (!$scope.stepInterval) {
+                    $scope.stepInterval = $interval(function() {
+                      $scope.refreshStepProgress();
                     }, 2000);
                   }
                 });
@@ -194,34 +199,52 @@ tsApp
         }
 
         // Refresh process progress
-        $scope.refreshProgress = function(process) {
+        $scope.refreshProcessProgress = function(process) {
           processService.getProcessProgress($scope.selected.project.id, process.id).then(
           // Success
           function(data) {
-            if (data === "100" || data == 100) {
-              process.lookupInProgress = false;
+            
+            $scope.processProgress = data;
+            // stop interval if process progress has reached 100
+            if ($scope.processProgress >= 100) {
+              $interval.cancel($scope.processInterval);
+              $scope.processInterval = null;
             }
-            $scope.processProgress[process.id] = data;
-            console.debug('refreshProgress', data, $scope.processProgress);
-            // If all lookups in progress are at 100%, stop interval
-            var found = true;
-            for ( var key in $scope.processProgress) {
-              if ($scope.processProgress[key] < 100) {
-                found = false;
-                break;
-              }
-            }
-            if (found) {
-              $interval.cancel($scope.lookupInterval);
-              $scope.lookupInterval = null;
-            }
-
           },
           // Error
           function(data) {
-            // Cancel automated lookup on error
-            $interval.cancel($scope.lookupInterval);
+            // Cancel automated process on error
+            $interval.cancel($scope.processInterval);
           });
+        }
+        
+        // Refresh step progress
+        $scope.refreshStepProgress = function() {
+            processService.getProcessExecution($scope.selected.project.id, $scope.processConfig.id).then(
+              function(processExecution) {
+
+                $scope.selectProcess(processExecution);
+                var currentStep = processExecution.steps.length;
+                
+                processService.getAlgorithmProgress($scope.selected.project.id,
+                  processExecution.steps[currentStep -1].id).then(
+                // Success
+                function(data) {
+
+                  $scope.stepProgress = data;
+                  
+                  // stop interval if step progress has reached 100
+                  if ($scope.stepProgress >= 100) {
+                    $interval.cancel($scope.stepInterval);
+                    $scope.stepInterval = null;
+                  }
+                },
+                // Error
+                function(data) {
+                  // Cancel automated step on error
+                  $interval.cancel($scope.stepInterval);
+                });
+              });
         };
 
         function wait(ms) {

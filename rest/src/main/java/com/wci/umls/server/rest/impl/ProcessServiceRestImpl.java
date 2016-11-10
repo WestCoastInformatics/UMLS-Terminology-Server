@@ -1462,6 +1462,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       public void run() {
         // Declare execution so it can be accessed
         AlgorithmExecution algorithmExecution = null;
+        Boolean firstRestartedAlgorithm = false;
         try {
 
           // Set initial progress to zero and count the number of steps to
@@ -1490,6 +1491,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // run
               else if (ae.getFailDate() != null) {
                 algorithmToRestart = ae;
+                firstRestartedAlgorithm = true;
               }
             }
             // Update the processExecution progress and step-count
@@ -1599,6 +1601,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // Start progress at 0 for the algorithm
             lookupAeProgressMap.put(algorithmExecution.getId(), 0);
+
+            // If we're in restart mode, and if this is the First algorithm
+            // we're running, reset the algorithm.
+            if (restart && firstRestartedAlgorithm) {
+              algorithm.reset();
+              // Don't reset on any later algorithms
+              firstRestartedAlgorithm = false;
+            }
 
             // Execute algorithm
             algorithm.compute();

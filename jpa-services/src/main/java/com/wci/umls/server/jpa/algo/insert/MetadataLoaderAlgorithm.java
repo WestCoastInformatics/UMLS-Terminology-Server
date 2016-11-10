@@ -105,7 +105,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Validate AdditionalRelationshipType inverses
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)");
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)", null);
 
     final Set<String> relaMRDOC = new HashSet<>();
     final Set<String> inverseRelaMRDOC = new HashSet<>();
@@ -251,7 +251,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load the sources.src file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "sources.src", null);
+        loadFileIntoStringList(srcDirFile, "sources.src", null, null);
 
     String fields[] = new String[20];
 
@@ -509,7 +509,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the contexts.src file
       //
       final List<String> lines =
-          loadFileIntoStringList(srcDirFile, "contexts.src", null);
+          loadFileIntoStringList(srcDirFile, "contexts.src", null, null);
 
       final String[] fields = new String[17];
 
@@ -641,7 +641,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load TTY lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "TTY\\|(.*)");
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "TTY\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -726,7 +726,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load the termgroups.src file
     //
 
-    lines = loadFileIntoStringList(srcDirFile, "termgroups.src", null);
+    lines = loadFileIntoStringList(srcDirFile, "termgroups.src", null, null);
 
     fields = new String[6];
 
@@ -837,7 +837,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load ATN lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "ATN\\|(.*)");
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "ATN\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -894,7 +894,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load RELA lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)");
+        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)", null);
 
     String fields[] = new String[4];
 

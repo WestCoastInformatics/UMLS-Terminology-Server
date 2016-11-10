@@ -33,6 +33,7 @@ import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -142,6 +143,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @Column(nullable = true)
   private String lastPublishedRank;
 
+  /** The notes. */
+  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class)
+  @IndexedEmbedded(targetElement = AtomNoteJpa.class)
+  private List<Note> notes = new ArrayList<>();
+  
   /**
    * Instantiates an empty {@link AtomJpa}.
    */
@@ -485,6 +491,23 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 	this.lastPublishedRank = lastPublishedRank;
   }
 
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {    
+    this.notes = notes;
+
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = AtomNoteJpa.class)
+  public List<Note> getNotes() {
+    if (this.notes == null) {
+      this.notes = new ArrayList<>(1);
+    }
+    return this.notes;
+  }
+  
   @Override
   public int hashCode() {
     final int prime = 31;
