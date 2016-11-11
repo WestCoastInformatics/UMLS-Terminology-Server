@@ -57,9 +57,7 @@ public class DummyAlgorithm extends AbstractAlgorithm {
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       Thread.sleep(1000);
       int currentProgress = (int) ((100 / num) * i);
       if(currentProgress > previousProgress){
