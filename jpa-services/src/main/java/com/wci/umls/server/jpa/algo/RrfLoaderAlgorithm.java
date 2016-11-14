@@ -332,6 +332,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  terminology = " + getTerminology());
     logInfo("  version = " + getVersion());
     logInfo("  single mode = " + singleMode);
+    logInfo("  edit mode = " + editMode);
     logInfo("  inputDir = " + getInputPath());
 
     // Track system level information
@@ -2560,7 +2561,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       relationship.setTerminologyId(fields[9]);
     }
-    
+
     relationship.setTerminology(fields[10].intern());
     if (loadedTerminologies.get(fields[10]) == null) {
       throw new Exception(
@@ -3022,11 +3023,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
       String prevCode = null;
       Code code = null;
+      int atomCt = 0;
       while (results.next()) {
         final Atom atom = (Atom) results.get()[0];
         if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
           continue;
         }
+        atomCt++;
 
         // UMLS still connects a lot of things to codes, so keep them
         // if (!atom.getTerminology().equals("LNC")) {
@@ -3041,7 +3044,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // }
 
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
-          if (code != null) {
+          if (code != null && atomCt < 3001) {
             // compute preferred name
             code.setName(getComputedPreferredName(code, list));
             addCode(code);
@@ -3060,8 +3063,15 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setTerminologyId(atom.getCodeId());
           code.setVersion(atom.getVersion());
           code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+          atomCt = 0;
         }
-        code.getAtoms().add(atom);
+        if (atomCt == 3000) {
+          Logger.getLogger(getClass()).warn("Code with > 3000 atoms, skipping: "
+              + atom.getTerminology() + ", " + atom.getCodeId());
+        }
+        if (atomCt < 3001) {
+          code.getAtoms().add(atom);
+        }
         prevCode = atom.getCodeId();
       }
       if (code != null) {
