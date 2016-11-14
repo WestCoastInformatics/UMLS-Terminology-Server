@@ -186,8 +186,13 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         }
         Terminology term = getCachedTerminology(fields[1]);
         if (term == null) {
-          throw new Exception(
-              "ERROR: lookup for " + fields[1] + " returned no terminology");
+          logWarn(
+              "Warning - terminology not found: " + fields[1] + ". Could not process the following line:\n\t"
+                  + line);
+          updateProgress();
+          logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
+              RootService.logCt, RootService.commitCt);
+          continue;
         } else {
           newAtom.setTerminology(term.getTerminology());
           newAtom.setVersion(term.getVersion());
@@ -320,6 +325,9 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             updateAtom(oldAtom);
             updateCount++;
           }
+          
+          // Reconcile code/concept/descriptor
+          reconcileCodeConceptDescriptor(oldAtom);
         }
 
         // Update the progress
@@ -337,10 +345,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
       logInfo("[AtomLoader] Added " + addCount + " new Atoms.");
       logInfo("[AtomLoader] Updated " + updateCount + " existing Atoms.");
-
-      //
-      // Load the atoms from classes_atoms.src
-      //
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -401,6 +405,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       Long existingConceptId =
           getId(ConceptJpa.class, atom.getConceptId(), atom.getTerminology());
       if (existingConceptId != null) {
+//        final Concept concept = new ConceptJpa(getConcept(existingConceptId), true);
         final Concept concept = getConcept(existingConceptId);
         concept.getAtoms().add(atom);
         concept.setVersion(atom.getVersion());
