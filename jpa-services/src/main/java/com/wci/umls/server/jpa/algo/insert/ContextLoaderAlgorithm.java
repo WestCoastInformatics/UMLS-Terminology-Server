@@ -4,25 +4,60 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
+import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
+import com.wci.umls.server.jpa.content.AbstractAtomClass;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
+import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
+import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
+import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.AtomTreePosition;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeTreePosition;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptTreePosition;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorTreePosition;
+import com.wci.umls.server.model.content.TransitiveRelationship;
+import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Implementation of an algorithm to import contexts.
  */
-public class ContextLoaderAlgorithm extends AbstractAlgorithm {
+public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The full directory where the src files are. */
   private File srcDirFile = null;
@@ -36,11 +71,23 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
   /** The steps completed. */
   private int stepsCompleted;
 
-  /**
-   * The loaded terminologies. Key = Terminology_Version (or just Terminology,
-   * if Version = "latest") Value = Terminology object
-   */
-  private Map<String, Terminology> loadedTerminologies = new HashMap<>();
+  /** The added tree positions. */
+  private int addedTreePositions;
+
+  /** The atom id container cache. */
+  private Map<Long, AbstractAtomClass> atomIdContainerCache = new HashMap<>();
+
+  /** The atom id to atom cache. */
+  private Map<Long, Atom> atomIdToAtomCache = new HashMap<>();
+
+  /** The created trans rels. */
+  private Set<String> createdTransRels = new HashSet<>();
+
+  /** The referenced terms. */
+  private Set<Terminology> referencedTerms = new HashSet<>();
+
+  /** The search handler. */
+  private SearchHandler searchHandler = null;
 
   /**
    * Instantiates an empty {@link ContextLoaderAlgorithm}.
@@ -102,9 +149,7 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
 
-    // Count number of added and updated Contexts, for logging
-    int addCount = 0;
-    int updateCount = 0;
+    searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
     try {
 
@@ -112,63 +157,73 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
       stepsCompleted = 0;
 
       logInfo("[ContextLoader] Checking for new/updated Contexts");
+      //
+      // Load the contexts.src file
+      //
+      List<String> lines =
+          loadFileIntoStringList(srcDirFile, "contexts.src", null, null);
 
-      // TODO - scan the contexts.src file and see if HCD (hierarchical code)
-      // for a given terminology is populated. If so we are loading transitive
-      // closure and tree positions for that terminology, otherwise we are
-      // computing it.
-      
-//      for (Terminology t : referencedTerminologies){
-//        if(!hcdTerminologies.contains(t)){
-//          
-//          TransitiveClosureAlgorithm algo2 = null;
-//          TreePositionAlgorithm algo3 = null;
-//          
-//            // Only compute for organizing class types
-//            if (t.getOrganizingClassType() != null) {
-//              algo2 = new TransitiveClosureAlgorithm();
-//              algo2.setTerminology(t.getTerminology());
-//              algo2.setVersion(t.getVersion());
-//              algo2.setIdType(t.getOrganizingClassType());
-//              // some terminologies may have cycles, allow these for now.
-//              algo2.setCycleTolerant(true);
-//              algo2.compute();
-//              algo2.close();
-//            }
-//
-//          //
-//          // Compute tree positions
-//          // Refresh caches after metadata has changed in loader
-//            if (t.getOrganizingClassType() != null) {
-//              algo3 = new TreePositionAlgorithm();
-//              algo3.setTerminology(t.getTerminology());
-//              algo3.setVersion(t.getVersion());
-//              algo3.setIdType(t.getOrganizingClassType());
-//              // some terminologies may have cycles, allow these for now.
-//              algo3.setCycleTolerant(true);
-//              // compute "semantic types" for concept hierarchies
-//              if (t.getOrganizingClassType() == IdType.CONCEPT) {
-//                algo3.setComputeSemanticType(true);
-//              }
-//              algo3.compute();
-//              algo3.close();
-//            }
-//          }
-//        
-//        else{
-//          //TODO - load the transitive relationships and tree positions from the file
-//          
-//        }
-//        }
+      // Set the number of steps to the number of contexts.src lines to be
+      // processed
+      steps = lines.size();
 
-      // Update the progress
-      updateProgress();
+      // Scan the contexts.src file and see if HCD (hierarchical code)
+      // for a given terminology is populated.
+      final Set<Terminology> termsWithHcd = findTermsWithHcd(lines);
+      final Set<Terminology> computedTerms = new HashSet<>();
 
-      logAndCommit("[Context Loader] Contexts processed ", stepsCompleted,
-          RootService.logCt, RootService.commitCt);
+      final String fields[] = new String[17];
+      for (final String line : lines) {
+        FieldedStringTokenizer.split(line, "|", 17, fields);
 
-      logInfo("[ContextLoader] Added " + addCount + " new Contexts.");
-      logInfo("[ContextLoader] Updated " + updateCount + " existing Contexts.");
+        final Terminology specifiedTerm = getCachedTerminology(fields[4]);
+
+        if (specifiedTerm == null) {
+          logWarn("Warning - terminology not found: " + fields[6]
+              + ". Could not process the following line:\n\t" + line);
+          updateProgress();
+          logAndCommit("[Context Loader] Context lines processed ",
+              stepsCompleted, RootService.logCt, RootService.commitCt);
+          continue;
+        }
+
+        // If the specified terminology never has a populated HCD, the
+        // transitive relationships and tree positions can be computed.
+        if (!termsWithHcd.contains(specifiedTerm)) {
+          // Only compute once per terminology
+          if (!computedTerms.contains(specifiedTerm)) {
+            calculateContexts(specifiedTerm);
+            computedTerms.add(specifiedTerm);
+          }
+        }
+        // If the specified terminology has a populated HCD, we need to load the
+        // Transitive Relationships and Tree Positions from the file contents.
+        else {
+          loadContexts(line, specifiedTerm);
+        }
+
+        // Update the progress
+        updateProgress();
+
+        logAndCommit("[Context Loader] Contexts processed ", stepsCompleted,
+            RootService.logCt, RootService.commitCt);
+      }
+      commitClearBegin();
+
+      // Remove all the "old version" transitive relationships for the
+      // terminology.
+      int removedRelCount = 0;
+      for (Terminology term : referencedTerms) {
+        removedRelCount += removeOldTransRels(term);
+        commitClearBegin();
+      }
+
+      logInfo("[ContextLoader] Created " + createdTransRels.size()
+          + " new Transitive Relationships.");
+      logInfo("[ContextLoader] Removed " + removedRelCount
+          + " old-version Transitive Relationships.");
+      logInfo("[ContextLoader] Created " + addedTreePositions
+          + " new Tree Positions.");
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -186,65 +241,412 @@ public class ContextLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
+   * Removes the old trans rels.
    *
+   * @param term the term
+   * @return the int
    * @throws Exception the exception
    */
-  @SuppressWarnings("unused")
-  private void cacheExistingTerminologies() throws Exception {
+  @SuppressWarnings("unchecked")
+  private int removeOldTransRels(Terminology term) throws Exception {
+    int removedCount = 0;
 
-    for (final Terminology term : getTerminologies().getObjects()) {
-      // lazy init
-      term.getSynonymousNames().size();
-      term.getRootTerminology().getTerminology();
-      if (term.getVersion().equals("latest")) {
-        loadedTerminologies.put(term.getTerminology(), term);
-      } else {
-        loadedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
-            term);
-      }
+    logInfo(
+        "[ContextLoader] Removing old-version transitive relationships for terminology: "
+            + term.getTerminology());
+
+    IdType organizingClassType = term.getOrganizingClassType();
+    Class<?> clazz = null;
+
+    if (organizingClassType.equals(IdType.CONCEPT)) {
+      clazz = ConceptTransitiveRelationshipJpa.class;
+    } else if (organizingClassType.equals(IdType.DESCRIPTOR)) {
+      clazz = DescriptorTransitiveRelationshipJpa.class;
+    } else if (organizingClassType.equals(IdType.CODE)) {
+      clazz = CodeTransitiveRelationshipJpa.class;
+    } else if (organizingClassType.equals(IdType.ATOM)) {
+      clazz = AtomTransitiveRelationshipJpa.class;
     }
-  }  
-  
 
-//  /**
-//   * Identify all terminologies from insertion.
-//   *
-//   * @param lines the lines
-//   * @throws Exception the exception
-//   */
-//  private void identifyAllTerminologiesFromInsertion(List<String> lines)
-//    throws Exception {
-//
-//    String fields[] = new String[18];
-//    steps = lines.size();
-//    stepsCompleted = 0;
-//
-//    for (String line : lines) {
-//
-//      FieldedStringTokenizer.split(line, "|", 18, fields);
-//
-//      // For the purpose of this method, all we care about:
-//      // fields[6]: source
-//      // fields[13]: id_qualifier_1
-//      // fields[15]: id_qualifier_2
-//
-//      String terminology = fields[6].contains("_")
-//          ? fields[6].substring(0, fields[6].indexOf('_')) : fields[6];
-//      allTerminologiesFromInsertion.add(terminology);
-//
-//      terminology = fields[13].contains("_")
-//          ? fields[13].substring(0, fields[13].indexOf('_')) : fields[13];
-//      allTerminologiesFromInsertion.add(terminology);
-//
-//      terminology = fields[15].contains("_")
-//          ? fields[15].substring(0, fields[15].indexOf('_')) : fields[15];
-//
-//      allTerminologiesFromInsertion.add(terminology);
-//    }
-//  }  
-  
+    // TODO - removeTransitiveRelationship doesn't handle atomTreePositionJpa.
+    // Create override for remove, or ignore?
+
+    Query query = manager.createQuery("SELECT a.id FROM "
+        + clazz.getSimpleName() + " a WHERE terminology = :terminology "
+        + " AND NOT version = :version");
+    query.setParameter("terminology", term.getTerminology());
+    query.setParameter("version", term.getVersion());
+    for (final Long id : (List<Long>) query.getResultList()) {
+      removeTransitiveRelationship(id,
+          (Class<? extends TransitiveRelationship<? extends AtomClass>>) clazz);
+      logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
+    }
+
+    return removedCount;
+  }
+
+  /**
+   * Calculate contexts.
+   *
+   * @param term the term
+   * @throws Exception the exception
+   */
+  private void calculateContexts(Terminology term) throws Exception {
+    //
+    // Compute transitive closures
+    //
+    TransitiveClosureAlgorithm algo = null;
+    // Only compute for organizing class types
+    if (term.getOrganizingClassType() != null) {
+      algo = new TransitiveClosureAlgorithm();
+      algo.setLastModifiedBy(getLastModifiedBy());
+      algo.setTerminology(term.getTerminology());
+      algo.setVersion(term.getVersion());
+      algo.setIdType(term.getOrganizingClassType());
+      // some terminologies may have cycles, allow these for now.
+      algo.setCycleTolerant(true);
+      algo.compute();
+      algo.close();
+
+    }
+
+    //
+    // Compute tree positions
+    //
+    TreePositionAlgorithm algo2 = null;
+
+    // Only compute for organizing class types
+    if (term.getOrganizingClassType() != null) {
+      algo2 = new TreePositionAlgorithm();
+      algo2.setLastModifiedBy(getLastModifiedBy());
+      algo2.setTerminology(term.getTerminology());
+      algo2.setVersion(term.getVersion());
+      algo2.setIdType(term.getOrganizingClassType());
+      // some terminologies may have cycles, allow these for now.
+      algo2.setCycleTolerant(true);
+      algo2.setComputeSemanticType(false);
+      algo2.compute();
+      algo2.close();
+    }
+  }
+
+  /**
+   * Load contexts.
+   *
+   * @param line the line
+   * @param specifiedTerm the specified term
+   * @throws Exception the exception
+   */
+  private void loadContexts(String line, Terminology specifiedTerm)
+    throws Exception {
+
+    final String fields[] = new String[17];
+    FieldedStringTokenizer.split(line, "|", 17, fields);
+
+    // If sg_type_1 and sg_type_2 don't match, fire a warning and skip the
+    // line.
+    if (!fields[12].equals(fields[15])) {
+      logWarn("Warning - type 1: " + fields[12] + " does not equals type 2: "
+          + fields[15] + ". Could not process the following line:\n\t" + line);
+      updateProgress();
+      logAndCommit("[Context Loader] Context lines processed ", stepsCompleted,
+          RootService.logCt, RootService.commitCt);
+      return;
+    }
+
+    // Extract the "ptr" field 12345.12346.12347 and the sg_type_1
+    // field -> this will tell you the type of object (e.g.
+    // ConceptTransitiveRelationship
+    final String parentTreeRel = fields[7];
+    final Class<?> clazz = lookupClass(fields[12]);
+
+    List<Atom> ptrAtoms = new ArrayList<>();
+    List<String> ptrAltIds = new ArrayList<>();
+    ptrAltIds.addAll(Arrays.asList(parentTreeRel.split("\\.")));
+
+    // Add the atom alternate Id in the first column to the end of the list
+    // (needed in that position for Transitive Relationships, and Tree Positions
+    // will use the loaded atom as well)
+    ptrAltIds.add(fields[0]);
+
+    for (String element : ptrAltIds) {
+
+      final Long atomId =
+          getId(AtomJpa.class, element, specifiedTerm.getTerminology());
+      final Atom atom = getCachedAtom(atomId);
+
+      // If Atom can't be found, fire a warning and move onto the
+      // next line of the file.
+      if (atomId == null || atom == null) {
+        // EXCEPTION: if this is the first id in the list, the reason it
+        // couldn't be found is likely because it is a SRC atom. In this case,
+        // don't error out - just skip the element and continue.
+        if (ptrAltIds.indexOf(element) == 0) {
+          continue;
+        }
+        logWarn("Warning - atom not found for AUI: " + element
+            + ". Could not process the following line:\n\t" + line);
+        updateProgress();
+        logAndCommit("[Context Loader] Context lines ", stepsCompleted,
+            RootService.logCt, RootService.commitCt);
+        return;
+      }
+
+      ptrAtoms.add(atom);
+    }
+
+    // Check the first atom to make sure it isn't a SRC atom. If it is, drop it
+    // from the list.
+    if (ptrAtoms.get(0).getTerminology().equals("SRC")) {
+      ptrAtoms.remove(0);
+    }
+
+    createTransitiveRelationships(clazz, ptrAtoms);
+
+    // Tree Positions use the last atom in the list (which was loaded from the
+    // first column of the line) for determining the node.
+    Atom nodeAtom = ptrAtoms.get(ptrAtoms.size() - 1);
+    createTreePositions(clazz, nodeAtom, parentTreeRel.replace('.', '~'));
+  }
+
+  /**
+   * Returns the cached atom.
+   *
+   * @param atomId the atom id
+   * @return the cached atom
+   * @throws Exception the exception
+   */
+  private Atom getCachedAtom(Long atomId) throws Exception {
+    if (atomId == null) {
+      return null;
+    }
+
+    // If the cache doesn't already have this atom, look it up.
+    if (!atomIdToAtomCache.containsKey(atomId)) {
+      Atom atom = getAtom(atomId);
+      atomIdToAtomCache.put(atomId, atom);
+    }
+    return atomIdToAtomCache.get(atomId);
+  }
+
+  /**
+   * Creates the transitive relationships.
+   *
+   * @param clazz the clazz
+   * @param ptrAtoms the ptr atoms
+   * @throws Exception the exception
+   */
+  private void createTransitiveRelationships(Class<?> clazz,
+    List<Atom> ptrAtoms) throws Exception {
+    // For transitive relationships, create one from each "higher" level
+    // object to each "lower" level one (e.g. in the example above
+    // 12345->12346, 12345->123467, and 12346->123467). Save these
+    // pairwise connections so you don't recreate objects for the same
+    // pairs (e.g. have a Set<String> that stores superTypeId+subTypeId)
+
+    // Can't create relationships if there aren't any atoms in the
+    // list...
+    if (ptrAtoms.isEmpty()) {
+      return;
+    }
+
+    final Atom superAtom = ptrAtoms.get(0);
+    final AbstractAtomClass superAtomContainer =
+        getCachedAtomContainer(clazz, superAtom);
+    int depthCounter = 0;
+    for (Atom subAtom : ptrAtoms) {
+      final AbstractAtomClass subAtomContainer =
+          getCachedAtomContainer(clazz, subAtom);
+
+      // Skip if this pair of containers have already created a Transitive
+      // Relationship created for them.
+      if (createdTransRels.contains(superAtomContainer.getId().toString() + "_"
+          + subAtomContainer.getId().toString())) {
+        continue;
+      }
+
+      TransitiveRelationship<? extends ComponentHasAttributes> newTransRel =
+          null;
+
+      if (Concept.class.isAssignableFrom(clazz)) {
+        final ConceptTransitiveRelationshipJpa ctr =
+            new ConceptTransitiveRelationshipJpa();
+        ctr.setSubType((Concept) subAtomContainer);
+        ctr.setSuperType((Concept) superAtomContainer);
+        newTransRel = ctr;
+      } else if (Descriptor.class.isAssignableFrom(clazz)) {
+        final DescriptorTransitiveRelationshipJpa dtr =
+            new DescriptorTransitiveRelationshipJpa();
+        dtr.setSubType((Descriptor) subAtomContainer);
+        dtr.setSuperType((Descriptor) superAtomContainer);
+        newTransRel = dtr;
+      } else if (Code.class.isAssignableFrom(clazz)) {
+        final CodeTransitiveRelationshipJpa cdtr =
+            new CodeTransitiveRelationshipJpa();
+        cdtr.setSubType((Code) subAtomContainer);
+        cdtr.setSuperType((Code) superAtomContainer);
+        newTransRel = cdtr;
+      } else if (Atom.class.isAssignableFrom(clazz)) {
+        final AtomTransitiveRelationshipJpa atr =
+            new AtomTransitiveRelationshipJpa();
+        atr.setSubType(subAtom);
+        atr.setSuperType(superAtom);
+        newTransRel = atr;
+      }
+
+      newTransRel.setDepth(depthCounter++);
+      newTransRel.setObsolete(false);
+      newTransRel.setPublishable(true);
+      newTransRel.setPublished(false);
+      newTransRel.setSuppressible(false);
+      newTransRel.setTerminology(newTransRel.getSuperType().getTerminology());
+      newTransRel.setTerminologyId("");
+      newTransRel.setVersion(newTransRel.getSuperType().getVersion());
+
+      // persist the Transitive Relationship
+      addTransitiveRelationship(newTransRel);
+      createdTransRels.add(superAtomContainer.getId().toString() + "_"
+          + subAtomContainer.getId().toString());
+    }
+
+    // Once all of the relationships have been made with this super atom, remove
+    // it from the list, and run the remaining ones through again.
+    List<Atom> shortenedAtomList = new ArrayList<>(ptrAtoms);
+    shortenedAtomList.remove(superAtom);
+    createTransitiveRelationships(clazz, shortenedAtomList);
+
+  }
+
+  /**
+   * Returns the cached atom container.
+   *
+   * @param clazz the clazz
+   * @param atom the atom
+   * @return the cached atom container
+   * @throws Exception the exception
+   */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
+  private AbstractAtomClass getCachedAtomContainer(Class clazz, Atom atom)
+    throws Exception {
+    List<AbstractAtomClass> results = new ArrayList<>();
+
+    if (atom == null) {
+      return null;
+    }
+
+    // If the cache doesn't already have this container, look it up.
+    if (!atomIdContainerCache.containsKey(atom.getId())) {
+      final int[] totalCt = new int[1];
+      results.addAll(searchHandler.getQueryResults(atom.getTerminology(),
+          atom.getVersion(), Branch.ROOT, "atoms.id:" + atom.getId(), "", clazz,
+          null, totalCt, manager));
+
+      atomIdContainerCache.put(atom.getId(), results.get(0));
+    }
+
+    return atomIdContainerCache.get(atom.getId());
+  }
+
+  /**
+   * Creates the tree positions.
+   *
+   * @param clazz the clazz
+   * @param nodeAtom the node atom
+   * @param ancestorPath the ancestor path
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("rawtypes")
+  private void createTreePositions(Class clazz, Atom nodeAtom,
+    String ancestorPath) throws Exception {
+    // For tree positions, create one each line. The
+    // "node" will always be based on the first field of the
+    // contexts.src file.
+
+    // Instantiate the tree position
+    TreePosition<? extends ComponentHasAttributesAndName> newTreePos = null;
+    if (Concept.class.isAssignableFrom(clazz)) {
+      final ConceptTreePosition ctp = new ConceptTreePositionJpa();
+      final Concept concept = (Concept) getCachedAtomContainer(clazz, nodeAtom);
+      ctp.setNode(concept);
+      newTreePos = ctp;
+    } else if (Descriptor.class.isAssignableFrom(clazz)) {
+      final DescriptorTreePosition dtp = new DescriptorTreePositionJpa();
+      final Descriptor descriptor =
+          (Descriptor) getCachedAtomContainer(clazz, nodeAtom);
+      dtp.setNode(descriptor);
+      newTreePos = dtp;
+    } else if (Code.class.isAssignableFrom(clazz)) {
+      final CodeTreePosition ctp = new CodeTreePositionJpa();
+      final Code code = (Code) getCachedAtomContainer(clazz, nodeAtom);
+      ctp.setNode(code);
+      newTreePos = ctp;
+    } else if (Atom.class.isAssignableFrom(clazz)) {
+      final AtomTreePosition atp = new AtomTreePositionJpa();
+      final Atom atom = nodeAtom;
+      atp.setNode(atom);
+      newTreePos = atp;
+    } else {
+      throw new Exception("Unsupported id type: " + clazz.getSimpleName());
+    }
+    newTreePos.setObsolete(false);
+    newTreePos.setSuppressible(false);
+    newTreePos.setPublishable(true);
+    newTreePos.setPublished(false);
+    newTreePos.setAncestorPath(ancestorPath);
+    newTreePos.setTerminology(newTreePos.getNode().getTerminology());
+    newTreePos.setVersion(newTreePos.getNode().getVersion());
+    // TODO - double-check these
+    // newTreePos.setChildCt(??);
+    // newTreePos.setDescendantCt(??);
+    // No ids if computing - only if loading
+    newTreePos.setTerminologyId("");
+
+    // persist the tree position
+    addTreePosition(newTreePos);
+    addedTreePositions++;
+
+  }
+
+  /**
+   * Scan terms and hcds.
+   *
+   * @param lines the lines
+   * @return the map
+   * @throws Exception the exception
+   */
+  private Set<Terminology> findTermsWithHcd(List<String> lines)
+    throws Exception {
+    Set<Terminology> termsWithHcds = new HashSet<>();
+
+    String fields[] = new String[17];
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 17, fields);
+
+      final String termNameAndVersion = fields[4];
+      final Boolean termHasHcd = !ConfigUtility.isEmpty(fields[6]);
+
+      Terminology terminology = getCachedTerminology(termNameAndVersion);
+
+      if (terminology == null) {
+        // No need to fire a warning here - will be done in compute
+        continue;
+      }
+
+      // Add all terms with populated hcd's to the set
+      if (termHasHcd) {
+        termsWithHcds.add(terminology);
+      }
+
+      // Add all unique terminologies to the referencedTerminologies set
+      referencedTerms.add(terminology);
+
+    }
+
+    return termsWithHcds;
+  }
+
   /**
    * Reset.
    *

@@ -218,7 +218,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from atoms a join atomjpa_alternateterminologyids b where a.id = b.AtomJpa_id AND a.terminology = '"
@@ -258,7 +258,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from attributes a join attributejpa_alternateterminologyids b where terminology = '"
@@ -299,7 +299,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from definitions a join definitionjpa_alternateterminologyids b where terminology = '"
@@ -344,7 +344,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     // ComponentInfoRelationships.
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from concept_relationships a join conceptrelationshipjpa_alternateterminologyids b where terminology = '"

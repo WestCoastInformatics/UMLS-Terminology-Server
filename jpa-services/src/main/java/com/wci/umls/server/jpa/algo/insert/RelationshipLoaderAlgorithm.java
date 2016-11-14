@@ -136,11 +136,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the contexts.src file
       //
       // Only keep "PAR" relationship rows.
-      // If sg_type_1 or sg_type_2 = SCR_ATOM_ID, skip.
       List<String> lines2 = loadFileIntoStringList(srcDirFile, "contexts.src",
-          "[0-9]+?\\|PAR(.*)", "(.*)SRC_ATOM_ID(.*)");
+          "[0-9]+?\\|PAR(.*)", null);
 
-      // There will be many duplicated lines in the contexts file, since the main
+      // There will be many duplicated lines in the contexts.src file, since the
+      // main
       // distinguishing field "parent_treenum" is ignored for these purposes.
       // Remove the dups.
       lines = removeDups(lines);
@@ -148,7 +148,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Set the number of steps to the number of relationships to be processed
       steps = lines.size() + lines2.size();
 
-      // 
+      //
       // Process relationships.src lines
       //
       String fields[] = new String[18];
@@ -210,12 +210,10 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
-
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr, false);
       }
 
-
-      // 
+      //
       // Process contexts.src lines
       //
       String fields2[] = new String[17];
@@ -279,20 +277,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr, true);
 
       }
 
       commitClearBegin();
       handler.commitClearBegin();
-      
+
       logInfo("[RelationshipLoader] Added " + addCount + " new Relationships.");
       logInfo("[RelationshipLoader] Updated " + updateCount
           + " existing Relationships.");
-
-      //
-      // Load the relationships from relationships.src
-      //
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -366,8 +360,20 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     String toTermAndVersion, String toClassIdType, String additionalRelType,
     String group, String publishable, String published, String relType,
     String suppresible, String sourceTermAndVersion, String sourceTermId,
-    String workflowStatusStr) throws Exception {
+    String workflowStatusStr, Boolean fromContextsSrcFile) throws Exception {
 
+    // For the contexts.src file relationships only, if to and from ClassTypes don't match, fire a
+    // warning and skip the line.
+    if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
+      logWarn("Warning - type 1: " + fromClassIdType
+          + " does not equals type 2: " + toClassIdType
+          + ". Could not process the following line:\n\t" + line);
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
+    }     
+    
     // Load the containing objects based on type
     final String fromTerminologyId = fromTermId;
     final String fromTerminology = fromTermAndVersion.contains("_")
@@ -406,6 +412,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       logWarn(
           "Warning - could not find to Component for the following line:\n\t"
               + line);
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
+    }
+
+    // For the contexts.src file relationships only, if either
+    // the from or to component has a terminology = 'SRC', skip it.
+    if (fromContextsSrcFile && (toComponent.getTerminology().equals("SRC")
+        || fromComponent.getTerminology().equals("SRC"))) {
       updateProgress();
       logAndCommit("[Relationship Loader] Relationships processed ",
           stepsCompleted, RootService.logCt, RootService.commitCt);

@@ -96,7 +96,7 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
             + "temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
-    // Reset the processExecution input path to /temp
+    // Reset the processExecution input path to /src/temp
     processExecution.setInputPath(
         processExecution.getInputPath() + File.separator + "temp");
 
