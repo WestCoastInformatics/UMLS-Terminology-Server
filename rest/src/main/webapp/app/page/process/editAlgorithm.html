@@ -65,17 +65,7 @@
           </span>
         </td>
       </tr>
-      <tr ng-show="action == 'Add' && steps.length > 0">
-        <td>
-          <b>Position step after</b>
-        </td>
-        <td>
-          <select ng-model="positionStep"
-            ng-change="positionAfterStep(positionStep)"
-            ng-options="positionStep.name for positionStep in steps">
-          </select>
-        </td>
-      </tr>
+      
     </tbody>
   </table>
 
