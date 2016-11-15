@@ -182,7 +182,8 @@
             <td>{{getExecutionState(selected.process)}}</td>
           </tr>
 
-          <tr ng-show="selected.mode == 'Execution'">
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.startDate && !selected.process.finishDate && !selected.process.failDate">
             <td>
               <b>Progress</b>
             </td>
@@ -190,10 +191,13 @@
               <uib-progressbar max="max" value="processProgress">
               <span style="color: white; white-space: nowrap;">{{processProgress}}
                 / {{max}}</span></uib-progressbar>
+              <i class="noul glyphicon glypihicon-refresh"
+                ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
 
-          <tr ng-show="selected.mode == 'Execution'">
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.lastAlgorithm.startDate && !selected.lastAlgorithm.finishDate && !selected.lastAlgorithm.failDate">
             <td>
               <b>Step Progress</b>
             </td>
@@ -201,6 +205,8 @@
               <uib-progressbar max="max" value="stepProgress">
               <span style="color: white; white-space: nowrap;">{{stepProgress}}
                 / {{max}}</span></uib-progressbar>
+              <i class="noul glyphicon glypihicon-refresh"
+                ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
 
@@ -250,7 +256,8 @@
             {{step.name}}
           </td>
           <td class="col-md-4 col-xs-4">{{step.description}}</td>
-          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
+          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}
+          <span ng-show="selected.mode == 'Execution'"><br />getExecutionState(step)</span></td>
           <td class="col-md-1 col-xs-1 nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
               type="Step"></span>

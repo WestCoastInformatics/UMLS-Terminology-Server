@@ -2021,9 +2021,6 @@ public class Rf2SnapshotLoaderAlgorithm
   /* see superclass */
   @Override
   public void close() throws Exception {
-    treePosAlgorithm.close();
-    transClosureAlgorithm.close();
-    labelSetAlgorithm.close();
     super.close();
     readers = null;
   }
