@@ -19,11 +19,11 @@ import javax.persistence.Query;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -79,6 +79,19 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   /** The atom id to atom cache. */
   private Map<Long, Atom> atomIdToAtomCache = new HashMap<>();
+
+  /**
+   * The child and descendant counts. Key = full ptr string (e.g.
+   * 31926003.362215152.362207261.362220676.362208073.362250833.362169686)
+   * Value.[0] = Child count Value.[1] = Descendant count
+   */
+  private Map<String, int[]> childAndDescendantCountsMap = new HashMap<>();
+
+  /**
+   * The lines to load. This contains ONLY lines that need to have contexts
+   * loaded from the file (and not calculated).
+   */
+  private List<String> linesToLoad = new ArrayList<>();
 
   /** The created trans rels. */
   private Set<String> createdTransRels = new HashSet<>();
@@ -163,10 +176,6 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       List<String> lines =
           loadFileIntoStringList(srcDirFile, "contexts.src", null, null);
 
-      // Set the number of steps to the number of contexts.src lines to be
-      // processed
-      steps = lines.size();
-
       // Scan the contexts.src file and see if HCD (hierarchical code)
       // for a given terminology is populated.
       final Set<Terminology> termsWithHcd = findTermsWithHcd(lines);
@@ -174,6 +183,7 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
       final String fields[] = new String[17];
       for (final String line : lines) {
+
         FieldedStringTokenizer.split(line, "|", 17, fields);
 
         final Terminology specifiedTerm = getCachedTerminology(fields[4]);
@@ -181,9 +191,6 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         if (specifiedTerm == null) {
           logWarn("Warning - terminology not found: " + fields[6]
               + ". Could not process the following line:\n\t" + line);
-          updateProgress();
-          logAndCommit("[Context Loader] Context lines processed ",
-              stepsCompleted, RootService.logCt, RootService.commitCt);
           continue;
         }
 
@@ -199,31 +206,97 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // If the specified terminology has a populated HCD, we need to load the
         // Transitive Relationships and Tree Positions from the file contents.
         else {
-          loadContexts(line, specifiedTerm);
+
+          // Save this line to process later
+          linesToLoad.add(line);
+
+          // Populate childAndDescendant counts based on this line's PTR
+
+          final String parentTreeRel = fields[7];
+
+          // If this particular full PTR has never been seen, add with a child
+          // and
+          // descendant count of 1 each.
+          if (!childAndDescendantCountsMap.containsKey(parentTreeRel)) {
+            childAndDescendantCountsMap.put(parentTreeRel, new int[] {
+                1, 1
+            });
+          }
+          // If it has been seen before, increment both child and descendent
+          // counts by 1
+          else {
+            int[] currentChildDescendantCount =
+                childAndDescendantCountsMap.get(parentTreeRel);
+            childAndDescendantCountsMap.put(parentTreeRel, new int[] {
+                ++currentChildDescendantCount[0],
+                ++currentChildDescendantCount[1]
+            });
+          }
+
+          String parentTreeRelSub = parentTreeRel;
+
+          // Loop through the parentTreeRel string, stripping off trailing
+          // elements until they're gone.
+          do {
+            parentTreeRelSub = parentTreeRelSub.substring(0,
+                parentTreeRelSub.lastIndexOf("."));
+            // If this particular sub PTR has never been seen, add with a child
+            // count of 0, and a descendant count of 1.
+            if (!childAndDescendantCountsMap.containsKey(parentTreeRelSub)) {
+              childAndDescendantCountsMap.put(parentTreeRelSub, new int[] {
+                  0, 1
+              });
+            }
+            // If it has been seen before, increment descendant count only by 1
+            else {
+              int[] currentChildDescendantCount =
+                  childAndDescendantCountsMap.get(parentTreeRelSub);
+              childAndDescendantCountsMap.put(parentTreeRelSub, new int[] {
+                  currentChildDescendantCount[0],
+                  ++currentChildDescendantCount[1]
+              });
+            }
+          } while (parentTreeRelSub.contains("."));
         }
+      }
+
+      // Set the number of steps to the number of contexts.src lines that will
+      // be actually loaded
+      steps = linesToLoad.size();
+
+      for (String line : linesToLoad) {
+        // Check for a cancelled call once every 100 lines
+        if (stepsCompleted % 100 == 0) {
+          if (isCancelled()) {
+            throw new CancelException("Cancelled");
+          }
+        }
+
+        loadContexts(line);
 
         // Update the progress
         updateProgress();
 
-        logAndCommit("[Context Loader] Contexts processed ", stepsCompleted,
-            RootService.logCt, RootService.commitCt);
+        logAndCommit("[Context Loader] Contexts lines processed ",
+            stepsCompleted, RootService.logCt, RootService.commitCt);
       }
+
       commitClearBegin();
 
       // Remove all the "old version" transitive relationships for the
       // terminology.
       int removedRelCount = 0;
       for (Terminology term : referencedTerms) {
-        removedRelCount += removeOldTransRels(term);
+        removedRelCount += removeTransRels(term, true);
         commitClearBegin();
       }
 
-      logInfo("[ContextLoader] Created " + createdTransRels.size()
-          + " new Transitive Relationships.");
+      logInfo("[ContextLoader] Loaded " + createdTransRels.size()
+          + " new Transitive Relationships from file.");
       logInfo("[ContextLoader] Removed " + removedRelCount
           + " old-version Transitive Relationships.");
-      logInfo("[ContextLoader] Created " + addedTreePositions
-          + " new Tree Positions.");
+      logInfo("[ContextLoader] Loaded " + addedTreePositions
+          + " new Tree Positions from file.");
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -241,19 +314,26 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   }
 
   /**
-   * Removes the old trans rels.
+   * Removes the trans rels.
    *
    * @param term the term
    * @return the int
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private int removeOldTransRels(Terminology term) throws Exception {
+  private int removeTransRels(Terminology term, Boolean oldVersions)
+    throws Exception {
     int removedCount = 0;
 
-    logInfo(
-        "[ContextLoader] Removing old-version transitive relationships for terminology: "
-            + term.getTerminology());
+    if (oldVersions) {
+      logInfo(
+          "[ContextLoader] Removing old-version transitive relationships for terminology: "
+              + term.getTerminology());
+    } else {
+      logInfo(
+          "[ContextLoader] Removing transitive relationships for terminology: "
+              + term.getTerminology() + ", version: " + term.getVersion());
+    }
 
     IdType organizingClassType = term.getOrganizingClassType();
     Class<?> clazz = null;
@@ -268,17 +348,55 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       clazz = AtomTransitiveRelationshipJpa.class;
     }
 
-    // TODO - removeTransitiveRelationship doesn't handle atomTreePositionJpa.
-    // Create override for remove, or ignore?
-
     Query query = manager.createQuery("SELECT a.id FROM "
         + clazz.getSimpleName() + " a WHERE terminology = :terminology "
-        + " AND NOT version = :version");
+        + " AND " + (oldVersions ? "NOT" : "") + " version = :version");
     query.setParameter("terminology", term.getTerminology());
     query.setParameter("version", term.getVersion());
     for (final Long id : (List<Long>) query.getResultList()) {
       removeTransitiveRelationship(id,
           (Class<? extends TransitiveRelationship<? extends AtomClass>>) clazz);
+      logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
+    }
+
+    return removedCount;
+  }
+
+  @SuppressWarnings("unchecked")
+  private int removeTreePositions(Terminology term, Boolean oldVersions)
+    throws Exception {
+    int removedCount = 0;
+
+    if (oldVersions) {
+      logInfo(
+          "[ContextLoader] Removing old-version tree positions for terminology: "
+              + term.getTerminology());
+    } else {
+      logInfo("[ContextLoader] Removing tree positions for terminology: "
+          + term.getTerminology() + ", version: " + term.getVersion());
+    }
+
+    IdType organizingClassType = term.getOrganizingClassType();
+    Class<?> clazz = null;
+
+    if (organizingClassType.equals(IdType.CONCEPT)) {
+      clazz = ConceptTreePositionJpa.class;
+    } else if (organizingClassType.equals(IdType.DESCRIPTOR)) {
+      clazz = DescriptorTreePositionJpa.class;
+    } else if (organizingClassType.equals(IdType.CODE)) {
+      clazz = CodeTreePositionJpa.class;
+    } else if (organizingClassType.equals(IdType.ATOM)) {
+      clazz = AtomTreePositionJpa.class;
+    }
+
+    Query query = manager.createQuery("SELECT a.id FROM "
+        + clazz.getSimpleName() + " a WHERE terminology = :terminology "
+        + " AND " + (oldVersions ? "NOT" : "") + " version = :version");
+    query.setParameter("terminology", term.getTerminology());
+    query.setParameter("version", term.getVersion());
+    for (final Long id : (List<Long>) query.getResultList()) {
+      removeTreePosition(id,
+          (Class<? extends TreePosition<? extends AtomClass>>) clazz);
       logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
     }
 
@@ -292,23 +410,30 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @throws Exception the exception
    */
   private void calculateContexts(Terminology term) throws Exception {
-    //
-    // Compute transitive closures
-    //
-    TransitiveClosureAlgorithm algo = null;
-    // Only compute for organizing class types
-    if (term.getOrganizingClassType() != null) {
-      algo = new TransitiveClosureAlgorithm();
-      algo.setLastModifiedBy(getLastModifiedBy());
-      algo.setTerminology(term.getTerminology());
-      algo.setVersion(term.getVersion());
-      algo.setIdType(term.getOrganizingClassType());
-      // some terminologies may have cycles, allow these for now.
-      algo.setCycleTolerant(true);
-      algo.compute();
-      algo.close();
 
+    // Check for a cancelled call before starting
+    if (isCancelled()) {
+      throw new CancelException("Cancelled");
     }
+
+    // Don't handle transitiveRelationships
+    // //
+    // // Compute transitive closures
+    // //
+    // TransitiveClosureAlgorithm algo = null;
+    // // Only compute for organizing class types
+    // if (term.getOrganizingClassType() != null) {
+    // algo = new TransitiveClosureAlgorithm();
+    // algo.setLastModifiedBy(getLastModifiedBy());
+    // algo.setTerminology(term.getTerminology());
+    // algo.setVersion(term.getVersion());
+    // algo.setIdType(term.getOrganizingClassType());
+    // // some terminologies may have cycles, allow these for now.
+    // algo.setCycleTolerant(true);
+    // algo.compute();
+    // algo.close();
+    //
+    // }
 
     //
     // Compute tree positions
@@ -334,14 +459,14 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * Load contexts.
    *
    * @param line the line
-   * @param specifiedTerm the specified term
    * @throws Exception the exception
    */
-  private void loadContexts(String line, Terminology specifiedTerm)
-    throws Exception {
+  private void loadContexts(String line) throws Exception {
 
     final String fields[] = new String[17];
     FieldedStringTokenizer.split(line, "|", 17, fields);
+
+    Terminology specifiedTerm = getCachedTerminology(fields[4]);
 
     // If sg_type_1 and sg_type_2 don't match, fire a warning and skip the
     // line.
@@ -373,11 +498,11 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
       final Long atomId =
           getId(AtomJpa.class, element, specifiedTerm.getTerminology());
-      final Atom atom = getCachedAtom(atomId);
+      final Atom atom = atomId == null ? null : getCachedAtom(atomId);
 
       // If Atom can't be found, fire a warning and move onto the
       // next line of the file.
-      if (atomId == null || atom == null) {
+      if (atom == null) {
         // EXCEPTION: if this is the first id in the list, the reason it
         // couldn't be found is likely because it is a SRC atom. In this case,
         // don't error out - just skip the element and continue.
@@ -401,12 +526,13 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       ptrAtoms.remove(0);
     }
 
-    createTransitiveRelationships(clazz, ptrAtoms);
+    // Don't handle transitiveRelationships
+    // createTransitiveRelationships(clazz, ptrAtoms);
 
     // Tree Positions use the last atom in the list (which was loaded from the
     // first column of the line) for determining the node.
     Atom nodeAtom = ptrAtoms.get(ptrAtoms.size() - 1);
-    createTreePositions(clazz, nodeAtom, parentTreeRel.replace('.', '~'));
+    createTreePositions(clazz, nodeAtom, parentTreeRel, fields[6]);
   }
 
   /**
@@ -559,10 +685,12 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    */
   @SuppressWarnings("rawtypes")
   private void createTreePositions(Class clazz, Atom nodeAtom,
-    String ancestorPath) throws Exception {
+    String parentTreeRel, String hcd) throws Exception {
     // For tree positions, create one each line. The
     // "node" will always be based on the first field of the
     // contexts.src file.
+
+    String ancestorPath = parentTreeRel.replace('.', '~');
 
     // Instantiate the tree position
     TreePosition<? extends ComponentHasAttributesAndName> newTreePos = null;
@@ -597,11 +725,10 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     newTreePos.setAncestorPath(ancestorPath);
     newTreePos.setTerminology(newTreePos.getNode().getTerminology());
     newTreePos.setVersion(newTreePos.getNode().getVersion());
-    // TODO - double-check these
-    // newTreePos.setChildCt(??);
-    // newTreePos.setDescendantCt(??);
-    // No ids if computing - only if loading
-    newTreePos.setTerminologyId("");
+    newTreePos.setChildCt(childAndDescendantCountsMap.get(parentTreeRel)[0]);
+    newTreePos
+        .setDescendantCt(childAndDescendantCountsMap.get(parentTreeRel)[1]);
+    newTreePos.setTerminologyId(hcd);
 
     // persist the tree position
     addTreePosition(newTreePos);
@@ -655,7 +782,53 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // n/a - No reset
+    //
+    // Delete any TreePositions and TransitiveRelationships for all terminology
+    // and versions referenced in the contexts.src file.
+
+    // No molecular actions will be generated by this algorithm reset
+    setMolecularActionFlag(false);
+
+    // Make sure the process' preconditions are still valid, and that the
+    // srcDirFile is set.
+    checkPreconditions();
+
+    logInfo(
+        "[ContextLoader] Reset: removing all Tree Positions and Transitive Relationships added by previous run");
+    //
+    // Load the contexts.src file
+    //
+    List<String> lines =
+        loadFileIntoStringList(srcDirFile, "contexts.src", null, null);
+
+    // Scan through contexts.src, and collect all terminology/versions
+    // referenced.
+    Set<String> terminologyAndVersions = new HashSet<>();
+
+    String fields[] = new String[17];
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 17, fields);
+
+      final String termNameAndVersion = fields[4];
+      terminologyAndVersions.add(termNameAndVersion);
+    }
+
+    int removedRelCount = 0;
+    int removedTreePosCount = 0;
+
+    for (String terminologyVersion : terminologyAndVersions) {
+      Terminology terminology = getCachedTerminology(terminologyVersion);
+      removedRelCount += removeTransRels(terminology, false);
+      removedTreePosCount += removeTreePositions(terminology, false);
+
+      commitClearBegin();
+    }
+
+    logInfo("[ContextLoader] Removed " + removedRelCount
+        + " Transitive Relationships added in previous run.");
+    logInfo("[ContextLoader] Removed " + removedTreePosCount
+        + " Tree Positions added in previous run.");
+
   }
 
   /**
