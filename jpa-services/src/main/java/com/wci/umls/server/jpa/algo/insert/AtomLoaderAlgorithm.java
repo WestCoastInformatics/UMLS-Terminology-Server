@@ -121,7 +121,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList(srcDirFile, "classes_atoms.src", null, null);
+      List<String> lines =
+          loadFileIntoStringList(srcDirFile, "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
 
@@ -139,9 +140,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // If it does not, add it.
       for (String line : lines) {
 
-        // Print progress and check for a cancelled call once every 100 atoms
-        // (doing it for every atom
-        // makes things too slow)
+        // Check for a cancelled call once every 100 lines
         if (stepsCompleted % 100 == 0) {
           if (isCancelled()) {
             throw new CancelException("Cancelled");
@@ -186,9 +185,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         }
         Terminology term = getCachedTerminology(fields[1]);
         if (term == null) {
-          logWarn(
-              "Warning - terminology not found: " + fields[1] + ". Could not process the following line:\n\t"
-                  + line);
+          logWarn("Warning - terminology not found: " + fields[1]
+              + ". Could not process the following line:\n\t" + line);
           updateProgress();
           logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
               RootService.logCt, RootService.commitCt);
@@ -283,17 +281,19 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           boolean oldAtomChanged = false;
 
           // Update "alternateTerminologyIds"
-          final Map<String,String> altTermIds = oldAtom.getAlternateTerminologyIds();
-          if(!altTermIds.containsKey(getProject().getTerminology() + "-SRC")){
+          final Map<String, String> altTermIds =
+              oldAtom.getAlternateTerminologyIds();
+          if (!altTermIds.containsKey(getProject().getTerminology() + "-SRC")) {
             oldAtom.getAlternateTerminologyIds()
-            .put(getProject().getTerminology() + "-SRC", fields[0]);
+                .put(getProject().getTerminology() + "-SRC", fields[0]);
             oldAtomChanged = true;
           }
-          if(!altTermIds.containsKey(getProject().getTerminology() + "-ORDER")){
+          if (!altTermIds
+              .containsKey(getProject().getTerminology() + "-ORDER")) {
             oldAtom.getAlternateTerminologyIds()
-            .put(getProject().getTerminology() + "-ORDER", fields[13]);
+                .put(getProject().getTerminology() + "-ORDER", fields[13]);
             oldAtomChanged = true;
-          }          
+          }
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
@@ -325,7 +325,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             updateAtom(oldAtom);
             updateCount++;
           }
-          
+
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(oldAtom);
         }
@@ -405,7 +405,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       Long existingConceptId =
           getId(ConceptJpa.class, atom.getConceptId(), atom.getTerminology());
       if (existingConceptId != null) {
-//        final Concept concept = new ConceptJpa(getConcept(existingConceptId), true);
+        // final Concept concept = new ConceptJpa(getConcept(existingConceptId),
+        // true);
         final Concept concept = getConcept(existingConceptId);
         concept.getAtoms().add(atom);
         concept.setVersion(atom.getVersion());

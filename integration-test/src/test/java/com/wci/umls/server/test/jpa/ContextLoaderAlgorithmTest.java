@@ -104,16 +104,12 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
     // temporary subfolder
     outputFile = new File(tempSrcDir, "contexts.src");
 
-    // TODO - once I have an input file that has HCD populated for a
-    // terminology, add lines this file to
-    // test the creation methods (current setup will only test the calculate
-    // methods)
-
     PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
-        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E|POPULATED|31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
+        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
     out.println(
         "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
+
     out.close();
 
     // Create and configure the algorithm
@@ -159,6 +155,10 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
+      //
+      // Reset the algorithm
+      //
+      //algo.reset();
 
     } catch (Exception e) {
       e.printStackTrace();

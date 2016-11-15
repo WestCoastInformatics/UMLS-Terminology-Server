@@ -177,32 +177,32 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       
       relList =
           contentService.findCodeRelationships("V-NCI", "SRC", "latest",
-              Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", true, null);
-//      assertEquals(1, relList.size());
+              Branch.ROOT, "fromTerminologyId:V-NCI_2016_05E", true, null);
+      assertEquals(1, relList.size());
 
       relList = contentService.findConceptRelationships("C98033", "NCI",
           "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
-//      assertEquals(1, relList.size());
+      assertEquals(1, relList.size());
 
       relList = contentService.findConceptRelationships("C98033", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C63923", true, null);
-//      assertEquals(1, relList.size());
+          "2016_05E", Branch.ROOT, "fromTerminologyId:C63923", true, null);
+      assertEquals(1, relList.size());
       
       relList = contentService.findConceptRelationships("C37447", "NCI",
           "2016_05E", Branch.ROOT, "toTerminologyId:C1971", false, null);
-//      assertEquals(1, relList.size());
+      assertEquals(1, relList.size());
 
       relList = contentService.findConceptRelationships("C37447", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C1971", true, null);
-//      assertEquals(1, relList.size());
+          "2016_05E", Branch.ROOT, "fromTerminologyId:C1971", true, null);
+      assertEquals(1, relList.size());
     
       relList = contentService.findConceptRelationships("C25948", "NCI",
           "2016_05E", Branch.ROOT, "toTerminologyId:C16484", false, null);
-//      assertEquals(1, relList.size());
+      assertEquals(1, relList.size());
 
       relList = contentService.findConceptRelationships("C25948", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C16484", true, null);
-//      assertEquals(1, relList.size());
+          "2016_05E", Branch.ROOT, "fromTerminologyId:C16484", true, null);
+      assertEquals(1, relList.size());
       
     } catch (Exception e) {
       e.printStackTrace();

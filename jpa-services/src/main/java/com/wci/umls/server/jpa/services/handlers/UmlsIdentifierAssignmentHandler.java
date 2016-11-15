@@ -579,7 +579,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setTerminology(semanticTypeComponent.getTerminology());
 
         final SemanticTypeComponentIdentity identity2 =
-            service.getSemanticTypeComponentIdentity(identity);
+            localService.getSemanticTypeComponentIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -588,10 +588,10 @@ public class UmlsIdentifierAssignmentHandler
         // else generate a new one and add it
         else {
           // Get next id
-          final Long nextId = service.getNextSemanticTypeComponentId();
+          final Long nextId = localService.getNextSemanticTypeComponentId();
           // Add new identity object
           identity.setId(nextId);
-          service.addSemanticTypeComponentIdentity(identity);
+          localService.addSemanticTypeComponentIdentity(identity);
           return convertId(nextId, "ATUI");
         }
       }
