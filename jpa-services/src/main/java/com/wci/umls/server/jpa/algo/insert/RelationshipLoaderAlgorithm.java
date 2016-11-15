@@ -20,12 +20,12 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
-import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -154,9 +154,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       String fields[] = new String[18];
       for (String line : lines) {
 
-        // Check for a cancelled call once every 100 relationships (doing it
-        // every time
-        // makes things too slow)
+        // Check for a cancelled call once every 100 lines
         if (stepsCompleted % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
@@ -210,7 +208,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr, false);
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
+            false);
       }
 
       //
@@ -277,7 +276,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr, true);
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
+            true);
 
       }
 
@@ -362,7 +362,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     String suppresible, String sourceTermAndVersion, String sourceTermId,
     String workflowStatusStr, Boolean fromContextsSrcFile) throws Exception {
 
-    // For the contexts.src file relationships only, if to and from ClassTypes don't match, fire a
+    // For the contexts.src file relationships only, if to and from ClassTypes
+    // don't match, fire a
     // warning and skip the line.
     if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
       logWarn("Warning - type 1: " + fromClassIdType
@@ -372,8 +373,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       logAndCommit("[Relationship Loader] Relationships processed ",
           stepsCompleted, RootService.logCt, RootService.commitCt);
       return;
-    }     
-    
+    }
+
     // Load the containing objects based on type
     final String fromTerminologyId = fromTermId;
     final String fromTerminology = fromTermAndVersion.contains("_")
@@ -437,12 +438,12 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (!fromClass.equals(toClass)) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
-    } else if (fromClass.equals(ConceptJpa.class)
-        && toClass.equals(ConceptJpa.class)) {
+    } else if (Concept.class.isAssignableFrom(fromClass)
+        && Concept.class.isAssignableFrom(toClass)) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
-    } else if (fromClass.equals(CodeJpa.class)
-        && toClass.equals(CodeJpa.class)) {
+    } else if (Code.class.isAssignableFrom(fromClass)
+        && Code.class.isAssignableFrom(toClass)) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
     } else {
@@ -453,13 +454,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     newRelationship.setBranch(Branch.ROOT);
     newRelationship.setFrom(fromComponent);
     newRelationship.setGroup(group);
-    newRelationship.setInferred(true);
     newRelationship.setObsolete(false);
     newRelationship.setPublishable(publishable.equals("Y"));
     newRelationship.setPublished(published.equals("Y"));
     newRelationship.setRelationshipType(lookupRelationshipType(relType));
-    newRelationship.setHierarchical(false);
+    // When creating "CHD" relationship, set the "hierarchical" field
+    // to true.
+    newRelationship.setHierarchical(
+        newRelationship.getRelationshipType().equals("CHD") ? true : false);
     newRelationship.setStated(true);
+    newRelationship.setInferred(true);
     newRelationship.setSuppressible(suppresible.equals("Y"));
     Terminology term = getCachedTerminology(sourceTermAndVersion);
     if (term == null) {

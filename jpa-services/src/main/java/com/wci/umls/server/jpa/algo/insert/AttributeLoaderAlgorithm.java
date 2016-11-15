@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -25,6 +24,7 @@ import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
@@ -126,9 +126,9 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
       //
-      //TODO - fill out the skipRegexFilter
-      List<String> lines =
-          loadFileIntoStringList(srcDirFile, "attributes.src", null, "");
+      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src",
+          null,
+          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM)(.*)");
 
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
@@ -170,32 +170,28 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // e.g.
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
-        // Skip SEMANTIC_TYPE, CONTEXT, SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
-
-        if (Arrays.asList("SEMANTIC_TYPE", "CONTEXT", "SUBSET_MEMBER", "XMAP",
-            "XMAPTO", "XMAPFROM").contains(fields[4])) {
+        Terminology terminology = getCachedTerminology(fields[5]);
+        if (terminology == null) {
+          logWarn("Warning - terminology not found: " + fields[5]
+              + ". Could not process the following line:\n\t" + line);
           updateProgress();
           logAndCommit("[Attribute Loader] Attribute lines processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
+          continue;
         }
 
         // If it's a DEFITION, process the line as a definition instead of an
         // attribute
-        else if (fields[4].equals("DEFINITION")) {
+        if (fields[4].equals("DEFINITION")) {
           // Create the definition
           Definition newDefinition = new DefinitionJpa();
           newDefinition.setBranch(Branch.ROOT);
           newDefinition.setName(fields[3]);
           newDefinition.setValue(fields[4]);
+          //TODO question - set to blank?
           newDefinition.setTerminologyId("TestId");
-          Terminology term = getCachedTerminology(fields[5]);
-          if (term == null) {
-            throw new Exception(
-                "ERROR: lookup for " + fields[5] + " returned no terminology");
-          } else {
-            newDefinition.setTerminology(term.getTerminology());
-            newDefinition.setVersion(term.getVersion());
-          }
+          newDefinition.setTerminology(terminology.getTerminology());
+          newDefinition.setVersion(terminology.getVersion());
           newDefinition.setTimestamp(new Date());
           newDefinition.setSuppressible(fields[9].equals("Y"));
           newDefinition.setPublished(fields[6].equals("Y"));
@@ -204,18 +200,21 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           // Load the containing object
           final String containerTerminologyId = fields[1];
-          final String containerTerminology = fields[5].contains("_")
-              ? fields[5].substring(0, fields[5].indexOf('_')) : fields[5];
+          final String containerTerminology = terminology.getTerminology();
           final Class<? extends Component> containerClass =
               lookupClass(fields[10]);
 
           Long containerComponentId = null;
-          if (containerClass.equals(ConceptJpa.class)) {
+          if (Concept.class.isAssignableFrom(containerClass)) {
             containerComponentId = getId(ConceptJpa.class, containerTerminology,
                 containerTerminologyId);
           } else {
-            throw new IllegalArgumentException(
-                "Invalid class type: " + containerClass);
+            logWarn("Warning - unsupported container class identified: " + containerClass
+                + ". Could not process the following line:\n\t" + line);
+            updateProgress();
+            logAndCommit("[Attribute Loader] Attribute lines processed ",
+                stepsCompleted, RootService.logCt, RootService.commitCt);
+            continue;
           }
 
           final ComponentHasDefinitions containerComponent =
@@ -224,17 +223,13 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
                       containerClass);
 
           if (containerComponent == null) {
-            // TODO - remove update and continue, and uncomment Exception once
-            // testing is completed.
+            logWarn("Warning - container component not found: "
+                + containerComponentId + ", " + containerClass
+                + ". Could not process the following line:\n\t" + line);
             updateProgress();
             logAndCommit("[Attribute Loader] Attributes processed ",
                 stepsCompleted, RootService.logCt, RootService.commitCt);
             continue;
-            // throw new Exception("Error - lookup returned no object: " +
-            // fromClass.getSimpleName() + " with terminologyId=" +
-            // fromTerminologyId
-            // + ", terminology=" + fromTerminology + ", version=" +
-            // fromVersion);
           }
 
           // Compute definition identity
