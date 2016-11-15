@@ -177,6 +177,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
         resolve(rel);
       }
 
+      atom.getNotes().size();
+
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");
     }

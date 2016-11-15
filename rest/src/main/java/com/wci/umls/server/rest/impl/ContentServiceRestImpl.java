@@ -1255,9 +1255,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final Atom atom = contentService.getAtom(atomId);
 
-      // lazy initialization
-      atom.getNotes().size();
-
       if (atom != null) {
         final String terminology = atom.getTerminology();
         contentService.getGraphResolutionHandler(terminology).resolve(atom);
