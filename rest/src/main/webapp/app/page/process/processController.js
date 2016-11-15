@@ -7,6 +7,7 @@ tsApp
       '$location',
       '$uibModal',
       '$interval',
+      '$timeout',
       'configureService',
       'tabService',
       'utilService',
@@ -14,8 +15,8 @@ tsApp
       'projectService',
       'processService',
       'metadataService',
-      function($scope, $location, $uibModal, $interval, configureService, tabService, utilService,
-        securityService, projectService, processService, metadataService) {
+      function($scope, $location, $uibModal, $interval, $timeout, configureService, tabService,
+        utilService, securityService, projectService, processService, metadataService) {
         console.debug("configure ProcessCtrl");
 
         // Set up tabs and controller
@@ -39,6 +40,7 @@ tsApp
           algorithm : null,
           processType : 'Insertion',
           mode : 'Config' // vs 'Execution'
+
         };
 
         // Lists
@@ -131,6 +133,7 @@ tsApp
         // Set worklist mode
         $scope.setMode = function(mode) {
           $scope.selected.mode = mode;
+          $scope.selected.process = null;
           $scope.getProcesses();
         }
 
@@ -149,13 +152,29 @@ tsApp
           }
         }
 
+        // Select a process
         $scope.selectProcess = function(process) {
-          $scope.selected.process = process;
+          // Read the process
           processService['getProcess' + $scope.selected.mode]($scope.selected.project.id,
-            process.id).then(function(data) {
+            process.id).then(
+          // Success
+          function(data) {
+
+            // Set selected
             $scope.selected.process = data;
+
+            // Cancel any existing interval
+            if ($scope.processInterval) {
+              $interval.cancel($scope.processInterval);
+            }
+            // Start polling for this one
+            $scope.processInterval = $interval(function() {
+              $scope.refreshProcessProgress();
+            }, 2000);
+
           });
 
+          // Look up algorithm types
           $scope.lists.algorithmConfigTypes = [];
           processService['get' + $scope.selected.processType + 'Algorithms'](
             $scope.selected.project.id).then(
@@ -166,7 +185,21 @@ tsApp
             }
             $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
             $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+
+            // Start step progress monitor, if not already running
+            // Cancel any existing interval
+            if ($scope.stepInterval) {
+              $interval.cancel($scope.stepInterval);
+            }
+            // Start polling
+            if (!$scope.stepInterval) {
+              $scope.stepInterval = $interval(function() {
+                $scope.refreshStepProgress();
+              }, 2000);
+            }
+
           });
+
         }
 
         // execute process
@@ -174,87 +207,87 @@ tsApp
           $scope.processConfig = $scope.selected.process;
           processService.executeProcess($scope.selected.project.id, $scope.selected.process.id,
             true).then(
-            function(data) {
-              $scope.selected.process.id = data;
-              wait(1000);
-              $scope.setMode('Execution');
-              processService.getProcessExecution($scope.selected.project.id, data).then(
-                function(result) {
-                  $scope.selectProcess(result);
-                  $scope.processProgress = 1;
-                  // Start process progress monitor, if not already running
-                  if (!$scope.processInterval) {
-                    $scope.processInterval = $interval(function() {
-                      $scope.refreshProcessProgress(result);
-                    }, 2000);
-                  }
-                  // Start step progress monitor, if not already running
-                  if (!$scope.stepInterval) {
-                    $scope.stepInterval = $interval(function() {
-                      $scope.refreshStepProgress();
-                    }, 2000);
-                  }
-                });
-            });
+          // Success
+          function(data) {
+            $scope.selected.process.id = data;
+            $timeout($scope.switchToExecute, 1000);
+          });
+        }
+        $scope.switchToExecute = function() {
+          $scope.setMode('Execution');
+          processService.getProcessExecution($scope.selected.project.id, data).then(
+          // Success
+          function(result) {
+            $scope.selectProcess(result);
+            $scope.processProgress = 1;
+          });
         }
 
         // Refresh process progress
-        $scope.refreshProcessProgress = function(process) {
-          processService.getProcessProgress($scope.selected.project.id, process.id).then(
+        $scope.refreshProcessProgress = function() {
+          // Stop the interval if no process is selected or process ha
+          if (!$scope.selected.process) {
+            $interval.cancel($scope.processInterval);
+          }
+          processService.getProcessProgress($scope.selected.project.id, $scope.selected.process.id)
+            .then(
+            // Success
+            function(data) {
+              $scope.processProgress = data;
+
+              // stop interval if process progress has reached 100
+              if (data == 100 || data == -1) {
+                // Reselect the process to refresh everything and restart
+                // progress
+                // monitors as needed
+                $timeout(function() {
+                  $scope.selectProcess($scope.selected.process);
+                }, 500);
+              }
+            },
+            // Error
+            function(data) {
+              // Cancel automated process on error
+              $interval.cancel($scope.processInterval);
+            });
+        }
+
+        // Refresh step progress
+        $scope.refreshStepProgress = function() {
+          var i = $selected.process.steps.length;
+
+          // Bail if there are no steps
+          if (!i) {
+            console.debug("process has no steps yet.");
+            return;
+          }
+
+          $scope.selected.lastAlgorithm = $selected.process.steps[i - 1].id;
+          processService.getAlgorithmProgress($scope.selected.project.id,
+            $scope.selected.lastAlgorithm.id).then(
           // Success
           function(data) {
-            
-            $scope.processProgress = data;
-            // stop interval if process progress has reached 100
-            if ($scope.processProgress >= 100) {
-              $interval.cancel($scope.processInterval);
-              $scope.processInterval = null;
+
+            $scope.stepProgress = data;
+
+            // stop interval if step is not running or progress has finished
+            if (data == 100 || data == -1) {
+              // Reselect the process to refresh everything and restart progress
+              // monitors as needed
+              $timeout(function() {
+                $scope.selectProcess($scope.selected.process);
+              }, 500);
             }
           },
           // Error
           function(data) {
-            // Cancel automated process on error
-            $interval.cancel($scope.processInterval);
+            // Cancel automated step on error
+            $interval.cancel($scope.stepInterval);
           });
-        }
-        
-        // Refresh step progress
-        $scope.refreshStepProgress = function() {
-            processService.getProcessExecution($scope.selected.project.id, $scope.processConfig.id).then(
-              function(processExecution) {
 
-                $scope.selectProcess(processExecution);
-                var currentStep = processExecution.steps.length;
-                
-                processService.getAlgorithmProgress($scope.selected.project.id,
-                  processExecution.steps[currentStep -1].id).then(
-                // Success
-                function(data) {
-
-                  $scope.stepProgress = data;
-                  
-                  // stop interval if step progress has reached 100
-                  if ($scope.stepProgress >= 100) {
-                    $interval.cancel($scope.stepInterval);
-                    $scope.stepInterval = null;
-                  }
-                },
-                // Error
-                function(data) {
-                  // Cancel automated step on error
-                  $interval.cancel($scope.stepInterval);
-                });
-              });
         };
 
-        function wait(ms) {
-          var start = new Date().getTime();
-          var end = start;
-          while (end < start + ms) {
-            end = new Date().getTime();
-          }
-        }
-
+        // Get process configs
         $scope.getProcessConfigs = function() {
           var paging = $scope.paging['process'];
           var pfs = {
@@ -266,48 +299,62 @@ tsApp
               + $scope.selected.processType
           };
           processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
-            function(data) {
-              $scope.lists.processes = data.processes;
-              $scope.lists.processes.totalCount = data.totalCount;
-              $scope.counts[$scope.selected.mode] = data.totalCount;
-              $scope.selected.process = null;
+          // Success
+          function(data) {
+            $scope.lists.processes = data.processes;
+            $scope.lists.processes.totalCount = data.totalCount;
+            $scope.counts[$scope.selected.mode] = data.totalCount;
+            $scope.selected.process = null;
 
-              $scope.getProcessExecutionsCt();
-            });
+            $scope.getProcessExecutionsCt();
+          });
 
         }
 
+        // Remove a process, then reread them
         $scope.removeProcess = function(processId) {
           processService['removeProcess' + $scope.selected.mode]($scope.selected.project.id,
-            processId).then(function(data) {
+            processId).then(
+          // Success
+          function(data) {
             $scope.getProcesses();
           });
         }
 
+        // Remove an algorithm config
         $scope.removeAlgorithmConfig = function(algorithmId) {
           processService.removeAlgorithmConfig($scope.selected.project.id, algorithmId).then(
-            function(data) {
-              $scope.selectProcess($scope.selected.process);
-            });
-        }
-
-        $scope.cancelProcess = function(processId) {
-          processService.cancelProcess($scope.selected.project.id, processId).then(function() {
-            console.debug('cancelled process');
-            wait(2000);
+          // Success
+          function(data) {
             $scope.selectProcess($scope.selected.process);
           });
         }
 
-        $scope.restartProcess = function(processId) {
-          processService.restartProcess($scope.selected.project.id, processId, true).then(
-            function() {
-              console.debug('restarted process');
-              wait(1000);
+        // Cancel process
+        $scope.cancelProcess = function(processId) {
+          processService.cancelProcess($scope.selected.project.id, processId).then(
+          // Success
+          function() {
+            console.debug('cancelled process');
+            $timeout(function() {
               $scope.selectProcess($scope.selected.process);
-            });
+            }, 1000);
+          });
         }
 
+        // Restart process
+        $scope.restartProcess = function(processId) {
+          processService.restartProcess($scope.selected.project.id, processId, true).then(
+          // Success
+          function() {
+            console.debug('restarted process');
+            $timeout(function() {
+              $scope.selectProcess($scope.selected.process);
+            }, 1000);
+          });
+        }
+
+        // Get process executions
         $scope.getProcessExecutions = function() {
           var paging = $scope.paging['process'];
           var pfs = {
@@ -319,13 +366,14 @@ tsApp
               + $scope.selected.processType
           };
           processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
-            function(data) {
-              $scope.lists.processes = data.processes;
-              $scope.lists.processes.totalCount = data.totalCount;
-              $scope.counts[$scope.selected.mode] = data.totalCount;
+          // Success
+          function(data) {
+            $scope.lists.processes = data.processes;
+            $scope.lists.processes.totalCount = data.totalCount;
+            $scope.counts[$scope.selected.mode] = data.totalCount;
 
-              $scope.getProcessConfigsCt();
-            });
+            $scope.getProcessConfigsCt();
+          });
 
         }
 
@@ -352,9 +400,10 @@ tsApp
             queryRestriction : $scope.selected.processType
           };
           processService.findProcessConfigs($scope.selected.project.id, null, pfs).then(
-            function(data) {
-              $scope.counts['Config'] = data.totalCount;
-            });
+          // Success
+          function(data) {
+            $scope.counts['Config'] = data.totalCount;
+          });
         }
 
         $scope.getProcessExecutionsCt = function() {
@@ -364,9 +413,10 @@ tsApp
             queryRestriction : $scope.selected.processType
           };
           processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
-            function(data) {
-              $scope.counts['Execution'] = data.totalCount;
-            });
+          // Success
+          function(data) {
+            $scope.counts['Execution'] = data.totalCount;
+          });
         }
 
         // Set $scope.selected.process
@@ -389,14 +439,6 @@ tsApp
           } else if ($scope.selected.mode == 'Execution') {
             $scope.getAlgorithmExecutions();
           }
-          if (algorithm) {
-            $scope.setAlgorithm(algorithm);
-          }
-        }
-
-        // Set $scope.selected.algorithm
-        $scope.setAlgorithm = function(algorithm) {
-          $scope.selected.algorithm = algorithm;
         }
 
         // Move a step up in step order
@@ -408,9 +450,8 @@ tsApp
               $scope.selected.process.steps.splice(i - 1, 0, step);
             }
           }
-          processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process)
-            .then(function(data) {
-            });
+          processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process);
+
         };
 
         // Move a step down in step order
@@ -423,9 +464,7 @@ tsApp
               break;
             }
           }
-          processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process)
-            .then(function(data) {
-            });
+          processService.updateProcessConfig($scope.selected.project.id, $scope.selected.process);
         };
 
         $scope.isFirstIndex = function(entry) {
@@ -494,7 +533,7 @@ tsApp
           });
 
           modalInstance.result.then(
-          // Success
+          // dialog closed
           function(data) {
             $scope.getProcessConfigs();
           });
@@ -527,7 +566,7 @@ tsApp
           });
 
           modalInstance.result.then(
-          // Success
+          // dialog closed
           function(data) {
             $scope.getProcessConfigs();
           });
@@ -560,7 +599,7 @@ tsApp
           });
 
           modalInstance.result.then(
-          // Success
+          // dialog closed
           function(data) {
             $scope.selectProcess($scope.selected.process);
           });
@@ -592,7 +631,7 @@ tsApp
           });
 
           modalInstance.result.then(
-          // Success
+          // dialog closed
           function(data) {
             $scope.selectProcess($scope.selected.process);
           });

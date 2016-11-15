@@ -15,7 +15,8 @@
         <b>Select user</b>
       </td>
       <td>
-        <select ng-model="user" ng-options="item.userName for item in users"></select>
+        <select autofocus ng-model="user"
+          ng-options="item.userName for item in users"></select>
       </td>
     </tr>
     <tr>
@@ -33,14 +34,14 @@
   <!-- Errors -->
   <div errors="errors"></div>
 
-   <!-- messages -->
-    <div class="col-md-12 col-xs-12">
-      <div class="alert alert-success" ng-repeat="message in messages">
-        {{message}}
-        <div style="cursor: pointer; display: inline; float: right; width: 3%;">
-        </div>
+  <!-- messages -->
+  <div class="col-md-12 col-xs-12">
+    <div class="alert alert-success" ng-repeat="message in messages">
+      {{message}}
+      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
       </div>
     </div>
+  </div>
 </div>
 
 <div class="modal-footer">

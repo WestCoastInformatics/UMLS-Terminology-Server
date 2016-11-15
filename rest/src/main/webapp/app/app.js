@@ -144,19 +144,8 @@ tsApp.directive('confirm', function($confirm) {
 tsApp.filter('toArrayKeys', function() {
   return function(obj, field, reverse) {
     var arr = [];
-    arr = Object.keys(obj);
-    return arr;
-  };
-});
-
-// Filter for ordering by key
-tsApp.filter('toArrayValues', function() {
-  return function(obj, field, reverse) {
-    var arr = [];
-    for ( var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        arr.push(obj[key]);
-      }
+    if (obj != null) {
+      arr = Object.keys(obj);
     }
     return arr;
   };

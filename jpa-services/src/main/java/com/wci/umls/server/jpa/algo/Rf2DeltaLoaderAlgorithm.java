@@ -133,18 +133,6 @@ public class Rf2DeltaLoaderAlgorithm
   private final String initPrefName =
       "Default prefered name could not be determined";
 
-  /** The tree pos algorithm. */
-  private final TreePositionAlgorithm treePosAlgorithm =
-      new TreePositionAlgorithm();
-
-  /** The trans closure algorithm. */
-  private final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
-
-  /** The label set algorithm. */
-  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
-      new LabelSetMarkedParentAlgorithm();
-
   /** The RF2 File sorting algorithm. */
   private final Rf2FileSorter sorter = new Rf2FileSorter();
 
@@ -418,18 +406,6 @@ public class Rf2DeltaLoaderAlgorithm
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() throws Exception {
-    // cancel local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-    labelSetAlgorithm.cancel();
-
-    // invoke superclass cancel
-    super.cancel();
   }
 
   /**

@@ -251,15 +251,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     latCodeMap.put("GRE", "el");
   }
 
-  /** The tree pos algorithm. */
-  private TreePositionAlgorithm treePosAlgorithm = null;
-
-  /** The trans closure algorithm. */
-  private TransitiveClosureAlgorithm transClosureAlgorithm = null;
-
-  /** The label set algorithm. */
-  private LabelSetMarkedParentAlgorithm labelSetAlgorithm = null;
-
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -332,6 +323,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  terminology = " + getTerminology());
     logInfo("  version = " + getVersion());
     logInfo("  single mode = " + singleMode);
+    logInfo("  edit mode = " + editMode);
     logInfo("  inputDir = " + getInputPath());
 
     // Track system level information
@@ -2361,6 +2353,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               getConcept(conceptIdMap.get(getTerminology() + fields[0]));
           conceptRel.setTo(toConcept);
         }
+        // RUI is the terminologyId for concept relationships, not the alt
+        // terminology id
+        conceptRel.setTerminologyId(fields[8]);
         setRelationshipFields(fields, conceptRel);
         conceptRel.setTerminology(getTerminology());
         conceptRel.setVersion(getVersion());
@@ -2550,10 +2545,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     relationship.setHierarchical(fields[3].equals("CHD"));
 
-    if (!singleMode) {
-      relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
+    // If terminology Id was set to RUI for CUI-CUI rel, skip this part
+    if (relationship.getTerminologyId() == null) {
+      if (!singleMode) {
+        relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
+      }
+      relationship.setTerminologyId(fields[9]);
     }
-    relationship.setTerminologyId(fields[9]);
+
     relationship.setTerminology(fields[10].intern());
     if (loadedTerminologies.get(fields[10]) == null) {
       throw new Exception(
@@ -2747,20 +2746,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setStringClassId(fields[5]);
       atom.setLexicalClassId(fields[3]);
       atom.setCodeId(fields[13]);
-      
+
       // Calculate last release rank
       String ts = fields[2];
       String stt = fields[4];
       if (ts.equals("P") && stt.equals("PF")) {
         atom.setLastPublishedRank("4");
       } else if (ts.equals("S") && stt.equals("PF")) {
-    	atom.setLastPublishedRank("2");   			
+        atom.setLastPublishedRank("2");
       } else if (ts.equals("P") && stt.startsWith("V")) {
-    	atom.setLastPublishedRank("3");
+        atom.setLastPublishedRank("3");
       } else if (ts.equals("S") && stt.startsWith("V")) {
-    	atom.setLastPublishedRank("1");
+        atom.setLastPublishedRank("1");
       }
-    	  
 
       // Handle root terminology short name, hierarchical name, and sy names
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
@@ -3016,6 +3014,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
       String prevCode = null;
       Code code = null;
+      int atomCt = 0;
       while (results.next()) {
         final Atom atom = (Atom) results.get()[0];
         if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
@@ -3035,7 +3034,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // }
 
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
-          if (code != null) {
+          if (code != null && atomCt < 3001) {
             // compute preferred name
             code.setName(getComputedPreferredName(code, list));
             addCode(code);
@@ -3054,8 +3053,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setTerminologyId(atom.getCodeId());
           code.setVersion(atom.getVersion());
           code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+          atomCt = 0;
         }
-        code.getAtoms().add(atom);
+        atomCt++;
+        if (atomCt == 3000) {
+          Logger.getLogger(getClass()).warn("Code with > 3000 atoms, skipping: "
+              + atom.getTerminology() + ", " + atom.getCodeId());
+        }
+        if (atomCt < 3001) {
+          code.getAtoms().add(atom);
+        }
         prevCode = atom.getCodeId();
       }
       if (code != null) {
@@ -3281,9 +3288,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-    labelSetAlgorithm.cancel();
     if (umlsIdentityLoaderAlgo != null) {
       umlsIdentityLoaderAlgo.cancel();
     }

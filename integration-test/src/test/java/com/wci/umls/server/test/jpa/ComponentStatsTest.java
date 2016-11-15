@@ -171,7 +171,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete ConceptRelationshipJpa", 7530);
     cmpStats.put("Non-obsolete ConceptSubsetJpa", 16);
     cmpStats.put("Non-obsolete ConceptSubsetMemberJpa", 14714);
-    cmpStats.put("Non-obsolete ConceptTransitiveRelationshipJpa", 2729);
+    cmpStats.put("Non-obsolete ConceptTransitiveRelationshipJpa", 0);
     cmpStats.put("Non-obsolete ConceptTreePositionJpa", 1233);
     cmpStats.put("Non-obsolete DefinitionJpa", 9);
     cmpStats.put("Non-obsolete DescriptorJpa", 0);
@@ -204,7 +204,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total ConceptRelationshipJpa", 18412);
     cmpStats.put("Total ConceptSubsetJpa", 17);
     cmpStats.put("Total ConceptSubsetMemberJpa", 15948);
-    cmpStats.put("Total ConceptTransitiveRelationshipJpa", 2729);
+    cmpStats.put("Total ConceptTransitiveRelationshipJpa", 0);
     cmpStats.put("Total ConceptTreePositionJpa", 1233);
     cmpStats.put("Total DefinitionJpa", 12);
     cmpStats.put("Total DescriptorJpa", 0);
@@ -277,7 +277,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Non-obsolete DefinitionJpa", 816);
     cmpStats.put("Non-obsolete DescriptorJpa", 997);
     cmpStats.put("Non-obsolete DescriptorRelationshipJpa", 43368);
-    cmpStats.put("Non-obsolete DescriptorTransitiveRelationshipJpa", 1354);
+    cmpStats.put("Non-obsolete DescriptorTransitiveRelationshipJpa", 0);
     cmpStats.put("Non-obsolete DescriptorTreePositionJpa", 591);
     cmpStats.put("Non-obsolete LexicalClassJpa", 0);
     cmpStats.put("Non-obsolete SemanticTypeComponentJpa", 0);
@@ -309,7 +309,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     cmpStats.put("Total DefinitionJpa", 816);
     cmpStats.put("Total DescriptorJpa", 997);
     cmpStats.put("Total DescriptorRelationshipJpa", 43368);
-    cmpStats.put("Total DescriptorTransitiveRelationshipJpa", 1354);
+    cmpStats.put("Total DescriptorTransitiveRelationshipJpa", 0);
     cmpStats.put("Total DescriptorTreePositionJpa", 591);
     cmpStats.put("Total GeneralMetadataEntryJpa", 0);
     cmpStats.put("Total LanguageJpa", 0);

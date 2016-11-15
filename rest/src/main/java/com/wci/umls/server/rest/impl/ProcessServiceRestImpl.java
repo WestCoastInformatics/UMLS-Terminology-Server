@@ -1632,6 +1632,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // we're running, reset the algorithm.
             if (restart && firstRestartedAlgorithm) {
               algorithm.reset();
+              // Commit and reset transaction
+              algorithm.commitClearBegin();
               // Don't reset on any later algorithms
               firstRestartedAlgorithm = false;
             }

@@ -1,3 +1,4 @@
+
 <div class="modal-header">
   <h4>{{action}} Project</h4>
 </div>
@@ -17,7 +18,7 @@
             <b>Name</b>
           </td>
           <td>
-            <input ng-model="project.name" size="40" />
+            <input autofocus ng-model="project.name" size="40" />
           </td>
         </tr>
         <tr>
@@ -44,7 +45,7 @@
             <b>Terminology</b>
           </td>
           <td>
-            <input  placeholder="Enter terminology"
+            <input placeholder="Enter terminology"
               ng-change="setTerminology(project.terminology)" type="text"
               ng-model="project.terminology" list="project-terminologies">
             <datalist id="project-terminologies">
@@ -79,23 +80,23 @@
           </td>
         </tr>
         <tr>
-        <td>
-          <b>Editing enabled</b>
-        </td>
-        <td>
-          <input type="checkbox" ng-model="project.editingEnabled"
-            title="Project is editable.">
-        </td>
+          <td>
+            <b>Editing enabled</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="project.editingEnabled"
+              title="Project is editable.">
+          </td>
         </tr>
 
         <tr>
-        <td>
-          <b>Automations enabled</b>
-        </td>
-        <td>
-          <input type="checkbox" ng-model="project.automationsEnabled"
-            title="Automations enabled.">
-        </td>
+          <td>
+            <b>Automations enabled</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="project.automationsEnabled"
+              title="Automations enabled.">
+          </td>
         </tr>
       </table>
     </div>
@@ -149,9 +150,7 @@
 
 
 <div class="modal-footer">
-  <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitProject(project);">Add</button>
-  <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitProject(project);">Save</button>
+  <button ng-click="submitProject(project)" class="btn btn-primary"
+    ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

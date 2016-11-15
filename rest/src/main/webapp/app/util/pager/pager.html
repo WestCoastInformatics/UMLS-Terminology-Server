@@ -29,7 +29,7 @@
       ng-click="paging.page = 1; paging.sortAscending = !paging.sortAscending; callbacks.getPagedList();"
       class="glyphicon"
       ng-class="[{'glyphicon-sort-by-attributes': paging.sortAscending}, {'glyphicon-sort-by-attributes-alt': !paging.sortAscending}]"></span>
-    <select class="input-filter" ng-model="paging.sortField"
+    <select ng-model="paging.sortField"
       ng-options="o.value as o.key for o in paging.sortOptions"
       ng-change="paging.page = 1; callbacks.getPagedList()">
     </select>
