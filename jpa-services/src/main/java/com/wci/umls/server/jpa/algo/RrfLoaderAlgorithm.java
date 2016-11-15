@@ -251,15 +251,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     latCodeMap.put("GRE", "el");
   }
 
-  /** The tree pos algorithm. */
-  private TreePositionAlgorithm treePosAlgorithm = null;
-
-  /** The trans closure algorithm. */
-  private TransitiveClosureAlgorithm transClosureAlgorithm = null;
-
-  /** The label set algorithm. */
-  private LabelSetMarkedParentAlgorithm labelSetAlgorithm = null;
-
   /**
    * Instantiates an empty {@link RrfLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -3029,7 +3020,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
           continue;
         }
-        atomCt++;
 
         // UMLS still connects a lot of things to codes, so keep them
         // if (!atom.getTerminology().equals("LNC")) {
@@ -3065,6 +3055,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           atomCt = 0;
         }
+        atomCt++;
         if (atomCt == 3000) {
           Logger.getLogger(getClass()).warn("Code with > 3000 atoms, skipping: "
               + atom.getTerminology() + ", " + atom.getCodeId());
@@ -3297,9 +3288,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void cancel() throws Exception {
     // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-    labelSetAlgorithm.cancel();
     if (umlsIdentityLoaderAlgo != null) {
       umlsIdentityLoaderAlgo.cancel();
     }

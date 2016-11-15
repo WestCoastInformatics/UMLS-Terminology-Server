@@ -421,23 +421,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
       contentService = new ContentServiceJpa();
       final TerminologyList list =
           contentService.getTerminologyLatestVersions();
-      for (final Terminology t : list.getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          algo2 = new TransitiveClosureAlgorithm();
-          algo2.setLastModifiedBy(userName);
-          algo2.setTerminology(t.getTerminology());
-          algo2.setVersion(t.getVersion());
-          algo2.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo2.setCycleTolerant(true);
-          algo2.compute();
-          algo2.close();
-        }
-      }
+      // for (final Terminology t : list.getObjects()) {
+      // // Only compute for organizing class types
+      // if (t.getOrganizingClassType() != null) {
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setTerminology(t.getTerminology());
+      // algo2.setVersion(t.getVersion());
+      // algo2.setIdType(t.getOrganizingClassType());
+      // // some terminologies may have cycles, allow these for now.
+      // algo2.setCycleTolerant(true);
+      // algo2.compute();
+      // algo2.close();
+      // }
+      // }
 
       //
       // Compute tree positions
@@ -465,7 +468,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load simple terminology from directory");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
 
       contentService.close();
@@ -529,23 +534,26 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
       contentService = new ContentServiceJpa();
       final TerminologyList list =
           contentService.getTerminologyLatestVersions();
-      for (final Terminology t : list.getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          algo2 = new TransitiveClosureAlgorithm();
-          algo2.setLastModifiedBy(userName);
-          algo2.setTerminology(t.getTerminology());
-          algo2.setVersion(t.getVersion());
-          algo2.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo2.setCycleTolerant(true);
-          algo2.compute();
-          algo2.close();
-        }
-      }
+      // for (final Terminology t : list.getObjects()) {
+      // // Only compute for organizing class types
+      // if (t.getOrganizingClassType() != null) {
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setTerminology(t.getTerminology());
+      // algo2.setVersion(t.getVersion());
+      // algo2.setIdType(t.getOrganizingClassType());
+      // // some terminologies may have cycles, allow these for now.
+      // algo2.setCycleTolerant(true);
+      // algo2.compute();
+      // algo2.close();
+      // }
+      // }
 
       //
       // Compute tree positions
@@ -594,7 +602,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
       if (algo4 != null) {
         algo4.close();
@@ -641,16 +651,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      // Transitive closure
-      algo2 = new TransitiveClosureAlgorithm();
-      algo2.setLastModifiedBy(userName);
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(terminology);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(terminology);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -697,7 +709,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology delta from RF2 directory");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
       algo4.close();
       algo5.close();
@@ -746,16 +760,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      // Transitive closure
-      algo2 = new TransitiveClosureAlgorithm();
-      algo2.setLastModifiedBy(userName);
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -801,7 +817,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "trying to load terminology snapshot from RF2 directory");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       if (algo3 != null) {
         algo3.close();
       }
@@ -852,16 +870,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      // Transitive closure
-      algo2 = new TransitiveClosureAlgorithm();
-      algo2.setLastModifiedBy(userName);
-      algo2.setCycleTolerant(false);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.reset();
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
 
       // Compute label sets - after transitive closure
       // for each subset, compute the label set
@@ -906,7 +926,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology full from RF2 directory");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
       algo4.close();
       algo5.close();
@@ -957,16 +979,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      // Let service begin its own transaction
-      Logger.getLogger(getClass()).info("Start computing transtive closure");
-      algo2 = new TransitiveClosureAlgorithm();
-      algo2.setLastModifiedBy(userName);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setCycleTolerant(false);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // Logger.getLogger(getClass()).info("Start computing transtive closure");
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setCycleTolerant(false);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.compute();
+      // algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();
@@ -988,7 +1012,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
       securityService.close();
     }
@@ -1034,16 +1060,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       algo.compute();
       algo.close();
 
-      // Let service begin its own transaction
-      Logger.getLogger(getClass()).info("Start computing transtive closure");
-      algo2 = new TransitiveClosureAlgorithm();
-      algo2.setLastModifiedBy(userName);
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setCycleTolerant(false);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // Logger.getLogger(getClass()).info("Start computing transtive closure");
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setCycleTolerant(false);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.compute();
+      // algo2.close();
 
       // compute tree positions
       algo3 = new TreePositionAlgorithm();
@@ -1065,7 +1093,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology from Owl file");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
       algo3.close();
       securityService.close();
     }
