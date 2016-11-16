@@ -42,7 +42,6 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     super();
     setActivityId(UUID.randomUUID().toString());
     setWorkId("CREATENEWRELEASE");
-    setLastModifiedBy("admin");
   }
 
   /* see superclass */
