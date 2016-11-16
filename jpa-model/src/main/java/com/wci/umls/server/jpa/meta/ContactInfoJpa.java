@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.ContactInfo;
 
@@ -437,6 +438,23 @@ public class ContactInfoJpa implements ContactInfo {
     } else if (!zipCode.equals(other.zipCode))
       return false;
     return true;
+  }
+  
+  public String toString() {
+    if (!ConfigUtility.isEmpty(getValue())) {
+      return getValue();
+    }
+    return (getName() != null ? getName() : "")  + ";" + 
+          (getTitle() != null ? getTitle() : "") + ";" + 
+          (getOrganization() != null ? getOrganization() : "") + ";" + 
+          (getAddress1() != null ? getAddress1() : "") + ";" + 
+          (getAddress2() != null ? getAddress2() : "") + ";" + 
+          (getCity() != null ? getCity()  : "") + ";" + 
+          (getStateOrProvince() != null ? getStateOrProvince() : "") + ";" + 
+          (getCountry() != null ? getCountry() : "") +";" + 
+          (getZipCode() != null ? getZipCode() : "") + ";" + 
+          (getEmail() != null ? getEmail() : "");
+
   }
 
 }

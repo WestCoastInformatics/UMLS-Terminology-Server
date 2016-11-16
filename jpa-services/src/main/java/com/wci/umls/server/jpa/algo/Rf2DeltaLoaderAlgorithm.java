@@ -376,6 +376,7 @@ public class Rf2DeltaLoaderAlgorithm
       info.setVersion(getVersion());
       info.setLastModified(releaseVersionDate);
       info.setLastModifiedBy(loader);
+      info.setTimestamp(new Date());
       addReleaseInfo(info);
     }
 

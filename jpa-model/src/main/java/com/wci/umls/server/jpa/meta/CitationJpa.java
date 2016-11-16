@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.Citation;
 
@@ -564,4 +565,33 @@ public class CitationJpa implements Citation {
       return false;
     return true;
   }
+
+  @Override
+  public String toString() {
+    if (!ConfigUtility.isEmpty(getUnstructuredValue())) {
+      return getUnstructuredValue();
+    }
+    return 
+        (getAddress() != null ? getAddress() : "") + ";" +
+        (getOrganization() != null ? getOrganization() : "") + ";" + 
+        (getTitle() != null ? getTitle() : "") + ";" +
+        (getContentDesignator() != null ? getContentDesignator() : "") + ";" +
+        (getMediumDesignator() != null ? getMediumDesignator() : "") + ";" + 
+        (getEdition() != null ? getEdition() : "") + ";" + 
+        (getPlaceOfPublication() != null ? getPlaceOfPublication() : "") + ";" +
+        (getPublisher() != null ? getPublisher() : "") + ";" + 
+        (getDateOfPublication() != null ? getDateOfPublication() : "") + ";" +
+        (getDateOfRevision() != null ? getDateOfRevision() : "") + ";" +
+        (getLocation() != null ? getLocation() : "") + ";" +
+        (getExtent() != null ? getExtent() : "") + ";" +
+        (getSeries() != null ? getSeries() : "") + ";" + 
+        (getAvailabilityStatement() != null ? getAvailabilityStatement() : "") + ";" + 
+        ";" + // language
+        (getNotes() != null ? getNotes() : "");
+        
+        
+ 
+  }
+  
+  
 }

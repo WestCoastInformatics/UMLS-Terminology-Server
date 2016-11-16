@@ -6,10 +6,12 @@ package com.wci.umls.server;
 import java.util.Date;
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasLastModified;
+
 /**
  * Represents release information about a data set.
  */
-public interface ReleaseInfo {
+public interface ReleaseInfo extends HasLastModified {
 
   /**
    * Returns the id.

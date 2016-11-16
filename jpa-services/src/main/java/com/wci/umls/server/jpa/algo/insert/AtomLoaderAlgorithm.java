@@ -29,6 +29,7 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -39,18 +40,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Implementation of an algorithm to import atoms.
  */
 public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
-
-  /** The full directory where the src files are. */
-  private File srcDirFile = null;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -85,8 +74,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    srcDirFile = new File(srcFullPath);
-    if (!srcDirFile.exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -121,15 +110,13 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList(srcDirFile, "classes_atoms.src", null, null);
+      List<String> lines =
+          loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
 
       // Set the number of steps to the number of atoms to be processed
-      steps = lines.size();
-
-      previousProgress = 0;
-      stepsCompleted = 0;
+      setSteps(lines.size());
 
       String fields[] = new String[15];
 
@@ -139,10 +126,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // If it does not, add it.
       for (String line : lines) {
 
-        // Print progress and check for a cancelled call once every 100 atoms
-        // (doing it for every atom
-        // makes things too slow)
-        if (stepsCompleted % 100 == 0) {
+        // Check for a cancelled call once every 100 lines
+        if (getStepsCompleted() % 100 == 0) {
           if (isCancelled()) {
             throw new CancelException("Cancelled");
           }
@@ -167,8 +152,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // 10 source_cui (Atom.conceptId)
         // 11 source_dui (Atom.descriptorId)
         // 12 language (Atom.language)
-        // 13 order_id (Atom.alternateTerminologlyId(), where Key =
-        // ProjectTerminology + "-ORDER")
+        // 13 order_id
         // 14 last_release_cui (Atom.conceptTerminologyId(), where
         // Key=ProjectTerminology)
 
@@ -184,18 +168,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology() + "-SRC", fields[0]);
         }
-        Terminology term = getCachedTerminology(fields[1]);
-        if (term == null) {
-          logWarn(
-              "Warning - terminology not found: " + fields[1] + ". Could not process the following line:\n\t"
-                  + line);
-          updateProgress();
-          logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
-              RootService.logCt, RootService.commitCt);
+        Terminology terminology = getCachedTerminology(fields[1]);
+        if (terminology == null) {
+          logWarnAndUpdate(line, "Warning - terminology not found: " + fields[1]
+              + ".");
           continue;
         } else {
-          newAtom.setTerminology(term.getTerminology());
-          newAtom.setVersion(term.getVersion());
+          newAtom.setTerminology(terminology.getTerminology());
+          newAtom.setVersion(terminology.getVersion());
         }
         newAtom.setTermType(fields[2].substring(fields[2].indexOf("/") + 1));
         newAtom.setCodeId(fields[3]);
@@ -215,10 +195,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         newAtom.setConceptId(fields[10]);
         newAtom.setDescriptorId(fields[11]);
         newAtom.setLanguage(fields[12]);
-        if (!ConfigUtility.isEmpty(fields[13])) {
-          newAtom.getAlternateTerminologyIds()
-              .put(getProject().getTerminology() + "-ORDER", fields[13]);
-        }
         if (!ConfigUtility.isEmpty(fields[14])) {
           newAtom.getConceptTerminologyIds().put(getProject().getTerminology(),
               fields[14]);
@@ -241,7 +217,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         // Check to see if atom with matching AUI already exists in the database
         Long oldAtomId =
-            getId(AtomJpa.class, newAtomAui, newAtom.getTerminology());
+            getId(IdType.ATOM, newAtomAui, terminology.getTerminology());
 
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
@@ -269,7 +245,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           updateConcept(newConcept);
 
           addCount++;
-          putId(AtomJpa.class, newAtom.getTerminology(), newAtomAui,
+          putId(IdType.ATOM, getProject().getTerminology(), newAtomAui,
               newAtom.getId());
 
           // Reconcile code/concept/descriptor
@@ -283,17 +259,13 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           boolean oldAtomChanged = false;
 
           // Update "alternateTerminologyIds"
-          final Map<String,String> altTermIds = oldAtom.getAlternateTerminologyIds();
-          if(!altTermIds.containsKey(getProject().getTerminology() + "-SRC")){
+          final Map<String, String> altTermIds =
+              oldAtom.getAlternateTerminologyIds();
+          if (!altTermIds.containsKey(getProject().getTerminology() + "-SRC")) {
             oldAtom.getAlternateTerminologyIds()
-            .put(getProject().getTerminology() + "-SRC", fields[0]);
+                .put(getProject().getTerminology() + "-SRC", fields[0]);
             oldAtomChanged = true;
           }
-          if(!altTermIds.containsKey(getProject().getTerminology() + "-ORDER")){
-            oldAtom.getAlternateTerminologyIds()
-            .put(getProject().getTerminology() + "-ORDER", fields[13]);
-            oldAtomChanged = true;
-          }          
 
           // Update the version
           if (!oldAtom.getVersion().equals(newAtom.getVersion())) {
@@ -325,7 +297,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             updateAtom(oldAtom);
             updateCount++;
           }
-          
+
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(oldAtom);
         }
@@ -333,10 +305,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // Update the progress
         updateProgress();
 
-        logAndCommit("[Atom Loader] Atoms processed ", stepsCompleted,
-            RootService.logCt, RootService.commitCt);
         handler.logAndCommit("[Atom Loader] Atom identities processed ",
-            stepsCompleted, RootService.logCt, RootService.commitCt);
+            getStepsCompleted(), RootService.logCt, RootService.commitCt);
 
       }
 
@@ -370,7 +340,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (!atom.getCodeId().isEmpty()) {
 
       Long existingCodeId =
-          getId(CodeJpa.class, atom.getCodeId(), atom.getTerminology());
+          getId(IdType.CODE, atom.getCodeId(), atom.getTerminology());
       if (existingCodeId != null) {
         final Code code = getCode(existingCodeId);
         code.getAtoms().add(atom);
@@ -394,7 +364,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         code.getAtoms().add(atom);
         addCode(code);
-        putId(CodeJpa.class, code.getTerminologyId(), code.getTerminology(),
+        putId(IdType.CODE, code.getTerminologyId(), code.getTerminology(),
             code.getId());
       }
     }
@@ -403,9 +373,10 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (!atom.getConceptId().isEmpty()) {
 
       Long existingConceptId =
-          getId(ConceptJpa.class, atom.getConceptId(), atom.getTerminology());
+          getId(IdType.CONCEPT, atom.getConceptId(), atom.getTerminology());
       if (existingConceptId != null) {
-//        final Concept concept = new ConceptJpa(getConcept(existingConceptId), true);
+        // final Concept concept = new ConceptJpa(getConcept(existingConceptId),
+        // true);
         final Concept concept = getConcept(existingConceptId);
         concept.getAtoms().add(atom);
         concept.setVersion(atom.getVersion());
@@ -428,14 +399,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         concept.getAtoms().add(atom);
         addConcept(concept);
-        putId(ConceptJpa.class, concept.getTerminologyId(),
+        putId(IdType.CONCEPT, concept.getTerminologyId(),
             concept.getTerminology(), concept.getId());
       }
     }
     // Check map to see if descriptor already exists
     if (!atom.getDescriptorId().isEmpty()) {
 
-      Long existingDescriptorId = getId(DescriptorJpa.class,
+      Long existingDescriptorId = getId(IdType.DESCRIPTOR,
           atom.getDescriptorId(), atom.getTerminology());
       if (existingDescriptorId != null) {
         final Descriptor descriptor = getDescriptor(existingDescriptorId);
@@ -460,7 +431,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         descriptor.getAtoms().add(atom);
         addDescriptor(descriptor);
-        putId(DescriptorJpa.class, descriptor.getTerminologyId(),
+        putId(IdType.DESCRIPTOR, descriptor.getTerminologyId(),
             descriptor.getTerminology(), descriptor.getId());
       }
     }
@@ -475,21 +446,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "ATOMLOADING progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /**

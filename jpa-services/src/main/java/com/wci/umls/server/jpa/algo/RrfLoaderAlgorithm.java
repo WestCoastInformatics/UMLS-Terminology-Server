@@ -448,6 +448,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       info.setVersion(getReleaseVersion());
       info.setLastModified(releaseVersionDate);
       info.setLastModifiedBy(loader);
+      info.setTimestamp(new Date());
       addReleaseInfo(info);
     } else {
       throw new Exception("Release info unexpectedly already exists for "

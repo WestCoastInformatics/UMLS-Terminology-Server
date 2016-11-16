@@ -3653,18 +3653,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     final RelationshipList results = new RelationshipListJpa();
 
-    // If passed-in query contains "to" or "from", and the inverseFlag is set,
-    // switch it.
-    if (inverseFlag) {
-      // Switch "to" to "from999", so it doesn't get caught with next regex
-      query = query.replaceAll("(to)([A-Z]{1})", "from999$2");
-      query = query.replaceAll("(from)([A-Z]{1})", "to$2");
-
-      // Update the 'from999's
-      query = query.replaceAll("from999", "from");
-
-    }
-
     final List<String> clauses = new ArrayList<>();
     // Parts to combine
     // 1. query

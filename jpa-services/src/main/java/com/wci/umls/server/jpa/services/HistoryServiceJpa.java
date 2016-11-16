@@ -142,26 +142,8 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public ReleaseInfo addReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History Service - add release info " + releaseInfo.getName());
-    if (isLastModifiedFlag()) {
-      releaseInfo.setLastModified(new Date());
-    }
-    try {
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(releaseInfo);
-        tx.commit();
-      } else {
-        manager.persist(releaseInfo);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
 
-    return releaseInfo;
+    return addHasLastModified(releaseInfo);
   }
 
   /* see superclass */
@@ -169,24 +151,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public void updateReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History Service - update release info " + releaseInfo.getName());
-    if (isLastModifiedFlag()) {
-      releaseInfo.setLastModified(new Date());
-    }
-    try {
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(releaseInfo);
-        tx.commit();
-      } else {
-        manager.merge(releaseInfo);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    updateHasLastModified(releaseInfo);
   }
 
   /* see superclass */
@@ -194,32 +159,7 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public void removeReleaseInfo(Long id) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History  Service - remove release info " + id);
-    tx = manager.getTransaction();
-    // retrieve this release info
-    ReleaseInfo releaseInfo = manager.find(ReleaseInfoJpa.class, id);
-    try {
-      if (getTransactionPerOperation()) {
-        // remove description
-        tx.begin();
-        if (manager.contains(releaseInfo)) {
-          manager.remove(releaseInfo);
-        } else {
-          manager.remove(manager.merge(releaseInfo));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(releaseInfo)) {
-          manager.remove(releaseInfo);
-        } else {
-          manager.remove(manager.merge(releaseInfo));
-        }
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    removeHasLastModified(id, ReleaseInfoJpa.class);
 
   }
 

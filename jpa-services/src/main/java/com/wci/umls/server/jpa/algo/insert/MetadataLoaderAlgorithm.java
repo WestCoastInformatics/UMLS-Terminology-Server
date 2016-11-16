@@ -44,18 +44,6 @@ import com.wci.umls.server.model.meta.UsageType;
  * Implementation of an algorithm to import metadata.
  */
 public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
-
-  /** The full directory where the src files are. */
-  private File srcDirFile = null;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
   
   /** The loaded organizing class types. */
   private Map<String, IdType> loadedOrganizingClassTypes = null;
@@ -96,8 +84,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    srcDirFile = new File(srcFullPath);
-    if (!srcDirFile.exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -105,7 +93,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Validate AdditionalRelationshipType inverses
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)", null);
+        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "RELA\\|(.*)", null);
 
     final Set<String> relaMRDOC = new HashSet<>();
     final Set<String> inverseRelaMRDOC = new HashSet<>();
@@ -166,9 +154,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     try {
 
       runDate = new Date();
-      previousProgress = 0;
-      steps = 4;
-      stepsCompleted = 0;
+      setSteps(4);
 
       //
       // Load the terminologies from sources.src
@@ -251,7 +237,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load the sources.src file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "sources.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
 
     String fields[] = new String[20];
 
@@ -509,7 +495,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the contexts.src file
       //
       final List<String> lines =
-          loadFileIntoStringList(srcDirFile, "contexts.src", null, null);
+          loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
 
       final String[] fields = new String[17];
 
@@ -641,7 +627,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load TTY lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "TTY\\|(.*)", null);
+        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "TTY\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -726,7 +712,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load the termgroups.src file
     //
 
-    lines = loadFileIntoStringList(srcDirFile, "termgroups.src", null, null);
+    lines = loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
 
     fields = new String[6];
 
@@ -837,7 +823,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load ATN lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "ATN\\|(.*)", null);
+        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "ATN\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -894,7 +880,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Load RELA lines from the MRDOC file
     //
     List<String> lines =
-        loadFileIntoStringList(srcDirFile, "MRDOC.RRF", "RELA\\|(.*)", null);
+        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "RELA\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -961,21 +947,6 @@ public class MetadataLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     logInfo("[MetadataLoader] Added " + count
         + " new Additional Relationship Types.");
 
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 / steps) * stepsCompleted);
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "METADATALOADING progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /**

@@ -83,6 +83,12 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("aui.prefix")) {
         prefixMap.put("AUI", p.getProperty("aui.prefix"));
       }
+      if (p.containsKey("cui.length")) {
+        lengthMap.put("CUI", Integer.valueOf(p.getProperty("cui.length")));
+      }
+      if (p.containsKey("cui.prefix")) {
+        prefixMap.put("CUI", p.getProperty("cui.prefix"));
+      }
       if (p.containsKey("atui.length")) {
         lengthMap.put("ATUI", Integer.valueOf(p.getProperty("atui.length")));
       }
@@ -135,7 +141,7 @@ public class UmlsIdentifierAssignmentHandler
         query.setParameter("terminology", concept.getTerminology());
         query.setParameter("version", concept.getVersion());
         query.setParameter("prefix", prefixMap.get("CUI") + "%");
-        final Long conceptId2 = (Long) query.getSingleResult();
+        final Long conceptId2 = new Long(query.getSingleResult().toString().substring(1)); // TODO ok?
         conceptId = conceptId2 != null ? conceptId2 : conceptId;
       } catch (NoResultException e) {
         conceptId = 0L;
@@ -579,7 +585,7 @@ public class UmlsIdentifierAssignmentHandler
         identity.setTerminology(semanticTypeComponent.getTerminology());
 
         final SemanticTypeComponentIdentity identity2 =
-            service.getSemanticTypeComponentIdentity(identity);
+            localService.getSemanticTypeComponentIdentity(identity);
 
         // Reuse existing id
         if (identity2 != null) {
@@ -588,10 +594,10 @@ public class UmlsIdentifierAssignmentHandler
         // else generate a new one and add it
         else {
           // Get next id
-          final Long nextId = service.getNextSemanticTypeComponentId();
+          final Long nextId = localService.getNextSemanticTypeComponentId();
           // Add new identity object
           identity.setId(nextId);
-          service.addSemanticTypeComponentIdentity(identity);
+          localService.addSemanticTypeComponentIdentity(identity);
           return convertId(nextId, "ATUI");
         }
       }

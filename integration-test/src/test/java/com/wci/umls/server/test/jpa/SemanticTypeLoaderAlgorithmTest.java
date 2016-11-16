@@ -5,7 +5,12 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
 import org.apache.log4j.Logger;
+import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,28 +20,38 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.AttributeLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.SemanticTypeLoaderAlgorithm;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
+import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working.
  */
-public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  AttributeLoaderAlgorithm algo = null;
+  SemanticTypeLoaderAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
 
   /** The process service. */
-  ProcessServiceJpa processService = null;
+  ProcessService processService = null;
+
+  /** The content service. */
+  ContentService contentService = null;
 
   /** The project. */
   Project project = null;
+
+  /** The temporary .src file. */
+  private File outputFile = null;
 
   /**
    * Setup class.
@@ -55,6 +70,7 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
   public void setup() throws Exception {
 
     processService = new ProcessServiceJpa();
+    contentService = new ContentServiceJpa();
 
     // load the project (should be only one)
     ProjectList projects = processService.getProjects();
@@ -67,12 +83,40 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT");
+    processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
+                                                                   // this to
+    // the standard
+    // folder
+    // location
+
+    // Create the /temp subdirectory
+    final File tempSrcDir = new File(
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + processExecution.getInputPath() + File.separator
+            + "temp");
+    FileUtils.mkdir(tempSrcDir.toString());
+
+    // Reset the processExecution input path to /src/temp
+    processExecution.setInputPath(
+        processExecution.getInputPath() + File.separator + "temp");
+
+    // Create and populate an attributes.src document in the /temp
+    // temporary subfolder
+    outputFile = new File(tempSrcDir, "attributes.src");
+
+    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    out.println(
+        "1|362166237|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|");
+    out.println(
+        "34|C98033|S|FDA_UNII_Code|ODN00F2SJG|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||634eb9dd2339a0f372a5f0b3c7b58fed|");
+    out.println(
+        "43|C118465|C|SEMANTIC_TYPE|Diagnostic Procedure|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||5186070c98e613d1e688b45c983caea2|");
+    out.close();
 
     // Create and configure the algorithm
-    algo = new AttributeLoaderAlgorithm();
+    algo = new SemanticTypeLoaderAlgorithm();
 
-    // Configure the algorithm (need to do either way)
+    // Configure the algorithm
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProcess(processExecution);
@@ -82,15 +126,15 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test attribute loader normal use.
+   * Test relationships loader normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testAttributeLoader() throws Exception {
+  public void testRelationshipLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the ATOMLOADER algorithm
+    // Run the RELATIONSHIPLOADER algorithm
     try {
 
       algo.setTransactionPerOperation(false);
@@ -112,7 +156,6 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      // Result is to get through this all without throwing an error
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -128,7 +171,14 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
-    // do nothing
+    FileUtils.forceDelete(outputFile);
+
+    FileUtils.deleteDirectory(new File(
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + processExecution.getInputPath()));
+
+    processService.close();
+    contentService.close();
   }
 
   /**
