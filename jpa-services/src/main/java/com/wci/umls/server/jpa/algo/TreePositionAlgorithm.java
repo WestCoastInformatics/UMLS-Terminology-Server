@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -113,6 +113,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
 
@@ -139,9 +140,16 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
       tableName = "AtomRelationshipJpa";
       tableName2 = "AtomJpa";
     }
-    @SuppressWarnings("unchecked")
-    final List<Object[]> relationships = manager
-        .createQuery("select r.from.id, r.to.id from " + tableName + " r where "
+
+    final Date startDate = new Date();
+    final Map<Long, Set<Long>> semanticTypeMap =
+        computeSemanticTypes ? new HashMap<>() : null;
+    final Set<Long> allRootIds = new HashSet<>();
+
+    // Compute distinct additionalRelationshipType values
+    final List<String> additionalRelationshipTypes = manager
+        .createQuery("select distinct additionalRelationshipType from "
+            + tableName + " r where "
             + "version = :version and terminology = :terminology "
             + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
             + "and r.from in (select o from " + tableName2
@@ -149,133 +157,148 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
         .setParameter("terminology", getTerminology())
         .setParameter("version", getVersion()).getResultList();
 
-    int ct = 0;
-    final Map<Long, Set<Long>> parChd = new HashMap<>();
-    Map<Long, Set<Long>> chdPar = new HashMap<>();
-    for (final Object[] r : relationships) {
-      ct++;
-      long fromId = Long.parseLong(r[0].toString());
-      long toId = Long.parseLong(r[1].toString());
+    for (final String additionalRelationshipType : additionalRelationshipTypes) {
+      final List<Object[]> relationships = manager
+          .createQuery(
+              "select r.from.id, r.to.id from " + tableName + " r where "
+                  + "version = :version and terminology = :terminology "
+                  + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+                  + "and additionalRelationshipType = :additionalRelationshipType "
+                  + "r.from in (select o from " + tableName2
+                  + " o where obsolete = 0)")
+          .setParameter("terminology", getTerminology())
+          .setParameter("version", getVersion())
+          .setParameter("additionalRelationshipType",
+              additionalRelationshipType)
+          .getResultList();
 
-      if (!parChd.containsKey(toId)) {
-        parChd.put(toId, new HashSet<Long>());
-      }
-      final Set<Long> children = parChd.get(toId);
-      children.add(fromId);
+      int ct = 0;
+      final Map<Long, Set<Long>> parChd = new HashMap<>();
+      Map<Long, Set<Long>> chdPar = new HashMap<>();
+      for (final Object[] r : relationships) {
+        ct++;
+        long fromId = Long.parseLong(r[0].toString());
+        long toId = Long.parseLong(r[1].toString());
 
-      if (!chdPar.containsKey(fromId)) {
-        chdPar.put(fromId, new HashSet<Long>());
-      }
-      final Set<Long> parents = chdPar.get(fromId);
-      parents.add(toId);
+        if (!parChd.containsKey(toId)) {
+          parChd.put(toId, new HashSet<Long>());
+        }
+        final Set<Long> children = parChd.get(toId);
+        children.add(fromId);
 
-      // Check cancel flag
-      if (ct % RootService.logCt == 0 && isCancelled()) {
-        rollback();
-        throw new CancelException(
-            "Label set marked parent computation cancelled");
-      }
-    }
+        if (!chdPar.containsKey(fromId)) {
+          chdPar.put(fromId, new HashSet<Long>());
+        }
+        final Set<Long> parents = chdPar.get(fromId);
+        parents.add(toId);
 
-    if (ct == 0) {
-      fireProgressEvent(100, "Finished.");
-      logInfo("    NO HIERARCHICAL RELATIONSHIPS");
-      return;
-    }
-
-    else {
-      logInfo("  concepts with descendants = " + parChd.size());
-    }
-
-    // Find roots
-    fireProgressEvent(5, "Find roots");
-    final Set<Long> rootIds = new HashSet<>();
-    for (final Long par : parChd.keySet()) {
-      // things with no children
-      if (!chdPar.containsKey(par)) {
-        rootIds.add(par);
-      }
-    }
-    logInfo("  count = " + rootIds.size());
-    chdPar = null;
-
-    // Keep this after the read query above, in case there are no rels
-    setLastModifiedBy("admin");
-    setLastModifiedFlag(true);
-    setMolecularActionFlag(false);
-    setTransactionPerOperation(false);
-    beginTransaction();
-
-    objectCt = 0;
-    fireProgressEvent(10, "Compute tree positions for roots");
-    int i = 0;
-    final Map<Long, String> idValueMap = new HashMap<>();
-    final Date startDate = new Date();
-    for (final Long rootId : rootIds) {
-      i++;
-
-      // Check cancel flag
-      if (isCancelled()) {
-        rollback();
-        throw new CancelException("Tree position computation cancelled.");
+        // Check cancel flag
+        if (ct % RootService.logCt == 0 && isCancelled()) {
+          rollback();
+          throw new CancelException(
+              "Label set marked parent computation cancelled");
+        }
       }
 
-      fireProgressEvent((int) (10 + (i * 85.0 / rootIds.size())),
-          "Compute tree positions and semantic types for root " + rootId);
-
-      final ValidationResult result = new ValidationResultJpa();
-      final Map<Long, Set<Long>> semanticTypeMap =
-          computeSemanticTypes ? new HashMap<>() : null;
-      computeTreePositions(rootId, "", parChd, result, startDate,
-          semanticTypeMap, rootIds.size() > 1);
-      if (!result.isValid()) {
-        logError("  validation result = " + result);
-        throw new Exception("Validation failed");
-      }
-      // Commit
-      commitClearBegin();
-
-      // Check cancel flag
-      if (isCancelled()) {
-        rollback();
-        throw new CancelException("Tree position computation cancelled.");
+      if (ct == 0) {
+        fireProgressEvent(100, "Finished.");
+        logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+        return;
       }
 
-      // Handle "semantic types"
-      if (computeSemanticTypes) {
-        objectCt = 0;
-        for (final Long conceptId : semanticTypeMap.keySet()) {
-          final Concept concept = getConcept(conceptId);
-          for (Long styId : semanticTypeMap.get(conceptId)) {
-            if (!idValueMap.containsKey(styId)) {
-              final Concept styConcept = getConcept(styId);
-              idValueMap.put(styConcept.getId(), styConcept.getName());
-            }
-            final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
-            sty.setTerminologyId("");
-            sty.setObsolete(false);
-            sty.setPublishable(false);
-            sty.setPublished(false);
-            sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-            sty.setSemanticType(idValueMap.get(styId));
-            sty.setTerminology(getTerminology());
-            sty.setVersion(getVersion());
-            sty.setTimestamp(startDate);
-            addSemanticTypeComponent(sty, concept);
-            concept.getSemanticTypes().add(sty);
-          }
-          updateConcept(concept);
-          logAndCommit(++objectCt, logCt, commitCt);
-          // Check cancel flag
-          if (objectCt % RootService.logCt == 0 && isCancelled()) {
-            rollback();
-            throw new CancelException("Tree position computation cancelled.");
-          }
+      else {
+        logInfo("  concepts with descendants = " + parChd.size());
+      }
+
+      // Find roots
+      fireProgressEvent(5, "Find roots");
+      final Set<Long> rootIds = new HashSet<>();
+      for (final Long par : parChd.keySet()) {
+        // things with no children
+        if (!chdPar.containsKey(par)) {
+          rootIds.add(par);
+          allRootIds.add(par);
+        }
+      }
+      logInfo("  count = " + rootIds.size());
+      chdPar = null;
+
+      // Keep this after the read query above, in case there are no rels
+      setLastModifiedBy("admin");
+      setLastModifiedFlag(true);
+      setMolecularActionFlag(false);
+      setTransactionPerOperation(false);
+      beginTransaction();
+
+      objectCt = 0;
+      fireProgressEvent(10, "Compute tree positions for roots");
+      int i = 0;
+      for (final Long rootId : rootIds) {
+        i++;
+
+        // Check cancel flag
+        if (isCancelled()) {
+          rollback();
+          throw new CancelException("Tree position computation cancelled.");
+        }
+
+        fireProgressEvent((int) (10 + (i * 85.0 / rootIds.size())),
+            "Compute tree positions and semantic types for root " + rootId);
+
+        final ValidationResult result = new ValidationResultJpa();
+
+        computeTreePositions(rootId, "", parChd, result, startDate,
+            semanticTypeMap, rootIds.size() > 1, additionalRelationshipType);
+        if (!result.isValid()) {
+          logError("  validation result = " + result);
+          throw new Exception("Validation failed");
+        }
+        // Commit
+        commitClearBegin();
+
+        // Check cancel flag
+        if (isCancelled()) {
+          rollback();
+          throw new CancelException("Tree position computation cancelled.");
         }
 
       }
+
     }
 
+    // Handle "semantic types"
+    final Map<Long, String> idValueMap = new HashMap<>();
+    if (computeSemanticTypes) {
+      objectCt = 0;
+      for (final Long conceptId : semanticTypeMap.keySet()) {
+        final Concept concept = getConcept(conceptId);
+        for (Long styId : semanticTypeMap.get(conceptId)) {
+          if (!idValueMap.containsKey(styId)) {
+            final Concept styConcept = getConcept(styId);
+            idValueMap.put(styConcept.getId(), styConcept.getName());
+          }
+          final SemanticTypeComponent sty = new SemanticTypeComponentJpa();
+          sty.setTerminologyId("");
+          sty.setObsolete(false);
+          sty.setPublishable(false);
+          sty.setPublished(false);
+          sty.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+          sty.setSemanticType(idValueMap.get(styId));
+          sty.setTerminology(getTerminology());
+          sty.setVersion(getVersion());
+          sty.setTimestamp(startDate);
+          addSemanticTypeComponent(sty, concept);
+          concept.getSemanticTypes().add(sty);
+        }
+        updateConcept(concept);
+        logAndCommit(++objectCt, logCt, commitCt);
+        // Check cancel flag
+        if (objectCt % RootService.logCt == 0 && isCancelled()) {
+          rollback();
+          throw new CancelException("Tree position computation cancelled.");
+        }
+      }
+    }
     commitClearBegin();
 
     fireProgressEvent(95, "Insert semantic type metadata");
@@ -284,8 +307,8 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     final StringBuilder sb = new StringBuilder();
     // For single root, add the extra layer
     String root = "";
-    if (rootIds.size() == 1) {
-      root = rootIds.iterator().next().toString() + "~";
+    if (allRootIds.size() == 1) {
+      root = allRootIds.iterator().next().toString() + "~";
     }
     // needed for dev UMLS because SNOMED has "multiple roots" that contain dup
     // strings
@@ -336,13 +359,14 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
    * @param startDate the start date
    * @param semanticTypeMap the semantic type map
    * @param multipleRoots the multiple roots
+   * @param additionalRelationshipType the additional relationship type
    * @return the sets the
    * @throws Exception the exception
    */
   public Set<Long> computeTreePositions(Long id, String ancestorPath,
     Map<Long, Set<Long>> parChd, ValidationResult validationResult,
-    Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots)
-    throws Exception {
+    Date startDate, Map<Long, Set<Long>> semanticTypeMap, boolean multipleRoots,
+    String additionalRelationshipType) throws Exception {
 
     final Set<Long> descConceptIds = new HashSet<>();
 
@@ -400,6 +424,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     tp.setVersion(getVersion());
     // No ids if computing - only if loading
     tp.setTerminologyId("");
+    tp.setAdditionalRelationshipType(additionalRelationshipType);
 
     // persist the tree position
     addTreePosition(tp);
@@ -435,9 +460,9 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
 
         // call helper function on child concept
         // add the results to the local descendant set
-        final Set<Long> desc =
-            computeTreePositions(childConceptId, conceptPath, parChd,
-                validationResult, startDate, semanticTypeMap, multipleRoots);
+        final Set<Long> desc = computeTreePositions(childConceptId, conceptPath,
+            parChd, validationResult, startDate, semanticTypeMap, multipleRoots,
+            additionalRelationshipType);
         descConceptIds.addAll(desc);
       }
     }
