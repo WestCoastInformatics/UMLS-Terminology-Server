@@ -213,6 +213,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         info.setVersion(releaseVersion);
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
+        info.setTimestamp(new Date());
         addReleaseInfo(info);
       }
 

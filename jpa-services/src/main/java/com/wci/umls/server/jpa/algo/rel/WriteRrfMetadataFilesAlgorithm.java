@@ -97,7 +97,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(String.format("%04d", index--)).append("|");
       sb.append(pair.getKey()).append("|");
       sb.append(pair.getValue()).append("|");
-      sb.append("N").append("|");
+      sb.append("N").append("|");   // TODO SUPPRESS  (ignored on input side)
       out.print(sb.toString() + "\n");
     }
     
@@ -179,6 +179,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       if (results.getTotalCount() > 0) {
         rootTerminologyConcept = getConcept(results.getObjects().get(0).getId());
         rcui = rootTerminologyConcept.getTerminologyId();
+        // TODO VCUIs still not showing up
         for (Relationship rel : this.findConceptDeepRelationships(rootTerminologyConcept.getTerminologyId(), 
             getProject().getTerminology(), getProject().getVersion(), Branch.ROOT, "", false, false, false, false, pfs).getObjects()) {
           for (Atom atom : ((Concept)rel.getTo()).getAtoms()) {
@@ -262,7 +263,10 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     for (String tty : list) {
       sb.append(tty).append(",");
     }
-    return sb.toString().substring(0, sb.toString().lastIndexOf(','));
+    if (sb.toString().endsWith(",")) {
+      return sb.toString().substring(0, sb.toString().length() -1);
+    }
+    return "";
   }
   
   private String getAtnl(String terminology) {
@@ -277,8 +281,10 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     for (String atn : list) {
       sb.append(atn).append(",");
     }
-    
-    return sb.toString().substring(0, sb.toString().lastIndexOf(','));
+    if (sb.toString().endsWith(",")) {
+      return sb.toString().substring(0, sb.toString().length() -1);
+    }
+    return "";
   }
   
   /**

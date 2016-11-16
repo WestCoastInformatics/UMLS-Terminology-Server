@@ -613,6 +613,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       info.setLastModified(releaseVersionDate);
       info.setLastModified(new Date());
       info.setLastModifiedBy(loader);
+      info.setTimestamp(new Date());
       addReleaseInfo(info);
     }
     commitClearBegin();

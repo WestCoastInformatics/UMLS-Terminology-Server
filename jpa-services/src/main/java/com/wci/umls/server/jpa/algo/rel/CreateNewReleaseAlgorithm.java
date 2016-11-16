@@ -141,6 +141,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setPlanned(true);
     releaseInfo.setPublished(false);
     releaseInfo.setReleaseBeginDate(new Date());
+    releaseInfo.setTimestamp(new Date());
     addReleaseInfo(releaseInfo);
 
     logInfo("Finished Create new release");

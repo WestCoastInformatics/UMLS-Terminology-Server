@@ -364,6 +364,7 @@ public class Rf2SnapshotLoaderAlgorithm
         info.setVersion(getVersion());
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
+        info.setTimestamp(new Date());
         addReleaseInfo(info);
       }
 
