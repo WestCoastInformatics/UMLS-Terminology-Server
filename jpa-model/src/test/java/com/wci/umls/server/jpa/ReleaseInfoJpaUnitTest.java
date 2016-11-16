@@ -120,6 +120,8 @@ public class ReleaseInfoJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("timestamp");
+
 
     assertTrue(tester.testNotNullFields());
   }

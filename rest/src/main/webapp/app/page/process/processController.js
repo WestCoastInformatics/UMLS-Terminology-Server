@@ -186,13 +186,13 @@ tsApp
                   if (!$scope.processInterval) {
                     $scope.processInterval = $interval(function() {
                       $scope.refreshProcessProgress(result);
-                    }, 2000);
+                    }, 4000);
                   }
                   // Start step progress monitor, if not already running
                   if (!$scope.stepInterval) {
                     $scope.stepInterval = $interval(function() {
                       $scope.refreshStepProgress();
-                    }, 2000);
+                    }, 4000);
                   }
                 });
             });
