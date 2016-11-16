@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Query;
-
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -23,22 +21,15 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Component;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.Definition;
-import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Abstract support for source-file loader algorithms.
@@ -53,6 +44,18 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   public AbstractSourceLoaderAlgorithm() throws Exception {
     // n/a
   }
+
+  /** The full directory where the src files are. */
+  private File srcDirFile = null;
+
+  /** The previous progress. */
+  private int previousProgress = 0;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted = 0;
 
   /**
    * The atom ID cache. Key = AlternateTerminologyId; Value = atomJpa Id
@@ -212,40 +215,34 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Cache existing atoms' AUIs and IDs.
+   * Cache existing atoms' alternateTerminologyIds and IDs.
    *
    * @param terminology the terminology
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
-    int iteration = 0;
-    int batchSize = 100000;
+    final Session session = manager.unwrap(Session.class);
+    org.hibernate.Query hQuery = session.createQuery(
+        // TODO check-in: this was the query Brian wrote during 11/15/2016 call
+        // "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds
+        // b where KEY(b) like :terminology and a.publishable=true");
+        // TODO check-in: this is what I changed it to the very next day
+        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from atoms a join atomjpa_alternateterminologyids b where a.id = b.AtomJpa_id AND a.terminology = '"
-            + terminology + "' AND a.publishable = 1";
+    logInfo(
+        "[SourceLoader] Loading code Atom Ids from database for terminology "
+            + terminology);
 
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
-
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo("[SourceLoader] Loading atom AUIs from database for terminology "
-          + terminology + ": " + query.getFirstResult() + " - "
-          + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        atomIdCache.put(result[0].toString(),
-            Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
+    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      atomIdCache.put(terminologyId, id);
+    }
+    results.close();
 
     // Add this terminology to the cached set.
     atomCachedTerms.add(terminology);
@@ -257,36 +254,25 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @param terminology the terminology
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
-    int iteration = 0;
-    int batchSize = 100000;
+    final Session session = manager.unwrap(Session.class);
+    org.hibernate.Query hQuery = session.createQuery(
+        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from attributes a join attributejpa_alternateterminologyids b where terminology = '"
-            + terminology
-            + "' AND a.id = b.AttributeJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
+    logInfo(
+        "[SourceLoader] Loading attribute alternate Terminology Ids from database for terminology "
+            + terminology);
 
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo(
-          "[SourceLoader] Loading attribute ATUIs from database for terminology "
-              + terminology + ": " + query.getFirstResult() + " - "
-              + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        attributeIdCache.put(result[0].toString(),
-            Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
+    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      attributeIdCache.put(terminologyId + terminology, id);
+    }
+    results.close();
 
     // Add this terminology to the cached set.
     attributeCachedTerms.add(terminology);
@@ -298,36 +284,25 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @param terminology the terminology
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
-    int iteration = 0;
-    int batchSize = 100000;
+    final Session session = manager.unwrap(Session.class);
+    org.hibernate.Query hQuery = session.createQuery(
+        "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from definitions a join definitionjpa_alternateterminologyids b where terminology = '"
-            + terminology
-            + "' AND a.id = b.DefinitionJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
+    logInfo(
+        "[SourceLoader] Loading definition alternate Terminology Ids from database for terminology "
+            + terminology);
 
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
-
-      logInfo(
-          "[SourceLoader] Loading definition ATUIs from database for terminology "
-              + terminology + ": " + query.getFirstResult() + " - "
-              + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        definitionIdCache.put(result[0].toString(),
-            Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
+    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      definitionIdCache.put(terminologyId + terminology, id);
+    }
+    results.close();
 
     // Add this terminology to the cached set.
     definitionCachedTerms.add(terminology);
@@ -339,49 +314,55 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @param terminology the terminology
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   private void cacheExistingRelationshipIds(String terminology)
     throws Exception {
 
     // Get RUIs for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
+    logInfo(
+        "[SourceLoader] Loading relationship Terminology Ids from database for terminology "
+            + terminology);
+    
+    final Session session = manager.unwrap(Session.class);
+    org.hibernate.Query hQuery = session.createQuery(
+        "select value(b), a.id from CodeRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    int iteration = 0;
-    int batchSize = 100000;
+    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      relIdCache.put(terminologyId + terminology, id);
+    }
+    results.close();
+    
+    hQuery = session.createQuery(
+        "select value(b), a.id from ConceptRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    String queryStr =
-        "select b.alternateTerminologyIds, a.id from concept_relationships a join conceptrelationshipjpa_alternateterminologyids b where terminology = '"
-            + terminology
-            + "' AND a.id = b.ConceptRelationshipJpa_id AND a.publishable = 1"
-            + " UNION ALL "
-            + "select b.alternateTerminologyIds, a.id from code_relationships a join coderelationshipjpa_alternateterminologyids b where terminology = '"
-            + terminology
-            + "' AND a.id = b.CodeRelationshipJpa_id AND a.publishable = 1"
-            + " UNION ALL "
-            + "select b.alternateTerminologyIds, a.id from component_info_relationships a join componentinforelationshipjpa_alternateterminologyids b where terminology = '"
-            + terminology
-            + "' AND a.id = b.ComponentInfoRelationshipJpa_id AND a.publishable = 1";
-    // Get and execute query (truncate any trailing semi-colon)
-    final Query query = manager.createNativeQuery(queryStr);
+    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      relIdCache.put(terminologyId + terminology, id);
+    }
+    results.close();
 
-    List<Object[]> objects = new ArrayList<>();
-    do {
-      query.setMaxResults(batchSize);
-      query.setFirstResult(batchSize * iteration);
+    hQuery = session.createQuery(
+        "select value(b), a.id from DescriptorRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+    hQuery.setParameter("terminology", terminology);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
-      logInfo(
-          "[SourceLoader] Loading relationship RUIs from database for terminology "
-              + terminology + ": " + query.getFirstResult() + " - "
-              + (query.getFirstResult() + batchSize));
-      objects = query.getResultList();
-
-      for (final Object[] result : objects) {
-        relIdCache.put(result[0].toString(),
-            Long.valueOf(result[1].toString()));
-      }
-      iteration++;
-    } while (objects.size() > 0);
-
+    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    while (results.next()) {
+      final String terminologyId = results.get()[0].toString();
+      final Long id = Long.valueOf(results.get()[1].toString());
+      relIdCache.put(terminologyId + terminology, id);
+    }
+    results.close();
+    
     // Add this terminology to the cached set.
     relCachedTerms.add(terminology);
   }
@@ -475,13 +456,12 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    */
   private void cacheExistingCodeIds(String terminology) throws Exception {
 
-    // Pre-populate codeIdMap (for all terminologies from this insertion)
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
+        session.createQuery("select c.terminologyId, c.id "
             + "from CodeJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(1000);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
     logInfo(
         "[SourceLoader] Loading code Terminology Ids from database for terminology "
@@ -490,7 +470,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
+      final Long id = Long.valueOf(results.get()[1].toString());
       codeIdCache.put(terminologyId + terminology, id);
     }
     results.close();
@@ -507,13 +487,12 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    */
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
-    // Pre-populate conceptIdMap (for all terminologies from this insertion)
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
+        session.createQuery("select c.terminologyId, c.id "
             + "from ConceptJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(1000);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
     logInfo(
         "[SourceLoader] Loading concept Terminology Ids from database for terminology "
@@ -522,7 +501,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
+      final Long id = Long.valueOf(results.get()[1].toString());
       conceptIdCache.put(terminologyId + terminology, id);
     }
     results.close();
@@ -539,13 +518,12 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    */
   private void cacheExistingDescriptorIds(String terminology) throws Exception {
 
-    // Pre-populate descriptorIdMap (for all terminologies from this insertion)
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.terminology, c.id "
+        session.createQuery("select c.terminologyId, c.id "
             + "from DescriptorJpa c where terminology = :terminology AND publishable=1");
     hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(1000);
+    hQuery.setReadOnly(true).setFetchSize(10000);
 
     logInfo(
         "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
@@ -554,7 +532,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[2].toString());
+      final Long id = Long.valueOf(results.get()[1].toString());
       descriptorIdCache.put(terminologyId + terminology, id);
     }
     results.close();
@@ -566,68 +544,66 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Returns the id.
    *
-   * @param clazz the id type
+   * @param idType the id type
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @return the id
    * @throws Exception the exception
    */
-  public Long getId(Class<?> clazz, String terminologyId, String terminology)
+  public Long getId(IdType idType, String terminologyId, String terminology)
     throws Exception {
 
-    if (Atom.class.isAssignableFrom(clazz)) {
+    if (idType.equals(IdType.ATOM)) {
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
       return atomIdCache.get(terminologyId);
     }
 
-    else if (Attribute.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.ATTRIBUTE)) {
       if (!attributeCachedTerms.contains(terminology)) {
         cacheExistingAttributeIds(terminology);
       }
       return attributeIdCache.get(terminologyId);
     }
 
-    else if (Code.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.CODE)) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
       return codeIdCache.get(terminologyId + terminology);
     }
 
-    else if (Concept.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.CONCEPT)) {
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
       }
       return conceptIdCache.get(terminologyId + terminology);
     }
 
-    else if (Definition.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.DEFINITION)) {
       if (!definitionCachedTerms.contains(terminology)) {
         cacheExistingDefinitionIds(terminology);
       }
       return definitionIdCache.get(terminologyId);
     }
 
-    else if (Descriptor.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.DESCRIPTOR)) {
       if (!descriptorCachedTerms.contains(terminology)) {
         cacheExistingDescriptorIds(terminology);
       }
       return descriptorIdCache.get(terminologyId + terminology);
     }
 
-    else if (ConceptRelationship.class.isAssignableFrom(clazz)
-        || CodeRelationship.class.isAssignableFrom(clazz)
-        || DescriptorRelationship.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.RELATIONSHIP)) {
       if (!relCachedTerms.contains(terminology)) {
         cacheExistingRelationshipIds(terminology);
       }
-      return relIdCache.get(terminologyId);
+      return relIdCache.get(terminologyId + terminology);
     }
 
     else {
-      throw new Exception("ERROR: " + clazz + " is an unhandled idType.");
+      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
     }
 
   }
@@ -635,55 +611,125 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Put id.
    *
-   * @param clazz the clazz
+   * @param idType the id type
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param id the id
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  public void putId(Class<?> clazz, String terminologyId, String terminology,
+  public void putId(IdType idType, String terminologyId, String terminology,
     Long id) throws Exception {
-    if (Atom.class.isAssignableFrom(clazz)) {
+    if (idType.equals(IdType.ATOM)) {
       atomIdCache.put(terminologyId, id);
     }
 
-    else if (Attribute.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.ATTRIBUTE)) {
       attributeIdCache.put(terminologyId, id);
     }
 
-    else if (Code.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.CODE)) {
       codeIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (Concept.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.CONCEPT)) {
       conceptIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (Definition.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.DEFINITION)) {
       definitionIdCache.put(terminologyId, id);
     }
 
-    else if (Descriptor.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.DESCRIPTOR)) {
       descriptorIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (ConceptRelationship.class.isAssignableFrom(clazz)
-        || CodeRelationship.class.isAssignableFrom(clazz)
-        || DescriptorRelationship.class.isAssignableFrom(clazz)) {
+    else if (idType.equals(IdType.RELATIONSHIP)) {
       relIdCache.put(terminologyId, id);
     }
 
     else {
-      throw new Exception("ERROR: " + clazz + " is an unhandled idType.");
+      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
     }
+  }
+
+  /**
+   * Returns the src dir file.
+   *
+   * @return the src dir file
+   */
+  public File getSrcDirFile() {
+    return srcDirFile;
+  }
+
+  /**
+   * Sets the src dir file.
+   *
+   * @param srcDirFile the src dir file
+   */
+  public void setSrcDirFile(File srcDirFile) {
+    this.srcDirFile = srcDirFile;
+  }
+
+  /**
+   * Returns the previous progress.
+   *
+   * @return the previous progress
+   */
+  public int getPreviousProgress() {
+    return previousProgress;
+  }
+
+  /**
+   * Sets the previous progress.
+   *
+   * @param previousProgress the previous progress
+   */
+  public void setPreviousProgress(int previousProgress) {
+    this.previousProgress = previousProgress;
+  }
+
+  /**
+   * Returns the steps.
+   *
+   * @return the steps
+   */
+  public int getSteps() {
+    return steps;
+  }
+
+  /**
+   * Sets the steps.
+   *
+   * @param steps the steps
+   */
+  public void setSteps(int steps) {
+    this.steps = steps;
+  }
+
+  /**
+   * Returns the steps completed.
+   *
+   * @return the steps completed
+   */
+  public int getStepsCompleted() {
+    return stepsCompleted;
+  }
+
+  /**
+   * Sets the steps completed.
+   *
+   * @param stepsCompleted the steps completed
+   */
+  public void setStepsCompleted(int stepsCompleted) {
+    this.stepsCompleted = stepsCompleted;
   }
 
   /**
    * Returns the cached root terminologies.
    *
    * @return the cached root terminologies
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Map<String, RootTerminology> getCachedRootTerminologies()
     throws Exception {
@@ -715,7 +761,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * Returns the cached terminologies.
    *
    * @return the cached terminologies
-   * @throws Exception
+   * @throws Exception the exception
    */
   public Map<String, Terminology> getCachedTerminologies() throws Exception {
     if (cachedTerminologies.isEmpty()) {
@@ -735,8 +781,13 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   public Terminology getCachedTerminology(String terminologyAndVersion)
     throws Exception {
 
-    //TODO - strip "[A-Z]\\-" from front of termVersion?
-    
+    // terminologyAndVersion strings can sometimes be prefixed with "E-", "L-",
+    // etc.
+    // Strip these out if found.
+    if (terminologyAndVersion.matches("^[A-Z]\\-(.*)")) {
+      terminologyAndVersion = terminologyAndVersion.substring(2);
+    }
+
     if (cachedTerminologies.isEmpty()) {
       cacheExistingTerminologies();
     }
@@ -846,30 +897,61 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Class lookup.
+   * Lookup class.
    *
    * @param string the string
-   * @return the class<? extends hasid>
+   * @return the id type
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  public Class<? extends Component> lookupClass(String string)
+  public IdType lookupIdType(String string) throws Exception {
+
+    IdType objectType = null;
+
+    switch (string) {
+      case "CODE_SOURCE":
+        objectType = IdType.CODE;
+        break;
+      case "SOURCE_CUI":
+        objectType = IdType.CONCEPT;
+        break;
+      case "SRC_ATOM_ID":
+        objectType = IdType.ATOM;
+        break;
+      case "SRC_REL_ID":
+        objectType = IdType.RELATIONSHIP;
+        break;
+      default:
+        throw new Exception("Unhandled IdType type: " + string);
+    }
+
+    return objectType;
+  }
+
+  /**
+   * Lookup class.
+   *
+   * @param idType the id type
+   * @return the class<? extends component>
+   * @throws Exception the exception
+   */
+  public Class<? extends Component> lookupClass(IdType idType)
     throws Exception {
 
     Class<? extends Component> objectClass = null;
 
-    switch (string) {
-      case "CODE_SOURCE":
+    switch (idType) {
+      case CODE:
         objectClass = CodeJpa.class;
         break;
-      case "SOURCE_CUI":
+      case CONCEPT:
         objectClass = ConceptJpa.class;
         break;
-      case "SRC_ATOM_ID":
+      case ATOM:
         objectClass = AtomJpa.class;
         break;
       default:
-        throw new Exception("Invalid class type: " + string);
+        throw new Exception("Unhandled IdType type: " + idType);
     }
 
     return objectClass;
@@ -898,6 +980,45 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     }
 
     return workflowStatus;
+  }
+
+  /**
+   * Log warn and update.
+   *
+   * @param line the line
+   * @param warningMessage the warning message
+   * @throws Exception the exception
+   */
+  public void logWarnAndUpdate(String line, String warningMessage)
+    throws Exception {
+    logWarn(
+        warningMessage + " Could not process the following line:\n\t" + line);
+    updateProgress();
+  }
+
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    String algoName = getClass().getSimpleName();
+    String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
+    String objectType = algoName.substring(0, algoName.indexOf("Loader"));
+
+    stepsCompleted++;
+
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          shortName.toUpperCase() + " progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+
+    if (!transactionPerOperation) {
+      logAndCommit("[" + shortName + "] " + objectType + " lines processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+    }
   }
 
   /**
