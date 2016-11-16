@@ -10,8 +10,8 @@
           <b>Name</b>
         </td>
         <td>
-          <textarea rows="2" cols="40" ng-show="action == 'Add'" ng-model="atom.name"
-            placeholder="Name of atom"></textarea>          
+          <textarea autofocus rows="2" cols="40" ng-show="action == 'Add'"
+            ng-model="atom.name" placeholder="Name of atom"></textarea>
           <span ng-show="action != 'Add'">{{atom.name}}</span>
         </td>
       </tr>
@@ -20,8 +20,10 @@
           <b>Termgroup</b>
         </td>
         <td>
-          <span ng-show="action == 'Add'"><select ng-model="selectedTermgroup"
-            ng-options="item for item in selected.project.newAtomTermgroups"></select>  </span>        
+          <span ng-show="action == 'Add'">
+            <select ng-model="selectedTermgroup"
+              ng-options="item for item in selected.project.newAtomTermgroups"></select>
+          </span>
           <span ng-show="action != 'Add'">{{atom.terminology}}/{{atom.termType}}</span>
         </td>
       </tr>
@@ -30,8 +32,10 @@
           <b>Language</b>
         </td>
         <td>
-          <span ng-show="action == 'Add'"><select ng-model="atom.language"
-            ng-options="item.key as item.value for item in selected.metadata.languages"></select>  </span>        
+          <span ng-show="action == 'Add'">
+            <select ng-model="atom.language"
+              ng-options="item.key as item.value for item in selected.metadata.languages"></select>
+          </span>
           <span ng-show="action != 'Add'">{{atom.language}}</span>
         </td>
       </tr>
@@ -44,7 +48,7 @@
           <span ng-show="action != 'Add'">{{atom.codeId}}</span>
         </td>
       </tr>
-      <tr  ng-show="action == 'Add' || atom.conceptId">
+      <tr ng-show="action == 'Add' || atom.conceptId">
         <td>
           <b>Concept</b>
         </td>
@@ -52,7 +56,7 @@
           <input ng-show="action == 'Add'" ng-model="atom.conceptId">
           <span ng-show="action != 'Add'">{{atom.conceptId}}</span>
         </td>
-      </tr>      
+      </tr>
       <tr ng-show="action == 'Add' || atom.descriptorId">
         <td>
           <b>Descriptor</b>
@@ -95,11 +99,10 @@
 
   <!-- Errors -->
   <div errors="errors"></div>
-  
+
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="submitAtom(atom); 
-    ">{{action}}</button>
+  <button class="btn btn-primary" ng-click="submitAtom(atom)">{{action}}</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

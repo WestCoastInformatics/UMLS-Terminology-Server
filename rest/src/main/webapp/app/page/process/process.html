@@ -29,12 +29,13 @@
   </div>
 
 
-  <!-- C1 -->
+  <!-- R1C1 - process List-->
   <div class=" col-md-6 col-xs-12">
-    <div class="mt5">
-      Type: <select ng-model="selected.processType" ng-change="getProcesses()"
-        ng-options="processType for processType in lists.processTypes"></select>
+    <div class="mt10">
+      <h4 style="display: inline;">Process List</h4>
       <span style="float: right;">
+        Type: <select ng-model="selected.processType" ng-change="getProcesses()"
+          ng-options="processType for processType in lists.processTypes"></select>
         <button ng-click="openAddProcessModal()" title="Add new process"
           ng-show="selected.mode != 'Execution' && hasPermissions('EditProcessOrStep')"
           class="btn btn-xs btn-primary">Add Process</button>
@@ -57,7 +58,6 @@
               Last Modified
               <span ng-bind="getSortIndicator('process','lastModified')"></span>
             </span></th>
-          <!-- Actions header -->
           <th class="col-md-1 col-xs-1">Actions</th>
         </tr>
       </thead>
@@ -93,7 +93,7 @@
   </div>
 
 
-  <!-- R1C2 - concepts list  -->
+  <!-- R1C2 - process details -->
   <div class="col-md-6 col-xs-12">
 
     <span ng-show="selected.process">
@@ -182,7 +182,8 @@
             <td>{{getExecutionState(selected.process)}}</td>
           </tr>
 
-          <tr ng-show="selected.mode == 'Execution'">
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.startDate && !selected.process.finishDate && !selected.process.failDate">
             <td>
               <b>Progress</b>
             </td>
@@ -190,10 +191,13 @@
               <uib-progressbar max="max" value="processProgress">
               <span style="color: white; white-space: nowrap;">{{processProgress}}
                 / {{max}}</span></uib-progressbar>
+              <i class="noul glyphicon glypihicon-refresh"
+                ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
 
-          <tr ng-show="selected.mode == 'Execution'">
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.lastAlgorithm.startDate && !selected.lastAlgorithm.finishDate && !selected.lastAlgorithm.failDate">
             <td>
               <b>Step Progress</b>
             </td>
@@ -201,6 +205,8 @@
               <uib-progressbar max="max" value="stepProgress">
               <span style="color: white; white-space: nowrap;">{{stepProgress}}
                 / {{max}}</span></uib-progressbar>
+              <i class="noul glyphicon glypihicon-refresh"
+                ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
 
@@ -215,13 +221,21 @@
           style="float: right;">
           <select ng-model="selected.algorithmConfigType"
             ng-change="changeAlgorithmConfigType()"
-            ng-options="configType.value for configType in lists.algorithmConfigTypes | toArrayValues | orderBy"></select>
+            ng-options="configType.value for configType in lists.algorithmConfigTypes"></select>
           <button ng-click="openAddAlgorithmModal()" title="Add"
             class="btn btn-xs btn-primary">Add</button>
         </span>
       </div>
 
       <table class="slim table pointer">
+        <thead>
+          <tr>
+            <th class="col-md-3 col-xs-3">Name</th>
+            <th class="col-md-5 col-xs-5">Description</th>
+            <th class="col-md-3 col-xs-3">Last Modified</th>
+            <th class="col-md-1 col-xs-1">Actions</th>
+          </tr>
+        </thead>
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
           ng-class="{selected: step.id == selected.step.id}">
@@ -242,7 +256,8 @@
             {{step.name}}
           </td>
           <td class="col-md-4 col-xs-4">{{step.description}}</td>
-          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}</td>
+          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}
+          <span ng-show="selected.mode == 'Execution'"><br />getExecutionState(step)</span></td>
           <td class="col-md-1 col-xs-1 nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
               type="Step"></span>

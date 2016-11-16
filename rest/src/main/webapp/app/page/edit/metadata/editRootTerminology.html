@@ -19,7 +19,7 @@
           </td>
           <td>
             <span>
-              <select ng-disabled="!rootTerminology.language"
+              <select autofocus ng-disabled="!rootTerminology.language"
                 ng-model="rootTerminology.language"
                 ng-options="item.key as item.value for item in lists.languages"></select>
             </span>

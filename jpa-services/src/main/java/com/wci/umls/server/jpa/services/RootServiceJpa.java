@@ -24,11 +24,13 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.spi.PersistenceProvider;
 
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.BooleanQuery;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.User;
@@ -113,7 +115,9 @@ public abstract class RootServiceJpa implements RootService {
     Properties config = null;
     try {
       config = ConfigUtility.getConfigProperties();
-      factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
+      // TODO: this fixes a bug.
+      PersistenceProvider provider = new HibernatePersistenceProvider();
+      factory = provider.createEntityManagerFactory("TermServiceDS", config);
     } catch (Exception e) {
       e.printStackTrace();
       factory = null;

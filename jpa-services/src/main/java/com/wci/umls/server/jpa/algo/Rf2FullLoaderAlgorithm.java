@@ -28,18 +28,6 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
  */
 public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
-  /** The tree pos algorithm. */
-  private final TreePositionAlgorithm treePosAlgorithm =
-      new TreePositionAlgorithm();
-
-  /** The trans closure algorithm. */
-  private final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
-
-  /** The label set algorithm. */
-  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
-      new LabelSetMarkedParentAlgorithm();
-
   /**
    * Instantiates an empty {@link Rf2FullLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -212,18 +200,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() throws Exception {
-    // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-    labelSetAlgorithm.cancel();
-
-    // invoke superclass cancel
-    super.cancel();
   }
 
   /* see superclass */

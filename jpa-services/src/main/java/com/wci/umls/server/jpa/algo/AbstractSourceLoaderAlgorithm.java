@@ -21,15 +21,18 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
-import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.DefinitionJpa;
-import com.wci.umls.server.jpa.content.DescriptorJpa;
-import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.RootTerminology;
@@ -218,7 +221,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from atoms a join atomjpa_alternateterminologyids b where a.id = b.AtomJpa_id AND a.terminology = '"
@@ -258,7 +261,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from attributes a join attributejpa_alternateterminologyids b where terminology = '"
@@ -299,7 +302,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from definitions a join definitionjpa_alternateterminologyids b where terminology = '"
@@ -344,7 +347,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     // ComponentInfoRelationships.
 
     int iteration = 0;
-    int batchSize = 10000;
+    int batchSize = 100000;
 
     String queryStr =
         "select b.alternateTerminologyIds, a.id from concept_relationships a join conceptrelationshipjpa_alternateterminologyids b where terminology = '"
@@ -563,60 +566,60 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Returns the id.
    *
-   * @param idType the id type
+   * @param clazz the id type
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @return the id
    * @throws Exception the exception
    */
-  public Long getId(Class<?> idType, String terminologyId, String terminology)
+  public Long getId(Class<?> clazz, String terminologyId, String terminology)
     throws Exception {
 
-    if (idType.equals(AtomJpa.class)) {
+    if (Atom.class.isAssignableFrom(clazz)) {
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
       return atomIdCache.get(terminologyId);
     }
 
-    else if (idType.equals(AttributeJpa.class)) {
+    else if (Attribute.class.isAssignableFrom(clazz)) {
       if (!attributeCachedTerms.contains(terminology)) {
         cacheExistingAttributeIds(terminology);
       }
       return attributeIdCache.get(terminologyId);
     }
 
-    else if (idType.equals(CodeJpa.class)) {
+    else if (Code.class.isAssignableFrom(clazz)) {
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
       return codeIdCache.get(terminologyId + terminology);
     }
 
-    else if (idType.equals(ConceptJpa.class)) {
+    else if (Concept.class.isAssignableFrom(clazz)) {
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
       }
       return conceptIdCache.get(terminologyId + terminology);
     }
 
-    else if (idType.equals(DefinitionJpa.class)) {
+    else if (Definition.class.isAssignableFrom(clazz)) {
       if (!definitionCachedTerms.contains(terminology)) {
         cacheExistingDefinitionIds(terminology);
       }
       return definitionIdCache.get(terminologyId);
     }
 
-    else if (idType.equals(DescriptorJpa.class)) {
+    else if (Descriptor.class.isAssignableFrom(clazz)) {
       if (!descriptorCachedTerms.contains(terminology)) {
         cacheExistingDescriptorIds(terminology);
       }
       return descriptorIdCache.get(terminologyId + terminology);
     }
 
-    else if (idType.equals(ConceptRelationshipJpa.class)
-        || idType.equals(CodeRelationshipJpa.class)
-        || idType.equals(DescriptorRelationshipJpa.class)) {
+    else if (ConceptRelationship.class.isAssignableFrom(clazz)
+        || CodeRelationship.class.isAssignableFrom(clazz)
+        || DescriptorRelationship.class.isAssignableFrom(clazz)) {
       if (!relCachedTerms.contains(terminology)) {
         cacheExistingRelationshipIds(terminology);
       }
@@ -624,7 +627,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     }
 
     else {
-      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
+      throw new Exception("ERROR: " + clazz + " is an unhandled idType.");
     }
 
   }
@@ -632,47 +635,47 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   /**
    * Put id.
    *
-   * @param idType the id type
+   * @param clazz the clazz
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param id the id
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  public void putId(Class<?> idType, String terminologyId, String terminology,
+  public void putId(Class<?> clazz, String terminologyId, String terminology,
     Long id) throws Exception {
-    if (idType.equals(AtomJpa.class)) {
+    if (Atom.class.isAssignableFrom(clazz)) {
       atomIdCache.put(terminologyId, id);
     }
 
-    else if (idType.equals(AttributeJpa.class)) {
+    else if (Attribute.class.isAssignableFrom(clazz)) {
       attributeIdCache.put(terminologyId, id);
     }
 
-    else if (idType.equals(CodeJpa.class)) {
+    else if (Code.class.isAssignableFrom(clazz)) {
       codeIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (idType.equals(ConceptJpa.class)) {
+    else if (Concept.class.isAssignableFrom(clazz)) {
       conceptIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (idType.equals(DefinitionJpa.class)) {
+    else if (Definition.class.isAssignableFrom(clazz)) {
       definitionIdCache.put(terminologyId, id);
     }
 
-    else if (idType.equals(DescriptorJpa.class)) {
+    else if (Descriptor.class.isAssignableFrom(clazz)) {
       descriptorIdCache.put(terminologyId + terminology, id);
     }
 
-    else if (idType.equals(ConceptRelationshipJpa.class)
-        || idType.equals(CodeRelationshipJpa.class)
-        || idType.equals(DescriptorRelationshipJpa.class)) {
+    else if (ConceptRelationship.class.isAssignableFrom(clazz)
+        || CodeRelationship.class.isAssignableFrom(clazz)
+        || DescriptorRelationship.class.isAssignableFrom(clazz)) {
       relIdCache.put(terminologyId, id);
     }
 
     else {
-      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
+      throw new Exception("ERROR: " + clazz + " is an unhandled idType.");
     }
   }
 
@@ -732,6 +735,8 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   public Terminology getCachedTerminology(String terminologyAndVersion)
     throws Exception {
 
+    //TODO - strip "[A-Z]\\-" from front of termVersion?
+    
     if (cachedTerminologies.isEmpty()) {
       cacheExistingTerminologies();
     }

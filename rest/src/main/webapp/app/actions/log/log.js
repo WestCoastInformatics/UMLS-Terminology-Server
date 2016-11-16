@@ -6,17 +6,20 @@ tsApp.directive('log', [ function() {
     scope : {
       selected : '=',
       type : '@',
-      lines : '@'
+      lines : '@',
+      poll : '@'
     },
     templateUrl : 'app/actions/log/log.html',
     controller : [
       '$scope',
       '$uibModal',
+      '$interval',
       'utilService',
       'projectService',
       'workflowService',
       'processService',
-      function($scope, $uibModal, utilService, projectService, workflowService, processService) {
+      function($scope, $uibModal, $interval, utilService, projectService, workflowService,
+        processService) {
         console.debug('configure LogDirective', $scope.selected);
 
         // Log modal
@@ -34,15 +37,18 @@ tsApp.directive('log', [ function() {
               type : function() {
                 return $scope.type;
               },
+              poll : function() {
+                return $scope.poll;
+              }
             }
           });
 
           // NO need for result function - no action on close
           // modalInstance.result.then(function(data) {});
         };
-        var LogModalCtrl = function($scope, $uibModalInstance, selected, type) {
-          console.debug("configure LogModalCtrl");
+        var LogModalCtrl = function($scope, $uibModalInstance, selected, type, poll) {
           $scope.type = type;
+          $scope.poll = poll;
           $scope.errors = [];
           $scope.warnings = [];
 
@@ -119,7 +125,13 @@ tsApp.directive('log', [ function() {
           };
 
           // initialize
-          $scope.getLog();
+          if ($scope.poll) {
+            $interval(function() {
+              $scope.getLog();
+            }, 2000);
+          } else {
+            $scope.getLog();
+          }
         };
 
       } ]

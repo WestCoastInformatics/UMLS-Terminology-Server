@@ -77,7 +77,7 @@ tsApp
   .value(
     '$confirmModalDefaults',
     {
-      template : '<div class="modal-header"><h3 class="modal-title">Confirm</h3></div><div class="modal-body">{{data.text}}</div><div class="modal-footer"><button class="btn btn-primary" ng-click="ok()">OK</button><button class="btn btn-warning" ng-click="cancel()">Cancel</button></div>',
+      template : '<div class="modal-header"><h3 class="modal-title">Confirm</h3></div><div class="modal-body">{{data.text}}</div><div class="modal-footer"><form name="name" class="form" ng-submit="ok()"><button autofocus type="submit" class="btn btn-primary" >OK</button><button type="button" class="btn btn-warning" ng-click="cancel()">Cancel</button></form></div>',
       controller : 'ConfirmModalCtrl'
     });
 
@@ -144,19 +144,8 @@ tsApp.directive('confirm', function($confirm) {
 tsApp.filter('toArrayKeys', function() {
   return function(obj, field, reverse) {
     var arr = [];
-    arr = Object.keys(obj);
-    return arr;
-  };
-});
-
-// Filter for ordering by key
-tsApp.filter('toArrayValues', function() {
-  return function(obj, field, reverse) {
-    var arr = [];
-    for ( var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        arr.push(obj[key]);
-      }
+    if (obj != null) {
+      arr = Object.keys(obj);
     }
     return arr;
   };

@@ -1,3 +1,4 @@
+
 <div class="modal-header">
   <h4>{{action}} Process</h4>
 </div>
@@ -9,7 +10,8 @@
         <b>Name</b>
       </td>
       <td>
-        <input class="w100" ng-model="process.name" placeholder="e.g. demotions" />
+        <input autofocus class="w100" ng-model="process.name"
+          placeholder="e.g. demotions" />
       </td>
     </tr>
     <tr>
@@ -72,9 +74,7 @@
 </div>
 
 <div class="modal-footer">
-  <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitProcess(process); ">Add</button>
-  <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitProcess(process); ">Save</button>
+  <button ng-click="submitProcess(process)" class="btn btn-primary"
+    ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

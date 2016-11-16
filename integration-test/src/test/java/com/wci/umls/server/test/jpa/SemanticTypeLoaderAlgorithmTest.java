@@ -4,7 +4,6 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -21,12 +20,10 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.RelationshipLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.SemanticTypeLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -36,10 +33,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  RelationshipLoaderAlgorithm algo = null;
+  SemanticTypeLoaderAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -53,7 +50,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The project. */
   Project project = null;
 
-  /** The temporary relationships.src file. */
+  /** The temporary .src file. */
   private File outputFile = null;
 
   /**
@@ -103,30 +100,21 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setInputPath(
         processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate a relationships.src document in the /temp
+    // Create and populate an attributes.src document in the /temp
     // temporary subfolder
-    outputFile = new File(tempSrcDir, "relationships.src");
+    outputFile = new File(tempSrcDir, "attributes.src");
 
     PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
-        "1|S|V-NCI_2016_05E|BT|has_version|V-NCI|SRC|SRC|R|Y|N|N|CODE_SOURCE|SRC|CODE_SOURCE|SRC|||");
+        "1|362166237|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|");
     out.println(
-        "31|S|C63923|RT|Concept_In_Subset|C98033|NCI_2016_05E|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E|SOURCE_CUI|NCI_2016_05E|||");
-    out.close();
-
-    // Also create and populate a contexts.src document in the /temp
-    // temporary subfolder
-    outputFile = new File(tempSrcDir, "contexts.src");
-
-    out = new PrintWriter(new FileWriter(outputFile));
+        "34|C98033|S|FDA_UNII_Code|ODN00F2SJG|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||634eb9dd2339a0f372a5f0b3c7b58fed|");
     out.println(
-        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
-    out.println(
-        "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
+        "43|C118465|C|SEMANTIC_TYPE|Diagnostic Procedure|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||5186070c98e613d1e688b45c983caea2|");
     out.close();
 
     // Create and configure the algorithm
-    algo = new RelationshipLoaderAlgorithm();
+    algo = new SemanticTypeLoaderAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -168,42 +156,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      // Make sure the relationships and inverses in the temporary input file
-      // exist (added or updated)
-      RelationshipList relList =
-          contentService.findCodeRelationships("V-NCI", "SRC", "latest",
-              Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
-      assertEquals(1, relList.size());
-      
-      relList =
-          contentService.findCodeRelationships("V-NCI", "SRC", "latest",
-              Branch.ROOT, "fromTerminologyId:V-NCI_2016_05E", true, null);
-      assertEquals(1, relList.size());
 
-      relList = contentService.findConceptRelationships("C98033", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
-      assertEquals(1, relList.size());
-
-      relList = contentService.findConceptRelationships("C98033", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C63923", true, null);
-      assertEquals(1, relList.size());
-      
-      relList = contentService.findConceptRelationships("C37447", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C1971", false, null);
-      assertEquals(1, relList.size());
-
-      relList = contentService.findConceptRelationships("C37447", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C1971", true, null);
-      assertEquals(1, relList.size());
-    
-      relList = contentService.findConceptRelationships("C25948", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C16484", false, null);
-      assertEquals(1, relList.size());
-
-      relList = contentService.findConceptRelationships("C25948", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C16484", true, null);
-      assertEquals(1, relList.size());
-      
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

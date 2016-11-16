@@ -184,13 +184,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private final String dl2Profile =
       "http://www.w3.org/TR/owl2-profiles/#OWL_2_DL";
 
-  /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
-
-  /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
-
   /**
    * Instantiates an empty {@link OwlLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -334,17 +327,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() throws Exception {
-    // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-
-    // invoke superclass cancel
-    super.cancel();
   }
 
   /**

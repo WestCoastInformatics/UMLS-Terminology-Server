@@ -3,23 +3,10 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.Query;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -29,15 +16,15 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
-import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.Terminology;
-import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -116,9 +103,10 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     final IdentifierAssignmentHandler handler =
         newIdentifierAssignmentHandler(getProject().getTerminology());
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+    final ComputePreferredNameHandler prefNameHandler =
+        getComputePreferredNameHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
-    
 
     // Count number of added and updated Semantic Types, for logging
     int addCount = 0;
@@ -134,18 +122,14 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the attributes.src file, only keeping SEMANTIC_TYPE lines.
       //
-      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src", "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
+      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src",
+          "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
 
       // Set the number of steps to the number of atoms to be processed
       steps = lines.size();
 
       String fields[] = new String[14];
 
-      // Each line of relationships.src corresponds to one relationship.
-      // Check to make sure the relationship doesn't already exist in the
-      // database
-      // If it does, skip it.
-      // If it does not, add it.
       for (String line : lines) {
 
         // Check for a cancelled call once every 100 relationships (doing it
@@ -176,64 +160,74 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // e.g.
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
-        // Only process SEMANTIC_TYPE lines
-        if (!fields[4].equals("SEMANTIC_TYPE")) {
+        // Load the referenced atom, or preferred atom of atomClass object
+        Atom atom = null;
+        Class<?> containingObjectClass = lookupClass(fields[10]);
+        
+        //TODO question: terminology in fields[5] vs. fields[11]
+        Terminology terminology = getCachedTerminology(fields[5]);
+        if (terminology == null) {
+          logWarn("Warning - terminology not found: " + fields[5]
+              + ". Could not process the following line:\n\t" + line);
           updateProgress();
-          logAndCommit("[SemanticType Loader] SemanticTypes processed ",
+          logAndCommit("[SemanticType Loader] SemanticType lines processed ",
               stepsCompleted, RootService.logCt, RootService.commitCt);
           continue;
         }
 
-        // Load the concept
-        String conceptTermId = null;
-        Long conceptId = null;
-        Concept concept = null;
-        Class<?> containingObjectClass = this.lookupClass(fields[10]);
-        if (containingObjectClass.equals(AtomJpa.class)) {
+        // atom case
+        if (Atom.class.isAssignableFrom(containingObjectClass)) {
           // Load the containing object
           final String atomAltId = fields[1];
 
-          Long atomId = getId(containingObjectClass, atomAltId, getProject().getTerminology());
+          // TODO confirm - getting atom associated with terminology specified in file
+          Long atomId = getId(containingObjectClass, atomAltId,
+              terminology.getTerminology());
+          atom = atomId == null ? null : getAtom(atomId);
 
-          Atom atomComponent = atomId == null ? null : getAtom(atomId);
-
-          if (atomComponent == null) {
-            // TODO - remove update and continue, and uncomment Exception once
-            // testing is completed.
+          if (atom == null) {
+            logWarn("Warning - atom not found for AUI: " + atomAltId
+                + ". Could not process the following line:\n\t" + line);
             updateProgress();
             logAndCommit("[SemanticType Loader] SemanticTypes processed ",
                 stepsCompleted, RootService.logCt, RootService.commitCt);
             continue;
-            // throw new Exception("Error - lookup returned no object: " +
-            // fromClass.getSimpleName() + " with terminologyId=" +
-            // fromTerminologyId
-            // + ", terminology=" + fromTerminology + ", version=" +
-            // fromVersion);
           }
 
-          //TODO - get concept from atom
-          //Use Lucene query:
-          // terminology: project.getTerm(), version:project.getVersion(),
-          // atoms.id:atom.getId()
-          
-          List<ConceptJpa> concepts = searchHandler.getQueryResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT, "", null, ConceptJpa.class, null, new int[1], getEntityManager());
-          if(concepts.size()!=1){
-            throw new Exception("Unexpected number of concepts: " + concepts.size() + ", for atom: " + atomId);
-          }
-          
-          conceptTermId = atomComponent.getConceptId();
-        } else if (containingObjectClass.equals(ConceptJpa.class)) {
-          conceptTermId = fields[1];
         }
 
-        if (conceptTermId != null) {
-          conceptId = getId(containingObjectClass, conceptTermId, getProject().getTerminology());
+        // atom class case
+        else {
+          // TODO confirm - getting atomClass associated with terminology
+          // specified in file
+          AtomClass atomClass = (AtomClass) getComponent(fields[1],
+              terminology.getTerminology(), terminology.getVersion(),
+              Branch.ROOT, lookupClass(fields[10]));
+
+          // compute preferred atom
+          List<Atom> atoms =
+              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
+                  getProject().getTerminology(), getProject().getVersion()));
+          atom = atoms.get(0);
+
         }
-        if (conceptId != null) {
-          concept = getConcept(conceptId);
+
+        // TODO confirm - getting Concept associated with PROJECT terminology
+        // Get the concept associated with the loaded atom, or preferred atom of
+        // loaded atomClass Object
+        Concept concept = null;
+        List<ConceptJpa> concepts = searchHandler.getQueryResults(
+            getProject().getTerminology(), getProject().getVersion(),
+            Branch.ROOT, "atoms.id:" + atom.getId(), null, ConceptJpa.class,
+            null, new int[1], getEntityManager());
+        if (concepts.size() != 1) {
+          throw new Exception("Unexpected number of concepts: "
+              + concepts.size() + ", for atom: " + atom.getId());
         }
+        concept = concepts.get(0);
 
         // If concept has a semantic type already matching this value, move on
+        // otherwise add a new semantic type.
         boolean componentContainsSty = false;
         for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
           if (sty.getSemanticType().equals("fields[4]")) {
@@ -242,11 +236,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           }
         }
 
-        if (componentContainsSty) {
-          continue;
-        }
-        // otherwise add a new semantic type.
-        else {
+        if (!componentContainsSty) {
           SemanticTypeComponent newSty = new SemanticTypeComponentJpa();
           newSty.setBranch(Branch.ROOT);
           newSty.setName(fields[4]);
@@ -255,34 +245,27 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           newSty.setPublished(fields[8].equals("Y"));
           newSty.setSemanticType(fields[4]);
           newSty.setSuppressible(fields[9].equals("Y"));
-          Terminology term = getCachedTerminology(fields[5]);
-          if (term == null) {
-            throw new Exception(
-                "ERROR: lookup for " + fields[5] + " returned no terminology");
-          } else {
-            newSty.setTerminology(term.getTerminology());
-            newSty.setVersion(term.getVersion());
-          }
+          newSty.setTerminology(terminology.getTerminology());
+          //TODO question: termId?
+          newSty.setTerminologyId("");
+          newSty.setVersion(terminology.getVersion());
           newSty.setWorkflowStatus(lookupWorkflowStatus(fields[6]));
-          
+
           newSty = addSemanticTypeComponent(newSty, concept);
-          // TODO - find out if this is needed.
-          // If so, create a cache-map, so that all updates are made to same
-          // copy of the concept
-          // // Add the semanticType to the concept
           concept.getSemanticTypes().add(newSty);
           updateConcept(concept);
-          
-          addCount++;
 
+          addCount++;
         }
+
         // Update the progress
         updateProgress();
 
         logAndCommit("[Semantic Type Loader] Semantic Types processed ",
             stepsCompleted, RootService.logCt, RootService.commitCt);
-        handler.logAndCommit("[Semantic Type Loader] Semantic Type identities processed ", stepsCompleted,
-            RootService.logCt, RootService.commitCt);
+        handler.logAndCommit(
+            "[Semantic Type Loader] Semantic Type identities processed ",
+            stepsCompleted, RootService.logCt, RootService.commitCt);
 
       }
 

@@ -144,10 +144,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private String lastPublishedRank;
 
   /** The notes. */
-  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class)
+  // NOTE: this could cause a performance problem with the join
+  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class, fetch = FetchType.EAGER)
   @IndexedEmbedded(targetElement = AtomNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
-  
+
   /**
    * Instantiates an empty {@link AtomJpa}.
    */
@@ -478,22 +479,22 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   public void setComponentHistory(List<ComponentHistory> componentHistory) {
     this.componentHistories = componentHistory;
   }
-  
+
   /* see superclass */
   @Override
   public String getLastPublishedRank() {
-	return lastPublishedRank;
-  }
-  
-  /* see superclass */
-  @Override
-  public void setLastPublishedRank(String lastPublishedRank) {
-	this.lastPublishedRank = lastPublishedRank;
+    return lastPublishedRank;
   }
 
   /* see superclass */
   @Override
-  public void setNotes(List<Note> notes) {    
+  public void setLastPublishedRank(String lastPublishedRank) {
+    this.lastPublishedRank = lastPublishedRank;
+  }
+
+  /* see superclass */
+  @Override
+  public void setNotes(List<Note> notes) {
     this.notes = notes;
 
   }
@@ -507,7 +508,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     }
     return this.notes;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -522,7 +523,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     result = prime * result
         + ((stringClassId == null) ? 0 : stringClassId.hashCode());
     result = prime * result + ((termType == null) ? 0 : termType.hashCode());
-    result = prime * result + ((lastPublishedRank == null) ? 0 : lastPublishedRank.hashCode());
+    result = prime * result
+        + ((lastPublishedRank == null) ? 0 : lastPublishedRank.hashCode());
     return result;
   }
 
@@ -571,10 +573,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     } else if (!termType.equals(other.termType))
       return false;
     if (lastPublishedRank == null) {
-        if (other.lastPublishedRank != null)
-          return false;
-      } else if (!lastPublishedRank.equals(other.lastPublishedRank))
+      if (other.lastPublishedRank != null)
         return false;
+    } else if (!lastPublishedRank.equals(other.lastPublishedRank))
+      return false;
     return true;
   }
 
@@ -587,7 +589,8 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
         + descriptorId + ", conceptId=" + conceptId + ", language=" + language
         + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
         + stringClassId + ", termType=" + termType + ", workflowStatus="
-        + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - " + super.toString();
+        + workflowStatus + ", lastPublishedRank=" + lastPublishedRank + "] - "
+        + super.toString();
   }
 
 }

@@ -20,12 +20,12 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
 import com.wci.umls.server.jpa.content.AbstractRelationship;
-import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -136,11 +136,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the contexts.src file
       //
       // Only keep "PAR" relationship rows.
-      // If sg_type_1 or sg_type_2 = SCR_ATOM_ID, skip.
       List<String> lines2 = loadFileIntoStringList(srcDirFile, "contexts.src",
-          "[0-9]+?\\|PAR(.*)", "(.*)SRC_ATOM_ID(.*)");
+          "[0-9]+?\\|PAR(.*)", null);
 
-      // There will be many duplicated lines in the contexts file, since the main
+      // There will be many duplicated lines in the contexts.src file, since the
+      // main
       // distinguishing field "parent_treenum" is ignored for these purposes.
       // Remove the dups.
       lines = removeDups(lines);
@@ -148,15 +148,13 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Set the number of steps to the number of relationships to be processed
       steps = lines.size() + lines2.size();
 
-      // 
+      //
       // Process relationships.src lines
       //
       String fields[] = new String[18];
       for (String line : lines) {
 
-        // Check for a cancelled call once every 100 relationships (doing it
-        // every time
-        // makes things too slow)
+        // Check for a cancelled call once every 100 lines
         if (stepsCompleted % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
@@ -210,12 +208,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
-
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
+            false);
       }
 
-
-      // 
+      //
       // Process contexts.src lines
       //
       String fields2[] = new String[17];
@@ -279,20 +276,17 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         handleRelationships(line, fromTermId, fromTermAndVersion,
             fromClassIdType, toTermId, toTermAndVersion, toClassIdType,
             additionalRelType, group, publishable, published, relType,
-            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr);
+            suppresible, sourceTermAndVersion, sourceTermId, workflowStatusStr,
+            true);
 
       }
 
       commitClearBegin();
       handler.commitClearBegin();
-      
+
       logInfo("[RelationshipLoader] Added " + addCount + " new Relationships.");
       logInfo("[RelationshipLoader] Updated " + updateCount
           + " existing Relationships.");
-
-      //
-      // Load the relationships from relationships.src
-      //
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -366,7 +360,20 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     String toTermAndVersion, String toClassIdType, String additionalRelType,
     String group, String publishable, String published, String relType,
     String suppresible, String sourceTermAndVersion, String sourceTermId,
-    String workflowStatusStr) throws Exception {
+    String workflowStatusStr, Boolean fromContextsSrcFile) throws Exception {
+
+    // For the contexts.src file relationships only, if to and from ClassTypes
+    // don't match, fire a
+    // warning and skip the line.
+    if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
+      logWarn("Warning - type 1: " + fromClassIdType
+          + " does not equals type 2: " + toClassIdType
+          + ". Could not process the following line:\n\t" + line);
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
+    }
 
     // Load the containing objects based on type
     final String fromTerminologyId = fromTermId;
@@ -412,6 +419,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       return;
     }
 
+    // For the contexts.src file relationships only, if either
+    // the from or to component has a terminology = 'SRC', skip it.
+    if (fromContextsSrcFile && (toComponent.getTerminology().equals("SRC")
+        || fromComponent.getTerminology().equals("SRC"))) {
+      updateProgress();
+      logAndCommit("[Relationship Loader] Relationships processed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+      return;
+    }
+
     // Create the relationship.
     // If id_type_1 equals id_type_2, the relationship is of that type.
     // If they are not equal, it's a Component Info Relationship
@@ -421,12 +438,12 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (!fromClass.equals(toClass)) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
-    } else if (fromClass.equals(ConceptJpa.class)
-        && toClass.equals(ConceptJpa.class)) {
+    } else if (Concept.class.isAssignableFrom(fromClass)
+        && Concept.class.isAssignableFrom(toClass)) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
-    } else if (fromClass.equals(CodeJpa.class)
-        && toClass.equals(CodeJpa.class)) {
+    } else if (Code.class.isAssignableFrom(fromClass)
+        && Code.class.isAssignableFrom(toClass)) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
     } else {
@@ -437,13 +454,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     newRelationship.setBranch(Branch.ROOT);
     newRelationship.setFrom(fromComponent);
     newRelationship.setGroup(group);
-    newRelationship.setInferred(true);
     newRelationship.setObsolete(false);
     newRelationship.setPublishable(publishable.equals("Y"));
     newRelationship.setPublished(published.equals("Y"));
     newRelationship.setRelationshipType(lookupRelationshipType(relType));
-    newRelationship.setHierarchical(false);
+    // When creating "CHD" relationship, set the "hierarchical" field
+    // to true.
+    newRelationship.setHierarchical(
+        newRelationship.getRelationshipType().equals("CHD") ? true : false);
     newRelationship.setStated(true);
+    newRelationship.setInferred(true);
     newRelationship.setSuppressible(suppresible.equals("Y"));
     Terminology term = getCachedTerminology(sourceTermAndVersion);
     if (term == null) {
