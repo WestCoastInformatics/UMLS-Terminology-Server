@@ -72,6 +72,7 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
     info.setTerminology(getTerminology());
     info.setVersion(getVersion());
     info.setReleaseBeginDate(new Date());
+    info.setTimestamp(new Date());
     addReleaseInfo(info);
 
     Logger.getLogger(getClass()).info("Done starting editing cycle");
