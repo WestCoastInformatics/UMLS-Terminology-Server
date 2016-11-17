@@ -2927,6 +2927,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
               cui.getId());
           logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+          if (objectCt % 5000 == 0) {
+            session.clear();
+          }
         }
         cui = new ConceptJpa();
         cui.setTimestamp(releaseVersionDate);
@@ -2977,6 +2980,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           descriptorIdMap.put(dui.getTerminology() + dui.getTerminologyId(),
               dui.getId());
           logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+          if (objectCt % 5000 == 0) {
+            session.clear();
+          }
         }
         dui = new DescriptorJpa();
         dui.setTimestamp(releaseVersionDate);
@@ -3044,6 +3050,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
                 code.getId());
             logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+            if (objectCt % 5000 == 0) {
+              session.clear();
+            }
           }
           code = new CodeJpa();
           code.setTimestamp(releaseVersionDate);
