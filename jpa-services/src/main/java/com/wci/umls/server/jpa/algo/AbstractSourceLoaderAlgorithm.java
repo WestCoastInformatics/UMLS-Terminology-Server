@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,12 +20,21 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Attribute;
+import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Definition;
+import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -195,16 +205,21 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       if (ConfigUtility.isEmpty(keepRegexFilter)
           && ConfigUtility.isEmpty(skipRegexFilter)) {
         lines.add(linePre);
-      }
-      if (!ConfigUtility.isEmpty(skipRegexFilter)) {
-        if (linePre.matches(skipRegexFilter)) {
-          continue;
-        }
-      }
-      if (!ConfigUtility.isEmpty(keepRegexFilter)) {
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && ConfigUtility.isEmpty(skipRegexFilter)) {
         if (linePre.matches(keepRegexFilter)) {
           lines.add(linePre);
-          continue;
+        }
+      } else if (ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (!linePre.matches(skipRegexFilter)) {
+          lines.add(linePre);
+        }
+      } else if (!ConfigUtility.isEmpty(keepRegexFilter)
+          && !ConfigUtility.isEmpty(skipRegexFilter)) {
+        if (linePre.matches(keepRegexFilter)
+            && !linePre.matches(skipRegexFilter)) {
+          lines.add(linePre);
         }
       }
     }
@@ -224,11 +239,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
 
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session.createQuery(
-        // TODO check-in: this was the query Brian wrote during 11/15/2016 call
-        // "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds
-        // b where KEY(b) like :terminology and a.publishable=true");
-        // TODO check-in: this is what I changed it to the very next day
-        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(10000);
 
@@ -258,7 +269,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
 
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session.createQuery(
-        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(10000);
 
@@ -270,7 +281,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
       final Long id = Long.valueOf(results.get()[1].toString());
-      attributeIdCache.put(terminologyId + terminology, id);
+      attributeIdCache.put(terminologyId, id);
     }
     results.close();
 
@@ -288,7 +299,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
 
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session.createQuery(
-        "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
+        "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     hQuery.setParameter("terminology", terminology);
     hQuery.setReadOnly(true).setFetchSize(10000);
 
@@ -300,7 +311,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     while (results.next()) {
       final String terminologyId = results.get()[0].toString();
       final Long id = Long.valueOf(results.get()[1].toString());
-      definitionIdCache.put(terminologyId + terminology, id);
+      definitionIdCache.put(terminologyId, id);
     }
     results.close();
 
@@ -317,52 +328,32 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
   private void cacheExistingRelationshipIds(String terminology)
     throws Exception {
 
-    // Get RUIs for ConceptRelationships, CodeRelationships, and
-    // ComponentInfoRelationships.
     logInfo(
         "[SourceLoader] Loading relationship Terminology Ids from database for terminology "
             + terminology);
-    
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
-        "select value(b), a.id from CodeRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      relIdCache.put(terminologyId + terminology, id);
+    List<String> relationshipPrefixes =
+        Arrays.asList("Code", "Concept", "Descriptor");
+
+    // Get RUIs for ConceptRelationships, CodeRelationships, and
+    // ComponentInfoRelationships.
+    for (String relPrefix : relationshipPrefixes) {
+      final Session session = manager.unwrap(Session.class);
+      org.hibernate.Query hQuery =
+          session.createQuery("select value(b), a.id from " + relPrefix
+              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+      hQuery.setParameter("terminology", terminology);
+      hQuery.setReadOnly(true).setFetchSize(10000);
+
+      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      while (results.next()) {
+        final String terminologyId = results.get()[0].toString();
+        final Long id = Long.valueOf(results.get()[1].toString());
+        relIdCache.put(terminologyId, id);
+      }
+      results.close();
     }
-    results.close();
-    
-    hQuery = session.createQuery(
-        "select value(b), a.id from ConceptRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
 
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      relIdCache.put(terminologyId + terminology, id);
-    }
-    results.close();
-
-    hQuery = session.createQuery(
-        "select value(b), a.id from DescriptorRelationshipJpa a join a.alternateTerminologyIds b where a.terminology = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
-
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      relIdCache.put(terminologyId + terminology, id);
-    }
-    results.close();
-    
     // Add this terminology to the cached set.
     relCachedTerms.add(terminology);
   }
@@ -541,116 +532,206 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     descriptorCachedTerms.add(terminology);
   }
 
+  // /**
+  // * Returns the id.
+  // *
+  // * @param idType the id type
+  // * @param terminologyId the terminology id
+  // * @param terminology the terminology
+  // * @return the id
+  // * @throws Exception the exception
+  // */
+  // public Long getId(IdType idType, String terminologyId, String terminology)
+  // throws Exception {
+  //
+  // if (idType.equals(IdType.ATOM)) {
+  // if (!atomCachedTerms.contains(terminology)) {
+  // cacheExistingAtomIds(terminology);
+  // }
+  // return atomIdCache.get(terminologyId);
+  // }
+  //
+  // else if (idType.equals(IdType.ATTRIBUTE)) {
+  // if (!attributeCachedTerms.contains(terminology)) {
+  // cacheExistingAttributeIds(terminology);
+  // }
+  // return attributeIdCache.get(terminologyId);
+  // }
+  //
+  // else if (idType.equals(IdType.CODE)) {
+  // if (!codeCachedTerms.contains(terminology)) {
+  // cacheExistingCodeIds(terminology);
+  // }
+  // return codeIdCache.get(terminologyId + terminology);
+  // }
+  //
+  // else if (idType.equals(IdType.CONCEPT)) {
+  // if (!conceptCachedTerms.contains(terminology)) {
+  // cacheExistingConceptIds(terminology);
+  // }
+  // return conceptIdCache.get(terminologyId + terminology);
+  // }
+  //
+  // else if (idType.equals(IdType.DEFINITION)) {
+  // if (!definitionCachedTerms.contains(terminology)) {
+  // cacheExistingDefinitionIds(terminology);
+  // }
+  // return definitionIdCache.get(terminologyId);
+  // }
+  //
+  // else if (idType.equals(IdType.DESCRIPTOR)) {
+  // if (!descriptorCachedTerms.contains(terminology)) {
+  // cacheExistingDescriptorIds(terminology);
+  // }
+  // return descriptorIdCache.get(terminologyId + terminology);
+  // }
+  //
+  // else if (idType.equals(IdType.RELATIONSHIP)) {
+  // if (!relCachedTerms.contains(terminology)) {
+  // cacheExistingRelationshipIds(terminology);
+  // }
+  // return relIdCache.get(terminologyId + terminology);
+  // }
+  //
+  // else {
+  // throw new Exception("ERROR: " + idType + " is an unhandled idType.");
+  // }
+  //
+  // }
+
   /**
-   * Returns the id.
+   * Put component.
    *
-   * @param idType the id type
+   * @param component the component
    * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @return the id
-   * @throws Exception the exception
-   */
-  public Long getId(IdType idType, String terminologyId, String terminology)
-    throws Exception {
-
-    if (idType.equals(IdType.ATOM)) {
-      if (!atomCachedTerms.contains(terminology)) {
-        cacheExistingAtomIds(terminology);
-      }
-      return atomIdCache.get(terminologyId);
-    }
-
-    else if (idType.equals(IdType.ATTRIBUTE)) {
-      if (!attributeCachedTerms.contains(terminology)) {
-        cacheExistingAttributeIds(terminology);
-      }
-      return attributeIdCache.get(terminologyId);
-    }
-
-    else if (idType.equals(IdType.CODE)) {
-      if (!codeCachedTerms.contains(terminology)) {
-        cacheExistingCodeIds(terminology);
-      }
-      return codeIdCache.get(terminologyId + terminology);
-    }
-
-    else if (idType.equals(IdType.CONCEPT)) {
-      if (!conceptCachedTerms.contains(terminology)) {
-        cacheExistingConceptIds(terminology);
-      }
-      return conceptIdCache.get(terminologyId + terminology);
-    }
-
-    else if (idType.equals(IdType.DEFINITION)) {
-      if (!definitionCachedTerms.contains(terminology)) {
-        cacheExistingDefinitionIds(terminology);
-      }
-      return definitionIdCache.get(terminologyId);
-    }
-
-    else if (idType.equals(IdType.DESCRIPTOR)) {
-      if (!descriptorCachedTerms.contains(terminology)) {
-        cacheExistingDescriptorIds(terminology);
-      }
-      return descriptorIdCache.get(terminologyId + terminology);
-    }
-
-    else if (idType.equals(IdType.RELATIONSHIP)) {
-      if (!relCachedTerms.contains(terminology)) {
-        cacheExistingRelationshipIds(terminology);
-      }
-      return relIdCache.get(terminologyId + terminology);
-    }
-
-    else {
-      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
-    }
-
-  }
-
-  /**
-   * Put id.
-   *
-   * @param idType the id type
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param id the id
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  public void putId(IdType idType, String terminologyId, String terminology,
-    Long id) throws Exception {
-    if (idType.equals(IdType.ATOM)) {
-      atomIdCache.put(terminologyId, id);
+  public void putComponent(Component component, String terminologyId)
+    throws Exception {
+    if (component instanceof Atom) {
+      atomIdCache.put(terminologyId, component.getId());
     }
 
-    else if (idType.equals(IdType.ATTRIBUTE)) {
-      attributeIdCache.put(terminologyId, id);
+    if (component instanceof Attribute) {
+      attributeIdCache.put(terminologyId, component.getId());
     }
 
-    else if (idType.equals(IdType.CODE)) {
-      codeIdCache.put(terminologyId + terminology, id);
+    else if (component instanceof Concept) {
+      conceptIdCache.put(terminologyId + component.getTerminology(),
+          component.getId());
     }
 
-    else if (idType.equals(IdType.CONCEPT)) {
-      conceptIdCache.put(terminologyId + terminology, id);
+    else if (component instanceof Code) {
+      codeIdCache.put(terminologyId + component.getTerminology(),
+          component.getId());
     }
 
-    else if (idType.equals(IdType.DEFINITION)) {
-      definitionIdCache.put(terminologyId, id);
+    else if (component instanceof Definition) {
+      definitionIdCache.put(terminologyId, component.getId());
     }
 
-    else if (idType.equals(IdType.DESCRIPTOR)) {
-      descriptorIdCache.put(terminologyId + terminology, id);
+    else if (component instanceof Descriptor) {
+      descriptorIdCache.put(terminologyId + component.getTerminology(),
+          component.getId());
     }
 
-    else if (idType.equals(IdType.RELATIONSHIP)) {
-      relIdCache.put(terminologyId, id);
+    else if (component instanceof Relationship) {
+      relIdCache.put(terminologyId, component.getId());
+    } else {
+      throw new Exception("ERROR: " + component.getClass().getName()
+          + " is an unhandled type.");
+    }
+  }
+
+  /**
+   * Returns the component.
+   *
+   * @param type the type
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param relClass the rel class
+   * @return the component
+   * @throws Exception the exception
+   */
+  public Component getComponent(String type, String terminologyId,
+    String terminology, Class<? extends Relationship<?, ?>> relClass)
+    throws Exception {
+
+    if (type.equals("AUI")) {
+      if (!atomCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingAtomIds(getProject().getTerminology());
+      }
+      return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+    }
+
+    else if (type.equals("SRC_ATOM_ID")) {
+      if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
+        cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
+      }
+      return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+    }
+
+    else if (type.equals("ATUI")) {
+      if (!attributeCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingAttributeIds(getProject().getTerminology());
+      }
+      return getComponent(attributeIdCache.get(terminologyId),
+          AttributeJpa.class);
+    }
+
+    else if (type.equals("CODE_SOURCE")) {
+      if (!codeCachedTerms.contains(terminology)) {
+        cacheExistingCodeIds(terminology);
+      }
+      return getComponent(codeIdCache.get(terminologyId + terminology),
+          CodeJpa.class);
+    }
+
+    else if (type.equals("SOURCE_CUI")) {
+      if (!conceptCachedTerms.contains(terminology)) {
+        cacheExistingConceptIds(terminology);
+      }
+      return getComponent(conceptIdCache.get(terminologyId + terminology),
+          ConceptJpa.class);
+    }
+
+    else if (type.equals("DEFINITION")) {
+      if (!definitionCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingDefinitionIds(getProject().getTerminology());
+      }
+      return getComponent(definitionIdCache.get(terminologyId),
+          DefinitionJpa.class);
+    }
+
+    else if (type.equals("SOURCE_DUI")) {
+      if (!descriptorCachedTerms.contains(terminology)) {
+        cacheExistingDescriptorIds(terminology);
+      }
+      return getComponent(descriptorIdCache.get(terminologyId + terminology),
+          DescriptorJpa.class);
+    }
+
+    else if (type.equals("RUI")) {
+      if (!relCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingRelationshipIds(getProject().getTerminology());
+      }
+
+      return getComponent(relIdCache.get(terminologyId), relClass);
+    }
+
+    else if (type.equals("SRC_REL_ID")) {
+      if (!relCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
+        cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC");
+      }
+
+      return getComponent(relIdCache.get(terminologyId), relClass);
     }
 
     else {
-      throw new Exception("ERROR: " + idType + " is an unhandled idType.");
+      throw new Exception("ERROR: " + type + " is an unhandled idType.");
     }
+
   }
 
   /**
@@ -780,7 +861,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    */
   public Terminology getCachedTerminology(String terminologyAndVersion)
     throws Exception {
-
+    
     // terminologyAndVersion strings can sometimes be prefixed with "E-", "L-",
     // etc.
     // Strip these out if found.
@@ -896,66 +977,66 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     return cachedAdditionalRelationshipTypes.get(abbreviation);
   }
 
-  /**
-   * Lookup class.
-   *
-   * @param string the string
-   * @return the id type
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  public IdType lookupIdType(String string) throws Exception {
+  // /**
+  // * Lookup class.
+  // *
+  // * @param string the string
+  // * @return the id type
+  // * @throws Exception the exception
+  // */
+  // @SuppressWarnings("static-method")
+  // public IdType lookupIdType(String string) throws Exception {
+  //
+  // IdType objectType = null;
+  //
+  // switch (string) {
+  // case "CODE_SOURCE":
+  // objectType = IdType.CODE;
+  // break;
+  // case "SOURCE_CUI":
+  // objectType = IdType.CONCEPT;
+  // break;
+  // case "SRC_ATOM_ID":
+  // objectType = IdType.ATOM;
+  // break;
+  // case "SRC_REL_ID":
+  // objectType = IdType.RELATIONSHIP;
+  // break;
+  // default:
+  // throw new Exception("Unhandled IdType type: " + string);
+  // }
+  //
+  // return objectType;
+  // }
 
-    IdType objectType = null;
-
-    switch (string) {
-      case "CODE_SOURCE":
-        objectType = IdType.CODE;
-        break;
-      case "SOURCE_CUI":
-        objectType = IdType.CONCEPT;
-        break;
-      case "SRC_ATOM_ID":
-        objectType = IdType.ATOM;
-        break;
-      case "SRC_REL_ID":
-        objectType = IdType.RELATIONSHIP;
-        break;
-      default:
-        throw new Exception("Unhandled IdType type: " + string);
-    }
-
-    return objectType;
-  }
-
-  /**
-   * Lookup class.
-   *
-   * @param idType the id type
-   * @return the class<? extends component>
-   * @throws Exception the exception
-   */
-  public Class<? extends Component> lookupClass(IdType idType)
-    throws Exception {
-
-    Class<? extends Component> objectClass = null;
-
-    switch (idType) {
-      case CODE:
-        objectClass = CodeJpa.class;
-        break;
-      case CONCEPT:
-        objectClass = ConceptJpa.class;
-        break;
-      case ATOM:
-        objectClass = AtomJpa.class;
-        break;
-      default:
-        throw new Exception("Unhandled IdType type: " + idType);
-    }
-
-    return objectClass;
-  }
+  // /**
+  // * Lookup class.
+  // *
+  // * @param idType the id type
+  // * @return the class<? extends component>
+  // * @throws Exception the exception
+  // */
+  // public Class<? extends Component> lookupClass(IdType idType)
+  // throws Exception {
+  //
+  // Class<? extends Component> objectClass = null;
+  //
+  // switch (idType) {
+  // case CODE:
+  // objectClass = CodeJpa.class;
+  // break;
+  // case CONCEPT:
+  // objectClass = ConceptJpa.class;
+  // break;
+  // case ATOM:
+  // objectClass = AtomJpa.class;
+  // break;
+  // default:
+  // throw new Exception("Unhandled IdType type: " + idType);
+  // }
+  //
+  // return objectClass;
+  // }
 
   /**
    * Lookup workflow status.

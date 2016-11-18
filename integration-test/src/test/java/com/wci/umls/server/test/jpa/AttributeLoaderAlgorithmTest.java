@@ -23,7 +23,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.ContextLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.AttributeLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -33,10 +33,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  ContextLoaderAlgorithm algo = null;
+  AttributeLoaderAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -50,7 +50,7 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The project. */
   Project project = null;
 
-  /** The temporary relationships.src file. */
+  /** The temporary .src file. */
   private File outputFile = null;
 
   /**
@@ -100,20 +100,21 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setInputPath(
         processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate a contexts.src document in the /temp
+    // Create and populate an attributes.src document in the /temp
     // temporary subfolder
-    outputFile = new File(tempSrcDir, "contexts.src");
+    outputFile = new File(tempSrcDir, "attributes.src");
 
     PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
-        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E|POPULATED|31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
+        "1|362166237|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|");
     out.println(
-        "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
-
+        "32|C93028|S|DEFINITION|The region on either side of the body that extends from the last rib to the hip.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e5ad416a6556a0dcb279c124a6acc83a|");
+    out.println(
+        "34|C98033|S|FDA_UNII_Code|ODN00F2SJG|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||634eb9dd2339a0f372a5f0b3c7b58fed|");
     out.close();
 
     // Create and configure the algorithm
-    algo = new ContextLoaderAlgorithm();
+    algo = new AttributeLoaderAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -130,10 +131,10 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testRelationshipLoader() throws Exception {
+  public void testAttributeLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the RELATIONSHIPLOADER algorithm
+    // Run the ATTRIBUTELOADER algorithm
     try {
 
       algo.setTransactionPerOperation(false);
@@ -155,10 +156,6 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      //
-      // Reset the algorithm
-      //
-      //algo.reset();
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -65,7 +65,7 @@ public interface AttributeIdentity extends HasId, HasName {
    *
    * @param hashCode the new hash code
    */
-  public void setHashCode(String hashCode);
+  public void setHashcode(String hashCode);
 
   /**
    * Gets the terminology.

@@ -29,7 +29,6 @@ import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -216,12 +215,11 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         String newAtomAui = handler.getTerminologyId(newAtom);
 
         // Check to see if atom with matching AUI already exists in the database
-        Long oldAtomId =
-            getId(IdType.ATOM, newAtomAui, terminology.getTerminology());
-
+        Atom oldAtom = (Atom) this.getComponent("AUI", newAtomAui, null, null);
+        
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
-        if (oldAtomId == null) {
+        if (oldAtom == null) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology(), newAtomAui);
           newAtom = addAtom(newAtom);
@@ -245,8 +243,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           updateConcept(newConcept);
 
           addCount++;
-          putId(IdType.ATOM, getProject().getTerminology(), newAtomAui,
-              newAtom.getId());
+          putComponent(newAtom, newAtomAui);
 
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom);
@@ -254,7 +251,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         }
         // If a previous atom with same AUI exists, load that object.
         else {
-          final Atom oldAtom = getAtom(oldAtomId);
 
           boolean oldAtomChanged = false;
 
@@ -339,100 +335,108 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {
 
-      Long existingCodeId =
-          getId(IdType.CODE, atom.getCodeId(), atom.getTerminology());
-      if (existingCodeId != null) {
-        final Code code = getCode(existingCodeId);
-        code.getAtoms().add(atom);
-        code.setVersion(atom.getVersion());
-        updateCode(code);
+      Code existingCode = (Code) getComponent("CODE_SOURCE", atom.getCodeId(), atom.getTerminology(), null);
+          
+      if (existingCode != null) {
+        existingCode.getAtoms().add(atom);
+        existingCode.setVersion(atom.getVersion());
+        
+        // Recompute the code's preferred name
+        existingCode.setName(getComputePreferredNameHandler(existingCode.getTerminology())
+            .computePreferredName(existingCode.getAtoms(),
+                getPrecedenceList(existingCode.getTerminology(), existingCode.getVersion())));
+
+        updateCode(existingCode);
       }
 
       // else create a new code
       else {
-        final Code code = new CodeJpa();
-        code.setTerminology(atom.getTerminology());
-        code.setTerminologyId(atom.getCodeId());
-        code.setVersion(atom.getVersion());
-        code.setBranch(Branch.ROOT);
-        code.setName(atom.getName());
-        code.setObsolete(false);
-        code.setPublished(false);
-        code.setPublishable(true);
-        code.setSuppressible(false);
-        code.setWorkflowStatus(atom.getWorkflowStatus());
+        final Code newCode = new CodeJpa();
+        newCode.setTerminology(atom.getTerminology());
+        newCode.setTerminologyId(atom.getCodeId());
+        newCode.setVersion(atom.getVersion());
+        newCode.setBranch(Branch.ROOT);
+        newCode.setName(atom.getName());
+        newCode.setObsolete(false);
+        newCode.setPublished(false);
+        newCode.setPublishable(true);
+        newCode.setSuppressible(false);
+        newCode.setWorkflowStatus(atom.getWorkflowStatus());
 
-        code.getAtoms().add(atom);
-        addCode(code);
-        putId(IdType.CODE, code.getTerminologyId(), code.getTerminology(),
-            code.getId());
+        newCode.getAtoms().add(atom);
+        addCode(newCode);
+        putComponent(newCode, newCode.getTerminologyId());
       }
     }
 
     // Check map to see if concept already exists
     if (!atom.getConceptId().isEmpty()) {
 
-      Long existingConceptId =
-          getId(IdType.CONCEPT, atom.getConceptId(), atom.getTerminology());
-      if (existingConceptId != null) {
-        // final Concept concept = new ConceptJpa(getConcept(existingConceptId),
-        // true);
-        final Concept concept = getConcept(existingConceptId);
-        concept.getAtoms().add(atom);
-        concept.setVersion(atom.getVersion());
-        updateConcept(concept);
+      final Concept existingConcept = (Concept) getComponent("SOURCE_CUI", atom.getConceptId(), atom.getTerminology(), null);
+      if (existingConcept != null) {
+        existingConcept.getAtoms().add(atom);
+        existingConcept.setVersion(atom.getVersion());
+        
+        // Recompute the concept's preferred name
+        existingConcept.setName(getComputePreferredNameHandler(existingConcept.getTerminology())
+            .computePreferredName(existingConcept.getAtoms(),
+                getPrecedenceList(existingConcept.getTerminology(), existingConcept.getVersion())));
+
+        updateConcept(existingConcept);
       }
 
       // else create a new concept
       else {
-        final Concept concept = new ConceptJpa();
-        concept.setTerminology(atom.getTerminology());
-        concept.setTerminologyId(atom.getConceptId());
-        concept.setVersion(atom.getVersion());
-        concept.setBranch(Branch.ROOT);
-        concept.setName(atom.getName());
-        concept.setObsolete(false);
-        concept.setPublished(false);
-        concept.setPublishable(true);
-        concept.setSuppressible(false);
-        concept.setWorkflowStatus(atom.getWorkflowStatus());
+        final Concept newConcept = new ConceptJpa();
+        newConcept.setTerminology(atom.getTerminology());
+        newConcept.setTerminologyId(atom.getConceptId());
+        newConcept.setVersion(atom.getVersion());
+        newConcept.setBranch(Branch.ROOT);
+        newConcept.setName(atom.getName());
+        newConcept.setObsolete(false);
+        newConcept.setPublished(false);
+        newConcept.setPublishable(true);
+        newConcept.setSuppressible(false);
+        newConcept.setWorkflowStatus(atom.getWorkflowStatus());
 
-        concept.getAtoms().add(atom);
-        addConcept(concept);
-        putId(IdType.CONCEPT, concept.getTerminologyId(),
-            concept.getTerminology(), concept.getId());
+        newConcept.getAtoms().add(atom);
+        addConcept(newConcept);
+        putComponent(newConcept, newConcept.getTerminologyId());
       }
     }
     // Check map to see if descriptor already exists
     if (!atom.getDescriptorId().isEmpty()) {
 
-      Long existingDescriptorId = getId(IdType.DESCRIPTOR,
-          atom.getDescriptorId(), atom.getTerminology());
-      if (existingDescriptorId != null) {
-        final Descriptor descriptor = getDescriptor(existingDescriptorId);
-        descriptor.getAtoms().add(atom);
-        descriptor.setVersion(atom.getVersion());
-        updateDescriptor(descriptor);
+      final Descriptor existingDescriptor = (Descriptor) getComponent("SOURCE_DUI", atom.getConceptId(), atom.getTerminology(), null);
+      if (existingDescriptor != null) {
+        existingDescriptor.getAtoms().add(atom);
+        existingDescriptor.setVersion(atom.getVersion());
+        
+        // Recompute the code's preferred name
+        existingDescriptor.setName(getComputePreferredNameHandler(existingDescriptor.getTerminology())
+            .computePreferredName(existingDescriptor.getAtoms(),
+                getPrecedenceList(existingDescriptor.getTerminology(), existingDescriptor.getVersion())));
+        
+        updateDescriptor(existingDescriptor);
       }
 
       // else create a new descriptor
       else {
-        final Descriptor descriptor = new DescriptorJpa();
-        descriptor.setTerminology(atom.getTerminology());
-        descriptor.setTerminologyId(atom.getDescriptorId());
-        descriptor.setVersion(atom.getVersion());
-        descriptor.setBranch(Branch.ROOT);
-        descriptor.setName(atom.getName());
-        descriptor.setObsolete(false);
-        descriptor.setPublished(false);
-        descriptor.setPublishable(true);
-        descriptor.setSuppressible(false);
-        descriptor.setWorkflowStatus(atom.getWorkflowStatus());
+        final Descriptor newDescriptor = new DescriptorJpa();
+        newDescriptor.setTerminology(atom.getTerminology());
+        newDescriptor.setTerminologyId(atom.getDescriptorId());
+        newDescriptor.setVersion(atom.getVersion());
+        newDescriptor.setBranch(Branch.ROOT);
+        newDescriptor.setName(atom.getName());
+        newDescriptor.setObsolete(false);
+        newDescriptor.setPublished(false);
+        newDescriptor.setPublishable(true);
+        newDescriptor.setSuppressible(false);
+        newDescriptor.setWorkflowStatus(atom.getWorkflowStatus());
 
-        descriptor.getAtoms().add(atom);
-        addDescriptor(descriptor);
-        putId(IdType.DESCRIPTOR, descriptor.getTerminologyId(),
-            descriptor.getTerminology(), descriptor.getId());
+        newDescriptor.getAtoms().add(atom);
+        addDescriptor(newDescriptor);
+        putComponent(newDescriptor, newDescriptor.getTerminologyId());
       }
     }
   }

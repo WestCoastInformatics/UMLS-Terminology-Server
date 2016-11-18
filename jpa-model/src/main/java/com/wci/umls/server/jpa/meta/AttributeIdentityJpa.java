@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -84,6 +84,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public AttributeIdentityJpa(AttributeIdentity identity) {
     id = identity.getId();
     name = identity.getName();
+    hashcode = identity.getHashcode();
     terminologyId = identity.getTerminologyId();
     terminology = identity.getTerminology();
     componentId = identity.getComponentId();
@@ -173,14 +174,15 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public String getHashcode() {
     return hashcode;
   }
 
   /* see superclass */
   @Override
-  public void setHashCode(String hashCode) {
-    this.hashcode = hashCode;
+  public void setHashcode(String hashcode) {
+    this.hashcode = hashcode;
   }
 
   /* see superclass */
@@ -201,13 +203,14 @@ public class AttributeIdentityJpa implements AttributeIdentity {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((componentId == null) ? 0 : componentId.hashCode());
     result = prime * result + ((componentTerminology == null) ? 0
         : componentTerminology.hashCode());
     result = prime * result
         + ((componentType == null) ? 0 : componentType.hashCode());
+    result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result
@@ -225,11 +228,6 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     if (getClass() != obj.getClass())
       return false;
     AttributeIdentityJpa other = (AttributeIdentityJpa) obj;
-    if (name == null) {
-      if (other.name != null)
-        return false;
-    } else if (!name.equals(other.name))
-      return false;
     if (componentId == null) {
       if (other.componentId != null)
         return false;
@@ -241,6 +239,16 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     } else if (!componentTerminology.equals(other.componentTerminology))
       return false;
     if (componentType != other.componentType)
+      return false;
+    if (hashcode == null) {
+      if (other.hashcode != null)
+        return false;
+    } else if (!hashcode.equals(other.hashcode))
+      return false;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
       return false;
     if (terminology == null) {
       if (other.terminology != null)

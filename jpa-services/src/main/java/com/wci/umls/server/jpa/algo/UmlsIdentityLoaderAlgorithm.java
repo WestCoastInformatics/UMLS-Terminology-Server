@@ -85,7 +85,7 @@ public class UmlsIdentityLoaderAlgorithm
           identity.setComponentType(IdType.valueOf(fields[4]));
           identity.setComponentTerminology(fields[5]);
           identity.setName(fields[6]);
-          identity.setHashCode(fields[7]);
+          identity.setHashcode(fields[7]);
           service.addAttributeIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
