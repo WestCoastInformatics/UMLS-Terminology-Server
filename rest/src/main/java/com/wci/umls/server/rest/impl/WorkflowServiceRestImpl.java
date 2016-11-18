@@ -1366,9 +1366,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         worklist.getStats().put("conceptCt",
             worklist.getTrackingRecords().stream().collect(
                 Collectors.summingInt(w -> w.getOrigConceptIds().size())));
-        worklist.setIsAuthorAvailable(
+        worklist.setAuthorAvailable(
             handler.isAvailable(worklist, userName, UserRole.AUTHOR));
-        worklist.setIsReviewerAvailable(
+        worklist.setReviewerAvailable(
             handler.isAvailable(worklist, userName, UserRole.REVIEWER));
       }
 

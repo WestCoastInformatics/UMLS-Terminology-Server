@@ -317,7 +317,7 @@ public class UmlsIdentityLoaderAlgorithm
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input UMLS UI Files directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY);
+        AlgorithmParameter.Type.DIRECTORY,"");
     params.add(param);
     return params;
 

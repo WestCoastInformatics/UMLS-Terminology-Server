@@ -185,7 +185,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa(
         "Bypass validation checks", "bypassValidationChecks",
         "Indicates whether or not to skip validation checks.", "e.g. false", 0,
-        AlgorithmParameter.Type.BOOLEAN);
+        AlgorithmParameter.Type.BOOLEAN,"");
     params.add(param);
 
     return params;

@@ -2065,7 +2065,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Input File", "inputFile",
-            "Input ClaML file to load", "", 255, AlgorithmParameter.Type.FILE);
+            "Input ClaML file to load", "", 255, AlgorithmParameter.Type.FILE,"");
     params.add(param);
     return params;
 

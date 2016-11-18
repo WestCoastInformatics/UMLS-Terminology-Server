@@ -224,10 +224,10 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Worklist Id", "worklistId", "Worklist id.",
-            "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER);
+            "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER,"");
     params.add(param);
     param = new AlgorithmParameterJpa("Checklist Id", "checklistId",
-        "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER);
+        "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER,"");
     params.add(param);
     return params;
   }

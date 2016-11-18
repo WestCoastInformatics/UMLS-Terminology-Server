@@ -2381,7 +2381,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Input File", "inputFile",
-            "Input OWL file to load", "", 255, AlgorithmParameter.Type.FILE);
+            "Input OWL file to load", "", 255, AlgorithmParameter.Type.FILE,"");
     params.add(param);
     return params;
 
