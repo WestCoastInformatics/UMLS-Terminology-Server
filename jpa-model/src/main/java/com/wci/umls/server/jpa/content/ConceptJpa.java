@@ -19,6 +19,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -59,6 +60,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
+
+  /**  The inverse relationships. */
+  @OneToMany(mappedBy = "to", targetEntity = ConceptRelationshipJpa.class)
+  private List<ConceptRelationship> inverseRelationships = null;
 
   /** The component histories. */
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
@@ -190,6 +195,16 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       relationships = new ArrayList<>(1);
     }
     return relationships;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<ConceptRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
   }
 
   /**

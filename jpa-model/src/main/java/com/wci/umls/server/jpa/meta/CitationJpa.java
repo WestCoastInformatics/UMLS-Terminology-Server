@@ -145,6 +145,8 @@ public class CitationJpa implements Citation {
    * @param scitline the mrsab line
    */
   public CitationJpa(String scitline) {
+    
+    
     // 0 Author name(s),
     // 1 Personal author address,
     // 2 Organization author(s),

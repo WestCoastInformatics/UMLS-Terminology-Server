@@ -302,7 +302,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   @Override
-  public void setIsAuthorAvailable(boolean authorAvailable) {
+  public void setAuthorAvailable(boolean authorAvailable) {
     this.authorAvailable = authorAvailable;
   }
 
@@ -313,7 +313,7 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
 
   /* see superclass */
   @Override
-  public void setIsReviewerAvailable(boolean reviewerAvailable) {
+  public void setReviewerAvailable(boolean reviewerAvailable) {
     this.reviewerAvailable = reviewerAvailable;
   }
 
