@@ -37,7 +37,7 @@ public class QaDatabase extends AbstractMojo {
    */
   private Properties queries;
 
-  /** The manager. package visibility.*/
+  /** The manager. package visibility. */
   EntityManager manager;
 
   /**
@@ -98,7 +98,8 @@ public class QaDatabase extends AbstractMojo {
       if (!errors.isEmpty()) {
         final StringBuilder msg = new StringBuilder();
         msg.append("\r\n");
-        msg.append("The automated database QA mojo has found some issues with the following checks:\r\n");
+        msg.append(
+            "The automated database QA mojo has found some issues with the following checks:\r\n");
         msg.append("\r\n");
 
         for (final String key : errors.keySet()) {
@@ -120,10 +121,15 @@ public class QaDatabase extends AbstractMojo {
             && config.getProperty("mail.enabled").equals("true")
             && config.getProperty("mail.smtp.to") != null) {
           try {
+            String from = null;
+            if (config.containsKey("mail.smtp.from")) {
+              from = config.getProperty("mail.smtp.from");
+            } else {
+              from = config.getProperty("mail.smtp.user");
+            }
             ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
-                config.getProperty("mail.smtp.user"),
-                config.getProperty("mail.smtp.to"), msg.toString(), config,
-                "true".equals(config.get("mail.smtp.auth")));
+                from, config.getProperty("mail.smtp.to"), msg.toString(),
+                config, "true".equals(config.get("mail.smtp.auth")));
           } catch (Exception e) {
             // do nothing - this just means email couldn't be sent
           }
