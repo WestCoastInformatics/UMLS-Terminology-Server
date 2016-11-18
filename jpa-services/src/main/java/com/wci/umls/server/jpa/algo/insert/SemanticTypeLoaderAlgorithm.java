@@ -20,10 +20,9 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -140,66 +139,24 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
         // Load the referenced atom, or preferred atom of atomClass object
+        Component component = getComponent(fields[10], fields[1], (ConfigUtility.isEmpty(fields[11]) ? null : getCachedTerminology(fields[11]).getTerminology()), null);
+        if(component == null){
+          logWarnAndUpdate(line, "Warning - could not find Component for type: " + fields[10] + ", terminologyId: " + fields[1] + ", and terminology:" + fields[11]);
+          continue;
+        }
         Atom atom = null;
-        IdType containingObjectType = lookupIdType(fields[10]);
-
-        // Load the terminology that will be assigned to the new Semantic Type
-        Terminology setTerminology = getCachedTerminology(fields[5]);
-        if (setTerminology == null) {
-          logWarnAndUpdate(line,
-              "Warning - terminology not found: " + fields[5] + ".");
-          continue;
-        }
-
-        // Load the terminology that will be used to look up the containing
-        // object
-        Terminology lookupTerminology = getCachedTerminology(
-            !ConfigUtility.isEmpty(fields[11]) ? fields[11] : fields[5]);
-        if (lookupTerminology == null) {
-          logWarnAndUpdate(line,
-              "Warning - terminology not found: " + fields[11] + ".");
-          continue;
-        }
-
-        // atom case
-        if (containingObjectType.equals(IdType.ATOM)) {
-          // Load the containing object
-          final String atomAltId = fields[1];
-
-          Long atomId = getId(containingObjectType, atomAltId,
-              lookupTerminology.getTerminology());
-          atom = atomId == null ? null : getAtom(atomId);
-
-          if (atom == null) {
-            logWarnAndUpdate(line,
-                "Warning - atom not found for AUI: " + atomAltId + ".");
-            continue;
-          }
-
-        }
-
-        // atom class case
-        else {
-          AtomClass atomClass = (AtomClass) getComponent(fields[1],
-              lookupTerminology.getTerminology(),
-              lookupTerminology.getVersion(), Branch.ROOT,
-              lookupClass(lookupIdType(fields[10])));
-
-          if (atomClass == null) {
-            logWarnAndUpdate(line,
-                "Warning - object type: " + lookupIdType(fields[10])
-                    + " not found for terminologyId: " + fields[1]
-                    + ", terminology: " + lookupTerminology.getTerminology()
-                    + ", version: " + lookupTerminology.getVersion() + ".");
-            continue;
-          }
-
-          // compute preferred atom
+        if (component instanceof Atom) {
+          atom = (Atom) component;
+        } else if (component instanceof AtomClass) {
+          AtomClass atomClass = (AtomClass) component;
           List<Atom> atoms =
               prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
-
+        } else {
+          logWarnAndUpdate(line, "Warning - " + component.getClass().getName()
+              + " is an unhandled type.");
+          continue;
         }
 
         // Get the concept associated with the loaded atom, or preferred atom of
@@ -219,7 +176,7 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // otherwise add a new semantic type.
         boolean componentContainsSty = false;
         for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-          if (sty.getSemanticType().equals("fields[4]")) {
+          if (sty.getSemanticType().equals(fields[4])) {
             componentContainsSty = true;
             break;
           }
@@ -234,11 +191,8 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           newSty.setPublished(fields[8].toUpperCase().equals("Y"));
           newSty.setSemanticType(fields[4]);
           newSty.setSuppressible(fields[9].toUpperCase().equals("Y"));
-          // TODO question - note below doesn't jive with other note (line 835).
-          // Double-confirm.
-          // TODO - project term and version
-          newSty.setTerminology(setTerminology.getTerminology());
-          newSty.setVersion(setTerminology.getVersion());
+          newSty.setTerminology(getProject().getTerminology());
+          newSty.setVersion(getProject().getVersion());
           newSty.setTerminologyId("");
           newSty.setWorkflowStatus(lookupWorkflowStatus(fields[6]));
 

@@ -23,6 +23,7 @@ import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -333,9 +334,18 @@ public class UmlsIdentifierAssignmentHandler
       synchronized (LOCK) {
         // Create AttributeIdentity and populate from the attribute.
         final AttributeIdentity identity = new AttributeIdentityJpa();
-        identity.setHashCode(ConfigUtility.getMd5(attribute.getValue()));
+        identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
+        //TODO question - what the heck set ComponentId to!?  It looks like it's all over the place
+        //TODO question - componentId looks like ALTERNATE TerminologyId...  If so, need project
         identity.setComponentId(component.getTerminologyId());
+        //TODO question - may need to do things this way?
+        if (component instanceof AtomClass){
+          identity.setComponentId(component.getTerminologyId());
+        }
+        if(component instanceof Atom){
+          identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get("UMLS"));
+        }
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());

@@ -182,7 +182,7 @@ public class SemanticTypeResolverAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("WinLose", "winLose",
         "Whether new SemanticTypes 'win' over semantic types from previous versions.",
-        "e.g. win", 200, AlgorithmParameter.Type.ENUM);
+        "e.g. win", 200, AlgorithmParameter.Type.ENUM,"");
     param.setPossibleValues(Arrays.asList("yes","no"));
     params.add(param);
 
