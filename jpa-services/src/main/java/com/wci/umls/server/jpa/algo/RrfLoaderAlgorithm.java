@@ -42,6 +42,7 @@ import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
@@ -75,6 +76,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -407,6 +409,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Attributes
     loadMrsat();
 
+    // Load concept and atom history data
+    loadHistory();
+
     // Mappings - only for non-single mode
     if (!singleMode) {
       loadMrmap();
@@ -549,7 +554,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sty.setLastModifiedBy(loader);
         sty.setPublished(true);
         sty.setPublishable(true);
-        Logger.getLogger(getClass()).debug("    add semantic type - " + sty);
+        // Logger.getLogger(getClass()).info(" add semantic type - " + sty);
         addSemanticType(sty);
 
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
@@ -633,7 +638,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         atn.setVersion(getVersion());
         atn.setPublished(true);
         atn.setPublishable(true);
-        Logger.getLogger(getClass()).debug("    add attribute name - " + atn);
+        // Logger.getLogger(getClass()).info(" add attribute name - " + atn);
         addAttributeName(atn);
         atnSeen.add(fields[1]);
       }
@@ -657,7 +662,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           throw new Exception(
               "Language map does not have 2 letter code for " + fields[1]);
         }
-        Logger.getLogger(getClass()).debug("    add language - " + lat);
+        // Logger.getLogger(getClass()).info(" add language - " + lat);
         addLanguage(lat);
         loadedLanguages.put(lat.getAbbreviation(), lat);
       }
@@ -678,8 +683,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // DL fields are all left false, with no domain/range
         // no equivalent types or supertypes included
         relaMap.put(fields[1], rela);
-        Logger.getLogger(getClass())
-            .debug("    add additional relationship type - " + rela);
+        // Logger.getLogger(getClass())
+        // .info(" add additional relationship type - " + rela);
       } else if (fields[0].equals("RELA") && fields[2].equals("rela_inverse")) {
         inverseRelaMap.put(fields[1], fields[3]);
 
@@ -711,8 +716,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           rel.setHierarchical(true);
         }
         relMap.put(fields[1], rel);
-        Logger.getLogger(getClass())
-            .debug("    add relationship type - " + rel);
+        // Logger.getLogger(getClass())
+        // .info(" add relationship type - " + rel);
       } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
           && !fields[1].equals("SIB")) {
         inverseRelMap.put(fields[1], fields[3]);
@@ -1074,7 +1079,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // SKIP SABIN=N - may be an issue later for maps.
       if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
-        Logger.getLogger(getClass()).debug("  Skip terminology " + fields[2]);
+        // Logger.getLogger(getClass()).info(" Skip terminology " + fields[2]);
         continue;
       }
 
@@ -1560,13 +1565,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (isExtensionModule(fields[10])) {
           // terminology + module concept id
           final String key = fields[9] + fields[10];
-          Logger.getLogger(getClass())
-              .debug("  extension module = " + fields[10] + ", " + key);
+          // Logger.getLogger(getClass())
+          // .info(" extension module = " + fields[10] + ", " + key);
           if (!moduleConceptIdMap.containsKey(key)) {
             moduleConceptIdMap.put(key, new HashSet<Long>());
           }
-          Logger.getLogger(getClass())
-              .debug("    concept = " + atomConceptIdMap.get(fields[3]));
+          // Logger.getLogger(getClass())
+          // .info(" concept = " + atomConceptIdMap.get(fields[3]));
           moduleConceptIdMap.get(key)
               .add(conceptIdMap.get(atomTerminologyMap.get(fields[3])
                   + atomConceptIdMap.get(fields[3])));
@@ -1681,6 +1686,101 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
+   * Load history.
+   *
+   * @throws Exception the exception
+   */
+  private void loadHistory() throws Exception {
+    logInfo("  Load MRCUI, MRAUI data");
+
+    if (singleMode) {
+      return;
+    }
+
+    String line = null;
+    int objectCt = 0;
+    PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCUI);
+
+    String fields[] = new String[7];
+    while ((line = reader.readLine()) != null) {
+      line = line.replace("\r", "");
+      FieldedStringTokenizer.split(line, "|", 7, fields);
+
+      //
+      // 0 CUI1
+      // 1 VER
+      // 2 REL
+      // 3 RELA
+      // 4 MAPREASON
+      // 5 CUI2
+      // 6 MAPIN
+      // e.g. C0000002|2000AC|SY|||C0007404|Y|
+      //
+
+      // Assume the concept does not exist
+      if (conceptIdMap.containsKey(getTerminology() + fields[0])) {
+        throw new Exception("Unexpected live CUI in MRCUI: " + fields[0]);
+      }
+
+      // Create the history entry (the referenced
+      final ComponentHistory history = new ComponentHistoryJpa();
+      history.setTimestamp(releaseVersionDate);
+      history.setLastModified(releaseVersionDate);
+      history.setLastModifiedBy(loader);
+      history.setPublished(true);
+      history.setPublishable(false);
+      history.setTerminology(getTerminology());
+      history.setTerminologyId(fields[0]);
+      history.setVersion(getVersion());
+
+      if (!fields[5].isEmpty()) {
+        final Long conceptId = conceptIdMap.get(getTerminology() + fields[5]);
+        if (conceptId == null) {
+          throw new Exception("Unexpected dead CUIs (missing id) " + fields[5]);
+        }
+        final Concept referencedConcept =
+            getConcept(conceptIdMap.get(getTerminology() + fields[5]));
+        if (referencedConcept == null) {
+          throw new Exception("Unexpected dead CUIs " + fields[5]);
+        }
+        history.setReferencedConcept(referencedConcept);
+      }
+      history.setRelationshipType(fields[2]);
+      history.setAdditionalRelationshipType(fields[3]);
+      history.setReason("");
+      history.setAssociatedRelease(fields[1]);
+      addComponentHistory(history);
+
+      // Create the "dead" concept
+      final Concept cui = new ConceptJpa();
+      cui.setTimestamp(releaseVersionDate);
+      cui.setLastModified(releaseVersionDate);
+      cui.setLastModifiedBy(loader);
+      cui.setPublished(true);
+      cui.setPublishable(false);
+      cui.setTerminology(getTerminology());
+      cui.setTerminologyId(fields[0]);
+      cui.setVersion(getVersion());
+      cui.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+      cui.getComponentHistory().add(history);
+
+      // Hack to inject the name into the concept
+      cui.setName(fields[4]);
+      addConcept(cui);
+
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+
+    }
+    commitClearBegin();
+
+    // NOTE: MRAUI is not loaded here pending a decision regarding whether or
+    // not to load old atom data. For atoms that no longer exist, a dummy atom
+    // would need to be created. Otherwise, it's pretty clear where to put all
+    // the info. in particular history.terminologyId=CUI1 (that's the weird
+    // one).
+  }
+
+  /**
    * Load mrmap.
    *
    * @throws Exception the exception
@@ -1710,7 +1810,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 3 MAPRANK
       // 4 MAPID
       // 5 MAPSID
-      // 6 FROMID
+      // 6 FROMD
       // 7 FROMSID
       // 8 FROMEXPR
       // 9 FROMTYPE
@@ -2098,7 +2198,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyConceptSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass()).debug("  Add subset " + atomSubset);
+              // Logger.getLogger(getClass()).info(" Add subset " + atomSubset);
               addSubset(atomSubset);
               idTerminologyConceptSubsetMap.remove(subsetIdKey);
             }
@@ -2117,8 +2217,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             // We now know subset type, insert it and remove the corresponding
             // opposite type
             if (idTerminologyAtomSubsetMap.containsKey(subsetIdKey)) {
-              Logger.getLogger(getClass())
-                  .debug("  Concept subset " + conceptSubset);
+              // Logger.getLogger(getClass())
+              // .info(" Concept subset " + conceptSubset);
               addSubset(conceptSubset);
               idTerminologyAtomSubsetMap.remove(subsetIdKey);
             }
@@ -2147,7 +2247,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           member.setSuppressible(!fields[11].equals("N"));
           member.setPublishable(true);
           member.setPublished(true);
-          Logger.getLogger(getClass()).debug("    Add member" + member);
+          // Logger.getLogger(getClass()).info(" Add member" + member);
           addSubsetMember(member);
 
           // Add to the cache - this will be cleared at the next commit.
@@ -2179,8 +2279,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             sourceMetadataMap.get(memberAtt.getTerminology()).get("ATN")
                 .add(memberAtt.getName());
           }
-          Logger.getLogger(getClass())
-              .debug("        Add member attribute" + memberAtt);
+          // Logger.getLogger(getClass())
+          // .info(" Add member attribute" + memberAtt);
           addAttribute(memberAtt, member);
 
           // This member is not yet committed, so no need for an
@@ -2927,9 +3027,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           conceptIdMap.put(cui.getTerminology() + cui.getTerminologyId(),
               cui.getId());
           logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-          if (objectCt % 5000 == 0) {
-            session.clear();
-          }
         }
         cui = new ConceptJpa();
         cui.setTimestamp(releaseVersionDate);
@@ -2980,9 +3077,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           descriptorIdMap.put(dui.getTerminology() + dui.getTerminologyId(),
               dui.getId());
           logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-          if (objectCt % 5000 == 0) {
-            session.clear();
-          }
         }
         dui = new DescriptorJpa();
         dui.setTimestamp(releaseVersionDate);
@@ -3050,9 +3144,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
                 code.getId());
             logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-            if (objectCt % 5000 == 0) {
-              session.clear();
-            }
           }
           code = new CodeJpa();
           code.setTimestamp(releaseVersionDate);

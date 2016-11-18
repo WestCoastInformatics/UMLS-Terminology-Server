@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -125,7 +124,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(0, "Starting...");
 
     // Get all relationships
-    fireProgressEvent(1, "Initialize relationships");
+    fireProgressEvent(1, "Initialize additional relationship types");
     String tableName = "ConceptRelationshipJpa";
     String tableName2 = "ConceptJpa";
     if (idType == IdType.DESCRIPTOR) {
@@ -157,14 +156,30 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
         .setParameter("terminology", getTerminology())
         .setParameter("version", getVersion()).getResultList();
 
+    if (additionalRelationshipTypes.size() == 0) {
+      fireProgressEvent(100, "Finished.");
+      logInfo("    NO HIERARCHICAL RELATIONSHIPS");
+      return;
+    }
+
+    // Keep this after the read query above, in case there are no rels
+    setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
+    setMolecularActionFlag(false);
+    setTransactionPerOperation(false);
+    beginTransaction();
+
+    int steps = additionalRelationshipTypes.size();
+    int step = 0;
     for (final String additionalRelationshipType : additionalRelationshipTypes) {
+      step++;
       final List<Object[]> relationships = manager
           .createQuery(
               "select r.from.id, r.to.id from " + tableName + " r where "
                   + "version = :version and terminology = :terminology "
                   + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
                   + "and additionalRelationshipType = :additionalRelationshipType "
-                  + "r.from in (select o from " + tableName2
+                  + "and r.from in (select o from " + tableName2
                   + " o where obsolete = 0)")
           .setParameter("terminology", getTerminology())
           .setParameter("version", getVersion())
@@ -193,17 +208,15 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
         parents.add(toId);
 
         // Check cancel flag
-        if (ct % RootService.logCt == 0 && isCancelled()) {
-          rollback();
-          throw new CancelException(
-              "Label set marked parent computation cancelled");
+        if (ct % RootService.logCt == 0) {
+          checkCancel();
         }
       }
 
       if (ct == 0) {
-        fireProgressEvent(100, "Finished.");
-        logInfo("    NO HIERARCHICAL RELATIONSHIPS");
-        return;
+        logInfo("    NO HIERARCHICAL RELATIONSHIPS for "
+            + additionalRelationshipType);
+        continue;
       }
 
       else {
@@ -211,7 +224,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
       }
 
       // Find roots
-      fireProgressEvent(5, "Find roots");
+      fireAdjustedProgressEvent(5, step, steps, "Find roots");
       final Set<Long> rootIds = new HashSet<>();
       for (final Long par : parChd.keySet()) {
         // things with no children
@@ -223,26 +236,18 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
       logInfo("  count = " + rootIds.size());
       chdPar = null;
 
-      // Keep this after the read query above, in case there are no rels
-      setLastModifiedBy("admin");
-      setLastModifiedFlag(true);
-      setMolecularActionFlag(false);
-      setTransactionPerOperation(false);
-      beginTransaction();
-
       objectCt = 0;
-      fireProgressEvent(10, "Compute tree positions for roots");
+      fireAdjustedProgressEvent(10, step, steps,
+          "Compute tree positions for roots");
       int i = 0;
       for (final Long rootId : rootIds) {
         i++;
 
         // Check cancel flag
-        if (isCancelled()) {
-          rollback();
-          throw new CancelException("Tree position computation cancelled.");
-        }
+        checkCancel();
 
-        fireProgressEvent((int) (10 + (i * 85.0 / rootIds.size())),
+        fireAdjustedProgressEvent((int) (10 + (i * 85.0 / rootIds.size())),
+            step, steps,
             "Compute tree positions and semantic types for root " + rootId);
 
         final ValidationResult result = new ValidationResultJpa();
@@ -257,14 +262,12 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
         commitClearBegin();
 
         // Check cancel flag
-        if (isCancelled()) {
-          rollback();
-          throw new CancelException("Tree position computation cancelled.");
-        }
+        checkCancel();
 
       }
 
     }
+    commitClearBegin();
 
     // Handle "semantic types"
     final Map<Long, String> idValueMap = new HashMap<>();
@@ -293,9 +296,8 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
         updateConcept(concept);
         logAndCommit(++objectCt, logCt, commitCt);
         // Check cancel flag
-        if (objectCt % RootService.logCt == 0 && isCancelled()) {
-          rollback();
-          throw new CancelException("Tree position computation cancelled.");
+        if (objectCt % RootService.logCt == 0) {
+          checkCancel();
         }
       }
     }
@@ -477,10 +479,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     manager.merge(tp);
 
     // check for cancel request
-    if (isCancelled()) {
-      rollback();
-      throw new CancelException("Tree Position computation cancelled");
-    }
+    checkCancel();
 
     // Log and commit
     logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);

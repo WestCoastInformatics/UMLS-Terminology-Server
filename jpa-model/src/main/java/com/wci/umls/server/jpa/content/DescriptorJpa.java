@@ -15,12 +15,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -45,6 +47,11 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
   private List<DescriptorRelationship> relationships = new ArrayList<>(1);
+
+  /** The inverse relationships. */
+  @OneToMany(mappedBy = "to", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
+  private List<DescriptorRelationship> inverseRelationships =
+      new ArrayList<>(1);
 
   /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
@@ -105,6 +112,16 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
       relationships = new ArrayList<>(1);
     }
     return relationships;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<DescriptorRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
   }
 
   /* see superclass */

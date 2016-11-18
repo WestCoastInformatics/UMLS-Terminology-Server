@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
@@ -40,6 +41,10 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   /** The relationships. */
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> relationships = new ArrayList<>(1);
+
+  /** The inverse relationships. */
+  @OneToMany(mappedBy = "to", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
+  private List<CodeRelationship> inverseRelationships = new ArrayList<>(1);
 
   /** The notes. */
   @OneToMany(mappedBy = "code", targetEntity = CodeNoteJpa.class)
@@ -82,6 +87,16 @@ public class CodeJpa extends AbstractAtomClass implements Code {
       relationships = new ArrayList<>(1);
     }
     return relationships;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<CodeRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
   }
 
   /* see superclass */

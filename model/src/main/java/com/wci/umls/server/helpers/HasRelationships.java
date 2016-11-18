@@ -22,11 +22,17 @@ public interface HasRelationships<T extends Relationship<? extends ComponentHasA
   public List<T> getRelationships();
 
   /**
+   * Returns the inverse relationships.
+   *
+   * @return the inverse relationships
+   */
+  public List<T> getInverseRelationships();
+
+  /**
    * Sets the relationships.
    *
    * @param relationships the relationships
    */
   public void setRelationships(List<T> relationships);
-
 
 }
