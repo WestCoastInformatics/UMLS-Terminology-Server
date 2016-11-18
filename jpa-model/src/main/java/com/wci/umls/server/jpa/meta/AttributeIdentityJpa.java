@@ -89,6 +89,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
     componentId = identity.getComponentId();
     componentType = identity.getComponentType();
     componentTerminology = identity.getComponentTerminology();
+    hashcode = identity.getHashcode();
   }
 
   /* see superclass */
@@ -179,7 +180,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
-  public void setHashCode(String hashCode) {
+  public void setHashcode(String hashCode) {
     this.hashcode = hashCode;
   }
 
@@ -212,6 +213,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result
         + ((terminologyId == null) ? 0 : terminologyId.hashCode());
+    result = prime * result + ((hashcode == null) ? 0 : hashcode.hashCode());
     return result;
   }
 
@@ -251,6 +253,11 @@ public class AttributeIdentityJpa implements AttributeIdentity {
       if (other.terminologyId != null)
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
+      return false;
+    if (hashcode == null) {
+      if (other.hashcode != null)
+        return false;
+    } else if (!hashcode.equals(other.hashcode))
       return false;
     return true;
   }
