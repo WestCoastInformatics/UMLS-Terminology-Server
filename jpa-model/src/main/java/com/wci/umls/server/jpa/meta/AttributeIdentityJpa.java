@@ -182,7 +182,7 @@ public class AttributeIdentityJpa implements AttributeIdentity {
 
   /* see superclass */
   @Override
-  public void setHashcode(String hashCode) {
+  public void setHashcode(String hashcode) {
     this.hashcode = hashcode;
   }
 
