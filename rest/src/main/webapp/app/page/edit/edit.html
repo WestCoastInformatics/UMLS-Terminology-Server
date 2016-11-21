@@ -16,8 +16,9 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
-      <span ng-show="!selected.project.editingEnabled" style="display: block;"
-        class="alert alert-danger">Editing is disabled.</span>
+      <span ng-show="selected.project && !selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is
+        disabled.</span>
     </h6>
   </div>
   <div class="col-md-12 col-xs-12">

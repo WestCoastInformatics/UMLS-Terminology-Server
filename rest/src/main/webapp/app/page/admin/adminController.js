@@ -107,7 +107,7 @@ tsApp
             ascending : paging.sortAscending,
             queryRestriction : paging.filter
           };
-          
+
           var query = '';
           projectService.findProjects(query, pfs).then(function(data) {
             $scope.lists.projects = data.projects;
@@ -229,7 +229,7 @@ tsApp
             $scope.lists.projectRoles = data.strings;
           });
         };
-        
+
         $scope.hasPermissions = function(action) {
           return securityService.hasPermissions(action);
         }
@@ -483,76 +483,6 @@ tsApp
             $scope.getProjects();
             $scope.getCandidateProjects();
           });
-        };
-
-        // Edit project modal controller
-        var EditProjectModalCtrl = function($scope, $uibModalInstance, project, selected,
-          validationChecks) {
-
-          // Scope variables
-          $scope.action = 'Edit';
-          $scope.project = project;
-          $scope.validationChecks = validationChecks;
-          $scope.availableChecks = [];
-          $scope.selectedChecks = [];
-          $scope.errors = [];
-          $scope.selected = selected;
-
-          // Attach validation checks
-          for (var i = 0; i < $scope.validationChecks.length; i++) {
-            if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
-              $scope.selectedChecks.push($scope.validationChecks[i].value);
-            } else {
-              $scope.availableChecks.push($scope.validationChecks[i].value);
-            }
-          }
-
-          // Handle selecting a validation check
-          $scope.selectValidationCheck = function(check) {
-            $scope.selectedChecks.push(check);
-            var index = $scope.availableChecks.indexOf(check);
-            $scope.availableChecks.splice(index, 1);
-          };
-
-          // Handle removing a validation check
-          $scope.removeValidationCheck = function(check) {
-            $scope.availableChecks.push(check);
-            var index = $scope.selectedChecks.indexOf(check);
-            $scope.selectedChecks.splice(index, 1);
-          };
-
-          // Save the project
-          $scope.submitProject = function(project) {
-            if (!project || !project.name || !project.description || !project.terminology) {
-              window.alert('The name, description, and terminology fields cannot be blank. ');
-              return;
-            }
-
-            project.validationChecks = [];
-            for (var i = 0; i < $scope.validationChecks.length; i++) {
-              if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
-                project.validationChecks.push($scope.validationChecks[i].key);
-              }
-            }
-
-            // Update project - this will validate the expression
-            projectService.updateProject(project).then(
-            // Success
-            function(data) {
-              $uibModalInstance.close();
-            },
-            // Error
-            function(data) {
-              $scope.errors[0] = data;
-              utilService.clearError();
-            });
-          };
-
-          // dismiss the dialog
-          $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-          };
-
         };
 
         // Add user modal

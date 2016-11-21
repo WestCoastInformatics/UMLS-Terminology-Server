@@ -44,10 +44,11 @@ tsApp.controller('AtomModalCtrl', [
     }
     // Perform add or edit/update
     $scope.submitAtom = function(atom) {
+      $scope.errors = [];
       if ($scope.action == 'Add') {
         if (!atom || !atom.name || !$scope.selectedTermgroup
           || (!atom.codeId && !atom.conceptId && !atom.descriptorId)) {
-          window.alert('Name, termgroup and at least one id must be entered for new atom.');
+          $scope.errors.push('Name, termgroup and at least one id must be entered for new atom.');
           return;
         }
         atom.terminology = $scope.selectedTermgroup
@@ -82,8 +83,7 @@ tsApp.controller('AtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
-        metaEditingService.updateAtom($scope.selected.project.id,
-          $scope.selected.activityId,
+        metaEditingService.updateAtom($scope.selected.project.id, $scope.selected.activityId,
           $scope.selected.component, atom, $scope.overrideWarnings).then(
         // Success
         function(data) {

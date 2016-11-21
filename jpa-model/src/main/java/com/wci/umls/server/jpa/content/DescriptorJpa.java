@@ -22,7 +22,6 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
 
 import com.wci.umls.server.helpers.Note;
-import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -161,11 +160,13 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     return this.notes;
   }
 
+  /* see superclass */
   @Override
   public void setType(IdType type) {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public IdType getType() {
     return IdType.DESCRIPTOR;

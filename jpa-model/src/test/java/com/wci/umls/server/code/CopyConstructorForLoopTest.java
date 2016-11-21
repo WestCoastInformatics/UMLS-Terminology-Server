@@ -62,7 +62,7 @@ public class CopyConstructorForLoopTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testEquals() throws Exception {
+  public void testForLoopInCopyConstructor() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     boolean found = false;
@@ -82,43 +82,6 @@ public class CopyConstructorForLoopTest extends ModelUnitSupport {
       }
     }
     assertFalse("Found problems in copy constructors, see log.", found);
-
-  }
-
-  /**
-   * Test hashcode methods for offending fields.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    for (final Path path : paths) {
-      final String method = getMethodText("public int hashCode", path);
-      if (!method.isEmpty()) {
-        // Assert id is not used
-        assertFalse(
-            path.getFileName().toString()
-                + " has an equals method that uses 'id' ",
-            method.contains("id == null"));
-        // Assert lastModified is not used
-        assertFalse(
-            path.getFileName().toString()
-                + " has an equals method that uses 'id' ",
-            method.contains("lastModified == null"));
-        // Assert lastModified is not used
-        assertFalse(
-            path.getFileName().toString()
-                + " has an equals method that uses 'lastModifiedBy' ",
-            method.contains("lastModifiedBy == null"));
-        // Assert id is not used
-        assertFalse(
-            path.getFileName().toString()
-                + " has an equals method that uses 'timestamp' ",
-            method.contains("timestamp == null"));
-      }
-    }
 
   }
 

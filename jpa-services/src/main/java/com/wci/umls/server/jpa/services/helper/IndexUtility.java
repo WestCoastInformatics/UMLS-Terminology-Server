@@ -543,8 +543,7 @@ public class IndexUtility {
    * @throws Exception the exception
    */
   public static FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    String query, PfsParameter pfs,
-    EntityManager manager) throws Exception {
+    String query, PfsParameter pfs, EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 
@@ -567,11 +566,12 @@ public class IndexUtility {
     // Set up the "full text query"
     final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    final SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    final SearchFactory searchFactory =
+        fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
-    final QueryParser queryParser = new MultiFieldQueryParser(IndexUtility
-        .getIndexedFieldNames(clazz, true).toArray(new String[] {}),
+    final QueryParser queryParser = new MultiFieldQueryParser(
+        IndexUtility.getIndexedFieldNames(clazz, true).toArray(new String[] {}),
         searchFactory.getAnalyzer(clazz));
 
     // preserve capitalization from incoming query (in order to correctly match
@@ -579,8 +579,8 @@ public class IndexUtility {
     queryParser.setLowercaseExpandedTerms(false);
 
     // construct the query
-    final String finalQuery = (pfsQuery.toString().startsWith(" AND ")) ?
-        pfsQuery.toString().substring(5): pfsQuery.toString();
+    final String finalQuery = (pfsQuery.toString().startsWith(" AND "))
+        ? pfsQuery.toString().substring(5) : pfsQuery.toString();
 
     Logger.getLogger(IndexUtility.class)
         .info("  query = " + finalQuery + ", " + pfs);
@@ -618,16 +618,17 @@ public class IndexUtility {
           && pfs.getSortField().equals("RANDOM")) {
 
         // Randomly sort
-        final Sort sort = new Sort(new SortField("", new FieldComparatorSource() {
+        final Sort sort =
+            new Sort(new SortField("", new FieldComparatorSource() {
 
-          @Override
-          public FieldComparator<Long> newComparator(String fieldname,
-            int numHits, int sortPos, boolean reversed) throws IOException {
-            return new RandomOrderFieldComparator(numHits, fieldname, null,
-                null);
-          }
+              @Override
+              public FieldComparator<Long> newComparator(String fieldname,
+                int numHits, int sortPos, boolean reversed) throws IOException {
+                return new RandomOrderFieldComparator(numHits, fieldname, null,
+                    null);
+              }
 
-        }));
+            }));
 
         fullTextQuery.setSort(sort);
 
@@ -733,6 +734,7 @@ public class IndexUtility {
 
     // exclude fields that can't be modified directly from the UI
     final Set<String> excludedFields = new HashSet<>();
+    excludedFields.add("inverseRelationships");
     // no excluded fields for the moment
 
     for (final java.lang.reflect.Field field : getAllFields(clazz)) {

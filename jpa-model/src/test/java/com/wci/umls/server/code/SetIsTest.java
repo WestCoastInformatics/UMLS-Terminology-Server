@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.code;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -45,10 +44,10 @@ public class SetIsTest extends ModelUnitSupport {
   @BeforeClass
   public static void setupClass() throws IOException {
     // Find all java model objects
-    paths =
-        Files.find(Paths.get("src/main/java"), Integer.MAX_VALUE,
+    paths = Files
+        .find(Paths.get("src/main/java"), Integer.MAX_VALUE,
             (filePath, fileAttr) -> filePath.toString().endsWith(".java"))
-            .collect(Collectors.toSet());
+        .collect(Collectors.toSet());
   }
 
   /**
@@ -66,46 +65,14 @@ public class SetIsTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testEquals() throws Exception {
+  public void testSetIs() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     for (final Path path : paths) {
       final String method = getMethodText(" setIs", path);
       if (!method.isEmpty()) {
-        fail("No method should start with setIsXXX, use setXXX instead - " + path);
-      }
-    }
-
-  }
-
-  /**
-   * Test hashcode methods for offending fields.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    for (final Path path : paths) {
-      final String method = getMethodText("public int hashCode", path);
-      if (!method.isEmpty()) {
-        // Assert id is not used
-        assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'id' ",
-            method.contains("id == null"));
-        // Assert lastModified is not used
-        assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'id' ",
-            method.contains("lastModified == null"));
-        // Assert lastModified is not used
-        assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'lastModifiedBy' ",
-            method.contains("lastModifiedBy == null"));
-        // Assert id is not used
-        assertFalse(path.getFileName().toString()
-            + " has an equals method that uses 'timestamp' ",
-            method.contains("timestamp == null"));
+        fail("No method should start with setIsXXX, use setXXX instead - "
+            + path);
       }
     }
 

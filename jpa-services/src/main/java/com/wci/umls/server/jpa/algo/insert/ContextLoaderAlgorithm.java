@@ -276,11 +276,12 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * Removes the trans rels.
    *
    * @param term the term
+   * @param oldVersions the old versions
    * @return the int
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private int removeTransRels(Terminology term, Boolean oldVersions)
+  private int removeTransRels(Terminology term, boolean oldVersions)
     throws Exception {
     int removedCount = 0;
 
@@ -321,8 +322,16 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     return removedCount;
   }
 
+  /**
+   * Removes the tree positions.
+   *
+   * @param term the term
+   * @param oldVersions the old versions
+   * @return the int
+   * @throws Exception the exception
+   */
   @SuppressWarnings("unchecked")
-  private int removeTreePositions(Terminology term, Boolean oldVersions)
+  private int removeTreePositions(Terminology term, boolean oldVersions)
     throws Exception {
     int removedCount = 0;
 
@@ -484,100 +493,102 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     createTreePositions(fields[12], nodeAtom, parentTreeRel, fields[6]);
   }
 
-//  /**
-//   * Creates the transitive relationships.
-//   *
-//   * @param clazz the clazz
-//   * @param ptrAtoms the ptr atoms
-//   * @throws Exception the exception
-//   */
-//  private void createTransitiveRelationships(Class<?> clazz,
-//    List<Atom> ptrAtoms) throws Exception {
-//    // For transitive relationships, create one from each "higher" level
-//    // object to each "lower" level one (e.g. in the example above
-//    // 12345->12346, 12345->123467, and 12346->123467). Save these
-//    // pairwise connections so you don't recreate objects for the same
-//    // pairs (e.g. have a Set<String> that stores superTypeId+subTypeId)
-//
-//    // Can't create relationships if there aren't any atoms in the
-//    // list...
-//    if (ptrAtoms.isEmpty()) {
-//      return;
-//    }
-//
-//    final Atom superAtom = ptrAtoms.get(0);
-//    final AbstractAtomClass superAtomContainer =
-//        getCachedAtomContainer(clazz, superAtom);
-//    int depthCounter = 0;
-//    for (Atom subAtom : ptrAtoms) {
-//      final AbstractAtomClass subAtomContainer =
-//          getCachedAtomContainer(clazz, subAtom);
-//
-//      // Skip if this pair of containers have already created a Transitive
-//      // Relationship created for them.
-//      if (createdTransRels.contains(superAtomContainer.getId().toString() + "_"
-//          + subAtomContainer.getId().toString())) {
-//        continue;
-//      }
-//
-//      TransitiveRelationship<? extends ComponentHasAttributes> newTransRel =
-//          null;
-//
-//      if (Concept.class.isAssignableFrom(clazz)) {
-//        final ConceptTransitiveRelationshipJpa ctr =
-//            new ConceptTransitiveRelationshipJpa();
-//        ctr.setSubType((Concept) subAtomContainer);
-//        ctr.setSuperType((Concept) superAtomContainer);
-//        newTransRel = ctr;
-//      } else if (Descriptor.class.isAssignableFrom(clazz)) {
-//        final DescriptorTransitiveRelationshipJpa dtr =
-//            new DescriptorTransitiveRelationshipJpa();
-//        dtr.setSubType((Descriptor) subAtomContainer);
-//        dtr.setSuperType((Descriptor) superAtomContainer);
-//        newTransRel = dtr;
-//      } else if (Code.class.isAssignableFrom(clazz)) {
-//        final CodeTransitiveRelationshipJpa cdtr =
-//            new CodeTransitiveRelationshipJpa();
-//        cdtr.setSubType((Code) subAtomContainer);
-//        cdtr.setSuperType((Code) superAtomContainer);
-//        newTransRel = cdtr;
-//      } else if (Atom.class.isAssignableFrom(clazz)) {
-//        final AtomTransitiveRelationshipJpa atr =
-//            new AtomTransitiveRelationshipJpa();
-//        atr.setSubType(subAtom);
-//        atr.setSuperType(superAtom);
-//        newTransRel = atr;
-//      }
-//
-//      newTransRel.setDepth(depthCounter++);
-//      newTransRel.setObsolete(false);
-//      newTransRel.setPublishable(true);
-//      newTransRel.setPublished(false);
-//      newTransRel.setSuppressible(false);
-//      newTransRel.setTerminology(newTransRel.getSuperType().getTerminology());
-//      newTransRel.setTerminologyId("");
-//      newTransRel.setVersion(newTransRel.getSuperType().getVersion());
-//
-//      // persist the Transitive Relationship
-//      addTransitiveRelationship(newTransRel);
-//      createdTransRels.add(superAtomContainer.getId().toString() + "_"
-//          + subAtomContainer.getId().toString());
-//    }
-//
-//    // Once all of the relationships have been made with this super atom, remove
-//    // it from the list, and run the remaining ones through again.
-//    List<Atom> shortenedAtomList = new ArrayList<>(ptrAtoms);
-//    shortenedAtomList.remove(superAtom);
-//    createTransitiveRelationships(clazz, shortenedAtomList);
-//
-//  }
+  // /**
+  // * Creates the transitive relationships.
+  // *
+  // * @param clazz the clazz
+  // * @param ptrAtoms the ptr atoms
+  // * @throws Exception the exception
+  // */
+  // private void createTransitiveRelationships(Class<?> clazz,
+  // List<Atom> ptrAtoms) throws Exception {
+  // // For transitive relationships, create one from each "higher" level
+  // // object to each "lower" level one (e.g. in the example above
+  // // 12345->12346, 12345->123467, and 12346->123467). Save these
+  // // pairwise connections so you don't recreate objects for the same
+  // // pairs (e.g. have a Set<String> that stores superTypeId+subTypeId)
+  //
+  // // Can't create relationships if there aren't any atoms in the
+  // // list...
+  // if (ptrAtoms.isEmpty()) {
+  // return;
+  // }
+  //
+  // final Atom superAtom = ptrAtoms.get(0);
+  // final AbstractAtomClass superAtomContainer =
+  // getCachedAtomContainer(clazz, superAtom);
+  // int depthCounter = 0;
+  // for (Atom subAtom : ptrAtoms) {
+  // final AbstractAtomClass subAtomContainer =
+  // getCachedAtomContainer(clazz, subAtom);
+  //
+  // // Skip if this pair of containers have already created a Transitive
+  // // Relationship created for them.
+  // if (createdTransRels.contains(superAtomContainer.getId().toString() + "_"
+  // + subAtomContainer.getId().toString())) {
+  // continue;
+  // }
+  //
+  // TransitiveRelationship<? extends ComponentHasAttributes> newTransRel =
+  // null;
+  //
+  // if (Concept.class.isAssignableFrom(clazz)) {
+  // final ConceptTransitiveRelationshipJpa ctr =
+  // new ConceptTransitiveRelationshipJpa();
+  // ctr.setSubType((Concept) subAtomContainer);
+  // ctr.setSuperType((Concept) superAtomContainer);
+  // newTransRel = ctr;
+  // } else if (Descriptor.class.isAssignableFrom(clazz)) {
+  // final DescriptorTransitiveRelationshipJpa dtr =
+  // new DescriptorTransitiveRelationshipJpa();
+  // dtr.setSubType((Descriptor) subAtomContainer);
+  // dtr.setSuperType((Descriptor) superAtomContainer);
+  // newTransRel = dtr;
+  // } else if (Code.class.isAssignableFrom(clazz)) {
+  // final CodeTransitiveRelationshipJpa cdtr =
+  // new CodeTransitiveRelationshipJpa();
+  // cdtr.setSubType((Code) subAtomContainer);
+  // cdtr.setSuperType((Code) superAtomContainer);
+  // newTransRel = cdtr;
+  // } else if (Atom.class.isAssignableFrom(clazz)) {
+  // final AtomTransitiveRelationshipJpa atr =
+  // new AtomTransitiveRelationshipJpa();
+  // atr.setSubType(subAtom);
+  // atr.setSuperType(superAtom);
+  // newTransRel = atr;
+  // }
+  //
+  // newTransRel.setDepth(depthCounter++);
+  // newTransRel.setObsolete(false);
+  // newTransRel.setPublishable(true);
+  // newTransRel.setPublished(false);
+  // newTransRel.setSuppressible(false);
+  // newTransRel.setTerminology(newTransRel.getSuperType().getTerminology());
+  // newTransRel.setTerminologyId("");
+  // newTransRel.setVersion(newTransRel.getSuperType().getVersion());
+  //
+  // // persist the Transitive Relationship
+  // addTransitiveRelationship(newTransRel);
+  // createdTransRels.add(superAtomContainer.getId().toString() + "_"
+  // + subAtomContainer.getId().toString());
+  // }
+  //
+  // // Once all of the relationships have been made with this super atom,
+  // remove
+  // // it from the list, and run the remaining ones through again.
+  // List<Atom> shortenedAtomList = new ArrayList<>(ptrAtoms);
+  // shortenedAtomList.remove(superAtom);
+  // createTransitiveRelationships(clazz, shortenedAtomList);
+  //
+  // }
 
   /**
    * Creates the tree positions.
    *
-   * @param clazz the clazz
+   * @param idType the id type
    * @param nodeAtom the node atom
-   * @param ancestorPath the ancestor path
+   * @param parentTreeRel the parent tree rel
+   * @param hcd the hcd
    * @throws Exception the exception
    */
   private void createTreePositions(String idType, Atom nodeAtom,

@@ -131,6 +131,7 @@ public class QaDatabase extends AbstractMojo {
                 from, config.getProperty("mail.smtp.to"), msg.toString(),
                 config, "true".equals(config.get("mail.smtp.auth")));
           } catch (Exception e) {
+            e.printStackTrace();
             // do nothing - this just means email couldn't be sent
           }
 

@@ -18,12 +18,13 @@ tsApp.controller('EditUserModalCtrl', [ '$scope', '$uibModalInstance', 'security
     }
 
     $scope.submitUser = function(user) {
+      $scope.errors = [];
       var fn = 'addUser';
       if ($scope.action == 'Edit') {
         fn = 'updateUser';
       }
       if (!user || !user.name || !user.userName || !user.applicationRole) {
-        window.alert('The name, user name, and application role fields cannot be blank. ');
+        $scope.errors.push('The name, user name, and application role fields cannot be blank. ');
         return;
       }
       securityService[fn](user).then(

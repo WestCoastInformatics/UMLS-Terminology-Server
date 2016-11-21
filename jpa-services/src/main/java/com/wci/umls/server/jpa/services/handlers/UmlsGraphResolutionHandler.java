@@ -60,7 +60,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
       // lazy initialization of user annotations
       concept.getNotes().size();
-      
+
       // lazy initialization of component history
       concept.getComponentHistory().size();
 
@@ -94,7 +94,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       // these are terminology-specific rels
       // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<>());
-      
+
       // resolve component history
       resolveComponentHistory(atom, nullId);
 
