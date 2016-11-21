@@ -23,6 +23,7 @@ import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -43,7 +44,6 @@ import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
@@ -70,6 +70,9 @@ public class UmlsIdentifierAssignmentHandler
   /** The ui lengths. */
   private Map<String, Integer> lengthMap = new HashMap<>();
 
+  /** The project terminology. */
+  private String projectTerminology = null;
+  
   /** The max concept id. */
   private long maxConceptId = -1;
 
@@ -112,6 +115,10 @@ public class UmlsIdentifierAssignmentHandler
       }
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
+      }
+      //Also set project terminology string
+      if(p.containsKey("projectTerminology")){
+        projectTerminology = p.getProperty("projectTerminology");
       }
     }
   }
@@ -337,7 +344,13 @@ public class UmlsIdentifierAssignmentHandler
         final AttributeIdentity identity = new AttributeIdentityJpa();
         identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
-        identity.setComponentId(component.getTerminologyId());
+        //TODO - requestion
+        if (component instanceof AtomClass){
+          identity.setComponentId(component.getTerminologyId());
+        }
+        if(component instanceof Atom){
+          identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get(projectTerminology));
+        }        
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());
