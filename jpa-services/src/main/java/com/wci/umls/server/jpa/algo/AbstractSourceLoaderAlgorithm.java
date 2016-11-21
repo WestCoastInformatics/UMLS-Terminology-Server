@@ -613,7 +613,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
       atomIdCache.put(terminologyId, component.getId());
     }
 
-    if (component instanceof Attribute) {
+    else if (component instanceof Attribute) {
       attributeIdCache.put(terminologyId, component.getId());
     }
 

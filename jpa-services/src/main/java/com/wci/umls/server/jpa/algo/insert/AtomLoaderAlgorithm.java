@@ -109,8 +109,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "classes_atoms.src", null, null);
+      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
 
@@ -169,8 +169,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         }
         Terminology terminology = getCachedTerminology(fields[1]);
         if (terminology == null) {
-          logWarnAndUpdate(line, "Warning - terminology not found: " + fields[1]
-              + ".");
+          logWarnAndUpdate(line,
+              "Warning - terminology not found: " + fields[1] + ".");
           continue;
         } else {
           newAtom.setTerminology(terminology.getTerminology());
@@ -216,7 +216,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
         // Check to see if atom with matching AUI already exists in the database
         Atom oldAtom = (Atom) this.getComponent("AUI", newAtomAui, null, null);
-        
+
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
         if (oldAtom == null) {
@@ -335,18 +335,16 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {
 
-      Code existingCode = (Code) getComponent("CODE_SOURCE", atom.getCodeId(), atom.getTerminology(), null);
-          
+      Code existingCode = (Code) getComponent("CODE_SOURCE", atom.getCodeId(),
+          atom.getTerminology(), null);
+
       if (existingCode != null) {
         existingCode.getAtoms().add(atom);
         existingCode.setVersion(atom.getVersion());
-        
-        // Recompute the code's preferred name
-        existingCode.setName(getComputePreferredNameHandler(existingCode.getTerminology())
-            .computePreferredName(existingCode.getAtoms(),
-                getPrecedenceList(existingCode.getTerminology(), existingCode.getVersion())));
-
         updateCode(existingCode);
+        // TODO - read code relationships and updateRelationship on each one
+        // (to update the indexes with the new concept information)
+        
       }
 
       // else create a new code
@@ -372,17 +370,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Check map to see if concept already exists
     if (!atom.getConceptId().isEmpty()) {
 
-      final Concept existingConcept = (Concept) getComponent("SOURCE_CUI", atom.getConceptId(), atom.getTerminology(), null);
+      final Concept existingConcept = (Concept) getComponent("SOURCE_CUI",
+          atom.getConceptId(), atom.getTerminology(), null);
       if (existingConcept != null) {
         existingConcept.getAtoms().add(atom);
         existingConcept.setVersion(atom.getVersion());
-        
-        // Recompute the concept's preferred name
-        existingConcept.setName(getComputePreferredNameHandler(existingConcept.getTerminology())
-            .computePreferredName(existingConcept.getAtoms(),
-                getPrecedenceList(existingConcept.getTerminology(), existingConcept.getVersion())));
-
         updateConcept(existingConcept);
+        // TODO - read concept relationships and updateRelationship on each one
+        // (to update the indexes with the new concept information)
       }
 
       // else create a new concept
@@ -407,17 +402,15 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Check map to see if descriptor already exists
     if (!atom.getDescriptorId().isEmpty()) {
 
-      final Descriptor existingDescriptor = (Descriptor) getComponent("SOURCE_DUI", atom.getConceptId(), atom.getTerminology(), null);
+      final Descriptor existingDescriptor =
+          (Descriptor) getComponent("SOURCE_DUI", atom.getConceptId(),
+              atom.getTerminology(), null);
       if (existingDescriptor != null) {
         existingDescriptor.getAtoms().add(atom);
         existingDescriptor.setVersion(atom.getVersion());
-        
-        // Recompute the code's preferred name
-        existingDescriptor.setName(getComputePreferredNameHandler(existingDescriptor.getTerminology())
-            .computePreferredName(existingDescriptor.getAtoms(),
-                getPrecedenceList(existingDescriptor.getTerminology(), existingDescriptor.getVersion())));
-        
         updateDescriptor(existingDescriptor);
+        // TODO - read descriptor relationships and updateRelationship on each one
+        // (to update the indexes with the new concept information)
       }
 
       // else create a new descriptor
