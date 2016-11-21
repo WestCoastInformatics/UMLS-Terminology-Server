@@ -167,7 +167,7 @@ public interface Worklist extends Checklist, HasStats {
    *
    * @param authorAvailable the is author available
    */
-  public void setIsAuthorAvailable(boolean authorAvailable);
+  public void setAuthorAvailable(boolean authorAvailable);
 
   /**
    * Indicates whether or not reviewer available is the case.
@@ -181,6 +181,6 @@ public interface Worklist extends Checklist, HasStats {
    *
    * @param reviewerAvailable the is reviewer available
    */
-  public void setIsReviewerAvailable(boolean reviewerAvailable);
+  public void setReviewerAvailable(boolean reviewerAvailable);
 
 }

@@ -76,15 +76,18 @@ public class AlgorithmParameterJpa implements AlgorithmParameter {
    * @param placeholder the placeholder
    * @param length the length
    * @param type the type
+   * @param defaultValue the default value
    */
   public AlgorithmParameterJpa(String name, String fieldName, String desc,
-      String placeholder, int length, AlgorithmParameter.Type type) {
+      String placeholder, int length, AlgorithmParameter.Type type,
+      String defaultValue) {
     this.name = name;
     this.fieldName = fieldName;
     this.description = desc;
     this.placeholder = placeholder;
     this.length = length;
     this.type = type;
+    this.value = defaultValue;
   }
 
   /* see superclass */

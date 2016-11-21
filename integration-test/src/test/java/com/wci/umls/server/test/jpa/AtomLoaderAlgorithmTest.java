@@ -113,7 +113,15 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
         "362166292|NCI_2016_05E|NCI_2016_05E/PT|C28776|R|Y|N|(H115D)VHL35 Peptide|N||C28776||ENG|362166292|");
     out.println(
         "362166293|NCI_2016_05E|NCI_2016_05E/PT|C88126|R|Y|N|1+ Score, WHO|N||C88126||ENG|362166293|");
+    out.println(
+        "362211855|NCI_2016_05E|NCI_2016_05E/PT|C93028|R|Y|N|Flank|N||C93028||ENG|362211855|");
+    out.println(
+        "362262317|NCI_2016_05E|NCI_2016_05E/PT|C98033|R|Y|N|Sancycline|N||C98033||ENG|362262317|");
+    out.println(
+        "362502242|NCI_2016_05E|NCI_2016_05E/SY|C118465|R|Y|N|T2/FLAIR|N||C118465||ENG|362502242|");
     out.close();
+
+    
 
     // Create and configure the algorithm
     algo = new AtomLoaderAlgorithm();
@@ -169,14 +177,22 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
           "atoms.nameSort:\"NCI_2016_05E\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts("UMLS", "latest", Branch.ROOT,
+      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"(H115D)VHL35 Peptide\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts("UMLS", "latest", Branch.ROOT,
+      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"1+ Score, WHO\"", null);
       assertEquals(1, list.size());
-
+      
+      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+          "atoms.nameSort:\"Flank\"", null);
+      assertEquals(1, list.size());
+      
+      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+          "atoms.nameSort:\"Sancycline\"", null);
+      assertEquals(1, list.size());      
+      
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

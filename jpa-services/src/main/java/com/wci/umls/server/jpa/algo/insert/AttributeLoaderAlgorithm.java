@@ -17,35 +17,23 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
-import com.wci.umls.server.jpa.content.AbstractComponentHasAttributes;
 import com.wci.umls.server.jpa.content.AttributeJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Implementation of an algorithm to import attributes.
  */
 public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
-
-  /** The full directory where the src files are. */
-  private File srcDirFile = null;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -80,8 +68,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    srcDirFile = new File(srcFullPath);
-    if (!srcDirFile.exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -106,6 +94,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
+    final ComputePreferredNameHandler prefNameHandler =
+        getComputePreferredNameHandler(getProject().getTerminology());
 
     // Count number of added and updated Attributes and Definitions
     // for logging
@@ -116,9 +106,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     try {
 
-      previousProgress = 0;
-      stepsCompleted = 0;
-
       logInfo(
           "[AttributeLoader] Checking for new/updated Attributes and Definitions");
 
@@ -126,12 +113,12 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
       //
-      List<String> lines = loadFileIntoStringList(srcDirFile, "attributes.src",
-          null,
+      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "attributes.src", null,
           "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM)(.*)");
 
-      // Set the number of steps to the number of atoms to be processed
-      steps = lines.size();
+      // Set the number of steps to the number of lines to be processed
+      setSteps(lines.size());
 
       String fields[] = new String[14];
 
@@ -145,7 +132,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // Check for a cancelled call once every 100 relationships (doing it
         // every time
         // makes things too slow)
-        if (stepsCompleted % 100 == 0 && isCancelled()) {
+        if (getStepsCompleted() % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
 
@@ -170,109 +157,98 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // e.g.
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
-        Terminology terminology = getCachedTerminology(fields[5]);
-        if (terminology == null) {
-          logWarn("Warning - terminology not found: " + fields[5]
-              + ". Could not process the following line:\n\t" + line);
-          updateProgress();
-          logAndCommit("[Attribute Loader] Attribute lines processed ",
-              stepsCompleted, RootService.logCt, RootService.commitCt);
+        // Load the terminology that will be assigned to the new Attribute or
+        // Definition
+        Terminology setTerminology = getCachedTerminology(fields[5]);
+        if (setTerminology == null) {
+          logWarnAndUpdate(line,
+              "Warning - terminology not found: " + fields[5] + ".");
+          continue;
+        }
+
+        // Load the terminology that will be used to look up the containing
+        // object
+        Terminology lookupTerminology = getCachedTerminology(fields[11]);
+        if (lookupTerminology == null) {
+          logWarnAndUpdate(line,
+              "Warning - terminology not found: " + fields[11] + ".");
           continue;
         }
 
         // If it's a DEFITION, process the line as a definition instead of an
         // attribute
-        if (fields[4].equals("DEFINITION")) {
+        if (fields[3].equals("DEFINITION")) {
           // Create the definition
           Definition newDefinition = new DefinitionJpa();
           newDefinition.setBranch(Branch.ROOT);
           newDefinition.setName(fields[3]);
           newDefinition.setValue(fields[4]);
-          //TODO question - set to blank?
-          newDefinition.setTerminologyId("TestId");
-          newDefinition.setTerminology(terminology.getTerminology());
-          newDefinition.setVersion(terminology.getVersion());
+          newDefinition.setTerminologyId("");
+          newDefinition.setTerminology(setTerminology.getTerminology());
+          newDefinition.setVersion(setTerminology.getVersion());
           newDefinition.setTimestamp(new Date());
-          newDefinition.setSuppressible(fields[9].equals("Y"));
-          newDefinition.setPublished(fields[6].equals("Y"));
-          newDefinition.setPublishable(fields[7].equals("Y"));
+          newDefinition.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newDefinition.setPublished(fields[6].toUpperCase().equals("Y"));
+          newDefinition.setPublishable(fields[7].toUpperCase().equals("Y"));
           newDefinition.setObsolete(false);
 
           // Load the containing object
-          final String containerTerminologyId = fields[1];
-          final String containerTerminology = terminology.getTerminology();
-          final Class<? extends Component> containerClass =
-              lookupClass(fields[10]);
-
-          Long containerComponentId = null;
-          if (Concept.class.isAssignableFrom(containerClass)) {
-            containerComponentId = getId(ConceptJpa.class, containerTerminology,
-                containerTerminologyId);
-          } else {
-            logWarn("Warning - unsupported container class identified: " + containerClass
-                + ". Could not process the following line:\n\t" + line);
-            updateProgress();
-            logAndCommit("[Attribute Loader] Attribute lines processed ",
-                stepsCompleted, RootService.logCt, RootService.commitCt);
+          ComponentHasDefinitions containerComponent =
+              (ComponentHasDefinitions) getComponent(fields[10], fields[1],
+                  getCachedTerminology(fields[11]).getTerminology(), null);
+          if (containerComponent == null) {
+            logWarnAndUpdate(line,
+                "Warning - could not find Component for type: " + fields[10]
+                    + ", terminologyId: " + fields[1] + ", and terminology:"
+                    + fields[11]);
             continue;
           }
-
-          final ComponentHasDefinitions containerComponent =
-              containerComponentId == null ? null
-                  : (ComponentHasDefinitions) getComponent(containerComponentId,
-                      containerClass);
-
-          if (containerComponent == null) {
-            logWarn("Warning - container component not found: "
-                + containerComponentId + ", " + containerClass
-                + ". Could not process the following line:\n\t" + line);
-            updateProgress();
-            logAndCommit("[Attribute Loader] Attributes processed ",
-                stepsCompleted, RootService.logCt, RootService.commitCt);
+          Atom atom = null;
+          if (containerComponent instanceof Atom) {
+            atom = (Atom) containerComponent;
+          } else if (containerComponent instanceof AtomClass) {
+            AtomClass atomClass = (AtomClass) containerComponent;
+            List<Atom> atoms = prefNameHandler.sortAtoms(atomClass.getAtoms(),
+                getPrecedenceList(getProject().getTerminology(),
+                    getProject().getVersion()));
+            atom = atoms.get(0);
+          } else {
+            logWarnAndUpdate(line,
+                "Warning - " + containerComponent.getClass().getName()
+                    + " is an unhandled type.");
             continue;
           }
 
           // Compute definition identity
           String newDefinitionAtui =
-              handler.getTerminologyId(newDefinition, containerComponent);
+              handler.getTerminologyId(newDefinition, atom);
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldDefinitionId = getId(DefinitionJpa.class, newDefinitionAtui,
-              newDefinition.getTerminology());
+          Definition oldDefinition = (Definition) getComponent("DEFINITION",
+              newDefinitionAtui, newDefinition.getTerminology(), null);
 
-          // If no attribute with the same ATUI exists, create this new
-          // Attribute, and add it to its containing component
-          if (oldDefinitionId == null) {
+          // If no definition with the same ATUI exists, create this new
+          // definition, and add it to its containing component
+          if (oldDefinition == null) {
             newDefinition.getAlternateTerminologyIds()
-                .put(getProject().getTerminology() + "-SRC", newDefinitionAtui);
+                .put(getProject().getTerminology(), newDefinitionAtui);
             newDefinition = addDefinition(newDefinition, containerComponent);
 
             definitionAddCount++;
-            putId(DefinitionJpa.class, newDefinitionAtui,
-                newDefinition.getTerminology(), newDefinition.getId());
+            putComponent(newDefinition, newDefinitionAtui);
 
-            // TODO - find out if this is needed.
-            // If so, create a cache-map, so that all updates are made to same
-            // copy of the component
-            // // Add the definition to component
-            // containerComponent.getDefinitions().add(newDefinition);
-            // if (containerComponent instanceof ConceptJpa) {
-            // updateComponent((ConceptJpa) containerComponent);
-            // } else {
-            // throw new Exception(
-            // "Unhandled class type " + containerComponent.getClass());
-            // }
+            // Add the definition to component
+            atom.getDefinitions().add(newDefinition);
+            updateAtom(atom);
           }
           // If a previous definition with same ATUI exists, load that object.
           else {
-            final Definition oldDefinition = getDefinition(oldDefinitionId);
-
             boolean oldDefinitionChanged = false;
 
-            // Create an "alternateTerminologyId" for the definition
+            // Attach an ATUI for the definition
             oldDefinition.getAlternateTerminologyIds()
-                .put(getProject().getTerminology() + "-SRC", newDefinitionAtui);
+                .put(getProject().getTerminology(), newDefinitionAtui);
 
             // Update the version
             if (!oldDefinition.getVersion()
@@ -281,15 +257,22 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
               oldDefinitionChanged = true;
             }
 
-            // If the existing relationship doesn't exactly equal the new one,
+            // If the existing definition doesn't exactly equal the new one,
             // update obsolete, and suppressible
             if (!oldDefinition.equals(newDefinition)) {
-              oldDefinition.setObsolete(newDefinition.isObsolete());
-              oldDefinition.setSuppressible(newDefinition.isSuppressible());
+              if (oldDefinition.isObsolete() != newDefinition.isObsolete()) {
+                oldDefinition.setObsolete(newDefinition.isObsolete());
+                oldDefinitionChanged = true;
+              }
+              if (oldDefinition.isSuppressible() != newDefinition
+                  .isSuppressible()) {
+                oldDefinition.setSuppressible(newDefinition.isSuppressible());
+                oldDefinitionChanged = true;
+              }
             }
 
             if (oldDefinitionChanged) {
-              updateDefinition(oldDefinition, containerComponent);
+              updateDefinition(oldDefinition, atom);
               definitionUpdateCount++;
             }
           }
@@ -303,54 +286,25 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           newAttribute.setBranch(Branch.ROOT);
           newAttribute.setName(fields[3]);
           newAttribute.setValue(fields[4]);
-          newAttribute.setTerminologyId("TestId");
-          Terminology term = getCachedTerminology(fields[5]);
-          if (term == null) {
-            throw new Exception(
-                "ERROR: lookup for " + fields[5] + " returned no terminology");
-          } else {
-            newAttribute.setTerminology(term.getTerminology());
-            newAttribute.setVersion(term.getVersion());
-          }
+          newAttribute.setTerminologyId(fields[12]);
+          newAttribute.setTerminology(setTerminology.getTerminology());
+          newAttribute.setVersion(setTerminology.getVersion());
           newAttribute.setTimestamp(new Date());
-          newAttribute.setSuppressible(fields[9].equals("Y"));
-          newAttribute.setPublished(fields[6].equals("Y"));
-          newAttribute.setPublishable(fields[7].equals("Y"));
+          newAttribute.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newAttribute.setPublished(fields[6].toUpperCase().equals("Y"));
+          newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
           newAttribute.setObsolete(false);
 
           // Load the containing object
-          final String containerTerminologyId = fields[1];
-          final String containerTerminology = fields[5].contains("_")
-              ? fields[5].substring(0, fields[5].indexOf('_')) : fields[5];
-          final Class<? extends Component> containerClass =
-              lookupClass(fields[10]);
-
-          Long containerComponentId = null;
-          if (containerClass.equals(ConceptJpa.class)) {
-            containerComponentId = getId(ConceptJpa.class,
-                containerTerminologyId, containerTerminology);
-          } else {
-            throw new IllegalArgumentException(
-                "Invalid class type: " + containerClass);
-          }
-
-          AbstractComponentHasAttributes containerComponent =
-              containerComponentId == null ? null
-                  : (AbstractComponentHasAttributes) getComponent(
-                      containerComponentId, containerClass);
-
+          ComponentHasAttributes containerComponent =
+              (ComponentHasAttributes) getComponent(fields[10], fields[1],
+                  getCachedTerminology(fields[11]).getTerminology(), null);
           if (containerComponent == null) {
-            // TODO - remove update and continue, and uncomment Exception once
-            // testing is completed.
-            updateProgress();
-            logAndCommit("[Attribute Loader] Attributes processed ",
-                stepsCompleted, RootService.logCt, RootService.commitCt);
+            logWarnAndUpdate(line,
+                "Warning - could not find Component for type: " + fields[10]
+                    + ", terminologyId: " + fields[1] + ", and terminology:"
+                    + fields[11]);
             continue;
-            // throw new Exception("Error - lookup returned no object: " +
-            // fromClass.getSimpleName() + " with terminologyId=" +
-            // fromTerminologyId
-            // + ", terminology=" + fromTerminology + ", version=" +
-            // fromVersion);
           }
 
           // Compute attribute identity
@@ -359,37 +313,30 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Long oldAttributeId = getId(AttributeJpa.class, newAttributeAtui,
-              newAttribute.getTerminology());
+          Attribute oldAttribute = (Attribute) getComponent("ATUI",
+              newAttributeAtui, newAttribute.getTerminology(), null);
 
           // If no attribute with the same ATUI exists, create this new
           // Attribute, and add it to its containing component
-          if (oldAttributeId == null) {
+          if (oldAttribute == null) {
             newAttribute.getAlternateTerminologyIds()
-                .put(getProject().getTerminology() + "-SRC", newAttributeAtui);
+                .put(getProject().getTerminology(), newAttributeAtui);
             newAttribute = addAttribute(newAttribute, containerComponent);
 
             attributeAddCount++;
-            putId(AttributeJpa.class, newAttributeAtui,
-                newAttribute.getTerminology(), newAttribute.getId());
+            putComponent(newAttribute, newAttributeAtui);
 
-            // TODO - find out if this is needed.
-            // If so, create a cache-map, so that all updates are made to same
-            // copy of the component
-            // // Add the attribute to component
-            // containerComponent.getAttributes().add(newAttribute);
-            // updateComponent(containerComponent);
-
+            // Add the attribute to component
+            containerComponent.getAttributes().add(newAttribute);
+            updateComponent(containerComponent);
           }
           // If a previous attribute with same ATUI exists, load that object.
           else {
-            final Attribute oldAttribute = getAttribute(oldAttributeId);
+             boolean oldAttributeChanged = false;
 
-            boolean oldAttributeChanged = false;
-
-            // Create an "alternateTerminologyId" for the attribute
+            // Attach an ATUI for the attribute
             oldAttribute.getAlternateTerminologyIds()
-                .put(getProject().getTerminology() + "-SRC", newAttributeAtui);
+                .put(getProject().getTerminology(), newAttributeAtui);
 
             // Update the version
             if (!oldAttribute.getVersion().equals(newAttribute.getVersion())) {
@@ -400,8 +347,15 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             // If the existing relationship doesn't exactly equal the new one,
             // update obsolete, and suppressible
             if (!oldAttribute.equals(newAttribute)) {
-              oldAttribute.setObsolete(newAttribute.isObsolete());
-              oldAttribute.setSuppressible(newAttribute.isSuppressible());
+              if (oldAttribute.isObsolete() != newAttribute.isObsolete()) {
+                oldAttribute.setObsolete(newAttribute.isObsolete());
+                oldAttributeChanged = true;
+              }
+              if (oldAttribute.isSuppressible() != newAttribute
+                  .isSuppressible()) {
+                oldAttribute.setSuppressible(newAttribute.isSuppressible());
+                oldAttributeChanged = true;
+              }
             }
 
             if (oldAttributeChanged) {
@@ -414,11 +368,9 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // Update the progress
         updateProgress();
 
-        logAndCommit("[Attribute Loader] Attributes processed ", stepsCompleted,
-            RootService.logCt, RootService.commitCt);
         handler.logAndCommit(
             "[Attribute Loader] Attribute identities processed ",
-            stepsCompleted, RootService.logCt, RootService.commitCt);
+            getStepsCompleted(), RootService.logCt, RootService.commitCt);
       }
 
       commitClearBegin();
@@ -457,21 +409,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "ATTRIBUTELOADING progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /**

@@ -82,6 +82,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> relationships = null;
 
+  /**  The inverse relationships. */
+  @OneToMany(mappedBy = "to", targetEntity = AtomRelationshipJpa.class)
+  private List<AtomRelationship> inverseRelationships = null;
+
   /** The component histories. */
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
@@ -218,6 +222,16 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
       relationships = new ArrayList<>(1);
     }
     return relationships;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<AtomRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
   }
 
   /* see superclass */
@@ -509,6 +523,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return this.notes;
   }
 
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -528,6 +543,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     return result;
   }
 
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

@@ -95,19 +95,19 @@ public class DummyAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,
-        AlgorithmParameter.Type.INTEGER);
+        AlgorithmParameter.Type.INTEGER,"");
     params.add(param);
     param = new AlgorithmParameterJpa("Test boolean",
         "boo", "Test boolean description", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN);
+        AlgorithmParameter.Type.BOOLEAN,"");
     params.add(param);
     param = new AlgorithmParameterJpa("Test text",
         "tex", "Test text description", "e.g. abcabc", 0,
-        AlgorithmParameter.Type.TEXT);
+        AlgorithmParameter.Type.TEXT,"");
     params.add(param);
     param = new AlgorithmParameterJpa("Test enum",
         "enu", "Test enum description", "e.g. enum", 0,
-        AlgorithmParameter.Type.ENUM);
+        AlgorithmParameter.Type.ENUM,"");
     List<String> valueList = new ArrayList<>();
     valueList.add("option1");
     valueList.add("option2");

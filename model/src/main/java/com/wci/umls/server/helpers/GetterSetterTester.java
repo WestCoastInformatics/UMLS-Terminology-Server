@@ -132,7 +132,7 @@ public class GetterSetterTester extends ProxyTester {
           if (getter.getReturnType() != args[0])
             continue;
         } catch (NoSuchMethodException e2) {
-          continue;
+          throw new Exception("Set method does not have corresponding get method: " + m.getName());
         }
       }
 

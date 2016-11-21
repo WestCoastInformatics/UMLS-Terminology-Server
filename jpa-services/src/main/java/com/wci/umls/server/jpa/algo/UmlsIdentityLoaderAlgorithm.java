@@ -85,7 +85,7 @@ public class UmlsIdentityLoaderAlgorithm
           identity.setComponentType(IdType.valueOf(fields[4]));
           identity.setComponentTerminology(fields[5]);
           identity.setName(fields[6]);
-          identity.setHashCode(fields[7]);
+          identity.setHashcode(fields[7]);
           service.addAttributeIdentity(identity);
           if (++ct % commitCt == 0) {
             service.commitClearBegin();
@@ -317,7 +317,7 @@ public class UmlsIdentityLoaderAlgorithm
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input UMLS UI Files directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY);
+        AlgorithmParameter.Type.DIRECTORY,"");
     params.add(param);
     return params;
 

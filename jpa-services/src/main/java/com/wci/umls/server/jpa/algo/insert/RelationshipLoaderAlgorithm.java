@@ -19,13 +19,13 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
-import com.wci.umls.server.jpa.content.AbstractRelationship;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.model.content.Component;
-import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
@@ -34,18 +34,6 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Implementation of an algorithm to import relationships.
  */
 public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
-
-  /** The full directory where the src files are. */
-  private File srcDirFile = null;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
 
   /** The handler. */
   private IdentifierAssignmentHandler handler = null;
@@ -89,8 +77,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    srcDirFile = new File(srcFullPath);
-    if (!srcDirFile.exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -121,23 +109,20 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     try {
 
-      previousProgress = 0;
-      stepsCompleted = 0;
-
       logInfo("[RelationshipLoader] Checking for new/updated Relationships");
 
       //
       // Load the relationships.src file
       //
-      List<String> lines =
-          loadFileIntoStringList(srcDirFile, "relationships.src", null, null);
+      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+          "relationships.src", null, null);
 
       //
       // Load the contexts.src file
       //
       // Only keep "PAR" relationship rows.
-      List<String> lines2 = loadFileIntoStringList(srcDirFile, "contexts.src",
-          "[0-9]+?\\|PAR(.*)", null);
+      List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
+          "contexts.src", "[0-9]+?\\|PAR(.*)", null);
 
       // There will be many duplicated lines in the contexts.src file, since the
       // main
@@ -146,7 +131,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       lines = removeDups(lines);
 
       // Set the number of steps to the number of relationships to be processed
-      steps = lines.size() + lines2.size();
+      setSteps(lines.size() + lines2.size());
 
       //
       // Process relationships.src lines
@@ -155,7 +140,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       for (String line : lines) {
 
         // Check for a cancelled call once every 100 lines
-        if (stepsCompleted % 100 == 0 && isCancelled()) {
+        if (getStepsCompleted() % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
 
@@ -221,7 +206,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // Check for a cancelled call once every 100 relationships (doing it
         // every time
         // makes things too slow)
-        if (stepsCompleted % 100 == 0 && isCancelled()) {
+        if (getStepsCompleted() % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }
 
@@ -350,6 +335,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @param sourceTermAndVersion the source term and version
    * @param sourceTermId the source term id
    * @param workflowStatusStr the workflow status str
+   * @param fromContextsSrcFile the from contexts src file
    * @throws Exception the exception
    */
   @SuppressWarnings({
@@ -366,56 +352,25 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // don't match, fire a
     // warning and skip the line.
     if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
-      logWarn("Warning - type 1: " + fromClassIdType
-          + " does not equals type 2: " + toClassIdType
-          + ". Could not process the following line:\n\t" + line);
-      updateProgress();
-      logAndCommit("[Relationship Loader] Relationships processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
+      logWarnAndUpdate(line, "Warning - type 1: " + fromClassIdType
+          + " does not equals type 2: " + toClassIdType + ".");
       return;
     }
 
     // Load the containing objects based on type
-    final String fromTerminologyId = fromTermId;
-    final String fromTerminology = fromTermAndVersion.contains("_")
-        ? fromTermAndVersion.substring(0, fromTermAndVersion.indexOf('_'))
-        : fromTermAndVersion;
-    final Class<? extends Component> fromClass = lookupClass(fromClassIdType);
-
-    final Long fromComponentId =
-        getId(fromClass, fromTerminologyId, fromTerminology);
-
-    final Component fromComponent = fromComponentId == null ? null
-        : getComponent(fromComponentId, fromClass);
-
+    Component fromComponent = getComponent(fromClassIdType, fromTermId,
+        getCachedTerminology(fromTermAndVersion).getTerminology(), null);
     if (fromComponent == null) {
-      logWarn(
-          "Warning - could not find from Component for the following line:\n\t"
-              + line);
-      updateProgress();
-      logAndCommit("[Relationship Loader] Relationships processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
+      logWarnAndUpdate(line,
+          "Warning - could not find from Component for this line.");
       return;
     }
 
-    final String toTerminologyId = toTermId;
-    final String toTerminology = toTermAndVersion.contains("_")
-        ? toTermAndVersion.substring(0, toTermAndVersion.indexOf('_'))
-        : toTermAndVersion;
-    final Class<? extends Component> toClass = lookupClass(toClassIdType);
-
-    final Long toComponentId = getId(toClass, toTerminologyId, toTerminology);
-
-    final Component toComponent =
-        toComponentId == null ? null : getComponent(toComponentId, toClass);
-
+    Component toComponent = getComponent(toClassIdType, toTermId,
+        getCachedTerminology(toTermAndVersion).getTerminology(), null);
     if (toComponent == null) {
-      logWarn(
-          "Warning - could not find to Component for the following line:\n\t"
-              + line);
-      updateProgress();
-      logAndCommit("[Relationship Loader] Relationships processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
+      logWarnAndUpdate(line,
+          "Warning - could not find to Component for this line.");
       return;
     }
 
@@ -424,30 +379,32 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (fromContextsSrcFile && (toComponent.getTerminology().equals("SRC")
         || fromComponent.getTerminology().equals("SRC"))) {
       updateProgress();
-      logAndCommit("[Relationship Loader] Relationships processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
       return;
     }
 
     // Create the relationship.
     // If id_type_1 equals id_type_2, the relationship is of that type.
     // If they are not equal, it's a Component Info Relationship
-    AbstractRelationship newRelationship = null;
+    Relationship newRelationship = null;
     Class relClass = null;
 
-    if (!fromClass.equals(toClass)) {
+    if (!fromClassIdType.equals(toClassIdType)) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
-    } else if (Concept.class.isAssignableFrom(fromClass)
-        && Concept.class.isAssignableFrom(toClass)) {
+    } else if (fromClassIdType.equals("SOURCE_CUI")) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
-    } else if (Code.class.isAssignableFrom(fromClass)
-        && Code.class.isAssignableFrom(toClass)) {
+    } else if (fromClassIdType.equals("SOURCE_DUI")) {
+      relClass = DescriptorRelationshipJpa.class;
+      newRelationship = new DescriptorRelationshipJpa();
+    } else if (fromClassIdType.equals("CODE_SOURCE")) {
       relClass = CodeRelationshipJpa.class;
       newRelationship = new CodeRelationshipJpa();
+    } else if (fromClassIdType.equals("SRC_ATOM_ID")) {
+      relClass = AtomRelationshipJpa.class;
+      newRelationship = new AtomRelationshipJpa();
     } else {
-      throw new Exception("Error - unhandled class type: " + fromClass);
+      throw new Exception("Error - unhandled class type: " + fromClassIdType);
     }
 
     newRelationship.setAdditionalRelationshipType(additionalRelType);
@@ -494,8 +451,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     }
 
     // Create the inverse relationship
-    AbstractRelationship newInverseRelationship =
-        (AbstractRelationship) newRelationship.createInverseRelationship(
+    Relationship newInverseRelationship =
+        (Relationship) newRelationship.createInverseRelationship(
             newRelationship, inverseRelType, inverseAdditionalRelType);
 
     // Compute identity for relationship and its inverse
@@ -508,21 +465,22 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // Check to see if relationship with matching RUI already exists in the
     // database
-    Long oldRelationshipId =
-        getId(relClass, newRelationshipRui, newRelationship.getTerminology());
-    Long oldInverseRelationshipId = getId(relClass, newInverseRelationshipRui,
-        newInverseRelationship.getTerminology());
+    Relationship oldRelationship =
+        (Relationship) getComponent("RUI", newRelationshipRui,
+            getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
+    Relationship oldInverseRelationship =
+        (Relationship) getComponent("RUI", newInverseRelationshipRui,
+            getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
 
     // If no relationships with the same RUI exists, add this new
     // relationship
-    if (oldRelationshipId == null) {
+    if (oldRelationship == null) {
       newRelationship.getAlternateTerminologyIds()
-          .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
-      newRelationship = (AbstractRelationship) addRelationship(newRelationship);
+          .put(getProject().getTerminology(), newRelationshipRui);
+      newRelationship = (Relationship) addRelationship(newRelationship);
 
       addCount++;
-      putId(relClass, newRelationshipRui, newRelationship.getTerminology(),
-          newRelationship.getId());
+      putComponent(newRelationship, newRelationshipRui);
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
@@ -532,14 +490,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     else {
       boolean oldRelChanged = false;
 
-      final AbstractRelationship oldRelationship =
-          (AbstractRelationship) getRelationship(oldRelationshipId, relClass);
-
       // Update "alternateTerminologyIds" for the relationship
       if (!oldRelationship.getAlternateTerminologyIds()
-          .containsKey(getProject().getTerminology() + "-SRC")) {
+          .containsKey(getProject().getTerminology())) {
         oldRelationship.getAlternateTerminologyIds()
-            .put(getProject().getTerminology() + "-SRC", newRelationshipRui);
+            .put(getProject().getTerminology(), newRelationshipRui);
         oldRelChanged = true;
       }
 
@@ -575,16 +530,14 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // If no inverse relationships with the same RUI exists, add the new
     // inverse relationship
-    if (oldInverseRelationshipId == null) {
+    if (oldInverseRelationship == null) {
       newInverseRelationship.getAlternateTerminologyIds().put("SRC",
           newInverseRelationshipRui);
       newInverseRelationship =
-          (AbstractRelationship) addRelationship(newInverseRelationship);
+          (Relationship) addRelationship(newInverseRelationship);
 
       addCount++;
-      putId(relClass, newInverseRelationshipRui,
-          newInverseRelationship.getTerminology(),
-          newInverseRelationship.getId());
+      putComponent(newInverseRelationship, newInverseRelationshipRui);
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
@@ -594,15 +547,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     else {
       boolean oldInverseRelChanged = false;
 
-      final AbstractRelationship oldInverseRelationship =
-          (AbstractRelationship) getRelationship(oldInverseRelationshipId,
-              relClass);
-
       // Update "alternateTerminologyIds" for the atom
       if (!oldInverseRelationship.getAlternateTerminologyIds()
-          .containsKey(getProject().getTerminology() + "-SRC")) {
-        oldInverseRelationship.getAlternateTerminologyIds().put(
-            getProject().getTerminology() + "-SRC", newInverseRelationshipRui);
+          .containsKey(getProject().getTerminology())) {
+        oldInverseRelationship.getAlternateTerminologyIds()
+            .put(getProject().getTerminology(), newInverseRelationshipRui);
         oldInverseRelChanged = true;
       }
 
@@ -645,11 +594,9 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // Update the progress
     updateProgress();
 
-    logAndCommit("[Relationship Loader] Relationships processed ",
-        stepsCompleted, RootService.logCt, RootService.commitCt);
     handler.logAndCommit(
         "[Relationship Loader] Relationship Identities processed ",
-        stepsCompleted, RootService.logCt, RootService.commitCt);
+        getStepsCompleted(), RootService.logCt, RootService.commitCt);
 
   }
 
@@ -706,21 +653,6 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "RELATIONSHIPLOADING progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /**

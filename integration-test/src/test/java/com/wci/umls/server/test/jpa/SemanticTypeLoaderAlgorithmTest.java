@@ -26,8 +26,6 @@ import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.SemanticTypeLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
@@ -42,10 +40,10 @@ public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
   ProcessExecution processExecution = null;
 
   /** The process service. */
-  ProcessService processService = null;
+  ProcessServiceJpa processService = null;
 
   /** The content service. */
-  ContentService contentService = null;
+  ContentServiceJpa contentService = null;
 
   /** The project. */
   Project project = null;
@@ -131,10 +129,10 @@ public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testRelationshipLoader() throws Exception {
+  public void testSemanticTypeLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the RELATIONSHIPLOADER algorithm
+    // Run the SEMANTICTYPELOADER algorithm
     try {
 
       algo.setTransactionPerOperation(false);

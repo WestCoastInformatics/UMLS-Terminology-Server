@@ -167,10 +167,16 @@ tsApp
             if ($scope.processInterval) {
               $interval.cancel($scope.processInterval);
             }
+            if ($scope.stepInterval) {
+              $interval.cancel($scope.stepInterval);
+            }
+
             // Start polling for this one
-            $scope.processInterval = $interval(function() {
-              $scope.refreshProcessProgress();
-            }, 2000);
+            if ($scope.selected.mode == 'Execution') {
+              $scope.processInterval = $interval(function() {
+                $scope.refreshProcessProgress();
+              }, 2000);
+            }
 
           });
 
@@ -186,13 +192,8 @@ tsApp
             $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
             $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
 
-            // Start step progress monitor, if not already running
-            // Cancel any existing interval
-            if ($scope.stepInterval) {
-              $interval.cancel($scope.stepInterval);
-            }
             // Start polling
-            if (!$scope.stepInterval) {
+            if ($scope.selected.mode == 'Execution') {
               $scope.stepInterval = $interval(function() {
                 $scope.refreshStepProgress();
               }, 2000);
@@ -337,7 +338,8 @@ tsApp
           function() {
             console.debug('cancelled process');
             $timeout(function() {
-              $scope.selectProcess($scope.selected.process);
+              $scope.selec
+              tProcess($scope.selected.process);
             }, 1000);
           });
         }

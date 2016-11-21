@@ -1,9 +1,8 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -23,7 +22,10 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /**
    * The number of times the algorithm will print to the log before finishing.
    */
-  private Double num;
+  private int num;
+
+  /** The delay. */
+  private int delay = 1000;
 
   /**
    * Instantiates an empty {@link WaitAlgorithm}.
@@ -57,12 +59,12 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
       checkCancel();
-      Thread.sleep(1000);
+      Thread.sleep(delay);
       int currentProgress = (int) ((100.0 / num) * i);
-      if(currentProgress > previousProgress){
-      fireProgressEvent(currentProgress,
-          "WAIT progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
+      if (currentProgress > previousProgress) {
+        fireProgressEvent(currentProgress,
+            "WAIT progress: " + currentProgress + "%");
+        previousProgress = currentProgress;
       }
     }
 
@@ -84,7 +86,10 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     }, p);
 
     if (p.getProperty("num") != null) {
-      num = Double.parseDouble(p.getProperty("num"));
+      num = Integer.parseInt(p.getProperty("num"));
+    }
+    if (p.getProperty("delay") != null) {
+      delay = Integer.parseInt(p.getProperty("delay"));
     }
   }
 
@@ -94,9 +99,13 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,
-        AlgorithmParameter.Type.INTEGER);
+        AlgorithmParameter.Type.INTEGER,"");
     params.add(param);
-    
+    param = new AlgorithmParameterJpa("Delay", "delay",
+        "Delay time in milliseconds", "e.g. 500", 10,
+        AlgorithmParameter.Type.INTEGER,"");
+    params.add(param);
+
     return params;
   }
 

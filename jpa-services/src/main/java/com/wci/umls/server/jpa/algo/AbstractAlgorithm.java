@@ -175,12 +175,14 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   /**
    * Check cancel.
    *
+   * @return true, if successful
    * @throws CancelException the cancel exception
    */
-  public void checkCancel() throws CancelException {
+  public boolean checkCancel() throws CancelException {
     if (isCancelled()) {
       throw new CancelException("Operation cancelled");
     }
+    return false;
   }
 
   /**
@@ -210,13 +212,32 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    * @throws Exception the exception
    */
   public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
+    final ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
     logInfo("    " + pct + "% " + note);
   }
-  
+
+  /**
+   * Fire adusted progress event.
+   *
+   * @param pct the pct
+   * @param step the step
+   * @param steps the steps
+   * @param note the note
+   * @throws Exception the exception
+   */
+  public void fireAdjustedProgressEvent(int pct, int step, int steps,
+    String note) throws Exception {
+    final ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
+    for (int i = 0; i < listeners.size(); i++) {
+      listeners.get(i).updateProgress(pe);
+    }
+    logInfo("    " + ((int) (((pct * 1.0) / steps) + (step * 100.0 / steps)))
+        + "% " + note);
+  }
+
   /**
    * Fire warning event.
    *
@@ -228,7 +249,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-  }  
+  }
 
   /* see superclass */
   @Override

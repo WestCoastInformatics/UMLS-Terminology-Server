@@ -755,7 +755,7 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY);
+        AlgorithmParameter.Type.DIRECTORY,"");
     params.add(param);
     return params;
 

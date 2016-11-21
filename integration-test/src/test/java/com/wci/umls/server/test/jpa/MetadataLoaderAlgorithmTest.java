@@ -67,7 +67,7 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT");
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");
 
     // Create and configure the algorithm
     algo = new MetadataLoaderAlgorithm();

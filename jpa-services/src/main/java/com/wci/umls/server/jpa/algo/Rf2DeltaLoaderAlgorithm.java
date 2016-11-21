@@ -3324,7 +3324,7 @@ public class Rf2DeltaLoaderAlgorithm
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 Delta directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY);
+        AlgorithmParameter.Type.DIRECTORY,"");
     params.add(param);
     return params;
 

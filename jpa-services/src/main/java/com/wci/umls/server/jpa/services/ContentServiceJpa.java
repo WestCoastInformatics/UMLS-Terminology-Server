@@ -3260,6 +3260,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   protected <T extends Component> T getComponent(Long id, Class<T> clazz)
     throws Exception {
+    if (id == null) {
+      return null;
+    }
     // Get transaction and object
     tx = manager.getTransaction();
     T component = manager.find(clazz, id);
