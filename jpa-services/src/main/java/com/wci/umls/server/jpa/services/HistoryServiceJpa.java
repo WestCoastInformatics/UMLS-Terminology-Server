@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.NoResultException;

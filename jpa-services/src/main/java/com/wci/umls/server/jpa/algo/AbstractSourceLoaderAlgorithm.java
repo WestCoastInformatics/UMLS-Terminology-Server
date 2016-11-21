@@ -867,19 +867,20 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    */
   public Terminology getCachedTerminology(String terminologyAndVersion)
     throws Exception {
-    
-    // terminologyAndVersion strings can sometimes be prefixed with "E-", "L-",
-    // etc.
-    // Strip these out if found.
-    if (terminologyAndVersion.matches("^[A-Z]\\-(.*)")) {
-      terminologyAndVersion = terminologyAndVersion.substring(2);
-    }
 
     if (cachedTerminologies.isEmpty()) {
       cacheExistingTerminologies();
     }
 
-    return cachedTerminologies.get(terminologyAndVersion);
+    // terminologyAndVersion strings can sometimes be prefixed with "E-", "L-",
+    // etc.
+    // Strip these out if found.
+    if (terminologyAndVersion.matches("^[A-Z]\\-(.*)")) {
+      return cachedTerminologies.get(terminologyAndVersion.substring(2));
+    } else {
+      return cachedTerminologies.get(terminologyAndVersion);
+    }
+
   }
 
   /**
@@ -1051,6 +1052,7 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
    * @return the workflow status
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
 
     WorkflowStatus workflowStatus = null;
@@ -1067,6 +1069,51 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     }
 
     return workflowStatus;
+  }
+
+  /**
+   * Lookup relationship type.
+   *
+   * @param string the string
+   * @return the string
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public String lookupRelationshipType(String string) throws Exception {
+
+    String relationshipType = null;
+
+    switch (string) {
+      case "RT":
+        relationshipType = "RO";
+        break;
+      case "NT":
+        relationshipType = "RN";
+        break;
+      case "BT":
+        relationshipType = "RB";
+        break;
+      case "RT?":
+        relationshipType = "RQ";
+        break;
+      case "SY":
+        relationshipType = "SY";
+        break;
+      case "SFO/LFO":
+        relationshipType = "SY";
+        break;
+      case "PAR":
+        relationshipType = "PAR";
+        break;
+      case "CHD":
+        relationshipType = "CHD";
+        break;
+      default:
+        throw new Exception("Invalid relationship type: " + relationshipType);
+    }
+
+    return relationshipType;
+
   }
 
   /**

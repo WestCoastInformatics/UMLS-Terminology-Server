@@ -294,6 +294,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
    * @param lineList the line list
    * @return the list
    */
+  @SuppressWarnings("static-method")
   private List<String> removeDups(List<String> lineList) {
     // Make a set of the rela, ID1, and ID2, so you don't create duplicate
     // relationships.
@@ -452,8 +453,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // Create the inverse relationship
     Relationship newInverseRelationship =
-        (Relationship) newRelationship.createInverseRelationship(
-            newRelationship, inverseRelType, inverseAdditionalRelType);
+        newRelationship.createInverseRelationship(newRelationship,
+            inverseRelType, inverseAdditionalRelType);
 
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
@@ -465,19 +466,19 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // Check to see if relationship with matching RUI already exists in the
     // database
-    Relationship oldRelationship =
-        (Relationship) getComponent("RUI", newRelationshipRui,
-            getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
-    Relationship oldInverseRelationship =
-        (Relationship) getComponent("RUI", newInverseRelationshipRui,
-            getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
+    Relationship oldRelationship = (Relationship) getComponent("RUI",
+        newRelationshipRui,
+        getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
+    Relationship oldInverseRelationship = (Relationship) getComponent("RUI",
+        newInverseRelationshipRui,
+        getCachedTerminology(sourceTermAndVersion).getTerminology(), relClass);
 
     // If no relationships with the same RUI exists, add this new
     // relationship
     if (oldRelationship == null) {
       newRelationship.getAlternateTerminologyIds()
           .put(getProject().getTerminology(), newRelationshipRui);
-      newRelationship = (Relationship) addRelationship(newRelationship);
+      newRelationship = addRelationship(newRelationship);
 
       addCount++;
       putComponent(newRelationship, newRelationshipRui);
@@ -533,8 +534,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     if (oldInverseRelationship == null) {
       newInverseRelationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
           newInverseRelationshipRui);
-      newInverseRelationship =
-          (Relationship) addRelationship(newInverseRelationship);
+      newInverseRelationship = addRelationship(newInverseRelationship);
 
       addCount++;
       putComponent(newInverseRelationship, newInverseRelationshipRui);
@@ -600,49 +600,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   }
 
-  /**
-   * Lookup relationship type.
-   *
-   * @param string the string
-   * @return the string
-   * @throws Exception the exception
-   */
-  private String lookupRelationshipType(String string) throws Exception {
 
-    String relationshipType = null;
-
-    switch (string) {
-      case "RT":
-        relationshipType = "RO";
-        break;
-      case "NT":
-        relationshipType = "RN";
-        break;
-      case "BT":
-        relationshipType = "RB";
-        break;
-      case "RT?":
-        relationshipType = "RQ";
-        break;
-      case "SY":
-        relationshipType = "SY";
-        break;
-      case "SFO/LFO":
-        relationshipType = "SY";
-        break;
-      case "PAR":
-        relationshipType = "PAR";
-        break;
-      case "CHD":
-        relationshipType = "CHD";
-        break;
-      default:
-        throw new Exception("Invalid relationship type: " + relationshipType);
-    }
-
-    return relationshipType;
-
-  }
 
   /**
    * Reset.

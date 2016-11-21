@@ -12,8 +12,8 @@ tsApp.controller('EditProjectModalCtrl', [
   'validationChecks',
   'action',
   'project',
-  function($scope, $uibModalInstance, securityService, utilService, metadataService, projectService, selected,
-    lists, user, validationChecks, action, project) {
+  function($scope, $uibModalInstance, securityService, utilService, metadataService,
+    projectService, selected, lists, user, validationChecks, action, project) {
 
     // Scope variables
     $scope.action = action;
@@ -97,11 +97,13 @@ tsApp.controller('EditProjectModalCtrl', [
 
     // Add the project
     $scope.submitProject = function(project) {
+      $scope.errors = [];
+
       if (!project || !project.name || !project.description || !project.terminology) {
-        window.alert('The name, description, and terminology fields cannot be blank. ');
+        $scope.errors.push('The name, description, and terminology fields cannot be blank. ');
         return;
       }
-      
+
       // Connect validation checks
       project.validationChecks = [];
       for (var i = 0; i < $scope.validationChecks.length; i++) {

@@ -1659,10 +1659,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
           if (!ConfigUtility.isEmpty(recipients)) {
             final Properties config = ConfigUtility.getConfigProperties();
+            String from;
+            if (config.containsKey("mail.smtp.from")) {
+              from = config.getProperty("mail.smtp.from");
+            } else {
+              from = config.getProperty("mail.smtp.user");
+            }
             ConfigUtility.sendEmail(
                 "[Terminology Server] Run Complete for Process: "
                     + processExecution.getName(),
-                config.getProperty("mail.smtp.user"), recipients,
+                from, recipients,
                 processService.getProcessLog(projectId, processExecutionId),
                 config, "true".equals(config.get("mail.smtp.auth")));
           }
@@ -1697,15 +1703,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (!ConfigUtility.isEmpty(recipients)) {
             try {
               final Properties config = ConfigUtility.getConfigProperties();
+              String from = null;
+              if (config.containsKey("mail.smtp.from")) {
+                from = config.getProperty("mail.smtp.from");
+              } else {
+                from = config.getProperty("mail.smtp.user");
+              }
               ConfigUtility.sendEmail(
                   "[Terminology Server] Process Run Failed for Process: "
                       + processExecution.getName() + " at Algorithm step: "
                       + algorithmExecution.getName(),
-                  config.getProperty("mail.smtp.user"), recipients,
+                  from, recipients,
                   processService.getProcessLog(projectId, processExecutionId),
                   config, "true".equals(config.get("mail.smtp.auth")));
             } catch (Exception e2) {
-              // n/a
+              e2.printStackTrace();
             }
           }
 

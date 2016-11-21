@@ -62,23 +62,28 @@ public class ExceptionHandler {
     }
 
     try {
-      Properties config = ConfigUtility.getConfigProperties();
-      String subject = "Terminology Server Error Report";
-      String from = config.getProperty("mail.smtp.user");
-      String recipients = config.getProperty("mail.smtp.to");
+      final Properties config = ConfigUtility.getConfigProperties();
+      final String subject = "Terminology Server Error Report";
+      String from = null;
+      if (config.containsKey("mail.smtp.from")) {
+        from = config.getProperty("mail.smtp.from");
+      } else {
+        from = config.getProperty("mail.smtp.user");
+      }
+      final String recipients = config.getProperty("mail.smtp.to");
 
       // Bail if no recipients
       if (recipients == null || recipients.isEmpty()) {
         return;
       }
 
-      Properties props = new Properties();
+      final Properties props = new Properties();
       for (final Object prop : config.keySet()) {
         if (prop.toString().startsWith("mail.smtp")) {
           props.put(prop.toString(), config.getProperty(prop.toString()));
         }
       }
-      StringBuilder body = new StringBuilder();
+      final StringBuilder body = new StringBuilder();
       if (!(e instanceof LocalException))
         body.append("Unexpected error " + whatIsHappening
             + ". Please contact the administrator.").append("\n\n");
@@ -93,8 +98,8 @@ public class ExceptionHandler {
       body.append("USER: " + userName).append("\n");
 
       body.append("MESSAGE: " + e.getMessage()).append("\n\n");
-      StringWriter out = new StringWriter();
-      PrintWriter pw = new PrintWriter(out);
+      final StringWriter out = new StringWriter();
+      final PrintWriter pw = new PrintWriter(out);
       e.printStackTrace(pw);
       body.append(out.getBuffer());
       Logger.getLogger(ExceptionHandler.class)

@@ -3,7 +3,7 @@
  */
 package com.wci.umls.server.code;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,20 +22,24 @@ import org.junit.Test;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 
 /**
- * Unit testing to ensure copy constructors of model classes do not use "for ("
- * The current thinking is that collections are copied but contents are not.
- * Objects references are left unchanged. The alternative would be to ALWAYS
- * copy them (or use some variation of "deep" for that).
+ * Unit testing to ensure equals methods of model classes do not ever use these
+ * fields in equality testing:
+ * 
+ * <pre>
+ * 1. id
+ * 2. lastModified
+ * 3. lastModifiedBy
+ * 4. timestamp
+ * </pre>
  */
-public class CopyConstructorForLoopTest extends ModelUnitSupport {
+public class SetIsTest extends ModelUnitSupport {
 
   /** The paths. */
   private static Set<Path> paths;
 
   /**
    * Setup class.
-   *
-   * @throws IOException Signals that an I/O exception has occurred.
+   * @throws IOException
    */
   @BeforeClass
   public static void setupClass() throws IOException {
@@ -48,8 +52,7 @@ public class CopyConstructorForLoopTest extends ModelUnitSupport {
 
   /**
    * Setup.
-   *
-   * @throws Exception the exception
+   * @throws Exception
    */
   @Before
   public void setup() throws Exception {
@@ -62,26 +65,16 @@ public class CopyConstructorForLoopTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testForLoopInCopyConstructor() throws Exception {
+  public void testSetIs() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    boolean found = false;
     for (final Path path : paths) {
-      String pathName = path.toString();
-      String className = pathName.substring(
-          Math.max(pathName.lastIndexOf("/"), pathName.lastIndexOf("\\")) + 1)
-          .replace(".java", "");
-      final String method = getMethodText(
-          "public " + className + "(" + className.substring(0, 1), path);
+      final String method = getMethodText(" setIs", path);
       if (!method.isEmpty()) {
-        // Assert id is not used
-        if (method.contains("for (")) {
-          found = true;
-          Logger.getLogger(getClass()).info("  for loop = " + className);
-        }
+        fail("No method should start with setIsXXX, use setXXX instead - "
+            + path);
       }
     }
-    assertFalse("Found problems in copy constructors, see log.", found);
 
   }
 
