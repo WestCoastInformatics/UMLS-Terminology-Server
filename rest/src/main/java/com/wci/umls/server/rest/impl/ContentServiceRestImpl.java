@@ -574,6 +574,18 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           }
           algo3.compute();
           algo3.close();
+
+          // Also try "atom" just in case the organizing class
+          // type doesn't have PAR/CHD - this handles legacy terminologies
+          algo3 = new TreePositionAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(t.getTerminology());
+          algo3.setVersion(t.getVersion());
+          algo3.setIdType(IdType.ATOM);
+          // some terminologies may have cycles, allow these for now.
+          algo3.setCycleTolerant(true);
+          algo3.compute();
+          algo3.close();
         }
       }
 
@@ -598,7 +610,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         }
       }
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
       algo.close();
