@@ -1232,6 +1232,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Set term-type suppress
       loadedTermTypes.get(fields[2]).setSuppressible(fields[3].equals("Y"));
+      updateTermType(loadedTermTypes.get(fields[2]));
     }
 
     final KeyValuePairList kvpl = new KeyValuePairList();

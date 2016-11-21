@@ -72,6 +72,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     writeMrdoc();
     fireProgressEvent(25, "Progress: " + 25 + "%");
     writeMrsab();
+    // TODO: rework progress monitor to only monitor writeMrsab() step, since that step takes 99% of the time
     fireProgressEvent(50, "Progress: " + 50 + "%");
     writeMrrank();
     fireProgressEvent(75, "Progress: " + 75 + "%");
@@ -97,7 +98,14 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(String.format("%04d", index--)).append("|");
       sb.append(pair.getKey()).append("|");
       sb.append(pair.getValue()).append("|");
-      sb.append("N").append("|");   // TODO SUPPRESS  (ignored on input side)
+      TermType tty = this.getTermType(pair.getValue(), getProject().getTerminology(), getProject().getVersion());
+      String suppress = "";
+      if (tty.isSuppressible()) {
+        suppress = "Y";
+      } else {
+        suppress = "N";
+      }
+      sb.append(suppress).append("|");
       out.print(sb.toString() + "\n");
     }
     
