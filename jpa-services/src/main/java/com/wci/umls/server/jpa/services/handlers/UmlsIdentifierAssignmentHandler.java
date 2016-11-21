@@ -70,13 +70,15 @@ public class UmlsIdentifierAssignmentHandler
   /** The ui lengths. */
   private Map<String, Integer> lengthMap = new HashMap<>();
 
+  /** The project terminology. */
+  private String projectTerminology = null;
+  
   /** The max concept id. */
   private long maxConceptId = -1;
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-
     if (p != null) {
       if (p.containsKey("aui.length")) {
         lengthMap.put("AUI", Integer.valueOf(p.getProperty("aui.length")));
@@ -114,6 +116,10 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
       }
+      //Also set project terminology string
+      if(p.containsKey("projectTerminology")){
+        projectTerminology = p.getProperty("projectTerminology");
+      }
     }
   }
 
@@ -142,7 +148,9 @@ public class UmlsIdentifierAssignmentHandler
         query.setParameter("terminology", concept.getTerminology());
         query.setParameter("version", concept.getVersion());
         query.setParameter("prefix", prefixMap.get("CUI") + "%");
-        final Long conceptId2 = new Long(query.getSingleResult().toString().substring(1)); // TODO ok?
+        final Long conceptId2 =
+            new Long(query.getSingleResult().toString().substring(1)); // TODO
+                                                                       // ok?
         conceptId = conceptId2 != null ? conceptId2 : conceptId;
       } catch (NoResultException e) {
         conceptId = 0L;
@@ -336,16 +344,13 @@ public class UmlsIdentifierAssignmentHandler
         final AttributeIdentity identity = new AttributeIdentityJpa();
         identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
-        //TODO question - what the heck set ComponentId to!?  It looks like it's all over the place
-        //TODO question - componentId looks like ALTERNATE TerminologyId...  If so, need project
-        identity.setComponentId(component.getTerminologyId());
-        //TODO question - may need to do things this way?
+        //TODO - requestion
         if (component instanceof AtomClass){
           identity.setComponentId(component.getTerminologyId());
         }
         if(component instanceof Atom){
-          identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get("UMLS"));
-        }
+          identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get(projectTerminology));
+        }        
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());

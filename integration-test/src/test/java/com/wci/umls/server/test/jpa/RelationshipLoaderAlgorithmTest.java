@@ -191,7 +191,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       relList = contentService.findConceptRelationships("C37447", "NCI",
           "2016_05E", Branch.ROOT, "toTerminologyId:C1971", false, null);
       assertEquals(1, relList.size());
-
+      
       relList = contentService.findConceptRelationships("C37447", "NCI",
           "2016_05E", Branch.ROOT, "fromTerminologyId:C1971", true, null);
       assertEquals(1, relList.size());
