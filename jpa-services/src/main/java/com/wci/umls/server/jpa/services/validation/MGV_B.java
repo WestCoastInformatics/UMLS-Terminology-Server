@@ -59,6 +59,11 @@ public class MGV_B extends AbstractValidationCheck {
     //
     final List<TypeKeyValue> sources = project.getValidationDataFor(getName());
 
+      if(sources==null){
+        result.getErrors().add(
+            getName() + ": Project has no source terminology data associated with this check.");
+      }
+    
     final List<String> terminologies =
         sources.stream().map(TypeKeyValue::getKey).collect(Collectors.toList());
 

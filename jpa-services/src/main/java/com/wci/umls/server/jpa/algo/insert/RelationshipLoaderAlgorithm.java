@@ -531,7 +531,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // If no inverse relationships with the same RUI exists, add the new
     // inverse relationship
     if (oldInverseRelationship == null) {
-      newInverseRelationship.getAlternateTerminologyIds().put("SRC",
+      newInverseRelationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
           newInverseRelationshipRui);
       newInverseRelationship =
           (Relationship) addRelationship(newInverseRelationship);

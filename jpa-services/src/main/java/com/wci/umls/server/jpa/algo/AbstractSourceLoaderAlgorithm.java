@@ -40,6 +40,8 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Abstract support for source-file loader algorithms.
@@ -55,6 +57,10 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
+  /**  The search handler. */
+  public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+   
+  
   /** The full directory where the src files are. */
   private File srcDirFile = null;
 
@@ -1127,4 +1133,14 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     relCachedTerms.clear();
     relIdCache.clear();
   }
+  
+  //TODO - recheck in on this one.
+  private void clearRelationshipAltTerminologies() {
+
+    //Lookup alt Ids where KEY = project.getTerminology()+"-SRC"??
+    
+    //Load relationship, remove altId, update relationship.
+    
+  }  
+  
 }
