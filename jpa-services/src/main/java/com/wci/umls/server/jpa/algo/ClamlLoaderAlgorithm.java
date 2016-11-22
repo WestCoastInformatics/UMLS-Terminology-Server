@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -2047,11 +2047,15 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
         "inputFile"
     }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("inputFile") != null) {
       setInputPath(p.getProperty("inputFile"));
@@ -2063,9 +2067,9 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param =
-        new AlgorithmParameterJpa("Input File", "inputFile",
-            "Input ClaML file to load", "", 255, AlgorithmParameter.Type.FILE,"");
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input File",
+        "inputFile", "Input ClaML file to load", "", 255,
+        AlgorithmParameter.Type.FILE, "");
     params.add(param);
     return params;
 

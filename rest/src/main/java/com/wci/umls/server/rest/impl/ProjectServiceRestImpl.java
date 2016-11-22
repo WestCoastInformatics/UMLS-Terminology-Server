@@ -83,14 +83,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/add")
+  @Path("/")
   @ApiOperation(value = "Add new project", notes = "Creates a new project", response = ProjectJpa.class)
   public Project addProject(
     @ApiParam(value = "Project, e.g. newProject", required = true) ProjectJpa project,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Project): /add " + project);
+    Logger.getLogger(getClass()).info("RESTful call (Project): / " + project);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -126,14 +125,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/update")
+  @Path("/")
   @ApiOperation(value = "Update project", notes = "Updates the specified project")
   public void updateProject(
     @ApiParam(value = "Project, e.g. existingProject", required = true) ProjectJpa project,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Project): /update " + project);
+    Logger.getLogger(getClass()).info("RESTful call (Project): / " + project);
 
     // Create service and configure transaction scope
     final ProjectService projectService = new ProjectServiceJpa();
@@ -167,13 +165,13 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/remove/{id}")
+  @Path("/{id}")
   @ApiOperation(value = "Remove project", notes = "Removes the project with the specified id")
   public void removeProject(
     @ApiParam(value = "Project id, e.g. 3", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /remove/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /" + id);
 
     final ProjectService projectService = new ProjectServiceJpa();
     try {
@@ -512,7 +510,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
       // reread to show
       project = projectService.getProject(projectId);
-     
+
       user.getProjectRoleMap().remove(projectCopy);
       securityService.updateUser(user);
 
@@ -534,7 +532,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/all")
+  @Path("/find")
   @ApiOperation(value = "Finds projects", notes = "Finds projects for the specified query", response = ProjectListJpa.class)
   public ProjectList findProjects(
     @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
@@ -542,7 +540,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Project): /all, " + pfs);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /find, " + pfs);
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find projects",
@@ -801,9 +799,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @GET
+  @POST
   @Path("/reload")
-  @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches", response = String.class)
+  @ApiOperation(value = "Reload config properties", notes = "Reloads config properties and clears caches")
   public void reloadConfigProperties(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -826,9 +824,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @GET
+  @POST
   @Path("/exception")
-  @ApiOperation(value = "Force an exception", notes = "Forces an exception, to test email handling.", response = String.class)
+  @ApiOperation(value = "Force an exception", notes = "Forces an exception, to test email handling.")
   public void forceException(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @QueryParam("local") Boolean localFlag,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)

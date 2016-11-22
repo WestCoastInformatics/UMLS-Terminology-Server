@@ -239,10 +239,14 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
+    // n/a
   }
 
   /* see superclass */

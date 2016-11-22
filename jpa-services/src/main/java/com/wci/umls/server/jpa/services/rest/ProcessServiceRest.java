@@ -143,11 +143,24 @@ public interface ProcessServiceRest {
    * Update algorithm config.
    *
    * @param projectId the project id
+   * @param processId the process id
    * @param algorithmConfig the algorithm config
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateAlgorithmConfig(Long projectId,
+  public void updateAlgorithmConfig(Long projectId, Long processId,
+    AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
+
+  /**
+   * Validate algorithm config.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param algorithmConfig the algorithm config
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void validateAlgorithmConfig(Long projectId, Long processId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
 
   /**
@@ -237,9 +250,10 @@ public interface ProcessServiceRest {
    * @param projectId the project id
    * @param id the id
    * @param authToken the auth token
+   * @return the processId
    * @throws Exception the exception
    */
-  public void cancelProcess(Long projectId, Long id, String authToken)
+  public Long cancelProcess(Long projectId, Long id, String authToken)
     throws Exception;
 
   /**
@@ -249,9 +263,10 @@ public interface ProcessServiceRest {
    * @param id the id
    * @param background the background
    * @param authToken the auth token
+   * @return the processId
    * @throws Exception the exception
    */
-  public void restartProcess(Long projectId, Long id, Boolean background,
+  public Long restartProcess(Long projectId, Long id, Boolean background,
     String authToken) throws Exception;
 
   /**
@@ -299,8 +314,8 @@ public interface ProcessServiceRest {
    * @return the algorithm log
    * @throws Exception the exception
    */
-  public String getAlgorithmLog(Long projectId, Long algorithmId, String authToken)
-      throws Exception;
+  public String getAlgorithmLog(Long projectId, Long algorithmId,
+    String authToken) throws Exception;
 
   /**
    * New algorithm config.
@@ -313,6 +328,5 @@ public interface ProcessServiceRest {
    */
   public AlgorithmConfig newAlgorithmConfig(Long projectId, String key,
     String authToken) throws Exception;
-  
-  
+
 }

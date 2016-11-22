@@ -44,12 +44,10 @@ public class HistoryClientRest implements HistoryServiceRest {
   public ReleaseInfoList getReleaseHistory(String terminology, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/releases/"
-            + terminology);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/history/releases/" + terminology);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -76,12 +74,10 @@ public class HistoryClientRest implements HistoryServiceRest {
   public ReleaseInfo getCurrentReleaseInfo(String terminology, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/release/"
-            + terminology + "/current");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/history/release/" + terminology + "/current");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -105,15 +101,13 @@ public class HistoryClientRest implements HistoryServiceRest {
 
   /* see superclass */
   @Override
-  public ReleaseInfo getPreviousReleaseInfo(String terminology, String authToken)
-    throws Exception {
+  public ReleaseInfo getPreviousReleaseInfo(String terminology,
+    String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/release/"
-            + terminology + "/previous");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/history/release/" + terminology + "/previous");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -140,12 +134,10 @@ public class HistoryClientRest implements HistoryServiceRest {
   public ReleaseInfo getPlannedReleaseInfo(String terminology, String authToken)
     throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/release/"
-            + terminology + "/planned");
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/history/release/" + terminology + "/planned");
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -172,12 +164,10 @@ public class HistoryClientRest implements HistoryServiceRest {
   public ReleaseInfo getReleaseInfo(String terminology, String name,
     String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/release/"
-            + terminology + "/" + name);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).get();
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/history/release/" + terminology + "/" + name);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
       return null;
     }
@@ -197,18 +187,16 @@ public class HistoryClientRest implements HistoryServiceRest {
 
   /* see superclass */
   @Override
-  public ReleaseInfo addReleaseInfo(ReleaseInfoJpa releaseInfo, String authToken)
-    throws Exception {
+  public ReleaseInfo addReleaseInfo(ReleaseInfoJpa releaseInfo,
+    String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/history/release/add");
-    String riString =
-        ConfigUtility.getStringForGraph(releaseInfo == null
-            ? new ReleaseInfoJpa() : releaseInfo);
+        client.target(config.getProperty("base.url") + "/history/release");
+    String riString = ConfigUtility.getStringForGraph(
+        releaseInfo == null ? new ReleaseInfoJpa() : releaseInfo);
     Logger.getLogger(this.getClass()).debug(riString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).put(Entity.xml(riString));
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(riString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -231,15 +219,12 @@ public class HistoryClientRest implements HistoryServiceRest {
     throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/history/release/update");
-    String riString =
-        ConfigUtility.getStringForGraph(releaseInfo == null
-            ? new ReleaseInfoJpa() : releaseInfo);
+        client.target(config.getProperty("base.url") + "/history/release");
+    String riString = ConfigUtility.getStringForGraph(
+        releaseInfo == null ? new ReleaseInfoJpa() : releaseInfo);
     Logger.getLogger(this.getClass()).debug(riString);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.xml(riString));
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(riString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -254,12 +239,10 @@ public class HistoryClientRest implements HistoryServiceRest {
   public void removeReleaseInfo(Long id, String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/history/release/remove/" + id);
+        client.target(config.getProperty("base.url") + "/history/release" + id);
 
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).delete();
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -274,13 +257,11 @@ public class HistoryClientRest implements HistoryServiceRest {
   public void startEditingCycle(String releaseVersion, String terminology,
     String version, String authToken) throws Exception {
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url")
-            + "/history/release/startEditingCycle/" + releaseVersion + "/"
-            + terminology + "/" + version);
-    Response response =
-        target.request(MediaType.APPLICATION_XML)
-            .header("Authorization", authToken).post(Entity.text(""));
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/history/release/startEditingCycle/"
+            + releaseVersion + "/" + terminology + "/" + version);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing

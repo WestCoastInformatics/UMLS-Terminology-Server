@@ -3406,12 +3406,23 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "inputDir"
+        "inputFile"
     }, p);
+  }
 
-    if (p.getProperty("codesFlag") != null) {
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+    if (p.getProperty("codesFlag") != null)
+
+    {
       codesFlag = Boolean.valueOf(p.getProperty("codesFlag"));
     }
     if (p.getProperty("singleMode") != null) {
@@ -3434,26 +3445,26 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RRF directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY,"");
+        AlgorithmParameter.Type.DIRECTORY, "");
     params.add(param);
     param = new AlgorithmParameterJpa("Codes Flag", "codesFlag",
         "Indicator of whether to load CodeJpa objects or not", "true", -1,
-        AlgorithmParameter.Type.BOOLEAN,"");
+        AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
     param = new AlgorithmParameterJpa("Single Mode", "singleMode",
         "Indicator of whether to load a single terminology or all objects or not",
-        "true", -1, AlgorithmParameter.Type.BOOLEAN,"");
+        "true", -1, AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
     param = new AlgorithmParameterJpa("Prefix", "prefix",
         "File name prefix for data set", "MR", -1,
-        AlgorithmParameter.Type.STRING,"");
+        AlgorithmParameter.Type.STRING, "");
     param.setPossibleValues(Arrays.asList(new String[] {
         "MR", "RXN"
     }));
     params.add(param);
     param = new AlgorithmParameterJpa("Proxy Terminology", "proxyTerminology",
         "Proxy terminology value in RRF data", "MTH", 50,
-        AlgorithmParameter.Type.STRING,"");
+        AlgorithmParameter.Type.STRING, "");
     params.add(param);
 
     return params;

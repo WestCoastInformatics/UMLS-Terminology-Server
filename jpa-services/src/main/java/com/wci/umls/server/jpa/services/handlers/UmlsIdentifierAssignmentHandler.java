@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
 import com.wci.umls.server.jpa.meta.AttributeIdentityJpa;
@@ -54,7 +55,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Default implementation of {@link IdentifierAssignmentHandler}. This supports
  * "application-managed" identifier assignment.
  */
-public class UmlsIdentifierAssignmentHandler
+public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     implements IdentifierAssignmentHandler {
 
   /** The service. */
@@ -71,7 +72,7 @@ public class UmlsIdentifierAssignmentHandler
 
   /** The project terminology. */
   private String projectTerminology = null;
-  
+
   /** The max concept id. */
   private long maxConceptId = -1;
 
@@ -115,8 +116,8 @@ public class UmlsIdentifierAssignmentHandler
       if (p.containsKey("sui.prefix")) {
         prefixMap.put("SUI", p.getProperty("sui.prefix"));
       }
-      //Also set project terminology string
-      if(p.containsKey("projectTerminology")){
+      // Also set project terminology string
+      if (p.containsKey("projectTerminology")) {
         projectTerminology = p.getProperty("projectTerminology");
       }
     }

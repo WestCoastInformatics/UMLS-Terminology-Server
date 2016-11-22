@@ -532,8 +532,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // If no inverse relationships with the same RUI exists, add the new
     // inverse relationship
     if (oldInverseRelationship == null) {
-      newInverseRelationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
-          newInverseRelationshipRui);
+      newInverseRelationship.getAlternateTerminologyIds()
+          .put(getProject().getTerminology(), newInverseRelationshipRui);
       newInverseRelationship = addRelationship(newInverseRelationship);
 
       addCount++;
@@ -600,8 +600,6 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   }
 
-
-
   /**
    * Reset.
    *
@@ -613,19 +611,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
   /**

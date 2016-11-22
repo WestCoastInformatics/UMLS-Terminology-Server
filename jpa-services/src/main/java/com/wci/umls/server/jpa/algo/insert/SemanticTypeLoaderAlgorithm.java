@@ -86,8 +86,8 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // Set up the search handler
     final ComputePreferredNameHandler prefNameHandler =
-        getComputePreferredNameHandler(getProject().getTerminology());       
-    
+        getComputePreferredNameHandler(getProject().getTerminology());
+
     // Count number of added and updated Semantic Types, for logging
     int addCount = 0;
     int updateCount = 0;
@@ -239,26 +239,18 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {

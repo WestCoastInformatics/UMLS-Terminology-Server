@@ -15,13 +15,15 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 
 /**
  * Implements a normalized string handler based on the Lucune
  * {@link StandardAnalyzer}.
  */
-public class LuceneNormalizedStringHandler implements NormalizedStringHandler {
+public class LuceneNormalizedStringHandler extends AbstractConfigurable
+    implements NormalizedStringHandler {
 
   /* see superclass */
   @Override

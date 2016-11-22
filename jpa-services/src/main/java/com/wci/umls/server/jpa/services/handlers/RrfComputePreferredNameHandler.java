@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -21,7 +22,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * Implementation {@link ComputePreferredNameHandler} for data with term-type
  * ordering.
  */
-public class RrfComputePreferredNameHandler
+public class RrfComputePreferredNameHandler extends AbstractConfigurable
     implements ComputePreferredNameHandler {
 
   /** The tty rank map. */
@@ -65,6 +66,7 @@ public class RrfComputePreferredNameHandler
     return null;
   }
 
+  /* see superclass */
   @Override
   public List<Atom> sortAtoms(Collection<Atom> atoms, PrecedenceList list)
     throws Exception {

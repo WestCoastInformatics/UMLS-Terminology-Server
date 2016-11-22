@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -40,7 +41,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
+public class DefaultGraphResolutionHandler extends AbstractConfigurable implements GraphResolutionHandler {
 
   /* see superclass */
   @Override

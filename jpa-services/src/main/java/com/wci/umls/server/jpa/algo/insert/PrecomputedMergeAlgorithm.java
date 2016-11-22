@@ -241,18 +241,17 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "mergeSet"
+    }, p);
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
 
     if (p.getProperty("mergeSet") != null) {
       mergeSet = String.valueOf(p.getProperty("mergeSet"));

@@ -6,9 +6,9 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
@@ -17,14 +17,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  * Default implementation of {@link ComputePreferredNameHandler}. This is a
  * dummy implelmentation just to ensure an example exists.
  */
-public class DefaultComputePreferredNameHandler
+public class DefaultComputePreferredNameHandler extends AbstractConfigurable
     implements ComputePreferredNameHandler {
-
-  /* see superclass */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // Needs a precedence list
-  }
 
   /* see superclass */
   @Override

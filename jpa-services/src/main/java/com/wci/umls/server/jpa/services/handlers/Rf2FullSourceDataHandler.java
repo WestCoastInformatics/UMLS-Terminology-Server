@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -175,6 +176,11 @@ public class Rf2FullSourceDataHandler extends AbstractSourceDataHandler {
   public void reset() throws Exception {
     // do nothing
 
+  }
+
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
   }
 
 }

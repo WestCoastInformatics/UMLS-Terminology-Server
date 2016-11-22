@@ -80,10 +80,16 @@ public class WaitAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "num"
+        "num", "delay"
     }, p);
+    setProperties(p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("num") != null) {
       num = Integer.parseInt(p.getProperty("num"));
@@ -99,11 +105,12 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,
-        AlgorithmParameter.Type.INTEGER,"");
+        AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
+    // Test a "default" value
     param = new AlgorithmParameterJpa("Delay", "delay",
         "Delay time in milliseconds", "e.g. 500", 10,
-        AlgorithmParameter.Type.INTEGER,"");
+        AlgorithmParameter.Type.INTEGER, "500");
     params.add(param);
 
     return params;

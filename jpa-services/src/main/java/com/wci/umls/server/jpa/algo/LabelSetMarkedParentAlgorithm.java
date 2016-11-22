@@ -270,9 +270,14 @@ public class LabelSetMarkedParentAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
-    // Unable to set via properteis
-    throw new UnsupportedOperationException();
+    // n/a
   }
 
 }

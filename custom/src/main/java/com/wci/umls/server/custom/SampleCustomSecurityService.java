@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.custom;
 
@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
@@ -21,7 +22,8 @@ import com.wci.umls.server.services.handlers.SecurityServiceHandler;
  * {@link DefaultSecurityServiceHandler} but exists to demonstrate how and where
  * to use a custom handler.
  */
-public class SampleCustomSecurityService implements SecurityServiceHandler {
+public class SampleCustomSecurityService extends AbstractConfigurable
+    implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;
@@ -87,12 +89,6 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     return user;
   }
 
-  /* see superclass */
-  @Override
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
-
   /**
    * Returns the viewer users from config file.
    *
@@ -136,6 +132,7 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     return userSet;
   }
 
+  /* see superclass */
   @Override
   public String getName() {
     return "Sample Custom Security Service";

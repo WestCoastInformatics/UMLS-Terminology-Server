@@ -216,11 +216,15 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "inputDir"
+        "inputFile"
     }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("inputDir") != null) {
       setInputPath(p.getProperty("inputDir"));
@@ -234,7 +238,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 Full directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY,"");
+        AlgorithmParameter.Type.DIRECTORY, "");
     params.add(param);
     return params;
 

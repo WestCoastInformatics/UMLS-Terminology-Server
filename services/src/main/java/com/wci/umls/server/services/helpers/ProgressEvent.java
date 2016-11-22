@@ -98,6 +98,11 @@ public class ProgressEvent {
     return source;
   }
 
+  /**
+   * Indicates whether or not warning is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
   public boolean isWarning() {
     return warning;
   }

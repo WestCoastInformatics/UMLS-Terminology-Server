@@ -45,26 +45,28 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
 
     fireProgressEvent(0, "Progress: " + 0 + "%");
     logInfo("Starting Compute concept preferred names");
-    
+
     int objectCt = 0;
     final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from ConceptJpa a WHERE a.publishable = true and terminology = :terminology");
+    org.hibernate.Query hQuery = session.createQuery(
+        "select a from ConceptJpa a WHERE a.publishable = true and terminology = :terminology");
 
     hQuery.setParameter("terminology", getProject().getTerminology());
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    ComputePreferredNameHandler handler = getComputePreferredNameHandler(getProject().getTerminology());
-    setMolecularActionFlag(false);  
+    ComputePreferredNameHandler handler =
+        getComputePreferredNameHandler(getProject().getTerminology());
+    setMolecularActionFlag(false);
     while (results.next()) {
       final Concept c = (Concept) results.get()[0];
-      String computedName = handler.computePreferredName(c.getAtoms(), getProject().getPrecedenceList());
+      String computedName = handler.computePreferredName(c.getAtoms(),
+          getProject().getPrecedenceList());
       if (!computedName.equals(c.getName())) {
         c.setName(computedName);
         updateConcept(c);
       }
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-    }  
+    }
 
     logInfo("Finished Compute concept preferred names");
     fireProgressEvent(100, "Progress: " + 100 + "%");
@@ -75,6 +77,14 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
   }
 
   /* see superclass */

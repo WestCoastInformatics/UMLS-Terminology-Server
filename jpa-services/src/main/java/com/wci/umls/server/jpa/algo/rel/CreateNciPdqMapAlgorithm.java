@@ -45,9 +45,16 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
+  }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
 }
