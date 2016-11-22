@@ -118,9 +118,25 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
     out.println(
         "362262317|NCI_2016_05E|NCI_2016_05E/PT|C98033|R|Y|N|Sancycline|N||C98033||ENG|362262317|");
     out.println(
+        "362209840|NCI_2016_05E|NCI_2016_05E/PT|C63923|R|Y|N|FDA Established Names and Unique Ingredient Identifier Codes Terminology|N||C63923||ENG|362209840|");
+    out.println(
+        "362199578|NCI_2016_05E|NCI_2016_05E/PT|C16484|R|Y|N|Cytochrome P450|N||C16484||ENG|362199578|");
+    out.println(
+        "362199564|NCI_2016_05E|NCI_2016_05E/PT|C25948|R|Y|N|Cytochrome P450 2C19|N||C25948||ENG|362199564|");
+    out.println(
+        "362168904|NCI_2016_05E|NCI_2016_05E/PT|C37447|R|Y|N|ABT-510|N||C37447||ENG|362168904|");
+    out.println(
+        "362174335|NCI_2016_05E|NCI_2016_05E/PT|C1971|R|Y|N|Angiogenesis Activator Inhibitor|N||C1971||ENG|362174335|");
+    out.println(
         "362502242|NCI_2016_05E|NCI_2016_05E/SY|C118465|R|Y|N|T2/FLAIR|N||C118465||ENG|362502242|");
+    out.println(
+        "362249700|NCI_2016_05E|NCI_2016_05E/PT|C48571|R|Y|N|Percent Volume per Volume|N||C48571||ENG|362249700|");
+    out.println(
+        "362281363|ICH_2016_05E|ICH_2016_05E/AB|0215|R|Y|N|% (V/V)|N||C48571||ENG|362281363|");    
     out.close();
 
+    
+    
     
 
     // Create and configure the algorithm

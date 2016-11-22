@@ -76,6 +76,7 @@ public class CitationJpaUnitTest extends ModelUnitSupport {
     tester.include("edition");
     tester.include("editor");
     tester.include("extent");
+    tester.include("language");
     tester.include("location");
     tester.include("mediumDesignator");
     tester.include("notes");

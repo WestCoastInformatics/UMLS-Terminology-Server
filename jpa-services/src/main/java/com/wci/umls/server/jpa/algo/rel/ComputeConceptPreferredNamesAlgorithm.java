@@ -52,7 +52,7 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
         .createQuery("select a from ConceptJpa a WHERE a.publishable = true and terminology = :terminology");
 
     hQuery.setParameter("terminology", getProject().getTerminology());
-    hQuery.setReadOnly(true).setFetchSize(1000);
+    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     ComputePreferredNameHandler handler = getComputePreferredNameHandler(getProject().getTerminology());
     setMolecularActionFlag(false);  
@@ -80,7 +80,7 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    
+    // n/a
   }
 
 }

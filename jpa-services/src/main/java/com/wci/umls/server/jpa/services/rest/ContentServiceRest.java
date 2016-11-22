@@ -922,9 +922,7 @@ public interface ContentServiceRest {
   /**
    * Add concept note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception

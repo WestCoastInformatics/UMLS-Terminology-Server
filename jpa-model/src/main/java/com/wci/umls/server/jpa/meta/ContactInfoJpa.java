@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -82,7 +82,7 @@ public class ContactInfoJpa implements ContactInfo {
   private String url;
 
   /** The value. */
-  @Column(nullable = true, length=4000)
+  @Column(nullable = true, length = 4000)
   private String value;
 
   /** The zip code. */
@@ -439,21 +439,23 @@ public class ContactInfoJpa implements ContactInfo {
       return false;
     return true;
   }
-  
+
+  /* see superclass */
+  @Override
   public String toString() {
     if (!ConfigUtility.isEmpty(getValue())) {
       return getValue();
     }
-    return (getName() != null ? getName() : "")  + ";" + 
-          (getTitle() != null ? getTitle() : "") + ";" + 
-          (getOrganization() != null ? getOrganization() : "") + ";" + 
-          (getAddress1() != null ? getAddress1() : "") + ";" + 
-          (getAddress2() != null ? getAddress2() : "") + ";" + 
-          (getCity() != null ? getCity()  : "") + ";" + 
-          (getStateOrProvince() != null ? getStateOrProvince() : "") + ";" + 
-          (getCountry() != null ? getCountry() : "") +";" + 
-          (getZipCode() != null ? getZipCode() : "") + ";" + 
-          (getEmail() != null ? getEmail() : "");
+    return (getName() != null ? getName() : "") + ";"
+        + (getTitle() != null ? getTitle() : "") + ";"
+        + (getOrganization() != null ? getOrganization() : "") + ";"
+        + (getAddress1() != null ? getAddress1() : "") + ";"
+        + (getAddress2() != null ? getAddress2() : "") + ";"
+        + (getCity() != null ? getCity() : "") + ";"
+        + (getStateOrProvince() != null ? getStateOrProvince() : "") + ";"
+        + (getCountry() != null ? getCountry() : "") + ";"
+        + (getZipCode() != null ? getZipCode() : "") + ";"
+        + (getEmail() != null ? getEmail() : "");
 
   }
 

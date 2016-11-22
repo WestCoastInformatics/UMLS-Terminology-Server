@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -101,6 +101,10 @@ public class CitationJpa implements Citation {
   @Column(nullable = true)
   private String title;
 
+  /** The language. */
+  @Column(nullable = true)
+  private String language;
+
   /** The unstructured value. */
   @Column(nullable = true, length = 4000)
   private String unstructuredValue;
@@ -136,6 +140,7 @@ public class CitationJpa implements Citation {
     publisher = citation.getPublisher();
     series = citation.getSeries();
     title = citation.getTitle();
+    language = citation.getLanguage();
     unstructuredValue = citation.getUnstructuredValue();
   }
 
@@ -145,51 +150,52 @@ public class CitationJpa implements Citation {
    * @param scitline the mrsab line
    */
   public CitationJpa(String scitline) {
-    
-    
-    // 0 Author name(s),
-    // 1 Personal author address,
-    // 2 Organization author(s),
-    // 3 Title,
-    // 4 Content Designator,
-    // 5 Medium Designator,
-    // 6 Edition,
-    // 7 Place of Pub.,
-    // 8 Publisher,
-    // 9 Date of pub. or copyright,
-    // 10 Date of revision,
-    // 11 Location,
-    // 12 Extent,
-    // 13 Series,
-    // 14 Avail. Statement (URL),
-    // 15 Language,
-    // 16 Notes.
+
+    // 0 Author name(s)
+    // 1 Personal author address
+    // 2 Organization author(s)
+    // 3 Editor(s)
+    // 4 Title
+    // 5 Content Designator
+    // 6 Medium Designator
+    // 7 Edition
+    // 8 Place of Pub.
+    // 9 Publisher
+    // 10 Date of pub. or copyright
+    // 11 Date of revision
+    // 12 Location
+    // 13 Extent
+    // 14 Series
+    // 15 Avail. Statement (URL)
+    // 16 Language
+    // 17 Notes
     String[] fields = FieldedStringTokenizer.split(scitline, ";");
     if (fields.length == 0) {
       return;
     }
 
     // Handle legacy data
-    if (fields.length < 17) {
+    if (fields.length < 18) {
       this.unstructuredValue = scitline;
     } else {
       author = fields[0];
       address = fields[1];
       this.organization = fields[2];
-      this.title = fields[3];
-      this.contentDesignator = fields[4];
-      this.mediumDesignator = fields[5];
-      this.edition = fields[6];
-      this.placeOfPublication = fields[7];
-      this.publisher = fields[8];
-      this.dateOfPublication = fields[9];
-      this.dateOfRevision = fields[10];
-      this.location = fields[11];
-      this.extent = fields[12];
-      this.series = fields[13];
-      this.availabilityStatement = fields[14];
-      // no language
-      this.notes = fields[16];
+      this.editor = fields[3];
+      this.title = fields[4];
+      this.contentDesignator = fields[5];
+      this.mediumDesignator = fields[6];
+      this.edition = fields[7];
+      this.placeOfPublication = fields[8];
+      this.publisher = fields[9];
+      this.dateOfPublication = fields[10];
+      this.dateOfRevision = fields[11];
+      this.location = fields[12];
+      this.extent = fields[13];
+      this.series = fields[14];
+      this.availabilityStatement = fields[15];
+      this.language = fields[16];
+      this.notes = fields[17];
     }
   }
 
@@ -409,6 +415,17 @@ public class CitationJpa implements Citation {
     this.title = title;
   }
 
+  @Override
+  public String getLanguage() {
+    return title;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String title) {
+    this.title = title;
+  }
+
   /* see superclass */
   @Override
   public String getUnstructuredValue() {
@@ -428,40 +445,31 @@ public class CitationJpa implements Citation {
     int result = 1;
     result = prime * result + ((address == null) ? 0 : address.hashCode());
     result = prime * result + ((author == null) ? 0 : author.hashCode());
-    result =
-        prime
-            * result
-            + ((availabilityStatement == null) ? 0 : availabilityStatement
-                .hashCode());
-    result =
-        prime * result
-            + ((contentDesignator == null) ? 0 : contentDesignator.hashCode());
-    result =
-        prime * result
-            + ((dateOfPublication == null) ? 0 : dateOfPublication.hashCode());
-    result =
-        prime * result
-            + ((dateOfRevision == null) ? 0 : dateOfRevision.hashCode());
+    result = prime * result + ((availabilityStatement == null) ? 0
+        : availabilityStatement.hashCode());
+    result = prime * result
+        + ((contentDesignator == null) ? 0 : contentDesignator.hashCode());
+    result = prime * result
+        + ((dateOfPublication == null) ? 0 : dateOfPublication.hashCode());
+    result = prime * result
+        + ((dateOfRevision == null) ? 0 : dateOfRevision.hashCode());
     result = prime * result + ((edition == null) ? 0 : edition.hashCode());
     result = prime * result + ((editor == null) ? 0 : editor.hashCode());
     result = prime * result + ((extent == null) ? 0 : extent.hashCode());
     result = prime * result + ((location == null) ? 0 : location.hashCode());
-    result =
-        prime * result
-            + ((mediumDesignator == null) ? 0 : mediumDesignator.hashCode());
+    result = prime * result
+        + ((mediumDesignator == null) ? 0 : mediumDesignator.hashCode());
     result = prime * result + ((notes == null) ? 0 : notes.hashCode());
     result =
         prime * result + ((organization == null) ? 0 : organization.hashCode());
-    result =
-        prime
-            * result
-            + ((placeOfPublication == null) ? 0 : placeOfPublication.hashCode());
+    result = prime * result
+        + ((placeOfPublication == null) ? 0 : placeOfPublication.hashCode());
     result = prime * result + ((publisher == null) ? 0 : publisher.hashCode());
     result = prime * result + ((series == null) ? 0 : series.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
-    result =
-        prime * result
-            + ((unstructuredValue == null) ? 0 : unstructuredValue.hashCode());
+    result = prime * result + ((language == null) ? 0 : language.hashCode());
+    result = prime * result
+        + ((unstructuredValue == null) ? 0 : unstructuredValue.hashCode());
     return result;
   }
 
@@ -560,6 +568,11 @@ public class CitationJpa implements Citation {
         return false;
     } else if (!title.equals(other.title))
       return false;
+    if (language== null) {
+      if (other.language!= null)
+        return false;
+    } else if (!language.equals(other.language))
+      return false;
     if (unstructuredValue == null) {
       if (other.unstructuredValue != null)
         return false;
@@ -568,32 +581,31 @@ public class CitationJpa implements Citation {
     return true;
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     if (!ConfigUtility.isEmpty(getUnstructuredValue())) {
       return getUnstructuredValue();
     }
-    return 
-        (getAddress() != null ? getAddress() : "") + ";" +
-        (getOrganization() != null ? getOrganization() : "") + ";" + 
-        (getTitle() != null ? getTitle() : "") + ";" +
-        (getContentDesignator() != null ? getContentDesignator() : "") + ";" +
-        (getMediumDesignator() != null ? getMediumDesignator() : "") + ";" + 
-        (getEdition() != null ? getEdition() : "") + ";" + 
-        (getPlaceOfPublication() != null ? getPlaceOfPublication() : "") + ";" +
-        (getPublisher() != null ? getPublisher() : "") + ";" + 
-        (getDateOfPublication() != null ? getDateOfPublication() : "") + ";" +
-        (getDateOfRevision() != null ? getDateOfRevision() : "") + ";" +
-        (getLocation() != null ? getLocation() : "") + ";" +
-        (getExtent() != null ? getExtent() : "") + ";" +
-        (getSeries() != null ? getSeries() : "") + ";" + 
-        (getAvailabilityStatement() != null ? getAvailabilityStatement() : "") + ";" + 
-        ";" + // language
-        (getNotes() != null ? getNotes() : "");
-        
-        
- 
+    return (getAuthor() != null ? getAuthor() : "") + ";"
+        + (getAddress() != null ? getAddress() : "") + ";"
+        + (getOrganization() != null ? getOrganization() : "") + ";"
+        + (getEditor() != null ? getEditor() : "") + ";"
+        + (getTitle() != null ? getTitle() : "") + ";"
+        + (getContentDesignator() != null ? getContentDesignator() : "") + ";"
+        + (getMediumDesignator() != null ? getMediumDesignator() : "") + ";"
+        + (getEdition() != null ? getEdition() : "") + ";"
+        + (getPlaceOfPublication() != null ? getPlaceOfPublication() : "") + ";"
+        + (getPublisher() != null ? getPublisher() : "") + ";"
+        + (getDateOfPublication() != null ? getDateOfPublication() : "") + ";"
+        + (getDateOfRevision() != null ? getDateOfRevision() : "") + ";"
+        + (getLocation() != null ? getLocation() : "") + ";"
+        + (getExtent() != null ? getExtent() : "") + ";"
+        + (getSeries() != null ? getSeries() : "") + ";"
+        + (getAvailabilityStatement() != null ? getAvailabilityStatement() : "")
+        + (getLanguage() != null ? getLanguage() : "")
+        + (getNotes() != null ? getNotes() : "");
+
   }
-  
-  
+
 }

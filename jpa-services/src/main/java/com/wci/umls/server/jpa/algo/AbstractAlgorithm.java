@@ -234,7 +234,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    logInfo("    " + ((int) (((pct * 1.0) / steps) + (step * 100.0 / steps)))
+    logInfo("    " + ((int) (((pct * 1.0) / steps) + ((step-1) * 100.0 / steps)))
         + "% " + note);
   }
 

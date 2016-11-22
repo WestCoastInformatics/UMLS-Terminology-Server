@@ -94,6 +94,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
+
+    // Set up the search handler
     final ComputePreferredNameHandler prefNameHandler =
         getComputePreferredNameHandler(getProject().getTerminology());
 
@@ -332,7 +334,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           }
           // If a previous attribute with same ATUI exists, load that object.
           else {
-             boolean oldAttributeChanged = false;
+            boolean oldAttributeChanged = false;
 
             // Attach an ATUI for the attribute
             oldAttribute.getAlternateTerminologyIds()
@@ -390,6 +392,13 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       logInfo("  activityId = " + getActivityId());
       logInfo("  user  = " + getLastModifiedBy());
       logInfo("Finished ATTRIBUTELOADING");
+
+      // Now remove the alternate terminologies for relationships - we don't
+      // need them anymore
+
+      // Finally, clear out the static caches that have been populated during by
+      // the previous loader algorithms - we don't need them anymore either
+      clearCaches();
 
     } catch (
 

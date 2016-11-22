@@ -1342,8 +1342,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
       // authorize and get user name from the token
-      final String userName = authorizeProject(workflowService, projectId, securityService, authToken,
-          action, UserRole.AUTHOR);
+      final String userName = authorizeProject(workflowService, projectId,
+          securityService, authToken, action, UserRole.AUTHOR);
       final Project project = workflowService.getProject(projectId);
 
       // Assume current epoch unless explicit
@@ -2377,9 +2377,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       if (sendEmail) {
         final User user = securityService.getUser(userName);
         final Properties config = ConfigUtility.getConfigProperties();
+        String from;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
         ConfigUtility.sendEmail(
-            "[Terminology Server] Worklist Concept Report " + fileName,
-            config.getProperty("mail.smtp.user"), user.getEmail(),
+            "[Terminology Server] Worklist Concept Report " + fileName, from,
+            user.getEmail(),
             "The worklist concept report " + fileName
                 + " has been successfully generated.",
             config, "true".equals(config.get("mail.smtp.auth")));

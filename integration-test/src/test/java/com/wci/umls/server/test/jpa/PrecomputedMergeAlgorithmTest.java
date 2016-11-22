@@ -4,11 +4,11 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.FileUtils;
@@ -21,12 +21,10 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.RelationshipLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.PrecomputedMergeAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -36,10 +34,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  RelationshipLoaderAlgorithm algo = null;
+  PrecomputedMergeAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -53,7 +51,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The project. */
   Project project = null;
 
-  /** The temporary relationships.src file. */
+  /** The temporary .src file. */
   private File outputFile = null;
 
   /**
@@ -103,30 +101,19 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setInputPath(
         processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate a relationships.src document in the /temp
+    // Create and populate an attributes.src document in the /temp
     // temporary subfolder
-    outputFile = new File(tempSrcDir, "relationships.src");
+    outputFile = new File(tempSrcDir, "mergefacts.src");
 
     PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
-        "1|S|V-NCI_2016_05E|BT|has_version|V-NCI|SRC|SRC|R|Y|N|N|CODE_SOURCE|SRC|CODE_SOURCE|SRC|||");
+        "362166237|SY|362166238|SRC||N|N|NCI-SRC|SRC_ATOM_ID||SRC_ATOM_ID||");
     out.println(
-        "31|S|C63923|RT|Concept_In_Subset|C98033|NCI_2016_05E|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E|SOURCE_CUI|NCI_2016_05E|||");
-    out.close();
-
-    // Also create and populate a contexts.src document in the /temp
-    // temporary subfolder
-    outputFile = new File(tempSrcDir, "contexts.src");
-
-    out = new PrintWriter(new FileWriter(outputFile));
-    out.println(
-        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
-    out.println(
-        "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
+        "362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||");
     out.close();
 
     // Create and configure the algorithm
-    algo = new RelationshipLoaderAlgorithm();
+    algo = new PrecomputedMergeAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -135,6 +122,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
     algo.setProject(processExecution.getProject());
     algo.setTerminology(processExecution.getTerminology());
     algo.setVersion(processExecution.getVersion());
+    
   }
 
   /**
@@ -143,14 +131,24 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testRelationshipLoader() throws Exception {
+  public void testPrecomputedMerge() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the RELATIONSHIPLOADER algorithm
+    // Run the PRECOMPUTEDMERGE algorithm
     try {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
+      
+      //
+      // Set properties for the algorithm
+      //
+      Properties algoProperties = new Properties();
+      algoProperties.put("mergeSet", "NCI-SRC");
+      algoProperties.put("checkNames", "MGV_A4|MGV_C");
+      algo.setProperties(algoProperties);
+
+      
       //
       // Check prerequisites
       //
@@ -168,42 +166,7 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      // Make sure the relationships and inverses in the temporary input file
-      // exist (added or updated)
-      RelationshipList relList =
-          contentService.findCodeRelationships("V-NCI", "SRC", "latest",
-              Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
-      assertEquals(1, relList.size());
-      
-      relList =
-          contentService.findCodeRelationships("V-NCI", "SRC", "latest",
-              Branch.ROOT, "fromTerminologyId:V-NCI_2016_05E", true, null);
-      assertEquals(1, relList.size());
 
-      relList = contentService.findConceptRelationships("C98033", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
-      assertEquals(1, relList.size());
-
-      relList = contentService.findConceptRelationships("C98033", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C63923", true, null);
-      assertEquals(1, relList.size());
-      
-      relList = contentService.findConceptRelationships("C37447", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C1971", false, null);
-      assertEquals(1, relList.size());
-      
-      relList = contentService.findConceptRelationships("C37447", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C1971", true, null);
-      assertEquals(1, relList.size());
-    
-      relList = contentService.findConceptRelationships("C25948", "NCI",
-          "2016_05E", Branch.ROOT, "toTerminologyId:C16484", false, null);
-      assertEquals(1, relList.size());
-
-      relList = contentService.findConceptRelationships("C25948", "NCI",
-          "2016_05E", Branch.ROOT, "fromTerminologyId:C16484", true, null);
-      assertEquals(1, relList.size());
-      
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
