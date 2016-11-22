@@ -22,32 +22,36 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.helpers.content.RelationshipList;
-import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
+import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.services.helper.ReportsAtomComparator;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Algorithm to write the RRF content files.
@@ -70,7 +74,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   private Map<Long, String> descriptorAuiMap = new HashMap<>();
 
   private Set<String> ruiAttributeTerminologies = new HashSet<>();
-
+  
+  private Map<String, String> relToInverseMap = new HashMap<>();
+  private Map<String, String> terminologyToSrcRhtNameMap = new HashMap<>();
+  private Map<String, Long> terminologyToSrcAtomIdMap = new HashMap<>();
+  private SearchHandler handler = null;
   
   /**
    * Instantiates an empty {@link WriteRrfContentFilesAlgorithm}.
@@ -95,6 +103,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     // open print writers
     openWriters();
+    
+    handler = this.getSearchHandler(ConfigUtility.DEFAULT);
     
     // make semantic types map
     for (SemanticType semType : getSemanticTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
@@ -130,7 +140,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         writerMap.get("MRREL.RRF").print(line);
       }
       for (String line : writeMrsat(c)) {
-        //writerMap.get("MRSAT.RRF").print(writeMrsat(c));
+        writerMap.get("MRSAT.RRF").print(line);
       }
       for (String line : writeMrhier(c)) {
         writerMap.get("MRHIER.RRF").print(line);
@@ -138,18 +148,27 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       
       // TODO
       // MRHIST.RRF  empty for NCI-META
-      // MRHIER.RRF
       // MRMAP.RRF
       // MRSMAP.RRF
       // 
-      
     }
-    
+
     // close print writers
     closeWriters();
   }
   
   private void prepareMaps() throws Exception {
+    
+    //  First create map of rel and rela inverses
+    RelationshipTypeList relTypeList = getRelationshipTypes(getProject().getTerminology(), getProject().getVersion());
+    AdditionalRelationshipTypeList addRelTypeList = getAdditionalRelationshipTypes(getProject().getTerminology(), getProject().getVersion());
+    relToInverseMap = new HashMap<>();
+    for (RelationshipType relType : relTypeList.getObjects()) {
+      relToInverseMap.put(relType.getAbbreviation(), relType.getInverse().getAbbreviation());        
+    }
+    for (AdditionalRelationshipType relType : addRelTypeList.getObjects()) {
+      relToInverseMap.put(relType.getAbbreviation(), relType.getInverse().getAbbreviation());        
+    }
     
     final ComputePreferredNameHandler handler =
         getComputePreferredNameHandler(getProject().getTerminology());
@@ -175,7 +194,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       conceptAuiMap.put(concept.getId(),
           atom.getAlternateTerminologyIds().get(getProject().getTerminology()));
     }
-    session.close();
 
     
     session = manager.unwrap(Session.class);
@@ -196,7 +214,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       descriptorAuiMap.put(descriptor.getId(),
           atom.getAlternateTerminologyIds().get(getProject().getTerminology()));
     }
-    session.close();
     
     
     session = manager.unwrap(Session.class);
@@ -217,7 +234,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       codeAuiMap.put(code.getId(),
           atom.getAlternateTerminologyIds().get(getProject().getTerminology()));
     }
-    session.close();
     
     session = manager.unwrap(Session.class);
     hQuery = session.createQuery(
@@ -227,10 +243,9 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
-      final ConceptRelationship result = (ConceptRelationship) results.get()[0];
-      ruiAttributeTerminologies.add(result.getTerminology());
+      final String result = results.get()[0].toString();
+      ruiAttributeTerminologies.add(result);
     }
-    session.close();
 
     session = manager.unwrap(Session.class);
     hQuery = session.createQuery(
@@ -240,10 +255,9 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
-      final CodeRelationship result = (CodeRelationship) results.get()[0];
-      ruiAttributeTerminologies.add(result.getTerminology());
+      final String result = results.get()[0].toString();
+      ruiAttributeTerminologies.add(result);
     }
-    session.close();
 
     session = manager.unwrap(Session.class);
     hQuery = session.createQuery(
@@ -253,11 +267,9 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
-      final DescriptorRelationship result =
-          (DescriptorRelationship) results.get()[0];
-      ruiAttributeTerminologies.add(result.getTerminology());
+      final String result = results.get()[0].toString();
+      ruiAttributeTerminologies.add(result);
     }
-    session.close();
 
     session = manager.unwrap(Session.class);
     hQuery = session.createQuery(
@@ -267,11 +279,38 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (results.next()) {
-      final AtomRelationship result = (AtomRelationship) results.get()[0];
-      ruiAttributeTerminologies.add(result.getTerminology());
+      final String result = results.get()[0].toString();
+      ruiAttributeTerminologies.add(result);
     }
-    session.close();
 
+    for (Terminology term : this.getTerminologyLatestVersions().getObjects()) {
+      Atom srcRhtAtom = null;
+      SearchResultList searchResults = findConcepts(
+          getProject().getTerminology(), getProject().getVersion(),
+          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
+              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+          null);
+      if (searchResults.size() == 1) {
+        Concept concept = getConcept(searchResults.getObjects().get(0).getId());
+        for (Atom a : concept.getAtoms()) {
+          if (a.getTermType().equals("RHT") && a.isPublishable()) {
+            srcRhtAtom = a;
+            break;
+          }
+        }
+        if (srcRhtAtom != null) {
+          Long srcAtomId = Long.valueOf(srcRhtAtom.getAlternateTerminologyIds()
+              .get(getProject().getTerminology() + "-SRC"));
+          String name = srcRhtAtom.getName();
+          terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
+          terminologyToSrcAtomIdMap.put(term.getTerminology(), srcAtomId);
+        }
+      } else {
+        throw new Exception(
+            "missing root SRC concept " + term.getTerminology());
+      }
+    }
+    
   }
 
   private void openWriters() throws Exception {
@@ -336,9 +375,16 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         String prefSui = null;
         String prevSui = null;
         String prefAui = null;
+        String prevLat = null;
         for (Atom a : sortedAtoms) {
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI
           sb.append(a.getLanguage()).append("|"); // 1 LAT
+          
+          if (!a.getLanguage().equals(prevLat)) {
+            prefLui = null;
+            prefSui = null;
+            prefAui = null;
+          }
           
           String ts = "S";
           if (prefLui == null) {
@@ -361,19 +407,20 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           }
           String ispref = "N";
           if (prefAui == null) {
-            prefAui= a.getAlternateTerminologyIds().get(getTerminology()); // TODO correct?
+            prefAui= a.getAlternateTerminologyIds().get(getProject().getTerminology()); 
             ispref="Y"; 
           }
 
           prevLui = a.getLexicalClassId(); 
           prevSui = a.getStringClassId(); 
+          prevLat = a.getLanguage();
           
           sb.append(ts).append("|"); // 2 TS
           sb.append(a.getLexicalClassId()).append("|"); // 3 LUI
           sb.append(stt).append("|"); // 4 STT
           sb.append(a.getStringClassId()).append("|"); // 5 SUI
           sb.append(ispref).append("|");  // 6 ISPREF
-          String aui = a.getAlternateTerminologyIds().get(getTerminology());
+          String aui = a.getAlternateTerminologyIds().get(getProject().getTerminology());
           sb.append(aui != null ? aui : "").append("|"); // 7 AUI
           sb.append(a.getTerminologyId()).append("|"); // 8 SAUI  
           sb.append(a.getConceptId()).append("|"); // 9 SCUI
@@ -423,8 +470,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         StringBuffer sb = new StringBuffer();
         for(Definition d : a.getDefinitions()) {
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI
-          sb.append(a.getAlternateTerminologyIds().get(getTerminology())).append("|"); // 1 AUI
-          sb.append(d.getAlternateTerminologyIds().get(getTerminology())).append("|"); // 2 ATUI
+          String aui = a.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(aui != null ? aui : "").append("|"); // 1 AUI
+          String atui = d.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(atui != null ? atui : "").append("|"); // 2 ATUI
           sb.append(d.getTerminologyId()).append("|"); // 3 SATUI
           sb.append(a.getTerminology()).append("|"); // 4 SAB
           sb.append(d.getValue()).append("|"); // 5 DEF
@@ -497,22 +546,22 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     List<String> lines = new ArrayList<>();
 
 
-    for (final ConceptRelationship rel : c.getInverseRelationship()) {
+    for (final ConceptRelationship rel : c.getInverseRelationships()) {
 
       StringBuffer sb = new StringBuffer();
       sb.append(rel.getFrom().getTerminologyId()).append("|"); // 0 CUI1
-      sb.append(conceptAuiMap.get(rel.getFrom().getTerminologyId())).append("|"); // 1 AUI1
+      sb.append("").append("|"); // 1 AUI1
       sb.append("CUI").append("|"); // 2 STYPE1
       sb.append(rel.getRelationshipType()).append("|"); // 3 REL
       sb.append(rel.getTo().getTerminologyId()).append("|"); // 4 CUI2
-      sb.append(conceptAuiMap.get(rel.getTo().getTerminologyId())).append("|"); // 5 AUI2
+      sb.append("").append("|"); // 5 AUI2
       sb.append("CUI").append("|"); // 6 STYPE2
       sb.append(rel.getAdditionalRelationshipType()).append("|"); // 7 RELA
-      String rui = rel.getAlternateTerminologyIds().get(getTerminology());
+      String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
       sb.append(rui != null ? rui : "").append("|");// 8 RUI
       sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
       sb.append(rel.getTerminology()).append("|"); // 10 SAB
-      // 11 SL TODO
+      sb.append(rel.getTerminology()).append("|"); // 11 SL 
       sb.append(rel.getGroup()).append("|"); // 12 RG
       sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13 DIR
       sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14 SUPPRESS
@@ -534,10 +583,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         sb.append(aui2).append("|"); // 5 AUI2
         sb.append("AUI").append("|"); // 6 STYPE2
         sb.append(r.getAdditionalRelationshipType()).append("|"); // 7 RELA
-        String rui = r.getAlternateTerminologyIds().get(getTerminology());
+        String rui = r.getAlternateTerminologyIds().get(getProject().getTerminology());
         sb.append(rui != null ? rui : "").append("|");// 8 RUI
         sb.append(r.getTerminologyId()).append("|"); // 9 SRUI
-        sb.append(r.getTerminology()).append("|"); // 10 SAB // 11 SL TODO
+        sb.append(r.getTerminology()).append("|"); // 10 SAB 
+        sb.append(r.getTerminology()).append("|"); // 11 SL 
         sb.append(r.getGroup()).append("|"); // 12 RG
         sb.append(r.isAssertedDirection() ? "Y" : "N").append("|"); // 13 DIR
         sb.append(r.isSuppressible() ? "Y" : "N").append("|"); // 14 SUPPRESS
@@ -568,10 +618,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           sb.append(aui2).append("|"); // 5 AUI2
           sb.append("SCUI").append("|"); // 6 STYPE2
           sb.append(rel.getAdditionalRelationshipType()).append("|"); // 7 RELA
-          String rui = rel.getAlternateTerminologyIds().get(getTerminology());
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
           sb.append(rui != null ? rui : "").append("|");// 8 RUI
           sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
-          sb.append(rel.getTerminology()).append("|"); // 10 SAB // 11 SL TODO
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
           sb.append(rel.getGroup()).append("|"); // 12 RG
           sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13
                                                                         // DIR
@@ -581,11 +632,205 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           sb.append("\n");
           lines.add(sb.toString());
         }
+        
+        // look up component info relationships where STYPE1=SCUI
+        for (Relationship relationship : findComponentInfoRelationships(
+            scui.getTerminologyId(), scui.getTerminology(), scui.getVersion(),
+            scui.getType(), Branch.ROOT, null, true, null)
+                .getObjects()) {
+          final ComponentInfoRelationship rel = (ComponentInfoRelationship) relationship;
+          
+          StringBuffer sb = new StringBuffer();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 1 AUI1
+          sb.append(rel.getFrom().getType()).append("|"); // 2 STYPE1
+          sb.append(relToInverseMap.get(rel.getRelationshipType())).append("|"); // 3 REL
+          // determine aui2
+          String aui2 = "";
+          if (rel.getTo().getType().equals("CONCEPT")) { 
+            aui2 = conceptAuiMap.get(scui.getId());
+          } else if (rel.getTo().getType().equals("CODE")) { 
+            aui2 = codeAuiMap.get(scui.getId());
+          } else if (rel.getTo().getType().equals("DESCRIPTOR")) { 
+            aui2 = descriptorAuiMap.get(scui.getId());
+          }
+          sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2         
+          sb.append(aui2).append("|"); // 5 AUI2
+          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType())).append("|"); // 7 RELA
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(rui != null ? rui : "").append("|");// 8 RUI
+          sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
+          sb.append(rel.getGroup()).append("|"); // 12 RG
+          sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13 DIR
+          sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14 SUPPRESS
+          sb.append("|"); // 15 CVF
+          sb.append("\n");
+        }       
+      }
+ 
+      
+      if (atomCodeMap.containsKey(a.getId())) {
+        final Code code = getCode(atomCodeMap.get(a.getId()));
+        for (final CodeRelationship rel : code.getRelationships()) {
+
+          // … STYPE1=SCUI, STYPE2=SCUI
+          // … AUI1 =
+          // atom.getAlternateTerminologyIds().get(getProject().getTerminology());
+          // … CUI1 = concept.getTerminologyId
+          // … AUI2 = conceptAuiMap.get(scui.getId())
+          // … CUI2 = auiCuiMap.get(AUI2);
+          StringBuffer sb = new StringBuffer();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 1 AUI1
+          sb.append("CODE").append("|"); // 2 STYPE1
+          sb.append(rel.getRelationshipType()).append("|"); // 3 REL
+          String aui2 = codeAuiMap.get(code.getId());
+          sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
+          sb.append(aui2).append("|"); // 5 AUI2
+          sb.append("CODE").append("|"); // 6 STYPE2
+          sb.append(rel.getAdditionalRelationshipType()).append("|"); // 7 RELA
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(rui != null ? rui : "").append("|");// 8 RUI
+          sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
+          sb.append(rel.getGroup()).append("|"); // 12 RG
+          sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13
+                                                                        // DIR
+          sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14
+                                                                   // SUPPRESS
+          sb.append("|"); // 15 CVF
+          sb.append("\n");
+          lines.add(sb.toString());
+        }
+        
+        // look up component info relationships where STYPE1=CODE
+        for (Relationship relationship : findComponentInfoRelationships(
+            code.getTerminologyId(), code.getTerminology(), code.getVersion(),
+            code.getType(), Branch.ROOT, null, true, null)
+                .getObjects()) {
+          final ComponentInfoRelationship rel = (ComponentInfoRelationship) relationship;
+        
+          StringBuffer sb = new StringBuffer();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 1 AUI1
+          sb.append(rel.getFrom().getType()).append("|"); // 2 STYPE1
+          sb.append(relToInverseMap.get(rel.getRelationshipType())).append("|"); // 3 REL
+          // determine aui2
+          String aui2 = "";
+          if (rel.getTo().getType().equals("CONCEPT")) { 
+            aui2 = conceptAuiMap.get(code.getId());
+          } else if (rel.getTo().getType().equals("CODE")) { 
+            aui2 = codeAuiMap.get(code.getId());
+          } else if (rel.getTo().getType().equals("DESCRIPTOR")) { 
+            aui2 = descriptorAuiMap.get(code.getId());
+          }
+          sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2         
+          sb.append(aui2).append("|"); // 5 AUI2
+          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType())).append("|"); // 7 RELA
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(rui != null ? rui : "").append("|");// 8 RUI
+          sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
+          sb.append(rel.getGroup()).append("|"); // 12 RG
+          sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13 DIR
+          sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14 SUPPRESS
+          sb.append("|"); // 15 CVF
+          sb.append("\n");
+        }       
       }
       
-      
-      
-    }
+      if (atomDescriptorMap.containsKey(a.getId())) {
+        final Descriptor descriptor = getDescriptor(atomDescriptorMap.get(a.getId()));
+        for (final DescriptorRelationship rel : descriptor.getRelationships()) {
+
+          // … STYPE1=SCUI, STYPE2=SCUI
+          // … AUI1 =
+          // atom.getAlternateTerminologyIds().get(getProject().getTerminology());
+          // … CUI1 = concept.getTerminologyId
+          // … AUI2 = conceptAuiMap.get(scui.getId())
+          // … CUI2 = auiCuiMap.get(AUI2);
+          StringBuffer sb = new StringBuffer();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 1 AUI1
+          sb.append("CODE").append("|"); // 2 STYPE1
+          sb.append(rel.getRelationshipType()).append("|"); // 3 REL
+          String aui2 = descriptorAuiMap.get(descriptor.getId());
+          sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
+          sb.append(aui2).append("|"); // 5 AUI2
+          sb.append("CODE").append("|"); // 6 STYPE2
+          sb.append(rel.getAdditionalRelationshipType()).append("|"); // 7 RELA
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(rui != null ? rui : "").append("|");// 8 RUI
+          sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
+          sb.append(rel.getGroup()).append("|"); // 12 RG
+          sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13
+                                                                        // DIR
+          sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14
+                                                                   // SUPPRESS
+          sb.append("|"); // 15 CVF
+          sb.append("\n");
+          lines.add(sb.toString());
+        }
+        
+        // look up component info relationships where STYPE1=SDUI
+        for (Relationship relationship : findComponentInfoRelationships(
+            descriptor.getTerminologyId(), descriptor.getTerminology(), descriptor.getVersion(),
+            descriptor.getType(), Branch.ROOT, null, true, null)
+                .getObjects()) {
+          final ComponentInfoRelationship rel = (ComponentInfoRelationship) relationship;
+        
+          StringBuffer sb = new StringBuffer();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 1 AUI1
+          sb.append(rel.getFrom().getType()).append("|"); // 2 STYPE1
+          sb.append(relToInverseMap.get(rel.getRelationshipType())).append("|"); // 3 REL
+          // determine aui2
+          String aui2 = "";
+          if (rel.getTo().getType().equals("CONCEPT")) { 
+            aui2 = conceptAuiMap.get(descriptor.getId());
+          } else if (rel.getTo().getType().equals("CODE")) { 
+            aui2 = descriptorAuiMap.get(descriptor.getId());
+          } else if (rel.getTo().getType().equals("DESCRIPTOR")) { 
+            aui2 = descriptorAuiMap.get(descriptor.getId());
+          }
+          sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2         
+          sb.append(aui2).append("|"); // 5 AUI2
+          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType())).append("|"); // 7 RELA
+          String rui = rel.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(rui != null ? rui : "").append("|");// 8 RUI
+          sb.append(rel.getTerminologyId()).append("|"); // 9 SRUI
+          sb.append(rel.getTerminology()).append("|"); // 10 SAB 
+          sb.append(rel.getTerminology()).append("|"); // 11 SL 
+          sb.append(rel.getGroup()).append("|"); // 12 RG
+          sb.append(rel.isAssertedDirection() ? "Y" : "N").append("|"); // 13 DIR
+          sb.append(rel.isSuppressible() ? "Y" : "N").append("|"); // 14 SUPPRESS
+          sb.append("|"); // 15 CVF
+          sb.append("\n");
+        }       
+      }
+    }  // end for(Atom... concept.getAtoms())
+    
+    // TODO: deal with PAR/CHD relationships to/from SRC atoms and top-level things 
+    // in hierarchies (these don’t get assigned RUIs, and currently there’s an issue of STYPE changing, etc)
 
     Collections.sort(lines);
     return lines;
@@ -609,25 +854,56 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     List<String> lines = new ArrayList<>();
 
-    PfsParameter pfs = new PfsParameterJpa();
-    TreePositionList tpl = findConceptDeepTreePositions(c.getTerminologyId(),
-        getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
-        query, pfs);
-    
-    for (TreePosition pos : tpl.getObjects()) {
-      StringBuffer sb = new StringBuffer();
-      Atom atom = getAtom(pos.getNode().getId());
-      sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
-      sb.append(atom.getTerminologyId()).append("|"); // 1 AUI
-      // 2 CXN
-      // 3 PAUI
-      sb.append(pos.getTerminology()).append("|"); // 4 SAB
-      // 5 RELA
-      sb.append(pos.getAncestorPath()).append("|"); // 6 PTR
-      // 7 HCD
-      sb.append("|"); // 8 CVF
-      sb.append("\n");
-      lines.add(sb.toString());
+    for (final Atom atom : c.getAtoms()) {
+      boolean found = false;
+
+      int ct = 1;
+      for (final AtomTreePosition treepos : handler.getQueryResults(null, null,
+          Branch.ROOT, "nodeId:" + atom.getId(), null,
+          AtomTreePositionJpa.class, null, new int[1], manager)) {
+
+        found = true;
+        String aui = atom.getAlternateTerminologyIds()
+            .get(getProject().getTerminology());
+        String cxn = new Integer(ct++).toString();
+        String sab = atom.getTerminology();
+        String rela = treepos.getAdditionalRelationshipType();
+        String hcd = treepos.getTerminologyId();
+        StringBuilder ptr = new StringBuilder();
+        String paui = null;
+        String root = null;
+        for (final String atomId : FieldedStringTokenizer
+            .split(treepos.getAncestorPath(), "~")) {
+          final Atom atom2 = getAtom(new Long(atomId));
+          // if atom2 == null => fail
+          if (paui != null) {
+            ptr.append(".");
+          }
+          paui = atom2.getAlternateTerminologyIds()
+              .get(getProject().getTerminology());
+          ptr.append(paui);
+          if (root == null) {
+            root = atom2.getName();
+          }
+        }
+
+        // TODO when writing the line out, add the AUI for the SRC/RHT atom for this
+        // source to the top of PTR
+        // iff !root.equals(SRC/RHT.name())
+        // for ptr add srcAtomId . rest of ptr
+
+        StringBuffer sb = new StringBuffer();
+        sb.append(c.getTerminologyId()).append("|"); // 0 CUI
+        sb.append(aui != null ? aui : "").append("|"); // 1 AUI
+        sb.append(cxn != null ? cxn : "").append("|"); // 2 CXN
+        sb.append(paui != null ? paui : "").append("|"); // 3 PAUI
+        sb.append(sab != null ? sab : "").append("|"); // 4 SAB
+        sb.append(rela != null ? rela : "").append("|"); // 5 RELA
+        sb.append(ptr != null ? ptr : "").append("|"); // 6 PTR
+        sb.append(hcd != null ? hcd : "").append("|"); // 7 HCD
+        sb.append("|"); // 8 CVF
+      }
+
     }
 
     Collections.sort(lines);
@@ -661,7 +937,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     List<String> lines = new ArrayList<>();
 
     // Concept attributes (CUIs)
-    for (final Attribute cr : c.getAttributes()) {
+    for (final Attribute att : c.getAttributes()) {
       StringBuffer sb = new StringBuffer();
       sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
       sb.append("|"); // 1 LUI
@@ -669,13 +945,14 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       sb.append("|"); // 3 METAUI
       sb.append("CUI").append("|"); // 4 STYPE
       sb.append("|"); // 5 CODE
-      sb.append(cr.getAlternateTerminologyIds().get(getTerminology()))
+      String atui = att.getAlternateTerminologyIds().get(getProject().getTerminology());
+      sb.append(atui != null ? atui : "")
           .append("|"); // 6 ATUI
-      sb.append(cr.getTerminologyId()).append("|"); // 7 SATUI
-      sb.append(cr.getName()).append("|"); // 8 ATN
+      sb.append(att.getTerminologyId()).append("|"); // 7 SATUI
+      sb.append(att.getName()).append("|"); // 8 ATN
       sb.append(c.getTerminology()).append("|"); // 9 SAB
-      sb.append(cr.getValue()).append("|"); // 10 ATV
-      sb.append(cr.isSuppressible() ? "Y" : "N").append("|"); // 11 SUPPRESS
+      sb.append(att.getValue()).append("|"); // 10 ATV
+      sb.append(att.isSuppressible() ? "Y" : "N").append("|"); // 11 SUPPRESS
       sb.append("|"); // 12 CVF
       sb.append("\n");
       lines.add(sb.toString());
@@ -684,7 +961,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     for (final Atom a : c.getAtoms()) {
       
       // Atom attributes (AUIs)
-      for (Attribute r : a.getAttributes()) {
+      for (Attribute att : a.getAttributes()) {
         StringBuffer sb = new StringBuffer();
         sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
         sb.append(a.getLexicalClassId()).append("|"); // 1 LUI
@@ -694,13 +971,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             .append("|"); // 3 METAUI
         sb.append("AUI").append("|"); // 4 STYPE
         sb.append(a.getCodeId()).append("|"); // 5 CODE
-        sb.append(r.getAlternateTerminologyIds().get(getTerminology()))
-            .append("|"); // 6 ATUI
-        sb.append(r.getTerminologyId()).append("|"); // 7 SATUI
-        sb.append(r.getName()).append("|"); // 8 ATN
-        sb.append(r.getTerminology()).append("|"); // 9 SAB
-        sb.append(r.getValue()).append("|"); // 10 ATV
-        sb.append(r.isSuppressible() ? "Y" : "N").append("|"); // 11 SUPPRESS
+        String atui = att.getAlternateTerminologyIds().get(getProject().getTerminology());
+        sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
+        sb.append(att.getTerminologyId()).append("|"); // 7 SATUI
+        sb.append(att.getName()).append("|"); // 8 ATN
+        sb.append(att.getTerminology()).append("|"); // 9 SAB
+        sb.append(att.getValue()).append("|"); // 10 ATV
+        sb.append(att.isSuppressible() ? "Y" : "N").append("|"); // 11 SUPPRESS
         sb.append("|"); // 15 CVF
         sb.append("\n");
         lines.add(sb.toString());
@@ -720,8 +997,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
                 .append("|"); // 3 METAUI
             sb.append("RUI").append("|"); // 4 STYPE
             sb.append("|"); // 5 CODE
-            sb.append(attribute.getAlternateTerminologyIds().get(getTerminology()))
-                .append("|"); // 6 ATUI
+            String atui = attribute.getAlternateTerminologyIds().get(getProject().getTerminology());
+            sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
             sb.append(attribute.getTerminologyId()).append("|"); // 7 SATUI
             sb.append(attribute.getName()).append("|"); // 8 ATN
             sb.append(attribute.getTerminology()).append("|"); // 9 SAB
@@ -747,8 +1024,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               .append("|"); // 3 METAUI
           sb.append("SCUI").append("|"); // 4 STYPE
           sb.append("|"); // 5 CODE
-          sb.append(attribute.getAlternateTerminologyIds().get(getTerminology()))
-              .append("|"); // 6 ATUI
+          String atui = attribute.getAlternateTerminologyIds().get(getProject().getTerminology());
+          sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
           sb.append(attribute.getTerminologyId()).append("|"); // 7 SATUI
           sb.append(attribute.getName()).append("|"); // 8 ATN
           sb.append(attribute.getTerminology()).append("|"); // 9 SAB
@@ -764,7 +1041,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       if (ruiAttributeTerminologies.contains(c.getTerminology())) {
         for (ConceptRelationship rel : c.getRelationships()) {
           for (Attribute attribute : rel.getAttributes()) {
-            // … stype=RUI, LUI,SUI,CODE=blank
+            // TODO remove debug … stype=RUI, LUI,SUI,CODE=blank
             StringBuffer sb = new StringBuffer();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI
             sb.append("|"); // 1 LUI
@@ -774,8 +1051,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
                 .append("|"); // 3 METAUI
             sb.append("RUI").append("|"); // 4 STYPE
             sb.append("|"); // 5 CODE
-            sb.append(attribute.getAlternateTerminologyIds().get(getTerminology()))
-                .append("|"); // 6 ATUI
+            String atui = attribute.getAlternateTerminologyIds().get(getProject().getTerminology());
+            sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
             sb.append(attribute.getTerminologyId()).append("|"); // 7 SATUI
             sb.append(attribute.getName()).append("|"); // 8 ATN
             sb.append(attribute.getTerminology()).append("|"); // 9 SAB

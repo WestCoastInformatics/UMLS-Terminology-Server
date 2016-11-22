@@ -273,9 +273,10 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
+    // TODO activityId, last parameter
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
         "siblingsThreshold", "Indicates maximum number of siblings.",
-        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER);
+        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
 
     return params;

@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -3660,6 +3661,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // Parts to combine
     // 1. query
     clauses.add(query);
+    
+    // escape special chars
+    terminologyId = QueryParserBase.escape(terminologyId);
 
     // 2. to/fromTerminologyId
     if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {

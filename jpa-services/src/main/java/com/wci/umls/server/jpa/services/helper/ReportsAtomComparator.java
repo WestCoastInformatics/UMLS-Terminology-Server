@@ -99,6 +99,16 @@ import com.wci.umls.server.model.content.Concept;
 
       // Reverse sort -> return the higher value first
 
+      // Compare languages
+      if (!a1.getLanguage().equals(a2.getLanguage())) {
+        if (a1.getLanguage().equals("ENG") && !a2.getLanguage().equals("ENG")) {
+          return -1;
+        }
+        if (a2.getLanguage().equals("ENG") && !a1.getLanguage().equals("ENG")) {
+          return -1;
+        }
+        return a1.getLanguage().compareTo(a2.getLanguage());
+      }
       // Compare LUI ranks first
       if (!a1.getLexicalClassId().equals(a2.getLexicalClassId())) {
         String l2 = luiRanks.get(a2.getLexicalClassId());
