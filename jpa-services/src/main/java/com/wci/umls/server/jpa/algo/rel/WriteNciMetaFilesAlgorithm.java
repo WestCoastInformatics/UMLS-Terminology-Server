@@ -9,7 +9,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
- *  Algorithm to write the special NCI-META files.
+ * Algorithm to write the special NCI-META files.
  */
 public class WriteNciMetaFilesAlgorithm extends AbstractAlgorithm {
 
@@ -45,9 +45,16 @@ public class WriteNciMetaFilesAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
+  }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
 }

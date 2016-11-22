@@ -219,8 +219,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Update that newly added algorithmConfig
     Logger.getLogger(getClass()).info("  Update algorithmConfig");
     addedAlgorithmConfig1.setName("Sample 2 " + new Date().getTime());
-    processService.updateAlgorithmConfig(project.getId(), addedAlgorithmConfig1,
-        authToken);
+    processService.updateAlgorithmConfig(project.getId(), processConfig.getId(),
+        addedAlgorithmConfig1, authToken);
     AlgorithmConfig updatedAlgorithmConfig1 = processService.getAlgorithmConfig(
         project.getId(), addedAlgorithmConfig1.getId(), authToken);
 
@@ -424,7 +424,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2,
+        authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 
@@ -540,7 +541,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setParameters(algoParameters);
 
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
-        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
+        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig,
+        authToken);
 
     processConfig2.getSteps().add(algorithmConfig);
 
@@ -561,7 +563,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig2.getId(), (AlgorithmConfigJpa) algorithmConfig2,
+        authToken);
 
     processConfig2.getSteps().add(algorithmConfig2);
 
@@ -727,8 +730,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   }
 
   /**
-   * Test fail once process, and email sending. Note: this will only run successfully ONCE. To
-   * re-test, the server will need to be reloaded
+   * Test fail once process, and email sending. Note: this will only run
+   * successfully ONCE. To re-test, the server will need to be reloaded
    *
    * @throws Exception the exception
    */
@@ -780,8 +783,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       // n/a
     }
 
-    // TEST: Ask Rick if a process failed email showed up in his inbox.    
-    
+    // TEST: Ask Rick if a process failed email showed up in his inbox.
+
     // Lookup the process execution, so we can get the id number
     PfsParameterJpa pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
@@ -817,8 +820,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNull(algoExecution.getFailDate());
     assertNotNull(algoExecution.getFinishDate());
 
-    // TEST: Ask Rick if a process complete email showed up in his inbox.    
-    
+    // TEST: Ask Rick if a process complete email showed up in his inbox.
+
   }
 
   /**
@@ -886,7 +889,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         .setParameters(new ArrayList<AlgorithmParameter>(algoParameters));
 
     algorithmConfig2 = processService.addAlgorithmConfig(project.getId(),
-        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2, authToken);
+        processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig2,
+        authToken);
 
     processConfig.getSteps().add(algorithmConfig2);
 
@@ -956,7 +960,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       processService.removeProcessConfig(project.getId(), processConfig.getId(),
           true, authToken);
     }
-    if (processConfig2 != null && processConfig2.getId()!=null) {
+    if (processConfig2 != null && processConfig2.getId() != null) {
       processService.removeProcessConfig(project.getId(),
           processConfig2.getId(), true, authToken);
     }
@@ -983,22 +987,21 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     Long processExecutionId = processService.executeProcess(project.getId(),
         processConfig.getId(), false, authToken);
 
-
     // Make sure the processExecution was created
     ProcessExecution processExecution = processService
         .getProcessExecution(project.getId(), processExecutionId, authToken);
     assertNotNull(processExecution);
-    
-        
-    // Remove the processExecution, and its algorithm Executions
-    processService.removeProcessExecution(project.getId(), processExecutionId, true, authToken);
-    
-    //Confirm removal
-    assertNull(processService
-        .getProcessExecution(project.getId(), processExecutionId, authToken));
 
-  }  
-  
+    // Remove the processExecution, and its algorithm Executions
+    processService.removeProcessExecution(project.getId(), processExecutionId,
+        true, authToken);
+
+    // Confirm removal
+    assertNull(processService.getProcessExecution(project.getId(),
+        processExecutionId, authToken));
+
+  }
+
   // /**
   // * Teardown.
   // *

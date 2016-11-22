@@ -28,7 +28,7 @@ tsApp
 
           // Get projects
           gpService.increment();
-          $http.get(projectUrl + '/all').then(
+          $http.get(projectUrl + '/find').then(
           // success
           function(response) {
             gpService.decrement();
@@ -70,7 +70,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.put(projectUrl + '/add', project).then(
+          $http.put(projectUrl + '/', project).then(
           // success
           function(response) {
             console.debug('  project = ', response.data);
@@ -93,7 +93,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.post(projectUrl + '/update', project).then(
+          $http.post(projectUrl + '/', project).then(
           // success
           function(response) {
             console.debug('  successful update project');
@@ -116,7 +116,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http['delete'](projectUrl + '/remove/' + id).then(
+          $http['delete'](projectUrl + '/' + id).then(
           // success
           function(response) {
             console.debug('  successful remove project');
@@ -438,7 +438,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.get(projectUrl + '/reload').then(
+          $http.post(projectUrl + '/reload', '').then(
           // success
           function(response) {
             console.debug('  successful reload');
@@ -459,7 +459,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.get(projectUrl + '/exception' + (flag ? '?local=true' : '')).then(
+          $http.post(projectUrl + '/exception' + (flag ? '?local=true' : ''), '').then(
           // success
           function(response) {
             console.debug('  exception forced');

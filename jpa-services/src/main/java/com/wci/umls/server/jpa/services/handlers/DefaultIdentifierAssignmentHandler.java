@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -31,7 +32,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * Default implementation of {@link IdentifierAssignmentHandler}. This supports
  * "application-managed" identifier assignment.
  */
-public class DefaultIdentifierAssignmentHandler
+public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
     implements IdentifierAssignmentHandler {
 
   /* see superclass */
@@ -93,15 +94,15 @@ public class DefaultIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
     return relationship.getTerminologyId();
   }
 
   @Override
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
     return relationship.getTerminologyId();
   }
 
@@ -227,7 +228,7 @@ public class DefaultIdentifierAssignmentHandler
   public void logAndCommit(String preMessage, int objectCt, int logCt,
     int commitCt) throws Exception {
     // N/A
-    
+
   }
 
 }

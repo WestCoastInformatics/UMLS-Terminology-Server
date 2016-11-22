@@ -15,13 +15,15 @@ import java.util.UUID;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
  * Implements a security handler that authorizes via UTS authentication.
  */
-public class UtsSecurityServiceHandler implements SecurityServiceHandler {
+public class UtsSecurityServiceHandler extends AbstractConfigurable
+    implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;

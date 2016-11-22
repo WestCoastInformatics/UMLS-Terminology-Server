@@ -86,8 +86,8 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
     // Set up the search handler
     final ComputePreferredNameHandler prefNameHandler =
-        getComputePreferredNameHandler(getProject().getTerminology());       
-    
+        getComputePreferredNameHandler(getProject().getTerminology());
+
     // Count number of added and updated Semantic Types, for logging
     int addCount = 0;
     int updateCount = 0;
@@ -137,9 +137,15 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
         // Load the referenced atom, or preferred atom of atomClass object
-        Component component = getComponent(fields[10], fields[1], (ConfigUtility.isEmpty(fields[11]) ? null : getCachedTerminology(fields[11]).getTerminology()), null);
-        if(component == null){
-          logWarnAndUpdate(line, "Warning - could not find Component for type: " + fields[10] + ", terminologyId: " + fields[1] + ", and terminology:" + fields[11]);
+        Component component = getComponent(fields[10], fields[1],
+            (ConfigUtility.isEmpty(fields[11]) ? null
+                : getCachedTerminology(fields[11]).getTerminology()),
+            null);
+        if (component == null) {
+          logWarnAndUpdate(line,
+              "Warning - could not find Component for type: " + fields[10]
+                  + ", terminologyId: " + fields[1] + ", and terminology:"
+                  + fields[11]);
           continue;
         }
         Atom atom = null;
@@ -239,26 +245,18 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {

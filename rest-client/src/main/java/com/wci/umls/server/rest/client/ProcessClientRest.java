@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -58,7 +58,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/add" + "?projectId=" + projectId);
+        + "/process/config" + "?projectId=" + projectId);
 
     final String processConfigString = ConfigUtility.getStringForGraph(
         processConfig == null ? new ProcessConfigJpa() : processConfig);
@@ -89,7 +89,7 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - update processConfig " + processConfig);
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/update" + "?projectId=" + projectId);
+        + "/process/config" + "?projectId=" + projectId);
 
     String processConfigString = ConfigUtility.getStringForGraph(
         processConfig == null ? new ProcessConfigJpa() : processConfig);
@@ -112,9 +112,9 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - remove processConfig " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/" + id + "/remove?projectId=" + projectId
-        + (cascade ? "&cascade=true" : ""));
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/process/config/" + id
+            + "?projectId=" + projectId + (cascade ? "&cascade=true" : ""));
 
     if (id == null)
       return;
@@ -169,7 +169,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config" + "?projectId=" + projectId + "&query="
+        + "/process/config/find" + "?projectId=" + projectId + "&query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
@@ -230,7 +230,7 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/execution" + "?projectId=" + projectId + "&query="
+        + "/process/execution/find" + "?projectId=" + projectId + "&query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
@@ -288,9 +288,9 @@ public class ProcessClientRest extends RootClientRest
         .debug("Process Client - remove processExecution " + id);
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/execution/" + id + "/remove?projectId=" + projectId
-        + (cascade ? "&cascade=true" : ""));
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/process/execution/" + id
+            + "?projectId=" + projectId + (cascade ? "&cascade=true" : ""));
 
     if (id == null)
       return;
@@ -307,14 +307,15 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public AlgorithmConfig addAlgorithmConfig(Long projectId, Long processId, 
+  public AlgorithmConfig addAlgorithmConfig(Long projectId, Long processId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "AlgorithmConfig Client - add algorithmConfig" + algorithmConfig);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/add" + "?projectId=" + projectId + "&processId=" + processId);
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/process/config/algo"
+            + "?projectId=" + projectId + "&processId=" + processId);
 
     final String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
@@ -339,19 +340,17 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public AlgorithmConfig newAlgorithmConfig(Long projectId,
-    String key, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "AlgorithmConfig Client - new algorithmConfig" + key);
+  public AlgorithmConfig newAlgorithmConfig(Long projectId, String key,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("AlgorithmConfig Client - new algorithmConfig" + key);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/config/algo/" + key + "/new" + "?projectId=" + projectId);
 
-
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .get();
+        .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -366,16 +365,41 @@ public class ProcessClientRest extends RootClientRest
 
     return result;
   }
-  
+
   /* see superclass */
   @Override
-  public void updateAlgorithmConfig(Long projectId,
+  public void updateAlgorithmConfig(Long projectId, Long processId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - update algorithmConfig " + algorithmConfig);
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/update" + "?projectId=" + projectId);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/process/config/algo"
+            + "?projectId=" + projectId + "?processId=" + processId);
+
+    String algorithmConfigString = ConfigUtility.getStringForGraph(
+        algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.xml(algorithmConfigString));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void validateAlgorithmConfig(Long projectId, Long processId,
+    AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Process Client - validate algorithmConfig " + algorithmConfig);
+    Client client = ClientBuilder.newClient();
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/process/config/algo/validate"
+            + "?projectId=" + projectId + "&processId=" + processId);
 
     String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
@@ -399,7 +423,7 @@ public class ProcessClientRest extends RootClientRest
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/" + id + "/remove?projectId=" + projectId);
+        + "/process/config/algo/" + id + "?projectId=" + projectId);
 
     if (id == null)
       return;
@@ -579,7 +603,8 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/" + id + "/execute?projectId=" + projectId + (background ? "&background=true" : ""));
+        + "/process/config/" + id + "/execute?projectId=" + projectId
+        + (background ? "&background=true" : ""));
     final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
@@ -597,7 +622,7 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void cancelProcess(Long projectId, Long id, String authToken)
+  public Long cancelProcess(Long projectId, Long id, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - cancel process execution " + id);
@@ -608,37 +633,45 @@ public class ProcessClientRest extends RootClientRest
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // do nothing, successful
-    } else {
-      throw new Exception("Unexpected status - " + response.getStatus());
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public void restartProcess(Long projectId, Long id, Boolean background,
-    String authToken) throws Exception {
-
-    Logger.getLogger(getClass()).debug(
-        "Project Client - restart a previously canceled process");
-
-    validateNotEmpty(projectId, "projectId");
-
-    final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/execution/" + id + "/restart?projectId=" + projectId + (background ? "&background=true" : ""));
-    final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
-
+    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
 
-  }  
-  
+    // converting to object
+    return Long.parseLong(resultString);
+  }
+
+  /* see superclass */
+  @Override
+  public Long restartProcess(Long projectId, Long id, Boolean background,
+    String authToken) throws Exception {
+
+    Logger.getLogger(getClass())
+        .debug("Project Client - restart a previously canceled process");
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/execution/" + id + "/restart?projectId=" + projectId
+        + (background ? "&background=true" : ""));
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return Long.parseLong(resultString);
+
+  }
+
   /* see superclass */
   @Override
   public Integer getProcessProgress(Long projectId, Long id, String authToken)
@@ -696,8 +729,8 @@ public class ProcessClientRest extends RootClientRest
   }
 
   @Override
-  public String getProcessLog(Long projectId, Long processExecutionId, String authToken)
-    throws Exception {
+  public String getProcessLog(Long projectId, Long processExecutionId,
+    String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Project Client - find log entries of specified process execution");
 
@@ -731,8 +764,9 @@ public class ProcessClientRest extends RootClientRest
     validateNotEmpty(algorithmExecutionId, "algorithmExecutionId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algo/" + algorithmExecutionId + "/log?projectId=" + projectId);
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/process/algo/"
+            + algorithmExecutionId + "/log?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 

@@ -210,14 +210,14 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/release/add")
+  @Path("/release")
   @ApiOperation(value = "Add release info", notes = "Adds the specified release info", response = ReleaseInfoJpa.class)
   public ReleaseInfo addReleaseInfo(
     @ApiParam(value = "Release info object, e.g. see output of /release/current", required = true) ReleaseInfoJpa releaseInfo,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (History): /release/add " + releaseInfo.getName());
+        .info("RESTful call (History): /release " + releaseInfo.getName());
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -241,14 +241,14 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/release/update")
+  @Path("/release")
   @ApiOperation(value = "Update release info", notes = "Updatess the specified release info")
   public void updateReleaseInfo(
     @ApiParam(value = "Release info object, e.g. see output of /release/current", required = true) ReleaseInfoJpa releaseInfo,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/update " + releaseInfo.getName());
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release " + releaseInfo.getName());
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -269,14 +269,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/release/remove/{id}")
+  @Path("/release/{id}")
   @ApiOperation(value = "Remove release info", notes = "Removes the release info for the specified id")
   public void removeReleaseInfo(
     @ApiParam(value = "Release info object id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (History): /release/remove/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (History): /release/" + id);
 
     HistoryService historyService = new HistoryServiceJpa();
     try {

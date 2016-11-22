@@ -367,7 +367,7 @@ tsApp
             queryRestriction : (paging.filter ? paging.filter + ' AND ' : '')
               + $scope.selected.processType
           };
-          processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
+          processService.findProcessExecutions($scope.selected.project.id, null, pfs).then(
           // Success
           function(data) {
             $scope.lists.processes = data.processes;
@@ -414,7 +414,7 @@ tsApp
             maxResults : 1,
             queryRestriction : $scope.selected.processType
           };
-          processService.findProcessExecs($scope.selected.project.id, null, pfs).then(
+          processService.findProcessExecutions($scope.selected.project.id, null, pfs).then(
           // Success
           function(data) {
             $scope.counts['Execution'] = data.totalCount;

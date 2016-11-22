@@ -36,6 +36,7 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.content.AbstractAtomClass;
 import com.wci.umls.server.jpa.content.AbstractComponent;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
@@ -45,7 +46,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  * Default implementation of {@link SearchHandler}. This provides an algorithm
  * to aide in lucene searches of atom classes (Concept, Descriptor, Code)
  */
-public class AtomClassSearchHandler implements SearchHandler {
+public class AtomClassSearchHandler extends AbstractConfigurable implements SearchHandler {
 
   /** The acronym expansion map. */
   private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();

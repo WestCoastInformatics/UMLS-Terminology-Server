@@ -213,9 +213,7 @@
         </tbody>
       </table>
       <div style="margin-bottom: 10px;">
-        <h5 style="display: inline;">
-          <b>Steps</b>
-        </h5>
+        <h5 style="display: inline;">Steps</h5>
         <span
           ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
           style="float: right;">
@@ -256,8 +254,12 @@
             {{step.name}}
           </td>
           <td class="col-md-4 col-xs-4">{{step.description}}</td>
-          <td class="col-md-3 col-xs-3">{{toDate(step.lastModified)}}
-          <span ng-show="selected.mode == 'Execution'"><br />getExecutionState(step)</span></td>
+          <td class="col-md-3 col-xs-3">
+            {{toDate(step.lastModified)}}
+            <span ng-show="selected.mode == 'Execution'">
+              <br />getExecutionState(step)
+            </span>
+          </td>
           <td class="col-md-1 col-xs-1 nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
               type="Step"></span>

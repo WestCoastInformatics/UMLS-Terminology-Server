@@ -36,27 +36,36 @@
         <td ng-show="parameter.type == 'STRING' || parameter.type == 'TEXT'">
           <input type="text" ng-model="parameter.value" size="60"
             uib-tooltip="{{parameter.description}}"
-            placeholder="{{parameter.placeholder}}" />
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false" />
         </td>
         <td ng-show="parameter.type == 'BOOLEAN'">
           <input type="checkbox" string-to-boolean ng-model="parameter.value"
-            uib-tooltip="{{parameter.description}}">
+            uib-tooltip="{{parameter.description}}"
+            ng-change="validated = false" />
+
         </td>
         <td ng-show="parameter.type == 'MULTI'">
           <span uib-tooltip="{{parameter.description}}">
             <select multiple ng-model="parameter.values"
-              ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"
+              ng-change="validated = false">
+            </select>
           </span>
         </td>
         <td ng-show="parameter.type == 'INTEGER'">
           <input type="number" string-to-number size="4"
             ng-model="parameter.value" placeholder="{{parameter.placeholder}}"
-            uib-tooltip="{{parameter.description}}" />
+            uib-tooltip="{{parameter.description}}"
+            ng-change="validated = false" />
+
         </td>
         <td ng-show="parameter.type == 'ENUM'">
           <span uib-tooltip="{{parameter.description}}">
             <select ng-model="parameter.value"
-              ng-options="possibleValue for possibleValue in parameter.possibleValues"></select>
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"
+              ng-change="validated = false">
+            </select>
           </span>
         </td>
       </tr>
@@ -77,7 +86,8 @@
   </div>
 
   <div class="modal-footer">
-    <button ng-click="submitProcess(process)" class="btn btn-primary"
-      ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
+    <button class="btn btn-success" ng-click="validate()">Validate</button>
+    <button ng-disabled="!validated" ng-click="submitAlgorithm(algorithm)"
+      class="btn btn-primary" ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
     <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
   </div>

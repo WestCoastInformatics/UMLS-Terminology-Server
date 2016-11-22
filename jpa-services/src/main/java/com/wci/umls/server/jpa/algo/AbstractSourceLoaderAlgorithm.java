@@ -40,7 +40,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -57,10 +56,9 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
-  /**  The search handler. */
+  /** The search handler. */
   public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
-   
-  
+
   /** The full directory where the src files are. */
   private File srcDirFile = null;
 
@@ -1180,14 +1178,17 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     relCachedTerms.clear();
     relIdCache.clear();
   }
-  
-  //TODO - recheck in on this one.
+
+  // TODO - recheck in on this one.
+  @SuppressWarnings({
+      "unused", "javadoc"
+  })
   private void clearRelationshipAltTerminologies() {
 
-    //Lookup alt Ids where KEY = project.getTerminology()+"-SRC"??
-    
-    //Load relationship, remove altId, update relationship.
-    
-  }  
-  
+    // Lookup alt Ids where KEY = project.getTerminology()+"-SRC"??
+
+    // Load relationship, remove altId, update relationship.
+
+  }
+
 }

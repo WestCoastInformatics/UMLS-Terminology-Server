@@ -12,13 +12,15 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
  * Implements a security handler that authorizes via IHTSDO authentication.
  */
-public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
+public class DefaultSecurityServiceHandler extends AbstractConfigurable
+    implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;
@@ -50,8 +52,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (getAdminUsersFromConfigFile().contains(userName)) {
       user.setApplicationRole(UserRole.ADMINISTRATOR);
       user.setUserName(userName);
-      user.setName(userName.substring(0, 1).toUpperCase()
-          + userName.substring(1));
+      user.setName(
+          userName.substring(0, 1).toUpperCase() + userName.substring(1));
       user.setEmail(userName + "@example.com");
       return user;
     }
@@ -59,8 +61,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (getUserUsersFromConfigFile().contains(userName)) {
       user.setApplicationRole(UserRole.USER);
       user.setUserName(userName);
-      user.setName(userName.substring(0, 1).toUpperCase()
-          + userName.substring(1));
+      user.setName(
+          userName.substring(0, 1).toUpperCase() + userName.substring(1));
       user.setEmail(userName + "@example.com");
       return user;
     }
@@ -68,8 +70,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     if (getViewerUsersFromConfigFile().contains(userName)) {
       user.setApplicationRole(UserRole.VIEWER);
       user.setUserName(userName);
-      user.setName(userName.substring(0, 1).toUpperCase()
-          + userName.substring(1));
+      user.setName(
+          userName.substring(0, 1).toUpperCase() + userName.substring(1));
       user.setEmail(userName + "@example.com");
       return user;
     }
@@ -119,10 +121,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     String userList = properties.getProperty("users.viewer");
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.viewer for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.viewer for security handler DEFAULT");
       return userSet;
     }
 
@@ -144,10 +144,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.user for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.user for security handler DEFAULT");
       return userSet;
     }
 
@@ -169,10 +167,8 @@ public class DefaultSecurityServiceHandler implements SecurityServiceHandler {
     Logger.getLogger(getClass()).info(properties.keySet());
 
     if (userList == null) {
-      Logger
-          .getLogger(getClass())
-          .warn(
-              "Could not retrieve config parameter users.admin for security handler DEFAULT");
+      Logger.getLogger(getClass()).warn(
+          "Could not retrieve config parameter users.admin for security handler DEFAULT");
       return userSet;
     }
 

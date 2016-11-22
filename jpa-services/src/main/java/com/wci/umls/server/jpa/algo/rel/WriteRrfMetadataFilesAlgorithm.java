@@ -45,7 +45,6 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
-  
   /**
    * Instantiates an empty {@link WriteRrfMetadataFilesAlgorithm}.
    *
@@ -68,7 +67,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
     fireProgressEvent(0, "Progress: " + 0 + "%");
     logInfo("Starting Write RRF metadata files");
-    
+
     writeMrdoc();
     fireProgressEvent(25, "Progress: " + 25 + "%");
     writeMrsab();
@@ -80,56 +79,60 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     logInfo("Finished Write RRF metadata files");
     fireProgressEvent(100, "Progress: " + 100 + "%");
 
-
   }
 
   private void writeMrrank() throws Exception {
     logInfo("  Write MRRANK data");
-    final File dir = new File(config.getProperty("source.data.dir") + "/" +  
-      getProcess().getInputPath() + "/" + getProcess().getVersion() + "/" + "META");
+    final File dir = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
+        + "META");
     final File outputFile = new File(dir, "MRRANK.RRF");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    PrecedenceList precList = getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
-    int index = precList.getPrecedence().getKeyValuePairs().size();    
+    PrecedenceList precList = getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion());
+    int index = precList.getPrecedence().getKeyValuePairs().size();
     for (KeyValuePair pair : precList.getPrecedence().getKeyValuePairs()) {
       StringBuffer sb = new StringBuffer();
       sb.append(String.format("%04d", index--)).append("|");
       sb.append(pair.getKey()).append("|");
       sb.append(pair.getValue()).append("|");
-      sb.append("N").append("|");   // TODO SUPPRESS  (ignored on input side)
+      sb.append("N").append("|"); // TODO SUPPRESS (ignored on input side)
       out.print(sb.toString() + "\n");
     }
-    
+
     out.close();
   }
-  
+
   private void writeMrcolsMrfiles() throws Exception {
     logInfo("  Write MRCOLS/MRFILES data");
-    Path source = Paths.get(config.getProperty("source.data.dir") + "/" +  
-      getProcess().getInputPath() + "/META/MRFILES.RRF");
-    Path destination = Paths.get(config.getProperty("source.data.dir") + "/" +  
-        getProcess().getInputPath() + "/" + getProcess().getVersion() + "/META/MRFILES.RRF");
- 
+    Path source = Paths.get(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/META/MRFILES.RRF");
+    Path destination = Paths.get(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META/MRFILES.RRF");
+
     Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-    
-    source = Paths.get(config.getProperty("source.data.dir") + "/" +  
-        getProcess().getInputPath() + "/META/MRCOLS.RRF");
-    destination = Paths.get(config.getProperty("source.data.dir") + "/" +  
-          getProcess().getInputPath() + "/" + getProcess().getVersion() + "/META/MRCOLS.RRF");
-   
+
+    source = Paths.get(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/META/MRCOLS.RRF");
+    destination = Paths.get(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META/MRCOLS.RRF");
+
     Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
   }
-  
+
   private void writeMrsab() throws Exception {
     logInfo("  Write MRSAB data");
-    final File dir = new File(config.getProperty("source.data.dir") + "/" +  
-      getProcess().getInputPath() + "/" + getProcess().getVersion() + "/" + "META");
+    final File dir = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
+        + "META");
     final File outputFile = new File(dir, "MRSAB.RRF");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     for (Terminology term : getCurrentTerminologies().getObjects()) {
-    
+
       // Field Description
       // 0 VCUI
       // 1 RCUI
@@ -173,51 +176,68 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       String vcui = "";
       String rcui = "";
       PfsParameter pfs = new PfsParameterJpa();
-      SearchResultList results = findConcepts(getProject().getTerminology(), getProject().getVersion(),
-          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology() + " AND atoms.terminology:SRC AND atoms.termType:RPT", pfs);
+      SearchResultList results = findConcepts(getProject().getTerminology(),
+          getProject().getVersion(), getProject().getBranch(),
+          " atoms.codeId:V-" + term.getTerminology()
+              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+          pfs);
       Concept rootTerminologyConcept = null;
       if (results.getTotalCount() > 0) {
-        rootTerminologyConcept = getConcept(results.getObjects().get(0).getId());
+        rootTerminologyConcept =
+            getConcept(results.getObjects().get(0).getId());
         rcui = rootTerminologyConcept.getTerminologyId();
         // TODO VCUIs still not showing up
-        for (Relationship rel : this.findConceptDeepRelationships(rootTerminologyConcept.getTerminologyId(), 
-            getProject().getTerminology(), getProject().getVersion(), Branch.ROOT, "", false, false, false, false, pfs).getObjects()) {
-          for (Atom atom : ((Concept)rel.getTo()).getAtoms()) {
-            if (atom.getTerminology().equals("SRC") && atom.getTermType().equals("VPT")) {
-              vcui =  rel.getTo().getTerminologyId();
+        for (Relationship rel : this
+            .findConceptDeepRelationships(
+                rootTerminologyConcept.getTerminologyId(),
+                getProject().getTerminology(), getProject().getVersion(),
+                Branch.ROOT, "", false, false, false, false, pfs)
+            .getObjects()) {
+          for (Atom atom : ((Concept) rel.getTo()).getAtoms()) {
+            if (atom.getTerminology().equals("SRC")
+                && atom.getTermType().equals("VPT")) {
+              vcui = rel.getTo().getTerminologyId();
             }
           }
         }
-      } /*// TODO fails on CCS_10 else {
-        throw new Exception("Unable to find root terminology - " + term.getTerminology());
-      }*/
-      
-      
+      } /*
+         * // TODO fails on CCS_10 else { throw new
+         * Exception("Unable to find root terminology - " +
+         * term.getTerminology()); }
+         */
+
       sb.append(vcui).append("|"); // 0
       sb.append(rcui).append("|"); // 1
-      sb.append(term.getTerminology()).append("|");  //2
-      sb.append(term.getRootTerminology().getTerminology()).append("|");  //3
-      sb.append(term.getPreferredName()).append("|");   //4
-      sb.append(term.getRootTerminology().getFamily()).append("|");  // 5  
-      sb.append(term.getVersion()).append("|");    //6
-      sb.append(term.getStartDate() != null ? term.getStartDate() : "").append("|");    // 7
-      sb.append(term.getEndDate() != null ? term.getEndDate() : "").append("|");    // 8
-      // 9 IMETA  // TODO Version of the Metathesaurus that a source was added
-      // 10 RMETA  // Version of the Metathesaurus where a version is removed
+      sb.append(term.getTerminology()).append("|"); // 2
+      sb.append(term.getRootTerminology().getTerminology()).append("|"); // 3
+      sb.append(term.getPreferredName()).append("|"); // 4
+      sb.append(term.getRootTerminology().getFamily()).append("|"); // 5
+      sb.append(term.getVersion()).append("|"); // 6
+      sb.append(term.getStartDate() != null ? term.getStartDate() : "")
+          .append("|"); // 7
+      sb.append(term.getEndDate() != null ? term.getEndDate() : "").append("|"); // 8
+      // 9 IMETA // TODO Version of the Metathesaurus that a source was added
+      // 10 RMETA // Version of the Metathesaurus where a version is removed
       sb.append("||"); // for IMETA/RMETA
       sb.append(term.getRootTerminology().getLicenseContact()).append("|"); // 11
       sb.append(term.getRootTerminology().getContentContact()).append("|"); // 12
       sb.append(term.getRootTerminology().getRestrictionLevel()).append("|"); // 13
-      sb.append(getTfr(term.getRootTerminology().getTerminology())).append("|"); // 14 TFR  
-      sb.append(getCfr(term.getRootTerminology().getTerminology())).append("|"); // 15 CFR 
-      sb.append(term.getRootTerminology().isPolyhierarchy()).append("|"); // 16 CXTY      
-      sb.append(getTtyl(term.getRootTerminology().getTerminology())).append("|");// 17 TTYL 
-      sb.append(getAtnl(term.getRootTerminology().getTerminology())).append("|"); // 18 ATNL 
-      sb.append(term.getRootTerminology().getLanguage() != null ? term.getRootTerminology().getLanguage() : "").append("|"); // 19 LAT
-      sb.append("UTF-8").append("|"); // 20 CENC 
-      sb.append("Y").append("|");  // 21
+      sb.append(getTfr(term.getRootTerminology().getTerminology())).append("|"); // 14
+                                                                                 // TFR
+      sb.append(getCfr(term.getRootTerminology().getTerminology())).append("|"); // 15
+                                                                                 // CFR
+      sb.append(term.getRootTerminology().isPolyhierarchy()).append("|"); // 16
+                                                                          // CXTY
+      sb.append(getTtyl(term.getRootTerminology().getTerminology()))
+          .append("|");// 17 TTYL
+      sb.append(getAtnl(term.getRootTerminology().getTerminology()))
+          .append("|"); // 18 ATNL
+      sb.append(term.getRootTerminology().getLanguage() != null
+          ? term.getRootTerminology().getLanguage() : "").append("|"); // 19 LAT
+      sb.append("UTF-8").append("|"); // 20 CENC
+      sb.append("Y").append("|"); // 21
       sb.append(term.isCurrent()).append("|"); // 22 SABIN
-      
+
       if (rootTerminologyConcept != null) { // TODO remove
         for (Atom atom : rootTerminologyConcept.getAtoms()) {// 23 SSN
           if (atom.getTermType().equals("SSN") && atom.isPublishable()) {
@@ -226,35 +246,34 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         }
       }
       sb.append(term.getCitation()).append("|"); // 24 SCIT
-      
+
       out.print(sb.toString() + "\n");
     }
     out.close();
   }
-  
+
   private String getTfr(String terminology) {
-    String queryStr = "select count(*) "
-      + "from AtomJpa a " + "where " +
-      "a.terminology = :terminology and a.publishable = true";
+    String queryStr = "select count(*) " + "from AtomJpa a " + "where "
+        + "a.terminology = :terminology and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     return query.getSingleResult().toString();
   }
-  
+
   private String getCfr(String terminology) {
     String queryStr = "select count(*) "
-      + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology" +
-      " and a.publishable = true";
+        + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology"
+        + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     query.setParameter("projectTerminology", getProject().getTerminology());
     return query.getSingleResult().toString();
   }
-  
+
   private String getTtyl(String terminology) {
     String queryStr = "select distinct termType "
-      + "from AtomJpa a where a.terminology = :terminology" +
-      " and a.publishable = true";
+        + "from AtomJpa a where a.terminology = :terminology"
+        + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     List<String> list = query.getResultList();
@@ -264,15 +283,15 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(tty).append(",");
     }
     if (sb.toString().endsWith(",")) {
-      return sb.toString().substring(0, sb.toString().length() -1);
+      return sb.toString().substring(0, sb.toString().length() - 1);
     }
     return "";
   }
-  
+
   private String getAtnl(String terminology) {
     String queryStr = "select distinct name "
-      + "from AttributeJpa a where a.terminology = :terminology" +
-      " and a.publishable = true";
+        + "from AttributeJpa a where a.terminology = :terminology"
+        + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     List<String> list = query.getResultList();
@@ -282,26 +301,27 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(atn).append(",");
     }
     if (sb.toString().endsWith(",")) {
-      return sb.toString().substring(0, sb.toString().length() -1);
+      return sb.toString().substring(0, sb.toString().length() - 1);
     }
     return "";
   }
-  
+
   /**
-   * Write MRDOC. 
+   * Write MRDOC.
    *
    * @throws Exception the exception
    */
   private void writeMrdoc() throws Exception {
     logInfo("  Write MRDOC ");
 
-    final File dir = new File(config.getProperty("source.data.dir") + "/" +  
-      getProcess().getInputPath() + "/" + getProcess().getVersion() + "/" + "META");
+    final File dir = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
+        + "META");
     final File outputFile = new File(dir, "MRDOC.RRF");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     List<String> outputLines = new ArrayList<>();
- 
+
     // Field Description DOCKEY,VALUE,TYPE,EXPL
     // 0 DOCKEY
     // 1 VALUE
@@ -311,165 +331,173 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     // Handle AttributeNames
     // e.g.
     // ATN|ACCEPTABILITYID|expanded_form|Acceptability Id|
-    for (AttributeName atn : getAttributeNames(getProject().getTerminology(), getProject().getVersion()).getObjects()) {      
+    for (AttributeName atn : getAttributeNames(getProject().getTerminology(),
+        getProject().getVersion()).getObjects()) {
       StringBuffer sb = new StringBuffer();
       sb.append("ATN").append("|");
       sb.append(atn.getAbbreviation()).append("|");
       sb.append("expanded_form").append("|");
       sb.append(atn.getExpandedForm()).append("|");
       outputLines.add(sb.toString());
-      }
+    }
 
-      // Handle Languages
-     for (Language lat : getLanguages(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-       StringBuffer sb = new StringBuffer();
-       sb.append("LAT").append("|");
-       sb.append(lat.getAbbreviation()).append("|");
-       sb.append("expanded_form").append("|");
-       sb.append(lat.getExpandedForm()).append("|");
-       outputLines.add(sb.toString());
-      }
+    // Handle Languages
+    for (Language lat : getLanguages(getProject().getTerminology(),
+        getProject().getVersion()).getObjects()) {
+      StringBuffer sb = new StringBuffer();
+      sb.append("LAT").append("|");
+      sb.append(lat.getAbbreviation()).append("|");
+      sb.append("expanded_form").append("|");
+      sb.append(lat.getExpandedForm()).append("|");
+      outputLines.add(sb.toString());
+    }
 
-      // Handle AdditionalRelationshipLabel
-      for(AdditionalRelationshipType rela : getAdditionalRelationshipTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("RELA").append("|");
-        sb.append(rela.getAbbreviation()).append("|");
-        sb.append("expanded_form").append("|");
-        sb.append(rela.getExpandedForm()).append("|"); 
-        outputLines.add(sb.toString());
+    // Handle AdditionalRelationshipLabel
+    for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
+        getProject().getTerminology(), getProject().getVersion())
+            .getObjects()) {
+      StringBuffer sb = new StringBuffer();
+      sb.append("RELA").append("|");
+      sb.append(rela.getAbbreviation()).append("|");
+      sb.append("expanded_form").append("|");
+      sb.append(rela.getExpandedForm()).append("|");
+      outputLines.add(sb.toString());
+      sb = new StringBuffer();
+      sb.append("RELA").append("|");
+      sb.append(rela.getAbbreviation()).append("|");
+      sb.append("rela_inverse").append("|");
+      sb.append(rela.getInverse().getAbbreviation()).append("|");
+      outputLines.add(sb.toString());
+    }
+
+    // Handle RelationshipLabel
+    for (RelationshipType rela : getRelationshipTypes(
+        getProject().getTerminology(), getProject().getVersion())
+            .getObjects()) {
+      StringBuffer sb = new StringBuffer();
+      sb.append("REL").append("|");
+      sb.append(rela.getAbbreviation()).append("|");
+      sb.append("expanded_form").append("|");
+      sb.append(rela.getExpandedForm()).append("|");
+      outputLines.add(sb.toString());
+      sb = new StringBuffer();
+      sb.append("REL").append("|");
+      sb.append(rela.getAbbreviation()).append("|");
+      sb.append("rel_inverse").append("|");
+      sb.append(rela.getInverse().getAbbreviation()).append("|");
+      outputLines.add(sb.toString());
+    }
+
+    for (TermType tty : getTermTypes(getProject().getTerminology(),
+        getProject().getVersion()).getObjects()) {
+      StringBuffer sb = new StringBuffer();
+      sb.append("TTY").append("|");
+      sb.append(tty.getAbbreviation()).append("|");
+      sb.append("expanded_form").append("|");
+      sb.append(tty.getExpandedForm()).append("|");
+      outputLines.add(sb.toString());
+
+      if (tty.getCodeVariantType() == CodeVariantType.PET) {
         sb = new StringBuffer();
-        sb.append("RELA").append("|");
-        sb.append(rela.getAbbreviation()).append("|");
-        sb.append("rela_inverse").append("|");
-        sb.append(rela.getInverse().getAbbreviation()).append("|"); 
-        outputLines.add(sb.toString());
-      } 
-
-      // Handle RelationshipLabel
-      for(RelationshipType rela : getRelationshipTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("REL").append("|");
-        sb.append(rela.getAbbreviation()).append("|");
-        sb.append("expanded_form").append("|");
-        sb.append(rela.getExpandedForm()).append("|"); 
-        outputLines.add(sb.toString());
-        sb = new StringBuffer();
-        sb.append("REL").append("|");
-        sb.append(rela.getAbbreviation()).append("|");
-        sb.append("rel_inverse").append("|");
-        sb.append(rela.getInverse().getAbbreviation()).append("|"); 
-        outputLines.add(sb.toString());
-      } 
-
-
-      for(TermType tty : getTermTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
         sb.append("TTY").append("|");
         sb.append(tty.getAbbreviation()).append("|");
-        sb.append("expanded_form").append("|");
-        sb.append(tty.getExpandedForm()).append("|"); 
+        sb.append("tty_class").append("|");
+        sb.append("entry_term").append("|");
         outputLines.add(sb.toString());
-     
-        if (tty.getCodeVariantType() == CodeVariantType.PET) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("entry_term").append("|");
-          outputLines.add(sb.toString());
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("preferred").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getCodeVariantType() == CodeVariantType.PN) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("preferred").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getCodeVariantType() == CodeVariantType.ET) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("entry_term").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getCodeVariantType() == CodeVariantType.ATTRIBUTE) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("attribute").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getCodeVariantType() == CodeVariantType.SY) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("synonym").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getNameVariantType() == NameVariantType.AB) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("abbreviation").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.isHierarchicalType()) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("hierarchical").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.isObsolete()) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("obsolete").append("|");
-          outputLines.add(sb.toString());
-        }
-        if (tty.getNameVariantType() == NameVariantType.EXPANDED) {
-          sb = new StringBuffer();
-          sb.append("TTY").append("|");
-          sb.append(tty.getAbbreviation()).append("|");
-          sb.append("tty_class").append("|");
-          sb.append("expanded").append("|");
-          outputLines.add(sb.toString());
-        }
-              
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("preferred").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getCodeVariantType() == CodeVariantType.PN) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("preferred").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getCodeVariantType() == CodeVariantType.ET) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("entry_term").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getCodeVariantType() == CodeVariantType.ATTRIBUTE) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("attribute").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getCodeVariantType() == CodeVariantType.SY) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("synonym").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getNameVariantType() == NameVariantType.AB) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("abbreviation").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.isHierarchicalType()) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("hierarchical").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.isObsolete()) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("obsolete").append("|");
+        outputLines.add(sb.toString());
+      }
+      if (tty.getNameVariantType() == NameVariantType.EXPANDED) {
+        sb = new StringBuffer();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("expanded").append("|");
+        outputLines.add(sb.toString());
       }
 
-      // General metadata entries (skip MAPATN)
-      for(GeneralMetadataEntry entry : getGeneralMetadataEntries(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-          StringBuffer sb = new StringBuffer();
-          sb.append(entry.getKey()).append("|");
-          sb.append(entry.getAbbreviation()).append("|");
-          sb.append(entry.getType()).append("|");
-          sb.append(entry.getExpandedForm()).append("|"); 
-          outputLines.add(sb.toString());
-      }
-      
-      // sort and write to file
-      Collections.sort(outputLines);
-      for (String line : outputLines) {
-        out.print(line + "\n");
-      }
-      out.close();
+    }
+
+    // General metadata entries (skip MAPATN)
+    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(
+        getProject().getTerminology(), getProject().getVersion())
+            .getObjects()) {
+      StringBuffer sb = new StringBuffer();
+      sb.append(entry.getKey()).append("|");
+      sb.append(entry.getAbbreviation()).append("|");
+      sb.append(entry.getType()).append("|");
+      sb.append(entry.getExpandedForm()).append("|");
+      outputLines.add(sb.toString());
+    }
+
+    // sort and write to file
+    Collections.sort(outputLines);
+    for (String line : outputLines) {
+      out.print(line + "\n");
+    }
+    out.close();
   }
-  
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -479,8 +507,16 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
+  }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
 }

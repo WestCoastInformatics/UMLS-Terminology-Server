@@ -86,12 +86,6 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     setLastModifiedBy("admin");
   }
 
-  /**
-   * Check preconditions.
-   *
-   * @return the validation result
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -116,11 +110,6 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     return validationResult;
   }
 
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -683,11 +672,6 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     return termsWithHcds;
   }
 
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -740,25 +724,18 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
+    // n/a
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {

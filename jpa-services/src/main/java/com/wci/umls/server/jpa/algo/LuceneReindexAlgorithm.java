@@ -165,12 +165,13 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
-
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
-
     if (p.getProperty("indexedObjects") != null) {
       indexedObjects = p.getProperty("indexedObjects");
     }
@@ -184,7 +185,7 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Indexed Objects", "indexedObjects",
             "Comma-separated list of simple object class names to reindex.", "",
-            255, AlgorithmParameter.Type.STRING,"");
+            255, AlgorithmParameter.Type.STRING, "");
     params.add(param);
     return params;
 

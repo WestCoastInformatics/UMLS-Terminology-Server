@@ -60,7 +60,7 @@ public class ProjectClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/add");
+        client.target(config.getProperty("base.url") + "/project/");
 
     String projectString = ConfigUtility
         .getStringForGraph(project == null ? new ProjectJpa() : project);
@@ -89,7 +89,7 @@ public class ProjectClientRest extends RootClientRest
         .debug("Project Client - update project " + project);
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/update");
+        client.target(config.getProperty("base.url") + "/project/");
 
     String projectString = ConfigUtility
         .getStringForGraph(project == null ? new ProjectJpa() : project);
@@ -110,7 +110,7 @@ public class ProjectClientRest extends RootClientRest
     validateNotEmpty(id, "id");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/remove/" + id);
+        client.target(config.getProperty("base.url") + "/project/" + id);
 
     if (id == null)
       return;
@@ -156,7 +156,7 @@ public class ProjectClientRest extends RootClientRest
     Logger.getLogger(getClass()).debug("Project Client - get projects");
     Client client = ClientBuilder.newClient();
     WebTarget target =
-        client.target(config.getProperty("base.url") + "/project/all");
+        client.target(config.getProperty("base.url") + "/project/find");
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -406,10 +406,9 @@ public class ProjectClientRest extends RootClientRest
     validateNotEmpty(authToken, "Authorization");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/project/log?" + "projectId="
-            + projectId + "&objectId=" + objectId + (message == null ? "" : 
-            "&message=" + message ) + "&lines=" + lines);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/project/log?" + "projectId=" + projectId + "&objectId=" + objectId
+        + (message == null ? "" : "&message=" + message) + "&lines=" + lines);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
@@ -561,7 +560,7 @@ public class ProjectClientRest extends RootClientRest
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/project/reload");
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing
@@ -582,7 +581,7 @@ public class ProjectClientRest extends RootClientRest
         client.target(config.getProperty("base.url") + "/project/exception"
             + (localFlag == null ? "" : "&local=" + localFlag));
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing

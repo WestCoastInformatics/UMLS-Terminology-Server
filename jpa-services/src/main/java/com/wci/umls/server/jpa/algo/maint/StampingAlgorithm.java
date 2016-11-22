@@ -206,11 +206,15 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-
+        ""
     }, p);
+  }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
     worklistId = p.getProperty("worklistId") == null ? null
         : Long.valueOf(p.getProperty("worklistId"));
     checklistId = p.getProperty("checklistId") == null ? null
@@ -224,10 +228,10 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Worklist Id", "worklistId", "Worklist id.",
-            "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER,"");
+            "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
     param = new AlgorithmParameterJpa("Checklist Id", "checklistId",
-        "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER,"");
+        "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
     return params;
   }

@@ -194,18 +194,17 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "queryType", "query", "objectType", "action"
+    }, p);
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
 
     objectType = String.valueOf(p.getProperty("objectType"));
     action = String.valueOf(p.getProperty("action"));
@@ -225,7 +224,7 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("ObjectType",
         "objectType", "Type of object an action will be performed on",
-        "e.g. Concept", 200, AlgorithmParameter.Type.ENUM,"");
+        "e.g. Concept", 200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList(IdType.CONCEPT.toString(),
         IdType.RELATIONSHIP.toString(), IdType.SEMANTIC_TYPE.toString(),
         IdType.ATTRIBUTE.toString(), IdType.ATOM.toString()));
@@ -233,14 +232,14 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
 
     param = new AlgorithmParameterJpa("Action", "action",
         "An action to perform on the specified object type", "e.g. Approve",
-        200, AlgorithmParameter.Type.ENUM,"");
+        200, AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(
         Arrays.asList("Remove", "Make unpublishable", "Approve"));
     params.add(param);
 
     param = new AlgorithmParameterJpa("QueryType", "queryType",
         "The language the query is written in", "e.g. JQL", 200,
-        AlgorithmParameter.Type.ENUM,"");
+        AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
     params.add(param);
@@ -248,7 +247,7 @@ public class QueryActionAlgorithm extends AbstractAlgorithm {
     param = new AlgorithmParameterJpa("Query", "query",
         "A query to perform action only on objects that meet the criteria",
         "e.g. query in format of the query type", 4000,
-        AlgorithmParameter.Type.TEXT,"");
+        AlgorithmParameter.Type.TEXT, "");
     params.add(param);
 
     return params;

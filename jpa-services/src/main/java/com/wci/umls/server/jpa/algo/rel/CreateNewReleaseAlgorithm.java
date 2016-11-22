@@ -49,35 +49,40 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   public ValidationResult checkPreconditions() throws Exception {
     ValidationResult validationResult = new ValidationResultJpa();
 
-    //Verify that there is a “NET” directory at input path 
-    String path = config.getProperty("source.data.dir") + "/" + getProcess().getInputPath();
+    // Verify that there is a “NET” directory at input path
+    String path = config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath();
     File dir = new File(path, "NET");
     if (!dir.exists()) {
       throw new Exception(
           "Creating a new release requires a 'NET' directory at the input path.");
     }
-    
+
     // remaining checks are bypassable
     if (bypassValidationChecks) {
       return validationResult;
     }
-    
-    //Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
+
+    // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
     PfsParameter pfs = new PfsParameterJpa();
-    SearchResultList unreviewedConcepts = findConcepts(getProject().getTerminology(), getProject().getVersion(),
-        getProject().getBranch(), " workflowStatus:NEEDS_REVIEW", pfs);
+    SearchResultList unreviewedConcepts =
+        findConcepts(getProject().getTerminology(), getProject().getVersion(),
+            getProject().getBranch(), " workflowStatus:NEEDS_REVIEW", pfs);
     if (unreviewedConcepts.size() > 1) {
       throw new Exception(
           "Creating a new release requires all concepts to have workflowStatus reviewed.");
     }
-    
-    //Verify that all worklists in the epoch for the project are READY_FOR_PUBLICATION
-    WorklistList notReadyWorklists = findWorklists(getProject(), " NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
+
+    // Verify that all worklists in the epoch for the project are
+    // READY_FOR_PUBLICATION
+    WorklistList notReadyWorklists = findWorklists(getProject(),
+        " NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
     if (notReadyWorklists.size() > 1) {
-      throw new Exception("Creating a new release requires all worklists in the epoch to be READY_FOR_PUBLICATION");
+      throw new Exception(
+          "Creating a new release requires all worklists in the epoch to be READY_FOR_PUBLICATION");
     }
-    
-    //Verify that all “required” bins have zero counts 
+
+    // Verify that all “required” bins have zero counts
     for (WorkflowConfig config : getWorkflowConfigs(getProject())) {
       for (WorkflowBin bin : getWorkflowBins(getProject(), config.getType())) {
         if (bin.isRequired()) {
@@ -85,12 +90,13 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
             throw new Exception(
                 "Creating a new release requires that all required bins be completed and have a count of 0.");
           }
-        } 
+        }
       }
-    } 
-        
-    /*MID Validation passes – TODO later
-      Monster QA passes – TODO later*/
+    }
+
+    /*
+     * MID Validation passes – TODO later Monster QA passes – TODO later
+     */
     return validationResult;
 
   }
@@ -132,7 +138,8 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(50, "Progress: " + 50 + "%");
 
     // Add a release info for the current release
-    logInfo("  Add release info for the current release = " + getProject().getVersion());
+    logInfo("  Add release info for the current release = "
+        + getProject().getVersion());
     ReleaseInfo releaseInfo = new ReleaseInfoJpa();
     releaseInfo.setTerminology(getProject().getTerminology());
     releaseInfo.setVersion(getProcess().getVersion());
@@ -152,7 +159,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     logInfo("Starting reset of Create new release");
-    
+
     ReleaseInfo releaseInfo =
         this.getCurrentReleaseInfo(getProject().getTerminology());
     if (releaseInfo.getName().equals(getProject().getVersion())) {
@@ -164,15 +171,20 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     FileUtils.deleteDirectory(releaseDir);
 
     logInfo("Finished reset of Create new release");
-    
+
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "bypassValidationChecks"
+    }, p);
   }
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
     bypassValidationChecks =
         Boolean.valueOf(p.getProperty("bypassValidationChecks"));
   }
@@ -185,7 +197,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     AlgorithmParameter param = new AlgorithmParameterJpa(
         "Bypass validation checks", "bypassValidationChecks",
         "Indicates whether or not to skip validation checks.", "e.g. false", 0,
-        AlgorithmParameter.Type.BOOLEAN,"");
+        AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
 
     return params;

@@ -107,8 +107,8 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
       previousProgress = 0;
       stepsCompleted = 0;
 
-      TypeKeyValue validationCheckData = this.addTypeKeyValue(
-          new TypeKeyValueJpa(checkName, value1, value2));
+      TypeKeyValue validationCheckData =
+          this.addTypeKeyValue(new TypeKeyValueJpa(checkName, value1, value2));
 
       List<TypeKeyValue> validationData = getProject().getValidationData();
       if (addRemove.equals("Remove")) {
@@ -177,18 +177,17 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "addRemove", "checkName", "value1"
+    }, p);
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
 
     if (p.getProperty("addRemove") != null) {
       addRemove = String.valueOf(p.getProperty("addRemove"));
@@ -217,12 +216,12 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
     AlgorithmParameter param = new AlgorithmParameterJpa("AddRemove",
         "addRemove", "Adding or Removing integrity check", "e.g. Add", 10,
-        AlgorithmParameter.Type.ENUM,"");
+        AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Add", "Remove"));
     params.add(param);
     param = new AlgorithmParameterJpa("CheckName", "checkName",
         "The name of the check to add or remove", "e.g. MGV_B", 10,
-        AlgorithmParameter.Type.ENUM,"");
+        AlgorithmParameter.Type.ENUM, "");
     // Get the valid validation checks from the config.properties file
     List<String> validationChecks = new ArrayList<>();
     try {
@@ -242,12 +241,12 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
     param = new AlgorithmParameterJpa("Value1", "value1",
         "Value 1 of the validation check  (often the Terminology)", "e.g. NCI",
-        20, AlgorithmParameter.Type.STRING,"");
+        20, AlgorithmParameter.Type.STRING, "");
     params.add(param);
 
     param = new AlgorithmParameterJpa("Value2", "value2",
         "Value 2 of the validation check  (often blank)", "e.g. \"\"", 20,
-        AlgorithmParameter.Type.STRING,"");
+        AlgorithmParameter.Type.STRING, "");
     params.add(param);
 
     return params;

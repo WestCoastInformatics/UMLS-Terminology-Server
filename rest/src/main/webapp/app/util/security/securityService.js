@@ -225,107 +225,7 @@ tsApp.service('securityService', [
     this.isViewer = function() {
       return user.applicationRole === 'VIEWER';
     };
-
-    // permissions for determining visibility in ui
-    this.permissions = {};
-    this.permissions['CreateWorklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['CreateChecklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['RegenerateBins'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['RecomputeConceptStatus'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['UndoRedo'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['GenerateReport'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : true,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['ImportChecklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['RemoveChecklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['RemoveWorklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['Stamp'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['Unapprove'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['AssignWorklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['UnassignWorklist'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : true,
-      'ADMINISTRATOR' : true
-    };
-    this.permissions['EditProjectOrUser'] = {
-      'REVIEWER' : false,
-      'AUTHOR' : false,
-      'EDITOR5' : false,
-      'ADMINISTRATOR' : false,
-      'APP_ADMINISTRATOR' : true
-    };
-    this.permissions['AddProjectOrUser'] = {
-      'REVIEWER' : false,
-      'AUTHOR' : false,
-      'EDITOR5' : false,
-      'ADMINISTRATOR' : false,
-      'APP_USER' : true
-    };
-    this.permissions['EditProcessOrStep'] = {
-      'REVIEWER' : true,
-      'AUTHOR' : false,
-      'EDITOR5' : false,
-      'ADMINISTRATOR' : true
-    };
+    // See permissions.js for permissions
 
     this.hasPermissions = function(action) {
       var userProjectRole = user.userPreferences.lastProjectRole;
@@ -339,6 +239,7 @@ tsApp.service('securityService', [
     }
 
     // add a new action and roleMap to the permissions map
+    this.permissions = {};
     this.addPermission = function(action, roleMap) {
       this.permissions[action] = roleMap;
     }

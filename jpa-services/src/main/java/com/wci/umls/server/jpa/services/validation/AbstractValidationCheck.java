@@ -24,6 +24,12 @@ public abstract class AbstractValidationCheck implements ValidationCheck {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) {
     // n/a
   }

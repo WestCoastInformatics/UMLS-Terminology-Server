@@ -59,10 +59,10 @@ public class DummyAlgorithm extends AbstractAlgorithm {
       checkCancel();
       Thread.sleep(1000);
       int currentProgress = (int) ((100 / num) * i);
-      if(currentProgress > previousProgress){
-      fireProgressEvent(currentProgress,
-          "DUMMY progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
+      if (currentProgress > previousProgress) {
+        fireProgressEvent(currentProgress,
+            "DUMMY progress: " + currentProgress + "%");
+        previousProgress = currentProgress;
       }
     }
 
@@ -78,10 +78,15 @@ public class DummyAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
         "num"
     }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("num") != null) {
       num = Double.parseDouble(p.getProperty("num"));
@@ -94,19 +99,19 @@ public class DummyAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,
-        AlgorithmParameter.Type.INTEGER,"");
+        AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
-    param = new AlgorithmParameterJpa("Test boolean",
-        "boo", "Test boolean description", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN,"");
+    param = new AlgorithmParameterJpa("Test boolean", "boo",
+        "Test boolean description", "e.g. true", 0,
+        AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
-    param = new AlgorithmParameterJpa("Test text",
-        "tex", "Test text description", "e.g. abcabc", 0,
-        AlgorithmParameter.Type.TEXT,"");
+    param =
+        new AlgorithmParameterJpa("Test text", "tex", "Test text description",
+            "e.g. abcabc", 0, AlgorithmParameter.Type.TEXT, "");
     params.add(param);
-    param = new AlgorithmParameterJpa("Test enum",
-        "enu", "Test enum description", "e.g. enum", 0,
-        AlgorithmParameter.Type.ENUM,"");
+    param =
+        new AlgorithmParameterJpa("Test enum", "enu", "Test enum description",
+            "e.g. enum", 0, AlgorithmParameter.Type.ENUM, "");
     List<String> valueList = new ArrayList<>();
     valueList.add("option1");
     valueList.add("option2");

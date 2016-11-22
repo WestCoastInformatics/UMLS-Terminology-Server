@@ -171,11 +171,14 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
   /* see superclass */

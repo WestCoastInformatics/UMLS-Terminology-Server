@@ -40,7 +40,7 @@ tsApp.service('workflowService', [
 
       // Add workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/config/add?projectId=' + projectId, config).then(
+      $http.post(workflowUrl + '/config?projectId=' + projectId, config).then(
       // success
       function(response) {
         console.debug('  config = ', response.data);
@@ -63,7 +63,7 @@ tsApp.service('workflowService', [
 
       // Update workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/config/update?projectId=' + projectId, config).then(
+      $http.put(workflowUrl + '/config?projectId=' + projectId, config).then(
       // success
       function(response) {
         console.debug('  successful update workflow config');
@@ -86,7 +86,7 @@ tsApp.service('workflowService', [
 
       // Update worklist
       gpService.increment();
-      $http.post(workflowUrl + '/worklist/update?projectId=' + projectId, worklist).then(
+      $http.put(workflowUrl + '/worklist?projectId=' + projectId, worklist).then(
       // success
       function(response) {
         console.debug('  successful update worklist');
@@ -109,7 +109,7 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/config/' + configId + "/remove?projectId=" + projectId).then(
+      $http['delete'](workflowUrl + '/config/' + configId + "?projectId=" + projectId).then(
       // success
       function(response) {
         console.debug('  successful remove workflow config');
@@ -133,7 +133,7 @@ tsApp.service('workflowService', [
       // Add workflow bin Definition
       gpService.increment();
       $http.post(
-        workflowUrl + '/definition/add?projectId=' + projectId
+        workflowUrl + '/definition?projectId=' + projectId
           + (positionAfterId ? '&positionAfterId=' + positionAfterId : ''), workflowBinDefinition)
         .then(
         // success
@@ -158,20 +158,19 @@ tsApp.service('workflowService', [
 
       // Update workflow binDefinition
       gpService.increment();
-      $http.post(workflowUrl + '/definition/update?projectId=' + projectId, workflowBinDefinition)
-        .then(
-        // success
-        function(response) {
-          console.debug('  workflow bin Definition = ', response.data);
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http.put(workflowUrl + '/definition?projectId=' + projectId, workflowBinDefinition).then(
+      // success
+      function(response) {
+        console.debug('  workflow bin Definition = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
@@ -182,7 +181,7 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/definition/' + definitionId + "/remove").then(
+      $http['delete'](workflowUrl + '/definition/' + definitionId).then(
       // success
       function(response) {
         console.debug('  successful remove workflow bin definition');
@@ -320,7 +319,7 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/checklist?projectId=' + projectId
+        workflowUrl + '/checklist/find?projectId=' + projectId
           + (query ? '&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
         .then(
         // success
@@ -349,7 +348,7 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklist?projectId=' + projectId
+        workflowUrl + '/worklist/find?projectId=' + projectId
           + (query ? '&query=' + utilService.prepQuery(query) : ''), utilService.prepPfs(pfs))
         .then(
         // success
@@ -578,7 +577,7 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/checklist/add?projectId=' + projectId + '&workflowBinId=' + workflowBinId
+        workflowUrl + '/checklist?projectId=' + projectId + '&workflowBinId=' + workflowBinId
           + (clusterType != 'default' ? '&clusterType=' + clusterType : '') + '&name=' + name
           + '&description=' + description + '&randomize=' + randomize + '&excludeOnWorklist='
           + excludeOnWorklist + (query != '' && query != null ? '&query=' + query : ''),
@@ -609,7 +608,7 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklist/add?projectId=' + projectId + '&workflowBinId=' + workflowBinId
+        workflowUrl + '/worklist?projectId=' + projectId + '&workflowBinId=' + workflowBinId
           + (clusterType != 'default' ? '&clusterType=' + clusterType : ''),
         utilService.prepPfs(pfs)).then(
       // success
@@ -636,20 +635,19 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/worklist/' + worklistId + "/remove?projectId=" + projectId)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful remove worklist');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http['delete'](workflowUrl + '/worklist/' + worklistId + "?projectId=" + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove worklist');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
@@ -660,20 +658,19 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/checklist/' + checklistId + "/remove?projectId=" + projectId)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful remove checklist');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http['delete'](workflowUrl + '/checklist/' + checklistId + "?projectId=" + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove checklist');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
@@ -756,7 +753,7 @@ tsApp.service('workflowService', [
 
       // Add list
       gpService.increment();
-      $http.put(workflowUrl + '/checklist/' + listId + '/note/add?projectId=' + projectId, note, {
+      $http.put(workflowUrl + '/checklist/' + listId + '/note?projectId=' + projectId, note, {
         headers : {
           'Content-type' : 'text/plain'
         }
@@ -781,20 +778,19 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http['delete'](workflowUrl + '/checklist/note/' + noteId + '/remove?projectId=' + projectId)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful remove note');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http['delete'](workflowUrl + '/checklist/note/' + noteId + '?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove note');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
@@ -804,7 +800,7 @@ tsApp.service('workflowService', [
 
       // Add list
       gpService.increment();
-      $http.put(workflowUrl + '/worklist/' + listId + '/note/add?projectId=' + projectId, note, {
+      $http.put(workflowUrl + '/worklist/' + listId + '/note?projectId=' + projectId, note, {
         headers : {
           'Content-type' : 'text/plain'
         }
@@ -829,20 +825,19 @@ tsApp.service('workflowService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http['delete'](workflowUrl + '/worklist/note/' + noteId + '/remove?projectId=' + projectId)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful remove note');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+      $http['delete'](workflowUrl + '/worklist/note/' + noteId + '?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove note');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
@@ -853,9 +848,10 @@ tsApp.service('workflowService', [
 
       // find tracking records
       gpService.increment('Regenerating bins...');
-      $http.get(
-        workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType)
-        .then(
+      $http
+        .post(
+          workflowUrl + '/bin/regenerate/all?projectId=' + projectId + '&type=' + workflowBinType,
+          '').then(
         // success
         function(response) {
           console.debug('  successful regenerate bins');
@@ -878,7 +874,7 @@ tsApp.service('workflowService', [
 
       // find tracking records
       gpService.increment();
-      $http.get(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + type).then(
+      $http.post(workflowUrl + '/bin/clear/all?projectId=' + projectId + '&type=' + type, '').then(
       // success
       function(response) {
         console.debug('  successful clear bins');
@@ -901,9 +897,9 @@ tsApp.service('workflowService', [
 
       // Get projects
       gpService.increment();
-      $http.get(
+      $http.post(
         workflowUrl + '/query/test?projectId=' + projectId + '&query='
-          + utilService.prepQuery(query) + '&queryType=' + queryType).then(
+          + utilService.prepQuery(query) + '&queryType=' + queryType, '').then(
       // success
       function(response) {
         console.debug('  successful test query');
@@ -1123,20 +1119,19 @@ tsApp.service('workflowService', [
 
       gpService.increment();
       $http['delete'](
-        workflowUrl + '/report/' + encodeURIComponent(fileName) + '/remove?projectId=' + projectId)
-        .then(
-        // Success
-        function(response) {
-          console.debug('  report succcessfully removed');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // Error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+        workflowUrl + '/report/' + encodeURIComponent(fileName) + '?projectId=' + projectId).then(
+      // Success
+      function(response) {
+        console.debug('  report succcessfully removed');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 

@@ -14,6 +14,7 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorklistList;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
@@ -26,7 +27,8 @@ import com.wci.umls.server.services.handlers.WorkflowActionHandler;
 /**
  * Default implementation of {@link WorkflowActionHandler}.
  */
-public class DefaultWorkflowActionHandler implements WorkflowActionHandler {
+public class DefaultWorkflowActionHandler extends AbstractConfigurable
+    implements WorkflowActionHandler {
 
   /**
    * Instantiates an empty {@link DefaultWorkflowActionHandler}.

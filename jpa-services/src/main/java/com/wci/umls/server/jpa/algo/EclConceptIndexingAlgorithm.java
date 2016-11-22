@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
@@ -362,12 +365,14 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
-
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
-
+    // n/a
   }
 
   /* see superclass */

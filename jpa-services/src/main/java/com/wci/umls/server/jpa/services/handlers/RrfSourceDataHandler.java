@@ -299,4 +299,9 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
 
   }
 
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
 }

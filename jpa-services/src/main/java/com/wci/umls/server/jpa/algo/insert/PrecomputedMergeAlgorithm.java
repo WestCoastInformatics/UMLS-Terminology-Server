@@ -90,16 +90,15 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // Set up the search handler
     final ComputePreferredNameHandler prefNameHandler =
-        getComputePreferredNameHandler(getProject().getTerminology());  
-    
+        getComputePreferredNameHandler(getProject().getTerminology());
+
     // Count number of merges successfully and unsuccessfully performed
     int successfulMerges = 0;
     int unsuccessfulMerges = 0;
 
     try {
 
-      logInfo(
-          "[PrecomputedMerge] Performing precomputed merges");
+      logInfo("[PrecomputedMerge] Performing precomputed merges");
 
       //
       // Load the mergefacts.src file
@@ -248,25 +247,22 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "mergeSet"
+    }, p);
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
 
     if (p.getProperty("mergeSet") != null) {
       mergeSet = String.valueOf(p.getProperty("mergeSet"));
     }
     if (p.getProperty("checkNames") != null) {
-      //TODO figure out what this input will look like
-      String theCheckNames = String.valueOf(p.getProperty("checkNames"));
       checkNames = Arrays
           .asList(String.valueOf(p.getProperty("checkNames")).split("\\|"));
     }

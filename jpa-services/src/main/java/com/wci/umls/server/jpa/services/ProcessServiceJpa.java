@@ -40,18 +40,16 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     implements ProcessService {
 
   /** The algorithms map. */
-  private static Map<String, Algorithm> algorithmsMap = new HashMap<>();
+  private static Map<String, String> algorithmsMap = new HashMap<>();
 
   /** The insertion algorithms map. */
-  private static Map<String, Algorithm> insertionAlgorithmsMap =
-      new HashMap<>();
+  private static Map<String, String> insertionAlgorithmsMap = new HashMap<>();
 
   /** The maintenance algorithms map. */
-  private static Map<String, Algorithm> maintenanceAlgorithmsMap =
-      new HashMap<>();
+  private static Map<String, String> maintenanceAlgorithmsMap = new HashMap<>();
 
   /** The release algorithms map. */
-  private static Map<String, Algorithm> releaseAlgorithmsMap = new HashMap<>();
+  private static Map<String, String> releaseAlgorithmsMap = new HashMap<>();
 
   static {
     init();
@@ -71,7 +69,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         final Algorithm handlerService =
             ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
                 handlerName, Algorithm.class);
-        algorithmsMap.put(handlerName, handlerService);
+        algorithmsMap.put(handlerName, handlerService.getName());
+        handlerService.close();
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -87,6 +86,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         // map
         insertionAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
       }
+
     } catch (Exception e) {
       e.printStackTrace();
       insertionAlgorithmsMap = null;
@@ -135,11 +135,17 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   /* see superclass */
   @Override
   public KeyValuePairList getInsertionAlgorithms() throws Exception {
-    KeyValuePairList algorithmList = new KeyValuePairList();
+    final KeyValuePairList algorithmList = new KeyValuePairList();
 
-    for (String key : insertionAlgorithmsMap.keySet()) {
-      algorithmList.addKeyValuePair(
-          new KeyValuePair(key, insertionAlgorithmsMap.get(key).getName()));
+    for (final String key : insertionAlgorithmsMap.keySet()) {
+
+      final String name = insertionAlgorithmsMap.get(key);
+      if (name != null) {
+        algorithmList.addKeyValuePair(new KeyValuePair(key, name));
+      } else {
+        throw new Exception(
+            "Misalignment between all algorithms and insertion algorithms in config file");
+      }
     }
 
     return algorithmList;
@@ -148,11 +154,17 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   /* see superclass */
   @Override
   public KeyValuePairList getMaintenanceAlgorithms() throws Exception {
-    KeyValuePairList algorithmList = new KeyValuePairList();
+    final KeyValuePairList algorithmList = new KeyValuePairList();
 
-    for (String key : maintenanceAlgorithmsMap.keySet()) {
-      algorithmList.addKeyValuePair(
-          new KeyValuePair(key, maintenanceAlgorithmsMap.get(key).getName()));
+    for (final String key : maintenanceAlgorithmsMap.keySet()) {
+
+      final String name = maintenanceAlgorithmsMap.get(key);
+      if (name != null) {
+        algorithmList.addKeyValuePair(new KeyValuePair(key, name));
+      } else {
+        throw new Exception(
+            "Misalignment between all algorithms and maintenance algorithms in config file");
+      }
     }
 
     return algorithmList;
@@ -161,11 +173,17 @@ public class ProcessServiceJpa extends ProjectServiceJpa
   /* see superclass */
   @Override
   public KeyValuePairList getReleaseAlgorithms() throws Exception {
-    KeyValuePairList algorithmList = new KeyValuePairList();
+    final KeyValuePairList algorithmList = new KeyValuePairList();
 
-    for (String key : releaseAlgorithmsMap.keySet()) {
-      algorithmList.addKeyValuePair(
-          new KeyValuePair(key, releaseAlgorithmsMap.get(key).getName()));
+    for (final String key : releaseAlgorithmsMap.keySet()) {
+
+      final String name = releaseAlgorithmsMap.get(key);
+      if (name != null) {
+        algorithmList.addKeyValuePair(new KeyValuePair(key, name));
+      } else {
+        throw new Exception(
+            "Misalignment between all algorithms and release algorithms in config file");
+      }
     }
 
     return algorithmList;

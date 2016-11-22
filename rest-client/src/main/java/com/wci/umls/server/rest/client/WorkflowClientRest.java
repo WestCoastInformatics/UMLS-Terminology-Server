@@ -86,7 +86,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/config/add?projectId=" + projectId);
+        + "/workflow/config?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(workflowConfig));
 
@@ -114,9 +114,9 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/config/update?projectId=" + projectId);
+        + "/workflow/confige?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(workflowConfig));
+        .header("Authorization", authToken).put(Entity.json(workflowConfig));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -137,9 +137,9 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/worklist/update?projectId=" + projectId);
+        + "/workflow/worklist?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(worklist));
+        .header("Authorization", authToken).put(Entity.json(worklist));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -161,7 +161,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/config/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/config/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -213,7 +213,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/worklist/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/worklist/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -237,7 +237,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/checklist/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/checklist/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -262,7 +262,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/definition/add?projectId=" + projectId);
+        + "/workflow/definition?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(binDefinition));
 
@@ -288,9 +288,9 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/definition/update?projectId=" + projectId);
+        + "/workflow/definition?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(definition));
+        .header("Authorization", authToken).put(Entity.json(definition));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -313,7 +313,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/definition/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/definition/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -337,7 +337,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/bin/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/bin/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -571,7 +571,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/checklist" + "?projectId=" + projectId + "&query="
+        + "/workflow/checklist/find" + "?projectId=" + projectId + "&query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsStr = ConfigUtility
@@ -602,7 +602,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/worklist" + "?projectId=" + projectId + "&query="
+        + "/workflow/worklist/find" + "?projectId=" + projectId + "&query="
         + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final String pfsStr = ConfigUtility
@@ -751,7 +751,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/bin/clear/all?projectId=" + projectId + "&type=" + type);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -777,7 +777,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(
-        config.getProperty("base.url") + "/workflow/checklist/add?projectId="
+        config.getProperty("base.url") + "/workflow/checklist?projectId="
             + projectId + "&workflowBinId=" + workflowBinId + "&clusterType="
             + clusterType + "&name=" + name + "&description=" + description
             + (randomize != null ? ("&randomize=" + randomize) : "")
@@ -811,7 +811,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/epoch/add?projectId=" + projectId);
+        + "/workflow/epoch?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(epoch));
 
@@ -839,7 +839,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/epoch/" + id + "/remove?projectId=" + projectId);
+        + "/workflow/epoch/" + id + "?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -864,8 +864,8 @@ public class WorkflowClientRest extends RootClientRest
     validateNotEmpty(workflowBinId, "workflowBinId");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(
-        config.getProperty("base.url") + "/workflow/worklist/add?projectId="
+    final WebTarget target = client
+        .target(config.getProperty("base.url") + "/workflow/worklist?projectId="
             + projectId + "&workflowBinId=" + workflowBinId
             + (clusterType == null ? "" : "&clusterType=" + clusterType));
     final Response response = target.request(MediaType.APPLICATION_XML)
@@ -1034,7 +1034,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/bin/" + workflowBinId + "/clear?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -1059,7 +1059,7 @@ public class WorkflowClientRest extends RootClientRest
         + "/workflow/bin/" + workflowBinId + "/regenerate?projectId="
         + projectId + "&type=" + type + "&workflowBinId=" + workflowBinId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
     final String resultString = response.readEntity(String.class);
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1146,9 +1146,9 @@ public class WorkflowClientRest extends RootClientRest
     validateNotEmpty(fileName, "fileName");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/report/" + URLEncoder.encode(fileName, "UTF-8")
-        + "/remove?projectId=" + projectId);
+    final WebTarget target =
+        client.target(config.getProperty("base.url") + "/workflow/report/"
+            + URLEncoder.encode(fileName, "UTF-8") + "?projectId=" + projectId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
@@ -1200,7 +1200,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/checklist/" + checklistId + "/note/add?projectId=" + projectId);
+        + "/checklist/" + checklistId + "/note?projectId=" + projectId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).put(Entity.text(note));
@@ -1229,7 +1229,7 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/worklist/" + worklistId + "/note/add?projectId=" + projectId);
+        + "/worklist/" + worklistId + "/note?projectId=" + projectId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).put(Entity.text(note));
@@ -1337,7 +1337,7 @@ public class WorkflowClientRest extends RootClientRest
         + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a

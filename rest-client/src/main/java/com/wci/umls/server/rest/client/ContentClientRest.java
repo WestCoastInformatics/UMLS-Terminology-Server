@@ -222,7 +222,7 @@ public class ContentClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/terminology/remove/" + terminology + "/" + version);
+        + "/content/terminology/" + terminology + "/" + version);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -293,13 +293,13 @@ public class ContentClientRest extends RootClientRest
   @Override
   public Atom getAtom(Long atomId, Long projectId, String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).debug("Content Client - get atom "
-        + atomId + ", " + "," + projectId + "," + authToken);
+    Logger.getLogger(getClass()).debug("Content Client - get atom " + atomId
+        + ", " + "," + projectId + "," + authToken);
     validateNotEmpty(atomId, "atomId");
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/atom/"
-            + atomId + (projectId == null ? "" : "?projectId=" + projectId));
+        client.target(config.getProperty("base.url") + "/content/atom/" + atomId
+            + (projectId == null ? "" : "?projectId=" + projectId));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -313,7 +313,7 @@ public class ContentClientRest extends RootClientRest
     // converting to object
     return ConfigUtility.getGraphForString(resultString, AtomJpa.class);
   }
-  
+
   /* see superclass */
   @Override
   public SearchResultList findConcepts(String terminology, String version,
@@ -1977,17 +1977,15 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void addConceptNote(Long id, String noteText, String authToken) throws Exception {
+  public void addConceptNote(Long id, String noteText, String authToken)
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("Content Client - add concept note for " + id + ", "
-           + ", with text " + noteText);
-
+    Logger.getLogger(getClass()).debug("Content Client - add concept note for "
+        + id + ", " + ", with text " + noteText);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/concept/"
-            + id + "/note/add");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/" + id + "/note");
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(noteText));
@@ -1998,20 +1996,18 @@ public class ContentClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   /* see superclass */
   @Override
-  public void addAtomNote(Long id, String noteText, String authToken) throws Exception {
+  public void addAtomNote(Long id, String noteText, String authToken)
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("Content Client - add atom note for " + id + ", "
-            + ", with text " + noteText);
-
+    Logger.getLogger(getClass()).debug("Content Client - add atom note for "
+        + id + ", " + ", with text " + noteText);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/atom/"
-            + id  + "/note/add");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/atom/" + id + "/note");
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(noteText));
@@ -2033,8 +2029,8 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/concept/note/" + noteId + "/remove");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/concept/note/" + noteId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
@@ -2048,16 +2044,15 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void removeAtomNote(Long noteId, String authToken)
-    throws Exception {
+  public void removeAtomNote(Long noteId, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - remove atom note for id " + noteId);
 
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/atom/note/" + noteId + "/remove");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/atom/note/" + noteId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
@@ -2071,17 +2066,16 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void addDescriptorNote(Long id, String noteText, String authToken) throws Exception {
+  public void addDescriptorNote(Long id, String noteText, String authToken)
+    throws Exception {
 
     Logger.getLogger(getClass())
         .debug("Content Client - add descriptor note for " + id + ", "
-             + ", with text " + noteText);
+            + ", with text " + noteText);
 
-    
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client
-        .target(config.getProperty("base.url") + "/content/descriptor/"
-            + id + "/note/add");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/descriptor/" + id + "/note");
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(noteText));
@@ -2103,8 +2097,8 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/descriptor/note/" + noteId + "/remove");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/descriptor/note/" + noteId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
@@ -2118,17 +2112,15 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void addCodeNote(Long id, String noteText, String authToken) throws Exception {
+  public void addCodeNote(Long id, String noteText, String authToken)
+    throws Exception {
 
-    Logger.getLogger(getClass())
-        .debug("Content Client - add code note for " + id + ", "
-             + ", with text " + noteText);
+    Logger.getLogger(getClass()).debug("Content Client - add code note for "
+        + id + ", " + ", with text " + noteText);
 
-    
     final Client client = ClientBuilder.newClient();
-    final WebTarget target =
-        client.target(config.getProperty("base.url") + "/content/code/" +
-            id + "/note/add");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/code/" + id + "/note");
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(noteText));
@@ -2149,8 +2141,8 @@ public class ContentClientRest extends RootClientRest
     validateNotEmpty(noteId, "note id");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/code/note/" + noteId + "/remove");
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/code/note/" + noteId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
