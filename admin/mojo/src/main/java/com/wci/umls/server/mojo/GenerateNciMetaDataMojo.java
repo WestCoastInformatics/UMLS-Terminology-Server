@@ -386,7 +386,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       action.setConceptId(id1s[i]);
       action.setConceptId2(id2s[i]);
       action.setLastModifiedBy("loader");
-      action.performMolecularAction(action, "loader");
+      action.performMolecularAction(action, "loader", true);
       action.close();
     }
 

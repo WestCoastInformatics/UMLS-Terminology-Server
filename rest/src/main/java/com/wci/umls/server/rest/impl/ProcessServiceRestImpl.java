@@ -322,10 +322,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         for (final AlgorithmParameter param : algo.getParameters()) {
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
-          if (algo.getProperties().get(param.getFieldName()) != null) {
-            param.setValue(algo.getProperties().get(param.getFieldName()));
-            param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(","))));
+          if (algo.getProperties()
+              .get(param.getFieldName()) != null) {
+            param.setValue(
+                algo.getProperties().get(param.getFieldName()));
+            param.setValues(new ArrayList<String>(Arrays.asList(algo
+                .getProperties().get(param.getFieldName()).split(";"))));
           }
         }
       }
@@ -695,7 +697,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // Note: map either Value OR Values (comma-delimited)
         if (!param.getValues().isEmpty()) {
           config.getProperties().put(param.getFieldName(),
-              StringUtils.join(param.getValues(), ','));
+              StringUtils.join(param.getValues(), ';'));
         } else if (!ConfigUtility.isEmpty(param.getValue())) {
           config.getProperties().put(param.getFieldName(), param.getValue());
         }
@@ -788,7 +790,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Populate the algorithm's properties based on its parameters' values.
       for (final AlgorithmParameter param : algo.getParameters()) {
-        algo.getProperties().put(param.getFieldName(), param.getValue());
+        if (!param.getValues().isEmpty()) {
+          algo.getProperties().put(param.getFieldName(),
+              StringUtils.join(param.getValues(), ';'));
+        } else if (!ConfigUtility.isEmpty(param.getValue())) {
+          algo.getProperties().put(param.getFieldName(),
+              param.getValue());
+        }
       }
 
       // Update algorithm config

@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.test.jpa;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -224,6 +224,60 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + processExecution.getInputPath()));
 
+    //NOTE: Uncomment if the above relationships get hosed, and need to be stripped out
+//    contentService.setMolecularActionFlag(false);
+//    contentService.setLastModifiedBy("admin");
+//    
+//    RelationshipList relList =
+//        contentService.findCodeRelationships("V-NCI", "SRC", "latest",
+//            Branch.ROOT, "toTerminologyId:V-NCI_2016_05E", false, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//    
+//    relList =
+//        contentService.findCodeRelationships("V-NCI", "SRC", "latest",
+//            Branch.ROOT, "fromTerminologyId:V-NCI_2016_05E", true, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//    
+//    relList = contentService.findConceptRelationships("C98033", "NCI",
+//        "2016_05E", Branch.ROOT, "toTerminologyId:C63923", false, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//
+//    relList = contentService.findConceptRelationships("C98033", "NCI",
+//        "2016_05E", Branch.ROOT, "fromTerminologyId:C63923", true, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//    
+//    relList = contentService.findConceptRelationships("C37447", "NCI",
+//        "2016_05E", Branch.ROOT, "toTerminologyId:C1971", false, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//    
+//    relList = contentService.findConceptRelationships("C37447", "NCI",
+//        "2016_05E", Branch.ROOT, "fromTerminologyId:C1971", true, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//  
+//    relList = contentService.findConceptRelationships("C25948", "NCI",
+//        "2016_05E", Branch.ROOT, "toTerminologyId:C16484", false, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }
+//
+//    relList = contentService.findConceptRelationships("C25948", "NCI",
+//        "2016_05E", Branch.ROOT, "fromTerminologyId:C16484", true, null);
+//    for(Relationship relationship : relList.getObjects()){
+//      contentService.removeRelationship(relationship.getId(), (Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>>) relationship.getClass());
+//    }   
+    
     processService.close();
     contentService.close();
   }

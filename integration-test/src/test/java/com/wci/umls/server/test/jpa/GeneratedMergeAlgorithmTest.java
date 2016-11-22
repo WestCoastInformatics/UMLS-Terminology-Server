@@ -6,8 +6,6 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -24,7 +22,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.PrecomputedMergeAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.GeneratedMergeAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -34,10 +32,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
+public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  PrecomputedMergeAlgorithm algo = null;
+  GeneratedMergeAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -90,30 +88,30 @@ public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
     // folder
     // location
 
-    // Create the /temp subdirectory
-    final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
-    FileUtils.mkdir(tempSrcDir.toString());
-
-    // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
-
-    // Create and populate an attributes.src document in the /temp
-    // temporary subfolder
-    outputFile = new File(tempSrcDir, "mergefacts.src");
-
-    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    out.println(
-        "362166237|SY|362166238|SRC||N|N|NCI-SRC|SRC_ATOM_ID||SRC_ATOM_ID||");
-    out.println(
-        "362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||");
-    out.close();
+//    // Create the /temp subdirectory
+//    final File tempSrcDir = new File(
+//        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+//            + File.separator + processExecution.getInputPath() + File.separator
+//            + "temp");
+//    FileUtils.mkdir(tempSrcDir.toString());
+//
+//    // Reset the processExecution input path to /src/temp
+//    processExecution.setInputPath(
+//        processExecution.getInputPath() + File.separator + "temp");
+//
+//    // Create and populate an attributes.src document in the /temp
+//    // temporary subfolder
+//    outputFile = new File(tempSrcDir, "mergefacts.src");
+//
+//    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+//    out.println(
+//        "362166237|SY|362166238|SRC||N|N|NCI-SRC|SRC_ATOM_ID||SRC_ATOM_ID||");
+//    out.println(
+//        "362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||");
+//    out.close();
 
     // Create and configure the algorithm
-    algo = new PrecomputedMergeAlgorithm();
+    algo = new GeneratedMergeAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -143,12 +141,22 @@ public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
       //
       // Set properties for the algorithm
       //
+      //TODO question - go through these
       Properties algoProperties = new Properties();
-      algoProperties.put("mergeSet", "NCI-SRC");
+      algoProperties.put("queryType", "JQL");
+      algoProperties.put("query", "SELECT a FROM AtomJpa a WHERE a.terminology = :terminology AND a.version = :old_version");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
+      algoProperties.put("filterNorm", "false");
+      algoProperties.put("filterExcludeNorm", "false");
+      algoProperties.put("filterNewAtoms", "false");
+      algoProperties.put("filterQueryType", "JQL");
+      //TODO - other filterQuery options?
+      algoProperties.put("filterQuery", "a.id = 7535 OR a.id = 7538");
+      algoProperties.put("makeDemotions", "true");
+      algoProperties.put("changeStatus", "true");
+      algoProperties.put("mergeSet", "???");
       algo.setProperties(algoProperties);
 
-      
       //
       // Check prerequisites
       //
