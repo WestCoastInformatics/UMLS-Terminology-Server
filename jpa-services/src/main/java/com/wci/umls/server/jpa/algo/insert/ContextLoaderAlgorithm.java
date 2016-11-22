@@ -177,8 +177,7 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
           final String parentTreeRel = fields[7];
 
           // If this particular full PTR has never been seen, add with a child
-          // and
-          // descendant count of 1 each.
+          // and descendant count of 1 each.
           if (!childAndDescendantCountsMap.containsKey(parentTreeRel)) {
             childAndDescendantCountsMap.put(parentTreeRel, new int[] {
                 1, 1
@@ -437,8 +436,8 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // If sg_type_1 and sg_type_2 don't match, fire a warning and skip the
     // line.
     if (!fields[12].equals(fields[15])) {
-      logWarnAndUpdate(line, "Warning - type 1: " + fields[12]
-          + " does not equals type 2: " + fields[15] + ".");
+      logWarn("Warning - type 1: " + fields[12] + " does not equals type 2: "
+          + fields[15] + ". Could not process the following line:\n\t" + line);
       return;
     }
 
@@ -469,9 +468,8 @@ public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         if (ptrAltIds.indexOf(element) == 0) {
           continue;
         }
-        logWarnAndUpdate(line,
-            "Warning - atom not found for alternate Terminology Id: " + element
-                + ".");
+        logWarn("Warning - atom not found for alternate Terminology Id: " + element
+                + ". Could not process the following line:\n\t" + line);
         return;
       }
 

@@ -1437,7 +1437,7 @@ public abstract class RootServiceJpa implements RootService {
    * @throws Exception the exception
    */
   public ValidationResult performMolecularAction(AbstractMolecularAction action,
-    String userName) throws Exception {
+    String userName, boolean performMaintanence) throws Exception {
 
     // Start transaction
     action.beginTransaction();
@@ -1495,7 +1495,9 @@ public abstract class RootServiceJpa implements RootService {
 
     // Perform post-action maintenance on affected concept(s)
     // DO this in a separate transaction - maybe some issues with
-    action.postActionMaintenance();
+    if(performMaintanence){
+      action.postActionMaintenance();
+    }
 
     // no errors/warnings at this point.
     return new ValidationResultJpa();

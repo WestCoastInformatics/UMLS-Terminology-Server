@@ -375,6 +375,14 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             getStepsCompleted(), RootService.logCt, RootService.commitCt);
       }
 
+      // Now remove the alternate terminologies for relationships - we don't
+      // need them anymore
+      clearRelationshipAltTerminologies();
+      
+      // Finally, clear out the static caches that have been populated during by
+      // the previous loader algorithms - we don't need them anymore either
+      clearCaches();      
+      
       commitClearBegin();
       handler.commitClearBegin();
 
@@ -393,12 +401,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       logInfo("  user  = " + getLastModifiedBy());
       logInfo("Finished ATTRIBUTELOADING");
 
-      // Now remove the alternate terminologies for relationships - we don't
-      // need them anymore
-
-      // Finally, clear out the static caches that have been populated during by
-      // the previous loader algorithms - we don't need them anymore either
-      clearCaches();
 
     } catch (
 

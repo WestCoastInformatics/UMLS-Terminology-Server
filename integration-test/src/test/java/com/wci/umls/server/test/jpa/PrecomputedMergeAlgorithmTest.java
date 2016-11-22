@@ -145,7 +145,7 @@ public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
       //
       Properties algoProperties = new Properties();
       algoProperties.put("mergeSet", "NCI-SRC");
-      algoProperties.put("checkNames", "MGV_A4|MGV_C");
+      algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algo.setProperties(algoProperties);
 
       

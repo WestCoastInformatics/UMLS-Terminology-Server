@@ -248,7 +248,7 @@ public class AddDemotionTest extends IntegrationUnitSupport {
       action.setAtom2(atom2);
 
       // Perform the action
-      validationResult = action.performMolecularAction(action, "admin");
+      validationResult = action.performMolecularAction(action, "admin", true);
 
     } catch (Exception e) {
       action.rollback();

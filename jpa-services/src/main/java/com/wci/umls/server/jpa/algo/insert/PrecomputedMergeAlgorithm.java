@@ -90,16 +90,15 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // Set up the search handler
     final ComputePreferredNameHandler prefNameHandler =
-        getComputePreferredNameHandler(getProject().getTerminology());  
-    
+        getComputePreferredNameHandler(getProject().getTerminology());
+
     // Count number of merges successfully and unsuccessfully performed
     int successfulMerges = 0;
     int unsuccessfulMerges = 0;
 
     try {
 
-      logInfo(
-          "[PrecomputedMerge] Performing precomputed merges");
+      logInfo("[PrecomputedMerge] Performing precomputed merges");
 
       //
       // Load the mergefacts.src file
@@ -148,14 +147,11 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        Component component = getComponent(fields[8], fields[0], null, null);
+        Component component = getComponent(fields[8], fields[0],
+            getCachedTerminologyName(fields[9]), null);
         if (component == null) {
           logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[8] + ", terminologyId: " + fields[0]
-          // TODO - will ever need terminology (will ever be non-Atom element?)
-          /*
-           * + ", and terminology:" + fields[??]
-           */);
+              + fields[8] + ", terminologyId: " + fields[0]);
           continue;
         }
         Atom atom = null;
@@ -173,14 +169,11 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           continue;
         }
 
-        Component component2 = getComponent(fields[10], fields[2], null, null);
+        Component component2 = getComponent(fields[10], fields[2],
+            getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
           logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[10] + ", terminologyId: " + fields[2]
-          // TODO - will ever need terminology (will ever be non-Atom element?)
-          /*
-           * + ", and terminology:" + fields[??]
-           */);
+              + fields[10] + ", terminologyId: " + fields[2]);
           continue;
         }
         Atom atom2 = null;
@@ -265,10 +258,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       mergeSet = String.valueOf(p.getProperty("mergeSet"));
     }
     if (p.getProperty("checkNames") != null) {
-      //TODO figure out what this input will look like
-      String theCheckNames = String.valueOf(p.getProperty("checkNames"));
-      checkNames = Arrays
-          .asList(String.valueOf(p.getProperty("checkNames")).split("\\|"));
+      checkNames =
+          Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
 
   }

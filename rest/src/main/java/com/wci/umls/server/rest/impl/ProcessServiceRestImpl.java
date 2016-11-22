@@ -362,7 +362,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             param.setValue(
                 algorithmConfig.getProperties().get(param.getFieldName()));
             param.setValues(new ArrayList<String>(Arrays.asList(algorithmConfig
-                .getProperties().get(param.getFieldName()).split(","))));
+                .getProperties().get(param.getFieldName()).split(";"))));
           }
         }
       }
@@ -732,7 +732,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // Note: map either Value OR Values (comma-delimited)
         if (!param.getValues().isEmpty()) {
           algorithmConfig.getProperties().put(param.getFieldName(),
-              StringUtils.join(param.getValues(), ','));
+              StringUtils.join(param.getValues(), ';'));
         } else if (!ConfigUtility.isEmpty(param.getValue())) {
           algorithmConfig.getProperties().put(param.getFieldName(),
               param.getValue());
@@ -827,8 +827,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Populate the algorithm's properties based on its parameters' values.
       for (final AlgorithmParameter param : algorithmConfig.getParameters()) {
-        algorithmConfig.getProperties().put(param.getFieldName(),
-            param.getValue());
+        if (!param.getValues().isEmpty()) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              StringUtils.join(param.getValues(), ';'));
+        } else if (!ConfigUtility.isEmpty(param.getValue())) {
+          algorithmConfig.getProperties().put(param.getFieldName(),
+              param.getValue());
+        }
       }
 
       // Update algorithmConfig

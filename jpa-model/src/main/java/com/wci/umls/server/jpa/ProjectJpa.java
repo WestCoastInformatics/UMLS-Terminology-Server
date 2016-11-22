@@ -494,7 +494,7 @@ public class ProjectJpa implements Project {
   @Override
   public List<TypeKeyValue> getValidationDataFor(String type) {
     List<TypeKeyValue> validationDataForType = new ArrayList<>();
-    for (TypeKeyValue validationData : validationData) {
+    for (TypeKeyValue validationData : getValidationData()) {
       if (validationData.getType().equals(type)) {
         validationDataForType.add(validationData);
       }

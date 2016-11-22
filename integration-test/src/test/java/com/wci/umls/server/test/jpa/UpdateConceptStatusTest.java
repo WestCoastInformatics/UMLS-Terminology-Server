@@ -150,7 +150,7 @@ public class UpdateConceptStatusTest extends IntegrationUnitSupport {
       action.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
 
       // Perform the action
-      validationResult = action.performMolecularAction(action, "admin");
+      validationResult = action.performMolecularAction(action, "admin", true);
 
     } catch (Exception e) {
       action.rollback();

@@ -23,7 +23,6 @@ import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -344,13 +343,15 @@ public class UmlsIdentifierAssignmentHandler
         final AttributeIdentity identity = new AttributeIdentityJpa();
         identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
-        //TODO - requestion
-        if (component instanceof AtomClass){
-          identity.setComponentId(component.getTerminologyId());
-        }
         if(component instanceof Atom){
           identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get(projectTerminology));
-        }        
+        }                
+        else if(component instanceof Relationship){
+          identity.setComponentId(((Relationship<?,?>)component).getAlternateTerminologyIds().get(projectTerminology));
+        }                
+        else{
+          identity.setComponentId(component.getTerminologyId());
+        }
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());

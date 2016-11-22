@@ -40,7 +40,6 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -57,10 +56,9 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
-  /**  The search handler. */
+  /** The search handler. */
   public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
-   
-  
+
   /** The full directory where the src files are. */
   private File srcDirFile = null;
 
@@ -880,6 +878,24 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     } else {
       return cachedTerminologies.get(terminologyAndVersion);
     }
+  }
+
+  /**
+   * Returns the cached terminology name.
+   *
+   * @param terminologyAndVersion the terminology and version
+   * @return the cached terminology name
+   * @throws Exception the exception
+   */
+  public String getCachedTerminologyName(String terminologyAndVersion)
+    throws Exception {
+
+    Terminology terminology = getCachedTerminology(terminologyAndVersion);
+    if (terminology == null) {
+      return null;
+    } else {
+      return terminology.getTerminology();
+    }
 
   }
 
@@ -1180,14 +1196,34 @@ public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
     relCachedTerms.clear();
     relIdCache.clear();
   }
-  
-  //TODO - recheck in on this one.
-  private void clearRelationshipAltTerminologies() {
 
-    //Lookup alt Ids where KEY = project.getTerminology()+"-SRC"??
-    
-    //Load relationship, remove altId, update relationship.
-    
-  }  
-  
+
+  /**
+   * Clear relationship alt terminologies.
+   *
+   * @throws Exception the exception
+   */
+  public void clearRelationshipAltTerminologies() throws Exception{
+
+    List<String> relationshipPrefixes =
+        Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
+
+    for (String relPrefix : relationshipPrefixes) {
+      final Session session = manager.unwrap(Session.class);
+      org.hibernate.Query hQuery =
+          session.createQuery("select a from " + relPrefix
+              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+      hQuery.setParameter("terminology", getProject().getTerminology() + "-SRC");
+      hQuery.setReadOnly(true).setFetchSize(10000);
+
+      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      while (results.next()) {
+        final Relationship<?,?> relationship = (Relationship<?,?>) results.get()[0];
+        relationship.getAlternateTerminologyIds().remove(getProject().getTerminology() + "-SRC");
+        updateRelationship(relationship);
+      }
+      results.close();
+    }
+  }
+
 }
