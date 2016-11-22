@@ -89,6 +89,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     return relationships;
   }
 
+
   /* see superclass */
   @XmlTransient
   @Override

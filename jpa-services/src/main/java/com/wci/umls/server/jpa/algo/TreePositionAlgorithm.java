@@ -82,7 +82,7 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
    */
   public void setIdType(IdType idType) {
     if (idType != IdType.CONCEPT && idType != IdType.DESCRIPTOR
-        && idType != IdType.CODE) {
+        && idType != IdType.CODE && idType != IdType.ATOM) {
       throw new IllegalArgumentException(
           "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
     }
