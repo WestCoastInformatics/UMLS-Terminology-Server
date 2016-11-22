@@ -43,16 +43,16 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
- * Abstract support for source-file loader algorithms.
+ * Abstract support for source-file insertion algorithms.
  */
-public abstract class AbstractSourceLoaderAlgorithm extends AbstractAlgorithm {
+public abstract class AbstractSourceInsertionAlgorithm extends AbstractAlgorithm {
 
   /**
-   * Instantiates an empty {@link AbstractSourceLoaderAlgorithm}.
+   * Instantiates an empty {@link AbstractSourceInsertionAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public AbstractSourceLoaderAlgorithm() throws Exception {
+  public AbstractSourceInsertionAlgorithm() throws Exception {
     // n/a
   }
 

@@ -16,7 +16,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -41,7 +41,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import atoms.
  */
-public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.

@@ -27,7 +27,7 @@ import com.wci.umls.server.services.RootService;
  * Abstract support for merge algorithms.
  */
 public abstract class AbstractMergeAlgorithm
-    extends AbstractSourceLoaderAlgorithm {
+    extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.
@@ -224,7 +224,8 @@ public abstract class AbstractMergeAlgorithm
   }
 
   /*
-   * see superclass Need to override, because the Merge algorithm naming
+   * see superclass 
+   * Need to override, because the Merge algorithm naming
    * convention is different from the loader algorithms
    */
   @Override

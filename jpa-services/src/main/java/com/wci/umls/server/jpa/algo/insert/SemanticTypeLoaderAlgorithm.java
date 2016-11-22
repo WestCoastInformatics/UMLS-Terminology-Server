@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -28,7 +28,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Implementation of an algorithm to import semantic types.
  */
-public class SemanticTypeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class SemanticTypeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link SemanticTypeLoaderAlgorithm}.

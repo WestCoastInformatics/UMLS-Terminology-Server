@@ -22,7 +22,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
@@ -51,7 +51,7 @@ import com.wci.umls.server.services.RootService;
 /**
  * Implementation of an algorithm to import contexts.
  */
-public class ContextLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /** The added tree positions. */
   private int addedTreePositions;
