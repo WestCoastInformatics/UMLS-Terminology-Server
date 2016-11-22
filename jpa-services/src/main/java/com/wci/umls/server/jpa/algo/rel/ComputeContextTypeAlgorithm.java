@@ -17,11 +17,9 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
-import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -42,7 +40,17 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
-  private int siblingsThreshold = 100; // TODO 1000
+  private int siblingsThreshold = 1000; 
+  
+  /** The previous progress. */
+  private int previousProgress;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted;
+  
 
   /**
    * Instantiates an empty {@link ComputeContextTypeAlgorithm}.
@@ -65,10 +73,13 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     boolean includeSiblings = false;
-    boolean polyhierarchy = false; // TODO; what is this for?
+    boolean polyhierarchy = false; 
 
     logInfo("Starting Create new release");
-    fireProgressEvent(0, "Starting progress: " + 0 + "%");
+
+    
+    previousProgress = 0;
+    stepsCompleted = 0;
 
     IdentifierAssignmentHandler handler =
         getIdentifierAssignmentHandler(getProject().getTerminology());
@@ -154,8 +165,9 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         } else {
           polyhierarchy = false;
         }
-        // TODO set flag on rootTerminology and update
-        
+        // set flag on rootTerminology and update
+        term.getRootTerminology().setPolyhierarchy(polyhierarchy);
+        updateRootTerminology(term.getRootTerminology());
       }
 
       // Compute RUIs for SIB relationships
@@ -167,24 +179,48 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         org.hibernate.Query hQuery = null;
 
         if (organizingClassType == IdType.ATOM) {
+          javax.persistence.Query qry =
+              manager.createQuery("select count(*) from AtomTreePositionJpa a, AtomTreePositionJpa b "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " and a.node.id < b.node.id");
+              steps = Integer.parseInt(qry.getSingleResult().toString());
+
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from AtomTreePositionJpa a, AtomTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath " // TODO and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.CONCEPT) {
+          javax.persistence.Query qry =
+              manager.createQuery("select count(*) from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " and a.node.id < b.node.id");
+              steps = Integer.parseInt(qry.getSingleResult().toString());
+
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath " // TODO and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.CODE) {
+          javax.persistence.Query qry =
+              manager.createQuery("select count(*) from CodeTreePositionJpa a, CodeTreePositionJpa b "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " and a.node.id < b.node.id");
+              steps = Integer.parseInt(qry.getSingleResult().toString());
+
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from CodeTreePositionJpa a, CodeTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath " // TODO and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.DESCRIPTOR) {
+          javax.persistence.Query qry =
+              manager.createQuery("select count(*) from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " and a.node.id < b.node.id");
+              steps = Integer.parseInt(qry.getSingleResult().toString());
+
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath " // TODO and a.additionalRelationshipType = b.additionalRelationshipType "
+                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         }
 
@@ -193,7 +229,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         while (results.next()) {
           final Concept from = (Concept) results.get()[0];
           final Concept to = (Concept) results.get()[1];
-          final AdditionalRelationshipType addRelType = (AdditionalRelationshipType) results.get()[2];
+          final String addRelType = results.get()[2].toString();
           Relationship newRel = null;
           if (organizingClassType == IdType.ATOM) {
             newRel = new AtomRelationshipJpa();
@@ -206,9 +242,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           }
           newRel.setFrom(from);
           newRel.setTo(to);
-          // TODO remove faked row
-          newRel.setAdditionalRelationshipType(relToInverseMap.get("analyzed_by"));
-          //newRel.setAdditionalRelationshipType(addRelType.getAbbreviation());
+          newRel.setAdditionalRelationshipType(addRelType);
           newRel.setTerminology(term.getTerminology());
           newRel.setVersion(term.getVersion());
           newRel.setRelationshipType("SIB");
@@ -216,11 +250,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           newRel.setObsolete(false);
           newRel.setSuppressible(false);
           newRel.setGroup(null);
-          
-          // TODO check these values
-          /*relationship.setTimestamp(releaseVersionDate);
-          relationship.setLastModified(releaseVersionDate);
-          relationship.setLastModifiedBy(loader);*/
+
           newRel.setPublished(true);
           newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           newRel.setHierarchical(false);          
@@ -228,21 +258,12 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           newRel.setInferred(true);
           newRel.setStated(true);
           newRel.setTerminologyId("");
-
-/*        2016-11-16_15:18:33.380 ERROR - Column 'terminologyId' cannot be null
-          2016-11-16_15:18:33.388 ERROR - HHH000315: Exception executing batch [could not execute batch]
-          javax.persistence.RollbackException: Error while committing the transaction
-              at org.hibernate.jpa.internal.TransactionImpl.commit(TransactionImpl.java:94)
-              at com.wci.umls.server.jpa.services.RootServiceJpa.addObject(RootServiceJpa.java:912)
-              at com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa.addRelationshipIdentity(UmlsIdentityServiceJpa.java:750)
-              at com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler.getTerminologyId(UmlsIdentifierAssignmentHandler.java:438)*/
           
-          // TODO remove faked row
-          //String rui = handler.getTerminologyId(newRel, "SIB", relToInverseMap.get(addRelType.getAbbreviation())); 
-          String rui = handler.getTerminologyId(newRel, "SIB", "analyzed"); 
+          String rui = handler.getTerminologyId(newRel, "SIB", relToInverseMap.get(addRelType)); 
           newRel.setTerminologyId(rui);
            
           addRelationship(newRel);
+          updateProgress();
         }
         commit();
       }
@@ -273,7 +294,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    // TODO activityId, last parameter
+
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
         "siblingsThreshold", "Indicates maximum number of siblings.",
         "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "");
@@ -282,4 +303,19 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepsCompleted++;
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    System.out.println("context type progress " + steps + " " + stepsCompleted);
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "CONTEXT TYPE progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+  }
 }

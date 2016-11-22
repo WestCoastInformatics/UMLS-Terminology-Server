@@ -30,6 +30,15 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
  */
 public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
+  /** The previous progress. */
+  private int previousProgress;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted;
+  
   /** The bypass validation checks. */
   private boolean bypassValidationChecks = false;
 
@@ -100,7 +109,11 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
 
     logInfo("Starting Create new release");
-    fireProgressEvent(0, "Starting progress: " + 0 + "%");
+    
+    steps = 2;
+    previousProgress = 0;
+    stepsCompleted = 0;
+
 
     // Create a release directory
     File releaseDir = new File(config.getProperty("source.data.dir") + "/"
@@ -129,7 +142,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       qaDir.mkdir();
     }
 
-    fireProgressEvent(50, "Progress: " + 50 + "%");
+    updateProgress();
 
     // Add a release info for the current release
     logInfo("  Add release info for the current release = " + getProject().getVersion());
@@ -145,7 +158,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     addReleaseInfo(releaseInfo);
 
     logInfo("Finished Create new release");
-    fireProgressEvent(100, "Progress: " + 100 + "%");
+    updateProgress();
   }
 
   /* see superclass */
@@ -189,5 +202,20 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     params.add(param);
 
     return params;
+  }
+  
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepsCompleted++;
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "CREATE RELEASE progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
   }
 }

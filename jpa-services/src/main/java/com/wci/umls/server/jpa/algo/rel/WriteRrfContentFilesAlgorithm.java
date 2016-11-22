@@ -77,7 +77,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   
   private Map<String, String> relToInverseMap = new HashMap<>();
   private Map<String, String> terminologyToSrcRhtNameMap = new HashMap<>();
-  private Map<String, Long> terminologyToSrcAtomIdMap = new HashMap<>();
+  private Map<String, String> terminologyToSrcAtomIdMap = new HashMap<>();
   private SearchHandler handler = null;
   
   /**
@@ -168,6 +168,34 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     }
     for (AdditionalRelationshipType relType : addRelTypeList.getObjects()) {
       relToInverseMap.put(relType.getAbbreviation(), relType.getInverse().getAbbreviation());        
+    }
+    
+    for (Terminology term : this.getTerminologyLatestVersions().getObjects()) {
+      Atom srcRhtAtom = null;
+      SearchResultList searchResults = findConcepts(
+          getProject().getTerminology(), getProject().getVersion(),
+          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
+              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+          null);
+      if (searchResults.size() == 1) {
+        Concept concept = getConcept(searchResults.getObjects().get(0).getId());
+        for (Atom a : concept.getAtoms()) {
+          if (a.getTermType().equals("RHT") && a.isPublishable()) {
+            srcRhtAtom = a;
+            break;
+          }
+        }
+        if (srcRhtAtom != null) {
+          String srcAtomId = srcRhtAtom.getAlternateTerminologyIds()
+              .get(getProject().getTerminology());
+          String name = srcRhtAtom.getName();
+          terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
+          terminologyToSrcAtomIdMap.put(term.getTerminology(), srcAtomId);
+        }
+      } else {
+        throw new Exception(
+            "missing root SRC concept " + term.getTerminology());
+      }
     }
     
     final ComputePreferredNameHandler handler =
@@ -283,33 +311,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       ruiAttributeTerminologies.add(result);
     }
 
-    for (Terminology term : this.getTerminologyLatestVersions().getObjects()) {
-      Atom srcRhtAtom = null;
-      SearchResultList searchResults = findConcepts(
-          getProject().getTerminology(), getProject().getVersion(),
-          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
-              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
-          null);
-      if (searchResults.size() == 1) {
-        Concept concept = getConcept(searchResults.getObjects().get(0).getId());
-        for (Atom a : concept.getAtoms()) {
-          if (a.getTermType().equals("RHT") && a.isPublishable()) {
-            srcRhtAtom = a;
-            break;
-          }
-        }
-        if (srcRhtAtom != null) {
-          Long srcAtomId = Long.valueOf(srcRhtAtom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology() + "-SRC"));
-          String name = srcRhtAtom.getName();
-          terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
-          terminologyToSrcAtomIdMap.put(term.getTerminology(), srcAtomId);
-        }
-      } else {
-        throw new Exception(
-            "missing root SRC concept " + term.getTerminology());
-      }
-    }
+
     
   }
 
@@ -890,7 +892,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // TODO when writing the line out, add the AUI for the SRC/RHT atom for this
         // source to the top of PTR
         // iff !root.equals(SRC/RHT.name())
-        // for ptr add srcAtomId . rest of ptr
+        //   ptr = srcAtomId + '.' + rest of ptr
+        String auiName = getAtom("", getProject().getTerminology(), getProject().getVersion(), Branch.ROOT).getName();
+        String srcRhtName = terminologyToSrcRhtNameMap.get(sab);
+        if (!auiName.equals(srcRhtName)) {
+          ptr = new StringBuilder(terminologyToSrcAtomIdMap.get(getProject().getTerminology()) + "." + ptr.toString());
+        }
 
         StringBuffer sb = new StringBuffer();
         sb.append(c.getTerminologyId()).append("|"); // 0 CUI
@@ -899,7 +906,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         sb.append(paui != null ? paui : "").append("|"); // 3 PAUI
         sb.append(sab != null ? sab : "").append("|"); // 4 SAB
         sb.append(rela != null ? rela : "").append("|"); // 5 RELA
-        sb.append(ptr != null ? ptr : "").append("|"); // 6 PTR
+        sb.append(ptr.toString()).append("|"); // 6 PTR
         sb.append(hcd != null ? hcd : "").append("|"); // 7 HCD
         sb.append("|"); // 8 CVF
       }

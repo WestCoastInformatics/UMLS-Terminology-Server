@@ -14,8 +14,6 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
-import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.model.content.Concept;
@@ -31,6 +29,15 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
+  /** The previous progress. */
+  private int previousProgress;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted;
+  
   /**
    * Instantiates an empty {@link AssignReleaseIdentifiersAlgorithm}.
    *
@@ -53,7 +60,11 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
 
     logInfo("Starting Assign release identifiers");
-    fireProgressEvent(0, "Starting progress: " + 0 + "%");
+    
+    steps = 3;
+    previousProgress = 0;
+    stepsCompleted = 0;
+
 
     // Assign CUIs:
     // • TODO: we need to come back and do a better job here.
@@ -77,7 +88,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       concept.setTerminologyId(handler.getTerminologyId(concept));
       updateConcept(concept);
     }
-    fireProgressEvent(0, "Starting progress: " + 33 + "%");
+    updateProgress();
 
     // Assign RUIs to concept relationships
     // First create map of rel and rela inverses
@@ -109,24 +120,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
       final String origRui = rel.getTerminologyId();
       rel.setTerminologyId("");
-      // TODO (below) Returned object 1: 156209448
-      /*
-       * 2016-11-11_14:08:47.061 INFO - Returned object 2: 156209450
-       * java.lang.Exception: Error: query returned more than one id:
-       * RelationshipIdentityJpa, terminology:UMLS AND NOT terminologyId:[* TO
-       * *] AND relationshipType:RN AND NOT additionalRelationshipType:[* TO *]
-       * AND fromId:C4048332 AND fromType:CONCEPT AND fromTerminology:UMLS AND
-       * toId:C0040558 AND toType:CONCEPT AND toTerminology:UMLS at
-       * com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa.getIdentityId(
-       * UmlsIdentityServiceJpa.java:822) at
-       * com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa.
-       * getRelationshipIdentity(UmlsIdentityServiceJpa.java:731) at
-       * com.wci.umls.server.jpa.services.handlers.
-       * UmlsIdentifierAssignmentHandler.getTerminologyId(
-       * UmlsIdentifierAssignmentHandler.java:421) at
-       * com.wci.umls.server.jpa.algo.rel.AssignReleaseIdentifiersAlgorithm.
-       * compute(AssignReleaseIdentifiersAlgorithm.java:106)
-       */
+      
       final String rui = handler.getTerminologyId(rel,
           relToInverseMap.get(rel.getRelationshipType()),
           relToInverseMap.get(rel.getAdditionalRelationshipType()));
@@ -137,7 +131,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
-    fireProgressEvent(0, "Starting progress: " + 66 + "%");
+    updateProgress();
 
     // Assign ATUIs for semantic types
     objectCt = 0;
@@ -145,7 +139,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     hQuery = session
         .createQuery("select a, b from ConceptJpa a join a.semanticTypes b "
             + "where a.publishable = true and b.publishable = true "
-            + "and terminology = :terminology");
+            + "and a.terminology = :terminology");
     hQuery.setParameter("terminology", getProject().getTerminology());
     hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
     results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
@@ -157,12 +151,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       // For each semantic type component (e.g. concept.getSemanticTypes())
       final String origAtui = sty.getTerminologyId();
       sty.setTerminologyId("");
-      // TODO (below) java.lang.NullPointerException
-      // at
-      // com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler.getTerminologyId(UmlsIdentifierAssignmentHandler.java:588)
-      // at
-      // com.wci.umls.server.jpa.algo.rel.AssignReleaseIdentifiersAlgorithm.compute(AssignReleaseIdentifiersAlgorithm.java:132)
-
+      
       final String atui = handler.getTerminologyId(sty, c);
       if (!origAtui.equals(atui)) {
         sty.setTerminologyId(atui);
@@ -172,7 +161,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     }
 
     logInfo("Finished Assign release identifiers");
-    fireProgressEvent(100, "Progress: " + 100 + "%");
+    updateProgress();
   }
 
   /* see superclass */
@@ -189,4 +178,18 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     }, p);
   }
 
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepsCompleted++;
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "ASSIGN RELEASE IDS progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+  }
 }
