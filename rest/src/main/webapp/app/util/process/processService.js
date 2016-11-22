@@ -273,18 +273,15 @@ tsApp.service('processService', [
       var deferred = $q.defer();
 
       // Get projects
-      gpService.increment();
       $http.get(processUrl + '/algo/' + id + '/progress?projectId=' + projectId).then(
       // success
       function(response) {
         console.debug('  progress = ', response.data);
-        gpService.decrement();
         deferred.resolve(response.data);
       },
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
         deferred.reject(response.data);
       });
       return deferred.promise;
@@ -326,18 +323,15 @@ tsApp.service('processService', [
       var deferred = $q.defer();
 
       // Get projects
-      gpService.increment();
       $http.get(processUrl + '/' + id + '/progress?projectId=' + projectId).then(
       // success
       function(response) {
         console.debug('  progress = ', response.data);
-        gpService.decrement();
         deferred.resolve(response.data);
       },
       // error
       function(response) {
         utilService.handleError(response);
-        gpService.decrement();
         deferred.reject(response.data);
       });
       return deferred.promise;
@@ -515,8 +509,7 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http.post(
-        processUrl + '/config/algo/validate?projectId=' + projectId + '&processId=' + processId,
+      $http.post(processUrl + '/config/algo?projectId=' + projectId + '&processId=' + processId,
         algo).then(
       // success
       function(response) {
@@ -540,7 +533,8 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http.post(processUrl + '/config/algo?projectId=' + projectId + '&processId=' + processId,
+      $http.post(
+        processUrl + '/config/algo/validate?projectId=' + projectId + '&processId=' + processId,
         algo).then(
       // success
       function(response) {

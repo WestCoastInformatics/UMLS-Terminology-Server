@@ -836,25 +836,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "adding a process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
-      final ProcessConfigJpa process =
-          (ProcessConfigJpa) processService.getProcessConfig(processId);
-
-      // Re-add processConfig to algorithm config (it does not make it intact
-      // through XML)
-      algo.setProcess(process);
-
-      // Load project
-      final Project project = processService.getProject(projectId);
-      project.setLastModifiedBy(userName);
-
-      // Re-add project to algorithm config (it does not make it intact through
-      // XML)
-      algo.setProject(project);
-
-      // Verify that passed projectId matches ID of the algorithm config's
-      // project
-      verifyProject(algo, projectId);
-
       // Populate the algorithm's properties based on its parameters' values.
       for (final AlgorithmParameter param : algo.getParameters()) {
         // Note: map either Value OR Values (comma-delimited)
@@ -1313,7 +1294,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @GET
   @Path("/execution/{id}/cancel")
   @ApiOperation(value = "Cancel a running process execution", notes = "Execute the specified process configuration")
   public Long cancelProcess(
@@ -1395,6 +1376,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       final ProcessExecution processExecution =
           processService.getProcessExecution(id);
+      if (processExecution == null) {
+        return -1;
+      }
       // If process has already completed successfully, return 100
       if (processExecution != null && processExecution.getFinishDate() != null
           && processExecution.getFailDate() == null) {
@@ -1442,6 +1426,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final AlgorithmExecution algoExecution =
           processService.getAlgorithmExecution(id);
       // If algorithm has already completed successfully, return 100
+      if (algoExecution == null) {
+        return -1;
+      }
       if (algoExecution.getFinishDate() != null
           && algoExecution.getFailDate() == null) {
         return 100;

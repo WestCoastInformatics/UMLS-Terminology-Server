@@ -6,16 +6,16 @@ tsApp
       '$scope',
       '$location',
       '$uibModal',
-      '$interval',
       '$timeout',
       'configureService',
+      'gpService',
       'tabService',
       'utilService',
       'securityService',
       'projectService',
       'processService',
       'metadataService',
-      function($scope, $location, $uibModal, $interval, $timeout, configureService, tabService,
+      function($scope, $location, $uibModal, $timeout, configureService, gpService, tabService,
         utilService, securityService, projectService, processService, metadataService) {
         console.debug("configure ProcessCtrl");
 
@@ -38,9 +38,9 @@ tsApp
           projectRole : null,
           process : null,
           algorithm : null,
-          processType : 'Insertion',
-          mode : 'Config' // vs 'Execution'
-
+          processType : securityService.getProperty($scope.user.userPreferences, 'processType',
+            'Insertion'),
+          mode : securityService.getProperty($scope.user.userPreferences, 'processMode', 'Config')
         };
 
         // Lists
@@ -132,28 +132,31 @@ tsApp
 
         // Set worklist mode
         $scope.setMode = function(mode) {
+          // Set the processType property
           $scope.selected.mode = mode;
+          securityService.saveProperty($scope.user.userPreferences, 'processMode',
+            $scope.selected.mode);
           $scope.selected.process = null;
           $scope.getProcesses();
         }
 
         // Get $scope.lists.processes
-        $scope.getProcesses = function(process) {
-          getProcesses(process);
+        $scope.getProcesses = function() {
+          // Set the processType property
+          securityService.saveProperty($scope.user.userPreferences, 'processType',
+            $scope.selected.processType);
+          getProcesses();
         }
-        function getProcesses(process) {
+        function getProcesses() {
           if ($scope.selected.mode == 'Config') {
             $scope.getProcessConfigs();
           } else if ($scope.selected.mode == 'Execution') {
             $scope.getProcessExecutions();
           }
-          if (process) {
-            $scope.setProcess(process);
-          }
         }
 
         // Select a process
-        $scope.selectProcess = function(process) {
+        $scope.selectProcess = function(process, noprogress) {
           // Read the process
           processService['getProcess' + $scope.selected.mode]($scope.selected.project.id,
             process.id).then(
@@ -163,44 +166,36 @@ tsApp
             // Set selected
             $scope.selected.process = data;
 
-            // Cancel any existing interval
-            if ($scope.processInterval) {
-              $interval.cancel($scope.processInterval);
-            }
-            if ($scope.stepInterval) {
-              $interval.cancel($scope.stepInterval);
-            }
-
             // Start polling for this one
-            if ($scope.selected.mode == 'Execution') {
-              $scope.processInterval = $interval(function() {
+            if (!noprogress && $scope.selected.mode == 'Execution') {
+              $timeout(function() {
                 $scope.refreshProcessProgress();
-              }, 2000);
+              }, 1000);
             }
 
           });
 
-          // Look up algorithm types
-          $scope.lists.algorithmConfigTypes = [];
-          processService['get' + $scope.selected.processType + 'Algorithms'](
-            $scope.selected.project.id).then(
-          // Success
-          function(data) {
-            for (var i = 0; i < data.keyValuePairs.length; i++) {
-              $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i]);
-            }
-            $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
-            $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+          // Look up algorithm types (if in config mode)
+          if ($scope.selected.mode == 'Config') {
+            $scope.lists.algorithmConfigTypes = [];
+            processService['get' + $scope.selected.processType + 'Algorithms'](
+              $scope.selected.project.id).then(
+            // Success
+            function(data) {
+              for (var i = 0; i < data.keyValuePairs.length; i++) {
+                $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i]);
+              }
+              $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
+              $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+            });
+          }
 
-            // Start polling
-            if ($scope.selected.mode == 'Execution') {
-              $scope.stepInterval = $interval(function() {
-                $scope.refreshStepProgress();
-              }, 2000);
-            }
-
-          });
-
+          // // Start polling
+          if (!noprogress && $scope.selected.mode == 'Execution') {
+            $timeout(function() {
+              $scope.refreshStepProgress();
+            }, 1000);
+          }
         }
 
         // execute process
@@ -208,27 +203,24 @@ tsApp
           $scope.processConfig = $scope.selected.process;
           processService.executeProcess($scope.selected.project.id, $scope.selected.process.id,
             true).then(
-          // Success
-          function(data) {
-            $scope.selected.process.id = data;
-            $timeout($scope.switchToExecute, 1000);
-          });
+            // Success
+            function(data) {
+              $scope.selected.process.id = data;
+              // don't call setMode because it reloads processes
+              $scope.selected.mode = 'Execution';
+              securityService.saveProperty($scope.user.userPreferences, 'processMode',
+                $scope.selected.mode);
+              gpService.increment();
+              $timeout(function() {
+                $scope.selectProcess($scope.selected.process);
+                gpService.decrement();
+              }, 1000);
+            });
         }
-        $scope.switchToExecute = function() {
-          $scope.setMode('Execution');
-          processService.getProcessExecution($scope.selected.project.id, data).then(
-          // Success
-          function(result) {
-            $scope.selectProcess(result);
-            $scope.processProgress = 1;
-          });
-        }
-
         // Refresh process progress
         $scope.refreshProcessProgress = function() {
-          // Stop the interval if no process is selected or process ha
           if (!$scope.selected.process) {
-            $interval.cancel($scope.processInterval);
+            return;
           }
           processService.getProcessProgress($scope.selected.project.id, $scope.selected.process.id)
             .then(
@@ -236,26 +228,23 @@ tsApp
             function(data) {
               $scope.processProgress = data;
 
-              // stop interval if process progress has reached 100
-              if (data == 100 || data == -1) {
+              // stop interval if process progress has reached 100, reread with
+              // no progress start
+              if (data == "100" || data === "-1") {
+                // finished
+              } else {
                 // Reselect the process to refresh everything and restart
-                // progress
-                // monitors as needed
+                // progress monitors as needed
                 $timeout(function() {
-                  $scope.selectProcess($scope.selected.process);
-                }, 500);
+                  $scope.refreshProcessProgress();
+                }, 1000);
               }
-            },
-            // Error
-            function(data) {
-              // Cancel automated process on error
-              $interval.cancel($scope.processInterval);
             });
         }
 
         // Refresh step progress
         $scope.refreshStepProgress = function() {
-          var i = $selected.process.steps.length;
+          var i = $scope.selected.process.steps.length;
 
           // Bail if there are no steps
           if (!i) {
@@ -263,29 +252,25 @@ tsApp
             return;
           }
 
-          $scope.selected.lastAlgorithm = $selected.process.steps[i - 1].id;
+          $scope.selected.lastAlgorithm = $scope.selected.process.steps[i - 1].id;
           processService.getAlgorithmProgress($scope.selected.project.id,
-            $scope.selected.lastAlgorithm.id).then(
+            $scope.selected.lastAlgorithm).then(
           // Success
           function(data) {
 
             $scope.stepProgress = data;
 
             // stop interval if step is not running or progress has finished
-            if (data == 100 || data == -1) {
-              // Reselect the process to refresh everything and restart progress
-              // monitors as needed
+            if (data == "100" || data == "-1") {
+              // finished
+            } else {
+              // Reselect the process to refresh everything and restart
+              // progress monitors as needed
               $timeout(function() {
-                $scope.selectProcess($scope.selected.process);
-              }, 500);
+                $scope.refreshStepProgress();
+              }, 1000);
             }
-          },
-          // Error
-          function(data) {
-            // Cancel automated step on error
-            $interval.cancel($scope.stepInterval);
           });
-
         };
 
         // Get process configs
@@ -305,7 +290,9 @@ tsApp
             $scope.lists.processes = data.processes;
             $scope.lists.processes.totalCount = data.totalCount;
             $scope.counts[$scope.selected.mode] = data.totalCount;
-            $scope.selected.process = null;
+            if ($scope.lists.processes && $scope.lists.processes.length > 0) {
+              $scope.selectProcess($scope.lists.processes[0]);
+            }
 
             $scope.getProcessExecutionsCt();
           });
@@ -336,23 +323,26 @@ tsApp
           processService.cancelProcess($scope.selected.project.id, processId).then(
           // Success
           function() {
-            console.debug('cancelled process');
+            gpService.increment();
             $timeout(function() {
-              $scope.selec
-              tProcess($scope.selected.process);
-            }, 1000);
+              $scope.selectProcess($scope.selected.process);
+              gpService.decrement();
+            }, 750);
           });
         }
 
         // Restart process
         $scope.restartProcess = function(processId) {
+          gpService.increment();
           processService.restartProcess($scope.selected.project.id, processId, true).then(
           // Success
           function() {
-            console.debug('restarted process');
+            gpService.increment();
             $timeout(function() {
               $scope.selectProcess($scope.selected.process);
-            }, 1000);
+              gpService.decrement();
+            }, 750);
+
           });
         }
 
@@ -373,6 +363,9 @@ tsApp
             $scope.lists.processes = data.processes;
             $scope.lists.processes.totalCount = data.totalCount;
             $scope.counts[$scope.selected.mode] = data.totalCount;
+            if ($scope.lists.processes && $scope.lists.processes.length > 0) {
+              $scope.selectProcess($scope.lists.processes[0]);
+            }
 
             $scope.getProcessConfigsCt();
           });
@@ -383,8 +376,9 @@ tsApp
         $scope.getExecutionState = function(execution) {
           if (!execution) {
             return '';
-          }
-          if (!execution.failDate && !execution.finishDate) {
+          } else if ($scope.selected.mode == 'Config') {
+            return 'CONFIG';
+          } else if (!execution.failDate && !execution.finishDate) {
             return 'RUNNING';
           } else if (execution.failDate && execution.finishDate) {
             return 'CANCELLED';
@@ -421,11 +415,7 @@ tsApp
           });
         }
 
-        // Set $scope.selected.process
-        $scope.setProcess = function(process) {
-          $scope.selected.process = process;
-        }
-
+        // Select $scope.selected.step
         $scope.selectStep = function(step) {
           $scope.selected.step = step;
         }

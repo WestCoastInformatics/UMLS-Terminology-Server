@@ -22,27 +22,6 @@ tsApp
           return userProjectsInfo;
         };
 
-        // get all projects
-        this.getProjects = function() {
-          var deferred = $q.defer();
-
-          // Get projects
-          gpService.increment();
-          $http.get(projectUrl + '/find').then(
-          // success
-          function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
-          return deferred.promise;
-        };
-
         // get project
         this.getProject = function(projectId) {
           var deferred = $q.defer();
@@ -141,7 +120,7 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(projectUrl + '/all?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + '/find?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {

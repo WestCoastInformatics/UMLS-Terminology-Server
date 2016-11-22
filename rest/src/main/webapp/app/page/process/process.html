@@ -47,12 +47,12 @@
     <table ng-show="lists.processes.totalCount > 0" class="slim table pointer">
       <thead>
         <tr>
-          <th class="col-md-3 col-xs-3"><span
+          <th class="col-md-5 col-xs-5"><span
               ng-click="setSortField('process','name')">
               Name
               <span ng-bind="getSortIndicator('process','name')"></span>
             </span></th>
-          <th class="col-md-5 col-xs-5">Description</th>
+          <th class="col-md-3 col-xs-3">State</th>
           <th class="col-md-3 col-xs-3"><span
               ng-click="setSortField('process','lastModified')">
               Last Modified
@@ -67,7 +67,7 @@
           ng-class="{selected: process.id == selected.process.id}">
 
           <td>{{process.name}}</td>
-          <td>{{process.description}}</td>
+          <td>{{getExecutionState(process)}}</td>
           <td>{{toDate(process.lastModified)}}</td>
 
           <!--  actions -->

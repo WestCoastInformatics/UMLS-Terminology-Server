@@ -75,6 +75,7 @@ tsApp.controller('AlgorithmModalCtrl', [
 
     // Dismiss modal
     $scope.validate = function(algorithm) {
+      $scope.errors = [];
       processService.validateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
         .then(
         // Success

@@ -30,7 +30,7 @@ tsApp.service('securityService', [
 
     // Configure tabs
     this.saveTab = function(prefs, tab) {
-      if (prefs) {
+      if (prefs && prefs.lastTab != tab) {
         prefs.lastTab = tab;
         this.updateUserPreferences(prefs);
       }
@@ -38,7 +38,7 @@ tsApp.service('securityService', [
 
     // Configure role
     this.saveRole = function(prefs, role) {
-      if (prefs) {
+      if (prefs && prefs.lastProjectRole != role) {
         prefs.lastProjectRole = role;
         this.updateUserPreferences(prefs);
       }
@@ -46,7 +46,7 @@ tsApp.service('securityService', [
 
     // Configure projectId
     this.saveProjectId = function(prefs, projectId) {
-      if (prefs) {
+      if (prefs && prefs.lastProjectId != projectId) {
         prefs.lastProjectId = projectId;
         this.updateUserPreferences(prefs);
       }
@@ -54,7 +54,7 @@ tsApp.service('securityService', [
 
     // Configure role
     this.saveProjectIdAndRole = function(prefs, projectId, role) {
-      if (prefs) {
+      if (prefs && (prefs.lastProjectId != projectId || prefs.lastProjectRole != role)) {
         prefs.lastProjectId = projectId;
         prefs.lastProjectRole = role;
         this.updateUserPreferences(prefs);
@@ -63,9 +63,18 @@ tsApp.service('securityService', [
 
     // save properties
     this.saveProperty = function(prefs, key, value) {
-      if (prefs) {
+      if (prefs && prefs.properties[key] != value) {
         prefs.properties[key] = value;
         this.updateUserPreferences(prefs);
+      }
+    }
+
+    // get property
+    this.getProperty = function(prefs, key, defaultValue) {
+      if (prefs && prefs.properties[key]) {
+        return prefs.properties[key];
+      } else {
+        return defaultValue;
       }
     }
 
