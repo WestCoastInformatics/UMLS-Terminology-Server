@@ -22,6 +22,15 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  */
 public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
 
+  /** The previous progress. */
+  private int previousProgress;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted;
+  
   /**
    * Instantiates an empty {@link ComputeConceptPreferredNamesAlgorithm}.
    *
@@ -43,9 +52,21 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
 
-    fireProgressEvent(0, "Progress: " + 0 + "%");
+    
     logInfo("Starting Compute concept preferred names");
+        
+    previousProgress = 0;
+    stepsCompleted = 0;
+    
+    // get concept ct for progress monitoring
+    javax.persistence.Query query =
+        manager.createQuery("select count(*) from ConceptJpa c "
+            + "where c.publishable = true and terminology = :terminology");
 
+    query.setParameter("terminology", getProject().getTerminology());
+    steps = Integer.parseInt(query.getSingleResult().toString());
+
+    
     int objectCt = 0;
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session.createQuery(
@@ -66,10 +87,10 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
         updateConcept(c);
       }
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-    }
+      updateProgress();
+    }  
 
     logInfo("Finished Compute concept preferred names");
-    fireProgressEvent(100, "Progress: " + 100 + "%");
 
   }
 
@@ -93,4 +114,18 @@ public class ComputeConceptPreferredNamesAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepsCompleted++;
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "PREFERRED NAMES progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+  }
 }
