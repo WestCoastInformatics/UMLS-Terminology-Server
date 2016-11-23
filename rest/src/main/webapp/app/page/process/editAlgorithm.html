@@ -33,20 +33,25 @@
         <td>
           <b>{{parameter.name}}</b>
         </td>
-        <td ng-show="parameter.type == 'STRING' || parameter.type == 'TEXT'">
-          <input type="text" ng-model="parameter.value" size="60"
-            uib-tooltip="{{parameter.description}}"
+        <td ng-show="parameter.type == 'STRING'">
+          <input type="text" ng-model="parameter.value" class="w100"
+            title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false" />
         </td>
+        <td ng-show="parameter.type == 'TEXT'">
+          <textarea ng-model="parameter.value" rows="4" class="w100"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+        </td>
         <td ng-show="parameter.type == 'BOOLEAN'">
           <input type="checkbox" string-to-boolean ng-model="parameter.value"
-            uib-tooltip="{{parameter.description}}"
-            ng-change="validated = false" />
+            title="{{parameter.description}}" ng-change="validated = false" />
 
         </td>
         <td ng-show="parameter.type == 'MULTI'">
-          <span uib-tooltip="{{parameter.description}}">
+          <span title="{{parameter.description}}">
             <select multiple ng-model="parameter.values"
               ng-options="possibleValue for possibleValue in parameter.possibleValues"
               ng-change="validated = false">
@@ -54,14 +59,13 @@
           </span>
         </td>
         <td ng-show="parameter.type == 'INTEGER'">
-          <input type="number" string-to-number size="4"
+          <input type="number" string-to-number class="w100"
             ng-model="parameter.value" placeholder="{{parameter.placeholder}}"
-            uib-tooltip="{{parameter.description}}"
-            ng-change="validated = false" />
+            title="{{parameter.description}}" ng-change="validated = false" />
 
         </td>
         <td ng-show="parameter.type == 'ENUM'">
-          <span uib-tooltip="{{parameter.description}}">
+          <span title="{{parameter.description}}">
             <select ng-model="parameter.value"
               ng-options="possibleValue for possibleValue in parameter.possibleValues"
               ng-change="validated = false">

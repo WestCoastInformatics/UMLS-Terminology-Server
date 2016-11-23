@@ -1432,7 +1432,8 @@ public abstract class RootServiceJpa implements RootService {
    * Perform molecular action.
    *
    * @param action the action
-   * @param userName the username
+   * @param userName the user name
+   * @param performMaintanence the perform maintanence
    * @return the validation result
    * @throws Exception the exception
    */
@@ -1475,7 +1476,8 @@ public abstract class RootServiceJpa implements RootService {
         service.close();
       }
 
-      // Check again in case all errors were turned into warnings and we're overriding warnings
+      // Check again in case all errors were turned into warnings and we're
+      // overriding warnings
       if (!validationResult.isValid()
           || (!validationResult.getWarnings().isEmpty()
               && !action.isOverrideWarnings())) {
@@ -1495,7 +1497,7 @@ public abstract class RootServiceJpa implements RootService {
 
     // Perform post-action maintenance on affected concept(s)
     // DO this in a separate transaction - maybe some issues with
-    if(performMaintanence){
+    if (performMaintanence) {
       action.postActionMaintenance();
     }
 

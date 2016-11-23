@@ -418,6 +418,9 @@ public class TerminologyJpa extends AbstractHasLastModified
   @XmlTransient
   @Override
   public Map<String, String> getFirstReleases() {
+    if (firstReleases == null) {
+      firstReleases = new HashMap<>();
+    }
     return firstReleases;
   }
 
@@ -431,6 +434,9 @@ public class TerminologyJpa extends AbstractHasLastModified
   @XmlTransient
   @Override
   public Map<String, String> getLastReleases() {
+    if (lastReleases == null) {
+      lastReleases = new HashMap<>();
+    }
     return lastReleases;
   }
 
