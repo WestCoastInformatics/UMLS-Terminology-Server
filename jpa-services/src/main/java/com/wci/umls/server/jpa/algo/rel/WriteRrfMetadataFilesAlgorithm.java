@@ -45,7 +45,15 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
-  
+  /** The previous progress. */
+  private int previousProgress;
+
+  /** The steps. */
+  private int steps;
+
+  /** The steps completed. */
+  private int stepsCompleted;
+    
   /**
    * Instantiates an empty {@link WriteRrfMetadataFilesAlgorithm}.
    *
@@ -66,21 +74,14 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    fireProgressEvent(0, "Progress: " + 0 + "%");
     logInfo("Starting Write RRF metadata files");
     
     writeMrdoc();
-    fireProgressEvent(25, "Progress: " + 25 + "%");
     writeMrsab();
-    // TODO: rework progress monitor to only monitor writeMrsab() step, since that step takes 99% of the time
-    fireProgressEvent(50, "Progress: " + 50 + "%");
     writeMrrank();
-    fireProgressEvent(75, "Progress: " + 75 + "%");
     writeMrcolsMrfiles();
 
     logInfo("Finished Write RRF metadata files");
-    fireProgressEvent(100, "Progress: " + 100 + "%");
-
 
   }
 
@@ -94,7 +95,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     PrecedenceList precList = getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
     int index = precList.getPrecedence().getKeyValuePairs().size();    
     for (KeyValuePair pair : precList.getPrecedence().getKeyValuePairs()) {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append(String.format("%04d", index--)).append("|");
       sb.append(pair.getKey()).append("|");
       sb.append(pair.getValue()).append("|");
@@ -136,6 +137,10 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     final File outputFile = new File(dir, "MRSAB.RRF");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    
+    // progress monitoring
+    steps = getCurrentTerminologies().getObjects().size();
+    
     for (Terminology term : getCurrentTerminologies().getObjects()) {
     
       // Field Description
@@ -176,8 +181,9 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
+
       // Get VCUI/RCUI first
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       String vcui = "";
       String rcui = "";
       PfsParameter pfs = new PfsParameterJpa();
@@ -236,6 +242,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(term.getCitation()).append("|"); // 24 SCIT
       
       out.print(sb.toString() + "\n");
+      updateProgress();
     }
     out.close();
   }
@@ -267,7 +274,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     query.setParameter("terminology", terminology);
     List<String> list = query.getResultList();
     Collections.sort(list);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (String tty : list) {
       sb.append(tty).append(",");
     }
@@ -285,7 +292,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     query.setParameter("terminology", terminology);
     List<String> list = query.getResultList();
     Collections.sort(list);
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (String atn : list) {
       sb.append(atn).append(",");
     }
@@ -320,7 +327,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     // e.g.
     // ATN|ACCEPTABILITYID|expanded_form|Acceptability Id|
     for (AttributeName atn : getAttributeNames(getProject().getTerminology(), getProject().getVersion()).getObjects()) {      
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       sb.append("ATN").append("|");
       sb.append(atn.getAbbreviation()).append("|");
       sb.append("expanded_form").append("|");
@@ -330,7 +337,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
       // Handle Languages
      for (Language lat : getLanguages(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-       StringBuffer sb = new StringBuffer();
+       StringBuilder sb = new StringBuilder();
        sb.append("LAT").append("|");
        sb.append(lat.getAbbreviation()).append("|");
        sb.append("expanded_form").append("|");
@@ -340,13 +347,13 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
       // Handle AdditionalRelationshipLabel
       for(AdditionalRelationshipType rela : getAdditionalRelationshipTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("RELA").append("|");
         sb.append(rela.getAbbreviation()).append("|");
         sb.append("expanded_form").append("|");
         sb.append(rela.getExpandedForm()).append("|"); 
         outputLines.add(sb.toString());
-        sb = new StringBuffer();
+        sb = new StringBuilder();
         sb.append("RELA").append("|");
         sb.append(rela.getAbbreviation()).append("|");
         sb.append("rela_inverse").append("|");
@@ -356,13 +363,13 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
       // Handle RelationshipLabel
       for(RelationshipType rela : getRelationshipTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("REL").append("|");
         sb.append(rela.getAbbreviation()).append("|");
         sb.append("expanded_form").append("|");
         sb.append(rela.getExpandedForm()).append("|"); 
         outputLines.add(sb.toString());
-        sb = new StringBuffer();
+        sb = new StringBuilder();
         sb.append("REL").append("|");
         sb.append(rela.getAbbreviation()).append("|");
         sb.append("rel_inverse").append("|");
@@ -372,7 +379,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
 
       for(TermType tty : getTermTypes(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("TTY").append("|");
         sb.append(tty.getAbbreviation()).append("|");
         sb.append("expanded_form").append("|");
@@ -380,13 +387,13 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         outputLines.add(sb.toString());
      
         if (tty.getCodeVariantType() == CodeVariantType.PET) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
           sb.append("entry_term").append("|");
           outputLines.add(sb.toString());
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -394,7 +401,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getCodeVariantType() == CodeVariantType.PN) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -402,7 +409,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getCodeVariantType() == CodeVariantType.ET) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -410,7 +417,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getCodeVariantType() == CodeVariantType.ATTRIBUTE) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -418,7 +425,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getCodeVariantType() == CodeVariantType.SY) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -426,7 +433,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getNameVariantType() == NameVariantType.AB) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -434,7 +441,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.isHierarchicalType()) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -442,7 +449,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.isObsolete()) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -450,7 +457,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
           outputLines.add(sb.toString());
         }
         if (tty.getNameVariantType() == NameVariantType.EXPANDED) {
-          sb = new StringBuffer();
+          sb = new StringBuilder();
           sb.append("TTY").append("|");
           sb.append(tty.getAbbreviation()).append("|");
           sb.append("tty_class").append("|");
@@ -462,7 +469,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
       // General metadata entries (skip MAPATN)
       for(GeneralMetadataEntry entry : getGeneralMetadataEntries(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-          StringBuffer sb = new StringBuffer();
+          StringBuilder sb = new StringBuilder();
           sb.append(entry.getKey()).append("|");
           sb.append(entry.getAbbreviation()).append("|");
           sb.append(entry.getType()).append("|");
@@ -491,4 +498,18 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
   }
 
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepsCompleted++;
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "RRF METADATA progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+  }
 }

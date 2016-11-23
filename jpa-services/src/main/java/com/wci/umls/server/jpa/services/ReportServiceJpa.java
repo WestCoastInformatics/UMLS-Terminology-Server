@@ -204,7 +204,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     // SOS
     //
-    final StringBuffer sosBuffer = new StringBuffer();
+    final StringBuilder sosBuffer = new StringBuilder();
     final String sosLabel = "SOS";
     sosBuffer.append(sosLabel);
     for (final Atom atom : sortedAtoms) {
@@ -228,7 +228,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     // Notes
     //
-    StringBuffer notesBuffer = new StringBuffer();
+    StringBuilder notesBuffer = new StringBuilder();
     String notesLabel = "CONCEPT NOTE(S)";
     notesBuffer.append(notesLabel);
     for (final Note note : concept.getNotes()) {
@@ -244,7 +244,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     }
     sb.append(lineEnd);
 
-    notesBuffer = new StringBuffer();
+    notesBuffer = new StringBuilder();
     notesLabel = "ATOM NOTE(S)";
     notesBuffer.append(notesLabel);
     for (final Atom atom : concept.getAtoms()) {
@@ -879,7 +879,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
    * @return the relationships report
    */
   private String getRelationshipsReport(List<ConceptRelationship> rels) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (ConceptRelationship rel : rels) {
       // relationship type
       sb.append("[").append(rel.getRelationshipType()).append("]  ");
