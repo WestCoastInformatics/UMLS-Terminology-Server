@@ -432,33 +432,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (!singleMode && editMode) {
       loadTerminologyMetadata();
     }
-    // Commit
     commitClearBegin();
 
-    // Add release info for this load
-    final Terminology terminology =
-        getTerminologyLatestVersion(getTerminology());
-    ReleaseInfo info =
-        getReleaseInfo(terminology.getTerminology(), this.getReleaseVersion());
-    if (info == null) {
-      info = new ReleaseInfoJpa();
-      info.setName(getReleaseVersion());
-      info.setDescription(terminology.getTerminology() + " "
-          + getReleaseVersion() + " release");
-      info.setPlanned(false);
-      info.setPublished(true);
-      info.setReleaseBeginDate(null);
-      info.setReleaseFinishDate(releaseVersionDate);
-      info.setTerminology(terminology.getTerminology());
-      info.setVersion(getReleaseVersion());
-      info.setLastModified(releaseVersionDate);
-      info.setLastModifiedBy(loader);
-      info.setTimestamp(new Date());
-      addReleaseInfo(info);
-    } else {
-      throw new Exception("Release info unexpectedly already exists for "
-          + getReleaseVersion());
-    }
+    // Load release info
+    loadReleaseInfo();
+    commitClearBegin();
 
     // Clear concept cache
 
@@ -492,6 +470,39 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         .info("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
     Logger.getLogger(getClass()).info("done ...");
 
+  }
+
+  /**
+   * Load release info.
+   *
+   * @throws Exception the exception
+   */
+  private void loadReleaseInfo() throws Exception {
+
+    // Add release info for this load
+    final Terminology terminology =
+        getTerminologyLatestVersion(getTerminology());
+    ReleaseInfo info =
+        getReleaseInfo(terminology.getTerminology(), this.getReleaseVersion());
+    if (info == null) {
+      info = new ReleaseInfoJpa();
+      info.setName(getReleaseVersion());
+      info.setDescription(terminology.getTerminology() + " "
+          + getReleaseVersion() + " release");
+      info.setPlanned(false);
+      info.setPublished(true);
+      info.setReleaseBeginDate(null);
+      info.setReleaseFinishDate(releaseVersionDate);
+      info.setTerminology(terminology.getTerminology());
+      info.setVersion(getReleaseVersion());
+      info.setLastModified(releaseVersionDate);
+      info.setLastModifiedBy(loader);
+      info.setTimestamp(new Date());
+      addReleaseInfo(info);
+    } else {
+      throw new Exception("Release info unexpectedly already exists for "
+          + getReleaseVersion());
+    }
   }
 
   /**
@@ -1019,8 +1030,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Load MRSAB. This is responsible for loading {@link Terminology} and
-   * {@link RootTerminology} info.
+   * Load mrsab.
    *
    * @throws Exception the exception
    */
@@ -1126,6 +1136,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         term.setVersion(termVersion);
         term.setDescriptionLogicTerminology(false);
 
+        // Handle IMETA/RMETA
+        term.getFirstReleases().put(getTerminology(), fields[9]);
+        if (!fields[10].isEmpty()) {
+          term.getLastReleases().put(getTerminology(), fields[10]);
+        }
+
         if (!loadedRootTerminologies.containsKey(fields[3])) {
           // Add if it does not yet exist
           final RootTerminology root = new RootTerminologyJpa();
@@ -1147,6 +1163,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final RootTerminology root = loadedRootTerminologies.get(fields[3]);
         term.setRootTerminology(root);
         addTerminology(term);
+
         // cache terminology by RSAB and VSAB
         loadedTerminologies.put(term.getTerminology(), term);
         if (!fields[2].equals("")) {
