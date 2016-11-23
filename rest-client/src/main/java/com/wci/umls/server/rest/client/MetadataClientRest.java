@@ -136,13 +136,13 @@ public class MetadataClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, TerminologyJpa.class);
     return result;
   }
-  
+
   /* see superclass */
   @Override
   public RootTerminology getRootTerminology(String terminology,
     String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Metadata Client - get root terminology " + terminology);
+    Logger.getLogger(getClass())
+        .debug("Metadata Client - get root terminology " + terminology);
     validateNotEmpty(terminology, "terminology");
 
     Client client = ClientBuilder.newClient();
@@ -222,8 +222,8 @@ public class MetadataClientRest extends RootClientRest
         .debug("Metadata Client - add precedence list ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/precedence/add");
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/precedence");
     final String precString = ConfigUtility.getStringForGraph(
         precedenceList == null ? new PrecedenceListJpa() : precedenceList);
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -248,13 +248,13 @@ public class MetadataClientRest extends RootClientRest
         .debug("Metadata Client - update precedence list ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/precedence/update");
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/precedence");
     final String precedenceListString = ConfigUtility.getStringForGraph(
         precedenceList == null ? new PrecedenceListJpa() : precedenceList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(precedenceListString));
+        .put(Entity.xml(precedenceListString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -264,19 +264,17 @@ public class MetadataClientRest extends RootClientRest
   }
 
   @Override
-  public void updateTermType(TermTypeJpa termType,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - update term type ");
+  public void updateTermType(TermTypeJpa termType, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - update term type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/termType/update");
-    final String termTypeString = ConfigUtility.getStringForGraph(
-        termType == null ? new TermTypeJpa() : termType);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/termType");
+    final String termTypeString = ConfigUtility
+        .getStringForGraph(termType == null ? new TermTypeJpa() : termType);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .post(Entity.xml(termTypeString));
+        .header("Authorization", authToken).put(Entity.xml(termTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -284,7 +282,7 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   @Override
   public void updateAttributeName(AttributeNameJpa attributeName,
     String authToken) throws Exception {
@@ -293,12 +291,12 @@ public class MetadataClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/attributeName/update");
+        .target(config.getProperty("base.url") + "/metadata/attributeName");
     final String attributeNameString = ConfigUtility.getStringForGraph(
         attributeName == null ? new AttributeNameJpa() : attributeName);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(attributeNameString));
+        .put(Entity.xml(attributeNameString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -306,7 +304,7 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   @Override
   public void updateRelationshipType(RelationshipTypeJpa relationshipType,
     String authToken) throws Exception {
@@ -315,12 +313,13 @@ public class MetadataClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/relationshipType/update");
-    final String relationshipTypeString = ConfigUtility.getStringForGraph(
-        relationshipType == null ? new RelationshipTypeJpa() : relationshipType);
+        .target(config.getProperty("base.url") + "/metadata/relationshipType");
+    final String relationshipTypeString =
+        ConfigUtility.getStringForGraph(relationshipType == null
+            ? new RelationshipTypeJpa() : relationshipType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(relationshipTypeString));
+        .put(Entity.xml(relationshipTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -328,7 +327,7 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   @Override
   public void updateRootTerminology(RootTerminologyJpa rootTerminology,
     String authToken) throws Exception {
@@ -337,12 +336,12 @@ public class MetadataClientRest extends RootClientRest
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/rootTerminology/update");
+        .target(config.getProperty("base.url") + "/metadata/rootTerminology");
     final String rootTerminologyString = ConfigUtility.getStringForGraph(
         rootTerminology == null ? new RootTerminologyJpa() : rootTerminology);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(rootTerminologyString));
+        .put(Entity.xml(rootTerminologyString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -350,21 +349,19 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   @Override
-  public void updateTerminology(TerminologyJpa terminology,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - update terminology ");
+  public void updateTerminology(TerminologyJpa terminology, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - update terminology ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/terminology/update");
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/terminology");
     final String terminologyString = ConfigUtility.getStringForGraph(
         terminology == null ? new TerminologyJpa() : terminology);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .post(Entity.xml(terminologyString));
+        .header("Authorization", authToken).put(Entity.xml(terminologyString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -372,37 +369,39 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
   }
-  
+
   @Override
-  public void updateAdditionalRelationshipType(AdditionalRelationshipTypeJpa additionalRelationshipType,
-    String authToken) throws Exception {
+  public void updateAdditionalRelationshipType(
+    AdditionalRelationshipTypeJpa additionalRelationshipType, String authToken)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - update add relationship type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/addRelType/update");
-    final String additionalRelationshipTypeString = ConfigUtility.getStringForGraph(
-        additionalRelationshipType == null ? new AdditionalRelationshipTypeJpa() : additionalRelationshipType);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/additionalRelationshipType");
+    final String additionalRelationshipTypeString =
+        ConfigUtility.getStringForGraph(additionalRelationshipType == null
+            ? new AdditionalRelationshipTypeJpa() : additionalRelationshipType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(additionalRelationshipTypeString));
+        .put(Entity.xml(additionalRelationshipTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-  }  
-  
+  }
+
   @Override
   public void removePrecedenceList(Long id, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - remove precedence list ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/precedence/" + id + "/remove");
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/precedence/" + id);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -415,13 +414,13 @@ public class MetadataClientRest extends RootClientRest
   }
 
   @Override
-  public void removeTermType(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - remove term type ");
+  public void removeTermType(String type, String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - remove term type ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/termType/" + type + "/remove/" + terminology + "/" + version);
+        + "/metadata/termType/" + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -432,11 +431,11 @@ public class MetadataClientRest extends RootClientRest
     }
 
   }
-  
+
   @Override
-  public TermType getTermType(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - remove term type ");
+  public TermType getTermType(String type, String terminology, String version,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - remove term type ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
@@ -454,15 +453,16 @@ public class MetadataClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, TermTypeJpa.class);
     return result;
   }
-  
+
   @Override
-  public AttributeName getAttributeName(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - get atn ");
+  public AttributeName getAttributeName(String type, String terminology,
+    String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - get atn ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/attributeName/" + type + "/" + terminology + "/" + version);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/attributeName/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -476,15 +476,16 @@ public class MetadataClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, AttributeNameJpa.class);
     return result;
   }
-  
+
   @Override
-  public RelationshipType getRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - get rel type ");
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - get rel type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/relationshipType/" + type + "/" + terminology + "/" + version);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/relationshipType/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -494,19 +495,19 @@ public class MetadataClientRest extends RootClientRest
     } else {
       throw new Exception(response.toString());
     }
-    RelationshipType result =
-        ConfigUtility.getGraphForString(resultString, RelationshipTypeJpa.class);
+    RelationshipType result = ConfigUtility.getGraphForString(resultString,
+        RelationshipTypeJpa.class);
     return result;
   }
- 
+
   @Override
-  public AdditionalRelationshipType getAdditionalRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - get add rel type ");
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - get add rel type ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/addRelType/" + type + "/" + terminology + "/" + version);
+        + "/metadata/additionalRelationshipType/" + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -516,19 +517,21 @@ public class MetadataClientRest extends RootClientRest
     } else {
       throw new Exception(response.toString());
     }
-    AdditionalRelationshipType result =
-        ConfigUtility.getGraphForString(resultString, AdditionalRelationshipTypeJpa.class);
+    AdditionalRelationshipType result = ConfigUtility
+        .getGraphForString(resultString, AdditionalRelationshipTypeJpa.class);
     return result;
   }
-  
+
   @Override
-  public void removeAttributeName(String type, String terminology, String version, String authToken) throws Exception {
+  public void removeAttributeName(String type, String terminology,
+    String version, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - remove attribute name ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/attributeName/" + type + "/remove/" + terminology + "/" + version);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/attributeName/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -539,14 +542,16 @@ public class MetadataClientRest extends RootClientRest
     }
 
   }
+
   @Override
-  public void removeRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - remove rel type ");
+  public void removeRelationshipType(String type, String terminology,
+    String version, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - remove rel type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/relationshipType/" + type + "/remove/" + terminology + "/" + version);
+    WebTarget target = client
+        .target(config.getProperty("base.url") + "/metadata/relationshipType/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -557,14 +562,16 @@ public class MetadataClientRest extends RootClientRest
     }
 
   }
+
   @Override
-  public void removeAdditionalRelationshipType(String type, String terminology, String version, String authToken) throws Exception {
+  public void removeAdditionalRelationshipType(String type, String terminology,
+    String version, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - remove add rel type ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/addRelType/" + type + "/remove/" + terminology + "/" + version);
+        + "/metadata/additionalRelationshipType/" + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -575,18 +582,17 @@ public class MetadataClientRest extends RootClientRest
     }
 
   }
-  
+
   @Override
-  public TermType addTermType(TermTypeJpa termType,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - add term type ");
+  public TermType addTermType(TermTypeJpa termType, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Metadata Client - add term type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/termType/add");
-    final String termTypeString = ConfigUtility.getStringForGraph(
-        termType == null ? new TermTypeJpa() : termType);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/termType");
+    final String termTypeString = ConfigUtility
+        .getStringForGraph(termType == null ? new TermTypeJpa() : termType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.xml(termTypeString));
 
@@ -601,16 +607,15 @@ public class MetadataClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, TermTypeJpa.class);
     return result;
   }
-  
+
   @Override
   public AttributeName addAttributeName(AttributeNameJpa attributeName,
     String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Metadata Client - add attributeName ");
+    Logger.getLogger(getClass()).debug("Metadata Client - add attributeName ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/attributeName/add");
+        .target(config.getProperty("base.url") + "/metadata/attributeName");
     final String termTypeString = ConfigUtility.getStringForGraph(
         attributeName == null ? new AttributeNameJpa() : attributeName);
     Response response = target.request(MediaType.APPLICATION_XML)
@@ -627,20 +632,23 @@ public class MetadataClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, AttributeNameJpa.class);
     return result;
   }
-  
+
   @Override
-  public RelationshipType addRelationshipType(RelationshipTypeListJpa relationshipTypeList,
-    String authToken) throws Exception {
+  public RelationshipType addRelationshipType(
+    RelationshipTypeListJpa relationshipTypeList, String authToken)
+    throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - add relationship type ");
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/relationshipType/add");
-    final String relationshipTypeString = ConfigUtility.getStringForGraph(
-        relationshipTypeList == null ? new RelationshipTypeListJpa() : relationshipTypeList);
+        .target(config.getProperty("base.url") + "/metadata/relationshipType");
+    final String relationshipTypeString =
+        ConfigUtility.getStringForGraph(relationshipTypeList == null
+            ? new RelationshipTypeListJpa() : relationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(relationshipTypeString));
+        .header("Authorization", authToken)
+        .post(Entity.xml(relationshipTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -649,24 +657,28 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
     // converting to object
-    RelationshipType result =
-        ConfigUtility.getGraphForString(resultString, RelationshipTypeJpa.class);
+    RelationshipType result = ConfigUtility.getGraphForString(resultString,
+        RelationshipTypeJpa.class);
     return result;
   }
-  
+
   @Override
-  public AdditionalRelationshipType addAdditionalRelationshipType(AdditionalRelationshipTypeListJpa additionalRelationshipTypeList,
+  public AdditionalRelationshipType addAdditionalRelationshipType(
+    AdditionalRelationshipTypeListJpa additionalRelationshipTypeList,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Metadata Client - add additionalRelationship type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/metadata/addRelType/add");
-    final String additionalRelationshipTypeString = ConfigUtility.getStringForGraph(
-        additionalRelationshipTypeList == null ? new AdditionalRelationshipTypeListJpa() : additionalRelationshipTypeList);
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/metadata/additionalRelationshipType");
+    final String additionalRelationshipTypeString =
+        ConfigUtility.getStringForGraph(additionalRelationshipTypeList == null
+            ? new AdditionalRelationshipTypeListJpa()
+            : additionalRelationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(additionalRelationshipTypeString));
+        .header("Authorization", authToken)
+        .post(Entity.xml(additionalRelationshipTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -675,11 +687,11 @@ public class MetadataClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
     // converting to object
-    AdditionalRelationshipType result =
-        ConfigUtility.getGraphForString(resultString, AdditionalRelationshipTypeJpa.class);
+    AdditionalRelationshipType result = ConfigUtility
+        .getGraphForString(resultString, AdditionalRelationshipTypeJpa.class);
     return result;
   }
-  
+
   /* see superclass */
   @Override
   public SemanticTypeList getSemanticTypes(String terminology, String version,

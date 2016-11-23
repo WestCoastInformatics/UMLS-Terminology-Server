@@ -16,7 +16,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -33,7 +33,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import attributes.
  */
-public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -46,12 +46,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     setLastModifiedBy("admin");
   }
 
-  /**
-   * Check preconditions.
-   *
-   * @return the validation result
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -76,11 +70,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     return validationResult;
   }
 
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -375,6 +364,14 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
             getStepsCompleted(), RootService.logCt, RootService.commitCt);
       }
 
+      // Now remove the alternate terminologies for relationships - we don't
+      // need them anymore
+      clearRelationshipAltTerminologies();
+      
+      // Finally, clear out the static caches that have been populated during by
+      // the previous loader algorithms - we don't need them anymore either
+      clearCaches();      
+      
       commitClearBegin();
       handler.commitClearBegin();
 
@@ -393,12 +390,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
       logInfo("  user  = " + getLastModifiedBy());
       logInfo("Finished ATTRIBUTELOADING");
 
-      // Now remove the alternate terminologies for relationships - we don't
-      // need them anymore
-
-      // Finally, clear out the static caches that have been populated during by
-      // the previous loader algorithms - we don't need them anymore either
-      clearCaches();
 
     } catch (
 
@@ -409,37 +400,24 @@ public class AttributeLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   }
 
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {

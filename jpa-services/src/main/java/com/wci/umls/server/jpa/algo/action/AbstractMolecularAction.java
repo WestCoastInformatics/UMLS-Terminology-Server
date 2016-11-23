@@ -641,7 +641,14 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  } /* see superclass */
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
+
     throw new UnsupportedOperationException(
         "Individual molecular actions should not "
             + "be used as configurable algorithms");

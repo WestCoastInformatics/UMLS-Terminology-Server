@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
@@ -33,7 +33,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import relationships.
  */
-public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class RelationshipLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /** The handler. */
   private IdentifierAssignmentHandler handler = null;
@@ -532,8 +532,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // If no inverse relationships with the same RUI exists, add the new
     // inverse relationship
     if (oldInverseRelationship == null) {
-      newInverseRelationship.getAlternateTerminologyIds().put(getProject().getTerminology(),
-          newInverseRelationshipRui);
+      newInverseRelationship.getAlternateTerminologyIds()
+          .put(getProject().getTerminology(), newInverseRelationshipRui);
       newInverseRelationship = addRelationship(newInverseRelationship);
 
       addCount++;
@@ -600,8 +600,6 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
 
   }
 
-
-
   /**
    * Reset.
    *
@@ -613,19 +611,16 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
   /**

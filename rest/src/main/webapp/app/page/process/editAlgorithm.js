@@ -27,41 +27,40 @@ tsApp.controller('AlgorithmModalCtrl', [
       function(data) {
         $scope.algorithm = data;
       });
+    } else if ($scope.action == 'Add') {
+      processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType.key).then(
+        function(data) {
+          $scope.algorithm = data;
+          $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
+          $scope.algorithm.name = selected.algorithmConfigType.value + ' algorithm';
+          $scope.algorithm.description = selected.algorithmConfigType.value + ' description';
+          $scope.algorithm.terminology = selected.project.terminology;
+          $scope.algorithm.version = selected.project.version;
+        });
     }
-    else if ($scope.action == 'Add') {
-        processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType.key )
-          .then(
-          function(data) {
-            $scope.algorithm = data;
-            $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
-            $scope.algorithm.name = selected.algorithmConfigType.value + ' algorithm';
-            $scope.algorithm.description = selected.algorithmConfigType.value + ' description';
-            $scope.algorithm.terminology = selected.project.terminology;
-            $scope.algorithm.version = selected.project.version;
-          });
-      }
 
     // Update algorithm
     $scope.submitAlgorithm = function(algorithm) {
 
       if (action == 'Edit') {
-        processService.updateAlgorithmConfig($scope.project.id, algorithm).then(
-        // Success - update definition
-        function(data) {
-          $uibModalInstance.close(algorithm);
-        },
-        // Error - update definition
-        function(data) {
-          utilService.handleDialogError($scope.errors, data);
-        });
+        processService.updateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
+          .then(
+          // Success
+          function(data) {
+            $uibModalInstance.close(algorithm);
+          },
+          // Error
+          function(data) {
+            utilService.handleDialogError($scope.errors, data);
+          });
 
       } else if (action == 'Add') {
-        processService.addAlgorithmConfig($scope.project.id,  selected.process.id, algorithm).then(
-        // Success - add definition
+        processService.addAlgorithmConfig($scope.project.id, selected.process.id, algorithm).then(
+        // Success
         function(data) {
           $uibModalInstance.close(algorithm);
         },
-        // Error - add definition
+        // Error
         function(data) {
           utilService.handleDialogError($scope.errors, data);
         });
@@ -74,9 +73,23 @@ tsApp.controller('AlgorithmModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
+    // Dismiss modal
+    $scope.validate = function(algorithm) {
+      $scope.errors = [];
+      processService.validateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
+        .then(
+        // Success
+        function(data) {
+          $scope.validated = true;
+        },
+        // Error
+        function(data) {
+          utilService.handleDialogError($scope.errors, data);
+        });
+    };
+
     // end
   } ]);
-
 
 tsApp.directive('stringToNumber', function() {
   return {

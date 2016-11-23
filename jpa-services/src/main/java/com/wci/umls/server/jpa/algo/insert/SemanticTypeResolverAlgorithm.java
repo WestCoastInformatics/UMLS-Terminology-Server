@@ -154,20 +154,18 @@ public class SemanticTypeResolverAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "winLose"
+    }, p);
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
-    winLose = String.valueOf(p.getProperty("winLose"));
+   winLose = String.valueOf(p.getProperty("winLose"));
 
   }
 

@@ -299,11 +299,19 @@ public class UmlsIdentityLoaderAlgorithm
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "inputFile"
+    }, p);
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
 
-    checkRequiredProperties(new String[] {
-        "inputDir"
-    }, p);
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
 
     if (p.getProperty("inputDir") != null) {
       setInputPath(p.getProperty("inputDir"));
@@ -317,7 +325,7 @@ public class UmlsIdentityLoaderAlgorithm
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input UMLS UI Files directory to load", "", 255,
-        AlgorithmParameter.Type.DIRECTORY,"");
+        AlgorithmParameter.Type.DIRECTORY, "");
     params.add(param);
     return params;
 

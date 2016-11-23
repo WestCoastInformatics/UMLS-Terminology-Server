@@ -16,6 +16,7 @@ import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasTerminology;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.services.helpers.ProgressEvent;
 import com.wci.umls.server.services.helpers.ProgressListener;
@@ -234,8 +235,9 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     for (int i = 0; i < listeners.size(); i++) {
       listeners.get(i).updateProgress(pe);
     }
-    logInfo("    " + ((int) (((pct * 1.0) / steps) + ((step-1) * 100.0 / steps)))
-        + "% " + note);
+    logInfo(
+        "    " + ((int) (((pct * 1.0) / steps) + ((step - 1) * 100.0 / steps)))
+            + "% " + note);
   }
 
   /**
@@ -389,11 +391,11 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   public void checkRequiredProperties(String[] required, Properties p)
     throws Exception {
     if (p == null) {
-      throw new Exception("Algorithm properties must not be null");
+      throw new LocalException("Algorithm properties must not be null");
     }
     for (final String prop : required) {
       if (prop != "" && !p.containsKey(prop)) {
-        throw new Exception("Required property " + prop + " missing");
+        throw new LocalException("Required property " + prop + " missing");
       }
     }
   }

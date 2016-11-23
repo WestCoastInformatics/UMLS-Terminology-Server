@@ -51,7 +51,8 @@ public class ReportChecklistAlgorithm extends AbstractAlgorithm {
     ValidationResult validationResult = new ValidationResultJpa();
 
     if (getProject() == null) {
-      throw new Exception("Report Checklist Algorithm requires a project to be set");
+      throw new Exception(
+          "Report Checklist Algorithm requires a project to be set");
     }
 
     return validationResult;
@@ -127,18 +128,16 @@ public class ReportChecklistAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
+    // n/a
   }
 
   /**

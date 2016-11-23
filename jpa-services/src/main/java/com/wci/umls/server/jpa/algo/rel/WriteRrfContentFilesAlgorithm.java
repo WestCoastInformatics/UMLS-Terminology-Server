@@ -603,12 +603,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         final Concept scui = getConcept(atomConceptMap.get(a.getId()));
         for (final ConceptRelationship rel : scui.getRelationships()) {
 
-          // â€¦ STYPE1=SCUI, STYPE2=SCUI
-          // â€¦ AUI1 =
+          // … STYPE1=SCUI, STYPE2=SCUI
+          // … AUI1 =
           // atom.getAlternateTerminologyIds().get(getProject().getTerminology());
-          // â€¦ CUI1 = concept.getTerminologyId
-          // â€¦ AUI2 = conceptAuiMap.get(scui.getId())
-          // â€¦ CUI2 = auiCuiMap.get(AUI2);
+          // … CUI1 = concept.getTerminologyId
+          // … AUI2 = conceptAuiMap.get(scui.getId())
+          // … CUI2 = auiCuiMap.get(AUI2);
           StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
           sb.append(
@@ -681,12 +681,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         final Code code = getCode(atomCodeMap.get(a.getId()));
         for (final CodeRelationship rel : code.getRelationships()) {
 
-          // â€¦ STYPE1=SCUI, STYPE2=SCUI
-          // â€¦ AUI1 =
+          // … STYPE1=SCUI, STYPE2=SCUI
+          // … AUI1 =
           // atom.getAlternateTerminologyIds().get(getProject().getTerminology());
-          // â€¦ CUI1 = concept.getTerminologyId
-          // â€¦ AUI2 = conceptAuiMap.get(scui.getId())
-          // â€¦ CUI2 = auiCuiMap.get(AUI2);
+          // … CUI1 = concept.getTerminologyId
+          // … AUI2 = conceptAuiMap.get(scui.getId())
+          // … CUI2 = auiCuiMap.get(AUI2);
           StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
           sb.append(
@@ -758,12 +758,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         final Descriptor descriptor = getDescriptor(atomDescriptorMap.get(a.getId()));
         for (final DescriptorRelationship rel : descriptor.getRelationships()) {
 
-          // â€¦ STYPE1=SCUI, STYPE2=SCUI
-          // â€¦ AUI1 =
+          // … STYPE1=SCUI, STYPE2=SCUI
+          // … AUI1 =
           // atom.getAlternateTerminologyIds().get(getProject().getTerminology());
-          // â€¦ CUI1 = concept.getTerminologyId
-          // â€¦ AUI2 = conceptAuiMap.get(scui.getId())
-          // â€¦ CUI2 = auiCuiMap.get(AUI2);
+          // … CUI1 = concept.getTerminologyId
+          // … AUI2 = conceptAuiMap.get(scui.getId())
+          // … CUI2 = auiCuiMap.get(AUI2);
           StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
           sb.append(
@@ -833,7 +833,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     }  // end for(Atom... concept.getAtoms())
     
     // TODO: deal with PAR/CHD relationships to/from SRC atoms and top-level things 
-    // in hierarchies (these donâ€™t get assigned RUIs, and currently thereâ€™s an issue of STYPE changing, etc)
+    // in hierarchies (these don’t get assigned RUIs, and currently there’s an issue of STYPE changing, etc)
 
     Collections.sort(lines);
     return lines;
@@ -998,7 +998,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       if (ruiAttributeTerminologies.contains(a.getTerminology())) {
         for (AtomRelationship rel : a.getRelationships()) {
           for (Attribute attribute : rel.getAttributes()) {
-            // â€¦ stype=RUI, LUI,SUI,CODE=blank
+            // … stype=RUI, LUI,SUI,CODE=blank
             StringBuilder sb = new StringBuilder();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
             sb.append("|"); // 1 LUI
@@ -1052,7 +1052,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       if (ruiAttributeTerminologies.contains(c.getTerminology())) {
         for (ConceptRelationship rel : c.getRelationships()) {
           for (Attribute attribute : rel.getAttributes()) {
-            // TODO remove debug â€¦ stype=RUI, LUI,SUI,CODE=blank
+            // TODO remove debug … stype=RUI, LUI,SUI,CODE=blank
             StringBuilder sb = new StringBuilder();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI
             sb.append("|"); // 1 LUI
@@ -1091,6 +1091,14 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   public void reset() throws Exception {
     // n/a
 
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        ""
+    }, p);
   }
 
   /* see superclass */

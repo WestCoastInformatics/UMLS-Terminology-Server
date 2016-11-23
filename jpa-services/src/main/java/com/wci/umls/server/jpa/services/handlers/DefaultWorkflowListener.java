@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -28,7 +29,8 @@ import com.wci.umls.server.services.handlers.WorkflowListener;
  * A sample validation check for a new concept meeting the minimum qualifying
  * criteria.
  */
-public class DefaultWorkflowListener implements WorkflowListener {
+public class DefaultWorkflowListener extends AbstractConfigurable
+    implements WorkflowListener {
 
   @Override
   public void setProperties(Properties p) throws Exception {
@@ -191,7 +193,7 @@ public class DefaultWorkflowListener implements WorkflowListener {
   @Override
   public void componentHistoryChanged(ComponentHistory componentHistory,
     Action action) throws Exception {
-    // n/a    
+    // n/a
   }
 
 }

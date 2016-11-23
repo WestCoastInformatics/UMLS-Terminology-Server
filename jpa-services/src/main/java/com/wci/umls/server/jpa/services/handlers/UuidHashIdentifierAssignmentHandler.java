@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.services.helper.TerminologyUtility;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -34,7 +35,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  * 
  * If a component already has an SCTID, it keeps it.
  */
-public class UuidHashIdentifierAssignmentHandler
+public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     implements IdentifierAssignmentHandler {
 
   /* see superclass */
@@ -146,8 +147,8 @@ public class UuidHashIdentifierAssignmentHandler
   /* see superclass */
   @Override
   public String getTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,
     // component.terminologyId
@@ -163,8 +164,8 @@ public class UuidHashIdentifierAssignmentHandler
 
   @Override
   public String getInverseTerminologyId(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType, String inverseAdditionalRelType)
-    throws Exception {
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
+    String inverseRelType, String inverseAdditionalRelType) throws Exception {
     // TODO: Lookup inverse rel type
     StringBuilder hashKey = new StringBuilder();
     // terminologyId, terminology, relType, additionalRelType, group,

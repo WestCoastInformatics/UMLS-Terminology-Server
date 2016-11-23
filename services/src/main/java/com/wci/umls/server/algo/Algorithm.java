@@ -70,14 +70,14 @@ public interface Algorithm
    * @return the process
    */
   public ProcessExecution getProcess();
-  
+
   /**
    * Sets the process.
    *
    * @param process the process
    */
   public void setProcess(ProcessExecution process);
-  
+
   /**
    * Returns the parameters.
    *
@@ -93,4 +93,6 @@ public interface Algorithm
    */
   public void setParameters(List<AlgorithmParameter> parameter)
     throws Exception;
+
+
 }

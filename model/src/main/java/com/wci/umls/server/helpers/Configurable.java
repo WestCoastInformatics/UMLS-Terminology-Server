@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -25,4 +25,11 @@ public interface Configurable {
    */
   public void setProperties(Properties p) throws Exception;
 
+  /**
+   * Check properties.
+   *
+   * @param p the p
+   * @throws Exception the exception
+   */
+  public void checkProperties(Properties p) throws Exception;
 }

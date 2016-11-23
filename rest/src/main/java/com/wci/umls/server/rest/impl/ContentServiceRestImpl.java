@@ -1121,7 +1121,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @DELETE
-  @Path("/terminology/remove/{terminology}/{version}")
+  @Path("/terminology/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
   public boolean removeTerminology(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -1129,9 +1129,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful call (Content): /terminology/remove/" + terminology + "/"
-            + version);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/" + terminology + "/" + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
@@ -3555,7 +3554,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/concept/{id}/note/add")
+  @Path("/concept/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a concept", notes = "Adds a user note to a concept", response = String.class)
   @Override
@@ -3565,7 +3564,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/" + id
-        + "note/add for authToken " + authToken);
+        + "note for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3599,7 +3598,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/atom/{id}/note/add")
+  @Path("/atom/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a atom", notes = "Adds a user note to a atom", response = String.class)
   @Override
@@ -3609,7 +3608,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /atom/" + id
-        + "note/add for authToken " + authToken);
+        + "note for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3644,7 +3643,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
 
   @DELETE
-  @Path("/concept/note/{id}/remove")
+  @Path("/concept/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
   @Override
@@ -3653,7 +3652,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/note"
-        + noteId + "/remove for authToken " + authToken);
+        + noteId + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3680,7 +3679,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   @DELETE
-  @Path("/atom/note/{id}/remove")
+  @Path("/atom/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a atom", notes = "Remove a note from a atom", response = String.class)
   @Override
@@ -3689,7 +3688,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /atom/note"
-        + noteId + "/remove for authToken " + authToken);
+        + noteId + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3718,7 +3717,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
 
   @POST
-  @Path("/code/{id}/note/add")
+  @Path("/code/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a code", notes = "Adds a user note to a code", response = String.class)
   @Override
@@ -3728,7 +3727,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/" + id
-        + "note/add for authToken " + authToken);
+        + "note for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3763,7 +3762,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @DELETE
-  @Path("/code/note/{id}/remove")
+  @Path("/code/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a code", notes = "Remove a note from a code", response = String.class)
   @Override
@@ -3772,7 +3771,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/note"
-        + noteId + "/remove for authToken " + authToken);
+        + noteId + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3799,7 +3798,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/descriptor/{id}/note/add")
+  @Path("/descriptor/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a descriptor", notes = "Adds a user note to a descriptor", response = String.class)
   @Override
@@ -3809,7 +3808,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
-        + id + "note/add for authToken " + authToken);
+        + id + "note for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3844,7 +3843,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @DELETE
-  @Path("/descriptor/note/{id}/remove")
+  @Path("/descriptor/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a descriptor", notes = "Remove a note from a descriptor", response = String.class)
   @Override
@@ -3853,7 +3852,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/note"
-        + noteId + "/remove for authToken " + authToken);
+        + noteId + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {

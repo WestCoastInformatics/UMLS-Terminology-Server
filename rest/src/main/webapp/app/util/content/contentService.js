@@ -843,7 +843,7 @@ tsApp
 
             gpService.increment();
             $http.post(
-              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note/add', note).then(
+              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note', note).then(
               function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
@@ -868,7 +868,7 @@ tsApp
 
             gpService.increment();
             $http['delete'](
-              contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId + '/remove')
+              contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId )
               .then(function(response) {
                 console.debug('  successful remove note');
                 gpService.decrement();

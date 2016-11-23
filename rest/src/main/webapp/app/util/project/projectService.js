@@ -22,27 +22,6 @@ tsApp
           return userProjectsInfo;
         };
 
-        // get all projects
-        this.getProjects = function() {
-          var deferred = $q.defer();
-
-          // Get projects
-          gpService.increment();
-          $http.get(projectUrl + '/all').then(
-          // success
-          function(response) {
-            gpService.decrement();
-            deferred.resolve(response.data);
-          },
-          // error
-          function(response) {
-            utilService.handleError(response);
-            gpService.decrement();
-            deferred.reject(response.data);
-          });
-          return deferred.promise;
-        };
-
         // get project
         this.getProject = function(projectId) {
           var deferred = $q.defer();
@@ -70,7 +49,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.put(projectUrl + '/add', project).then(
+          $http.put(projectUrl + '/', project).then(
           // success
           function(response) {
             console.debug('  project = ', response.data);
@@ -93,7 +72,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http.post(projectUrl + '/update', project).then(
+          $http.post(projectUrl + '/', project).then(
           // success
           function(response) {
             console.debug('  successful update project');
@@ -116,7 +95,7 @@ tsApp
 
           // Add project
           gpService.increment();
-          $http['delete'](projectUrl + '/remove/' + id).then(
+          $http['delete'](projectUrl + '/' + id).then(
           // success
           function(response) {
             console.debug('  successful remove project');
@@ -141,7 +120,7 @@ tsApp
 
           // Make POST call
           gpService.increment();
-          $http.post(projectUrl + '/all?query=' + utilService.prepQuery(query),
+          $http.post(projectUrl + '/find?query=' + utilService.prepQuery(query),
             utilService.prepPfs(pfs)).then(
           // success
           function(response) {
@@ -438,7 +417,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.get(projectUrl + '/reload').then(
+          $http.post(projectUrl + '/reload', '').then(
           // success
           function(response) {
             console.debug('  successful reload');
@@ -459,7 +438,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.get(projectUrl + '/exception' + (flag ? '?local=true' : '')).then(
+          $http.post(projectUrl + '/exception' + (flag ? '?local=true' : ''), '').then(
           // success
           function(response) {
             console.debug('  exception forced');

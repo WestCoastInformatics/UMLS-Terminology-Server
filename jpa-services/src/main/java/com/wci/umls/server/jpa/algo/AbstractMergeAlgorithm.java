@@ -27,7 +27,7 @@ import com.wci.umls.server.services.RootService;
  * Abstract support for merge algorithms.
  */
 public abstract class AbstractMergeAlgorithm
-    extends AbstractSourceLoaderAlgorithm {
+    extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.
@@ -119,8 +119,7 @@ public abstract class AbstractMergeAlgorithm
       action.setActivityId(getActivityId());
       action.setConceptId(fromConcept.getId());
       action.setConceptId2(toConcept.getId());
-      // TODO question - Different prefix here, or none?
-      action.setLastModifiedBy("E-" + getLastModifiedBy());
+      action.setLastModifiedBy(getLastModifiedBy());
       action.setLastModified(fromConcept.getLastModified().getTime());
       action.setOverrideWarnings(false);
       action.setTransactionPerOperation(false);
@@ -129,7 +128,7 @@ public abstract class AbstractMergeAlgorithm
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, getLastModifiedBy());
+          action.performMolecularAction(action, getLastModifiedBy(), false);
 
       // If the action failed, log the failure, and make a demotion if
       // makeDemotion=true.
@@ -157,9 +156,8 @@ public abstract class AbstractMergeAlgorithm
           action2.setChangeStatusFlag(changeStatus);
           action2.setConceptId(fromConcept.getId());
           action2.setConceptId2(toConcept.getId());
-          // TODO question - Prefix here, or none?
           action2.setLastModifiedBy(getLastModifiedBy());
-          action2.performMolecularAction(action2, getLastModifiedBy());
+          action2.performMolecularAction(action2, getLastModifiedBy(),false);
           action2.close();
         }
 
@@ -226,7 +224,8 @@ public abstract class AbstractMergeAlgorithm
   }
 
   /*
-   * see superclass Need to override, because the Merge algorithm naming
+   * see superclass 
+   * Need to override, because the Merge algorithm naming
    * convention is different from the loader algorithms
    */
   @Override

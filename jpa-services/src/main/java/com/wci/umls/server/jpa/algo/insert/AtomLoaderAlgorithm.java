@@ -16,7 +16,7 @@ import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -25,8 +25,11 @@ import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.TermType;
@@ -38,7 +41,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import atoms.
  */
-public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
+public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -342,9 +345,12 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         existingCode.getAtoms().add(atom);
         existingCode.setVersion(atom.getVersion());
         updateCode(existingCode);
-        // TODO - read code relationships and updateRelationship on each one
-        // (to update the indexes with the new concept information)
         
+        // Read code relationships and updateRelationship on each one
+        // (to update the indexes with the new concept information)
+        for(CodeRelationship codeRelationship : existingCode.getRelationships()){
+          updateRelationship(codeRelationship);
+        }
       }
 
       // else create a new code
@@ -376,8 +382,12 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         existingConcept.getAtoms().add(atom);
         existingConcept.setVersion(atom.getVersion());
         updateConcept(existingConcept);
-        // TODO - read concept relationships and updateRelationship on each one
+        
+        // Read concept relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
+        for(ConceptRelationship conceptRelationship : existingConcept.getRelationships()){
+          updateRelationship(conceptRelationship);
+        }        
       }
 
       // else create a new concept
@@ -409,8 +419,12 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
         existingDescriptor.getAtoms().add(atom);
         existingDescriptor.setVersion(atom.getVersion());
         updateDescriptor(existingDescriptor);
-        // TODO - read descriptor relationships and updateRelationship on each one
+        
+        // Read descriptor relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
+        for(DescriptorRelationship descriptorRelationship : existingDescriptor.getRelationships()){
+          updateRelationship(descriptorRelationship);
+        }         
       }
 
       // else create a new descriptor
@@ -445,19 +459,16 @@ public class AtomLoaderAlgorithm extends AbstractSourceLoaderAlgorithm {
     // n/a - No reset
   }
 
-  /**
-   * Sets the properties.
-   *
-   * @param p the properties
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        // TODO - handle problem with config.properties needing properties
-    }, p);
-
+    // n/a
   }
 
   /**

@@ -150,7 +150,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -233,7 +233,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -319,7 +319,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -402,7 +402,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -487,7 +487,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -569,7 +569,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -649,7 +649,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -738,7 +738,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -827,7 +827,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -906,7 +906,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -994,7 +994,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1085,7 +1085,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1169,7 +1169,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.isValid()
@@ -1264,7 +1264,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {
@@ -1372,7 +1372,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Perform the action
       final ValidationResult validationResult =
-          action.performMolecularAction(action, userName);
+          action.performMolecularAction(action, userName, true);
 
       // If the action failed, bail out now.
       if (!validationResult.getErrors().isEmpty()) {

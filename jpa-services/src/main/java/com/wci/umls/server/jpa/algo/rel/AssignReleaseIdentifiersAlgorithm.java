@@ -172,10 +172,16 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
         ""
     }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
   }
 
   /**

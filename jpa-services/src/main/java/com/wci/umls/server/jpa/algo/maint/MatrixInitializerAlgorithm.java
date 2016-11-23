@@ -205,7 +205,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setWorkId(getWorkId());
 
             final ValidationResult result =
-                performMolecularAction(action, getLastModifiedBy());
+                performMolecularAction(action, getLastModifiedBy(), true);
             if (!result.isValid()) {
               throw new Exception("Invalid action - " + result);
             }
@@ -239,10 +239,14 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public void setProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        ""
-    }, p);
+    // n/a
   }
 
   /* see superclass */

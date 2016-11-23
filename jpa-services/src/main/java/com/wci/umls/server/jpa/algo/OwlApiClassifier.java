@@ -794,11 +794,16 @@ public class OwlApiClassifier extends AbstractAlgorithm implements Classifier {
     return new ValidationResultJpa();
   }
 
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    // Unable to set via properteis
-    throw new UnsupportedOperationException();
-
+    // n/a
   }
 
 }

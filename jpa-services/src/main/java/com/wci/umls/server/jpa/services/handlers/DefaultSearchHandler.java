@@ -19,6 +19,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -26,7 +27,8 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  * Default implementation of {@link SearchHandler}. This provides an algorithm
  * to aide in lucene searches.
  */
-public class DefaultSearchHandler implements SearchHandler {
+public class DefaultSearchHandler extends AbstractConfigurable
+    implements SearchHandler {
 
   /** The score map. */
   private Map<Long, Float> scoreMap = new HashMap<>();
