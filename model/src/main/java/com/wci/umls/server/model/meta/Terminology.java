@@ -5,6 +5,7 @@ package com.wci.umls.server.model.meta;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.model.content.AtomClass;
@@ -241,7 +242,7 @@ public interface Terminology extends HasLastModified {
    * @return <code>true</code> if so, <code>false</code> otherwise
    */
   public boolean isIncludeSiblings();
-  
+
   /**
    * Sets the include siblings.
    *
@@ -262,5 +263,33 @@ public interface Terminology extends HasLastModified {
    * @param url the url
    */
   public void setUrl(String url);
+
+  /**
+   * Returns the metathesaurus "first" release versions.
+   *
+   * @return the metathesaurus release versions
+   */
+  public Map<String, String> getFirstReleases();
+
+  /**
+   * Sets the first releases.
+   *
+   * @param firstReleases the first releases
+   */
+  public void setFirstReleases(Map<String, String> firstReleases);
+
+  /**
+   * Returns the metathesaurus "last" release versions.
+   *
+   * @return the metathesaurus release versions
+   */
+  public Map<String, String> getLastReleases();
+
+  /**
+   * Sets the last releases.
+   *
+   * @param lastReleases the last releases
+   */
+  public void setLastReleases(Map<String, String> lastReleases);
 
 }

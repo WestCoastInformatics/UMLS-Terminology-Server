@@ -14,6 +14,7 @@ import org.codehaus.plexus.util.FileUtils;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -29,6 +30,15 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
  * Algorithm for creating a new release.
  */
 public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
+
+  /** The steps. */
+  private int steps = 2;
+
+  /** The previous progress. */
+  private int previousProgress = 0;
+
+  /** The step ct. */
+  private int stepCt = 0;
 
   /** The bypass validation checks. */
   private boolean bypassValidationChecks = false;
@@ -47,57 +57,61 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
-    ValidationResult validationResult = new ValidationResultJpa();
+    final ValidationResult result = new ValidationResultJpa();
 
-    // Verify that there is a “NET” directory at input path
-    String path = config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath();
-    File dir = new File(path, "NET");
+    // Verify that there is a "NET" directory at input path
+    final String path = config.getProperty("source.data.dir") + "/"
+        +  getProcess().getInputPath();
+    final File dir = new File(path, "NET");
     if (!dir.exists()) {
-      throw new Exception(
-          "Creating a new release requires a 'NET' directory at the input path.");
+      result.addError("Release requires a 'NET' directory at the input path "
+          + dir.getPath());
     }
 
     // remaining checks are bypassable
     if (bypassValidationChecks) {
-      return validationResult;
+      return result;
     }
 
     // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
-    PfsParameter pfs = new PfsParameterJpa();
-    SearchResultList unreviewedConcepts =
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setStartIndex(0);
+    pfs.setMaxResults(1);
+    final SearchResultList unreviewedConcepts =
         findConcepts(getProject().getTerminology(), getProject().getVersion(),
-            getProject().getBranch(), " workflowStatus:NEEDS_REVIEW", pfs);
-    if (unreviewedConcepts.size() > 1) {
-      throw new Exception(
-          "Creating a new release requires all concepts to have workflowStatus reviewed.");
+            Branch.ROOT, " workflowStatus:NEEDS_REVIEW", pfs);
+    if (unreviewedConcepts.size() > 0) {
+      result.addError(
+          "Release requires no concepts have NEEDS_REVIEW workflow status");
     }
 
     // Verify that all worklists in the epoch for the project are
     // READY_FOR_PUBLICATION
-    WorklistList notReadyWorklists = findWorklists(getProject(),
+    final WorklistList notReadyWorklists = findWorklists(getProject(),
         " NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
-    if (notReadyWorklists.size() > 1) {
-      throw new Exception(
-          "Creating a new release requires all worklists in the epoch to be READY_FOR_PUBLICATION");
+    if (notReadyWorklists.size() > 0) {
+      result.addError(
+          "Release requires all worklists in epoch to be READY_FOR_PUBLICATION");
     }
 
     // Verify that all “required” bins have zero counts
-    for (WorkflowConfig config : getWorkflowConfigs(getProject())) {
-      for (WorkflowBin bin : getWorkflowBins(getProject(), config.getType())) {
+    for (final WorkflowConfig config : getWorkflowConfigs(getProject())) {
+      for (final WorkflowBin bin : getWorkflowBins(getProject(),
+          config.getType())) {
         if (bin.isRequired()) {
           if (bin.getStats().size() != 0) {
-            throw new Exception(
-                "Creating a new release requires that all required bins be completed and have a count of 0.");
+            result.addError(
+                "Release requires that all required bins have a count of 0 "
+                    + bin.getName());
           }
         }
       }
     }
 
-    /*
-     * MID Validation passes – TODO later Monster QA passes – TODO later
-     */
-    return validationResult;
+    //
+    // +
+    //
+    return result;
 
   }
 
@@ -106,7 +120,10 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
 
     logInfo("Starting Create new release");
-    fireProgressEvent(0, "Starting progress: " + 0 + "%");
+
+    steps = 2;
+    previousProgress = 0;
+    stepCt = 0;
 
     // Create a release directory
     File releaseDir = new File(config.getProperty("source.data.dir") + "/"
@@ -135,7 +152,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       qaDir.mkdir();
     }
 
-    fireProgressEvent(50, "Progress: " + 50 + "%");
+    updateProgress();
 
     // Add a release info for the current release
     logInfo("  Add release info for the current release = "
@@ -152,7 +169,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     addReleaseInfo(releaseInfo);
 
     logInfo("Finished Create new release");
-    fireProgressEvent(100, "Progress: " + 100 + "%");
+    updateProgress();
   }
 
   /* see superclass */
@@ -201,5 +218,20 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     params.add(param);
 
     return params;
+  }
+
+  /**
+   * Update progress.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgress() throws Exception {
+    stepCt++;
+    int currentProgress = (int) ((100.0 * stepCt / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          "CREATE RELEASE progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
   }
 }

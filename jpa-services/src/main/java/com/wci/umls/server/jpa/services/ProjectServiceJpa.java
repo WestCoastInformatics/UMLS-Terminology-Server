@@ -170,8 +170,8 @@ public class ProjectServiceJpa extends RootServiceJpa
    *
    * @param project the project
    */
-  @SuppressWarnings("static-method")
-  private void handleLazyInit(Project project) {
+  @Override
+  public void handleLazyInit(Project project) {
     if (project == null) {
       return;
     }
@@ -180,6 +180,7 @@ public class ProjectServiceJpa extends RootServiceJpa
     project.getSemanticTypeCategoryMap().size();
     if (project.getPrecedenceList() != null) {
       project.getPrecedenceList().getName();
+      project.getPrecedenceList().getPrecedence().getKeyValuePairs();
     }
     project.getValidCategories().size();
     project.getValidationData().size();

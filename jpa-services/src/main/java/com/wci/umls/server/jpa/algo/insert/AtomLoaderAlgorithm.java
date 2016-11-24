@@ -39,13 +39,14 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
- * Implementation of an algorithm to import atoms.
+ * Algorithm responsible for loading "classes_atoms.src" files.
  */
 public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
-   * @throws Exception if anything goes wrong
+   *
+   * @throws Exception the exception
    */
   public AtomLoaderAlgorithm() throws Exception {
     super();
@@ -54,12 +55,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     setLastModifiedBy("admin");
   }
 
-  /**
-   * Check preconditions.
-   *
-   * @return the validation result
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
@@ -84,11 +79,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     return validationResult;
   }
 
-  /**
-   * Compute.
-   *
-   * @throws Exception the exception
-   */
+  /* see superclass */
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -450,11 +441,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
   }
 
-  /**
-   * Reset.
-   *
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -473,11 +459,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     // n/a
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {

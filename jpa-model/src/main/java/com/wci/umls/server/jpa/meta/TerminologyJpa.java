@@ -5,7 +5,9 @@ package com.wci.umls.server.jpa.meta;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -116,6 +118,16 @@ public class TerminologyJpa extends AbstractHasLastModified
   @Column(nullable = true)
   private String url = null;
 
+  /** The first releases. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  private Map<String, String> firstReleases;
+
+  /** The last releases. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  private Map<String, String> lastReleases;
+
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -147,6 +159,8 @@ public class TerminologyJpa extends AbstractHasLastModified
     inverterEmail = copy.getInverterEmail();
     includeSiblings = copy.isIncludeSiblings();
     url = copy.getUrl();
+    firstReleases = new HashMap<>(copy.getFirstReleases());
+    lastReleases = new HashMap<>(copy.getLastReleases());
   }
 
   /* see superclass */
@@ -398,6 +412,38 @@ public class TerminologyJpa extends AbstractHasLastModified
   @Override
   public void setUrl(String url) {
     this.url = url;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getFirstReleases() {
+    if (firstReleases == null) {
+      firstReleases = new HashMap<>();
+    }
+    return firstReleases;
+  }
+
+  /* see superclass */
+  @Override
+  public void setFirstReleases(Map<String, String> firstReleases) {
+    this.firstReleases = firstReleases;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getLastReleases() {
+    if (lastReleases == null) {
+      lastReleases = new HashMap<>();
+    }
+    return lastReleases;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastReleases(Map<String, String> lastReleases) {
+    this.lastReleases = lastReleases;
   }
 
   /* see superclass */

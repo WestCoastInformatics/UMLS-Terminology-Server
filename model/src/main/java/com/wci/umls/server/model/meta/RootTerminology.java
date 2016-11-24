@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
@@ -166,5 +166,6 @@ public interface RootTerminology extends HasLanguage, HasLastModified {
    * @param hierarchicalName the hierarchical name
    */
   public void setHierarchicalName(String hierarchicalName);
+
 
 }

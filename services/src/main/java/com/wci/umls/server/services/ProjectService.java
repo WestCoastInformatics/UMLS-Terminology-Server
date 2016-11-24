@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -89,4 +89,12 @@ public interface ProjectService extends RootService {
    */
   public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception;
+
+  /**
+   * Handle lazy init.
+   *
+   * @param project the project
+   */
+  public void handleLazyInit(Project project);
+
 }

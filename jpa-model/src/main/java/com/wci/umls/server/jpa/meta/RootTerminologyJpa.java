@@ -26,7 +26,7 @@ import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.RootTerminology;
 
 /**
- * JPA and JAXB enabled implementation of {@link RootTerminology}.
+ * The Class RootTerminologyJpa.
  */
 @Entity
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
@@ -49,7 +49,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private ContactInfo contentContact;
 
-  /** The polyhierarchy flag. */
+  /** The polyhierarchy. */
   @Column(nullable = false)
   private boolean polyhierarchy;
 
@@ -81,9 +81,10 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   @Column(nullable = true, length = 3000)
   private String shortName;
 
-  /** The short name. */
+  /** The synonymous names. */
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
+
 
   /**
    * Instantiates an empty {@link RootTerminologyJpa}.
@@ -95,7 +96,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   /**
    * Instantiates a {@link RootTerminologyJpa} from the specified parameters.
    *
-   * @param rootTerminology the terminology
+   * @param rootTerminology the root terminology
    */
   public RootTerminologyJpa(RootTerminology rootTerminology) {
     super(rootTerminology);
@@ -111,6 +112,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified
     shortName = rootTerminology.getShortName();
     synonymousNames = new ArrayList<>(rootTerminology.getSynonymousNames());
     polyhierarchy = rootTerminology.isPolyhierarchy();
+
   }
 
   /* see superclass */
