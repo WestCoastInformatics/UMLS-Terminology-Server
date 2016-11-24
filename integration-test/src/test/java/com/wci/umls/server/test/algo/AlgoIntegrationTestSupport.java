@@ -50,6 +50,8 @@ public class AlgoIntegrationTestSupport extends IntegrationUnitSupport {
       service.handleLazyInit(project);
 
       logService = new WorkflowServiceJpa();
+      logService.setLastModifiedBy("admin");
+      logService.setMolecularActionFlag(false);
     } catch (Exception e) {
       throw e;
     } finally {

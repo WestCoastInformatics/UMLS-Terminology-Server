@@ -15,22 +15,25 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.rel.ComputePreferredNamesAlgorithm;
+import com.wci.umls.server.jpa.algo.rel.CreateNewReleaseAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
 
 /**
  * Integration testing for {@link ComputePreferredNamesAlgorithm}.
  */
-public class ComputePreferredNamesAlgorithmTest
-    extends AlgoIntegrationTestSupport {
+public class CreateNewReleaseAlgorithmTest extends AlgoIntegrationTestSupport {
 
   /** The algo. */
-  private ComputePreferredNamesAlgorithm algo;
+  private CreateNewReleaseAlgorithm algo;
 
   /**
    * Setup.
@@ -39,8 +42,11 @@ public class ComputePreferredNamesAlgorithmTest
    */
   @Before
   public void setup() throws Exception {
-    algo = new ComputePreferredNamesAlgorithm();
+    final ProcessExecution process = new ProcessExecutionJpa();
+    process.setInputPath("");
+    algo = new CreateNewReleaseAlgorithm();
     algo.setProject(getProject());
+    algo.setProcess(process);
     algo.setTerminology(getProject().getTerminology());
     algo.setVersion(getProject().getVersion());
     algo.setLastModifiedBy("admin");
@@ -54,8 +60,10 @@ public class ComputePreferredNamesAlgorithmTest
   @Test
   public void testCheckPreconditions() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
-    algo.checkPreconditions();
-    // expect no failure
+    final ValidationResult result = algo.checkPreconditions();
+    Logger.getLogger(
+        "  errors = " + result.getErrors().size() + ", " + result.getErrors());
+    assertTrue(result.getErrors().size() >= 3);
   }
 
   /**
