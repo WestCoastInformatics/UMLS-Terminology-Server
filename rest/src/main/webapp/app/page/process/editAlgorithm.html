@@ -35,18 +35,18 @@
         </td>
         <td ng-show="parameter.type == 'STRING' || parameter.type == 'TEXT'">
           <input type="text" ng-model="parameter.value" size="60"
-            uib-tooltip="{{parameter.description}}"
+            title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false" />
         </td>
         <td ng-show="parameter.type == 'BOOLEAN'">
           <input type="checkbox" string-to-boolean ng-model="parameter.value"
-            uib-tooltip="{{parameter.description}}"
+            title="{{parameter.description}}"
             ng-change="validated = false" />
 
         </td>
         <td ng-show="parameter.type == 'MULTI'">
-          <span uib-tooltip="{{parameter.description}}">
+          <span title="{{parameter.description}}">
             <select multiple ng-model="parameter.values"
               ng-options="possibleValue for possibleValue in parameter.possibleValues"
               ng-change="validated = false">
@@ -56,12 +56,12 @@
         <td ng-show="parameter.type == 'INTEGER'">
           <input type="number" string-to-number size="4"
             ng-model="parameter.value" placeholder="{{parameter.placeholder}}"
-            uib-tooltip="{{parameter.description}}"
+            title="{{parameter.description}}"
             ng-change="validated = false" />
 
         </td>
         <td ng-show="parameter.type == 'ENUM'">
-          <span uib-tooltip="{{parameter.description}}">
+          <span title="{{parameter.description}}">
             <select ng-model="parameter.value"
               ng-options="possibleValue for possibleValue in parameter.possibleValues"
               ng-change="validated = false">

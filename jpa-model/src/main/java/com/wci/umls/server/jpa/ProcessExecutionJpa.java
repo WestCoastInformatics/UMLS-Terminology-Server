@@ -5,10 +5,14 @@ package com.wci.umls.server.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -16,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -77,6 +82,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @OrderColumn
   private List<AlgorithmExecution> steps = new ArrayList<>();
 
+  /**  The execution info. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  Map<String, String> executionInfo;  
+  
   /**
    * Instantiates an empty {@link ProcessExecutionJpa}.
    */
@@ -170,6 +180,29 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     this.steps = steps;
   }
 
+  /**
+   * Returns the execution info.
+   *
+   * @return the execution info
+   */
+  @XmlTransient
+  public Map<String, String> getExecutionInfo() {
+    if (executionInfo == null) {
+      executionInfo = new HashMap<>(2);
+    }
+    return executionInfo;
+  }
+
+  /**
+   * Sets the execution info.
+   *
+   * @param executionInfo the execution info
+   */
+  public void setExecutionInfo(
+    Map<String, String> executionInfo) {
+    this.executionInfo = executionInfo;
+  }  
+  
   /* see superclass */
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)

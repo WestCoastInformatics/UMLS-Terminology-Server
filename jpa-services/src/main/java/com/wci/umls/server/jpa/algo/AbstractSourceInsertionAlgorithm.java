@@ -45,7 +45,8 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * Abstract support for source-file insertion algorithms.
  */
-public abstract class AbstractSourceInsertionAlgorithm extends AbstractAlgorithm {
+public abstract class AbstractSourceInsertionAlgorithm
+    extends AbstractAlgorithm {
 
   /**
    * Instantiates an empty {@link AbstractSourceInsertionAlgorithm}.
@@ -1197,29 +1198,31 @@ public abstract class AbstractSourceInsertionAlgorithm extends AbstractAlgorithm
     relIdCache.clear();
   }
 
-
   /**
    * Clear relationship alt terminologies.
    *
    * @throws Exception the exception
    */
-  public void clearRelationshipAltTerminologies() throws Exception{
+  public void clearRelationshipAltTerminologies() throws Exception {
 
     List<String> relationshipPrefixes =
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
     for (String relPrefix : relationshipPrefixes) {
       final Session session = manager.unwrap(Session.class);
-      org.hibernate.Query hQuery =
-          session.createQuery("select a from " + relPrefix
-              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
-      hQuery.setParameter("terminology", getProject().getTerminology() + "-SRC");
+      org.hibernate.Query hQuery = session.createQuery("select a from "
+          + relPrefix
+          + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+      hQuery.setParameter("terminology",
+          getProject().getTerminology() + "-SRC");
       hQuery.setReadOnly(true).setFetchSize(10000);
 
       ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
       while (results.next()) {
-        final Relationship<?,?> relationship = (Relationship<?,?>) results.get()[0];
-        relationship.getAlternateTerminologyIds().remove(getProject().getTerminology() + "-SRC");
+        final Relationship<?, ?> relationship =
+            (Relationship<?, ?>) results.get()[0];
+        relationship.getAlternateTerminologyIds()
+            .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
       }
       results.close();

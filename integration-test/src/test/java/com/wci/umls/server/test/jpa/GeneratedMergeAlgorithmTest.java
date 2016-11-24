@@ -5,11 +5,9 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -19,7 +17,6 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.GeneratedMergeAlgorithm;
@@ -48,9 +45,6 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
-
-  /** The temporary .src file. */
-  private File outputFile = null;
 
   /**
    * Setup class.
@@ -83,33 +77,7 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
     processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
-                                                                   // this to
-    // the standard
-    // folder
-    // location
-
-//    // Create the /temp subdirectory
-//    final File tempSrcDir = new File(
-//        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-//            + File.separator + processExecution.getInputPath() + File.separator
-//            + "temp");
-//    FileUtils.mkdir(tempSrcDir.toString());
-//
-//    // Reset the processExecution input path to /src/temp
-//    processExecution.setInputPath(
-//        processExecution.getInputPath() + File.separator + "temp");
-//
-//    // Create and populate an attributes.src document in the /temp
-//    // temporary subfolder
-//    outputFile = new File(tempSrcDir, "mergefacts.src");
-//
-//    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-//    out.println(
-//        "362166237|SY|362166238|SRC||N|N|NCI-SRC|SRC_ATOM_ID||SRC_ATOM_ID||");
-//    out.println(
-//        "362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||");
-//    out.close();
-
+                    
     // Create and configure the algorithm
     algo = new GeneratedMergeAlgorithm();
 
@@ -118,9 +86,9 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
     algo.setLastModifiedFlag(true);
     algo.setProcess(processExecution);
     algo.setProject(processExecution.getProject());
-    algo.setTerminology(processExecution.getTerminology());
-    algo.setVersion(processExecution.getVersion());
-    
+    algo.setTerminology("NCI");
+    algo.setVersion("2016_05E");
+
   }
 
   /**
@@ -137,24 +105,34 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
-      
+
       //
       // Set properties for the algorithm
       //
-      //TODO question - go through these
       Properties algoProperties = new Properties();
       algoProperties.put("queryType", "JQL");
-      algoProperties.put("query", "SELECT a FROM AtomJpa a WHERE a.terminology = :terminology AND a.version = :old_version");
+      algoProperties.put("query",
+          "select a1.id, a2.id "
+              + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
+              + "where c1.terminology = :PROJECT_TERMINOLOGY: "
+              + "and c2.terminology = :PROJECT_TERMINOLOGY: "
+              + "and c1.id != c2.id " 
+              + "and a1.terminology = :TERMINOLOGY: "
+              + "and a1.version = :VERSION: "
+              + "and a2.terminology = :TERMINOLOGY: "
+              + "and a2.version = :VERSION: "
+              + "and a1.id = 1 "
+              + "and a2.id = 2 ");
+//              + "and a1.codeId = a2.codeId "
+//              + "and a1.stringClassId = a2.stringClassId "
+//              + "and a1.termType = a2.termType");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
-      algoProperties.put("filterNorm", "false");
-      algoProperties.put("filterExcludeNorm", "false");
-      algoProperties.put("filterNewAtoms", "false");
+      algoProperties.put("newAtomsOnly", "false");
       algoProperties.put("filterQueryType", "JQL");
-      //TODO - other filterQuery options?
-      algoProperties.put("filterQuery", "a.id = 7535 OR a.id = 7538");
+      algoProperties.put("filterQuery", "");
       algoProperties.put("makeDemotions", "true");
       algoProperties.put("changeStatus", "true");
-      algoProperties.put("mergeSet", "???");
+      algoProperties.put("mergeSet", "NCI-SY");
       algo.setProperties(algoProperties);
 
       //
@@ -174,7 +152,6 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
@@ -189,11 +166,6 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
-    FileUtils.forceDelete(outputFile);
-
-    FileUtils.deleteDirectory(new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();

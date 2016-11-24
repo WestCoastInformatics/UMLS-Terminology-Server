@@ -322,12 +322,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         for (final AlgorithmParameter param : algo.getParameters()) {
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
-          if (algo.getProperties()
-              .get(param.getFieldName()) != null) {
-            param.setValue(
-                algo.getProperties().get(param.getFieldName()));
-            param.setValues(new ArrayList<String>(Arrays.asList(algo
-                .getProperties().get(param.getFieldName()).split(";"))));
+          if (algo.getProperties().get(param.getFieldName()) != null) {
+            param.setValue(algo.getProperties().get(param.getFieldName()));
+            param.setValues(new ArrayList<String>(Arrays.asList(
+                algo.getProperties().get(param.getFieldName()).split(";"))));
           }
         }
       }
@@ -794,8 +792,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           algo.getProperties().put(param.getFieldName(),
               StringUtils.join(param.getValues(), ';'));
         } else if (!ConfigUtility.isEmpty(param.getValue())) {
-          algo.getProperties().put(param.getFieldName(),
-              param.getValue());
+          algo.getProperties().put(param.getFieldName(), param.getValue());
         }
       }
 
@@ -984,6 +981,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Populate the parameters based on its properties' values.
       final Algorithm instance =
           processService.getAlgorithmInstance(algo.getAlgorithmKey());
+      instance.setProject(processService.getProject(projectId));
+      instance.setProcess(new ProcessExecutionJpa(algo.getProcess()));
       algo.setParameters(instance.getParameters());
       for (final AlgorithmParameter param : algo.getParameters()) {
         // Populate both Value and Values (UI will determine which is required
@@ -1662,6 +1661,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // algorithm has finished
             algorithmExecution.setFinishDate(new Date());
             processService.updateAlgorithmExecution(algorithmExecution);
+
+            // Update the process execution (in case anything has been done to
+            // it by the algorithm)
+            processService.updateProcessExecution(processExecution);
 
             // Mark algorithm as finished
             lookupAeProgressMap.remove(algorithmExecution.getId());

@@ -231,4 +231,11 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
 
   }
 
+  @Override
+  public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    // N/A
+
+  }  
+  
 }

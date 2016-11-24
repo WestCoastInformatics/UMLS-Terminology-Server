@@ -295,17 +295,16 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           if (oldAtomChanged) {
             updateAtom(oldAtom);
             updateCount++;
-          }
 
-          // Reconcile code/concept/descriptor
-          reconcileCodeConceptDescriptor(oldAtom);
+            // Reconcile code/concept/descriptor
+            reconcileCodeConceptDescriptor(oldAtom);
+          }
         }
 
         // Update the progress
         updateProgress();
-
-        handler.logAndCommit("[Atom Loader] Atom identities processed ",
-            getStepsCompleted(), RootService.logCt, RootService.commitCt);
+        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
+            RootService.commitCt);
 
       }
 
@@ -345,10 +344,11 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         existingCode.getAtoms().add(atom);
         existingCode.setVersion(atom.getVersion());
         updateCode(existingCode);
-        
+
         // Read code relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
-        for(CodeRelationship codeRelationship : existingCode.getRelationships()){
+        for (CodeRelationship codeRelationship : existingCode
+            .getRelationships()) {
           updateRelationship(codeRelationship);
         }
       }
@@ -382,12 +382,13 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         existingConcept.getAtoms().add(atom);
         existingConcept.setVersion(atom.getVersion());
         updateConcept(existingConcept);
-        
+
         // Read concept relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
-        for(ConceptRelationship conceptRelationship : existingConcept.getRelationships()){
+        for (ConceptRelationship conceptRelationship : existingConcept
+            .getRelationships()) {
           updateRelationship(conceptRelationship);
-        }        
+        }
       }
 
       // else create a new concept
@@ -419,12 +420,13 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         existingDescriptor.getAtoms().add(atom);
         existingDescriptor.setVersion(atom.getVersion());
         updateDescriptor(existingDescriptor);
-        
+
         // Read descriptor relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
-        for(DescriptorRelationship descriptorRelationship : existingDescriptor.getRelationships()){
+        for (DescriptorRelationship descriptorRelationship : existingDescriptor
+            .getRelationships()) {
           updateRelationship(descriptorRelationship);
-        }         
+        }
       }
 
       // else create a new descriptor
