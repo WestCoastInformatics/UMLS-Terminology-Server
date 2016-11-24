@@ -40,12 +40,12 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
 
   /* see superclass */
   @Override
-  public String computePreferredName(Collection<Atom> atoms,
-    PrecedenceList list) throws Exception {
+  public String computePreferredName(final Collection<Atom> atoms,
+    final PrecedenceList list) throws Exception {
 
     cacheList(list);
     // Use ranking algorithm from MetamorphoSys
-    // [termgroupRank][lrr][inverse SUI][inverse AUI]
+    // [tbr][termgroupRank][lrr][inverse SUI][inverse AUI]
     // LRR isn't available here so just don't worry about it.
     String maxRank = "";
     Atom maxAtom = null;
@@ -100,7 +100,8 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @return the rank
    * @throws Exception the exception
    */
-  public String getRank(Atom atom, PrecedenceList list) throws Exception {
+  public String getRank(final Atom atom, final PrecedenceList list)
+    throws Exception {
 
     // Bail if no list specified or found
     if (list == null) {
@@ -115,22 +116,22 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
 
     final Map<String, String> ttyRanks = ttyRankMap.get(list.getId());
     // Compute the rank as a fixed length string
-    // [publishable][obsolete][suppressible][tty rank][SUI][atomId]
+    // [publishable][obsolete][suppressible][tty rank][lrr][SUI][atomId]
     // Higher values are better.
     String rank = null;
-    if (atom.getStringClassId() != null && !atom.getStringClassId().isEmpty()) {
-      rank = "" + (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
-
+    if (!atom.getStringClassId().isEmpty()) {
+      rank = (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
           + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-          + (10000000000L
+          + atom.getLastPublishedRank()
+          + +(10000000000L
               - Long.parseLong(atom.getStringClassId().substring(1)))
           + (100000000000L - atom.getId());
     } else {
-      rank = "" + (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
+      rank = (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
           + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
-          + (100000000000L - atom.getId());
+          + atom.getLastPublishedRank() + (100000000000L - atom.getId());
     }
     return rank;
   }
@@ -192,7 +193,6 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     if (ttyRankMap.containsKey(list.getId())) {
       return;
     }
-
     // Otherwise, build the TTY map
     Map<String, String> ttyRanks = list.getTermTypeRankMap();
     ttyRankMap.put(list.getId(), ttyRanks);

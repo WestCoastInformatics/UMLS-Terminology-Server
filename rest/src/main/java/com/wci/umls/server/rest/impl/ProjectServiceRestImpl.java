@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -209,7 +209,9 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "get the project",
           UserRole.VIEWER);
-      return projectService.getProject(id);
+      final Project project = projectService.getProject(id);
+      projectService.handleLazyInit(project);
+      return project;
     } catch (Exception e) {
       handleException(e, "trying to get a project");
       return null;

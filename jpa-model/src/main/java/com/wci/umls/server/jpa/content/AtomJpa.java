@@ -13,7 +13,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -82,7 +81,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   @OneToMany(mappedBy = "from", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> relationships = null;
 
-  /**  The inverse relationships. */
+  /** The inverse relationships. */
   @OneToMany(mappedBy = "to", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> inverseRelationships = null;
 
@@ -91,13 +90,13 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<ComponentHistory> componentHistories = null;
 
   /** The concept terminology id map. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection()
   // consider this: @Fetch(sFetchMode.JOIN)
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIds;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection()
   // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
@@ -149,7 +148,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The notes. */
   // NOTE: this could cause a performance problem with the join
-  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class, fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "atom", targetEntity = AtomNoteJpa.class)
   @IndexedEmbedded(targetElement = AtomNoteJpa.class)
   private List<Note> notes = new ArrayList<>();
 

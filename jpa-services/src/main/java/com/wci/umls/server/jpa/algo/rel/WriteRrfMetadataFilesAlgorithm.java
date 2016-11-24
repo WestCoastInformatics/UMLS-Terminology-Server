@@ -494,6 +494,11 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
+  public void checkProperties(Properties p) throws Exception {
+
+  }
+
+  @Override
   public void setProperties(Properties p) throws Exception {
 
   }
