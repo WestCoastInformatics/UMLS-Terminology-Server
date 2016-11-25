@@ -318,4 +318,10 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       previousProgress = currentProgress;
     }
   }
+
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
 }

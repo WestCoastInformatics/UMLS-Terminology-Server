@@ -1696,6 +1696,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           }
 
         } catch (Exception e) {
+          e.printStackTrace();
           exceptions[0] = e;
 
           // Remove process and algorithm from the maps
