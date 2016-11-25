@@ -518,9 +518,5 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  @Override
-  public void checkProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
+
 }
