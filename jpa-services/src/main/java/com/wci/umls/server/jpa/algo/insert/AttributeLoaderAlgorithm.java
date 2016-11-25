@@ -358,10 +358,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
         // Update the progress
         updateProgress();
-
-        handler.logAndCommit(
-            "[Attribute Loader] Attribute identities processed ",
-            getStepsCompleted(), RootService.logCt, RootService.commitCt);
+        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt, RootService.commitCt);
       }
 
       // Now remove the alternate terminologies for relationships - we don't

@@ -198,7 +198,7 @@ public abstract class AbstractMergeAlgorithm
     //
     try {
       lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+          loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null);
     }
     // If file not found, return null
     catch (Exception e) {

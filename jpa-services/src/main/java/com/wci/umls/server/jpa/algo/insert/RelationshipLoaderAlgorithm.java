@@ -593,10 +593,7 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceInsertionAlgorith
 
     // Update the progress
     updateProgress();
-
-    handler.logAndCommit(
-        "[Relationship Loader] Relationship Identities processed ",
-        getStepsCompleted(), RootService.logCt, RootService.commitCt);
+    handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt, RootService.commitCt);
 
   }
 

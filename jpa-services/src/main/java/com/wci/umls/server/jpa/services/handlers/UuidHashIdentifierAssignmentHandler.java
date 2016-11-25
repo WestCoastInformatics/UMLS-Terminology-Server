@@ -340,4 +340,11 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     // N/A
 
   }
+  
+  @Override
+  public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
+    // N/A
+
+  }    
 }

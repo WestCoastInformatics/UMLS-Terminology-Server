@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 import com.wci.umls.server.helpers.ComponentInfo;
@@ -41,7 +42,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class DefaultGraphResolutionHandler extends AbstractConfigurable implements GraphResolutionHandler {
+public class DefaultGraphResolutionHandler extends AbstractConfigurable
+    implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
@@ -102,7 +104,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
 
       // Relationships
       // default behavior -- require paging of relationships
-      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      concept.setRelationships(new ArrayList<ConceptRelationship>(0));
 
       // user annotations -- lazy initialize
       concept.getNotes().size();
@@ -115,33 +117,33 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
   /* see superclass */
   @Override
   public void resolveEmpty(Concept concept) {
-    concept.setAtoms(new ArrayList<>());
-    concept.setSemanticTypes(new ArrayList<>());
-    concept.setDefinitions(new ArrayList<>());
-    concept.setAttributes(new ArrayList<>());
-    concept.setRelationships(new ArrayList<>());
-    concept.setMembers(new ArrayList<>());
-    concept.setNotes(new ArrayList<>());
-    concept.setComponentHistory(new ArrayList<>());
+    concept.setAtoms(new ArrayList<>(0));
+    concept.setSemanticTypes(new ArrayList<>(0));
+    concept.setDefinitions(new ArrayList<>(0));
+    concept.setAttributes(new ArrayList<>(0));
+    concept.setRelationships(new ArrayList<>(0));
+    concept.setMembers(new ArrayList<>(0));
+    concept.setNotes(new ArrayList<>(0));
+    concept.setComponentHistory(new ArrayList<>(0));
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Descriptor descriptor) {
-    descriptor.setAtoms(new ArrayList<>());
-    descriptor.setDefinitions(new ArrayList<>());
-    descriptor.setAttributes(new ArrayList<>());
-    descriptor.setRelationships(new ArrayList<>());
-    descriptor.setNotes(new ArrayList<>());
+    descriptor.setAtoms(new ArrayList<>(0));
+    descriptor.setDefinitions(new ArrayList<>(0));
+    descriptor.setAttributes(new ArrayList<>(0));
+    descriptor.setRelationships(new ArrayList<>(0));
+    descriptor.setNotes(new ArrayList<>(0));
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Code code) {
-    code.setAtoms(new ArrayList<>());
-    code.setAttributes(new ArrayList<>());
-    code.setRelationships(new ArrayList<>());
-    code.setNotes(new ArrayList<>());
+    code.setAtoms(new ArrayList<>(0));
+    code.setAttributes(new ArrayList<>(0));
+    code.setRelationships(new ArrayList<>(0));
+    code.setNotes(new ArrayList<>(0));
   }
 
   /* see superclass */
@@ -151,9 +153,12 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
       boolean nullId = atom.getId() == null;
 
       atom.getName();
-      atom.getConceptTerminologyIds().keySet();
-      atom.getAlternateTerminologyIds().keySet();
-      atom.setMembers(new ArrayList<AtomSubsetMember>());
+      // atom.getConceptTerminologyIds().keySet();
+      // atom.getAlternateTerminologyIds().keySet();
+      atom.setConceptTerminologyIds(new HashMap<>(0));
+      atom.setAlternateTerminologyIds(new HashMap<>(0));
+
+      atom.setMembers(new ArrayList<AtomSubsetMember>(0));
 
       // Attributes
       resolveAttributes(atom, nullId);
@@ -198,9 +203,8 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
       if (relationship.getTo() != null) {
         relationship.getTo().getTerminology();
       }
-      if (relationship.getAlternateTerminologyIds() != null) {
-        relationship.getAlternateTerminologyIds().keySet();
-      }
+      // relationship.getAlternateTerminologyIds().keySet();
+      relationship.setAlternateTerminologyIds(new HashMap<>(0));
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
@@ -215,7 +219,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
       treepos.getAncestorPath();
 
       // Tree positions don't have attributes yet.
-      treepos.setAttributes(new ArrayList<Attribute>());
+      treepos.setAttributes(new ArrayList<Attribute>(0));
     }
 
   }
@@ -251,7 +255,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
 
       // Relationships
       // default behavior -- require paging of relationships
-      descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
+      descriptor.setRelationships(new ArrayList<DescriptorRelationship>(0));
 
       // user annotations -- lazy initialize
       descriptor.getNotes().size();
@@ -281,7 +285,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
 
       // Relationships
       // default behavior -- require paging of relationships
-      code.setRelationships(new ArrayList<CodeRelationship>());
+      code.setRelationships(new ArrayList<CodeRelationship>(0));
 
       // user annotations -- lazy initialize
       code.getNotes().size();
@@ -303,12 +307,14 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
       for (final Atom atom : lexicalClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
+        // atom.getConceptTerminologyIds().keySet();
+        // atom.getAlternateTerminologyIds().keySet();
+        atom.setConceptTerminologyIds(new HashMap<>(0));
+        atom.setAlternateTerminologyIds(new HashMap<>(0));
 
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setAttributes(new ArrayList<Attribute>(0));
+        atom.setDefinitions(new ArrayList<Definition>(0));
+        atom.setRelationships(new ArrayList<AtomRelationship>(0));
       }
 
     } else if (lexicalClass == null) {
@@ -329,12 +335,14 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
       for (final Atom atom : stringClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
+        // atom.getConceptTerminologyIds().keySet();
+        // atom.getAlternateTerminologyIds().keySet();
+        atom.setConceptTerminologyIds(new HashMap<>(0));
+        atom.setAlternateTerminologyIds(new HashMap<>(0));
 
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setAttributes(new ArrayList<Attribute>(0));
+        atom.setDefinitions(new ArrayList<Definition>(0));
+        atom.setRelationships(new ArrayList<AtomRelationship>(0));
       }
 
     } else if (stringClass == null) {
@@ -420,7 +428,8 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
     boolean nullId) {
     for (final Attribute att : component.getAttributes()) {
       att.getName();
-      att.getAlternateTerminologyIds().keySet();
+      // no ATUI
+      att.setAlternateTerminologyIds(new HashMap<>(0));
       if (nullId) {
         att.setId(null);
       }
@@ -467,7 +476,8 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable implemen
    */
   protected void resolveDefinition(Definition definition, boolean nullId) {
     definition.getValue();
-    definition.getAlternateTerminologyIds().keySet();
+    // no ATUI
+    definition.setAlternateTerminologyIds(new HashMap<>(0));
     if (nullId) {
       definition.setId(null);
     }

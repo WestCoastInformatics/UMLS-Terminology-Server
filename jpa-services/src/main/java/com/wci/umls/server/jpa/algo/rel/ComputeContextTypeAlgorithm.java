@@ -40,8 +40,9 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
-  private int siblingsThreshold = 1000; 
-  
+  /** The siblings threshold. */
+  private int siblingsThreshold;
+
   /** The previous progress. */
   private int previousProgress;
 
@@ -50,7 +51,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-  
 
   /**
    * Instantiates an empty {@link ComputeContextTypeAlgorithm}.
@@ -73,26 +73,30 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     boolean includeSiblings = false;
-    boolean polyhierarchy = false; 
+    boolean polyhierarchy = false;
 
     logInfo("Starting Create new release");
 
-    
     previousProgress = 0;
     stepsCompleted = 0;
 
     IdentifierAssignmentHandler handler =
         getIdentifierAssignmentHandler(getProject().getTerminology());
-    
-    //  First create map of rel and rela inverses
-    RelationshipTypeList relTypeList = getRelationshipTypes(getProject().getTerminology(), getProject().getVersion());
-    AdditionalRelationshipTypeList addRelTypeList = getAdditionalRelationshipTypes(getProject().getTerminology(), getProject().getVersion());
+
+    // First create map of rel and rela inverses
+    RelationshipTypeList relTypeList = getRelationshipTypes(
+        getProject().getTerminology(), getProject().getVersion());
+    AdditionalRelationshipTypeList addRelTypeList =
+        getAdditionalRelationshipTypes(getProject().getTerminology(),
+            getProject().getVersion());
     Map<String, String> relToInverseMap = new HashMap<>();
     for (RelationshipType relType : relTypeList.getObjects()) {
-      relToInverseMap.put(relType.getAbbreviation(), relType.getInverse().getAbbreviation());        
+      relToInverseMap.put(relType.getAbbreviation(),
+          relType.getInverse().getAbbreviation());
     }
     for (AdditionalRelationshipType relType : addRelTypeList.getObjects()) {
-      relToInverseMap.put(relType.getAbbreviation(), relType.getInverse().getAbbreviation());        
+      relToInverseMap.put(relType.getAbbreviation(),
+          relType.getInverse().getAbbreviation());
     }
 
     for (Terminology term : getCurrentTerminologies().getObjects()) {
@@ -179,44 +183,44 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         org.hibernate.Query hQuery = null;
 
         if (organizingClassType == IdType.ATOM) {
-          javax.persistence.Query qry =
-              manager.createQuery("select count(*) from AtomTreePositionJpa a, AtomTreePositionJpa b "
+          javax.persistence.Query qry = manager.createQuery(
+              "select count(*) from AtomTreePositionJpa a, AtomTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
-              steps = Integer.parseInt(qry.getSingleResult().toString());
+          steps = Integer.parseInt(qry.getSingleResult().toString());
 
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from AtomTreePositionJpa a, AtomTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.CONCEPT) {
-          javax.persistence.Query qry =
-              manager.createQuery("select count(*) from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
+          javax.persistence.Query qry = manager.createQuery(
+              "select count(*) from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
-              steps = Integer.parseInt(qry.getSingleResult().toString());
+          steps = Integer.parseInt(qry.getSingleResult().toString());
 
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.CODE) {
-          javax.persistence.Query qry =
-              manager.createQuery("select count(*) from CodeTreePositionJpa a, CodeTreePositionJpa b "
+          javax.persistence.Query qry = manager.createQuery(
+              "select count(*) from CodeTreePositionJpa a, CodeTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
-              steps = Integer.parseInt(qry.getSingleResult().toString());
+          steps = Integer.parseInt(qry.getSingleResult().toString());
 
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from CodeTreePositionJpa a, CodeTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
         } else if (organizingClassType == IdType.DESCRIPTOR) {
-          javax.persistence.Query qry =
-              manager.createQuery("select count(*) from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
+          javax.persistence.Query qry = manager.createQuery(
+              "select count(*) from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
                   + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
                   + " and a.node.id < b.node.id");
-              steps = Integer.parseInt(qry.getSingleResult().toString());
+          steps = Integer.parseInt(qry.getSingleResult().toString());
 
           hQuery = session.createQuery(
               "select a.node, b.node, a.additionalRelationshipType from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
@@ -253,15 +257,16 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
           newRel.setPublished(true);
           newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          newRel.setHierarchical(false);          
+          newRel.setHierarchical(false);
           newRel.setAssertedDirection(false);
           newRel.setInferred(true);
           newRel.setStated(true);
           newRel.setTerminologyId("");
-          
-          String rui = handler.getTerminologyId(newRel, "SIB", relToInverseMap.get(addRelType)); 
+
+          String rui = handler.getTerminologyId(newRel, "SIB",
+              relToInverseMap.get(addRelType));
           newRel.setTerminologyId(rui);
-           
+
           addRelationship(newRel);
           updateProgress();
         }
@@ -279,10 +284,15 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
         ""
     }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("siblingsThreshold") != null) {
       siblingsThreshold = Integer.parseInt(p.getProperty("siblingsThreshold"));
@@ -294,10 +304,9 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
         "siblingsThreshold", "Indicates maximum number of siblings.",
-        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "");
+        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "1000");
     params.add(param);
 
     return params;
@@ -319,9 +328,4 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     }
   }
 
-  @Override
-  public void checkProperties(Properties p) throws Exception {
-    // TODO Auto-generated method stub
-    
-  }
 }

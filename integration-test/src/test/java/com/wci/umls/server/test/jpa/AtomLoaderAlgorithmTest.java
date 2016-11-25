@@ -211,6 +211,8 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
       
     } catch (Exception e) {
       e.printStackTrace();
+      //Notify JUnit to fail
+      assertTrue(false);
     } finally {
       algo.close();
     }

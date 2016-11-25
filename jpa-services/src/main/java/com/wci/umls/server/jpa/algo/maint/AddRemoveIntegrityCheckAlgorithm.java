@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -214,37 +215,32 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    AlgorithmParameter param = new AlgorithmParameterJpa("AddRemove",
+    AlgorithmParameter param = new AlgorithmParameterJpa("Add/Remove",
         "addRemove", "Adding or Removing integrity check", "e.g. Add", 10,
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Add", "Remove"));
     params.add(param);
-    param = new AlgorithmParameterJpa("CheckName", "checkName",
-        "The name of the check to add or remove", "e.g. MGV_B", 10,
+    
+    param = new AlgorithmParameterJpa("Integrity Check", "checkName",
+        "The name of the integrity check to add or remove", "e.g. MGV_B", 10,
         AlgorithmParameter.Type.ENUM, "");
-    // Get the valid validation checks from the config.properties file
+    
     List<String> validationChecks = new ArrayList<>();
-    try {
-      final String key = "validation.service.handler";
-      for (final String handlerName : config.getProperty(key).split(",")) {
-        if (handlerName.isEmpty())
-          continue;
-        // Add handler Name to ENUM list
-        validationChecks.add(handlerName);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    for (final KeyValuePair validationCheck : getValidationCheckNames()
+        .getKeyValuePairs()) {
+      // Add handler Name to ENUM list
+      validationChecks.add(validationCheck.getKey());
     }
 
     param.setPossibleValues(validationChecks);
     params.add(param);
 
-    param = new AlgorithmParameterJpa("Value1", "value1",
+    param = new AlgorithmParameterJpa("Value 1", "value1",
         "Value 1 of the validation check  (often the Terminology)", "e.g. NCI",
         20, AlgorithmParameter.Type.STRING, "");
     params.add(param);
 
-    param = new AlgorithmParameterJpa("Value2", "value2",
+    param = new AlgorithmParameterJpa("Value 2", "value2",
         "Value 2 of the validation check  (often blank)", "e.g. \"\"", 20,
         AlgorithmParameter.Type.STRING, "");
     params.add(param);
