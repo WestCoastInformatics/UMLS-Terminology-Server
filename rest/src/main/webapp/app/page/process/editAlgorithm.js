@@ -28,7 +28,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
       });
     } else if ($scope.action == 'Add') {
-      processService.newAlgorithmConfig($scope.project.id, selected.algorithmConfigType.key).then(
+      processService.newAlgorithmConfig($scope.project.id, selected.process.id, selected.algorithmConfigType.key).then(
         function(data) {
           $scope.algorithm = data;
           $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;

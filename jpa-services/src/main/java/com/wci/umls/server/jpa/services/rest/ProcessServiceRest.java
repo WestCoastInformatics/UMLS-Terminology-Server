@@ -321,12 +321,13 @@ public interface ProcessServiceRest {
    * New algorithm config.
    *
    * @param projectId the project id
+   * @param processId the process id
    * @param key the key
    * @param authToken the auth token
    * @return the algorithm config
    * @throws Exception the exception
    */
-  public AlgorithmConfig newAlgorithmConfig(Long projectId, String key,
+  public AlgorithmConfig newAlgorithmConfig(Long projectId, Long processId, String key,
     String authToken) throws Exception;
 
 }

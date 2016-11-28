@@ -1852,11 +1852,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Get an empty new algorithm config", notes = "Returns an empty new algorithm config", response = AlgorithmConfigJpa.class)
   public AlgorithmConfig newAlgorithmConfig(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process id, e.g. 12345", required = true) @QueryParam("processId") Long processId,
     @ApiParam(value = "Algorithm config key, e.g. MATRIXINT", required = true) @PathParam("key") String key,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
-        + key + "/new?projectId=" + projectId + " for user " + authToken);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /config/algo/" + key + "/new?projectId="
+            + projectId + "&processId=" + processId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -1867,10 +1869,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Load project
       final Project project = processService.getProject(projectId);
+      final ProcessConfig process = processService.getProcessConfig(processId);
       final Algorithm algorithm = processService.getAlgorithmInstance(key);
       final AlgorithmConfig algo = new AlgorithmConfigJpa();
-      algo.setParameters(algorithm.getParameters());
       algo.setProject(project);
+      algo.setProcess(process);
+      // Algorithm also needs project and process set so that getParameters will
+      // function correctly
+      algorithm.setProject(algo.getProject());
+      algorithm.setProcess(new ProcessExecutionJpa(algo.getProcess()));
+      algo.setParameters(algorithm.getParameters());
       return algo;
 
     } catch (Exception e) {
