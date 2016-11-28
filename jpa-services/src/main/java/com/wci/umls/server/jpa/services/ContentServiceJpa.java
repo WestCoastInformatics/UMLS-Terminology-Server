@@ -2946,6 +2946,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return idHandlerMap.get(ConfigUtility.DEFAULT);
 
   }
+  
+  @Override
+  public NormalizedStringHandler getNormalizedStringHandler() throws Exception {
+    return normalizedStringHandler;
+  }
 
   /* see superclass */
   @Override

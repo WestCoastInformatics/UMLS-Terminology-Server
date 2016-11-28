@@ -105,7 +105,7 @@ import com.wci.umls.server.model.content.Concept;
           return -1;
         }
         if (a2.getLanguage().equals("ENG") && !a1.getLanguage().equals("ENG")) {
-          return -1;
+          return 1;
         }
         return a1.getLanguage().compareTo(a2.getLanguage());
       }
