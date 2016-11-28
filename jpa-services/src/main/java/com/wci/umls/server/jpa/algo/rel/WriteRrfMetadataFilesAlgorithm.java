@@ -216,8 +216,8 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(term.getVersion()).append("|");    //6
       sb.append(term.getStartDate() != null ? term.getStartDate() : "").append("|");    // 7
       sb.append(term.getEndDate() != null ? term.getEndDate() : "").append("|");    // 8
-      // 9 IMETA  // TODO Version of the Metathesaurus that a source was added
-      // 10 RMETA  // Version of the Metathesaurus where a version is removed
+      // 9 IMETA  // TODO Version of the Metathesaurus that a source was added  getFirstReleases(getProject().getTERm)  do null checks
+      // 10 RMETA  // Version of the Metathesaurus where a version is removed   getLastReleases()
       sb.append("||"); // for IMETA/RMETA
       sb.append(term.getRootTerminology().getLicenseContact()).append("|"); // 11
       sb.append(term.getRootTerminology().getContentContact()).append("|"); // 12
@@ -517,4 +517,6 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       previousProgress = currentProgress;
     }
   }
+
+
 }

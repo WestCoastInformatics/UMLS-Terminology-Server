@@ -80,7 +80,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     // Check the input directories
 
-    String srcFullPath =
+    final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 

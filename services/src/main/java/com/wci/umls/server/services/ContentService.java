@@ -61,6 +61,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 
 /**
  * Represents a service for interacting with content.
@@ -1940,4 +1941,12 @@ public interface ContentService extends MetadataService {
    */
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
     String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
+
+  /**
+   * Gets the normalized string handler.
+   *
+   * @return the normalized string handler
+   * @throws Exception the exception
+   */
+  public NormalizedStringHandler getNormalizedStringHandler() throws Exception;
 }

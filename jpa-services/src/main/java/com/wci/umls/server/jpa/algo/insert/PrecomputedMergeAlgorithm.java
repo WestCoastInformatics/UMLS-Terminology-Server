@@ -15,6 +15,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
@@ -63,7 +64,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // Check the input directories
 
-    String srcFullPath =
+    final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
@@ -273,8 +274,16 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    AlgorithmParameter param = new AlgorithmParameterJpa("MergeSet", "mergeSet",
-        "The merge set to perform the merges on", "e.g. NCI-SY", 10,
+    // Run checkPreconditions to set the SrcDirFile, since it will be used by the merge
+    // set parameter
+    try {
+      checkPreconditions();
+    } catch (Exception e) {
+      // Do nothing
+    }
+
+    AlgorithmParameter param = new AlgorithmParameterJpa("Merge Set",
+        "mergeSet", "The merge set to perform the merges on", "e.g. NCI-SY", 10,
         AlgorithmParameter.Type.ENUM, "");
     // Look for the mergefacts.src file and populate the enum based on the
     // merge_set column.
@@ -289,21 +298,15 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     }
     params.add(param);
 
-    param = new AlgorithmParameterJpa("CheckName", "checkName",
-        "The name of the integrity check to run", "e.g. MGV_B", 10,
+    param = new AlgorithmParameterJpa("Integrity Checks", "checkNames",
+        "The names of the integrity checks to run", "e.g. MGV_B", 10,
         AlgorithmParameter.Type.ENUM, "");
-    // Get the valid validation checks from the config.properties file
+
     List<String> validationChecks = new ArrayList<>();
-    try {
-      final String key = "validation.service.handler";
-      for (final String handlerName : config.getProperty(key).split(",")) {
-        if (handlerName.isEmpty())
-          continue;
-        // Add handler Name to ENUM list
-        validationChecks.add(handlerName);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    for (final KeyValuePair validationCheck : getValidationCheckNames()
+        .getKeyValuePairs()) {
+      // Add handler Name to ENUM list
+      validationChecks.add(validationCheck.getKey());
     }
 
     param.setPossibleValues(validationChecks);

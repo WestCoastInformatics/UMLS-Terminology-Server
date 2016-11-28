@@ -827,6 +827,17 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
+
+  /* see superclass */
+  @Override
+  public void silentIntervalCommit(final int objectCt, final int logCt,
+    final int commitCt) throws Exception {
+    // commit at regular intervals
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
+  }
+
   /**
    * Returns the query results.
    *
@@ -1433,6 +1444,7 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param action the action
    * @param userName the user name
+   * @param performMaintanence the perform maintanence
    * @param performMaintanence the perform maintanence
    * @return the validation result
    * @throws Exception the exception

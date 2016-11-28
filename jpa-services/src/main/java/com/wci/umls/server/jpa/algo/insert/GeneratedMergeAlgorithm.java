@@ -3,27 +3,31 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
-import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
-import com.wci.umls.server.model.content.Component;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
@@ -31,11 +35,32 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
  */
 public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
-  /** The merge set. */
-  private String mergeSet;
+  /** The query type. */
+  private QueryType queryType;
+
+  /** The query. */
+  private String query;
 
   /** The check names. */
   private List<String> checkNames;
+
+  /** The new atoms only filter. */
+  private Boolean newAtomsOnly = null;
+
+  /** The filter query type. */
+  private QueryType filterQueryType;
+
+  /** The filter query. */
+  private String filterQuery;
+
+  /** The make demotions. */
+  private Boolean makeDemotions = null;
+
+  /** The change status. */
+  private Boolean changeStatus = null;
+
+  /** The merge set. */
+  private String mergeSet;
 
   /**
    * Instantiates an empty {@link GeneratedMergeAlgorithm}.
@@ -64,17 +89,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       throw new Exception("Precomputed Merge requires a project to be set");
     }
 
-    // Check the input directories
-
-    String srcFullPath =
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + getProcess().getInputPath();
-
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
-      throw new Exception("Specified input directory does not exist");
-    }
-
     return validationResult;
   }
 
@@ -99,137 +113,280 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     int successfulMerges = 0;
     int unsuccessfulMerges = 0;
 
-    try {
+    // Execute query to get atom1,atom2 Id pairs
+    List<Long[]> atomIdPairs = executeQuery(query, queryType);
 
-      logInfo("[PrecomputedMerge] Performing precomputed merges");
+    // Execute filter query
+    // If JQL/SQL filter query, returns atom1,atom2 Id pairs
+    if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
+      List<Long[]> filterAtomIdPairs =
+          executeQuery(filterQuery, filterQueryType);
+    }
+    // If LUCENE filter query, returns concept id
+    else if (filterQueryType == QueryType.LUCENE) {
+      List<Long[]> filterConceptIds =
+          executeQuery(filterQuery, filterQueryType);
+    }
+    // PROGRAM filter queries not supported yet
+    else if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
 
-      //
-      // Load the mergefacts.src file
-      //
-      List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+    // TODO - remove dups here?
+    Set<Long[]> uniqueAtomIds = new HashSet<>(atomIdPairs); // <- Doesn't work
 
-      // Set the number of steps to the number of lines to be processed
-      setSteps(lines.size());
+    Set<String> uniqueAtomIdPairs = new HashSet<>(); // <- Does work, but feels
+                                                     // icky
+    for (
 
-      String fields[] = new String[12];
+    Long[] atomIdPair : atomIdPairs) {
+      uniqueAtomIdPairs.add(atomIdPair[0] + "|" + atomIdPair[1]);
+    }
 
-      for (String line : lines) {
+    System.out.println("TESTTEST");
+    // try {
+    //
+    // logInfo("[PrecomputedMerge] Performing precomputed merges");
+    //
+    // //
+    // // Load the mergefacts.src file
+    // //
+    // List<String> lines =
+    // loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+    //
+    // // Set the number of steps to the number of lines to be processed
+    // setSteps(lines.size());
+    //
+    // String fields[] = new String[12];
+    //
+    // for (String line : lines) {
+    //
+    // // Check for a cancelled call once every 100 relationships (doing it
+    // // every time
+    // // makes things too slow)
+    // if (getStepsCompleted() % 100 == 0 && isCancelled()) {
+    // throw new CancelException("Cancelled");
+    // }
+    //
+    // FieldedStringTokenizer.split(line, "|", 12, fields);
+    //
+    // // Fields:
+    // // 0 id_1
+    // // 1 merge_level
+    // // 2 id_2
+    // // 3 source
+    // // 4 integrity_vector
+    // // 5 make_demotion
+    // // 6 change_status
+    // // 7 merge_set
+    // // 8 id_type_1
+    // // 9 id_qualifier_1
+    // // 10 id_type_2
+    // // 11 id_qualifier_2
+    //
+    // // e.g.
+    // //
+    // 362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||
+    //
+    // // If this lines mergeSet doesn't match the specified mergeSet, skip.
+    // if (!fields[7].equals(mergeSet)) {
+    // updateProgress();
+    // continue;
+    // }
+    //
+    // // Load the two atoms specified by the mergefacts line, or the preferred
+    // // name atoms if they are containing component
+    // Component component = getComponent(fields[8], fields[0],
+    // getCachedTerminologyName(fields[9]), null);
+    // if (component == null) {
+    // logWarnAndUpdate(line, "Warning - could not find Component for type: "
+    // + fields[8] + ", terminologyId: " + fields[0]);
+    // continue;
+    // }
+    // Atom atom = null;
+    // if (component instanceof Atom) {
+    // atom = (Atom) component;
+    // } else if (component instanceof AtomClass) {
+    // AtomClass atomClass = (AtomClass) component;
+    // List<Atom> atoms =
+    // prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
+    // getProject().getTerminology(), getProject().getVersion()));
+    // atom = atoms.get(0);
+    // } else {
+    // logWarnAndUpdate(line, "Warning - " + component.getClass().getName()
+    // + " is an unhandled type.");
+    // continue;
+    // }
+    //
+    // Component component2 = getComponent(fields[10], fields[2],
+    // getCachedTerminologyName(fields[11]), null);
+    // if (component2 == null) {
+    // logWarnAndUpdate(line, "Warning - could not find Component for type: "
+    // + fields[10] + ", terminologyId: " + fields[2]);
+    // continue;
+    // }
+    // Atom atom2 = null;
+    // if (component2 instanceof Atom) {
+    // atom2 = (Atom) component2;
+    // } else if (component2 instanceof AtomClass) {
+    // AtomClass atomClass = (AtomClass) component2;
+    // List<Atom> atoms =
+    // prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
+    // getProject().getTerminology(), getProject().getVersion()));
+    // atom2 = atoms.get(0);
+    // } else {
+    // logWarnAndUpdate(line, "Warning - " + component2.getClass().getName()
+    // + " is an unhandled type.");
+    // continue;
+    // }
+    //
+    // // Attempt to perform the merge
+    // boolean mergeSuccess = merge(atom.getId(), atom2.getId(), checkNames,
+    // fields[5].toUpperCase().equals("Y"),
+    // fields[6].toUpperCase().equals("Y"), getProject());
+    //
+    // // Increment the counts based on success of merge attempt
+    // if (mergeSuccess) {
+    // successfulMerges++;
+    // } else {
+    // unsuccessfulMerges++;
+    // }
+    //
+    // // Update the progress
+    // updateProgress();
+    //
+    // }
+    //
+    // commitClearBegin();
+    //
+    // logInfo("[PrecomputedMerge] " + successfulMerges
+    // + " merges successfully performed.");
+    // logInfo("[PrecomputedMerge] " + unsuccessfulMerges
+    // + " attempted merges were unsuccessful.");
+    //
+    // logInfo(" project = " + getProject().getId());
+    // logInfo(" workId = " + getWorkId());
+    // logInfo(" activityId = " + getActivityId());
+    // logInfo(" user = " + getLastModifiedBy());
+    // logInfo("Finished PRECOMPUTEDMERGE");
+    //
+    // } catch (
+    //
+    // Exception e) {
+    // logError("Unexpected problem - " + e.getMessage());
+    // throw e;
+    // }
 
-        // Check for a cancelled call once every 100 relationships (doing it
-        // every time
-        // makes things too slow)
-        if (getStepsCompleted() % 100 == 0 && isCancelled()) {
-          throw new CancelException("Cancelled");
-        }
+  }
 
-        FieldedStringTokenizer.split(line, "|", 12, fields);
+  /**
+   * Execute query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @return the list
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private List<Long[]> executeQuery(String query, QueryType queryType)
+    throws Exception {
 
-        // Fields:
-        // 0 id_1
-        // 1 merge_level
-        // 2 id_2
-        // 3 source
-        // 4 integrity_vector
-        // 5 make_demotion
-        // 6 change_status
-        // 7 merge_set
-        // 8 id_type_1
-        // 9 id_qualifier_1
-        // 10 id_type_2
-        // 11 id_qualifier_2
+    // Handle special query key-words
+    // TODO - replace this with parameters, and .setParameter
+    query = query.replaceAll(":terminology", "\'" + getTerminology() + "\'");
+    query = query.replaceAll(":projectTerminology",
+        "\'" + getProject().getTerminology() + "\'");
+    query = query.replaceAll(":version", "\'" + getVersion() + "\'");
 
-        // e.g.
-        // 362249700|SY|362281363|NCI_2016_05E||Y|N|NCI-SY|SRC_ATOM_ID||SRC_ATOM_ID||
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
 
-        // If this lines mergeSet doesn't match the specified mergeSet, skip.
-        if (!fields[7].equals(mergeSet)) {
-          updateProgress();
-          continue;
-        }
+      // Perform search
+      final SearchResultList resultList = this
+          .findConcepts(getProject().getTerminology(), null, null, null, pfs);
+      // Cluster results
+      final List<Long[]> results = new ArrayList<>();
+      for (final SearchResult concept : resultList.getObjects()) {
+        final Long[] result = new Long[1];
+        result[0] = concept.getId();
+        results.add(result);
+      }
+      return results;
+    }
 
-        // Load the two atoms specified by the mergefacts line, or the preferred
-        // name atoms if they are containing component
-        Component component = getComponent(fields[8], fields[0],
-            getCachedTerminologyName(fields[9]), null);
-        if (component == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[8] + ", terminologyId: " + fields[0]);
-          continue;
-        }
-        Atom atom = null;
-        if (component instanceof Atom) {
-          atom = (Atom) component;
-        } else if (component instanceof AtomClass) {
-          AtomClass atomClass = (AtomClass) component;
-          List<Atom> atoms =
-              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
-                  getProject().getTerminology(), getProject().getVersion()));
-          atom = atoms.get(0);
-        } else {
-          logWarnAndUpdate(line, "Warning - " + component.getClass().getName()
-              + " is an unhandled type.");
-          continue;
-        }
+    // Handle PROGRAM queries
+    else if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
 
-        Component component2 = getComponent(fields[10], fields[2],
-            getCachedTerminologyName(fields[11]), null);
-        if (component2 == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[10] + ", terminologyId: " + fields[2]);
-          continue;
-        }
-        Atom atom2 = null;
-        if (component2 instanceof Atom) {
-          atom2 = (Atom) component2;
-        } else if (component2 instanceof AtomClass) {
-          AtomClass atomClass = (AtomClass) component2;
-          List<Atom> atoms =
-              prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
-                  getProject().getTerminology(), getProject().getVersion()));
-          atom2 = atoms.get(0);
-        } else {
-          logWarnAndUpdate(line, "Warning - " + component2.getClass().getName()
-              + " is an unhandled type.");
-          continue;
-        }
-
-        // Attempt to perform the merge
-        boolean mergeSuccess = merge(atom.getId(), atom2.getId(), checkNames,
-            fields[5].toUpperCase().equals("Y"),
-            fields[6].toUpperCase().equals("Y"), getProject());
-
-        // Increment the counts based on success of merge attempt
-        if (mergeSuccess) {
-          successfulMerges++;
-        } else {
-          unsuccessfulMerges++;
-        }
-
-        // Update the progress
-        updateProgress();
-
+    // Handle SQL and JQL queries here
+    // Check for JQL/SQL errors
+    // ensure that query begins with SELECT (i.e. prevent injection
+    // problems)
+    else if (queryType == QueryType.JQL || queryType == QueryType.SQL) {
+      if (!query.toUpperCase().startsWith("SELECT")) {
+        throw new LocalException(
+            "Query has bad format:  does not begin with SELECT");
       }
 
-      commitClearBegin();
+      // check for multiple commands (i.e. multiple semi-colons)
+      if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+        throw new LocalException(
+            "Query has bad format:  multiple queries detected");
+      }
 
-      logInfo("[PrecomputedMerge] " + successfulMerges
-          + " merges successfully performed.");
-      logInfo("[PrecomputedMerge] " + unsuccessfulMerges
-          + " attempted merges were unsuccessful.");
+      // crude check: check for data manipulation commands
+      if (query.toUpperCase()
+          .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+        throw new LocalException("Query has bad format:  DDL request detected");
+      }
 
-      logInfo("  project = " + getProject().getId());
-      logInfo("  workId = " + getWorkId());
-      logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getLastModifiedBy());
-      logInfo("Finished PRECOMPUTEDMERGE");
+      // check for proper format for insertion into reports
 
-    } catch (
+      if (query.toUpperCase().indexOf("FROM") == -1) {
+        throw new LocalException("Query must contain the term FROM");
+      }
 
-    Exception e) {
-      logError("Unexpected problem - " + e.getMessage());
-      throw e;
+      // Execute the query
+      javax.persistence.Query jpaQuery = null;
+      if (queryType == QueryType.SQL) {
+        jpaQuery = this.getEntityManager().createNativeQuery(query);
+      } else if (queryType == QueryType.JQL) {
+        jpaQuery = this.getEntityManager().createQuery(query);
+      } else {
+        throw new Exception("Unsupported query type " + queryType);
+      }
+
+      Logger.getLogger(getClass()).info("  query = " + query);
+
+      // Return the result list as longs.
+      final List<Object[]> list = jpaQuery.getResultList();
+      final List<Long[]> results = new ArrayList<>();
+      for (final Object[] entry : list) {
+        Long atomId1 = null;
+        if (entry[0] instanceof BigInteger) {
+          atomId1 = ((BigInteger) entry[0]).longValue();
+        } else if (entry[0] instanceof Long) {
+          atomId1 = (Long) entry[0];
+        }
+        Long atomId2 = null;
+        if (entry[1] instanceof BigInteger) {
+          atomId2 = ((BigInteger) entry[1]).longValue();
+        } else if (entry[1] instanceof Long) {
+          atomId2 = (Long) entry[1];
+        }
+        final Long[] result = new Long[] {
+            atomId1, atomId2
+        };
+        results.add(result);
+      }
+
+      return results;
     }
+
+    return null;
 
   }
 
@@ -248,7 +405,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   @Override
   public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "mergeSet"
+        "mergeSet", "queryType", "query", "checkNames"
     }, p);
   }
 
@@ -256,127 +413,112 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
 
-    if (p.getProperty("mergeSet") != null) {
-      mergeSet = String.valueOf(p.getProperty("mergeSet"));
+    if (p.getProperty("queryType") != null) {
+      queryType = QueryType.valueOf(QueryType.class,
+          String.valueOf(p.getProperty("queryType")));
+    }
+    if (p.getProperty("query") != null) {
+      query = String.valueOf(p.getProperty("query"));
     }
     if (p.getProperty("checkNames") != null) {
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
-
+    if (p.getProperty("newAtomsOnlyFilter") != null) {
+      newAtomsOnly = Boolean.parseBoolean(p.getProperty("newAtomsOnlyFilter"));
+    }
+    if (p.getProperty("filterQueryType") != null) {
+      filterQueryType = QueryType.valueOf(QueryType.class,
+          String.valueOf(p.getProperty("filterQueryType")));
+    }
+    if (p.getProperty("filterQuery") != null) {
+      filterQuery = String.valueOf(p.getProperty("filterQuery"));
+    }
+    if (p.getProperty("makeDemotions") != null) {
+      makeDemotions = Boolean.parseBoolean(p.getProperty("makeDemotions"));
+    }
+    if (p.getProperty("changeStatus") != null) {
+      changeStatus = Boolean.parseBoolean(p.getProperty("changeStatus"));
+    }
+    if (p.getProperty("mergeSet") != null) {
+      mergeSet = String.valueOf(p.getProperty("mergeSet"));
+    }
   }
 
-  /**
-   * Returns the parameters.
-   *
-   * @return the parameters
-   */
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    //Query Type (only support JQL and SQL)
-    AlgorithmParameter 
-    param = new AlgorithmParameterJpa("QueryType", "queryType",
-        "The language the query is written in", "e.g. JQL", 200,
-        AlgorithmParameter.Type.ENUM, "");
-    param.setPossibleValues(Arrays.asList("JQL","SQL"));
+    // Query Type (only support JQL and SQL)
+    AlgorithmParameter param = new AlgorithmParameterJpa("Query Type",
+        "queryType", "The language the query is written in", "e.g. JQL", 200,
+        AlgorithmParameter.Type.ENUM, QueryType.JQL.toString());
+    param.setPossibleValues(
+        Arrays.asList(QueryType.JQL.toString(), QueryType.SQL.toString()));
     params.add(param);
 
-    //Query
+    // Query
     param = new AlgorithmParameterJpa("Query", "query",
         "A query to perform action only on objects that meet the criteria",
-        "e.g. query in format of the query type", 4000,
+        "e.g. SELECT a.id, b.id FROM AtomJpa a, AtomJpa b ...", 4000,
         AlgorithmParameter.Type.TEXT, "");
-    params.add(param);    
-    
-    //Integrity check names
-    param = new AlgorithmParameterJpa("CheckNames", "checkNames",
-        "The names of the integrity checks to run", "e.g. MGV_B", 10,
-        AlgorithmParameter.Type.ENUM, "");
-    // Get the valid validation checks from the config.properties file
+    params.add(param);
+
+    // Integrity check names
+    param = new AlgorithmParameterJpa("Integrity Checks", "checkNames",
+        "The names of the integrity checks to run", "e.g. MGV_B", 200,
+        AlgorithmParameter.Type.MULTI, "");
+
     List<String> validationChecks = new ArrayList<>();
-    try {
-      final String key = "validation.service.handler";
-      for (final String handlerName : config.getProperty(key).split(",")) {
-        if (handlerName.isEmpty())
-          continue;
-        // Add handler Name to ENUM list
-        validationChecks.add(handlerName);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    for (final KeyValuePair validationCheck : getValidationCheckNames()
+        .getKeyValuePairs()) {
+      // Add handler Name to ENUM list
+      validationChecks.add(validationCheck.getKey());
     }
     param.setPossibleValues(validationChecks);
     params.add(param);
 
-    //
-    //filters
-    //
-    param = new AlgorithmParameterJpa("FilterNorm", "filterNorm",
-        "Use norm list?", "e.g. true", 0,
+    // New atoms only filter
+    param = new AlgorithmParameterJpa("New Atoms Only", "newAtomsOnlyFilter",
+        "Restrict to new atoms only?", "e.g. true", 5,
         AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
 
-    param = new AlgorithmParameterJpa("FilterExcludeNorm", "filterExcludeNorm",
-        "Use norm-exclude list?", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN, "false");
-    params.add(param);
-
-    param = new AlgorithmParameterJpa("FilterNewAtoms", "filterNewAtoms",
-        "Restrict to new atoms only?", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN, "false");
-    params.add(param);
-   
-    //TODO question 
-    //filter query type
-    param = new AlgorithmParameterJpa("FilterQueryType", "filterQueryType",
+    // filter query type
+    param = new AlgorithmParameterJpa("Filter Query Type", "filterQueryType",
         "The language the filter query is written in", "e.g. JQL", 200,
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
+    param.getPossibleValues().remove("");
     params.add(param);
 
-    //TODO question 
-    //filter query
-    param = new AlgorithmParameterJpa("FilterQuery", "filterQuery",
+    // filter query
+    param = new AlgorithmParameterJpa("Filter Query", "filterQuery",
         "A filter query to further restrict the objects to run the merge on",
         "e.g. query in format of the query type", 4000,
         AlgorithmParameter.Type.TEXT, "");
-    params.add(param);    
-    
-    //make demotions
-    param = new AlgorithmParameterJpa("MakeDemotions", "makeDemotions",
-        "Make demotions for failed merges?", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
-    
-    //change status
-    param = new AlgorithmParameterJpa("ChangeStatus", "changeStatus",
-        "Change status when performing merges?", "e.g. true", 0,
-        AlgorithmParameter.Type.BOOLEAN, "false");
-    params.add(param);
-    
-    //TODO question: what mergeSet mean in this context?
-    //mergeSet
-    param = new AlgorithmParameterJpa("MergeSet", "mergeSet",
-        "The merge set to perform the merges on", "e.g. NCI-SY", 10,
-        AlgorithmParameter.Type.ENUM, "");
-    // Look for the mergefacts.src file and populate the enum based on the
-    // merge_set column.
-    List<String> mergeSets = getMergeSets(getSrcDirFile());
 
-    // If the file isn't found, or the file contains no mergeSets, set the
-    // parameter to a free-entry string
-    if (mergeSets == null || mergeSets.size() == 0) {
-      param.setType(AlgorithmParameter.Type.STRING);
-    } else {
-      param.setPossibleValues(mergeSets);
-    }
+    // make demotions
+    param = new AlgorithmParameterJpa("Make Demotions", "makeDemotions",
+        "Make demotions for failed merges?", "e.g. true", 5,
+        AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
-    
-    
+
+    // change status
+    param = new AlgorithmParameterJpa("Change Status", "changeStatus",
+        "Change status when performing merges?", "e.g. true", 5,
+        AlgorithmParameter.Type.BOOLEAN, "false");
+    params.add(param);
+
+    // mergeSet
+    param = new AlgorithmParameterJpa("Merge Set", "mergeSet",
+        "The merge set to perform the merges on", "e.g. NCI-SY", 10,
+        AlgorithmParameter.Type.STRING, "");
+    params.add(param);
+
     return params;
   }
 }

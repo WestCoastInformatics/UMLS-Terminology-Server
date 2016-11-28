@@ -95,6 +95,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   /** the properties */
   @ElementCollection
+  @Column(length=4000)
   private Map<String, String> properties = new HashMap<>();
 
   /** parameters. */
