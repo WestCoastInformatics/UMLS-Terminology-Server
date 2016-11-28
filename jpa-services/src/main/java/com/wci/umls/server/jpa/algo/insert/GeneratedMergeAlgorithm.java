@@ -7,8 +7,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -113,19 +115,25 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     int successfulMerges = 0;
     int unsuccessfulMerges = 0;
 
+    // Generate parameters to pass into query executions
+    Map<String, String> params = new HashMap<>();
+    params.put("terminology", getTerminology());
+    params.put("version", getVersion());
+    params.put("projectTerminology", getProject().getVersion());
+        
     // Execute query to get atom1,atom2 Id pairs
-    List<Long[]> atomIdPairs = executeQuery(query, queryType);
+    List<Long[]> atomIdPairs = executeQuery(query, queryType,params);
 
     // Execute filter query
     // If JQL/SQL filter query, returns atom1,atom2 Id pairs
     if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
       List<Long[]> filterAtomIdPairs =
-          executeQuery(filterQuery, filterQueryType);
+          executeQuery(filterQuery, filterQueryType,params);
     }
     // If LUCENE filter query, returns concept id
     else if (filterQueryType == QueryType.LUCENE) {
       List<Long[]> filterConceptIds =
-          executeQuery(filterQuery, filterQueryType);
+          executeQuery(filterQuery, filterQueryType,params);
     }
     // PROGRAM filter queries not supported yet
     else if (queryType == QueryType.PROGRAM) {
@@ -288,15 +296,9 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private List<Long[]> executeQuery(String query, QueryType queryType)
+  private List<Long[]> executeQuery(String query, QueryType queryType,
+    Map<String, String> params)
     throws Exception {
-
-    // Handle special query key-words
-    // TODO - replace this with parameters, and .setParameter
-    query = query.replaceAll(":terminology", "\'" + getTerminology() + "\'");
-    query = query.replaceAll(":projectTerminology",
-        "\'" + getProject().getTerminology() + "\'");
-    query = query.replaceAll(":version", "\'" + getVersion() + "\'");
 
     // Handle the LUCENE case
     if (queryType == QueryType.LUCENE) {
@@ -357,8 +359,15 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
         jpaQuery = this.getEntityManager().createQuery(query);
       } else {
         throw new Exception("Unsupported query type " + queryType);
+      }    
+      // Handle special query key-words      
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          if (query.contains(":" + key)) {
+            jpaQuery.setParameter(key, params.get(key));
+          }
+        }
       }
-
       Logger.getLogger(getClass()).info("  query = " + query);
 
       // Return the result list as longs.

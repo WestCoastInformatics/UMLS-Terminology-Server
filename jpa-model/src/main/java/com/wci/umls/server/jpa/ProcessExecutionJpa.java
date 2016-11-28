@@ -82,11 +82,11 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @OrderColumn
   private List<AlgorithmExecution> steps = new ArrayList<>();
 
-  /**  The execution info. */
+  /** The execution info. */
   @ElementCollection(fetch = FetchType.EAGER)
   @Column(nullable = true)
-  Map<String, String> executionInfo;  
-  
+  private Map<String, String> executionInfo;
+
   /**
    * Instantiates an empty {@link ProcessExecutionJpa}.
    */
@@ -109,6 +109,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     steps = new ArrayList<>(exec.getSteps());
     type = exec.getType();
     inputPath = exec.getInputPath();
+    executionInfo = new HashMap<>(exec.getExecutionInfo());
   }
 
   /**
@@ -168,10 +169,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Override
   @XmlElement(type = AlgorithmExecutionJpa.class)
   public List<AlgorithmExecution> getSteps() {
-	  if (steps == null) {
-	      steps = new ArrayList<>();
-	  }
-	  return steps;
+    if (steps == null) {
+      steps = new ArrayList<>();
+    }
+    return steps;
   }
 
   /* see superclass */
@@ -180,29 +181,22 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     this.steps = steps;
   }
 
-  /**
-   * Returns the execution info.
-   *
-   * @return the execution info
-   */
+  /* see superclass */
   @XmlTransient
+  @Override
   public Map<String, String> getExecutionInfo() {
     if (executionInfo == null) {
-      executionInfo = new HashMap<>(2);
+      executionInfo = new HashMap<>();
     }
     return executionInfo;
   }
 
-  /**
-   * Sets the execution info.
-   *
-   * @param executionInfo the execution info
-   */
-  public void setExecutionInfo(
-    Map<String, String> executionInfo) {
+  /* see superclass */
+  @Override
+  public void setExecutionInfo(Map<String, String> executionInfo) {
     this.executionInfo = executionInfo;
-  }  
-  
+  }
+
   /* see superclass */
   @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)

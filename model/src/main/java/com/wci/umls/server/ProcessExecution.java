@@ -1,7 +1,9 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
+
+import java.util.Map;
 
 import com.wci.umls.server.helpers.HasExecution;
 
@@ -38,4 +40,19 @@ public interface ProcessExecution
    * @param processConfigId the process config id
    */
   public void setProcessConfigId(Long processConfigId);
+  
+  /**
+   * Returns the execution info.
+   *
+   * @return the execution info
+   */
+  public Map<String, String> getExecutionInfo();
+
+  /**
+   * Sets the execution info.
+   *
+   * @param executionInfo the execution info
+   */
+  public void setExecutionInfo(
+    Map<String, String> executionInfo);  
 }
