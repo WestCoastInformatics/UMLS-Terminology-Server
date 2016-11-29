@@ -52,8 +52,8 @@ public abstract class AbstractMergeAlgorithm
    */
   public boolean merge(Long atomId, Long atomId2, List<String> validationChecks,
     boolean makeDemotion, boolean changeStatus, Project project)
-    throws Exception {   
-    
+    throws Exception {
+
     // Copy the project, and overwrite its validation checks with the ones that
     // were specified
     final Project projectCopy = new ProjectJpa(project);
@@ -101,8 +101,8 @@ public abstract class AbstractMergeAlgorithm
     // If Atoms are in the same concept, DON'T perform merge, and log that the
     // atoms are already merged.
     if (fromConcept.getId().equals(toConcept.getId())) {
-      addLogEntry(getLastModifiedBy(), projectCopy.getId(),
-          fromConcept.getId(), getActivityId(), getWorkId(),
+      addLogEntry(getLastModifiedBy(), projectCopy.getId(), fromConcept.getId(),
+          getActivityId(), getWorkId(),
           "Failure merging atom " + atomId + " with atom " + atomId
               + " - atoms are both already in the same concept "
               + toConcept.getId());
@@ -137,8 +137,8 @@ public abstract class AbstractMergeAlgorithm
             fromConcept.getId(), getActivityId(), getWorkId(),
             "Failure merging concept " + fromConcept.getId() + " into concept "
                 + toConcept.getId() + ": " + validationResult);
-        addLogEntry(getLastModifiedBy(), projectCopy.getId(),
-            toConcept.getId(), getActivityId(), getWorkId(),
+        addLogEntry(getLastModifiedBy(), projectCopy.getId(), toConcept.getId(),
+            getActivityId(), getWorkId(),
             "Failure merging concept " + toConcept.getId() + " from concept "
                 + fromConcept.getId() + ": " + validationResult);
 
@@ -157,7 +157,11 @@ public abstract class AbstractMergeAlgorithm
           action2.setConceptId(fromConcept.getId());
           action2.setConceptId2(toConcept.getId());
           action2.setLastModifiedBy(getLastModifiedBy());
-          action2.performMolecularAction(action2, getLastModifiedBy(),false);
+
+          // If there is already a demotion between these two atoms, it will not
+          // create an additional duplicate demotion (gets checked in the
+          // preconditions)
+          action2.performMolecularAction(action2, getLastModifiedBy(), false);
           action2.close();
         }
 
@@ -177,6 +181,10 @@ public abstract class AbstractMergeAlgorithm
       }
       return false;
     } finally {
+      // NEED to commit here to make sure that any changes made to the database
+      // by MergeMolecularAction or AddDemotionMolecularAction are viewable by
+      // this algorithm
+      commitClearBegin();
       action.close();
     }
 
@@ -197,8 +205,7 @@ public abstract class AbstractMergeAlgorithm
     // Load the mergefacts.src file
     //
     try {
-      lines =
-          loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null);
+      lines = loadFileIntoStringList(srcDirFile, "mergefacts.src", null, null);
     }
     // If file not found, return null
     catch (Exception e) {
@@ -224,8 +231,7 @@ public abstract class AbstractMergeAlgorithm
   }
 
   /*
-   * see superclass 
-   * Need to override, because the Merge algorithm naming
+   * see superclass Need to override, because the Merge algorithm naming
    * convention is different from the loader algorithms
    */
   @Override

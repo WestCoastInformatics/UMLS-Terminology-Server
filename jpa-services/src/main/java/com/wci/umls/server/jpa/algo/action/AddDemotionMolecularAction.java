@@ -63,6 +63,17 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
           "Unexpected self-referential relationship, the fromConcept Id should not match toConcept Id");
     }
 
+    // If the atoms already have a demotion relationship between them, return an
+    // error
+    for (AtomRelationship atomRel : atom.getRelationships()) {
+      if (atomRel.getTo().getId().equals(atom2.getId())) {
+        validationResult.addError(
+            "ERROR: demotion already exists between atom " + atom.getId()
+                + " and atom " + atom2.getId() + ". Cannot add another.");
+        break;
+      }
+    }
+
     validationResult.merge(super.checkPreconditions());
     return validationResult;
   }
@@ -148,7 +159,6 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       updateConcept(getConcept2());
     }
 
-
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
@@ -158,7 +168,8 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
         getName() + " from concept " + getConcept().getId() + " "
             + inverseDemotionRelationship);
 
-    // N/A - no log entry for molecular action -> only ever performed by insertion.
+    // N/A - no log entry for molecular action -> only ever performed by
+    // insertion.
   }
 
 }
