@@ -189,22 +189,25 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         "Gilberto Fragoso", "Laura Roth", "Lori Whiteman", "Theresa Quinn",
         "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot"
     };
+    final int[] editorLevels = new int[] {
+        0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 0, 5, 5
+    };
     final String[] roles = new String[] {
         "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR", "REVIEWER",
         "REVIEWER", "REVIEWER", "ADMINISTRATOR", "REVIEWER", "REVIEWER",
         "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER", "REVIEWER"
     };
+
     Logger.getLogger(getClass()).info("Add new users");
+
     for (int i = 0; i < initials.length; i++) {
       final String inits = initials[i];
       final String name = names[i];
       UserJpa user = (UserJpa) security.getUser(inits, authToken);
       if (user == null) {
         user = makeUser(inits, name);
-        if (user.getUserName().equals("LAR") || user.getUserName().equals("LLW")
-            || user.getUserName().equals("TPW")) {
-          user.setEditorLevel(5);
-        }
+        user.setEditorLevel(editorLevels[i]);
+
         user.setApplicationRole(UserRole.valueOf("USER"));
         Logger.getLogger(getClass()).info("  user = " + user);
         user = (UserJpa) security.addUser(user, authToken);

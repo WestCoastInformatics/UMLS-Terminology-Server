@@ -1329,7 +1329,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       def.setPublished(true);
       def.setPublishable(true);
       if (!singleMode) {
-        def.putAlternateTerminologyId(getTerminology(), fields[2]);
+        def.getAlternateTerminologyIds().put(getTerminology(), fields[2]);
       }
       def.setTerminologyId(fields[3]);
 
@@ -1430,7 +1430,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       att.setPublishable(true);
       // fields[5] CODE not used - redundant
       if (!singleMode) {
-        att.putAlternateTerminologyId(getTerminology(), fields[6]);
+        att.getAlternateTerminologyIds().put(getTerminology(), fields[6]);
       }
       att.setTerminologyId(fields[7]);
       att.setTerminology(fields[9]);
@@ -1828,7 +1828,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 3 MAPRANK
       // 4 MAPID
       // 5 MAPSID
-      // 6 FROMD
+      // 6 FROMID
       // 7 FROMSID
       // 8 FROMEXPR
       // 9 FROMTYPE
@@ -1901,24 +1901,29 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         mapping.setTerminology(fields[1]);
         mapping.setVersion(loadedTerminologies.get(fields[1]).getVersion());
       }
+      // Set terminology ids
       mapping.setTerminologyId(fields[5]);
-
-      // Make mapping attributes
       if (fields[4] != null && !fields[4].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "MAPID", fields[4]));
-      }
-      if (fields[5] != null && !fields[5].equals("")) {
-        mapping.getAttributes()
-            .add(makeAttribute(mapping, "MAPSID", fields[5]));
+        mapping.getAlternateTerminologyIds().put(getTerminology(), fields[4]);
       }
       if (fields[6] != null && !fields[6].equals("")) {
-        mapping.getAttributes()
-            .add(makeAttribute(mapping, "FROMID", fields[6]));
+        mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
+            fields[4]);
       }
       if (fields[7] != null && !fields[7].equals("")) {
-        mapping.getAttributes()
-            .add(makeAttribute(mapping, "FROMSID", fields[7]));
+        mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
+            fields[4]);
       }
+      if (fields[14] != null && !fields[14].equals("")) {
+        mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
+            fields[4]);
+      }
+      if (fields[15] != null && !fields[15].equals("")) {
+        mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
+            fields[4]);
+      }
+
+      // Make mapping attributes
       if (fields[10] != null && !fields[10].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRULE", fields[10]));
@@ -1926,13 +1931,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (fields[11] != null && !fields[11].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRES", fields[11]));
-      }
-      if (fields[14] != null && !fields[14].equals("")) {
-        mapping.getAttributes().add(makeAttribute(mapping, "TOID", fields[14]));
-      }
-      if (fields[15] != null && !fields[15].equals("")) {
-        mapping.getAttributes()
-            .add(makeAttribute(mapping, "TOSID", fields[15]));
       }
       if (fields[18] != null && !fields[18].equals("")) {
         mapping.getAttributes()
@@ -1995,138 +1993,114 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String atn = fields[8];
     final String atv = fields[10];
     final String satui = fields[7];
-    MapSet mapSet;
+    MapSet mapset;
     if (!mapSetMap.containsKey(cui)) {
-      mapSet = new MapSetJpa();
-      mapSetMap.put(cui, mapSet);
+      mapset = new MapSetJpa();
+      mapSetMap.put(cui, mapset);
       // Set map set name to preferred name of the cui
-      mapSet.setName(
+      mapset.setName(
           getConcept(conceptIdMap.get(getTerminology() + cui)).getName());
     }
-    mapSet = mapSetMap.get(cui);
+    mapset = mapSetMap.get(cui);
     if (atn.equals("MAPSETNAME")) {
-      mapSet.setName(atv);
+      mapset.setName(atv);
     } else if (atn.equals("MAPSETVERSION")) {
       // n/a - version is picked up from the SAB
       // mapSet.setMapVersion(atv);
     } else if (atn.equals("TOVSAB")) {
-      if (mapSet.getToTerminology() != null) {
-        String version = atv.substring(mapSet.getToTerminology().length());
-        mapSet.setToVersion(
+      if (mapset.getToTerminology() != null) {
+        String version = atv.substring(mapset.getToTerminology().length());
+        mapset.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
       } else {
-        mapSet.setToVersion(atv);
+        mapset.setToVersion(atv);
       }
     } else if (atn.equals("TORSAB")) {
-      mapSet.setToTerminology(atv);
-      if (mapSet.getToVersion() != null) {
-        String version = mapSet.getToVersion().substring(atv.length());
-        mapSet.setToVersion(
+      mapset.setToTerminology(atv);
+      if (mapset.getToVersion() != null) {
+        String version = mapset.getToVersion().substring(atv.length());
+        mapset.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
       if (atv.equals(proxyTerminology)) {
-        mapSet.setFromTerminology(getTerminology());
-        mapSet.setFromVersion(getVersion());
+        mapset.setFromTerminology(getTerminology());
+        mapset.setFromVersion(getVersion());
       } else {
-        mapSet.setFromTerminology(atv);
-        if (mapSet.getFromVersion() != null) {
-          String version = mapSet.getFromVersion().substring(atv.length());
-          mapSet.setFromVersion(
+        mapset.setFromTerminology(atv);
+        if (mapset.getFromVersion() != null) {
+          String version = mapset.getFromVersion().substring(atv.length());
+          mapset.setFromVersion(
               version.startsWith("_") ? version.substring(1) : version);
         }
       }
 
     } else if (atn.equals("FROMVSAB")) {
       if (atv.equals(proxyTerminology)) {
-        mapSet.setFromTerminology(getTerminology());
-        mapSet.setFromVersion(getVersion());
+        mapset.setFromTerminology(getTerminology());
+        mapset.setFromVersion(getVersion());
       } else {
-        if (mapSet.getFromTerminology() != null) {
-          String version = atv.substring(mapSet.getFromTerminology().length());
-          mapSet.setFromVersion(
+        if (mapset.getFromTerminology() != null) {
+          String version = atv.substring(mapset.getFromTerminology().length());
+          mapset.setFromVersion(
               version.startsWith("_") ? version.substring(1) : version);
         } else {
-          mapSet.setFromVersion(atv);
+          mapset.setFromVersion(atv);
         }
       }
     } else if (atn.equals("MAPSETGRAMMAR")) {
-      Attribute att = new AttributeJpa();
-      att.setName("MAPSETGRAMMAR");
-      att.setValue(atv);
-      att.setTimestamp(releaseVersionDate);
-      att.setLastModified(releaseVersionDate);
-      att.setLastModifiedBy(loader);
-      att.setObsolete(false);
-      att.setSuppressible(false);
-      att.setPublished(true);
-      att.setPublishable(true);
-      att.setTerminology(mapSet.getTerminology());
-      att.setVersion(mapSet.getVersion());
-      att.setTerminologyId(satui);
-      mapSet.getAttributes().add(att);
+      // n/a - leave this as an attribute of the XR atom and don't render in map set
     } else if (atn.equals("MAPSETXRTARGETID")) {
-      Attribute att = new AttributeJpa();
-      att.setName("MAPSETXRTARGETID");
-      att.setValue(atv);
-      att.setTimestamp(releaseVersionDate);
-      att.setLastModified(releaseVersionDate);
-      att.setLastModifiedBy(loader);
-      att.setObsolete(false);
-      att.setSuppressible(false);
-      att.setPublished(true);
-      att.setPublishable(true);
-      att.setTerminology(mapSet.getTerminology());
-      att.setVersion(mapSet.getVersion());
-      att.setTerminologyId(satui);
-      mapSet.getAttributes().add(att);
+      // n/a - no need for this anymore - inverters should stop making it
     } else if (atn.equals("MAPSETRSAB")) {
       // If really a metathesaurus mapping, use terminology/version
       if (atv.equals(proxyTerminology)) {
-        mapSet.setTerminology(getTerminology());
-        mapSet.setVersion(getVersion());
+        mapset.setTerminology(getTerminology());
+        mapset.setVersion(getVersion());
       }
       // Otherwise, use what was given
       else {
-        mapSet.setTerminology(atv);
+        mapset.setTerminology(atv);
         // In case MAPSETVSAB was set first, strip off the RSAB part and use the
         // rest as the version
-        if (mapSet.getVersion() != null) {
-          final String version = mapSet.getVersion().substring(atv.length());
-          mapSet.setVersion(
+        if (mapset.getVersion() != null) {
+          final String version = mapset.getVersion().substring(atv.length());
+          mapset.setVersion(
               version.startsWith("_") ? version.substring(1) : version);
         }
       }
 
     } else if (atn.equals("MAPSETTYPE")) {
-      mapSet.setMapType(atv);
+      mapset.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
       // If really a metathesaurus mapping, use terminology/version
       if (atv.equals(proxyTerminology)) {
-        mapSet.setTerminology(getTerminology());
-        mapSet.setVersion(getVersion());
+        mapset.setTerminology(getTerminology());
+        mapset.setVersion(getVersion());
       }
       // Otherwise, use what was given if MAPSETRSAB already provided
       else {
-        mapSet.setVersion(atv);
+        mapset.setVersion(atv);
         // In case MAPSETRSAB was set first, strip off the RSAB part and use the
         // rest as the version
-        if (mapSet.getTerminology() != null) {
-          mapSet.setVersion(atv.substring(mapSet.getTerminology().length()));
+        if (mapset.getTerminology() != null) {
+          mapset.setVersion(atv.substring(mapset.getTerminology().length()));
         }
       }
     } else if (atn.equals("MTH_MAPFROMEXHAUSTIVE")) {
-      mapSet.setFromExhaustive(atv);
+      mapset.setFromExhaustive(atv);
     } else if (atn.equals("MTH_MAPTOEXHAUSTIVE")) {
-      mapSet.setToExhaustive(atv);
+      mapset.setToExhaustive(atv);
     } else if (atn.equals("MTH_MAPSETCOMPLEXITY")) {
-      mapSet.setComplexity(atv);
+      mapset.setComplexity(atv);
     } else if (atn.equals("MTH_MAPFROMCOMPLEXITY")) {
-      mapSet.setFromComplexity(atv);
+      mapset.setFromComplexity(atv);
     } else if (atn.equals("MTH_MAPTOCOMPLEXITY")) {
-      mapSet.setToComplexity(atv);
+      mapset.setToComplexity(atv);
     } else if (atn.equals("MAPSETSID")) {
-      mapSet.setTerminologyId(atv);
+      mapset.setTerminologyId(atv);
+      // Set the CUI as an alternate terminology id
+      mapset.getAlternateTerminologyIds().put(getTerminology(), cui);
     }
   }
 
@@ -2165,8 +2139,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 3 METAUI
       // 4 STYPE
       // 5 CODE
-      // 6 ATUI
-      // 7 SATUI
+      // 6 ATUI -> attribute.alternateTerminologyId
+      // 7 SATUI -> member.terminologyId
       // 8 ATN
       // 9 SAB
       // 10 ATV
@@ -2174,11 +2148,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 12 CVF
       //
       // e.g.
-      // C0001175|L0001175|S0010339|A0019180|SDUI|D000163|AT38209082||FX|MSH|D015492|N||
-      // C0001175|L0001175|S0354232|A2922342|AUI|62479008|AT24600515||DESCRIPTIONSTATUS|SNOMEDCT|0|N||
-      // C0001175|L0001842|S0011877|A15662389|CODE|T1|AT100434486||URL|MEDLINEPLUS|http://www.nlm.nih.gov/medlineplus/aids.html|N||
-      // C0001175|||R54775538|RUI||AT63713072||CHARACTERISTICTYPE|SNOMEDCT|0|N||
-      // C0001175|||R54775538|RUI||AT69142126||REFINABILITY|SNOMEDCT|1|N||
+      // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
+      // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007|N||
+      //
 
       // Increment the object counter when METAUI changes
       // this allows better tracking of changes to subset members (e.g. new
@@ -2272,40 +2244,41 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           addedSubsetMembers.put(subsetMemberIdKey, member);
         }
 
-        // handle subset member attributes
-        if (atvFields.length > 1 && atvFields[1] != null) {
-          if (atvFields[2] == null) {
-            atvFields[2] = "";
-          }
-          // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
-          final Attribute memberAtt = new AttributeJpa();
-          // No terminology id for the member attribute
-          // borrow most other data
-          memberAtt.setTerminologyId("");
-          memberAtt.setTerminology(fields[9]);
-          memberAtt.setVersion(loadedTerminologies.get(fields[9]).getVersion());
-          memberAtt.setTimestamp(releaseVersionDate);
-          memberAtt.setLastModified(releaseVersionDate);
-          memberAtt.setLastModifiedBy(loader);
-          memberAtt.setObsolete(fields[11].equals("O"));
-          memberAtt.setSuppressible(!fields[11].equals("N"));
-          memberAtt.setPublishable(true);
-          memberAtt.setPublished(true);
+        // Always make an attribute, even if it's an entry for JUST a membership
+        // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
+        final Attribute memberAtt = new AttributeJpa();
+        // No terminology id for the member attribute
+        // borrow most other data
+        memberAtt.setTerminologyId("");
+        memberAtt.getAlternateTerminologyIds().put(getTerminology(), fields[6]);
+        memberAtt.setTerminology(fields[9]);
+        memberAtt.setVersion(loadedTerminologies.get(fields[9]).getVersion());
+        memberAtt.setTimestamp(releaseVersionDate);
+        memberAtt.setLastModified(releaseVersionDate);
+        memberAtt.setLastModifiedBy(loader);
+        memberAtt.setObsolete(fields[11].equals("O"));
+        memberAtt.setSuppressible(!fields[11].equals("N"));
+        memberAtt.setPublishable(true);
+        memberAtt.setPublished(true);
+        if (atvFields.length > 1) {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
-          if (!memberAtt.getTerminology().equals(getTerminology())) {
-            sourceMetadataMap.get(memberAtt.getTerminology()).get("ATN")
-                .add(memberAtt.getName());
-          }
-          // Logger.getLogger(getClass())
-          // .info(" Add member attribute" + memberAtt);
-          addAttribute(memberAtt, member);
-
-          // This member is not yet committed, so no need for an
-          // "updateSubsetMember" call.
-          member.getAttributes().add(memberAtt);
-
+        } else {
+          memberAtt.setName("");
+          memberAtt.setValue("Placeholder for ATUI");
         }
+
+        if (!memberAtt.getTerminology().equals(getTerminology())) {
+          sourceMetadataMap.get(memberAtt.getTerminology()).get("ATN")
+              .add(memberAtt.getName());
+        }
+        // Logger.getLogger(getClass())
+        // .info(" Add member attribute" + memberAtt);
+        addAttribute(memberAtt, member);
+
+        // This member is not yet committed, so no need for an
+        // "updateSubsetMember" call.
+        member.getAttributes().add(memberAtt);
 
       }
 
@@ -2667,7 +2640,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // If terminology Id was set to RUI for CUI-CUI rel, skip this part
     if (relationship.getTerminologyId() == null) {
       if (!singleMode) {
-        relationship.putAlternateTerminologyId(getTerminology(), fields[8]);
+        relationship.getAlternateTerminologyIds().put(getTerminology(),
+            fields[8]);
       }
       relationship.setTerminologyId(fields[9]);
     }
@@ -2846,7 +2820,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setVersion(loadedTerminologies.get(fields[11]).getVersion());
       // skip in single mode
       if (!singleMode) {
-        atom.putAlternateTerminologyId(getTerminology(), fields[7]);
+        atom.getAlternateTerminologyIds().put(getTerminology(), fields[7]);
       }
       atom.setTerminologyId(fields[8]);
       atom.setTermType(fields[12]);
@@ -3328,6 +3302,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // already vetted by atom
     subset.setVersion(loadedTerminologies.get(fields[11]).getVersion());
     subset.setTerminologyId(fields[13]);
+    // Set the CUI as the alternate terminology id
+    subset.getAlternateTerminologyIds().put(getTerminology(), fields[0]);
   }
 
   /**
