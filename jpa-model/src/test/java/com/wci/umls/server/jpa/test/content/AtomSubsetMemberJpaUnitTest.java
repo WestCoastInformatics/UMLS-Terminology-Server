@@ -257,6 +257,8 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("membername");
+    tester.include("subsetname");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -272,6 +274,16 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.include("terminology");
     tester.include("version");
     tester.include("branch");
+    tester.include("subsetid");
+    tester.include("subsetterminologyId");
+    tester.include("subsetterminology");
+    tester.include("subsetversion");
+    tester.include("memberId");
+    tester.include("memberTerminologyId");
+    tester.include("memberTerminology");
+    tester.include("memberVersion");
+
+    tester.include("memberNameSort");
     assertTrue(tester.testNotAnalyzedIndexedFields());
   }
   /**

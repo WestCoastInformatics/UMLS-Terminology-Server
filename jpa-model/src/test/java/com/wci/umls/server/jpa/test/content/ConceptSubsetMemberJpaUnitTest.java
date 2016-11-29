@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.content;
 
@@ -22,6 +22,7 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -35,16 +36,16 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
   /** The model object to test. */
   private ConceptSubsetMemberJpa object;
 
-  /** Test fixture */
+  /** Test fixture. */
   private Concept concept1;
 
-  /** Test fixture */
+  /** Test fixture. */
   private Concept concept2;
 
-  /** Test fixture */
+  /** Test fixture. */
   private ConceptSubset subset1;
 
-  /** Test fixture */
+  /** Test fixture. */
   private ConceptSubset subset2;
 
   /**
@@ -179,7 +180,7 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test xml transient fields
+   * Test xml transient fields.
    *
    * @throws Exception the exception
    */
@@ -243,6 +244,47 @@ public class ConceptSubsetMemberJpaUnitTest extends ModelUnitSupport {
     tester.include("member");
     tester.include("subset");
     assertTrue(tester.testNotNullFields());
+  }
+
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("membername");
+    tester.include("subsetname");
+    assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    tester = new IndexedFieldTester(object);
+    tester.include("id");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("branch");
+    tester.include("subsetid");
+    tester.include("subsetterminologyId");
+    tester.include("subsetterminology");
+    tester.include("subsetversion");
+    tester.include("memberId");
+    tester.include("memberTerminologyId");
+    tester.include("memberTerminology");
+    tester.include("memberVersion");
+
+    tester.include("memberNameSort");
+    assertTrue(tester.testNotAnalyzedIndexedFields());
   }
 
   /**
