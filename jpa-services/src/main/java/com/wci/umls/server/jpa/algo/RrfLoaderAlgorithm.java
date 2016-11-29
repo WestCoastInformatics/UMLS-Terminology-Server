@@ -1992,7 +1992,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String cui = fields[0];
     final String atn = fields[8];
     final String atv = fields[10];
-    final String satui = fields[7];
+
     MapSet mapset;
     if (!mapSetMap.containsKey(cui)) {
       mapset = new MapSetJpa();

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.content;
 
@@ -238,8 +238,10 @@ public class MappingJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    // no analyzed fields
-    // assertTrue(tester.testAnalyzedIndexedFields());
+    tester.include("alternateTerminologyIds");
+    tester.include("toname");
+    tester.include("fromname");
+    assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);

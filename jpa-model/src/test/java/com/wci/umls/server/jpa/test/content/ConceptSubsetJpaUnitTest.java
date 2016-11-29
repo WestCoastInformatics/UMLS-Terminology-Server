@@ -23,6 +23,7 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -156,6 +157,35 @@ public class ConceptSubsetJpaUnitTest extends ModelUnitSupport {
     assertTrue(tester.testNotNullFields());
   }
 
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("alternateTerminologyIds");
+    assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    tester = new IndexedFieldTester(object);
+    tester.include("id");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("branch");
+    assertTrue(tester.testNotAnalyzedIndexedFields());
+  }
   /**
    * Teardown.
    */
