@@ -83,7 +83,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/")
+  // @Path("/")
   @ApiOperation(value = "Add new project", notes = "Creates a new project", response = ProjectJpa.class)
   public Project addProject(
     @ApiParam(value = "Project, e.g. newProject", required = true) ProjectJpa project,
@@ -125,7 +125,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/")
+  // @Path("/")
   @ApiOperation(value = "Update project", notes = "Updates the specified project")
   public void updateProject(
     @ApiParam(value = "Project, e.g. existingProject", required = true) ProjectJpa project,

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
@@ -40,6 +40,27 @@ public interface SearchHandler extends Configurable {
     Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
     throws Exception;
 
+  /**
+   * Returns the ids for the query results.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param literalField the literal field
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @param totalCt the total ct
+   * @param manager the manager
+   * @return the id results
+   * @throws Exception the exception
+   */
+  public List<Long> getIdResults(String terminology,
+    String version, String branch, String query, String literalField,
+    Class<?> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception;
+
+  
   /**
    * Returns the score map for the most recent call to getQueryResults. NOTE:
    * this is NOT thread safe.

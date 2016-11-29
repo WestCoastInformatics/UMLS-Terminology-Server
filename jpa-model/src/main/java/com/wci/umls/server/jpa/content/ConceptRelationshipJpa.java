@@ -360,25 +360,6 @@ public class ConceptRelationshipJpa extends
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /* see superclass */
-  @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
 
   /* see superclass */
   @Override

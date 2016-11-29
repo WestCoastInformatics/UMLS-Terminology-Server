@@ -391,30 +391,6 @@ public class DescriptorRelationshipJpa
    * @param terminology the terminology
    * @param terminologyId the terminology id
    */
-  /* see superclass */
-  @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /**
-   * Removes the alternate terminology id.
-   *
-   * @param terminology the terminology
-   */
-  /* see superclass */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
 
   /* see superclass */
   @Override

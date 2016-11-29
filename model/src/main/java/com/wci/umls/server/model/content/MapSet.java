@@ -9,13 +9,14 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Represents a group of {@link Mapping}s between one {@link Terminology} and
  * another.
  */
-public interface MapSet extends ComponentHasAttributes {
+public interface MapSet extends ComponentHasAttributes, HasAlternateTerminologyIds {
   /**
    * Returns the from complexity.
    * 
