@@ -200,8 +200,28 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     Set<Pair<Long, Long>> filterAtomIdPairs = null;
     Set<Long> filterAtomIds = null;
 
+    // If LUCENE filter query, returns concept id
+    if (filterQueryType == QueryType.LUCENE) {
+      List<Long[]> filterConceptIds =
+          executeQuery(filterQuery, filterQueryType, params);
+
+      // For each returned concept, filter for all of its atoms' ids
+      filterAtomIds = new HashSet<>();
+      for (Long[] conceptId : filterConceptIds) {
+        Concept c = getConcept(conceptId[0]);
+        for (Atom a : c.getAtoms()) {
+          filterAtomIds.add(a.getId());
+        }
+      }
+    }
+    
+    // PROGRAM filter queries not supported yet
+    else if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }    
+    
     // If JQL/SQL filter query, returns atom1,atom2 Id pairs
-    if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
+    else if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
       List<Long[]> filterAtomIdPairArray =
           executeQuery(filterQuery, filterQueryType, params);
 
@@ -217,24 +237,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       }
     }
 
-    // If LUCENE filter query, returns concept id
-    else if (filterQueryType == QueryType.LUCENE) {
-      List<Long[]> filterConceptIds =
-          executeQuery(filterQuery, filterQueryType, params);
 
-      // For each returned concept, filter for all of its atoms' ids
-      filterAtomIds = new HashSet<>();
-      for (Long[] conceptId : filterConceptIds) {
-        Concept c = getConcept(conceptId[0]);
-        for (Atom a : c.getAtoms()) {
-          filterAtomIds.add(a.getId());
-        }
-      }
-    }
-    // PROGRAM filter queries not supported yet
-    else if (queryType == QueryType.PROGRAM) {
-      throw new Exception("PROGRAM queries not yet supported");
-    }
 
     // Go through each atom pair. If it makes it past all of the filters, add
     // it to the filtered list
