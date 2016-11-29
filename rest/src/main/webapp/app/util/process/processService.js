@@ -105,13 +105,13 @@ tsApp.service('processService', [
     };
 
     // new empty algorithm config
-    this.newAlgorithmConfig = function(projectId, key) {
-      console.debug('newAlgorithmConfig', projectId, key);
+    this.newAlgorithmConfig = function(projectId, processId, key) {
+      console.debug('newAlgorithmConfig', projectId, processId, key);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/config/algo/' + key + '/new?projectId=' + projectId).then(
+      $http.get(processUrl + '/config/algo/' + key + '/new?projectId=' + projectId  + '&processId=' + processId).then(
       // success
       function(response) {
         console.debug('  algo = ', response.data);

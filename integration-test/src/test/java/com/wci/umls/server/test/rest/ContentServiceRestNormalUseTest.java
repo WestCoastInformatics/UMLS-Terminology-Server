@@ -2013,7 +2013,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     ProjectServiceRest projectService = new ProjectClientRest(properties);
-    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    Project p = projectService.findProjects(null, null, authToken).getObjects().get(0);
 
     ConceptJpa concept = (ConceptJpa) contentService.getConcept("M0028634",
         mshTerminology, mshVersion, p.getId(), authToken);
@@ -2035,7 +2035,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     ProjectServiceRest projectService = new ProjectClientRest(properties);
-    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    Project p = projectService.findProjects(null, null, authToken).getObjects().get(0);
 
     DescriptorJpa c = (DescriptorJpa) contentService.getDescriptor("C013093",
         mshTerminology, mshVersion, p.getId(), authToken);
@@ -2057,7 +2057,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     ProjectServiceRest projectService = new ProjectClientRest(properties);
-    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    Project p = projectService.findProjects(null, null, authToken).getObjects().get(0);
 
     CodeJpa c = (CodeJpa) contentService.getCode("C013093", mshTerminology,
         mshVersion, p.getId(), authToken);
@@ -2079,7 +2079,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     ProjectServiceRest projectService = new ProjectClientRest(properties);
-    Project p = projectService.getProjects(authToken).getObjects().get(0);
+    Project p = projectService.findProjects(null, null, authToken).getObjects().get(0);
 
     ConceptJpa concept = (ConceptJpa) contentService.getConcept("M0028634",
         mshTerminology, mshVersion, p.getId(), authToken);

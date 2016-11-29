@@ -219,31 +219,6 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       projectService.close();
       securityService.close();
     }
-
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/all")
-  @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectListJpa.class)
-  public ProjectList getProjects(
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /all");
-
-    final ProjectService projectService = new ProjectServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "get projects", UserRole.VIEWER);
-      return projectService.getProjects();
-    } catch (Exception e) {
-      handleException(e, "trying to get the projects");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-
   }
 
   /* see superclass */

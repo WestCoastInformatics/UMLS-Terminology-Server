@@ -116,7 +116,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
 
     // Get the projects
     Logger.getLogger(getClass()).info("  Get the projects");
-    ProjectList projectList = projectService.getProjects(authToken);
+    ProjectList projectList = projectService.findProjects(null, null, authToken);
     int projectCount = projectList.size();
     Assert.assertTrue(projectList.contains(project));
     Assert.assertTrue(projectList.contains(project2));
@@ -124,13 +124,13 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     // remove first project
     Logger.getLogger(getClass()).info("  Remove first project");
     projectService.removeProject(project.getId(), authToken);
-    projectList = projectService.getProjects(authToken);
+    projectList = projectService.findProjects(null, null, authToken);
     Assert.assertEquals(projectCount - 1, projectList.size());
 
     // remove second project
     Logger.getLogger(getClass()).info("  Remove second project");
     projectService.removeProject(project2.getId(), authToken);
-    projectList = projectService.getProjects(authToken);
+    projectList = projectService.findProjects(null, null, authToken);
     Assert.assertEquals(projectCount - 2, projectList.size());
 
   }

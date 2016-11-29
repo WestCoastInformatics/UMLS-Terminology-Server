@@ -76,7 +76,8 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");
+    processExecution.getExecutionInfo().put("maxAtomIdPreInsertion", "374673");
                     
     // Create and configure the algorithm
     algo = new GeneratedMergeAlgorithm();
@@ -92,12 +93,12 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test relationships loader normal use.
+   * Test generated merge normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testPrecomputedMerge() throws Exception {
+  public void testGeneratedMerge() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Run the PRECOMPUTEDMERGE algorithm
@@ -114,22 +115,27 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       algoProperties.put("query",
           "select a1.id, a2.id "
               + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-              + "where c1.terminology = :PROJECT_TERMINOLOGY: "
-              + "and c2.terminology = :PROJECT_TERMINOLOGY: "
-              + "and c1.id != c2.id " 
-              + "and a1.terminology = :TERMINOLOGY: "
-              + "and a1.version = :VERSION: "
-              + "and a2.terminology = :TERMINOLOGY: "
-              + "and a2.version = :VERSION: "
-              + "and a1.id = 1 "
-              + "and a2.id = 2 ");
+//              + "where c1.terminology = :projectTerminology "
+//              + "and c2.terminology = :projectTerminology "
+//              + "and c1.id != c2.id " 
+//              + "and a1.terminology = :terminology "
+//              + "and a1.version = :version "
+//              + "and a2.terminology = :terminology "
+//              + "and a2.version = :version "
+              + "where a1.id in (100,1) "
+              + "and a2.id in (2,99,5) ");
 //              + "and a1.codeId = a2.codeId "
 //              + "and a1.stringClassId = a2.stringClassId "
 //              + "and a1.termType = a2.termType");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algoProperties.put("newAtomsOnly", "false");
-      algoProperties.put("filterQueryType", "JQL");
-      algoProperties.put("filterQuery", "");
+      algoProperties.put("filterQueryType", "LUCENE");
+      algoProperties.put("filterQuery", "atoms.id:(1 or 100)");
+//      algoProperties.put("filterQueryType", "JQL");
+//      algoProperties.put("filterQuery", "select a1.id, a2.id "
+//          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
+//          + "where a1.id in (100,1) "
+//          + "and a2.id in (2,99) ");
       algoProperties.put("makeDemotions", "true");
       algoProperties.put("changeStatus", "true");
       algoProperties.put("mergeSet", "NCI-SY");
@@ -154,6 +160,8 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 
     } catch (Exception e) {
       e.printStackTrace();
+      //Notify JUnit to fail
+      assertTrue(false);
     } finally {
       algo.close();
     }

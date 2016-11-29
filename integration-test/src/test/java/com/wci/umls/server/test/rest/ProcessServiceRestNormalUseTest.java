@@ -77,7 +77,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
 
     // ensure there is a concept associated with the project
-    ProjectList projects = projectService.getProjects(authToken);
+    ProjectList projects = projectService.findProjects(null, null, authToken);
     assertTrue(projects.size() > 0);
     project = projects.getObjects().get(0);
 

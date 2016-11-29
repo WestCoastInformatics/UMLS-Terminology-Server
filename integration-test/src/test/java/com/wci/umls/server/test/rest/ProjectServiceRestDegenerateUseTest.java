@@ -55,7 +55,7 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
-    ProjectList projectList = projectService.getProjects(adminAuthToken);
+    ProjectList projectList = projectService.findProjects(null, null, adminAuthToken);
     Assert.assertTrue(projectList.size() > 0);
     ProjectJpa project = (ProjectJpa) projectList.getObjects().get(0);
 
