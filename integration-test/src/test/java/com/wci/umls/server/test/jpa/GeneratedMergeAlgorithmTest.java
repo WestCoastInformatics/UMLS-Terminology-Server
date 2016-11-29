@@ -129,11 +129,13 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 //              + "and a1.termType = a2.termType");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algoProperties.put("newAtomsOnly", "false");
-      algoProperties.put("filterQueryType", "JQL");
-      algoProperties.put("filterQuery", "select a1.id, a2.id "
-          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-          + "where a1.id in (100,1) "
-          + "and a2.id in (2,99) ");
+      algoProperties.put("filterQueryType", "LUCENE");
+      algoProperties.put("filterQuery", "atoms.id:(1 or 100)");
+//      algoProperties.put("filterQueryType", "JQL");
+//      algoProperties.put("filterQuery", "select a1.id, a2.id "
+//          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
+//          + "where a1.id in (100,1) "
+//          + "and a2.id in (2,99) ");
       algoProperties.put("makeDemotions", "true");
       algoProperties.put("changeStatus", "true");
       algoProperties.put("mergeSet", "NCI-SY");

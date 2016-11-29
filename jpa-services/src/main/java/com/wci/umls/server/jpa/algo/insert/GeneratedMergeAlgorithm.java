@@ -370,7 +370,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
           results.add(result);
           addedResults.add(concept.getId().toString());
         }
-        results.add(result);
       }
       return results;
     }
