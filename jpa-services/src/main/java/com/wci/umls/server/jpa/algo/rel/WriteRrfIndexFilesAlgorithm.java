@@ -45,6 +45,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
   
+  /** The dir. */
   private File dir = null;
   
 
