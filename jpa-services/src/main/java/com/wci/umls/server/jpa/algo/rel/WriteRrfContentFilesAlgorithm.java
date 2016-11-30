@@ -34,6 +34,7 @@ import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.services.helper.ReportsAtomComparator;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -53,6 +54,7 @@ import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
+// TODO: Auto-generated Javadoc
 /**
  * Algorithm to write the RRF content files.
  */
@@ -67,26 +69,50 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   /** The steps completed. */
   private int stepsCompleted;
   
+  /** The sem type map. */
   private Map<String, SemanticType> semTypeMap = new HashMap<>();
   
+  /** The term map. */
   private Map<String, Terminology> termMap = new HashMap<>();
   
+  /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
   
   
+  /** The atom concept map. */
   private Map<Long, Long> atomConceptMap = new HashMap<>();
+  
+  /** The aui cui map. */
   private Map<String, String> auiCuiMap = new HashMap<>();
+  
+  /** The atom code map. */
   private Map<Long, Long> atomCodeMap = new HashMap<>();
+  
+  /** The atom descriptor map. */
   private Map<Long, Long> atomDescriptorMap = new HashMap<>();
+  
+  /** The concept aui map. */
   private Map<Long, String> conceptAuiMap = new HashMap<>();
+  
+  /** The code aui map. */
   private Map<Long, String> codeAuiMap = new HashMap<>();
+  
+  /** The descriptor aui map. */
   private Map<Long, String> descriptorAuiMap = new HashMap<>();
 
+  /** The rui attribute terminologies. */
   private Set<String> ruiAttributeTerminologies = new HashSet<>();
   
+  /** The rel to inverse map. */
   private Map<String, String> relToInverseMap = new HashMap<>();
+  
+  /** The terminology to src rht name map. */
   private Map<String, String> terminologyToSrcRhtNameMap = new HashMap<>();
+  
+  /** The terminology to src atom id map. */
   private Map<String, String> terminologyToSrcAtomIdMap = new HashMap<>();
+  
+  /** The handler. */
   private SearchHandler handler = null;
   
   /**
@@ -154,9 +180,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       }
       writerMap.get("MRHIER.RRF").flush();
       
-      // TODO
-      // MRHIST.RRF  empty for NCI-META
-      // MRMAP.RRF   later
+      // TODO later
+      // MRMAP.RRF   
       // MRSMAP.RRF
       // 
       
@@ -167,6 +192,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     closeWriters();
   }
   
+  /**
+   * Prepare maps.
+   *
+   * @throws Exception the exception
+   */
   private void prepareMaps() throws Exception {
     
     //  First create map of rel and rela inverses
@@ -335,6 +365,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     
   }
 
+  /**
+   * Open writers.
+   *
+   * @throws Exception the exception
+   */
   private void openWriters() throws Exception {
     final File dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
@@ -356,12 +391,22 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
   }
   
+  /**
+   * Close writers.
+   */
   private void closeWriters() {
     for (PrintWriter writer : writerMap.values()) {
       writer.close();
     }
   }
   
+  /**
+   * Write mrconso.
+   *
+   * @param c the c
+   * @return the string
+   * @throws Exception the exception
+   */
   private String writeMrconso(Concept c) throws Exception {
     
       // Field Description
@@ -472,6 +517,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         return sb.toString();
   }
   
+  /**
+   * Write mrdef.
+   *
+   * @param c the c
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<String> writeMrdef(Concept c) throws Exception {
     
   
@@ -529,6 +581,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       return lines;
   }
   
+  /**
+   * Write mrsty.
+   *
+   * @param c the c
+   * @return the list
+   */
   private List<String> writeMrsty(Concept c) {
     
     // Field Description
@@ -561,6 +619,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     return lines;
   }
   
+  /**
+   * Write mrrel.
+   *
+   * @param c the c
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<String> writeMrrel(Concept c) throws Exception {
 
     // Field description
@@ -938,6 +1003,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     return lines;
   }
 
+  /**
+   * Write mrhier.
+   *
+   * @param c the c
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<String> writeMrhier(Concept c) throws Exception {
 
     // Field description
@@ -1020,6 +1092,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     return lines;
   }
 
+  /**
+   * Write mrsat.
+   *
+   * @param c the c
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<String> writeMrsat(Concept c) throws Exception {
 
     // Field Description
@@ -1047,6 +1126,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     List<String> lines = new ArrayList<>();
 
     // Concept attributes (CUIs)
+    // Note: MR/ST/DA attributes are not written out for NCIMETA
     for (final Attribute att : c.getAttributes()) {
       StringBuilder sb = new StringBuilder();
       sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
@@ -1111,7 +1191,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       if (ruiAttributeTerminologies.contains(a.getTerminology())) {
         for (AtomRelationship rel : a.getRelationships()) {
           for (Attribute attribute : rel.getAttributes()) {
-            // � stype=RUI, LUI,SUI,CODE=blank
             StringBuilder sb = new StringBuilder();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
             sb.append("|"); // 1 LUI
@@ -1142,19 +1221,39 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
       }
 
+      // TODO subset members
+      // C0000052|L3853359|S4536829|A23245828|AUI|58488005|AT166631006|
+      //cf28ec3d-cf07-59cb-944a-10ef4f43b725|SUBSET_MEMBER|SCTSPA|
+      //450828004~ACCEPTABILITYID~900000000000549004|N||
+
+      for (AtomSubsetMember member : a.getMembers()) {
+        boolean found = false;
+        for (Attribute att : member.getAttributes()) {
+          // SATUI = att.getTerminologyId
+          // ATUI getAlternateTErminologyIds.getProject(....)
+          // ATN SUBSET_MEMBER hardcoded
+          // SCTSPA - att.getTerminology()
+          // ~ three parts member.getSubset.getTerminologyId(), atn, atv  of att
+          found = true;
+        } 
+        if (!found) {
+          // no atn or atv; just subset.getTerminologyId() in ~ part
+        }
+      }
+      
       // Source concept attributes (SCUIs)
       if (atomConceptMap.containsKey(a.getId())) {
         final Concept scui = getConcept(atomConceptMap.get(a.getId()));
         for (final Attribute attribute : scui.getAttributes()) {
           StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI
-          sb.append("|"); // 1 LUI
-          sb.append("|"); // 2 SUI
+          sb.append(a.getLexicalClassId()).append("|"); // 1 LUI
+          sb.append(a.getStringClassId()).append("|"); // 2 SUI
           sb.append(
               a.getAlternateTerminologyIds().get(getProject().getTerminology()))
               .append("|"); // 3 METAUI
           sb.append("SCUI").append("|"); // 4 STYPE
-          sb.append("|"); // 5 CODE
+          sb.append(a.getCodeId()).append("|"); // 5 CODE
           String atui = attribute.getAlternateTerminologyIds().get(getProject().getTerminology());
           sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
           sb.append(attribute.getTerminologyId()).append("|"); // 7 SATUI
@@ -1178,7 +1277,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         if (ruiAttributeTerminologies.contains(c.getTerminology())) {
           for (ConceptRelationship rel : c.getRelationships()) {
             for (Attribute attribute : rel.getAttributes()) {
-            // TODO remove debug � stype=RUI, LUI,SUI,CODE=blank
             StringBuilder sb = new StringBuilder();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI
             sb.append("|"); // 1 LUI
@@ -1210,7 +1308,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
       }
       
-      // TODO repeat for code, STYPE=CODE
       // Code attributes 
       if (atomCodeMap.containsKey(a.getId())) {
         final Code code = getCode(atomCodeMap.get(a.getId()));
@@ -1247,7 +1344,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         if (ruiAttributeTerminologies.contains(c.getTerminology())) {
           for (CodeRelationship rel : code.getRelationships()) {
             for (Attribute attribute : rel.getAttributes()) {
-              // TODO remove debug � stype=RUI, LUI,SUI,CODE=blank
               StringBuilder sb = new StringBuilder();
               sb.append(c.getTerminologyId()).append("|"); // 0 CUI
               sb.append("|"); // 1 LUI
@@ -1284,13 +1380,13 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         for (final Attribute attribute : descriptor.getAttributes()) {
           StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|"); // 0 CUI
-          sb.append("|"); // 1 LUI
-          sb.append("|"); // 2 SUI
+          sb.append(a.getLexicalClassId()).append("|"); // 1 LUI
+          sb.append(a.getStringClassId()).append("|"); // 2 SUI
           sb.append(
               a.getAlternateTerminologyIds().get(getProject().getTerminology()))
               .append("|"); // 3 METAUI
           sb.append("SDUI").append("|"); // 4 STYPE
-          sb.append("|"); // 5 CODE
+          sb.append(a.getCodeId()).append("|"); // 5 CODE
           String atui = attribute.getAlternateTerminologyIds().get(getProject().getTerminology());
           sb.append(atui != null ? atui : "").append("|"); // 6 ATUI
           sb.append(attribute.getTerminologyId()).append("|"); // 7 SATUI
@@ -1314,7 +1410,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         if (ruiAttributeTerminologies.contains(c.getTerminology())) {
           for (DescriptorRelationship rel : descriptor.getRelationships()) {
             for (Attribute attribute : rel.getAttributes()) {
-              // TODO remove debug � stype=RUI, LUI,SUI,CODE=blank
               StringBuilder sb = new StringBuilder();
               sb.append(c.getTerminologyId()).append("|"); // 0 CUI
               sb.append("|"); // 1 LUI
@@ -1346,6 +1441,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
       }     
 
+      // TODO need to do something to write out SUBSET_MEMBER attributes
+      
     } // end for (c.getAtoms)
     Collections.sort(lines);
     return lines;

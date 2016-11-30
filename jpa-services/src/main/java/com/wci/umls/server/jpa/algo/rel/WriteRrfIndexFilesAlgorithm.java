@@ -6,10 +6,8 @@ package com.wci.umls.server.jpa.algo.rel;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -18,11 +16,13 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.FileSorter;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.Language;
@@ -44,6 +44,9 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   
   /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
+  
+  /** The dir. */
+  private File dir = null;
   
 
   /**
@@ -95,7 +98,6 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     while (results.next()) {
       final Concept c = (Concept) results.get()[0];
 
-      List<String> lines = new ArrayList<>();
       for (final Atom atom : c.getAtoms()) {
         if (atom.isPublishable()) {
 
@@ -111,7 +113,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
               handler.getNormalizedString(atom.getName());
 
           if (atom.getLanguage().equals("ENG")
-              && !seen.contains("MRXN" + atom.getStringClassId())
+              && !seen.contains("MRXNS" + atom.getStringClassId())
               && !ConfigUtility.isEmpty(normalizedString)) {
 
             StringBuilder sb = new StringBuilder();
@@ -121,13 +123,12 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
             sb.append(atom.getStringClassId()).append("|"); // 4 SUI
             sb.append("\n");
-            writerMap.get("MRXN_ENG.RRF").write(sb.toString());
-            seen.add("MRXN" + atom.getStringClassId());
+            writerMap.get("MRXNS_ENG.RRF").write(sb.toString());
+            seen.add("MRXNS" + atom.getStringClassId());
 
             // MRXNW_ENG.RRF
             for (final String word : FieldedStringTokenizer
                 .split(normalizedString, ConfigUtility.PUNCTUATION)) {
-              // ... write line, e.g. ENG|word|C3719296|L11470762|S14283535|
               sb = new StringBuilder();
               sb.append("ENG").append("|"); // 0 LAT
               sb.append(word).append("|"); // 1 WORD
@@ -143,7 +144,6 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             // for all languages write MRXW_<language>.RRF
             for (final String word : FieldedStringTokenizer
                 .split(atom.getName(), ConfigUtility.PUNCTUATION)) {
-              // ... write line, e.g. ENG|word|C3719296|L11470762|S14283535|
               StringBuilder sb = new StringBuilder();
               sb.append(atom.getLanguage()).append("|"); // 0 LAT
               sb.append(word).append("|"); // 1 WORD
@@ -157,12 +157,9 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
           }
         }
       }
-
-      closeWriters();
-      // close, flush and
-      // TODO Sort all files - see FileSorter
-
+      updateProgress();
     }
+    closeWriters();
     logInfo("Finishing Write RRF Indexes");
   }
 
@@ -188,24 +185,45 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   }
 
   private void openWriters() throws Exception {
-    final File dir = new File(config.getProperty("source.data.dir") + "/"
+    dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
 
     writerMap.put("MRXNS_ENG.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRXNS_ENG.RRF"))));
+
     writerMap.put("MRXNW_ENG.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRXNW_ENG.RRF"))));
     for (Language lat : getLanguages(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
-      writerMap.put("MRXW_" + lat.getTerminology() + ".RRF",
-          new PrintWriter(new FileWriter(new File(dir, "MRXW_" + lat.getTerminology() + ".RRF"))));
+      writerMap.put("MRXW_" + lat.getAbbreviation() + ".RRF",
+          new PrintWriter(new FileWriter(new File(dir, "MRXW_" + lat.getAbbreviation() + ".RRF"))));
     }
   }
   
-  private void closeWriters() {
+  private void closeWriters() throws Exception {
+    // close writers
     for (PrintWriter writer : writerMap.values()) {
       writer.close();
     }
+    
+    // sort files
+    for (String writerName : writerMap.keySet()) {
+      File inputFile = new File(dir, writerName);
+      File outputFile = new File(dir, writerName + ".sorted");
+      FileSorter.sortFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), (a1, a2) -> a2.compareTo(a1));
+    }
+    
+    // move sorted files into orig files
+    // TODO sorted files have wrong line termination
+    // TODO review comparator choice
+    for (String writerName : writerMap.keySet()) {
+
+      File inputFile = new File(dir, writerName);
+      File outputFile = new File(dir, writerName + ".sorted");
+      inputFile.delete();
+      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile() );
+    }
+
   }
   
   /**
