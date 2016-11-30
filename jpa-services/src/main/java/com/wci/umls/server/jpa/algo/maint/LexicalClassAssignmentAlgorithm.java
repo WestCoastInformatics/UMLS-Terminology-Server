@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +17,15 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
+import com.wci.umls.server.jpa.services.handlers.RrfComputePreferredNameHandler;
 import com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
 
@@ -56,11 +61,13 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   @SuppressWarnings("unused")
   @Override
   public void compute() throws Exception {
-    logInfo("Starting Lexical Class Assignment");
+    logInfo("Starting lexical class assignment");
     logInfo("  project = " + getProject().getId());
     logInfo("  workId = " + getWorkId());
     logInfo("  activityId = " + getActivityId());
     logInfo("  user  = " + getLastModifiedBy());
+
+    // TODO: log/commit, progress/cancel
 
     try {
       // Assume this is configured to be a umls identifier handler properly
@@ -82,9 +89,8 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       Session session = manager.unwrap(Session.class);
       org.hibernate.Query hQuery =
           session.createQuery("select l from LexicalClassIdentityJpa l");
-      hQuery.setReadOnly(true).setFetchSize(5000);
+      hQuery.setReadOnly(true).setFetchSize(5000).setCacheable(false);
       ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-
       int ct = 0;
       while (results.next()) {
         final LexicalClassIdentity lui =
@@ -92,23 +98,40 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
         preLuiLexicalClassMap.put(lui.getId(), lui.getNormalizedName());
         preLexicalClassLuiMap.put(lui.getNormalizedName(), lui.getId());
       }
+      results.close();
 
-      // 1. Rank all atoms in (default) precedence order and iterate through
-      // them
-
-      // TODO: rank atoms.
+      // 1. Rank all atoms in (project) precedence order and iterate through
+      final Map<Long, String> atomRankMap = new HashMap<>(20000);
       session = manager.unwrap(Session.class);
       hQuery = session.createQuery(
-          "select a from AtomJpa c " + "where terminology = :terminology "
-              + "  and version = :version order by rank");
+          "select distinct c from ConceptJpa c join c.atoms a where c.terminology = :terminology "
+              + "  and c.version = :version");
       hQuery.setParameter("terminology", getTerminology());
       hQuery.setParameter("version", getVersion());
-      hQuery.setReadOnly(true).setFetchSize(2000);
+      hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
       results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      // NOTE: this assumes RRF preferred name handler
+      final RrfComputePreferredNameHandler prefHandler =
+          new RrfComputePreferredNameHandler();
+      final PrecedenceList list = getProject().getPrecedenceList();
+      while (results.next()) {
+        final Concept concept = (Concept) results.get()[0];
+        for (final Atom atom : concept.getAtoms()) {
+          atomRankMap.put(atom.getId(), prefHandler.getRank(atom, list));
+        }
+      }
+      results.close();
+
+      // Sort all atoms -?? no idea how long this takes for full set
+      final List<Long> atomIds = new ArrayList<>(atomRankMap.keySet());
+      Collections.sort(atomIds,
+          (a1, a2) -> atomRankMap.get(a1).compareTo(atomRankMap.get(a2)));
+
+      // Iterate through sorted atom ids
       int updatedLuis = 0;
       int newLuis = 0;
-      while (results.next()) {
-        final Atom atom = (Atom) results.get()[0];
+      for (final Long id : atomIds) {
+        final Atom atom = getAtom(id);
 
         // 2. Generate normal form
         final String normalForm = getNormalizedString(atom.getName());
@@ -128,6 +151,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
           postLuiLexicalClassMap.put(lui, normalForm);
           preLexicalClassLuiMap.remove(normalForm);
           preLuiLexicalClassMap.remove(lui);
+
         } else if (postLexicalClassLuiMap.containsKey(normalForm)) {
           final Long lui = postLexicalClassLuiMap.get(normalForm);
           final String lexicalClassId = handler.convertId(lui, "LUI");
@@ -154,7 +178,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
         }
       }
 
-      logInfo("Finished Lexical Class Assignment");
+      logInfo("Finished lexical class assignment");
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());

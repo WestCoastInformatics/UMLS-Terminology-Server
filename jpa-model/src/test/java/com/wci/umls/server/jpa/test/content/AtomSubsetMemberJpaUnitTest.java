@@ -22,6 +22,7 @@ import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.helpers.IndexedFieldTester;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
@@ -245,6 +246,46 @@ public class AtomSubsetMemberJpaUnitTest extends ModelUnitSupport {
     assertTrue(tester.testNotNullFields());
   }
 
+  /**
+   * Test field indexing.
+   *
+   * @throws Exception the exception
+   */
+  @Test
+  public void testModelIndexedFields041() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
+
+    // Test analyzed fields
+    IndexedFieldTester tester = new IndexedFieldTester(object);
+    tester.include("membername");
+    tester.include("subsetname");
+    assertTrue(tester.testAnalyzedIndexedFields());
+
+    // Test non analyzed fields
+    tester = new IndexedFieldTester(object);
+    tester.include("id");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("suppressible");
+    tester.include("obsolete");
+    tester.include("published");
+    tester.include("publishable");
+    tester.include("terminologyId");
+    tester.include("terminology");
+    tester.include("version");
+    tester.include("branch");
+    tester.include("subsetid");
+    tester.include("subsetterminologyId");
+    tester.include("subsetterminology");
+    tester.include("subsetversion");
+    tester.include("memberId");
+    tester.include("memberTerminologyId");
+    tester.include("memberTerminology");
+    tester.include("memberVersion");
+
+    tester.include("memberNameSort");
+    assertTrue(tester.testNotAnalyzedIndexedFields());
+  }
   /**
    * Teardown.
    */

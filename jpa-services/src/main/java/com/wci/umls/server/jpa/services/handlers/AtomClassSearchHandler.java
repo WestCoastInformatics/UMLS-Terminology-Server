@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -46,7 +46,8 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  * Default implementation of {@link SearchHandler}. This provides an algorithm
  * to aide in lucene searches of atom classes (Concept, Descriptor, Code)
  */
-public class AtomClassSearchHandler extends AbstractConfigurable implements SearchHandler {
+public class AtomClassSearchHandler extends AbstractConfigurable
+    implements SearchHandler {
 
   /** The acronym expansion map. */
   private Map<String, Set<String>> acronymExpansionMap = new HashMap<>();
@@ -103,6 +104,84 @@ public class AtomClassSearchHandler extends AbstractConfigurable implements Sear
     String version, String branch, String query, String literalField,
     Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
     throws Exception {
+
+    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
+        query, literalField, clazz, pfs, totalCt, manager);
+
+    // Retrieve the scores for the returned objects
+    fullTextQuery.setProjection(ProjectionConstants.SCORE,
+        ProjectionConstants.THIS);
+    final List<T> classes = new ArrayList<>();
+
+    @SuppressWarnings("unchecked")
+    final List<Object[]> results = fullTextQuery.getResultList();
+    String literalQuery = null;
+    if (query.startsWith("\"") && query.endsWith("\"")) {
+      literalQuery = query.substring(1, query.length() - 1);
+    }
+    for (final Object[] result : results) {
+      final Object score = result[0];
+      @SuppressWarnings("unchecked")
+      final T t = (T) result[1];
+      classes.add(t);
+
+      // cap the score to a maximum of 1.0
+      Float normScore = Math.min(1, Float.valueOf(score.toString()));
+
+      // bump up relevance of exact match on terminology id
+      if (literalQuery != null
+          && literalQuery.equals(((AbstractComponent) t).getTerminologyId())) {
+        normScore = 1.0f;
+      }
+
+      // store the score for later retrieval
+      scoreMap.put(t.getId(), normScore.floatValue());
+    }
+
+    return classes;
+  }
+
+  /* see superclass */
+  @Override
+  public List<Long> getIdResults(String terminology, String version,
+    String branch, String query, String literalField, Class<?> clazz,
+    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
+
+    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
+        query, literalField, clazz, pfs, totalCt, manager);
+
+    // Retrieve the scores for the returned objects
+    fullTextQuery.setProjection(ProjectionConstants.ID);
+    final List<Long> ids = new ArrayList<>();
+
+    @SuppressWarnings("unchecked")
+    final List<Object[]> results = fullTextQuery.getResultList();
+    for (final Object[] result : results) {
+      final Long id = (Long) result[0];
+      ids.add(id);
+    }
+
+    return ids;
+  }
+
+  /**
+   * Helper.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param literalField the literal field
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @param totalCt the total ct
+   * @param manager the manager
+   * @return the full text query
+   * @throws Exception the exception
+   */
+  public FullTextQuery helper(String terminology, String version, String branch,
+    String query, String literalField, Class<?> clazz, PfsParameter pfs,
+    int[] totalCt, EntityManager manager) throws Exception {
 
     // check assumption: class queried must extend AbstractAtomClass
     if (!AbstractAtomClass.class.isAssignableFrom(clazz)) {
@@ -393,33 +472,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable implements Sear
 
     }
 
-    // Retrieve the scores for the returned objects
-    fullTextQuery.setProjection(ProjectionConstants.SCORE,
-        ProjectionConstants.THIS);
-    final List<T> classes = new ArrayList<>();
-
-    @SuppressWarnings("unchecked")
-    final List<Object[]> results = fullTextQuery.getResultList();
-    for (final Object[] result : results) {
-      final Object score = result[0];
-      @SuppressWarnings("unchecked")
-      final T t = (T) result[1];
-      classes.add(t);
-
-      // cap the score to a maximum of 1.0
-      Float normScore = Math.min(1, Float.valueOf(score.toString()));
-
-      // bump up relevance of exact match on terminology id
-      if (literalQuery != null
-          && literalQuery.equals(((AbstractComponent) t).getTerminologyId())) {
-        normScore = 1.0f;
-      }
-
-      // store the score for later retrieval
-      scoreMap.put(t.getId(), normScore.floatValue());
-    }
-
-    return classes;
+    return fullTextQuery;
 
   }
 

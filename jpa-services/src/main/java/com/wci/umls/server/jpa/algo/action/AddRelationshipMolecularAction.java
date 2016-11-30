@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo.action;
 
 import java.util.HashSet;
+import java.util.List;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
@@ -169,34 +170,36 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     }
 
     // Look through atoms for demotion relationships, and remove them.
-    AtomRelationship demotion = findDemotionMatchingRelationship(relationship);
+    List<AtomRelationship> demotions =
+        findDemotionsMatchingRelationship(relationship);
+    for (final AtomRelationship demotion : demotions) {
+      if (demotion != null) {
+        // Remove the demotions from the atoms
+        removeById(demotion.getFrom().getRelationships(), demotion.getId());
+        removeById(demotion.getTo().getRelationships(),
+            findInverseRelationship(demotion).getId());
 
-    if (demotion != null) {
-      // Remove the demotions from the atoms
-      removeById(demotion.getFrom().getRelationships(), demotion.getId());
-      removeById(demotion.getTo().getRelationships(),
-          findInverseRelationship(demotion).getId());
+        // Update Atoms
+        updateAtom(demotion.getFrom());
+        updateAtom(demotion.getTo());
 
-      // Update Atoms
-      updateAtom(demotion.getFrom());
-      updateAtom(demotion.getTo());
+        // Remove the demotions
+        removeRelationship(demotion.getId(), demotion.getClass());
+        removeRelationship(findInverseRelationship(demotion).getId(),
+            demotion.getClass());
 
-      // Remove the demotions
-      removeRelationship(demotion.getId(), demotion.getClass());
-      removeRelationship(findInverseRelationship(demotion).getId(),
-          demotion.getClass());
+        // Change status of the source and target atom
+        if (getChangeStatusFlag()) {
+          demotion.getFrom().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          demotion.getTo().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        }
 
-      // Change status of the source and target atom
-      if (getChangeStatusFlag()) {
-        demotion.getFrom().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-        demotion.getTo().setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+        // Update Atoms
+        updateAtom(demotion.getFrom());
+        updateAtom(demotion.getTo());
       }
-
-      // Update Atoms
-      updateAtom(demotion.getFrom());
-      updateAtom(demotion.getTo());
     }
-
+    
     // Add the relationships
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =

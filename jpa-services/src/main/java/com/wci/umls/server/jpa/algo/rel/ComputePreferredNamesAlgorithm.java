@@ -21,6 +21,7 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Algorithm for computing preferred names and publication status for a project
  * terminology.
+ * TODO: change this package to "rel" => "release (fix config files)
  */
 public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
@@ -32,7 +33,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   public ComputePreferredNamesAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("COMPUTECONCEPTPREFERREDNAMES");
+    setWorkId("PREFNAMES");
   }
 
   /* see superclass */

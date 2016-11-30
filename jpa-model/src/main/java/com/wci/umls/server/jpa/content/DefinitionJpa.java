@@ -94,26 +94,6 @@ public class DefinitionJpa extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /* see superclass */
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();

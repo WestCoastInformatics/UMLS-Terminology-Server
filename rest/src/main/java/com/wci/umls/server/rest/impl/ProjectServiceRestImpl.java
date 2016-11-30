@@ -83,7 +83,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
-  @Path("/")
+  // @Path("/")
   @ApiOperation(value = "Add new project", notes = "Creates a new project", response = ProjectJpa.class)
   public Project addProject(
     @ApiParam(value = "Project, e.g. newProject", required = true) ProjectJpa project,
@@ -125,7 +125,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
-  @Path("/")
+  // @Path("/")
   @ApiOperation(value = "Update project", notes = "Updates the specified project")
   public void updateProject(
     @ApiParam(value = "Project, e.g. existingProject", required = true) ProjectJpa project,
@@ -219,31 +219,6 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       projectService.close();
       securityService.close();
     }
-
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/all")
-  @ApiOperation(value = "Get all projects", notes = "Gets all projects", response = ProjectListJpa.class)
-  public ProjectList getProjects(
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /all");
-
-    final ProjectService projectService = new ProjectServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "get projects", UserRole.VIEWER);
-      return projectService.getProjects();
-    } catch (Exception e) {
-      handleException(e, "trying to get the projects");
-      return null;
-    } finally {
-      projectService.close();
-      securityService.close();
-    }
-
   }
 
   /* see superclass */

@@ -359,8 +359,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getTerminologyId(), true));
     clauses.add(
         ConfigUtility.composeClause("termType", identity.getTermType(), true));
-    clauses.add(
-        ConfigUtility.composeClause("codeId", identity.getCodeId(), true));
+    clauses
+        .add(ConfigUtility.composeClause("codeId", identity.getCodeId(), true));
     clauses.add(ConfigUtility.composeClause("conceptId",
         identity.getConceptId(), true));
     clauses.add(ConfigUtility.composeClause("descriptorId",
@@ -715,8 +715,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
         identity.getRelationshipType(), true));
     clauses.add(ConfigUtility.composeClause("additionalRelationshipType",
         identity.getAdditionalRelationshipType(), true));
-    clauses.add(
-        ConfigUtility.composeClause("fromId", identity.getFromId(), true));
+    clauses
+        .add(ConfigUtility.composeClause("fromId", identity.getFromId(), true));
     clauses.add(ConfigUtility.composeClause("fromType",
         identity.getFromType().toString(), true));
     clauses.add(ConfigUtility.composeClause("fromTerminology",
@@ -843,4 +843,6 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       uncommitedIdMap = new HashMap<>();
     }
   }
+
+ 
 }

@@ -419,9 +419,9 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
    * @return the atom relationship
    * @throws Exception the exception
    */
-  public AtomRelationship findDemotionMatchingRelationship(
+  public List<AtomRelationship> findDemotionsMatchingRelationship(
     ConceptRelationship relationship) throws Exception {
-
+    final List<AtomRelationship> rels = new ArrayList<>();
     final List<Atom> fromAtoms =
         getConcept(relationship.getFrom().getId()).getAtoms();
     final List<Atom> toAtoms =
@@ -431,13 +431,13 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         for (final Atom toAtom : toAtoms) {
           if (atomRel.getTo().getId().equals(toAtom.getId())
               && atomRel.getWorkflowStatus() == WorkflowStatus.DEMOTION) {
-            return atomRel;
+            rels.add(atomRel);
           }
         }
       }
     }
 
-    return null;
+    return rels;
   }
 
   /**

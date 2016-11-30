@@ -306,7 +306,7 @@ public class ConceptSubsetMemberJpa
    *
    * @return the subset name
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }

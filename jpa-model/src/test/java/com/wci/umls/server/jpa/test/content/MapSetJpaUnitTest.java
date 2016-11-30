@@ -200,6 +200,7 @@ public class MapSetJpaUnitTest extends ModelUnitSupport {
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("name");
+    tester.include("alternateTerminologyIds");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields

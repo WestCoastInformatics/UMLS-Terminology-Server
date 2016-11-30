@@ -443,26 +443,6 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /* see superclass */
-  @Override
   @XmlElement(type = AtomSubsetMemberJpa.class)
   public List<AtomSubsetMember> getMembers() {
     if (members == null) {

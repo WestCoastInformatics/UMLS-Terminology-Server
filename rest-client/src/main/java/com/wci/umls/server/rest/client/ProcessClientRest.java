@@ -340,14 +340,14 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public AlgorithmConfig newAlgorithmConfig(Long projectId, String key,
+  public AlgorithmConfig newAlgorithmConfig(Long projectId, Long processId, String key,
     String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("AlgorithmConfig Client - new algorithmConfig" + key);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/config/algo/" + key + "/new" + "?projectId=" + projectId);
+        + "/config/algo/" + key + "/new" + "?projectId=" + projectId+ "&processId=" + processId);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();

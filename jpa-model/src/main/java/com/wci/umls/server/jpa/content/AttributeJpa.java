@@ -127,35 +127,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   }
 
   /**
-   * Put alternate terminology id.
-   *
-   * @param terminology the terminology
-   * @param terminologyId the terminology id
-   */
-  @Override
-  public void putAlternateTerminologyId(String terminology,
-    String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /**
-   * Removes the alternate terminology id.
-   *
-   * @param terminology the terminology
-   */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /**
    * CUSTOM to support alternateTerminologyIds.
    *
    * @return the int
