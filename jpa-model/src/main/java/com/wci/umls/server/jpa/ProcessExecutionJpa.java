@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -83,7 +82,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   private List<AlgorithmExecution> steps = new ArrayList<>();
 
   /** The execution info. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection()
   @Column(nullable = true)
   private Map<String, String> executionInfo;
 
