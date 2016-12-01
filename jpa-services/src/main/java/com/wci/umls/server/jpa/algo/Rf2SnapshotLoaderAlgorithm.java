@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -1843,14 +1843,18 @@ public class Rf2SnapshotLoaderAlgorithm
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(getTerminology());
-    root.setHierarchicalName(
-        getConcept(conceptIdMap.get(rootConceptId)).getName());
-    root.setLanguage(rootLanguage.getAbbreviation());
+    if (conceptIdMap.containsKey(rootConceptId)) {
+      root.setHierarchicalName(
+          getConcept(conceptIdMap.get(rootConceptId)).getName());
+    }
+    root.setLanguage(
+        rootLanguage == null ? "en" : rootLanguage.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
-    root.setPreferredName(root.getHierarchicalName());
+    root.setPreferredName(
+        root.getHierarchicalName() == null ? "" : root.getHierarchicalName());
     root.setRestrictionLevel(-1);
     root.setTerminology(getTerminology());
     addRootTerminology(root);
@@ -1866,7 +1870,8 @@ public class Rf2SnapshotLoaderAlgorithm
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(true);
     term.setOrganizingClassType(IdType.CONCEPT);
-    term.setPreferredName(root.getPreferredName());
+    term.setPreferredName(
+        root.getPreferredName() == null ? "" : root.getPreferredName());
     term.setRootTerminology(root);
     addTerminology(term);
 
