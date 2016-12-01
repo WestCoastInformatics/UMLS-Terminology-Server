@@ -1429,9 +1429,19 @@ public abstract class RootServiceJpa implements RootService {
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (action.getProject().getValidationChecks().contains(key)) {
-        result
-            .merge(getValidationHandlersMap().get(key).validateAction(action));
+      // If action algorithm has no checks specified, use project defaults
+      if (action.getValidationChecks() == null) {
+        if (action.getProject().getValidationChecks().contains(key)) {
+          result.merge(
+              getValidationHandlersMap().get(key).validateAction(action));
+        }
+      }
+      // Otherwise use algorithm-specified validation checks
+      else {
+        if (action.getValidationChecks().contains(key)) {
+          result.merge(
+              getValidationHandlersMap().get(key).validateAction(action));
+        }
       }
     }
     return result;
@@ -1603,6 +1613,157 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   public Map<String, ValidationCheck> getValidationHandlersMap() {
     return validationHandlersMap;
+  }
+
+  /**
+   * Execute query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the list
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public List<Long[]> executeAtomIdPairQuery(String query, QueryType queryType,
+    Map<String, String> params) throws Exception {
+
+    // If query parameters are not fully filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query) || queryType == null) {
+      return new ArrayList<Long[]>();
+    }
+
+    // Only JQL and SQL queries are legal
+    if (queryType != QueryType.JQL && queryType != QueryType.SQL) {
+      throw new Exception(
+          "Only SQL and JQL type queries can be sent to executeAtomIdPairQuery");
+    }
+
+    // Check for JQL/SQL errors
+    // ensure that query begins with SELECT (i.e. prevent injection
+    // problems)
+    if (!query.toUpperCase().startsWith("SELECT")) {
+      throw new LocalException(
+          "Query has bad format:  does not begin with SELECT");
+    }
+
+    // check for multiple commands (i.e. multiple semi-colons)
+    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+      throw new LocalException(
+          "Query has bad format:  multiple queries detected");
+    }
+
+    // crude check: check for data manipulation commands
+    if (query.toUpperCase()
+        .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+      throw new LocalException("Query has bad format:  DDL request detected");
+    }
+
+    // check for proper format for insertion into reports
+
+    if (query.toUpperCase().indexOf("FROM") == -1) {
+      throw new LocalException("Query must contain the term FROM");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list as a pair of atom id longs.
+    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Long[]> results = new ArrayList<>();
+    final Set<String> addedResults = new HashSet<>();
+
+    for (final Object[] entry : list) {
+      Long atomId1 = null;
+      if (entry[0] instanceof BigInteger) {
+        atomId1 = ((BigInteger) entry[0]).longValue();
+      } else if (entry[0] instanceof Long) {
+        atomId1 = (Long) entry[0];
+      }
+      Long atomId2 = null;
+      if (entry[1] instanceof BigInteger) {
+        atomId2 = ((BigInteger) entry[1]).longValue();
+      } else if (entry[1] instanceof Long) {
+        atomId2 = (Long) entry[1];
+      }
+      final Long[] result = new Long[] {
+          atomId1, atomId2
+      };
+      // Duplicate check
+      if (!addedResults.contains(atomId1 + "|" + atomId2)) {
+        results.add(result);
+        addedResults.add(atomId1 + "|" + atomId2);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Execute Lucene Concept Id query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Long[]> executeLuceneConceptIdQuery(String query,
+    QueryType queryType, Map<String, String> params) throws Exception {
+
+    // If query parameters are not fully filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query) || queryType == null) {
+      return new ArrayList<Long[]>();
+    }
+
+    // Only LUCENE queries are legal
+    if (queryType != QueryType.LUCENE) {
+      throw new Exception(
+          "Only LUCENE type queries can be sent to executeLuceneConceptIdQuery");
+    }
+
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setQueryRestriction(query);
+    // precondition check
+    if (params == null || !params.containsKey("terminology")) {
+      throw new Exception(
+          "Execute query should be passed params with the key 'terminology'"
+              + params);
+    }
+    if (params == null || !params.containsKey("version")) {
+      throw new Exception(
+          "Execute query should be passed params with the key 'version'"
+              + params);
+    }
+    // Perform search
+    final List<ConceptJpa> concepts = new DefaultSearchHandler()
+        .getQueryResults(params.get("terminology"), null, Branch.ROOT, null,
+            null, ConceptJpa.class, pfs, new int[1], manager);
+
+    // Cluster results
+    final List<Long[]> results = new ArrayList<>();
+    for (final Concept concept : concepts) {
+      final Long[] result = new Long[1];
+      result[0] = concept.getId();
+      results.add(result);
+    }
+    return results;
   }
 
   /**

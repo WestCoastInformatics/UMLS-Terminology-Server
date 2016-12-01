@@ -68,6 +68,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /** The override warnings. */
   private boolean overrideWarnings;
 
+  private List<String> validationChecks = null;
+  
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
    *
@@ -654,6 +656,18 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
             + "be used as configurable algorithms");
   }
 
+  /* see superclass */
+  @Override
+  public List<String> getValidationChecks(){
+    return validationChecks;
+  }
+  
+  /* see superclass */
+  @Override
+  public void setValidationChecks(List<String> validationChecks){
+    this.validationChecks = validationChecks;
+  }
+  
   /**
    * Post action maintenance.
    *

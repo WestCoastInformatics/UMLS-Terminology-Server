@@ -1228,11 +1228,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve the concept", UserRole.VIEWER);
       final Concept concept = contentService.getConcept(conceptId);
 
-      // lazy initialization
-      for (Atom atom : concept.getAtoms()) {
-        atom.getNotes().size();
-      }
-
       final Project project =
           projectId == null ? null : contentService.getProject(projectId);
 

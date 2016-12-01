@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -39,7 +39,8 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    * @param member the subset
    * @param collectionCopy the deep copy
    */
-  public AbstractSubsetMember(SubsetMember<T, S> member, boolean collectionCopy) {
+  public AbstractSubsetMember(SubsetMember<T, S> member,
+      boolean collectionCopy) {
     super(member, collectionCopy);
   }
 
@@ -55,10 +56,12 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
     // n/a
   }
 
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [" + super.toString() + ", member="
-        + getMember() + ", subset=" + getSubset() + "]";
+        + getMember().getId() + " - " + getMember().getName() + ", subset="
+        + getSubset() + "]";
   }
 
 }

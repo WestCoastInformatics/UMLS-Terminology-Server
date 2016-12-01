@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,21 +19,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.LocalException;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 
@@ -124,7 +116,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     params.put("projectTerminology", getProject().getVersion());
 
     // Execute query to get atom1,atom2 Id pairs
-    List<Long[]> atomIdPairs = executeQuery(query, queryType, params);
+    List<Long[]> atomIdPairs = executeAtomIdPairQuery(query, queryType, params);
 
     // Remove all atom pairs caught by the filters, and calculate the remaining
     // pairs' Merge Levels
@@ -202,8 +194,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // If LUCENE filter query, returns concept id
     if (filterQueryType == QueryType.LUCENE) {
-      List<Long[]> filterConceptIds =
-          executeQuery(filterQuery, filterQueryType, params);
+      final List<Long[]> filterConceptIds =
+          executeLuceneConceptIdQuery(filterQuery, filterQueryType, params);
 
       // For each returned concept, filter for all of its atoms' ids
       filterAtomIds = new HashSet<>();
@@ -222,8 +214,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     
     // If JQL/SQL filter query, returns atom1,atom2 Id pairs
     else if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
-      List<Long[]> filterAtomIdPairArray =
-          executeQuery(filterQuery, filterQueryType, params);
+      final List<Long[]> filterAtomIdPairArray =
+          executeAtomIdPairQuery(filterQuery, filterQueryType, params);
 
       // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
       filterAtomIdPairs = new HashSet<>();
@@ -336,133 +328,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     return mergeLevel;
   }
 
-  /**
-   * Execute query.
-   *
-   * @param query the query
-   * @param queryType the query type
-   * @param params the params
-   * @return the list
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private List<Long[]> executeQuery(String query, QueryType queryType,
-    Map<String, String> params) throws Exception {
-
-    // If query parameters are not fully filled out, return an empty List.
-    if (ConfigUtility.isEmpty(query) || queryType == null) {
-      return new ArrayList<Long[]>();
-    }
-
-    // Handle the LUCENE case
-    if (queryType == QueryType.LUCENE) {
-      final PfsParameter pfs = new PfsParameterJpa();
-      pfs.setQueryRestriction(query);
-
-      // Perform search
-      final SearchResultList resultList = this
-          .findConcepts(getProject().getTerminology(), null, null, null, pfs);
-      // Cluster results
-      final List<Long[]> results = new ArrayList<>();
-      final Set<String> addedResults = new HashSet<>();
-      for (final SearchResult concept : resultList.getObjects()) {
-        final Long[] result = new Long[1];
-        result[0] = concept.getId();
-        // Duplicate check
-        if (!addedResults.contains(concept.getId().toString())) {
-          results.add(result);
-          addedResults.add(concept.getId().toString());
-        }
-      }
-      return results;
-    }
-
-    // Handle PROGRAM queries
-    else if (queryType == QueryType.PROGRAM) {
-      throw new Exception("PROGRAM queries not yet supported");
-    }
-
-    // Handle SQL and JQL queries here
-    // Check for JQL/SQL errors
-    // ensure that query begins with SELECT (i.e. prevent injection
-    // problems)
-    else if (queryType == QueryType.JQL || queryType == QueryType.SQL) {
-      if (!query.toUpperCase().startsWith("SELECT")) {
-        throw new LocalException(
-            "Query has bad format:  does not begin with SELECT");
-      }
-
-      // check for multiple commands (i.e. multiple semi-colons)
-      if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
-        throw new LocalException(
-            "Query has bad format:  multiple queries detected");
-      }
-
-      // crude check: check for data manipulation commands
-      if (query.toUpperCase()
-          .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
-        throw new LocalException("Query has bad format:  DDL request detected");
-      }
-
-      // check for proper format for insertion into reports
-
-      if (query.toUpperCase().indexOf("FROM") == -1) {
-        throw new LocalException("Query must contain the term FROM");
-      }
-
-      // Execute the query
-      javax.persistence.Query jpaQuery = null;
-      if (queryType == QueryType.SQL) {
-        jpaQuery = this.getEntityManager().createNativeQuery(query);
-      } else if (queryType == QueryType.JQL) {
-        jpaQuery = this.getEntityManager().createQuery(query);
-      } else {
-        throw new Exception("Unsupported query type " + queryType);
-      }
-      // Handle special query key-words
-      if (params != null) {
-        for (final String key : params.keySet()) {
-          if (query.contains(":" + key)) {
-            jpaQuery.setParameter(key, params.get(key));
-          }
-        }
-      }
-      Logger.getLogger(getClass()).info("  query = " + query);
-
-      // Return the result list as atom id longs.
-      final List<Object[]> list = jpaQuery.getResultList();
-      final List<Long[]> results = new ArrayList<>();
-      final Set<String> addedResults = new HashSet<>();
-      
-      for (final Object[] entry : list) {
-        Long atomId1 = null;
-        if (entry[0] instanceof BigInteger) {
-          atomId1 = ((BigInteger) entry[0]).longValue();
-        } else if (entry[0] instanceof Long) {
-          atomId1 = (Long) entry[0];
-        }
-        Long atomId2 = null;
-        if (entry[1] instanceof BigInteger) {
-          atomId2 = ((BigInteger) entry[1]).longValue();
-        } else if (entry[1] instanceof Long) {
-          atomId2 = (Long) entry[1];
-        }
-        final Long[] result = new Long[] {
-            atomId1, atomId2
-        };
-        // Duplicate check
-        if (!addedResults.contains(atomId1 + "|" + atomId2)) {
-          results.add(result);
-          addedResults.add(atomId1 + "|" + atomId2);
-        }
-      }
-
-      return results;
-    }
-
-    return null;
-
-  }
 
   /**
    * Reset.

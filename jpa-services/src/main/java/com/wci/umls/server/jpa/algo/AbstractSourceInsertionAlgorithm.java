@@ -1154,6 +1154,21 @@ public abstract class AbstractSourceInsertionAlgorithm
    */
   public void updateProgress() throws Exception {
     String algoName = getClass().getSimpleName();
+    if(algoName.contains("Loader")){
+      updateProgressForLoadingAlgorithms();
+    }
+    else{
+      updateProgressForComputingAlgos();
+    }    
+  }
+  
+  /**
+   * Update progress for Algorithms that load data from an SRC file.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgressForLoadingAlgorithms() throws Exception {
+    String algoName = getClass().getSimpleName();
     String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
     String objectType = algoName.substring(0, algoName.indexOf("Loader"));
 
@@ -1172,6 +1187,30 @@ public abstract class AbstractSourceInsertionAlgorithm
     }
   }
 
+  /**
+   * Update progress for Algorithms that compute list of objects to process.
+   *
+   * @throws Exception the exception
+   */
+  public void updateProgressForComputingAlgos() throws Exception {
+    String algoName = getClass().getSimpleName();
+    String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
+
+    stepsCompleted++;
+
+    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+    if (currentProgress > previousProgress) {
+      fireProgressEvent(currentProgress,
+          shortName.toUpperCase() + " progress: " + currentProgress + "%");
+      previousProgress = currentProgress;
+    }
+
+    if (!transactionPerOperation) {
+      logAndCommit("[" + shortName + "] steps completed ",
+          stepsCompleted, RootService.logCt, RootService.commitCt);
+    }
+  }  
+  
   /**
    * Clear out all of the caches.
    */
