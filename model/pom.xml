@@ -46,7 +46,12 @@
       <artifactId>junit</artifactId>
     </dependency>
 
-
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    
     <!-- Required for Jersey and JSON -->
 
     <dependency>

@@ -229,6 +229,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     stepCt++;
     int currentProgress = (int) ((100.0 * stepCt / steps));
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "CREATE RELEASE progress: " + currentProgress + "%");
       previousProgress = currentProgress;

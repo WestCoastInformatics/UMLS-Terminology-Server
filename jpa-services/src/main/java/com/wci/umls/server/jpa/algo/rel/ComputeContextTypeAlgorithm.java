@@ -322,6 +322,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     System.out.println("context type progress " + steps + " " + stepsCompleted);
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "CONTEXT TYPE progress: " + currentProgress + "%");
       previousProgress = currentProgress;

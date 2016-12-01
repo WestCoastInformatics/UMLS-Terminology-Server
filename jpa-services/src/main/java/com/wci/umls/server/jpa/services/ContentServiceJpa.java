@@ -3668,7 +3668,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     clauses.add(query);
     
     // escape special chars
-    terminologyId = QueryParserBase.escape(terminologyId);
+    if (!ConfigUtility.isEmpty(terminologyId)) {
+      terminologyId = QueryParserBase.escape(terminologyId);
+    }
 
     // 2. to/fromTerminologyId
     if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
