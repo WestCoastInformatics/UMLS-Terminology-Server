@@ -21,7 +21,6 @@ import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.RootService;
 
 /**
  * Abstract support for merge algorithms.
@@ -109,7 +108,7 @@ public abstract class AbstractMergeAlgorithm
       return false;
     }
 
-    // Create and set up a merge action
+    // Otherwise, create and set up a merge action
     final MergeMolecularAction action = new MergeMolecularAction();
 
     try {
@@ -229,30 +228,4 @@ public abstract class AbstractMergeAlgorithm
 
     return mergeSets;
   }
-
-  /*
-   * see superclass Need to override, because the Merge algorithm naming
-   * convention is different from the loader algorithms
-   */
-  @Override
-  public void updateProgress() throws Exception {
-    String algoName = getClass().getSimpleName();
-    String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
-    String objectType = "Merge";
-
-    setStepsCompleted(getStepsCompleted() + 1);
-
-    int currentProgress = (int) ((100.0 * getStepsCompleted() / getSteps()));
-    if (currentProgress > getPreviousProgress()) {
-      fireProgressEvent(currentProgress,
-          shortName.toUpperCase() + " progress: " + currentProgress + "%");
-      setPreviousProgress(currentProgress);
-    }
-
-    if (!transactionPerOperation) {
-      logAndCommit("[" + shortName + "] " + objectType + " lines processed ",
-          getStepsCompleted(), RootService.logCt, RootService.commitCt);
-    }
-  }
-
 }
