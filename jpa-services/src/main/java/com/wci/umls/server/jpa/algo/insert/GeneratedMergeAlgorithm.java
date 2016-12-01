@@ -296,14 +296,11 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     Long mergeLevel = null;
     Atom atom1 = null;
     Atom atom2 = null;
-    //TODO - not happy with this.
     try{
     atom1 = getAtom(atomIdPair.getLeft());
     atom2 = getAtom(atomIdPair.getRight());
     } catch (Exception e){
-      // If atom could not be loaded, default to merge level 9
-      mergeLevel = 9L;
-      return mergeLevel;
+      throw new RuntimeException(e);
     }
     if (atom1.getCodeId().equals(atom2.getCodeId())
         && atom1.getStringClassId().equals(atom2.getStringClassId())
