@@ -67,6 +67,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Utility class for interacting with the configuration, serializing to JSON/XML
@@ -1198,5 +1199,20 @@ public class ConfigUtility {
     return clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1)
         .replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])",
             "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
+  }
+  
+  public static Comparator<String> getByteComparator() {
+    return new Comparator<String> () {
+
+      @Override
+      public int compare(String o1, String o2) {
+        try {
+          return UnsignedBytes.lexicographicalComparator().compare(o1.getBytes("UTF-8"), o2.getBytes("UTF-8"));                
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+    };
   }
 }
