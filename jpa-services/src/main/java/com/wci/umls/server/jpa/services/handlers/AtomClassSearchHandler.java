@@ -116,7 +116,7 @@ public class AtomClassSearchHandler extends AbstractConfigurable
     @SuppressWarnings("unchecked")
     final List<Object[]> results = fullTextQuery.getResultList();
     String literalQuery = null;
-    if (query.startsWith("\"") && query.endsWith("\"")) {
+    if (query != null && query.startsWith("\"") && query.endsWith("\"")) {
       literalQuery = query.substring(1, query.length() - 1);
     }
     for (final Object[] result : results) {
