@@ -5,11 +5,14 @@ package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
@@ -228,4 +231,85 @@ public abstract class AbstractMergeAlgorithm
 
     return mergeSets;
   }
+  
+
+  /**
+   * Returns the merge level or an atomId pair.
+   *
+   * @param atomIdPair the atom id pair
+   * @return the merge level
+   */
+  public Long calculateMergeLevel(Pair<Long,Long> atomIdPair){
+    // MergeLevel =
+    // 1 => atom1.code=atom2.code && atom1.sui=atom2.sui && atom1.tty=atom2.tty
+    // 2 => atom1.code=atom2.code && atom1.lui=atom2.lui && atom1.tty=atom2.tty
+    // 3 => atom1.code=atom2.code && atom1.sui=atom2.sui
+    // 4 => atom1.code=atom2.code && atom1.lui=atom2.lui
+    // 5 => atom1.code=atom2.code
+    // 9 => no equivalence, or equivalence not able to be determined
+    
+    Long mergeLevel = null;
+    Atom atom1 = null;
+    Atom atom2 = null;
+    try{
+    atom1 = getAtom(atomIdPair.getLeft());
+    atom2 = getAtom(atomIdPair.getRight());
+    } catch (Exception e){
+      throw new RuntimeException(e);
+    }
+    if (atom1.getCodeId().equals(atom2.getCodeId())
+        && atom1.getStringClassId().equals(atom2.getStringClassId())
+        && atom1.getTermType().equals(atom2.getTermType())) {
+      mergeLevel = 1L;
+    } else if (atom1.getCodeId().equals(atom2.getCodeId())
+        && atom1.getLexicalClassId().equals(atom2.getLexicalClassId())
+        && atom1.getTermType().equals(atom2.getTermType())) {
+      mergeLevel = 2L;
+    } else if (atom1.getCodeId().equals(atom2.getCodeId())
+        && atom1.getStringClassId().equals(atom2.getStringClassId())) {
+      mergeLevel = 3L;
+    } else if (atom1.getCodeId().equals(atom2.getCodeId())
+        && atom1.getLexicalClassId().equals(atom2.getLexicalClassId())) {
+      mergeLevel = 4L;
+    } else if (atom1.getCodeId().equals(atom2.getCodeId())) {
+      mergeLevel = 5L;
+    } else {
+      mergeLevel = 9L;
+    }
+
+    return mergeLevel;
+  }
+  
+
+  /**
+   * Sort pairs by merge level and id.
+   *
+   * @param filteredAtomIdPairs the filtered atom id pairs
+   */
+  public void sortPairsByMergeLevelAndId(
+    List<Pair<Long, Long>> filteredAtomIdPairs) {
+
+    // Order atomIdPairs
+    // sort by MergeLevel, atomId1, atomId2
+    Collections.sort(filteredAtomIdPairs,
+        new Comparator<Pair<Long, Long>>() {
+
+          @Override
+          public int compare(final Pair<Long, Long> atomIdPair1,
+            final Pair<Long, Long> atomIdPair2) {
+            int c = 0;
+            c = calculateMergeLevel(atomIdPair1)
+                .compareTo(calculateMergeLevel(atomIdPair2));
+            if (c == 0)
+              c = atomIdPair1.getLeft()
+                  .compareTo(atomIdPair2.getLeft());
+            if (c == 0)
+              c = atomIdPair1.getRight()
+                  .compareTo(atomIdPair2.getRight());
+
+            return c;
+          }
+        });   
+  }  
+  
 }

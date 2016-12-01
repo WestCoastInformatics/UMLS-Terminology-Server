@@ -1610,6 +1610,49 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /**
+   * Find inverse relationship.
+   *
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  @Override
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+
+    RelationshipList relList = getInverseRelationships(relationship);
+
+    // If there's only one inverse relationship returned, that's the one we
+    // want.
+    if (relList.size() == 1) {
+      return relList.getObjects().get(0);
+    }
+    // If more than one inverse relationship is returned (can happen in the case
+    // of demotions), return the appropriate one.
+    else {
+      if (relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      } else {
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      }
+
+    }
+
+    return null;
+  }  
+  
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(

@@ -1402,6 +1402,17 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
+   * Find inverse relationship.
+   *
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+  
+  /**
    * Creates the inverse concept relationship.
    *
    * @param relationship the relationship

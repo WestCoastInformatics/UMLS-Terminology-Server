@@ -5,8 +5,6 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,30 +119,12 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     // Remove all atom pairs caught by the filters, and calculate the remaining
     // pairs' Merge Levels
     // pairs are <AtomId1, AtomId2>
-    List<Pair<Long, Long>> filteredAtomIdPairs =
+    final List<Pair<Long, Long>> filteredAtomIdPairs =
         applyFilters(atomIdPairs, params);
 
     // Order atomIdPairs
     // sort by MergeLevel, atomId1, atomId2
-    Collections.sort(filteredAtomIdPairs,
-        new Comparator<Pair<Long, Long>>() {
-
-          @Override
-          public int compare(final Pair<Long, Long> atomIdPair1,
-            final Pair<Long, Long> atomIdPair2) {
-            int c = 0;
-            c = calculateMergeLevel(atomIdPair1)
-                .compareTo(calculateMergeLevel(atomIdPair2));
-            if (c == 0)
-              c = atomIdPair1.getLeft()
-                  .compareTo(atomIdPair2.getLeft());
-            if (c == 0)
-              c = atomIdPair1.getRight()
-                  .compareTo(atomIdPair2.getRight());
-
-            return c;
-          }
-        });
+    sortPairsByMergeLevelAndId(filteredAtomIdPairs);
 
     // Set the steps count to the number of atomPairs merges will be
     // attempted for
@@ -229,8 +209,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       }
     }
 
-
-
     // Go through each atom pair. If it makes it past all of the filters, add
     // it to the filtered list
     for (Long[] atomIdArrayPair : atomIdPairs) {
@@ -276,55 +254,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     return filteredAtomIdsPairs;
   }
-
-  /**
-   * Returns the merge level or an atomId pair.
-   *
-   * @param atomIdPair the atom id pair
-   * @return the merge level
-   * @throws Exception the exception
-   */
-  private Long calculateMergeLevel(Pair<Long,Long> atomIdPair){
-    // MergeLevel =
-    // 1 => atom1.code=atom2.code && atom1.sui=atom2.sui && atom1.tty=atom2.tty
-    // 2 => atom1.code=atom2.code && atom1.lui=atom2.lui && atom1.tty=atom2.tty
-    // 3 => atom1.code=atom2.code && atom1.sui=atom2.sui
-    // 4 => atom1.code=atom2.code && atom1.lui=atom2.lui
-    // 5 => atom1.code=atom2.code
-    // 9 => no equivalence, or equivalence not able to be determined
-    
-    Long mergeLevel = null;
-    Atom atom1 = null;
-    Atom atom2 = null;
-    try{
-    atom1 = getAtom(atomIdPair.getLeft());
-    atom2 = getAtom(atomIdPair.getRight());
-    } catch (Exception e){
-      throw new RuntimeException(e);
-    }
-    if (atom1.getCodeId().equals(atom2.getCodeId())
-        && atom1.getStringClassId().equals(atom2.getStringClassId())
-        && atom1.getTermType().equals(atom2.getTermType())) {
-      mergeLevel = 1L;
-    } else if (atom1.getCodeId().equals(atom2.getCodeId())
-        && atom1.getLexicalClassId().equals(atom2.getLexicalClassId())
-        && atom1.getTermType().equals(atom2.getTermType())) {
-      mergeLevel = 2L;
-    } else if (atom1.getCodeId().equals(atom2.getCodeId())
-        && atom1.getStringClassId().equals(atom2.getStringClassId())) {
-      mergeLevel = 3L;
-    } else if (atom1.getCodeId().equals(atom2.getCodeId())
-        && atom1.getLexicalClassId().equals(atom2.getLexicalClassId())) {
-      mergeLevel = 4L;
-    } else if (atom1.getCodeId().equals(atom2.getCodeId())) {
-      mergeLevel = 5L;
-    } else {
-      mergeLevel = 9L;
-    }
-
-    return mergeLevel;
-  }
-
 
   /**
    * Reset.

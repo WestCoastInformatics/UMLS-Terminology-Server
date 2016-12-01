@@ -1155,7 +1155,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   public void updateProgress() throws Exception {
     String algoName = getClass().getSimpleName();
     if(algoName.contains("Loader")){
-      updateProgressForLoadingAlgorithms();
+      updateProgressForLoadingAlgos();
     }
     else{
       updateProgressForComputingAlgos();
@@ -1167,7 +1167,7 @@ public abstract class AbstractSourceInsertionAlgorithm
    *
    * @throws Exception the exception
    */
-  public void updateProgressForLoadingAlgorithms() throws Exception {
+  public void updateProgressForLoadingAlgos() throws Exception {
     String algoName = getClass().getSimpleName();
     String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
     String objectType = algoName.substring(0, algoName.indexOf("Loader"));
