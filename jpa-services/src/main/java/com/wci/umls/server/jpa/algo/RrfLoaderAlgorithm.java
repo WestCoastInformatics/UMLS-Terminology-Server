@@ -2617,9 +2617,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       objectCt = 0;
       // NOTE: Hibernate-specific to support iterating
       // Skip NOCODE
+      // TODO: there is a LNC exception here -for now
       hQuery = session
           .createQuery("select a from AtomJpa a where codeId is not null "
               + "and codeId != '' and timestamp = :timestamp "
+              + "and (terminology = 'LNC' OR (codeId != conceptId and codeId != descriptorId)) "
+              + "and timestamp = :timestamp "
               + "order by terminology, codeId");
       hQuery.setParameter("timestamp", releaseVersionDate);
       hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
@@ -2632,18 +2635,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             || atom.getCodeId().equals("NOCODE")) {
           continue;
         }
-        // TODO: there is a LNC exception here -for now
-        if (!atom.getTerminology().equals("LNC")) {
-          // skip where code == concept
-          if (atom.getCodeId().equals(atom.getConceptId())) {
-            continue;
-          }
-          // skip where code == descriptor
-          if (atom.getCodeId().equals(atom.getDescriptorId())) {
-            continue;
-          }
-        }
-
         if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
           if (code != null) {
             // compute preferred name

@@ -1,15 +1,15 @@
 #!/bin/csh -f
 
-set sctDir=/cygdrive/c/data/SNOMED/SnomedCT_RF2Release_INT_20160131/Snapshot
-set extDir=/cygdrive/c/data/SNOMED/SnomedCT_Release_VTS1000009_20160401/Snapshot
+set sctDir=/cygdrive/c/data/SNOMED/SnomedCT_RF2Release_INT_20160731/Snapshot
+set extDir=/cygdrive/c/data/SNOMED/SnomedCT_Release_VTS1000009_20161001/Snapshot
 set outDir=/cygdrive/c/data/SNOMED/SnomedCT_VET_Snapshot
 
 set sctLabel=_INT_
 #set extLabel=_VTS1000009_
 set extLabel=_VTS_
  
-set sctVersion=20160131
-set extVersion=20160401
+set sctVersion=20160731
+set extVersion=20161001
 
 echo "-----------------------------------------------"
 echo "Starting ...`/bin/date`"
