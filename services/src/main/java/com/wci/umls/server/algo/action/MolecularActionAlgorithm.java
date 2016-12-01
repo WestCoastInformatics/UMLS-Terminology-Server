@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.algo.action;
 
+import java.util.List;
+
 import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.model.content.Concept;
@@ -47,6 +49,20 @@ public interface MolecularActionAlgorithm extends Algorithm {
    */
   public void setChangeStatusFlag(boolean changeStatusFlag);
 
+  /**
+   * Returns the validation checks.
+   *
+   * @return the validation checks
+   */
+  public List<String> getValidationChecks();
+  
+  /**
+   * Sets the validation checks.
+   *
+   * @param validationChecks the validation checks
+   */
+  public void setValidationChecks(List<String> validationChecks);
+  
   /**
    * This method is responsible for locking the concepts involved in the action,
    * verifying the dirty last modified date, and creating the initial molecular
