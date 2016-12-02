@@ -375,7 +375,7 @@ public class ProcessClientRest extends RootClientRest
     Client client = ClientBuilder.newClient();
     WebTarget target =
         client.target(config.getProperty("base.url") + "/process/config/algo"
-            + "?projectId=" + projectId + "?processId=" + processId);
+            + "?projectId=" + projectId + "&processId=" + processId);
 
     String algorithmConfigString = ConfigUtility.getStringForGraph(
         algorithmConfig == null ? new AlgorithmConfigJpa() : algorithmConfig);
@@ -630,7 +630,7 @@ public class ProcessClientRest extends RootClientRest
     WebTarget target = client.target(config.getProperty("base.url")
         + "/process/execution/" + id + "/cancel" + "?projectId=" + projectId);
 
-    Response response = target.request(MediaType.APPLICATION_XML)
+    Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
 
     final String resultString = response.readEntity(String.class);
@@ -658,8 +658,9 @@ public class ProcessClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/process/execution/" + id + "/restart?projectId=" + projectId
         + (background ? "&background=true" : ""));
-    final Response response = target.request(MediaType.APPLICATION_XML)
+    final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
+    
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a

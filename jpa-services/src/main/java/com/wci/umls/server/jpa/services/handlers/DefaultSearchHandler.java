@@ -60,6 +60,11 @@ public class DefaultSearchHandler extends AbstractConfigurable
       Object score = result[0];
       @SuppressWarnings("unchecked")
       T t = (T) result[1];
+      //TODO - Brian, this is what I added
+      if(t == null){
+        continue;
+      }
+      // End TODO
       classes.add(t);
 
       // normalize results to a "good match" (lucene score of 5.0+)
