@@ -1429,21 +1429,22 @@ public abstract class RootServiceJpa implements RootService {
   public ValidationResult validateAction(MolecularActionAlgorithm action) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      // If action algorithm has no checks specified, use project defaults
-      if (action.getValidationChecks() == null) {
-        if (action.getProject().getValidationChecks().contains(key)) {
-          result.merge(
-              getValidationHandlersMap().get(key).validateAction(action));
-        }
+      List<String> validationChecks = null;
+      // If action algorithm has checks specified, use them
+      if (action.getValidationChecks() != null) {
+        validationChecks = action.getValidationChecks();
       }
-      // Otherwise use algorithm-specified validation checks
+      // Otherwise use project default validation checks
       else {
-        if (action.getValidationChecks().contains(key)) {
-          result.merge(
-              getValidationHandlersMap().get(key).validateAction(action));
-        }
+        validationChecks = action.getProject().getValidationChecks();
+      }
+      
+      if (validationChecks != null && validationChecks.contains(key)) {
+        result
+            .merge(getValidationHandlersMap().get(key).validateAction(action));
       }
     }
+
     return result;
   }
 
