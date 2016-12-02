@@ -107,64 +107,73 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     int successfulMerges = 0;
     int unsuccessfulMerges = 0;
 
-    // Generate parameters to pass into query executions
-    Map<String, String> params = new HashMap<>();
-    params.put("terminology", getTerminology());
-    params.put("version", getVersion());
-    params.put("projectTerminology", getProject().getVersion());
+    try {
+      logInfo("[GeneratedMerge] Performing generated merges");
 
-    // Execute query to get atom1,atom2 Id pairs
-    List<Long[]> atomIdPairs = executeAtomIdPairQuery(query, queryType, params);
+      // Generate parameters to pass into query executions
+      Map<String, String> params = new HashMap<>();
+      params.put("terminology", this.getTerminology());
+      params.put("version", this.getVersion());
+      params.put("projectTerminology", getProject().getTerminology());
+      params.put("projectVersion", getProject().getVersion());
 
-    // Remove all atom pairs caught by the filters, and calculate the remaining
-    // pairs' Merge Levels
-    // pairs are <AtomId1, AtomId2>
-    final List<Pair<Long, Long>> filteredAtomIdPairs =
-        applyFilters(atomIdPairs, params);
+      // Execute query to get atom1,atom2 Id pairs
+      List<Long[]> atomIdPairs =
+          executeComponentIdPairQuery(query, queryType, params);
 
-    // Order atomIdPairs
-    // sort by MergeLevel, atomId1, atomId2
-    sortPairsByMergeLevelAndId(filteredAtomIdPairs);
+      // Remove all atom pairs caught by the filters, and calculate the
+      // remaining
+      // pairs' Merge Levels
+      // pairs are <AtomId1, AtomId2>
+      final List<Pair<Long, Long>> filteredAtomIdPairs =
+          applyFilters(atomIdPairs, params);
 
-    // Set the steps count to the number of atomPairs merges will be
-    // attempted for
-    setSteps(filteredAtomIdPairs.size());
+      // Order atomIdPairs
+      // sort by MergeLevel, atomId1, atomId2
+      sortPairsByMergeLevelAndId(filteredAtomIdPairs);
 
-    // Attempt to perform the merge given the integrity checks
-    for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
-      boolean mergeSuccess =
-          merge(atomIdPair.getLeft(), atomIdPair.getRight(),
-              checkNames, makeDemotions, changeStatus, getProject());
-      // Increment the counts based on success of merge attempt
-      if (mergeSuccess) {
-        successfulMerges++;
-      } else {
-        unsuccessfulMerges++;
+      // Set the steps count to the number of atomPairs merges will be
+      // attempted for
+      setSteps(filteredAtomIdPairs.size());
+
+      // Attempt to perform the merge given the integrity checks
+      for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
+        boolean mergeSuccess =
+            merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
+                makeDemotions, changeStatus, getProject());
+        // Increment the counts based on success of merge attempt
+        if (mergeSuccess) {
+          successfulMerges++;
+        } else {
+          unsuccessfulMerges++;
+        }
+
+        // Update the progress
+        updateProgress();
       }
 
-      // Update the progress
-      updateProgress();
+      commitClearBegin();
+
+      logInfo("[GeneratedMerge] " + successfulMerges
+          + " merges successfully performed.");
+      logInfo("[GeneratedMerge] " + unsuccessfulMerges
+          + " attempted merges were unsuccessful.");
+
+      logInfo(" project = " + getProject().getId());
+      logInfo(" workId = " + getWorkId());
+      logInfo(" activityId = " + getActivityId());
+      logInfo(" mergeSet = " + mergeSet);
+      logInfo(" user = " + getLastModifiedBy());
+      logInfo("Finished GENERATEDMERGE");
+    } catch (Exception e) {
+      logError("Unexpected problem - " + e.getMessage());
+      throw e;
     }
-
-    commitClearBegin();
-
-    logInfo("[GeneratedMerge] " + successfulMerges
-        + " merges successfully performed.");
-    logInfo("[GeneratedMerge] " + unsuccessfulMerges
-        + " attempted merges were unsuccessful.");
-
-    logInfo(" project = " + getProject().getId());
-    logInfo(" workId = " + getWorkId());
-    logInfo(" activityId = " + getActivityId());
-    logInfo(" mergeSet = " + mergeSet);
-    logInfo(" user = " + getLastModifiedBy());
-    logInfo("Finished GENERATEDMERGE");
   }
 
-  private List<Pair<Long, Long>> applyFilters(
-    List<Long[]> atomIdPairs, Map<String, String> params) throws Exception {
-    final List<Pair<Long, Long>> filteredAtomIdsPairs =
-        new ArrayList<>();
+  private List<Pair<Long, Long>> applyFilters(List<Long[]> atomIdPairs,
+    Map<String, String> params) throws Exception {
+    final List<Pair<Long, Long>> filteredAtomIdsPairs = new ArrayList<>();
 
     // Run the filters, and save the unique atomIds/atomIdPairs to sets
     // SQL/JQL queries will populate filterAtomIdPairs set
@@ -175,7 +184,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     // If LUCENE filter query, returns concept id
     if (filterQueryType == QueryType.LUCENE) {
       final List<Long[]> filterConceptIds =
-          executeLuceneConceptIdQuery(filterQuery, filterQueryType, params);
+          executeSingleComponentIdQuery(filterQuery, filterQueryType, params);
 
       // For each returned concept, filter for all of its atoms' ids
       filterAtomIds = new HashSet<>();
@@ -186,16 +195,17 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
         }
       }
     }
-    
+
     // PROGRAM filter queries not supported yet
     else if (queryType == QueryType.PROGRAM) {
       throw new Exception("PROGRAM queries not yet supported");
-    }    
-    
+    }
+
     // If JQL/SQL filter query, returns atom1,atom2 Id pairs
-    else if (filterQueryType == QueryType.SQL || filterQueryType == QueryType.JQL) {
+    else if (filterQueryType == QueryType.SQL
+        || filterQueryType == QueryType.JQL) {
       final List<Long[]> filterAtomIdPairArray =
-          executeAtomIdPairQuery(filterQuery, filterQueryType, params);
+          executeComponentIdPairQuery(filterQuery, filterQueryType, params);
 
       // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
       filterAtomIdPairs = new HashSet<>();
