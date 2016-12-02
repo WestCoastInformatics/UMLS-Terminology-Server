@@ -116,13 +116,13 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
     // Generate parameters to pass into query executions
     Map<String, String> params = new HashMap<>();
-    params.put("projectTerminology", getProject().getTerminology());
-    params.put("projectVersion", getProject().getVersion());
     params.put("terminology", this.getTerminology());
     params.put("version", this.getVersion());
+    params.put("projectTerminology", getProject().getTerminology());
+    params.put("projectVersion", getProject().getVersion());
 
     final List<Long[]> atomIdPairArray =
-        executeAtomIdPairQuery(query, QueryType.JQL, params);
+        executeComponentIdPairQuery(query, QueryType.JQL, params);
 
     setSteps(atomIdPairArray.size());
 
