@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 
@@ -132,6 +133,11 @@ public class PreInsertionAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
+      // Confirm the max Id were stored in the process Execution
+      assertNotNull(processExecution.getExecutionInfo());
+      assertNotNull(processExecution.getExecutionInfo().get("maxAtomIdPreInsertion"));
+      assertNotNull(processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
+      
     } catch (Exception e) {
       e.printStackTrace();
       //Notify JUnit to fail

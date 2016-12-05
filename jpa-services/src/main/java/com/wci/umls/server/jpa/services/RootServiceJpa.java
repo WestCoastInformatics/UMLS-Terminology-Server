@@ -1850,17 +1850,11 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass()).info("  query = " + query);
 
     // Return the result list as a single component id longs.
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Long> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     final Set<Long> addedResults = new HashSet<>();
 
-    for (final Object[] entry : list) {
-      Long componentId1 = null;
-      if (entry[0] instanceof BigInteger) {
-        componentId1 = ((BigInteger) entry[0]).longValue();
-      } else if (entry[0] instanceof Long) {
-        componentId1 = (Long) entry[0];
-      }
+    for (final Long componentId1 : list) {
       final Long[] result = new Long[] {
           componentId1
       };
