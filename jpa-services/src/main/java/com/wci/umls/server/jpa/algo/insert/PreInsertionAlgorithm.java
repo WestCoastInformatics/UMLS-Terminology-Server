@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import javax.persistence.NoResultException;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
@@ -48,6 +50,20 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     if (getProject() == null) {
       throw new Exception("Pre Insertion requires a project to be set");
     }
+    
+    //TODO - go through all the files insertion needs and check for presence
+    // Check the input directories
+
+    String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
+    
+    //TODO - etc.
 
     return validationResult;
   }
@@ -81,6 +97,9 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     }
     processExecution.getExecutionInfo().put("maxAtomIdPreInsertion",
         atomId.toString());
+    
+    //TODO - write to log
+    //TODO - also get maxStyIdPreInsertion
 
     ProcessService processService = new ProcessServiceJpa();
     processService.setLastModifiedBy("admin");

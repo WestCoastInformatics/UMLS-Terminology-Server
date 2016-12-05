@@ -119,7 +119,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Execute query to get atom1,atom2 Id pairs
       List<Long[]> atomIdPairs =
-          executeComponentIdPairQuery(query, queryType, params);
+          executeComponentIdPairQuery(query, queryType, params, Atom.class);
 
       // Remove all atom pairs caught by the filters, and calculate the
       // remaining
@@ -138,6 +138,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Attempt to perform the merge given the integrity checks
       for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
+        //TODO - pass in stats map container
         boolean mergeSuccess =
             merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
                 makeDemotions, changeStatus, getProject());
@@ -184,7 +185,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     // If LUCENE filter query, returns concept id
     if (filterQueryType == QueryType.LUCENE) {
       final List<Long[]> filterConceptIds =
-          executeSingleComponentIdQuery(filterQuery, filterQueryType, params);
+          executeSingleComponentIdQuery(filterQuery, filterQueryType, params, Concept.class);
 
       // For each returned concept, filter for all of its atoms' ids
       filterAtomIds = new HashSet<>();
@@ -205,7 +206,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     else if (filterQueryType == QueryType.SQL
         || filterQueryType == QueryType.JQL) {
       final List<Long[]> filterAtomIdPairArray =
-          executeComponentIdPairQuery(filterQuery, filterQueryType, params);
+          executeComponentIdPairQuery(filterQuery, filterQueryType, params, Atom.class);
 
       // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
       filterAtomIdPairs = new HashSet<>();

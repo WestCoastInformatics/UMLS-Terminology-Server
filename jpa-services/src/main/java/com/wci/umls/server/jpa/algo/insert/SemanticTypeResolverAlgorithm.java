@@ -4,35 +4,29 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Implementation of an algorithm to find all concepts with "new" and "old"
  * semantic type components, and remove either old or new depending on params..
  */
-public class SemanticTypeResolverAlgorithm extends AbstractAlgorithm {
+public class SemanticTypeResolverAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /** Whether new semanticTypes 'win' and replace older ones, or vice versa. */
   private String winLose = null;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
 
   /**
    * Instantiates an empty {@link SemanticTypeResolverAlgorithm}.
@@ -91,27 +85,43 @@ public class SemanticTypeResolverAlgorithm extends AbstractAlgorithm {
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
 
-    // Count number of added and updated Semantic Types, for logging
-    int addCount = 0;
-    int updateCount = 0;
+    // Count number of removed Semantic Types, for logging
+    int removedStyCount = 0;
 
     try {
-
-      previousProgress = 0;
-      stepsCompleted = 0;
-
       logInfo("[SemanticTypeResolver] Checking for new/updated Semantic Types");
 
+      // Find all atoms pairs that satisfy the specified matching criteria and are
+      // in the same project Terminology concept, where one atom is old and the
+      // other is new
+
+      //TODO question - is this the correct query?
+      // Generate query string
+      String query =
+          "SELECT DISTINCT c.id "
+              + "FROM ConceptJpa c JOIN c.semanticTypes s1 JOIN c.semanticTypes s2 "
+              + "WHERE c.terminology=:projectTerminology AND c.version=:projectVersion "
+              + "AND s1.terminology=:terminology AND s2.terminology=:terminology "
+              + "AND NOT s1.version=:version AND s2.version=:version";
+
+      // Generate parameters to pass into query executions
+      Map<String, String> params = new HashMap<>();
+      params.put("terminology", this.getTerminology());
+      params.put("version", this.getVersion());
+      params.put("projectTerminology", getProject().getTerminology());
+      params.put("projectVersion", getProject().getVersion());
+
+      final List<Long[]> atomIdPairArray =
+          executeComponentIdPairQuery(query, QueryType.LUCENE, params, AtomJpa.class);
+
+      setSteps(atomIdPairArray.size());
+      
       // Update the progress
       updateProgress();
 
-      logAndCommit("[Semantic Type Resolver] Semantic Types processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
-
       logInfo(
-          "[SemanticTypeResolver] Added " + addCount + " new Semantic Types.");
-      logInfo("[SemanticTypeResolver] Updated " + updateCount
-          + " existing Semantic Types.");
+          "[SemanticTypeResolver] Removed " + removedStyCount + " Semantic Types.");
+
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -137,21 +147,6 @@ public class SemanticTypeResolverAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "SEMANTICTYPERESOLVING progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */

@@ -63,6 +63,7 @@ import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.SecurityService;
@@ -1622,12 +1623,13 @@ public abstract class RootServiceJpa implements RootService {
    * @param query the query
    * @param queryType the query type
    * @param params the params
+   * @param clazz the clazz
    * @return the list
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   public List<Long[]> executeComponentIdPairQuery(String query,
-    QueryType queryType, Map<String, String> params) throws Exception {
+    QueryType queryType, Map<String, String> params, Class<? extends Component> clazz) throws Exception {
 
     // If query parameters are not fully filled out, return an empty List.
     if (ConfigUtility.isEmpty(query) || queryType == null) {
@@ -1663,6 +1665,12 @@ public abstract class RootServiceJpa implements RootService {
     // check for proper format for insertion into reports
 
     if (query.toUpperCase().indexOf("FROM") == -1) {
+      throw new LocalException("Query must contain the term FROM");
+    }
+    
+    // check for query matching specified return class type
+
+    if (!query.toUpperCase().matches("SELECT.*FROM.*"+clazz.getName())) {
       throw new LocalException("Query must contain the term FROM");
     }
 
@@ -1722,6 +1730,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param query the query
    * @param queryType the query type
    * @param params the params
+   * @param clazz the clazz
    * @return the list
    * @throws Exception the exception
    */
@@ -1729,7 +1738,7 @@ public abstract class RootServiceJpa implements RootService {
       "unchecked"
   })
   public List<Long[]> executeSingleComponentIdQuery(String query,
-    QueryType queryType, Map<String, String> params) throws Exception {
+    QueryType queryType, Map<String, String> params, Class<? extends Component> clazz) throws Exception {
 
     // If query parameters are not fully filled out, return an empty List.
     if (ConfigUtility.isEmpty(query) || queryType == null) {
@@ -1752,15 +1761,14 @@ public abstract class RootServiceJpa implements RootService {
                 + params);
       }
       // Perform search
-      final List<ConceptJpa> concepts = new DefaultSearchHandler()
-          .getQueryResults(params.get("terminology"), null, Branch.ROOT, null,
-              null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<? extends Component> components = getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(params.get("terminology"), null, Branch.ROOT, null,
+              null, clazz, pfs, new int[1], manager);
 
       // Cluster results
       final List<Long[]> results = new ArrayList<>();
-      for (final Concept concept : concepts) {
+      for (final Component component : components) {
         final Long[] result = new Long[1];
-        result[0] = concept.getId();
+        result[0] = component.getId();
         results.add(result);
       }
       return results;
@@ -1796,6 +1804,12 @@ public abstract class RootServiceJpa implements RootService {
 
     if (query.toUpperCase().indexOf("FROM") == -1) {
       throw new LocalException("Query must contain the term FROM");
+    }
+    
+    // check for query matching specified return class type
+    
+    if(!query.toUpperCase().matches("SELECT.*FROM.*"+clazz.getName())){
+      throw new LocalException("Query returns the wrong type. Expecting: " + clazz.getName());
     }
 
     // Execute the query

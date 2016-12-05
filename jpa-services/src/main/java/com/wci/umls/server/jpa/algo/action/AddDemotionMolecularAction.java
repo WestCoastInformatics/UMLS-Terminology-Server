@@ -66,7 +66,8 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     // If the atoms already have a demotion relationship between them, return an
     // error
     for (AtomRelationship atomRel : atom.getRelationships()) {
-      if (atomRel.getTo().getId().equals(atom2.getId())) {
+      if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
+          && atomRel.getTo().getId().equals(atom2.getId())) {
         validationResult.addError(
             "ERROR: demotion already exists between atom " + atom.getId()
                 + " and atom " + atom2.getId() + ". Cannot add another.");

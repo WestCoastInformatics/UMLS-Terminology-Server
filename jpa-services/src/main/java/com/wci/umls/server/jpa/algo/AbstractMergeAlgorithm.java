@@ -127,7 +127,7 @@ public abstract class AbstractMergeAlgorithm
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(changeStatus);
-
+      
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action, getLastModifiedBy(), false);
@@ -137,11 +137,11 @@ public abstract class AbstractMergeAlgorithm
       if (!validationResult.isValid()) {
         addLogEntry(getLastModifiedBy(), projectCopy.getId(),
             fromConcept.getId(), getActivityId(), getWorkId(),
-            "Failure merging concept " + fromConcept.getId() + " into concept "
+            "FAIL " + action.getName() + " concept " + fromConcept.getId() + " into concept "
                 + toConcept.getId() + ": " + validationResult);
         addLogEntry(getLastModifiedBy(), projectCopy.getId(), toConcept.getId(),
             getActivityId(), getWorkId(),
-            "Failure merging concept " + toConcept.getId() + " from concept "
+            "FAIL " + action.getName() + " concept " + toConcept.getId() + " from concept "
                 + fromConcept.getId() + ": " + validationResult);
 
         if (makeDemotion) {
@@ -163,7 +163,16 @@ public abstract class AbstractMergeAlgorithm
           // If there is already a demotion between these two atoms, it will not
           // create an additional duplicate demotion (gets checked in the
           // preconditions)
-          action2.performMolecularAction(action2, getLastModifiedBy(), false);
+          ValidationResult demotionValidatioResult = action2.performMolecularAction(action2, getLastModifiedBy(), false);
+          
+          //TODO - fill this out w/o FAIL message.
+          // "Atoms already are connected by a demotion" or something
+          addLogEntry(getLastModifiedBy(), projectCopy.getId(),
+              fromConcept.getId(), getActivityId(), getWorkId(),
+              "FAIL " + action.getName() + " concept " + fromConcept.getId() + " into concept "
+                  + toConcept.getId() + ": " + validationResult);
+
+          
           action2.close();
         }
 

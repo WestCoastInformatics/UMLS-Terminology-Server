@@ -21,6 +21,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.meta.TermType;
@@ -75,10 +76,12 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     }
 
     // TODO - is this true?
-    if(!(codeId || conceptId || descriptorId || lexicalClassId || stringClassId)){
-      validationResult.addWarning("WARNING: no match-criteria are selected (e.g. code Id, concept Id, etc.).");
+    if (!(codeId || conceptId || descriptorId || lexicalClassId
+        || stringClassId)) {
+      validationResult.addWarning(
+          "WARNING: no match-criteria are selected (e.g. code Id, concept Id, etc.).");
     }
-    
+
     return validationResult;
   }
 
@@ -122,7 +125,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     params.put("projectVersion", getProject().getVersion());
 
     final List<Long[]> atomIdPairArray =
-        executeComponentIdPairQuery(query, QueryType.JQL, params);
+        executeComponentIdPairQuery(query, QueryType.JQL, params, AtomJpa.class);
 
     setSteps(atomIdPairArray.size());
 
@@ -157,17 +160,19 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       // Borrow information from the old atom and assign to the new atom
       final Atom oldAtom = getAtom(oldAtomId);
       final Atom newAtom = getAtom(newAtomId);
-      
+
       // Update newAtom's alternateTerminologyIds
-      for(final Map.Entry<String, String> oldAltTermId : oldAtom.getAlternateTerminologyIds().entrySet()){
-        newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(), oldAltTermId.getValue());
+      for (final Map.Entry<String, String> oldAltTermId : oldAtom
+          .getAlternateTerminologyIds().entrySet()) {
+        newAtom.getAlternateTerminologyIds().put(oldAltTermId.getKey(),
+            oldAltTermId.getValue());
       }
 
       // TODO - do equivalence check for these atoms?
       // If the old Atom is not exactly the same as the new Atom:
       if (!oldAtom.equals(newAtom)) {
 
-        //TODO question - figure out new/old ordering of things
+        // TODO question - figure out new/old ordering of things
         // Update obsolete and suppresible.
         // If the old version of the atom is suppresible, and its term type
         // is not, keep the old atom's suppresibility. Otherwise, use the
@@ -181,13 +186,14 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
             && !(oldAtom.isObsolete() && !atomTty.isObsolete())) {
           newAtom.setObsolete(oldAtom.isObsolete());
         }
- 
-        if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())){
+
+        if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())) {
           newAtom.setWorkflowStatus(oldAtom.getWorkflowStatus());
-        }        
-        
-        //TODO question - releaseRank = lastPublishedRank?
-        if (!oldAtom.getLastPublishedRank().equals(newAtom.getLastPublishedRank())){
+        }
+
+        // TODO question - releaseRank = lastPublishedRank?
+        if (!oldAtom.getLastPublishedRank()
+            .equals(newAtom.getLastPublishedRank())) {
           newAtom.setLastPublishedRank(oldAtom.getLastPublishedRank());
         }
       }
@@ -222,7 +228,12 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       for (Long relId : removeRelationshipIds) {
         removeRelationship(relId, AtomRelationship.class);
       }
-      
+
+      // Log it
+      addLogEntry(getLastModifiedBy(), getProject().getId(), newAtomId,
+          getActivityId(), getWorkId(), "Preformed safe replace on new Atom: "
+              + newAtomId + " using old Atom: " + oldAtomId);
+
       // Update the progress
       updateProgress();
     }
