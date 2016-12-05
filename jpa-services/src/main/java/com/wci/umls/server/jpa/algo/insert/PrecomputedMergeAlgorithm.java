@@ -6,7 +6,9 @@ package com.wci.umls.server.jpa.algo.insert;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -93,9 +95,12 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     final ComputePreferredNameHandler prefNameHandler =
         getComputePreferredNameHandler(getProject().getTerminology());
 
-    // Count number of merges successfully and unsuccessfully performed
-    int successfulMerges = 0;
-    int unsuccessfulMerges = 0;
+    // Set up a stats map to be passed into the merge function later
+    final Map<String, Integer> statsMap = new HashMap<>();
+    statsMap.put("successfulMerges", 0);
+    statsMap.put("unsuccessfulMerges", 0);
+    statsMap.put("successfulDemotions", 0);
+    statsMap.put("unsuccessfulDemotions", 0);
 
     try {
 
@@ -193,16 +198,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         }
 
         // Attempt to perform the merge
-        boolean mergeSuccess = merge(atom.getId(), atom2.getId(), checkNames,
+        merge(atom.getId(), atom2.getId(), checkNames,
             fields[5].toUpperCase().equals("Y"),
-            fields[6].toUpperCase().equals("Y"), getProject());
-
-        // Increment the counts based on success of merge attempt
-        if (mergeSuccess) {
-          successfulMerges++;
-        } else {
-          unsuccessfulMerges++;
-        }
+            fields[6].toUpperCase().equals("Y"), getProject(), statsMap);
 
         // Update the progress
         updateProgress();
@@ -211,10 +209,16 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       commitClearBegin();
 
-      logInfo("[PrecomputedMerge] " + successfulMerges
+      logInfo("[PrecomputedMerge] " + getSteps()
+          + " mergefacts.src lines processed.");
+      logInfo("[PrecomputedMerge] " + statsMap.get("successfulMerges")
           + " merges successfully performed.");
-      logInfo("[PrecomputedMerge] " + unsuccessfulMerges
+      logInfo("[PrecomputedMerge] " + statsMap.get("unsuccessfulMerges")
           + " attempted merges were unsuccessful.");
+      logInfo("[GeneratedMerge] " + statsMap.get("successfulDemotions")
+          + " demotions successfully created.");
+      logInfo("[GeneratedMerge] " + statsMap.get("unsuccessfulDemotions")
+          + " attempted demotion creations were unsuccessful.");
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -274,7 +278,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
   public List<AlgorithmParameter> getParameters() {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    // Run checkPreconditions to set the SrcDirFile, since it will be used by the merge
+    // Run checkPreconditions to set the SrcDirFile, since it will be used by
+    // the merge
     // set parameter
     try {
       checkPreconditions();

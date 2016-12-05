@@ -1629,7 +1629,8 @@ public abstract class RootServiceJpa implements RootService {
    */
   @SuppressWarnings("unchecked")
   public List<Long[]> executeComponentIdPairQuery(String query,
-    QueryType queryType, Map<String, String> params, Class<? extends Component> clazz) throws Exception {
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz) throws Exception {
 
     // If query parameters are not fully filled out, return an empty List.
     if (ConfigUtility.isEmpty(query) || queryType == null) {
@@ -1667,11 +1668,18 @@ public abstract class RootServiceJpa implements RootService {
     if (query.toUpperCase().indexOf("FROM") == -1) {
       throw new LocalException("Query must contain the term FROM");
     }
-    
-    // check for query matching specified return class type
 
-    if (!query.toUpperCase().matches("SELECT.*FROM.*"+clazz.getName())) {
-      throw new LocalException("Query must contain the term FROM");
+    // check for query matching specified return class type
+    String objectClassName = clazz.getSimpleName().toUpperCase();
+    if (objectClassName.endsWith("JPA")) {
+      objectClassName =
+          objectClassName.substring(0, objectClassName.length()-3);
+    }
+    if (!query.toUpperCase()
+        .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
+      throw new LocalException(
+          "Query must be constructed to return ids for specified object type: "
+              + objectClassName);
     }
 
     // Execute the query
@@ -1738,7 +1746,8 @@ public abstract class RootServiceJpa implements RootService {
       "unchecked"
   })
   public List<Long[]> executeSingleComponentIdQuery(String query,
-    QueryType queryType, Map<String, String> params, Class<? extends Component> clazz) throws Exception {
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz) throws Exception {
 
     // If query parameters are not fully filled out, return an empty List.
     if (ConfigUtility.isEmpty(query) || queryType == null) {
@@ -1761,8 +1770,10 @@ public abstract class RootServiceJpa implements RootService {
                 + params);
       }
       // Perform search
-      final List<? extends Component> components = getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(params.get("terminology"), null, Branch.ROOT, null,
-              null, clazz, pfs, new int[1], manager);
+      final List<? extends Component> components =
+          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
+              params.get("terminology"), null, Branch.ROOT, null, null, clazz,
+              pfs, new int[1], manager);
 
       // Cluster results
       final List<Long[]> results = new ArrayList<>();
@@ -1805,11 +1816,18 @@ public abstract class RootServiceJpa implements RootService {
     if (query.toUpperCase().indexOf("FROM") == -1) {
       throw new LocalException("Query must contain the term FROM");
     }
-    
+
     // check for query matching specified return class type
-    
-    if(!query.toUpperCase().matches("SELECT.*FROM.*"+clazz.getName())){
-      throw new LocalException("Query returns the wrong type. Expecting: " + clazz.getName());
+    String objectClassName = clazz.getSimpleName().toUpperCase();
+    if (objectClassName.endsWith("JPA")) {
+      objectClassName =
+          objectClassName.substring(0, objectClassName.length()-3);
+    }
+    if (!query.toUpperCase()
+        .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
+      throw new LocalException(
+          "Query must be constructed to return ids for specified object type: "
+              + objectClassName);
     }
 
     // Execute the query

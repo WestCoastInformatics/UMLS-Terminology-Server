@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +19,6 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -49,22 +49,17 @@ public abstract class AbstractMergeAlgorithm
    * @param makeDemotion the make demotion
    * @param changeStatus the change status
    * @param project the project
-   * @return true, if successful
+   * @param statsMap the stats map
    * @throws Exception the exception
    */
-  public boolean merge(Long atomId, Long atomId2, List<String> validationChecks,
-    boolean makeDemotion, boolean changeStatus, Project project)
-    throws Exception {
-
-    // Copy the project, and overwrite its validation checks with the ones that
-    // were specified
-    final Project projectCopy = new ProjectJpa(project);
-    projectCopy.setValidationChecks(validationChecks);
+  public void merge(Long atomId, Long atomId2, List<String> validationChecks,
+    boolean makeDemotion, boolean changeStatus, Project project,
+    Map<String, Integer> statsMap) throws Exception {
 
     // Get the two concepts associated with the two atoms
     List<ConceptJpa> concepts =
-        searchHandler.getQueryResults(projectCopy.getTerminology(),
-            projectCopy.getVersion(), Branch.ROOT, "atoms.id:" + atomId, null,
+        searchHandler.getQueryResults(getProject().getTerminology(),
+            getProject().getVersion(), Branch.ROOT, "atoms.id:" + atomId, null,
             ConceptJpa.class, null, new int[1], getEntityManager());
     if (concepts.size() != 1) {
       throw new Exception("Unexpected number of concepts: " + concepts.size()
@@ -72,8 +67,8 @@ public abstract class AbstractMergeAlgorithm
     }
     final Concept concept = concepts.get(0);
 
-    concepts = searchHandler.getQueryResults(projectCopy.getTerminology(),
-        projectCopy.getVersion(), Branch.ROOT, "atoms.id:" + atomId2, null,
+    concepts = searchHandler.getQueryResults(getProject().getTerminology(),
+        getProject().getVersion(), Branch.ROOT, "atoms.id:" + atomId2, null,
         ConceptJpa.class, null, new int[1], getEntityManager());
     if (concepts.size() != 1) {
       throw new Exception("Unexpected number of concepts: " + concepts.size()
@@ -103,12 +98,15 @@ public abstract class AbstractMergeAlgorithm
     // If Atoms are in the same concept, DON'T perform merge, and log that the
     // atoms are already merged.
     if (fromConcept.getId().equals(toConcept.getId())) {
-      addLogEntry(getLastModifiedBy(), projectCopy.getId(), fromConcept.getId(),
+      addLogEntry(getLastModifiedBy(), getProject().getId(), fromConcept.getId(),
           getActivityId(), getWorkId(),
           "Failure merging atom " + atomId + " with atom " + atomId
               + " - atoms are both already in the same concept "
               + toConcept.getId());
-      return false;
+
+      statsMap.put("unsuccessfulMerges",
+          statsMap.get("unsuccessfulMerges") + 1);
+      return;
     }
 
     // Otherwise, create and set up a merge action
@@ -117,7 +115,7 @@ public abstract class AbstractMergeAlgorithm
     try {
 
       // Configure the action
-      action.setProject(projectCopy);
+      action.setProject(getProject());
       action.setActivityId(getActivityId());
       action.setConceptId(fromConcept.getId());
       action.setConceptId2(toConcept.getId());
@@ -127,7 +125,8 @@ public abstract class AbstractMergeAlgorithm
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(changeStatus);
-      
+      action.setValidationChecks(validationChecks);      
+
       // Perform the action
       final ValidationResult validationResult =
           action.performMolecularAction(action, getLastModifiedBy(), false);
@@ -135,22 +134,24 @@ public abstract class AbstractMergeAlgorithm
       // If the action failed, log the failure, and make a demotion if
       // makeDemotion=true.
       if (!validationResult.isValid()) {
-        addLogEntry(getLastModifiedBy(), projectCopy.getId(),
+        addLogEntry(getLastModifiedBy(), getProject().getId(),
             fromConcept.getId(), getActivityId(), getWorkId(),
-            "FAIL " + action.getName() + " concept " + fromConcept.getId() + " into concept "
-                + toConcept.getId() + ": " + validationResult);
-        addLogEntry(getLastModifiedBy(), projectCopy.getId(), toConcept.getId(),
+            "FAIL " + action.getName() + " concept " + fromConcept.getId()
+                + " into concept " + toConcept.getId() + ": "
+                + validationResult);
+        addLogEntry(getLastModifiedBy(), getProject().getId(), toConcept.getId(),
             getActivityId(), getWorkId(),
-            "FAIL " + action.getName() + " concept " + toConcept.getId() + " from concept "
-                + fromConcept.getId() + ": " + validationResult);
+            "FAIL " + action.getName() + " concept " + toConcept.getId()
+                + " from concept " + fromConcept.getId() + ": "
+                + validationResult);
 
         if (makeDemotion) {
           final AddDemotionMolecularAction action2 =
               new AddDemotionMolecularAction();
           action2.setTransactionPerOperation(false);
-          action2.setProject(projectCopy);
-          action2.setTerminology(projectCopy.getTerminology());
-          action2.setVersion(projectCopy.getVersion());
+          action2.setProject(getProject());
+          action2.setTerminology(getProject().getTerminology());
+          action2.setVersion(getProject().getVersion());
           action2.setWorkId(getWorkId());
           action2.setActivityId(getActivityId());
           action2.setAtom(fromAtom);
@@ -159,28 +160,36 @@ public abstract class AbstractMergeAlgorithm
           action2.setConceptId(fromConcept.getId());
           action2.setConceptId2(toConcept.getId());
           action2.setLastModifiedBy(getLastModifiedBy());
+          ValidationResult demotionValidationResult = action2
+              .performMolecularAction(action2, getLastModifiedBy(), false);
 
-          // If there is already a demotion between these two atoms, it will not
-          // create an additional duplicate demotion (gets checked in the
-          // preconditions)
-          ValidationResult demotionValidatioResult = action2.performMolecularAction(action2, getLastModifiedBy(), false);
-          
-          //TODO - fill this out w/o FAIL message.
-          // "Atoms already are connected by a demotion" or something
-          addLogEntry(getLastModifiedBy(), projectCopy.getId(),
-              fromConcept.getId(), getActivityId(), getWorkId(),
-              "FAIL " + action.getName() + " concept " + fromConcept.getId() + " into concept "
-                  + toConcept.getId() + ": " + validationResult);
+          // If there is already a demotion between these two atoms, it will
+          // return a validation error
+          if (!demotionValidationResult.isValid()) {
 
-          
+            addLogEntry(getLastModifiedBy(), getProject().getId(),
+                fromConcept.getId(), getActivityId(), getWorkId(),
+                "" + demotionValidationResult);
+
+            statsMap.put("unsuccessfulDemotions",
+                statsMap.get("unsuccessfulDemotions") + 1);
+          }
+          // Otherwise, the demotion was successfully added
+          else {
+            statsMap.put("successfulDemotions",
+                statsMap.get("successfulDemotions") + 1);
+          }
           action2.close();
         }
 
-        return false;
+        statsMap.put("unsuccessfulMerges",
+            statsMap.get("unsuccessfulMerges") + 1);
+        return;
       }
       // Otherwise, it was successful.
       else {
-        return true;
+        statsMap.put("successfulMerges", statsMap.get("successfulMerges") + 1);
+        return;
       }
 
     } catch (Exception e) {
@@ -190,7 +199,9 @@ public abstract class AbstractMergeAlgorithm
       } catch (Exception e2) {
         // do nothing
       }
-      return false;
+      statsMap.put("unsuccessfulMerges",
+          statsMap.get("unsuccessfulMerges") + 1);
+      return;
     } finally {
       // NEED to commit here to make sure that any changes made to the database
       // by MergeMolecularAction or AddDemotionMolecularAction are viewable by
@@ -240,7 +251,6 @@ public abstract class AbstractMergeAlgorithm
 
     return mergeSets;
   }
-  
 
   /**
    * Returns the merge level or an atomId pair.
@@ -248,7 +258,7 @@ public abstract class AbstractMergeAlgorithm
    * @param atomIdPair the atom id pair
    * @return the merge level
    */
-  public Long calculateMergeLevel(Pair<Long,Long> atomIdPair){
+  public Long calculateMergeLevel(Pair<Long, Long> atomIdPair) {
     // MergeLevel =
     // 1 => atom1.code=atom2.code && atom1.sui=atom2.sui && atom1.tty=atom2.tty
     // 2 => atom1.code=atom2.code && atom1.lui=atom2.lui && atom1.tty=atom2.tty
@@ -256,14 +266,14 @@ public abstract class AbstractMergeAlgorithm
     // 4 => atom1.code=atom2.code && atom1.lui=atom2.lui
     // 5 => atom1.code=atom2.code
     // 9 => no equivalence, or equivalence not able to be determined
-    
+
     Long mergeLevel = null;
     Atom atom1 = null;
     Atom atom2 = null;
-    try{
-    atom1 = getAtom(atomIdPair.getLeft());
-    atom2 = getAtom(atomIdPair.getRight());
-    } catch (Exception e){
+    try {
+      atom1 = getAtom(atomIdPair.getLeft());
+      atom2 = getAtom(atomIdPair.getRight());
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     if (atom1.getCodeId().equals(atom2.getCodeId())
@@ -288,7 +298,6 @@ public abstract class AbstractMergeAlgorithm
 
     return mergeLevel;
   }
-  
 
   /**
    * Sort pairs by merge level and id.
@@ -300,25 +309,22 @@ public abstract class AbstractMergeAlgorithm
 
     // Order atomIdPairs
     // sort by MergeLevel, atomId1, atomId2
-    Collections.sort(filteredAtomIdPairs,
-        new Comparator<Pair<Long, Long>>() {
+    Collections.sort(filteredAtomIdPairs, new Comparator<Pair<Long, Long>>() {
 
-          @Override
-          public int compare(final Pair<Long, Long> atomIdPair1,
-            final Pair<Long, Long> atomIdPair2) {
-            int c = 0;
-            c = calculateMergeLevel(atomIdPair1)
-                .compareTo(calculateMergeLevel(atomIdPair2));
-            if (c == 0)
-              c = atomIdPair1.getLeft()
-                  .compareTo(atomIdPair2.getLeft());
-            if (c == 0)
-              c = atomIdPair1.getRight()
-                  .compareTo(atomIdPair2.getRight());
+      @Override
+      public int compare(final Pair<Long, Long> atomIdPair1,
+        final Pair<Long, Long> atomIdPair2) {
+        int c = 0;
+        c = calculateMergeLevel(atomIdPair1)
+            .compareTo(calculateMergeLevel(atomIdPair2));
+        if (c == 0)
+          c = atomIdPair1.getLeft().compareTo(atomIdPair2.getLeft());
+        if (c == 0)
+          c = atomIdPair1.getRight().compareTo(atomIdPair2.getRight());
 
-            return c;
-          }
-        });   
-  }  
-  
+        return c;
+      }
+    });
+  }
+
 }
