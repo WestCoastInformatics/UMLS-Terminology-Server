@@ -98,8 +98,8 @@ public abstract class AbstractMergeAlgorithm
     // If Atoms are in the same concept, DON'T perform merge, and log that the
     // atoms are already merged.
     if (fromConcept.getId().equals(toConcept.getId())) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(), fromConcept.getId(),
-          getActivityId(), getWorkId(),
+      addLogEntry(getLastModifiedBy(), getProject().getId(),
+          fromConcept.getId(), getActivityId(), getWorkId(),
           "Failure merging atom " + atomId + " with atom " + atomId
               + " - atoms are both already in the same concept "
               + toConcept.getId());
@@ -125,7 +125,7 @@ public abstract class AbstractMergeAlgorithm
       action.setTransactionPerOperation(false);
       action.setMolecularActionFlag(true);
       action.setChangeStatusFlag(changeStatus);
-      action.setValidationChecks(validationChecks);      
+      action.setValidationChecks(validationChecks);
 
       // Perform the action
       final ValidationResult validationResult =
@@ -139,8 +139,8 @@ public abstract class AbstractMergeAlgorithm
             "FAIL " + action.getName() + " concept " + fromConcept.getId()
                 + " into concept " + toConcept.getId() + ": "
                 + validationResult);
-        addLogEntry(getLastModifiedBy(), getProject().getId(), toConcept.getId(),
-            getActivityId(), getWorkId(),
+        addLogEntry(getLastModifiedBy(), getProject().getId(),
+            toConcept.getId(), getActivityId(), getWorkId(),
             "FAIL " + action.getName() + " concept " + toConcept.getId()
                 + " from concept " + fromConcept.getId() + ": "
                 + validationResult);
@@ -166,6 +166,14 @@ public abstract class AbstractMergeAlgorithm
           // If there is already a demotion between these two atoms, it will
           // return a validation error
           if (!demotionValidationResult.isValid()) {
+            addLogEntry(getLastModifiedBy(), getProject().getId(),
+                fromConcept.getId(), getActivityId(), getWorkId(),
+                "FAIL " + action2.getName() + " to concept "
+                    + fromConcept.getId() + ": " + demotionValidationResult);
+            addLogEntry(getLastModifiedBy(), getProject().getId(),
+                toConcept.getId(), getActivityId(), getWorkId(),
+                "FAIL " + action2.getName() + " from concept "
+                    + fromConcept.getId() + ": " + demotionValidationResult);
 
             addLogEntry(getLastModifiedBy(), getProject().getId(),
                 fromConcept.getId(), getActivityId(), getWorkId(),
