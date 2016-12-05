@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
@@ -159,9 +160,8 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       algo.compute();
 
     } catch (Exception e) {
+      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
-      //Notify JUnit to fail
-      assertTrue(false);
     } finally {
       algo.close();
     }

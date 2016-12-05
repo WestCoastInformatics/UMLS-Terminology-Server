@@ -117,14 +117,14 @@ public class SemanticTypeResolverAlgorithm
         Concept concept = getConcept(conceptId[0]);
         for (SemanticTypeComponent sty : new ArrayList<>(
             concept.getSemanticTypes())) {
-          // If new semantic types "win", remove all old semantic types
+          // If new semantic types set to "win", remove all old semantic types
           if (winLose.equals("win") && sty.getId() <= maxStyPreInsertion) {
             concept.getSemanticTypes().remove(sty);
             updateConcept(concept);
             removeSemanticTypeComponent(sty.getId());
             removedStyCount++;
           }
-          // If new semantic types "lose", remove all new semantic types
+          // If new semantic types set to "lose", remove all new semantic types
           else if (winLose.equals("lose") && sty.getId() > maxStyPreInsertion) {
             concept.getSemanticTypes().remove(sty);
             updateConcept(concept);

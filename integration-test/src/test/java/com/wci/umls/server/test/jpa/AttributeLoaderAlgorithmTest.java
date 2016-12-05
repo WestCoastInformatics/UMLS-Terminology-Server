@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -158,9 +159,8 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
 
     } catch (Exception e) {
+      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
-      //Notify JUnit to fail
-      assertTrue(false);
     } finally {
       algo.close();
     }

@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Date;
@@ -226,9 +227,8 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
       
 
     } catch (Exception e) {
+      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
-      // Notify JUnit to fail
-      assertTrue(false);
     } finally {
       algo.close();
     }
