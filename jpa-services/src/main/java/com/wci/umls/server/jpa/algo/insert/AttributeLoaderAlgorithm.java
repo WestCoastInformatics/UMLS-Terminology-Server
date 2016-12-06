@@ -388,9 +388,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       logInfo("Finished ATTRIBUTELOADING");
 
 
-    } catch (
-
-    Exception e) {
+    } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
     }

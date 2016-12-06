@@ -42,6 +42,7 @@ import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
@@ -1221,24 +1222,45 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
       }
 
-      // TODO subset members
+      // TODO subset members - is this sufficient?
       // C0000052|L3853359|S4536829|A23245828|AUI|58488005|AT166631006|
       //cf28ec3d-cf07-59cb-944a-10ef4f43b725|SUBSET_MEMBER|SCTSPA|
       //450828004~ACCEPTABILITYID~900000000000549004|N||
 
       for (AtomSubsetMember member : a.getMembers()) {
-        boolean found = false;
         for (Attribute att : member.getAttributes()) {
-          // SATUI = att.getTerminologyId
-          // ATUI getAlternateTErminologyIds.getProject(....)
-          // ATN SUBSET_MEMBER hardcoded
-          // SCTSPA - att.getTerminology()
-          // ~ three parts member.getSubset.getTerminologyId(), atn, atv  of att
-          found = true;
+          StringBuilder sb = new StringBuilder();
+          sb.append(c.getTerminologyId()).append("|"); // 0 CUI
+          sb.append(a.getLexicalClassId()).append("|"); // 1 LUI
+          sb.append(a.getStringClassId()).append("|"); // 2 SUI
+          sb.append(
+              a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+              .append("|"); // 3 METAUI
+          sb.append("AUI").append("|"); // 4 STYPE
+          sb.append(a.getCodeId()).append("|"); // 5 CODE
+          sb.append(att.getAlternateTerminologyIds().get(getProject().getTerminology())).append("|"); // 6 ATUI 
+          sb.append(member.getTerminologyId()).append("|"); // 7 SATUI
+          sb.append("SUBSET_MEMBER").append("|"); // 8 ATN
+          sb.append(att.getTerminology()).append("|"); // 9 SAB
+          sb.append(member.getSubset().getTerminologyId()); // 10 ATV
+          if (!ConfigUtility.isNull(att.getName())) {
+            sb.append("~").append(att.getName());
+            sb.append("~").append(att.getValue());
+          }
+          sb.append("|");
+          if (att.isObsolete()) {
+            sb.append("O");
+          } else if (att.isSuppressible()) {
+            sb.append("Y");
+          } else {
+            sb.append("N");
+          } 
+          sb.append("|");  // 11 SUPPRESS
+          sb.append("|"); // 12 CVF
+          sb.append("\n");
+          lines.add(sb.toString());
         } 
-        if (!found) {
-          // no atn or atv; just subset.getTerminologyId() in ~ part
-        }
+        
       }
       
       // Source concept attributes (SCUIs)
@@ -1305,6 +1327,42 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             lines.add(sb.toString());
             }
           }
+        }
+        // is this correct for SCUI subset members?  also for code and sdui?
+        for (ConceptSubsetMember member : scui.getMembers()) {
+          for (Attribute att : member.getAttributes()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(c.getTerminologyId()).append("|"); // 0 CUI
+            sb.append(a.getLexicalClassId()).append("|"); // 1 LUI
+            sb.append(a.getStringClassId()).append("|"); // 2 SUI
+            sb.append(
+                a.getAlternateTerminologyIds().get(getProject().getTerminology()))
+                .append("|"); // 3 METAUI
+            sb.append("SCUI").append("|"); // 4 STYPE
+            sb.append(a.getCodeId()).append("|"); // 5 CODE
+            sb.append(att.getAlternateTerminologyIds().get(getProject().getTerminology())).append("|"); // 6 ATUI 
+            sb.append(member.getTerminologyId()).append("|"); // 7 SATUI
+            sb.append("SUBSET_MEMBER").append("|"); // 8 ATN
+            sb.append(att.getTerminology()).append("|"); // 9 SAB
+            sb.append(member.getSubset().getTerminologyId()); // 10 ATV
+            if (!ConfigUtility.isNull(att.getName())) {
+              sb.append("~").append(att.getName());
+              sb.append("~").append(att.getValue());
+            }
+            sb.append("|");
+            if (att.isObsolete()) {
+              sb.append("O");
+            } else if (att.isSuppressible()) {
+              sb.append("Y");
+            } else {
+              sb.append("N");
+            } 
+            sb.append("|");  // 11 SUPPRESS
+            sb.append("|"); // 12 CVF
+            sb.append("\n");
+            lines.add(sb.toString());
+          } 
+          
         }
       }
       
@@ -1481,6 +1539,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "RRF METADATA progress: " + currentProgress + "%");
       previousProgress = currentProgress;

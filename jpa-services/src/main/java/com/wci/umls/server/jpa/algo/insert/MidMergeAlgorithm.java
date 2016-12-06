@@ -10,22 +10,13 @@ import java.util.UUID;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Implementation of an algorithm to automatically merge concepts.
  */
-public class MidMergeAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class MidMergeAlgorithm extends AbstractMergeAlgorithm {
 
   /**
    * Instantiates an empty {@link MidMergeAlgorithm}.
@@ -78,9 +69,6 @@ public class MidMergeAlgorithm extends AbstractAlgorithm {
 
     try {
 
-      previousProgress = 0;
-      stepsCompleted = 0;
-
       logInfo("[Mid Merge] Merging concepts");
 
       // Update the progress
@@ -110,21 +98,6 @@ public class MidMergeAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "MIDMERGE progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */

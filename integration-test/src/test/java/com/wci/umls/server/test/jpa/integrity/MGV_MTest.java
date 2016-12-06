@@ -82,10 +82,6 @@ public class MGV_MTest extends IntegrationUnitSupport {
     assertTrue(projects.size() > 0);
     project = new ProjectJpa(projects.getObjects().get(0));
 
-    // Reset the project's validation check list, so only this integrity check
-    // will run.
-    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_M")));
-
     // Setup validationData germane to this test, and add to project
     final List<TypeKeyValue> validationData =
         new ArrayList<TypeKeyValue>(project.getValidationData());
@@ -129,6 +125,7 @@ public class MGV_MTest extends IntegrationUnitSupport {
     action.setTransactionPerOperation(false);
     action.setMolecularActionFlag(true);
     action.setChangeStatusFlag(true);
+    action.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_M")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult = checkActionPreconditions(action);
@@ -153,6 +150,7 @@ public class MGV_MTest extends IntegrationUnitSupport {
     action2.setTransactionPerOperation(false);
     action2.setMolecularActionFlag(true);
     action2.setChangeStatusFlag(true);
+    action2.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_M")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =

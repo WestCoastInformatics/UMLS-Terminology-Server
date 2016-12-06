@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Properties;
 
@@ -130,7 +131,7 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algoProperties.put("newAtomsOnly", "false");
       algoProperties.put("filterQueryType", "LUCENE");
-      algoProperties.put("filterQuery", "atoms.id:(1 or 100)");
+      algoProperties.put("filterQuery", "atoms.id:(1)");
 //      algoProperties.put("filterQueryType", "JQL");
 //      algoProperties.put("filterQuery", "select a1.id, a2.id "
 //          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
@@ -159,9 +160,8 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       algo.compute();
 
     } catch (Exception e) {
+      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
-      //Notify JUnit to fail
-      assertTrue(false);
     } finally {
       algo.close();
     }

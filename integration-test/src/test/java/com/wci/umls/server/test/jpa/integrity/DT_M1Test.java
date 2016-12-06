@@ -128,7 +128,7 @@ public class DT_M1Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult =
-        contentService.validateConcept(project, conceptNoSty);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoSty);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -140,7 +140,7 @@ public class DT_M1Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
-        contentService.validateConcept(project, conceptNoPublishableSty);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoPublishableSty);
 
     // Verify that it returned a validation error
     assertFalse(validationResult2.isValid());
@@ -152,7 +152,7 @@ public class DT_M1Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult3 =
-        contentService.validateConcept(project, conceptPublishableSty);
+        contentService.validateConcept(project.getValidationChecks(), conceptPublishableSty);
 
     // Verify that returned no validation errors
     assertTrue(validationResult3.isValid());

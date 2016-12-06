@@ -97,10 +97,6 @@ public class MGV_GTest extends IntegrationUnitSupport {
     assertTrue(projects.size() > 0);
     project = new ProjectJpa(projects.getObjects().get(0));
 
-    // Reset the project's validation check list, so only this integrity check
-    // will run.
-    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));
-
     // Create three "MSH" atoms with termType "MH".
     for (Atom atom : contentService.getAtoms("", "MSH", "2016_2016_02_26")
         .getObjects()) {
@@ -203,6 +199,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action3.setTransactionPerOperation(false);
     action3.setMolecularActionFlag(true);
     action3.setChangeStatusFlag(true);
+    action3.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));
 
     // Check whether the action violates the validation check
     ValidationResult validationResult = checkActionPreconditions(action3);
@@ -227,6 +224,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action.setTransactionPerOperation(false);
     action.setMolecularActionFlag(true);
     action.setChangeStatusFlag(true);
+    action.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));
 
     // Check whether the action violates the validation check
     validationResult = checkActionPreconditions(action);
@@ -251,6 +249,7 @@ public class MGV_GTest extends IntegrationUnitSupport {
     action2.setTransactionPerOperation(false);
     action2.setMolecularActionFlag(true);
     action2.setChangeStatusFlag(true);
+    action2.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_G")));
 
     // Check whether the action violates the validation check
     validationResult = checkActionPreconditions(action2);

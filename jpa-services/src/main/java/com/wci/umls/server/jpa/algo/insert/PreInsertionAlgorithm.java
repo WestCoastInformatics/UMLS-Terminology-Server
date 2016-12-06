@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -12,6 +13,7 @@ import javax.persistence.NoResultException;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
@@ -49,7 +51,38 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
       throw new Exception("Pre Insertion requires a project to be set");
     }
 
+    // Go through all the files needed by insertion and check for presence
+    // Check the input directories
+    final String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }    
+    
+    checkFileExist(srcFullPath, "attributes.src");
+    checkFileExist(srcFullPath, "classes_atoms.src");
+    checkFileExist(srcFullPath, "contexts.src");
+    checkFileExist(srcFullPath, "mergefacts.src");
+    checkFileExist(srcFullPath, "MRDOC.RRF");
+    checkFileExist(srcFullPath, "relationships.src  ");
+    checkFileExist(srcFullPath, "sources.src");
+    checkFileExist(srcFullPath, "termgroups.src");
+
     return validationResult;
+  }
+
+  private void checkFileExist(String srcFullPath, String fileName)
+    throws Exception {
+    
+    File sourceFile = new File(srcFullPath + File.separator + fileName);
+    if (!sourceFile.exists()) {
+      throw new Exception(fileName
+          + " file doesn't exist at specified input directory: " + srcFullPath);
+    }
+
   }
 
   /**
@@ -81,12 +114,28 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     }
     processExecution.getExecutionInfo().put("maxAtomIdPreInsertion",
         atomId.toString());
+    logInfo(" maxAtomIdPreInsertion = "
+        + processExecution.getExecutionInfo().get("maxAtomIdPreInsertion"));
+
+    // Get the max Semantic Type Component Id prior to the insertion starting
+    Long styId = null;
+    try {
+      final javax.persistence.Query query = manager
+          .createQuery("select max(a.id) from SemanticTypeComponentJpa a ");
+      final Long styId2 = (Long) query.getSingleResult();
+      styId = styId2 != null ? styId2 : styId;
+    } catch (NoResultException e) {
+      styId = 0L;
+    }
+    processExecution.getExecutionInfo().put("maxStyIdPreInsertion",
+        styId.toString());
+    logInfo(" maxStyIdPreInsertion = "
+        + processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
 
     ProcessService processService = new ProcessServiceJpa();
     processService.setLastModifiedBy("admin");
     processService.updateProcessExecution(processExecution);
 
-    
     logInfo(" project = " + getProject().getId());
     logInfo(" workId = " + getWorkId());
     logInfo(" activityId = " + getActivityId());

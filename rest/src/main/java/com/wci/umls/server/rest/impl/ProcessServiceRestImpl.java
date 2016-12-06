@@ -1239,6 +1239,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @GET
   @Path("/execution/{id}/restart")
+  @Produces("text/plain")
   @ApiOperation(value = "Execute a process configuration", notes = "Execute the specified process configuration")
   public Long restartProcess(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
@@ -1303,6 +1304,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @GET
   @Path("/execution/{id}/cancel")
+  @Produces("text/plain")
   @ApiOperation(value = "Cancel a running process execution", notes = "Execute the specified process configuration")
   public Long cancelProcess(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
@@ -1699,7 +1701,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           }
 
         } catch (Exception e) {
-          e.printStackTrace();
+          //e.printStackTrace();
           exceptions[0] = e;
 
           // Remove process and algorithm from the maps

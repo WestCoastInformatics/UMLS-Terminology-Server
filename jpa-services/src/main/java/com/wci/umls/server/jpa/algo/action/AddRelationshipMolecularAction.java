@@ -146,7 +146,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
         // Remove the relationship from the concepts
         removeById(getConcept().getRelationships(), rel.getId());
         removeById(getConcept2().getRelationships(),
-            findInverseRelationship(rel).getId());
+            getInverseRelationship(rel).getId());
 
         // Update Concepts
         updateConcept(getConcept());
@@ -154,7 +154,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
         // Remove the relationships
         removeRelationship(rel.getId(), rel.getClass());
-        removeRelationship(findInverseRelationship(rel).getId(),
+        removeRelationship(getInverseRelationship(rel).getId(),
             rel.getClass());
 
         // Change status of the source and target concept
@@ -177,7 +177,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
         // Remove the demotions from the atoms
         removeById(demotion.getFrom().getRelationships(), demotion.getId());
         removeById(demotion.getTo().getRelationships(),
-            findInverseRelationship(demotion).getId());
+            getInverseRelationship(demotion).getId());
 
         // Update Atoms
         updateAtom(demotion.getFrom());
@@ -185,7 +185,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
         // Remove the demotions
         removeRelationship(demotion.getId(), demotion.getClass());
-        removeRelationship(findInverseRelationship(demotion).getId(),
+        removeRelationship(getInverseRelationship(demotion).getId(),
             demotion.getClass());
 
         // Change status of the source and target atom

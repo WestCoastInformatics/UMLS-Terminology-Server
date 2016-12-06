@@ -512,6 +512,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "RRF METADATA progress: " + currentProgress + "%");
       previousProgress = currentProgress;

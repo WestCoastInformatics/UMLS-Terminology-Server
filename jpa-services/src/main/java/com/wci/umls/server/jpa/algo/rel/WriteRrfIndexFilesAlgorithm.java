@@ -48,7 +48,6 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   /** The dir. */
   private File dir = null;
   
-
   /**
    * Instantiates an empty {@link WriteRrfIndexFilesAlgorithm}.
    *
@@ -75,7 +74,6 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
 
     previousProgress = 0;
     stepsCompleted = 0;
-    HashSet<String> seen = new HashSet<>();
 
     // initialize progress monitoring
     javax.persistence.Query query =
@@ -98,9 +96,13 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     while (results.next()) {
       final Concept c = (Concept) results.get()[0];
 
+      // caching to support only unique rows in output
+      HashSet<String> seen = new HashSet<>();
+      HashSet<String> wordsSeen = new HashSet<>();
+      
       for (final Atom atom : c.getAtoms()) {
         if (atom.isPublishable()) {
-
+         
           // MRXNS_ENG.RRF
 
           // 0 LAT Abbreviation of language of the string (always ENG in this
@@ -129,14 +131,17 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             // MRXNW_ENG.RRF
             for (final String word : FieldedStringTokenizer
                 .split(normalizedString, ConfigUtility.PUNCTUATION)) {
-              sb = new StringBuilder();
-              sb.append("ENG").append("|"); // 0 LAT
-              sb.append(word).append("|"); // 1 WORD
-              sb.append(c.getTerminologyId()).append("|"); // 2 CUI
-              sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-              sb.append(atom.getStringClassId()).append("|"); // 4 SUI
-              sb.append("\n");
-              writerMap.get("MRXNW_ENG.RRF").write(sb.toString());
+              if (!wordsSeen.contains("MRXNW" + word + atom.getStringClassId())) {
+                sb = new StringBuilder();
+                sb.append("ENG").append("|"); // 0 LAT
+                sb.append(word).append("|"); // 1 WORD
+                sb.append(c.getTerminologyId()).append("|"); // 2 CUI
+                sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
+                sb.append(atom.getStringClassId()).append("|"); // 4 SUI
+                sb.append("\n");
+                writerMap.get("MRXNW_ENG.RRF").write(sb.toString());
+                wordsSeen.add("MRXNW" + word + atom.getStringClassId());
+              }
             }
           }
 
@@ -144,14 +149,18 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             // for all languages write MRXW_<language>.RRF
             for (final String word : FieldedStringTokenizer
                 .split(atom.getName(), ConfigUtility.PUNCTUATION)) {
-              StringBuilder sb = new StringBuilder();
-              sb.append(atom.getLanguage()).append("|"); // 0 LAT
-              sb.append(word).append("|"); // 1 WORD
-              sb.append(c.getTerminologyId()).append("|"); // 2 CUI
-              sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-              sb.append(atom.getStringClassId()).append("|"); // 4 SUI
-              sb.append("\n");
-              writerMap.get("MRXW_" + atom.getLanguage() + ".RRF").write(sb.toString());
+              if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word + atom.getStringClassId())) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(atom.getLanguage()).append("|"); // 0 LAT
+                sb.append(word).append("|"); // 1 WORD
+                sb.append(c.getTerminologyId()).append("|"); // 2 CUI
+                sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
+                sb.append(atom.getStringClassId()).append("|"); // 4 SUI
+                sb.append("\n");
+                writerMap.get("MRXW_" + atom.getLanguage() + ".RRF")
+                    .write(sb.toString());
+                wordsSeen.add("MRXW_" + atom.getLanguage() + word + atom.getStringClassId());
+              }
             }
             seen.add("MRXW" + atom.getStringClassId());
           }
@@ -210,12 +219,11 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     for (String writerName : writerMap.keySet()) {
       File inputFile = new File(dir, writerName);
       File outputFile = new File(dir, writerName + ".sorted");
-      FileSorter.sortFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), (a1, a2) -> a2.compareTo(a1));
+      FileSorter.sortFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), 
+          ConfigUtility.getByteComparator());
     }
     
     // move sorted files into orig files
-    // TODO sorted files have wrong line termination
-    // TODO review comparator choice
     for (String writerName : writerMap.keySet()) {
 
       File inputFile = new File(dir, writerName);
@@ -235,6 +243,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "WRITE RRF INDEXES progress: " + currentProgress + "%");
       previousProgress = currentProgress;

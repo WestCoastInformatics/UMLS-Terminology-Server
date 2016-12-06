@@ -1014,24 +1014,24 @@ public class MetaEditingServiceRestNormalUseTest
         (a1, a2) -> a1.getId().compareTo(a2.getId()));
     assertEquals(5, atomicActions.size());
     // TODO - fix or drop
-//    assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
-//    assertNull(atomicActions.get(0).getOldValue());
-//    assertNotNull(atomicActions.get(0).getNewValue());
-//    assertEquals("CODE", atomicActions.get(1).getIdType().toString());
-//    assertNull(atomicActions.get(1).getOldValue());
-//    assertNotNull(atomicActions.get(1).getNewValue());
-//    assertEquals("CONCEPT", atomicActions.get(2).getIdType().toString());
-//    assertNull(atomicActions.get(2).getOldValue());
-//    assertNotNull(atomicActions.get(2).getNewValue());
-//    assertEquals("atoms", atomicActions.get(2).getField());
-//    assertEquals("CONCEPT", atomicActions.get(3).getIdType().toString());
-//    assertNotNull(atomicActions.get(3).getOldValue());
-//    assertNotNull(atomicActions.get(3).getNewValue());
-//    assertEquals("workflowStatus", atomicActions.get(3).getField());
-//    assertEquals("CONCEPT", atomicActions.get(4).getIdType().toString());
-//    assertNull(atomicActions.get(4).getOldValue());
-//    assertNotNull(atomicActions.get(4).getNewValue());
-//    assertEquals("atoms", atomicActions.get(4).getField());
+    // assertEquals("ATOM", atomicActions.get(0).getIdType().toString());
+    // assertNull(atomicActions.get(0).getOldValue());
+    // assertNotNull(atomicActions.get(0).getNewValue());
+    // assertEquals("CODE", atomicActions.get(1).getIdType().toString());
+    // assertNull(atomicActions.get(1).getOldValue());
+    // assertNotNull(atomicActions.get(1).getNewValue());
+    // assertEquals("CONCEPT", atomicActions.get(2).getIdType().toString());
+    // assertNull(atomicActions.get(2).getOldValue());
+    // assertNotNull(atomicActions.get(2).getNewValue());
+    // assertEquals("atoms", atomicActions.get(2).getField());
+    // assertEquals("CONCEPT", atomicActions.get(3).getIdType().toString());
+    // assertNotNull(atomicActions.get(3).getOldValue());
+    // assertNotNull(atomicActions.get(3).getNewValue());
+    // assertEquals("workflowStatus", atomicActions.get(3).getField());
+    // assertEquals("CONCEPT", atomicActions.get(4).getIdType().toString());
+    // assertNull(atomicActions.get(4).getOldValue());
+    // assertNotNull(atomicActions.get(4).getNewValue());
+    // assertEquals("atoms", atomicActions.get(4).getField());
 
     // Verify the log entry exists
     String logEntry =
@@ -1678,8 +1678,7 @@ public class MetaEditingServiceRestNormalUseTest
         logEntry.contains("REMOVE_RELATIONSHIP from concept " + c.getId()));
 
     // remove the second relationship from the concept (assume verification of
-    // MA,
-    // atomic actions, and log entry since we just tested those)
+    // MA, atomic actions, and log entry since we just tested those)
     v = metaEditingService.removeRelationship(project.getId(), c.getId(),
         "activityId", c.getLastModified().getTime(), relationship3.getId(),
         false, authToken);
@@ -4330,8 +4329,8 @@ public class MetaEditingServiceRestNormalUseTest
         break;
       }
     }
-    assertTrue(inverseDemotionPresent);    
-    
+    assertTrue(inverseDemotionPresent);
+
     // Verify the log entry exists
     String logEntry = projectService.getLog(project.getId(), fromC.getId(),
         null, 1, authToken);
@@ -4389,8 +4388,8 @@ public class MetaEditingServiceRestNormalUseTest
         inverseDemotionPresent = true;
       }
     }
-    assertFalse(inverseDemotionPresent);        
-    
+    assertFalse(inverseDemotionPresent);
+
     // Verify the log entry exists
     logEntry = projectService.getLog(project.getId(), fromC.getId(), null, 1,
         authToken);
@@ -4929,8 +4928,8 @@ public class MetaEditingServiceRestNormalUseTest
         inverseDemotionPresent = true;
       }
     }
-    assertFalse(inverseDemotionPresent);    
-    
+    assertFalse(inverseDemotionPresent);
+
     // Verify the log entry exists
     logEntry =
         projectService.getLog(project.getId(), fromCId, null, 1, authToken);

@@ -6,12 +6,9 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,10 +18,9 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.ContextLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.SafeReplaceAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -34,10 +30,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class SafeReplaceAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  ContextLoaderAlgorithm algo = null;
+  SafeReplaceAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -50,9 +46,6 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
-
-  /** The temporary relationships.src file. */
-  private File outputFile = null;
 
   /**
    * Setup class.
@@ -84,61 +77,47 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
-                                                                   // this to
-    // the standard
-    // folder
-    // location
-
-    // Create the /temp subdirectory
-    final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
-    FileUtils.mkdir(tempSrcDir.toString());
-
-    // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
-
-    // Create and populate a contexts.src document in the /temp
-    // temporary subfolder
-    outputFile = new File(tempSrcDir, "contexts.src");
-
-    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    out.println(
-        "362168904|PAR|isa|362174335|NCI_2016_05E|NCI_2016_05E||31926003.362204588.362250568.362175233.362174339.362174335|00|||C37447|SOURCE_CUI|NCI_2016_05E|C1971|SOURCE_CUI|NCI_2016_05E|");
-    out.println(
-        "362199564|PAR|isa|362199578|NCI_2016_05E|NCI_2016_05E||31926003.362214991.362254908.362254885.362207285.362246398.362199581.362199578|00|||C25948|SOURCE_CUI|NCI_2016_05E|C16484|SOURCE_CUI|NCI_2016_05E|");
-
-    out.close();
-
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");
+                    
     // Create and configure the algorithm
-    algo = new ContextLoaderAlgorithm();
+    algo = new SafeReplaceAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProcess(processExecution);
     algo.setProject(processExecution.getProject());
-    algo.setTerminology(processExecution.getTerminology());
-    algo.setVersion(processExecution.getVersion());
+    algo.setTerminology("NCI");
+    algo.setVersion("2016_05E");
+
   }
 
   /**
-   * Test relationships loader normal use.
+   * Test generated merge normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testContextLoader() throws Exception {
+  public void testGeneratedMerge() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the RELATIONSHIPLOADER algorithm
+    // Run the PRECOMPUTEDMERGE algorithm
     try {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
+
+      //
+      // Set properties for the algorithm
+      //
+      Properties algoProperties = new Properties();
+      algoProperties.put("stringClassId", "true");
+      algoProperties.put("lexicalClassId", "true");
+      algoProperties.put("codeId", "true");
+      algoProperties.put("conceptId", "true");
+      algoProperties.put("descriptorId", "true");
+      algo.setProperties(algoProperties);
+
       //
       // Check prerequisites
       //
@@ -156,11 +135,6 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      //
-      // Reset the algorithm
-      //
-      //algo.reset();
-
     } catch (Exception e) {
       fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
@@ -176,11 +150,6 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
-    FileUtils.forceDelete(outputFile);
-
-    FileUtils.deleteDirectory(new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();

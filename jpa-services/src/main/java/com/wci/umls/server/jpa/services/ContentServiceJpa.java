@@ -1610,6 +1610,49 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /**
+   * Get inverse relationship.
+   *
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  @Override
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception {
+
+    RelationshipList relList = getInverseRelationships(relationship);
+
+    // If there's only one inverse relationship returned, that's the one we
+    // want.
+    if (relList.size() == 1) {
+      return relList.getObjects().get(0);
+    }
+    // If more than one inverse relationship is returned (can happen in the case
+    // of demotions), return the appropriate one.
+    else {
+      if (relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      } else {
+        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
+            .getObjects()) {
+          if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+            return rel;
+          }
+        }
+      }
+
+    }
+
+    return null;
+  }  
+  
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
@@ -4739,10 +4782,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(Project project, Concept concept) {
+  public ValidationResult validateConcept(List<String> validationChecks, Concept concept) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(concept));
       }
     }
@@ -4765,10 +4808,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(Project project, Atom atom) {
+  public ValidationResult validateAtom(List<String> validationChecks, Atom atom) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(atom));
       }
     }
@@ -4777,11 +4820,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(Project project,
+  public ValidationResult validateDescriptor(List<String> validationChecks,
     Descriptor descriptor) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(descriptor));
       }
     }
@@ -4790,10 +4833,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(Project project, Code code) {
+  public ValidationResult validateCode(List<String> validationChecks, Code code) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(code));
       }
     }

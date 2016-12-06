@@ -1402,6 +1402,17 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
+   * Find inverse relationship.
+   *
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+  
+  /**
    * Creates the inverse concept relationship.
    *
    * @param relationship the relationship
@@ -1861,12 +1872,12 @@ public interface ContentService extends MetadataService {
   /**
    * Validate concept.
    *
-   * @param project the project
+   * @param validationChecks the validation checks
    * @param concept the concept
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Project project, Concept concept)
+  public ValidationResult validateConcept(List<String> validationChecks, Concept concept)
     throws Exception;
 
   /**
@@ -1883,30 +1894,30 @@ public interface ContentService extends MetadataService {
   /**
    * Validate atom.
    *
-   * @param project the project
+   * @param validationChecks the validation checks
    * @param atom the atom
    * @return the validation result
    */
-  public ValidationResult validateAtom(Project project, Atom atom);
+  public ValidationResult validateAtom(List<String> validationChecks, Atom atom);
 
   /**
    * Validate descriptor.
    *
-   * @param project the project
+   * @param validationChecks the validation checks
    * @param descriptor the descriptor
    * @return the validation result
    */
-  public ValidationResult validateDescriptor(Project project,
+  public ValidationResult validateDescriptor(List<String> validationChecks,
     Descriptor descriptor);
 
   /**
    * Validate code.
    *
-   * @param project the project
+   * @param validationChecks the validation checks
    * @param code the code
    * @return the validation result
    */
-  public ValidationResult validateCode(Project project, Code code);
+  public ValidationResult validateCode(List<String> validationChecks, Code code);
 
   /**
    * Returns the ambiguous atom ids.

@@ -107,7 +107,7 @@ public class DT_I2Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult =
-        contentService.validateConcept(project, conceptMergedAtom);
+        contentService.validateConcept(project.getValidationChecks(), conceptMergedAtom);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -119,7 +119,7 @@ public class DT_I2Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
-        contentService.validateConcept(project, conceptNoMergedAtoms);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoMergedAtoms);
 
     // Verify that it returned a validation error
     assertTrue(validationResult2.isValid());

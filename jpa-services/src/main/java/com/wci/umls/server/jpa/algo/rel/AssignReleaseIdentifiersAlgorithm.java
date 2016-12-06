@@ -193,6 +193,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
+      checkCancel(); 
       fireProgressEvent(currentProgress,
           "ASSIGN RELEASE IDS progress: " + currentProgress + "%");
       previousProgress = currentProgress;

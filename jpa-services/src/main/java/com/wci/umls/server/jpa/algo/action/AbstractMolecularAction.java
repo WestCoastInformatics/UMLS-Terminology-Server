@@ -18,12 +18,10 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TrackingRecordList;
-import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.actions.MolecularActionJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -34,7 +32,6 @@ import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -68,6 +65,8 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /** The override warnings. */
   private boolean overrideWarnings;
 
+  private List<String> validationChecks = null;
+  
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
    *
@@ -347,48 +346,6 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   }
 
   /**
-   * Find inverse relationship.
-   *
-   * @param relationship the relationship
-   * @return the relationship<? extends component info,? extends component info>
-   * @throws Exception the exception
-   */
-  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
-    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
-    throws Exception {
-
-    RelationshipList relList = getInverseRelationships(relationship);
-
-    // If there's only one inverse relationship returned, that's the one we
-    // want.
-    if (relList.size() == 1) {
-      return relList.getObjects().get(0);
-    }
-    // If more than one inverse relationship is returned (can happen in the case
-    // of demotions), return the appropriate one.
-    else {
-      if (relationship.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
-            .getObjects()) {
-          if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-            return rel;
-          }
-        }
-      } else {
-        for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : relList
-            .getObjects()) {
-          if (!rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-            return rel;
-          }
-        }
-      }
-
-    }
-
-    return null;
-  }
-
-  /**
    * Find rel to concept containing atom.
    *
    * @param fromConcept the from concept
@@ -654,6 +611,18 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
             + "be used as configurable algorithms");
   }
 
+  /* see superclass */
+  @Override
+  public List<String> getValidationChecks(){
+    return validationChecks;
+  }
+  
+  /* see superclass */
+  @Override
+  public void setValidationChecks(List<String> validationChecks){
+    this.validationChecks = validationChecks;
+  }
+  
   /**
    * Post action maintenance.
    *

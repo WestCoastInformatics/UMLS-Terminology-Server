@@ -4057,7 +4057,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(conceptService, projectId, securityService, authToken,
           "validate descriptor", UserRole.USER);
       final Project project = conceptService.getProject(projectId);
-      return conceptService.validateDescriptor(project, descriptor);
+      return conceptService.validateDescriptor(project.getValidationChecks(), descriptor);
     } catch (Exception e) {
       handleException(e, "trying to validate descriptor");
       return null;
@@ -4086,7 +4086,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate atom", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateAtom(project, atom);
+      return contentService.validateAtom(project.getValidationChecks(), atom);
     } catch (Exception e) {
       handleException(e, "trying to validate atom");
       return null;
@@ -4115,7 +4115,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate code", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateCode(project, code);
+      return contentService.validateCode(project.getValidationChecks(), code);
     } catch (Exception e) {
       handleException(e, "trying to validate code");
       return null;
@@ -4144,7 +4144,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate conceptm", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateConcept(project, concept);
+      return contentService.validateConcept(project.getValidationChecks(), concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
       return null;

@@ -81,10 +81,6 @@ public class MGV_H1Test extends IntegrationUnitSupport {
     assertTrue(projects.size() > 0);
     project = new ProjectJpa(projects.getObjects().get(0));
 
-    // Reset the project's validation check list, so only this integrity check
-    // will run.
-    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_H1")));
-
     // Get two concepts that both contain publishable D/Q/C "MSH" atoms, one
     // with
     // no D/Q/C "MSH" atoms, and one with no "MSH" atoms at all.
@@ -125,6 +121,7 @@ public class MGV_H1Test extends IntegrationUnitSupport {
     action.setTransactionPerOperation(false);
     action.setMolecularActionFlag(true);
     action.setChangeStatusFlag(true);
+    action.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_H1")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult = checkActionPreconditions(action);
@@ -149,6 +146,7 @@ public class MGV_H1Test extends IntegrationUnitSupport {
     action2.setTransactionPerOperation(false);
     action2.setMolecularActionFlag(true);
     action2.setChangeStatusFlag(true);
+    action2.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_H1")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
@@ -174,6 +172,7 @@ public class MGV_H1Test extends IntegrationUnitSupport {
     action3.setTransactionPerOperation(false);
     action3.setMolecularActionFlag(true);
     action3.setChangeStatusFlag(true);
+    action3.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_H1")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult3 =

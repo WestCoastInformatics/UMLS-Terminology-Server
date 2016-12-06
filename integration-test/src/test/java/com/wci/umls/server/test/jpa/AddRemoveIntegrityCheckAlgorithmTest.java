@@ -4,6 +4,7 @@
 package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.Assert.assertFalse;
 
 import java.util.List;
@@ -198,6 +199,7 @@ public class AddRemoveIntegrityCheckAlgorithmTest extends IntegrationUnitSupport
       
 
     } catch (Exception e) {
+      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
     } finally {
       algo.close();

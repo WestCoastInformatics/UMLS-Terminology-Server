@@ -125,7 +125,7 @@ public class DT_I3BTest extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult = contentService
-        .validateConcept(project, conceptDemotionsNoCorresponding);
+        .validateConcept(project.getValidationChecks(), conceptDemotionsNoCorresponding);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -138,7 +138,7 @@ public class DT_I3BTest extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 = contentService
-        .validateConcept(project, conceptDemotionsWithCorresponding);
+        .validateConcept(project.getValidationChecks(), conceptDemotionsWithCorresponding);
 
     // Verify that it returned a validation error
     assertTrue(validationResult2.isValid());
@@ -150,7 +150,7 @@ public class DT_I3BTest extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult3 =
-        contentService.validateConcept(project, conceptNoDemotions);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoDemotions);
 
     // Verify that it returned a validation error
     assertTrue(validationResult3.isValid());

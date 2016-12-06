@@ -135,7 +135,7 @@ public class DT_PN2Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult =
-        contentService.validateConcept(project, conceptMultiMTHPN);
+        contentService.validateConcept(project.getValidationChecks(), conceptMultiMTHPN);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -147,7 +147,7 @@ public class DT_PN2Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
-        contentService.validateConcept(project, conceptSingleMTHPN);
+        contentService.validateConcept(project.getValidationChecks(), conceptSingleMTHPN);
 
     // Verify that it returned a validation error
     assertTrue(validationResult2.isValid());
@@ -159,7 +159,7 @@ public class DT_PN2Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult3 =
-        contentService.validateConcept(project, conceptNoMTHPN);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoMTHPN);
 
     // Verify that returned no validation errors
     assertTrue(validationResult3.isValid());

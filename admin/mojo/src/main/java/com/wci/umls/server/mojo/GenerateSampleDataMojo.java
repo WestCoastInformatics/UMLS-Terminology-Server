@@ -361,6 +361,41 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 
+    // Create and set up a release process and algorithm configuration for testing    
+    /* TODO add and test
+    processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Process for release testing use");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Test Release Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(terminology);
+    processConfig.setVersion(version);
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Release");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RRFHISTORY");
+    algoConfig.setDescription("Rrf history algorithm for testing use");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("Test RRF History algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTerminology(terminology);
+    algoConfig.setTimestamp(new Date());
+    algoConfig.setVersion(version);
+
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);*/
+
+    
     //
     // Fake some data as needs review
     //

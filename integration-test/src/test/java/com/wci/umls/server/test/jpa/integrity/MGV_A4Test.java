@@ -83,11 +83,7 @@ public class MGV_A4Test extends IntegrationUnitSupport {
     // make a copy of the validationTest project
     ProjectList projects = contentService.getProjects();
     assertTrue(projects.size() > 0);
-    project = new ProjectJpa(projects.getObjects().get(0));
-
-    // Reset the project's validation check list, so only this integrity check
-    // will run.
-    project.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_A4")));    
+    project = new ProjectJpa(projects.getObjects().get(0));  
     
     // Get two UMLS concepts with previously released atoms,
     // and create a new concept
@@ -139,6 +135,7 @@ public class MGV_A4Test extends IntegrationUnitSupport {
     action.setTransactionPerOperation(false);
     action.setMolecularActionFlag(true);
     action.setChangeStatusFlag(true);
+    action.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_A4")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult = checkActionPreconditions(action);
@@ -163,6 +160,7 @@ public class MGV_A4Test extends IntegrationUnitSupport {
     action2.setTransactionPerOperation(false);
     action2.setMolecularActionFlag(true);
     action2.setChangeStatusFlag(true);
+    action2.setValidationChecks(new ArrayList<>(Arrays.asList("MGV_A4")));
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
