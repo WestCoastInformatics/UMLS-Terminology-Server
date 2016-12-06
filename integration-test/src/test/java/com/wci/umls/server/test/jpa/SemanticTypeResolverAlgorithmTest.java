@@ -53,7 +53,7 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
-
+ 
   /** The concept id. */
   Long conceptId;
 

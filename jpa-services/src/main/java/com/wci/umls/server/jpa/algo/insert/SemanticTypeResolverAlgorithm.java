@@ -3,6 +3,9 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,8 +14,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -67,6 +73,16 @@ public class SemanticTypeResolverAlgorithm
           + " is invalid: must be either 'win' or 'lose'");
     }
 
+    // Check the input directories
+    String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
+
     return validationResult;
   }
 
@@ -76,6 +92,7 @@ public class SemanticTypeResolverAlgorithm
    * @throws Exception the exception
    */
   /* see superclass */
+  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     logInfo("Starting SEMANTICTYPERESOLVING");
@@ -87,7 +104,7 @@ public class SemanticTypeResolverAlgorithm
     int removedStyCount = 0;
 
     try {
-      logInfo("[SemanticTypeResolver] Checking for new/updated Semantic Types");
+      logInfo("[SemanticTypeResolver] Finding all concepts that contain both new and old Semantic Types.");
 
       // Find all concepts that contain old and new semantic type components
 
@@ -108,7 +125,7 @@ public class SemanticTypeResolverAlgorithm
       params.put("projectTerminology", getProject().getTerminology());
       params.put("projectVersion", getProject().getVersion());
 
-      final List<Long[]> conceptIdArray = executeSingleComponentIdQuery(query,
+      List<Long[]> conceptIdArray = executeSingleComponentIdQuery(query,
           QueryType.JQL, params, ConceptJpa.class);
 
       setSteps(conceptIdArray.size());
@@ -140,7 +157,59 @@ public class SemanticTypeResolverAlgorithm
       commitClearBegin();
 
       logInfo("[SemanticTypeResolver] Removed " + removedStyCount
-          + " Semantic Types.");
+          + (winLose.equals("win") ? " old " : " new ") + "Semantic Types.");
+
+      // Produce the sty_term_ids file for inverters
+      // Get all (project term & version) concepts that contain (process
+      // term and version) atoms
+      // Collect all atoms' (projectTerm + "-SRC") alternate terminology ids
+      // Collect all Semantic Types from the concept
+      // Print out atom.alternateTermId|SemanticType.getSemanticType|ClassesFlag
+      // Default ClassesFlag to 0
+      // Save file as sty_term_ids in process-folder
+
+      logInfo("[SemanticTypeResolver] Creating the sty_term_ids file.");      
+      
+      // Generate query string
+      query = "SELECT DISTINCT value(aid), s.semanticType "
+          + "FROM ConceptJpa c JOIN c.atoms a join a.alternateTerminologyIds aid join c.semanticTypes s "
+          + "WHERE c.terminology=:projectTerminology AND c.version=:projectVersion "
+          + "AND a.terminology=:terminology AND a.version=:version "
+          + "AND key(aid) = :projectTermSrcKey ";
+
+      // Add projectTermSrcKey param
+      params.put("projectTermSrcKey", getProject().getTerminology() + "-SRC");
+
+      // Execute the query
+      javax.persistence.Query jpaQuery = getEntityManager().createQuery(query);
+
+      // Handle special query key-words
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          if (query.contains(":" + key)) {
+            jpaQuery.setParameter(key, params.get(key));
+          }
+        }
+      }
+      Logger.getLogger(getClass()).info("  query = " + query);
+
+      // Return the result list as a pair of strings.
+      final List<Object[]> list = jpaQuery.getResultList();
+
+      // Create the sty_terms_idsd file, and write each result to it
+      File outputFile = new File(getSrcDirFile(), "sty_term_ids");
+      final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+
+      for (final Object[] entry : list) {
+        String alternateTermId = entry[0].toString();
+        String semanticType = entry[1].toString();
+        out.println(alternateTermId + "|" + semanticType + "|0");
+      }
+
+      out.close();
+
+      logInfo("[SemanticTypeResolver] sty_term_ids file created, and saved in: "
+          + getSrcDirFile());
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
