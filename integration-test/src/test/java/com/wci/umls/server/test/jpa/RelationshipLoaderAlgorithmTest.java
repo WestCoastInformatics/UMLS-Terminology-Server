@@ -206,8 +206,8 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
       assertEquals(1, relList.size());
       
     } catch (Exception e) {
-      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
     } finally {
       algo.close();
     }

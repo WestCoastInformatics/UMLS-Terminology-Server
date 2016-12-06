@@ -127,8 +127,8 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
       // Result is to get through this all without throwing an error
 
     } catch (Exception e) {
-      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
     } finally {
       algo.close();
     }

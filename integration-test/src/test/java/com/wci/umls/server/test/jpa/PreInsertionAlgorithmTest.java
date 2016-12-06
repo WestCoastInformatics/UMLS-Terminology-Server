@@ -140,8 +140,8 @@ public class PreInsertionAlgorithmTest extends IntegrationUnitSupport {
       assertNotNull(processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
       
     } catch (Exception e) {
-      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
     } finally {
       algo.close();
     }
