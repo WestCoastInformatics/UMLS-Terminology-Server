@@ -388,8 +388,11 @@ public class DescriptorRelationshipJpa
   /**
    * Put alternate terminology id.
    *
-   * @param terminology the terminology
-   * @param terminologyId the terminology id
+   * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the relationship
+   * @throws Exception the exception
    */
 
   /* see superclass */

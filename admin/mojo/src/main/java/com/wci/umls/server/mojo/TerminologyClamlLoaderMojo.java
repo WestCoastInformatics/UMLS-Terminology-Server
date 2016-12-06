@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -20,6 +23,7 @@ import com.wci.umls.server.services.SecurityService;
  * @goal load-claml
  * @phase package
  */
+@Mojo(name = "load-claml", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
 
   /** The date format. */
@@ -27,31 +31,27 @@ public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * The input file.
-   *
-   * @parameter
-   * @required
    */
+  @Parameter
   String inputFile = null;
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   String terminology;
 
   /**
    * version.
    *
-   * @parameter
-   * @required
    */
+  @Parameter
   String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**

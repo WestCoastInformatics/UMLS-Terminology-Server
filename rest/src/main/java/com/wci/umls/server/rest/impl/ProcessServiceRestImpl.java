@@ -1695,7 +1695,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                     + processExecution.getName(),
                 from, recipients,
                 processService.getProcessLog(projectId, processExecutionId),
-                config, "true".equals(config.get("mail.smtp.auth")));
+                config);
           }
 
         } catch (Exception e) {
@@ -1741,7 +1741,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                       + algorithmExecution.getName(),
                   from, recipients,
                   processService.getProcessLog(projectId, processExecutionId),
-                  config, "true".equals(config.get("mail.smtp.auth")));
+                  config);
             } catch (Exception e2) {
               e2.printStackTrace();
             }

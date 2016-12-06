@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -23,31 +26,26 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which removes a terminology from a database.
  * 
  * See admin/remover/pom.xml for sample usage
- * 
- * @goal remove-terminology
- * 
- * @phase package
  */
+@Mojo(name = "remove-terminology", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRemoverMojo extends AbstractMojo {
 
   /**
    * Name of terminology to be removed.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * version to remove.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**

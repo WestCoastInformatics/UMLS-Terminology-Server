@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -18,25 +21,20 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which makes lucene indexes based on hibernate-search annotations.
  * 
  * See admin/lucene/pom.xml for sample usage
- *
- * @goal reindex
- * 
- * @phase package
  */
+@Mojo(name = "reindex", defaultPhase = LifecyclePhase.PACKAGE)
 public class LuceneReindexMojo extends AbstractMojo {
 
   /**
    * The specified objects to index.
-   *
-   * @parameter
    */
+  @Parameter
   private String indexedObjects = null;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -57,8 +55,8 @@ public class LuceneReindexMojo extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(

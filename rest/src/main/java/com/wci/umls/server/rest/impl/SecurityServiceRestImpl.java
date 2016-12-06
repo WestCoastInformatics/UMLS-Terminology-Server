@@ -207,6 +207,14 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "add concept",
           UserRole.ADMINISTRATOR);
 
+      // Check for existing
+      final User existingUser = securityService.getUser(user.getUserName());
+      if (existingUser != null) {
+        throw new LocalException(
+            "Duplicate username, a user with this username already exists: "
+                + user.getUserName());
+      }
+
       // Create service and configure transaction scope
       User newUser = securityService.addUser(user);
       return newUser;

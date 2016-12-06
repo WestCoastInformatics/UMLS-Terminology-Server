@@ -63,7 +63,7 @@ tsApp.directive('tsFooter', [
 
         // Get gp counter
         scope.getGlassPaneCounter = function() {
-          return gpService.glassPane.counter;
+          return gpService.getGlassPane().counter;
         };
 
         // get truncated version (no dashed content)

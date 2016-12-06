@@ -569,7 +569,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           // some terminologies may have cycles, allow these for now.
           algo3.setCycleTolerant(true);
           // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+          // but only for "concept" oriented terminologies, and only for browser mode 
+          if (!editMode && t.getOrganizingClassType() == IdType.CONCEPT) {
             algo3.setComputeSemanticType(!editMode);
           }
           algo3.compute();

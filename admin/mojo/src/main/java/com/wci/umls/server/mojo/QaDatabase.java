@@ -15,6 +15,9 @@ import javax.persistence.Query;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -24,17 +27,14 @@ import com.wci.umls.server.services.ContentService;
  * QA Check for Properly Numbered Map Groups
  * 
  * See admin/qa/pom.xml for a sample execution.
- * 
- * @goal qa-database
- * @phase package
  */
+@Mojo(name = "qa-database", defaultPhase = LifecyclePhase.PACKAGE)
 public class QaDatabase extends AbstractMojo {
 
   /**
    * The queries
-   * @parameter
-   * @required
    */
+  @Parameter
   private Properties queries;
 
   /** The manager. package visibility. */
@@ -129,7 +129,7 @@ public class QaDatabase extends AbstractMojo {
             }
             ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
                 from, config.getProperty("mail.smtp.to"), msg.toString(),
-                config, "true".equals(config.get("mail.smtp.auth")));
+                config);
           } catch (Exception e) {
             e.printStackTrace();
             // do nothing - this just means email couldn't be sent

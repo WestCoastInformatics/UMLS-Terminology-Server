@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -18,32 +21,26 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which makes ECL indexes based on component objects
  * 
  * See admin/lucene/pom.xml for sample usage
- *
- * @goal reindex-ecl
- * 
- * @phase package
  */
+@Mojo(name = "reindex-ecl", defaultPhase = LifecyclePhase.PACKAGE)
 public class LuceneReindexEclMojo extends AbstractMojo {
 
   /**
    * The terminology.
-   *
-   * @parameter
    */
+  @Parameter
   private String terminology;
   
   /**
    * The version.
-   *
-   * @parameter
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**

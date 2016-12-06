@@ -8,6 +8,9 @@ import java.util.Properties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -19,37 +22,32 @@ import com.wci.umls.server.services.SecurityService;
  * Admin tool for indicating the beginning of a release process.
  * 
  * See admin/release/pom.xml for sample usage.
- * 
- * @goal start-editing-cycle
- * @phase package
  */
+@Mojo(name = "start-editing-cycle", defaultPhase = LifecyclePhase.PACKAGE)
 public class StartEditingCycleMojo extends AbstractMojo {
 
   /**
    * The release version
-   * 
-   * @parameter releaseVersion
    */
+  @Parameter
   private String releaseVersion = null;
 
   /**
    * The terminology
-   * 
-   * @parameter terminology
    */
+  @Parameter
   private String terminology = null;
 
   /**
    * The version
-   * 
-   * @parameter version
    */
+  @Parameter
   private String version = null;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /* see superclass */
@@ -79,8 +77,8 @@ public class StartEditingCycleMojo extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(

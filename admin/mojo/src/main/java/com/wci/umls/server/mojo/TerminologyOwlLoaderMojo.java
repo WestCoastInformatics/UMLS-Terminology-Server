@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -17,9 +20,8 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for a sample execution.
  * 
- * @goal load-owl
- * @phase package
  */
+@Mojo(name = "load-owl", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyOwlLoaderMojo extends AbstractLoaderMojo {
 
   /** The date format. */
@@ -27,37 +29,32 @@ public class TerminologyOwlLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * The input file.
-   *
-   * @parameter
-   * @required
    */
+  @Parameter
   String inputFile = null;
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   String terminology;
 
   /**
    * version.
-   *
-   * @parameter
-   * @required
    */
+  @Parameter
   String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
    * Mode - for recreating db
-   * @parameter
    */
+  @Parameter
   private String mode = null;
 
   /* see superclass */
@@ -76,8 +73,8 @@ public class TerminologyOwlLoaderMojo extends AbstractLoaderMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -89,18 +86,17 @@ public class TerminologyOwlLoaderMojo extends AbstractLoaderMojo {
             "Mojo expects server to be running, but server is down");
       }
 
-      //Create the database
+      // Create the database
       if (mode != null && mode.equals("create")) {
         createDb(serverRunning);
-      }    
-      
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
- 
-      
+
       if (!serverRunning) {
         getLog().info("Running directly");
 

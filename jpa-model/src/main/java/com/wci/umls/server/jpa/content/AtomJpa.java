@@ -144,7 +144,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The last published rank. */
   @Column(nullable = true)
-  private String lastPublishedRank;
+  private String lastPublishedRank = "0";
 
   /** The notes. */
   // NOTE: this could cause a performance problem with the join

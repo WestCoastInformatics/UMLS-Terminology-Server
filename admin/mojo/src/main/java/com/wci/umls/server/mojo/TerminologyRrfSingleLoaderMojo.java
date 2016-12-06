@@ -1,11 +1,14 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -17,38 +20,31 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads a set of RRF into a database.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rrf-single
- * 
- * @phase package
  */
+@Mojo(name = "load-rrf-single", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
-   * The version.
-   * @parameter
    */
+  @Parameter
   private String prefix;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
