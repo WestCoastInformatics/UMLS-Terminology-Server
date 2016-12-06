@@ -1611,14 +1611,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
-   * Find inverse relationship.
+   * Get inverse relationship.
    *
    * @param relationship the relationship
    * @return the relationship<? extends component info,? extends component info>
    * @throws Exception the exception
    */
   @Override
-  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> findInverseRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
 
@@ -4782,10 +4782,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(Project project, Concept concept) {
+  public ValidationResult validateConcept(List<String> validationChecks, Concept concept) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(concept));
       }
     }
@@ -4808,10 +4808,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(Project project, Atom atom) {
+  public ValidationResult validateAtom(List<String> validationChecks, Atom atom) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(atom));
       }
     }
@@ -4820,11 +4820,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateDescriptor(Project project,
+  public ValidationResult validateDescriptor(List<String> validationChecks,
     Descriptor descriptor) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(descriptor));
       }
     }
@@ -4833,10 +4833,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(Project project, Code code) {
+  public ValidationResult validateCode(List<String> validationChecks, Code code) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (validationChecks.contains(key)) {
         result.merge(getValidationHandlersMap().get(key).validate(code));
       }
     }

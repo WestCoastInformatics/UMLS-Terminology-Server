@@ -51,7 +51,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
     validationResult
-        .merge(validateConcept(this.getProject(), this.getConcept()));
+        .merge(validateConcept(this.getProject().getValidationChecks(), this.getConcept()));
     return validationResult;
   }
 

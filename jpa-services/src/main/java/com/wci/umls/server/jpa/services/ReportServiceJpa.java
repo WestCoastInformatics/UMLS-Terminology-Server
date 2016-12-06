@@ -102,7 +102,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     //
     if (project != null && concept != null) {
       final ValidationResult validationResult =
-          validateConcept(project, concept);
+          validateConcept(project.getValidationChecks(), concept);
       sb.append("As of ");
       sb.append(new Date());
       if (validationResult.getWarnings().size() > 0

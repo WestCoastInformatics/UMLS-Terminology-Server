@@ -289,7 +289,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Merge Set",
         "mergeSet", "The merge set to perform the merges on", "e.g. NCI-SY", 10,
-        AlgorithmParameter.Type.ENUM, "");
+        AlgorithmParameter.Type.MULTI, "");
     // Look for the mergefacts.src file and populate the enum based on the
     // merge_set column.
     List<String> mergeSets = getMergeSets(getSrcDirFile());

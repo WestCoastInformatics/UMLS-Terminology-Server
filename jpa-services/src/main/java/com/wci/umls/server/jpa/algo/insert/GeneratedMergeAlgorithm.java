@@ -133,7 +133,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
           applyFilters(atomIdPairs, params, statsMap);
-      statsMap.put("atomPairsRemainingAfterFilters", filteredAtomIdPairs.size());
+      statsMap.put("atomPairsRemainingAfterFilters",
+          filteredAtomIdPairs.size());
 
       // Order atomIdPairs
       // sort by MergeLevel, atomId1, atomId2
@@ -153,14 +154,15 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
         updateProgress();
       }
 
-      commitClearBegin();      
-      
+      commitClearBegin();
+
       logInfo("[PrecomputedMerge] " + statsMap.get("atomPairsReturnedByQuery")
           + " atom pairs were returned by the query.");
       logInfo("[PrecomputedMerge] " + statsMap.get("atomPairsRemovedByFilters")
-      + " atom pairs were removed by filters.");
-      logInfo("[PrecomputedMerge] " + statsMap.get("atomPairsRemainingAfterFilters")
-      + " atom pair merges attempted.");
+          + " atom pairs were removed by filters.");
+      logInfo(
+          "[PrecomputedMerge] " + statsMap.get("atomPairsRemainingAfterFilters")
+              + " atom pair merges attempted.");
       logInfo("[GeneratedMerge] " + statsMap.get("successfulMerges")
           + " merges successfully performed.");
       logInfo("[GeneratedMerge] " + statsMap.get("unsuccessfulMerges")
@@ -268,10 +270,11 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       }
 
       // Check LUCENE filter atom ids, if any
-      // If atomId1 is one of the Atoms contained in the
+      // If atomId is one of the Atoms contained in the
       // filter atoms, don't keep pair
       if (filterAtomIds != null) {
-        if (filterAtomIds.contains(atomIdPair.getLeft())) {
+        if (filterAtomIds.contains(atomIdPair.getLeft())
+            || filterAtomIds.contains(atomIdPair.getRight())) {
           statsMap.put("atomPairsRemovedByFilters",
               statsMap.get("atomPairsRemovedByFilters") + 1);
           continue;

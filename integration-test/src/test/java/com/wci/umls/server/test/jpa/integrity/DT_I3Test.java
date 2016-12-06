@@ -100,7 +100,7 @@ public class DT_I3Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult =
-        contentService.validateConcept(project, conceptDemotions);
+        contentService.validateConcept(project.getValidationChecks(), conceptDemotions);
 
     // Verify that it returned a validation error
     assertFalse(validationResult.isValid());
@@ -112,7 +112,7 @@ public class DT_I3Test extends IntegrationUnitSupport {
 
     // Check whether the action violates the validation check
     final ValidationResult validationResult2 =
-        contentService.validateConcept(project, conceptNoDemotions);
+        contentService.validateConcept(project.getValidationChecks(), conceptNoDemotions);
 
     // Verify that it returned a validation error
     assertTrue(validationResult2.isValid());

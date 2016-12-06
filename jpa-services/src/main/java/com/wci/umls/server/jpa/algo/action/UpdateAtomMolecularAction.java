@@ -109,7 +109,7 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-    validationResult.merge(super.validateAtom(getProject(), getAtom()));
+    validationResult.merge(super.validateAtom(getProject().getValidationChecks(), getAtom()));
     return validationResult;
   }
 

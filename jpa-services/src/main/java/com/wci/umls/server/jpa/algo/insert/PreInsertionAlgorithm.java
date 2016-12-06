@@ -57,6 +57,11 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }    
+    
     checkFileExist(srcFullPath, "attributes.src");
     checkFileExist(srcFullPath, "classes_atoms.src");
     checkFileExist(srcFullPath, "contexts.src");

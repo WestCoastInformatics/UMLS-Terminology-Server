@@ -124,8 +124,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     params.put("projectTerminology", getProject().getTerminology());
     params.put("projectVersion", getProject().getVersion());
 
-    final List<Long[]> atomIdPairArray =
-        executeComponentIdPairQuery(query, QueryType.JQL, params, AtomJpa.class);
+    final List<Long[]> atomIdPairArray = executeComponentIdPairQuery(query,
+        QueryType.JQL, params, AtomJpa.class);
 
     setSteps(atomIdPairArray.size());
 
@@ -172,30 +172,22 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       // If the old Atom is not exactly the same as the new Atom:
       if (!oldAtom.equals(newAtom)) {
 
-        // TODO question - figure out new/old ordering of things
         // Update obsolete and suppresible.
-        // If the old version of the atom is suppresible, and its term type
-        // is not, keep the old atom's suppresibility. Otherwise, use the
-        // new Atom's suppresible value.
-        TermType atomTty = getCachedTermType(oldAtom.getTermType());
-        if (oldAtom.isSuppressible() != newAtom.isSuppressible()
-            && !(oldAtom.isSuppressible() && !atomTty.isSuppressible())) {
-          newAtom.setSuppressible(oldAtom.isSuppressible());
-        }
-        if (oldAtom.isObsolete() != newAtom.isObsolete()
-            && !(oldAtom.isObsolete() && !atomTty.isObsolete())) {
-          newAtom.setObsolete(oldAtom.isObsolete());
+        // If old atom was suppresed by an editor and new atom is unsuppressed,
+        // set new atom to suppresible
+        TermType oldAtomTty = getCachedTermType(oldAtom.getTermType());
+        TermType newAtomTty = getCachedTermType(newAtom.getTermType());
+        if (oldAtom.isSuppressible() && !newAtom.isSuppressible()
+            && !oldAtomTty.isSuppressible() && !newAtomTty.isSuppressible()) {
+          newAtom.setSuppressible(true);
         }
 
-        if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())) {
+        if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())
+            && !newAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
           newAtom.setWorkflowStatus(oldAtom.getWorkflowStatus());
         }
 
-        // TODO question - releaseRank = lastPublishedRank?
-        if (!oldAtom.getLastPublishedRank()
-            .equals(newAtom.getLastPublishedRank())) {
-          newAtom.setLastPublishedRank(oldAtom.getLastPublishedRank());
-        }
+        newAtom.setLastPublishedRank(oldAtom.getLastPublishedRank());
       }
 
       // Remove all demotions from the new Atom, and the inverses
@@ -209,7 +201,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
           // Remove the inverse relationship from the toAtom
           Atom relatedAtom = getAtom(rel.getTo().getId());
           AtomRelationship inverseDemotion =
-              (AtomRelationship) findInverseRelationship(rel);
+              (AtomRelationship) getInverseRelationship(rel);
           relatedAtom.getRelationships().remove(inverseDemotion);
 
           // Update the related atom
