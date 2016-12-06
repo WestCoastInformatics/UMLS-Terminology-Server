@@ -1701,7 +1701,7 @@ public abstract class RootServiceJpa implements RootService {
     }
     Logger.getLogger(getClass()).info("  query = " + query);
 
-    // Return the result list as a pair of atom id longs.
+    // Return the result list as a pair of component id longs.
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     final Set<String> addedResults = new HashSet<>();
@@ -1775,7 +1775,7 @@ public abstract class RootServiceJpa implements RootService {
               params.get("terminology"), null, Branch.ROOT, null, null, clazz,
               pfs, new int[1], manager);
 
-      // Cluster results
+      // Return the result list as arrays of component ids
       final List<Long[]> results = new ArrayList<>();
       for (final Component component : components) {
         final Long[] result = new Long[1];
