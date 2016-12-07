@@ -81,6 +81,8 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
           "Query Action algorithms requires a project to be set");
     }
 
+    
+    
     return validationResult;
   }
 
@@ -122,7 +124,7 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
     for (Long[] componentId : componentIds) {
 
       // Handle field-change actions
-      if (!action.equals("Remove")) {
+      if (!action.equals("Remove Demotions")) {
         // Load the component
         Component component = getComponent(componentId[0], objectTypeClass);
         Boolean componentChanged = false;
