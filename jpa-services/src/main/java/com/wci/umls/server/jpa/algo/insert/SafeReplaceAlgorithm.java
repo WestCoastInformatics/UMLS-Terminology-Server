@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -75,11 +76,10 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       throw new Exception("Safe Replace requires a project to be set");
     }
 
-    // TODO - is this true?
     if (!(codeId || conceptId || descriptorId || lexicalClassId
         || stringClassId)) {
-      validationResult.addWarning(
-          "WARNING: no match-criteria are selected (e.g. code Id, concept Id, etc.).");
+      throw new Exception(
+          "No match-criteria are selected (e.g. code Id, concept Id, etc.).");
     }
 
     return validationResult;
@@ -168,27 +168,22 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
             oldAltTermId.getValue());
       }
 
-      // TODO - do equivalence check for these atoms?
-      // If the old Atom is not exactly the same as the new Atom:
-      if (!oldAtom.equals(newAtom)) {
-
-        // Update obsolete and suppresible.
-        // If old atom was suppresed by an editor and new atom is unsuppressed,
-        // set new atom to suppresible
-        TermType oldAtomTty = getCachedTermType(oldAtom.getTermType());
-        TermType newAtomTty = getCachedTermType(newAtom.getTermType());
-        if (oldAtom.isSuppressible() && !newAtom.isSuppressible()
-            && !oldAtomTty.isSuppressible() && !newAtomTty.isSuppressible()) {
-          newAtom.setSuppressible(true);
-        }
-
-        if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())
-            && !newAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          newAtom.setWorkflowStatus(oldAtom.getWorkflowStatus());
-        }
-
-        newAtom.setLastPublishedRank(oldAtom.getLastPublishedRank());
+      // Update obsolete and suppresible.
+      // If old atom was suppresed by an editor and new atom is unsuppressed,
+      // set new atom to suppresible
+      TermType oldAtomTty = getCachedTermType(oldAtom.getTermType());
+      TermType newAtomTty = getCachedTermType(newAtom.getTermType());
+      if (oldAtom.isSuppressible() && !newAtom.isSuppressible()
+          && !oldAtomTty.isSuppressible() && !newAtomTty.isSuppressible()) {
+        newAtom.setSuppressible(true);
       }
+
+      if (!oldAtom.getWorkflowStatus().equals(newAtom.getWorkflowStatus())
+          && !newAtom.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+        newAtom.setWorkflowStatus(oldAtom.getWorkflowStatus());
+      }
+
+      newAtom.setLastPublishedRank(oldAtom.getLastPublishedRank());
 
       // Remove all demotions from the new Atom, and the inverses
       final Set<Long> removeRelationshipIds = new HashSet<>();
@@ -254,7 +249,13 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
-    // n/a
+    if (p.getProperty("stringClassId") == null
+        && p.getProperty("lexicalClassId") == null
+        && p.getProperty("codeId") == null && p.getProperty("conceptId") == null
+        && p.getProperty("descriptorId") == null) {
+      throw new LocalException(
+          "No match-criteria are selected (e.g. code Id, concept Id, etc.).");
+    }
   }
 
   /* see superclass */

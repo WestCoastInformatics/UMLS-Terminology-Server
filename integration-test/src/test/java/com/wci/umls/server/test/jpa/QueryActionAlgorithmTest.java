@@ -3,9 +3,7 @@
  */
 package com.wci.umls.server.test.jpa;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -31,7 +29,6 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProcessService;
@@ -176,12 +173,17 @@ public class QueryActionAlgorithmTest extends IntegrationUnitSupport {
     for (SemanticTypeComponent conceptSty : concept.getSemanticTypes()) {
       if (conceptSty.getSemanticType().equals("TESTHormoneTEST")) {
         conceptHasHormoneSty = true;
+        assertTrue(conceptSty.isPublishable());
+        // assertEquals(WorkflowStatus.NEEDS_REVIEW,
+        // conceptSty.getWorkflowStatus());
         break;
       }
     }
     assertTrue(conceptHasHormoneSty);
 
+    //
     // Run the QUERYACTION algorithm
+    //
     try {
 
       algo.setTransactionPerOperation(false);
@@ -193,12 +195,13 @@ public class QueryActionAlgorithmTest extends IntegrationUnitSupport {
       //
 
       Properties algoProperties = new Properties();
-      algoProperties.put("objectType", IdType.SEMANTIC_TYPE.toString());
-      algoProperties.put("action", "Remove");
+      algoProperties.put("objectType", "SemanticTypeComponentJpa");
+      algoProperties.put("action", "Make Unpublishable");
       algoProperties.put("queryType", QueryType.JQL.toString());
       algoProperties.put("query",
           "SELECT s.id FROM SemanticTypeComponentJpa s WHERE s.id > "
-              + processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
+              + processExecution.getExecutionInfo()
+                  .get("maxStyIdPreInsertion"));
       algo.setProperties(algoProperties);
 
       //
@@ -218,24 +221,22 @@ public class QueryActionAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-      // Confirm the new semantic type component was removed from the concept
+      // Confirm the new semantic type component's workflow status was updated
       contentService.updateConcept(concept);
       contentService = new ContentServiceJpa();
       contentService.setLastModifiedBy("admin");
       contentService.setMolecularActionFlag(false);
 
       concept = contentService.getConcept(conceptId);
-      conceptHasHormoneSty = false;
       for (SemanticTypeComponent conceptSty : concept.getSemanticTypes()) {
         if (conceptSty.getSemanticType().equals("TESTHormoneTEST")) {
-          conceptHasHormoneSty = true;
+          assertTrue(!conceptSty.isPublishable());
+          // assertEquals(WorkflowStatus.READY_FOR_PUBLICATION,
+          // conceptSty.getWorkflowStatus());
+
           break;
         }
       }
-      assertFalse(conceptHasHormoneSty);
-
-      // Confirm the semantic type itself was also removed
-      assertNull(contentService.getSemanticTypeComponent(styId));
 
     } catch (Exception e) {
       e.printStackTrace();
