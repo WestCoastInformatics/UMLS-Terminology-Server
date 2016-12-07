@@ -5,7 +5,6 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
 
 import java.util.Date;
 import java.util.Properties;
@@ -21,9 +20,10 @@ import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.PreInsertionAlgorithm;
-import com.wci.umls.server.jpa.algo.insert.SemanticTypeResolverAlgorithm;
+import com.wci.umls.server.jpa.algo.maint.QueryActionAlgorithm;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
@@ -37,10 +37,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
+public class QueryActionAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  SemanticTypeResolverAlgorithm algo = null;
+  QueryActionAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -53,7 +53,7 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
- 
+
   /** The concept id. */
   Long conceptId;
 
@@ -115,7 +115,7 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
     preInsertionalgo.compute();
 
     // Create and configure the algorithm
-    algo = new SemanticTypeResolverAlgorithm();
+    algo = new QueryActionAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -128,14 +128,14 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test semantic type resolver.
+   * Test query action.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testSemanticTypeResolver() throws Exception {
+  public void testQueryAction() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
-    
+
     // Create a new SemanticTypeComponent and attach it to concept 1, so the
     // resolver can identify and remove it.
     conceptId = 1L;
@@ -153,13 +153,13 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
     sty.setTerminology(project.getTerminology());
     sty.setVersion(project.getVersion());
     sty.setTimestamp(new Date());
-    
+
     // Create the sty, and add it to the concept
     contentService.addSemanticTypeComponent(sty, concept);
     styId = sty.getId();
     contentService = new ContentServiceJpa();
     contentService.setLastModifiedBy("admin");
-    contentService.setMolecularActionFlag(false);    
+    contentService.setMolecularActionFlag(false);
 
     concept.getSemanticTypes().add(sty);
     contentService.updateConcept(concept);
@@ -173,23 +173,35 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
     for (SemanticTypeComponent conceptSty : concept.getSemanticTypes()) {
       if (conceptSty.getSemanticType().equals("TESTHormoneTEST")) {
         conceptHasHormoneSty = true;
+        assertTrue(conceptSty.isPublishable());
+        // assertEquals(WorkflowStatus.NEEDS_REVIEW,
+        // conceptSty.getWorkflowStatus());
         break;
       }
     }
     assertTrue(conceptHasHormoneSty);
 
-    // Run the SEMANTICTYPERESOLVER algorithm
+    //
+    // Run the QUERYACTION algorithm
+    //
     try {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
 
       //
-      // Set properties for the algorithm (the newly added semantic type will
-      // 'lose' and be deleted)
+      // Set properties for the algorithm
+      // The passed-in query will return just the newly created Semantic Type
       //
+
       Properties algoProperties = new Properties();
-      algoProperties.put("winLose", "lose");
+      algoProperties.put("objectType", "SemanticTypeComponentJpa");
+      algoProperties.put("action", "Make Unpublishable");
+      algoProperties.put("queryType", QueryType.JQL.toString());
+      algoProperties.put("query",
+          "SELECT s.id FROM SemanticTypeComponentJpa s WHERE s.id > "
+              + processExecution.getExecutionInfo()
+                  .get("maxStyIdPreInsertion"));
       algo.setProperties(algoProperties);
 
       //
@@ -208,23 +220,23 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
       // Perform the algorithm
       //
       algo.compute();
-      
-      // Confirm the new semantic type component was removed from the concept
+
+      // Confirm the new semantic type component's workflow status was updated
       contentService.updateConcept(concept);
       contentService = new ContentServiceJpa();
       contentService.setLastModifiedBy("admin");
       contentService.setMolecularActionFlag(false);
 
       concept = contentService.getConcept(conceptId);
-      conceptHasHormoneSty = false;
       for (SemanticTypeComponent conceptSty : concept.getSemanticTypes()) {
         if (conceptSty.getSemanticType().equals("TESTHormoneTEST")) {
-          conceptHasHormoneSty = true;
+          assertTrue(!conceptSty.isPublishable());
+          // assertEquals(WorkflowStatus.READY_FOR_PUBLICATION,
+          // conceptSty.getWorkflowStatus());
+
           break;
         }
       }
-      assertFalse(conceptHasHormoneSty);      
-      
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -255,7 +267,8 @@ public class SemanticTypeResolverAlgorithmTest extends IntegrationUnitSupport {
     // Remove the Sty added in the test, if the algorithm missed it.
     if (contentService.getSemanticTypeComponent(styId) != null) {
       Concept concept = contentService.getConcept(conceptId);
-      SemanticTypeComponent sty = contentService.getSemanticTypeComponent(styId);
+      SemanticTypeComponent sty =
+          contentService.getSemanticTypeComponent(styId);
       concept.getSemanticTypes().remove(sty);
       contentService.updateConcept(concept);
       contentService.removeSemanticTypeComponent(styId);

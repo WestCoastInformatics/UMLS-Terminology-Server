@@ -6,12 +6,7 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -21,10 +16,9 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.AttributeLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.UpdateReleasabilityAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.services.ContentService;
@@ -34,10 +28,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
+public class UpdateReleasibilityAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  AttributeLoaderAlgorithm algo = null;
+  UpdateReleasabilityAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -50,9 +44,6 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
-
-  /** The temporary .src file. */
-  private File outputFile = null;
 
   /**
    * Setup class.
@@ -84,62 +75,36 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT/src"); // <- Set
-                                                                   // this to
-    // the standard
-    // folder
-    // location
-
-    // Create the /temp subdirectory
-    final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
-    FileUtils.mkdir(tempSrcDir.toString());
-
-    // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
-
-    // Create and populate an attributes.src document in the /temp
-    // temporary subfolder
-    outputFile = new File(tempSrcDir, "attributes.src");
-
-    PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    out.println(
-        "1|362166237|C|SEMANTIC_TYPE|Intellectual Product|SRC|R|Y|N|N|SRC_ATOM_ID|||3d9e88091cf4ebbab774e90c8f6d4052|");
-    out.println(
-        "32|C93028|S|DEFINITION|The region on either side of the body that extends from the last rib to the hip.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e5ad416a6556a0dcb279c124a6acc83a|");
-    out.println(
-        "34|C98033|S|FDA_UNII_Code|ODN00F2SJG|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||634eb9dd2339a0f372a5f0b3c7b58fed|");
-    out.close();
-
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");
+                    
     // Create and configure the algorithm
-    algo = new AttributeLoaderAlgorithm();
+    algo = new UpdateReleasabilityAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProcess(processExecution);
     algo.setProject(processExecution.getProject());
-    algo.setTerminology(processExecution.getTerminology());
-    algo.setVersion(processExecution.getVersion());
+    algo.setTerminology("NCI");
+    algo.setVersion("2016_05E");
+
   }
 
   /**
-   * Test relationships loader normal use.
+   * Test generated merge normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testAttributeLoader() throws Exception {
+  public void testUpdateReleasibility() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the ATTRIBUTELOADER algorithm
+    // Run the UPDATERELEASIBILITY algorithm
     try {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
+
       //
       // Check prerequisites
       //
@@ -157,7 +122,6 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -173,11 +137,6 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
-    FileUtils.forceDelete(outputFile);
-
-    FileUtils.deleteDirectory(new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();

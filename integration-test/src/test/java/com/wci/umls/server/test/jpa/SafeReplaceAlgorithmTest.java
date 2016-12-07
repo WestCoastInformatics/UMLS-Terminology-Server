@@ -136,8 +136,8 @@ public class SafeReplaceAlgorithmTest extends IntegrationUnitSupport {
       algo.compute();
 
     } catch (Exception e) {
-      fail("Unexpected exception thrown - please review stack trace.");
       e.printStackTrace();
+      fail("Unexpected exception thrown - please review stack trace.");
     } finally {
       algo.close();
     }
