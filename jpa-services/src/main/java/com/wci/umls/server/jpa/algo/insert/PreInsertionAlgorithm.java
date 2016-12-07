@@ -60,8 +60,8 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
-    }    
-    
+    }
+
     checkFileExist(srcFullPath, "attributes.src");
     checkFileExist(srcFullPath, "classes_atoms.src");
     checkFileExist(srcFullPath, "contexts.src");
@@ -74,9 +74,17 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     return validationResult;
   }
 
+  /**
+   * Check file exist.
+   *
+   * @param srcFullPath the src full path
+   * @param fileName the file name
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
   private void checkFileExist(String srcFullPath, String fileName)
     throws Exception {
-    
+
     File sourceFile = new File(srcFullPath + File.separator + fileName);
     if (!sourceFile.exists()) {
       throw new Exception(fileName

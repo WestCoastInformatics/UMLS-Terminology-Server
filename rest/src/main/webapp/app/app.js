@@ -4,6 +4,7 @@
 // See:
 // http://blog.brunoscopelliti.com/how-to-defer-route-definition-in-an-angularjs-web-app/
 var $routeProviderReference;
+var $locationProviderReference;
 
 var tsApp = angular.module(
   'tsApp',
@@ -14,6 +15,7 @@ var tsApp = angular.module(
   $rootScopeProvider.digestTtl(15);
   // Save reference to route provider
   $routeProviderReference = $routeProvider;
+  $locationProviderReference = $locationProvider;
 
 });
 

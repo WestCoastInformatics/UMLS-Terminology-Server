@@ -20,10 +20,6 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads an RF2 Snapshot of SNOMED CT data into a database.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rf2-snapshot
- * 
- * @phase package
  */
 @Mojo(name = "load-rf2-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRf2SnapshotLoaderMojo extends AbstractLoaderMojo {

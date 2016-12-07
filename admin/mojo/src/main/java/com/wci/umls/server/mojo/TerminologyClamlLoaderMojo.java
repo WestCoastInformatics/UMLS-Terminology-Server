@@ -20,8 +20,6 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for a sample execution.
  * 
- * @goal load-claml
- * @phase package
  */
 @Mojo(name = "load-claml", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
@@ -76,8 +74,8 @@ public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -89,17 +87,17 @@ public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
             "Mojo expects server to be running, but server is down");
       }
 
-      //Create the database
+      // Create the database
       if (mode != null && mode.equals("create")) {
         createDb(serverRunning);
-      }      
-      
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
-      
+
       if (!serverRunning) {
         getLog().info("Running directly");
 
