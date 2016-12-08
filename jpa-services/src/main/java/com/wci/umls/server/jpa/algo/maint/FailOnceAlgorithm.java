@@ -100,4 +100,9 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Algorithm for testing fail and restart.";
+  }
 }

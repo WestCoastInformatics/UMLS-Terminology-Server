@@ -106,7 +106,7 @@ public class ExceptionHandler {
           .info("Sending error email : " + props);
       if ("true".equals(config.getProperty("mail.enabled"))) {
         ConfigUtility.sendEmail(subject, from, recipients, body.toString(),
-            props, "true".equals(props.get("mail.smtp.auth")));
+            props);
       } else {
         Logger.getLogger(ExceptionHandler.class)
             .info("Sending mail is disabled.");

@@ -75,4 +75,9 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
     return super.getParameters();
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Algorithm for reloading config.properties";
+  }
 }

@@ -8,6 +8,9 @@ import java.util.Date;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
@@ -23,31 +26,26 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * source data object.
  * 
  * See admin/pom.xml for a sample execution.
- * 
- * @goal loadsd-rf2-delta
- * @phase package
  */
+@Mojo(name = "loadsd-rf2-delta", defaultPhase = LifecyclePhase.PACKAGE)
 public class Rf2DeltaSourceDataLoaderMojo extends SourceDataMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * Version of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**

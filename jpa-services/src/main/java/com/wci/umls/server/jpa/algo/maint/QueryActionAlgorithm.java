@@ -78,8 +78,6 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
           "Query Action algorithms requires a project to be set");
     }
 
-    
-    
     return validationResult;
   }
 
@@ -330,6 +328,12 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
     params.add(param);
 
     return params;
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Perform <action> on <type> for <purpose>.";
   }
 
 }

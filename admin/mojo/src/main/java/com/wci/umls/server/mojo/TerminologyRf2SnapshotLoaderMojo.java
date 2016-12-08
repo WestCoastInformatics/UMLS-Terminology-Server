@@ -1,11 +1,14 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -17,44 +20,36 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads an RF2 Snapshot of SNOMED CT data into a database.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rf2-snapshot
- * 
- * @phase package
  */
+@Mojo(name = "load-rf2-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRf2SnapshotLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
-  /**
-   * Mode - for recreating db
-   * @parameter
-   */
+  /** Mode - for recreating db. */
+  @Parameter
   private String mode = null;
 
   /**
@@ -82,8 +77,8 @@ public class TerminologyRf2SnapshotLoaderMojo extends AbstractLoaderMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -95,11 +90,11 @@ public class TerminologyRf2SnapshotLoaderMojo extends AbstractLoaderMojo {
             "Mojo expects server to be running, but server is down");
       }
 
-      //Create the database
+      // Create the database
       if (mode != null && mode.equals("create")) {
         createDb(serverRunning);
-      }          
-      
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =

@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -220,11 +221,11 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(Arrays.asList("Add", "Remove"));
     params.add(param);
-    
+
     param = new AlgorithmParameterJpa("Integrity Check", "checkName",
         "The name of the integrity check to add or remove", "e.g. MGV_B", 10,
         AlgorithmParameter.Type.ENUM, "");
-    
+
     List<String> validationChecks = new ArrayList<>();
     for (final KeyValuePair validationCheck : getValidationCheckNames()
         .getKeyValuePairs()) {
@@ -246,6 +247,12 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
     params.add(param);
 
     return params;
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Add/Remove integrity check data for <check name>";
   }
 
 }

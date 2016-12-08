@@ -1697,11 +1697,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                     + processExecution.getName(),
                 from, recipients,
                 processService.getProcessLog(projectId, processExecutionId),
-                config, "true".equals(config.get("mail.smtp.auth")));
+                config);
           }
 
         } catch (Exception e) {
-          //e.printStackTrace();
+          // e.printStackTrace();
           exceptions[0] = e;
 
           // Remove process and algorithm from the maps
@@ -1743,7 +1743,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                       + algorithmExecution.getName(),
                   from, recipients,
                   processService.getProcessLog(projectId, processExecutionId),
-                  config, "true".equals(config.get("mail.smtp.auth")));
+                  config);
             } catch (Exception e2) {
               e2.printStackTrace();
             }
@@ -1877,6 +1877,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final AlgorithmConfig algo = new AlgorithmConfigJpa();
       algo.setProject(project);
       algo.setProcess(process);
+      algo.setDescription(algorithm.getDescription());
       // Algorithm also needs project and process set so that getParameters will
       // function correctly
       algorithm.setProject(algo.getProject());

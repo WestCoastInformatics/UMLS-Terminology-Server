@@ -197,6 +197,15 @@ tsApp
           // return ((h + ":" + (m < 10 ? "0" : "") ) + m);
         }
 
+        this.toText = function(camelCase, captializefirst) {
+          if (capitalizeFirst) {
+            var str = camelCase.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1");
+            return str[0].toUpperCase() + str.slice(1)
+          } else {
+            return camelCase.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1")
+          }
+        }
+
         // Convert date to a string
         this.toDate = function(lastModified) {
           if (!lastModified) {
@@ -362,6 +371,7 @@ tsApp
           };
         };
 
+
         // function for sorting an array by (string) field and direction
         this.sortBy = function(field, reverse) {
 
@@ -502,39 +512,56 @@ tsApp
       } ]);
 
 // Glass pane service
-tsApp.service('gpService', function() {
+tsApp.service('gpService', [ '$timeout', function($timeout) {
   console.debug('configure gpService');
   // declare the glass pane counter
-  this.glassPane = {
+  var glassPane = {
     counter : 0,
-    messages : []
+    messages : [],
+    enabled : true,
+    timeout : false
   };
 
+  this.getGlassPane = function() {
+    return glassPane;
+  }
+
   this.isGlassPaneSet = function() {
-    return this.glassPane.counter;
+    return glassPane.enabled;
   };
 
   this.isGlassPaneNegative = function() {
-    return this.glassPane.counter < 0;
+    return glassPane.counter < 0;
   };
 
   // Increments glass pane counter
   this.increment = function(message) {
     if (message) {
-      this.glassPane.messages.push(message);
+      glassPane.messages.push(message);
     }
-    this.glassPane.counter++;
+    glassPane.counter++;
+    if (!glassPane.timeout) {
+      $timeout(function() {
+        if (glassPane.counter > 0) {
+          glassPane.enabled = true;
+        }
+        glassPane.timeout = false;
+      }, 100);
+    }
   };
 
   // Decrements glass pane counter
   this.decrement = function(message) {
     if (message) {
-      var index = this.glassPane.messages.indexOf(message);
+      var index = glassPane.messages.indexOf(message);
       if (index !== -1) {
-        this.glassPane.messages.splice(index, 1);
+        glassPane.messages.splice(index, 1);
       }
     }
-    this.glassPane.counter--;
+    glassPane.counter--;
+    if (glassPane.counter == 0) {
+      glassPane.enabled = false;
+    }
   };
 
-});
+} ]);

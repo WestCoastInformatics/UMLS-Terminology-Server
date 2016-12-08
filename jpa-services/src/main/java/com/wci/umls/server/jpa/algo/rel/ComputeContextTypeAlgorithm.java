@@ -17,6 +17,7 @@ import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -228,7 +229,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
                   + " and a.node.id < b.node.id");
         }
 
-        hQuery.setReadOnly(true).setFetchSize(1000);
+        hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
         ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
         while (results.next()) {
           final Concept from = (Concept) results.get()[0];
@@ -322,11 +323,16 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     System.out.println("context type progress " + steps + " " + stepsCompleted);
     if (currentProgress > previousProgress) {
-      checkCancel(); 
+      checkCancel();
       fireProgressEvent(currentProgress,
           "CONTEXT TYPE progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

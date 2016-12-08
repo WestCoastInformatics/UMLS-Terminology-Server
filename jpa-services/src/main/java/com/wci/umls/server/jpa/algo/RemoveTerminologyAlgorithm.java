@@ -699,4 +699,10 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
   public void setProperties(Properties p) throws Exception {
     // n/a
   }
+  
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

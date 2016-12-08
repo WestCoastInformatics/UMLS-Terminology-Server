@@ -65,8 +65,9 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   /** The override warnings. */
   private boolean overrideWarnings;
 
+  /** The validation checks. */
   private List<String> validationChecks = null;
-  
+
   /**
    * Instantiates an empty {@link AbstractMolecularAction}.
    *
@@ -613,16 +614,16 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
 
   /* see superclass */
   @Override
-  public List<String> getValidationChecks(){
+  public List<String> getValidationChecks() {
     return validationChecks;
   }
-  
+
   /* see superclass */
   @Override
-  public void setValidationChecks(List<String> validationChecks){
+  public void setValidationChecks(List<String> validationChecks) {
     this.validationChecks = validationChecks;
   }
-  
+
   /**
    * Post action maintenance.
    *
@@ -689,6 +690,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
   @Override
   public boolean lockRelatedConcepts() {
     return false;
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return getName();
   }
 
   /**

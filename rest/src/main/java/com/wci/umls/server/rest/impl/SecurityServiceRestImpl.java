@@ -207,6 +207,14 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "add concept",
           UserRole.ADMINISTRATOR);
 
+      // Check for existing
+      final User existingUser = securityService.getUser(user.getUserName());
+      if (existingUser != null) {
+        throw new LocalException(
+            "Duplicate username, a user with this username already exists: "
+                + user.getUserName());
+      }
+
       // Create service and configure transaction scope
       User newUser = securityService.addUser(user);
       return newUser;
@@ -285,6 +293,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "add new user preferences",
           UserRole.USER);
 
+      if (userPreferences == null) {
+        throw new LocalException("Attempt to add null user preferences.");
+      }
       // Create service and configure transaction scope
       UserPreferences newUserPreferences =
           securityService.addUserPreferences(userPreferences);
@@ -338,6 +349,9 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeApp(securityService, authToken,
           "update user preferences", UserRole.VIEWER);
 
+      if (userPreferences == null) {
+        return null;
+      }
       if (!userPreferences.getUser().getUserName().equals(userName)) {
         throw new Exception(
             "User preferences can only be updated for this user");

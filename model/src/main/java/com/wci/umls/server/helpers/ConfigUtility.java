@@ -749,18 +749,17 @@ public class ConfigUtility {
    * @param recipients the recipients
    * @param body the body
    * @param details the details
-   * @param authFlag the auth flag
    * @throws Exception the exception
    */
   public static void sendEmail(String subject, String from, String recipients,
-    String body, Properties details, boolean authFlag) throws Exception {
+    String body, Properties details) throws Exception {
     // avoid sending mail if disabled
     if ("false".equals(details.getProperty("mail.enabled"))) {
       // do nothing
       return;
     }
     Session session = null;
-    if (authFlag) {
+    if ("true".equals(config.get("mail.smtp.auth"))) {
       Authenticator auth = new SMTPAuthenticator();
       session = Session.getInstance(details, auth);
     } else {
@@ -1200,14 +1199,21 @@ public class ConfigUtility {
         .replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])",
             "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
   }
-  
-  public static Comparator<String> getByteComparator() {
-    return new Comparator<String> () {
 
+  /**
+   * Returns the byte comparator.
+   *
+   * @return the byte comparator
+   */
+  public static Comparator<String> getByteComparator() {
+    return new Comparator<String>() {
+
+      /* see superclass */
       @Override
       public int compare(String o1, String o2) {
         try {
-          return UnsignedBytes.lexicographicalComparator().compare(o1.getBytes("UTF-8"), o2.getBytes("UTF-8"));                
+          return UnsignedBytes.lexicographicalComparator()
+              .compare(o1.getBytes("UTF-8"), o2.getBytes("UTF-8"));
         } catch (Exception e) {
           throw new RuntimeException(e);
         }

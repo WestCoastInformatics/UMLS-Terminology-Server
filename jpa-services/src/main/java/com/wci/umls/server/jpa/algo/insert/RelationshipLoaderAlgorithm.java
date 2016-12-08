@@ -33,7 +33,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import relationships.
  */
-public class RelationshipLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class RelationshipLoaderAlgorithm
+    extends AbstractSourceInsertionAlgorithm {
 
   /** The handler. */
   private IdentifierAssignmentHandler handler = null;
@@ -593,7 +594,8 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceInsertionAlgorith
 
     // Update the progress
     updateProgress();
-    handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt, RootService.commitCt);
+    handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
+        RootService.commitCt);
 
   }
 
@@ -631,6 +633,11 @@ public class RelationshipLoaderAlgorithm extends AbstractSourceInsertionAlgorith
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Loads and processes relationships.src";
   }
 
 }

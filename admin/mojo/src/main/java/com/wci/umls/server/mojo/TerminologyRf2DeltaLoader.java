@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -10,6 +10,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -21,33 +24,24 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads an RF2 Delta of SNOMED CT data
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rf2-delta
- * 
- * @phase package
  */
+@Mojo(name = "load-rf2-delta", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRf2DeltaLoader extends AbstractMojo {
 
   /**
    * Name of terminology to be loaded.
-   * 
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The input directory
-   * 
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
-  /**
-   * Whether to run this mojo against an active server
-   * @parameter
-   */
+  /** Whether to run this mojo against an active server. */
+  @Parameter
   private boolean server = false;
 
   /* see superclass */
@@ -63,8 +57,8 @@ public class TerminologyRf2DeltaLoader extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -87,8 +81,8 @@ public class TerminologyRf2DeltaLoader extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService
-            .loadTerminologyRf2Delta(terminology, inputDir, authToken);
+        contentService.loadTerminologyRf2Delta(terminology, inputDir,
+            authToken);
       } else {
         getLog().info("Running against server");
 

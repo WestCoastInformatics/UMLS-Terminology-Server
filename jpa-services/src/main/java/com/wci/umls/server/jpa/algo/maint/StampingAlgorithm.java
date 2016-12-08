@@ -236,4 +236,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Approve/Unapprove all concepts in a checklist/worklist";
+  }
 }

@@ -116,4 +116,9 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Testing algorithm that waits for a "
+        + "configured amount of time and number of steps.";
+  }
 }

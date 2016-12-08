@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
@@ -86,17 +89,14 @@ import com.wci.umls.server.services.SecurityService;
  * services directly and not through the client.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal generate-sample-data
- * @phase package
  */
+@Mojo(name = "generate-sample-data", defaultPhase = LifecyclePhase.PACKAGE)
 public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
   /**
    * Mode - for recreating db.
-   *
-   * @parameter
    */
+  @Parameter
   private String mode = null;
 
   /** The terminology. */

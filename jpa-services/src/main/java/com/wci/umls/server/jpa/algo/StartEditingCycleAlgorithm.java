@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 
@@ -103,4 +104,9 @@ public class StartEditingCycleAlgorithm extends AbstractAlgorithm {
     return super.getParameters();
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

@@ -2355,10 +2355,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         }
         ConfigUtility.sendEmail(
             "[Terminology Server] Worklist Concept Report " + fileName, from,
-            user.getEmail(),
-            "The worklist concept report " + fileName
+            user.getEmail(), "The worklist concept report " + fileName
                 + " has been successfully generated.",
-            config, "true".equals(config.get("mail.smtp.auth")));
+            config);
       }
 
       workflowService.addLogEntry(userName, projectId, worklist.getId(), null,

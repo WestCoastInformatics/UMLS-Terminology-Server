@@ -11,6 +11,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.model.content.Atom;
@@ -20,8 +21,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Algorithm for computing preferred names and publication status for a project
- * terminology.
- * TODO: change this package to "rel" => "release (fix config files)
+ * terminology. TODO: change this package to "rel" => "release (fix config
+ * files)
  */
 public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
@@ -181,5 +182,11 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
   }
 }

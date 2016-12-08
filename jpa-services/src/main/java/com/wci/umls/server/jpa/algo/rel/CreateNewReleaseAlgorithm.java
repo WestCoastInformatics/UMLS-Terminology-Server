@@ -15,6 +15,7 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -61,7 +62,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
     // Verify that there is a "NET" directory at input path
     final String path = config.getProperty("source.data.dir") + "/"
-        +  getProcess().getInputPath();
+        + getProcess().getInputPath();
     final File dir = new File(path, "NET");
     if (!dir.exists()) {
       result.addError("Release requires a 'NET' directory at the input path "
@@ -229,10 +230,16 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     stepCt++;
     int currentProgress = (int) ((100.0 * stepCt / steps));
     if (currentProgress > previousProgress) {
-      checkCancel(); 
+      checkCancel();
       fireProgressEvent(currentProgress,
           "CREATE RELEASE progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
   }
 }

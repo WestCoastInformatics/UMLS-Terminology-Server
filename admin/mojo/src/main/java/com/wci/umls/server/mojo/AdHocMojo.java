@@ -21,15 +21,15 @@ package com.wci.umls.server.mojo;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 
 /**
  * Goal which performs an ad hoc task.
  * 
  * See admin/db/pom.xml for sample usage
- * 
- * @goal ad-hoc
- * @phase package
  */
+@Mojo(name = "ad-hoc", defaultPhase = LifecyclePhase.PACKAGE)
 public class AdHocMojo extends AbstractMojo {
 
   /** The terminology. */

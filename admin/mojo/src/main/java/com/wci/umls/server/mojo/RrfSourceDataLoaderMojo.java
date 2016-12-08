@@ -9,6 +9,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
@@ -24,43 +27,38 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * source data object.
  * 
  * See admin/pom.xml for a sample execution.
- * 
- * @goal loadsd-rrf-umls
- * @phase package
  */
+@Mojo(name = "loadsd-rrf-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
 public class RrfSourceDataLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * create or update mode.
-   * @parameter
    */
+  @Parameter
   private String mode;
 
   /**
    * The filename prefix
-   * @parameter
    */
+  @Parameter
   private String prefix;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**

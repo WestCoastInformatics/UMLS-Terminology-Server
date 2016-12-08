@@ -255,4 +255,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     return super.getParameters();
   }
 
+  public String getDescription() {
+    return "Recompute concept status";
+  }
 }

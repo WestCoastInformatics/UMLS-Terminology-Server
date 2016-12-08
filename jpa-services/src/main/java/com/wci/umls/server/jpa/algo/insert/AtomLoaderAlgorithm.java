@@ -466,4 +466,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Loads and processes a classes_atoms.src file.";
+  }
 }

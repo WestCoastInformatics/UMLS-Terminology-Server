@@ -104,7 +104,8 @@ public class SemanticTypeResolverAlgorithm
     int removedStyCount = 0;
 
     try {
-      logInfo("[SemanticTypeResolver] Finding all concepts that contain both new and old Semantic Types.");
+      logInfo(
+          "[SemanticTypeResolver] Finding all concepts that contain both new and old Semantic Types.");
 
       // Find all concepts that contain old and new semantic type components
 
@@ -168,8 +169,8 @@ public class SemanticTypeResolverAlgorithm
       // Default ClassesFlag to 0
       // Save file as sty_term_ids in process-folder
 
-      logInfo("[SemanticTypeResolver] Creating the sty_term_ids file.");      
-      
+      logInfo("[SemanticTypeResolver] Creating the sty_term_ids file.");
+
       // Generate query string
       query = "SELECT DISTINCT value(aid), s.semanticType "
           + "FROM ConceptJpa c JOIN c.atoms a join a.alternateTerminologyIds aid join c.semanticTypes s "
@@ -268,6 +269,11 @@ public class SemanticTypeResolverAlgorithm
     params.add(param);
 
     return params;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Resolves insertion semantic types against prior state.";
   }
 
 }

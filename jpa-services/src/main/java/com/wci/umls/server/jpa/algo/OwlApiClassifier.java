@@ -26,6 +26,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Classifier;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.HistoryServiceJpa;
@@ -806,4 +807,9 @@ public class OwlApiClassifier extends AbstractAlgorithm implements Classifier {
     // n/a
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

@@ -459,8 +459,8 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         if (ptrAltIds.indexOf(element) == 0) {
           continue;
         }
-        logWarn("Warning - atom not found for alternate Terminology Id: " + element
-                + ". Could not process the following line:\n\t" + line);
+        logWarn("Warning - atom not found for alternate Terminology Id: "
+            + element + ". Could not process the following line:\n\t" + line);
         return;
       }
 
@@ -742,6 +742,11 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Loads and processes contexts.src and computes tree positions where possible from PAR/CHD relationships.";
   }
 
 }

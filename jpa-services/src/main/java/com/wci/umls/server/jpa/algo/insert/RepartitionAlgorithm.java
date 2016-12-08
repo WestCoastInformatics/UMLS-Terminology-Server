@@ -224,4 +224,8 @@ public class RepartitionAlgorithm extends AbstractSourceInsertionAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Regenerates workflow bins.";
+  }
 }

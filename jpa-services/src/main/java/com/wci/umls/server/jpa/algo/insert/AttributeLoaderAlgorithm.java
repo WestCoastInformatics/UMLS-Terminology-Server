@@ -358,17 +358,18 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
         // Update the progress
         updateProgress();
-        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt, RootService.commitCt);
+        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
+            RootService.commitCt);
       }
 
       // Now remove the alternate terminologies for relationships - we don't
       // need them anymore
       clearRelationshipAltTerminologies();
-      
+
       // Finally, clear out the static caches that have been populated during by
       // the previous loader algorithms - we don't need them anymore either
-      clearCaches();      
-      
+      clearCaches();
+
       commitClearBegin();
       handler.commitClearBegin();
 
@@ -386,7 +387,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       logInfo("  activityId = " + getActivityId());
       logInfo("  user  = " + getLastModifiedBy());
       logInfo("Finished ATTRIBUTELOADING");
-
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
@@ -419,6 +419,11 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Loads and processes an attributes.src file to load Attribute and Definition objects.";
   }
 
 }

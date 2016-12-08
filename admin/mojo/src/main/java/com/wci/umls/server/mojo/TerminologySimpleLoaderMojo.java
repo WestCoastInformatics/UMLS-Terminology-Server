@@ -6,6 +6,9 @@ package com.wci.umls.server.mojo;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -17,51 +20,43 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads a set of simple terminology files into a db
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-simple
- * 
- * @phase package
  */
+@Mojo(name = "load-simple", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologySimpleLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
    * Mode - for recreating db
-   * @parameter
    */
+  @Parameter
   private String mode = null;
 
   /**
    * Instantiates a {@link TerminologySimpleLoaderMojo} from the specified
    * parameters.
-   * 
    */
   public TerminologySimpleLoaderMojo() {
     // do nothing

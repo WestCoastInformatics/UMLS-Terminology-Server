@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.Rf2FileCopier;
@@ -22,39 +25,32 @@ import com.wci.umls.server.jpa.algo.Rf2SnapshotSamplerAlgorithm;
  * Goal which samples an RF2 Snapshot of SNOMED CT data and outputs RF2.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal sample-rf2-snapshot
- * 
- * @phase package
  */
+@Mojo(name = "sample-rf2-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRf2SnapshotSampler extends AbstractMojo {
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
    * Input concepts file.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputFile = null;
 
   /**
    * Output directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String outputDir;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
