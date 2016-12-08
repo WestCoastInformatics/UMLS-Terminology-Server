@@ -61,6 +61,7 @@ import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
+import com.wci.umls.server.jpa.algo.insert.RepartitionAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
@@ -86,9 +87,7 @@ import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 import com.wci.umls.server.model.actions.ChangeEvent;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
@@ -928,69 +927,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     // Only one user can regenerate bins at a time
     synchronized (lock) {
-      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      // Instantiate services
+      final RepartitionAlgorithm algorithm = new RepartitionAlgorithm();
       try {
-        final String userName =
-            authorizeProject(workflowService, projectId, securityService,
-                authToken, "trying to regenerate bins", UserRole.AUTHOR);
-        workflowService.setLastModifiedBy(userName);
-        // Set transaction mode
-        workflowService.setTransactionPerOperation(false);
-        workflowService.beginTransaction();
 
-        // Load the project and workflow config
-        Project project = workflowService.getProject(projectId);
-        // verifyProject -> n/a because we're getting bins for a project
-        if (!project.isEditingEnabled()) {
-          throw new LocalException(
-              "Editing is disabled on project: " + project.getName());
+        // Authorize project role, get userName
+        final String userName = authorizeProject(algorithm, projectId,
+            securityService, authToken, "stamping worklist", UserRole.AUTHOR);
+        final Project project = algorithm.getProject(projectId);
+
+        algorithm.setLastModifiedBy(userName);
+        algorithm.setProject(project);
+        algorithm.setTerminology(project.getTerminology());
+        algorithm.setVersion(project.getVersion());
+
+        final Properties algoProperties = new Properties();
+        algoProperties.put("type", type);
+        algorithm.setProperties(algoProperties);
+
+        final ValidationResult result = algorithm.checkPreconditions();
+        if (!result.isValid()) {
+          return;
         }
 
-        // Start by clearing the bins
-        // remove bins and all of the tracking records in the bins
-        final List<WorkflowBin> results =
-            workflowService.getWorkflowBins(project, type);
-        for (final WorkflowBin workflowBin : results) {
-          workflowService.removeWorkflowBin(workflowBin.getId(), true);
-        }
+        algorithm.compute();
 
-        workflowService.commit();
-        workflowService.beginTransaction();
-
-        // reread after the commit
-        project = workflowService.getProject(projectId);
-
-        final WorkflowConfig workflowConfig =
-            workflowService.getWorkflowConfig(project, type);
-
-        // concepts seen set
-        final Set<Long> conceptsSeen = new HashSet<>();
-        final Map<Long, String> conceptIdWorklistNameMap =
-            workflowService.getConceptIdWorklistNameMap(project);
-
-        // Look up the bin definitions
-        int rank = 0;
-        for (final WorkflowBinDefinition definition : workflowConfig
-            .getWorkflowBinDefinitions()) {
-
-          // regenerate bins
-          regenerateBinHelper(project, definition, ++rank, conceptsSeen,
-              conceptIdWorklistNameMap, workflowService);
-        }
-
-        workflowService.addLogEntry(userName, projectId, null, null, null,
-            "REGENERATE BINS - " + projectId + ", " + type);
-
+        // TODO question what would correct objectId be?
         // Websocket notification
         final ChangeEvent event = new ChangeEventJpa("RegenerateBins",
-            authToken, "BINS", workflowConfig.getId(), getProjectInfo(project));
+            authToken, "BINS", /*workflowConfig.getId()*/null, getProjectInfo(project));
         sendChangeEvent(event);
 
-        workflowService.commit();
       } catch (Exception e) {
+        try {
+          algorithm.rollback();
+        } catch (Exception e2) {
+          // do nothing
+        }
         handleException(e, "trying to regenerate bins");
       } finally {
-        workflowService.close();
+        algorithm.close();
         securityService.close();
       }
     }
@@ -2269,10 +2245,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         WorkflowBin newBin = null;
         for (final WorkflowBinDefinition definition : definitions) {
           if (definition.getName().equals(bin.getName())) {
-            newBin = this.regenerateBinHelper(project, definition,
+            newBin = workflowService.regenerateBinHelper(project, definition,
                 bin.getRank(), new HashSet<>(),
-                workflowService.getConceptIdWorklistNameMap(project),
-                workflowService);
+                workflowService.getConceptIdWorklistNameMap(project));
             break;
           }
         }
@@ -2814,166 +2789,6 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   private ComponentInfo getProjectInfo(Project project) throws Exception {
     return new ComponentInfoJpa(project.getId(), project.getTerminology(), null,
         null, project.getName(), IdType.PROJECT);
-  }
-
-  /**
-   * Regenerate bin helper. From the set of parameters it creates and populates
-   * a single workflow bin. For complete regeneration of bins this can be
-   * repeatedly used.
-   *
-   * @param project the project
-   * @param definition the definition
-   * @param rank the rank
-   * @param conceptsSeen the concepts seen
-   * @param conceptIdWorklistNameMap the concept id worklist name map
-   * @param workflowService the workflow service
-   * @return the workflow bin
-   * @throws Exception the exception
-   */
-  private WorkflowBin regenerateBinHelper(Project project,
-    WorkflowBinDefinition definition, int rank, Set<Long> conceptsSeen,
-    Map<Long, String> conceptIdWorklistNameMap,
-    WorkflowServiceJpa workflowService) throws Exception {
-    Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
-
-    // Create the workflow bin
-    final WorkflowBin bin = new WorkflowBinJpa();
-    bin.setCreationTime(new Date().getTime());
-    bin.setName(definition.getName());
-    bin.setDescription(definition.getDescription());
-    bin.setEditable(definition.isEditable());
-    bin.setEnabled(definition.isEnabled());
-    bin.setRequired(definition.isRequired());
-    bin.setProject(project);
-    bin.setRank(rank);
-    bin.setTerminology(project.getTerminology());
-    bin.setVersion(workflowService.getLatestVersion(project.getTerminology()));
-    bin.setTerminologyId("");
-    bin.setTimestamp(new Date());
-    bin.setType(definition.getWorkflowConfig().getType());
-    workflowService.addWorkflowBin(bin);
-
-    // Bail if the definition is not enabled
-    if (!definition.isEnabled()) {
-      return bin;
-    }
-
-    // execute the query
-    final String query = definition.getQuery();
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", project.getTerminology());
-    params.put("version", project.getVersion());
-
-    List<Long[]> results = workflowService.executeClusteredConceptQuery(query,
-        definition.getQueryType(), params);
-
-    if (results == null)
-      throw new Exception("Failed to retrieve results for query");
-
-    final Map<Long, Set<Long>> clusterIdConceptIdsMap = new HashMap<>();
-    Logger.getLogger(getClass()).info("  results = " + results.size());
-
-    // put query results into map
-    for (final Long[] result : results) {
-      final Long clusterId = Long.parseLong(result[0].toString());
-      final Long componentId = Long.parseLong(result[1].toString());
-
-      // skip result entry where the conceptId is already in conceptsSeen
-      // and workflow config is mutually exclusive
-      if (!conceptsSeen.contains(componentId)
-          || !definition.getWorkflowConfig().isMutuallyExclusive()) {
-        if (clusterIdConceptIdsMap.containsKey(clusterId)) {
-          final Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
-          componentIds.add(componentId);
-          clusterIdConceptIdsMap.put(clusterId, componentIds);
-        } else {
-          final Set<Long> componentIds = new HashSet<>();
-          componentIds.add(componentId);
-          clusterIdConceptIdsMap.put(clusterId, componentIds);
-        }
-      }
-      if (definition.getWorkflowConfig().isMutuallyExclusive()) {
-        conceptsSeen.add(componentId);
-      }
-    }
-
-    // Set the raw cluster count
-    bin.setClusterCt(clusterIdConceptIdsMap.size());
-    Logger.getLogger(getClass())
-        .info("  clusters = " + clusterIdConceptIdsMap.size());
-
-    // for each cluster in clusterIdComponentIdsMap create a tracking record if
-    // unassigned bin
-    if (definition.isEditable()) {
-      long clusterIdCt = 1L;
-      for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
-
-        // Create the tracking record
-        final TrackingRecord record = new TrackingRecordJpa();
-        record.setClusterId(clusterIdCt++);
-        record.setTerminology(project.getTerminology());
-        record.setTimestamp(new Date());
-        record.setVersion(
-            workflowService.getLatestVersion(project.getTerminology()));
-        record.setWorkflowBinName(bin.getName());
-        record.setProject(project);
-        record.setWorklistName(null);
-        record.setClusterType("");
-        record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
-
-        // Load the concept ids involved
-        final StringBuilder conceptNames = new StringBuilder();
-        for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
-          final Concept concept = workflowService.getConcept(conceptId);
-          record.getOrigConceptIds().add(conceptId);
-          // collect all the concept names for the indexed data
-          conceptNames.append(concept.getName()).append(" ");
-
-          // Set cluster type if a concept has an STY associated with a cluster
-          // type in the project
-          if (record.getClusterType().equals("")) {
-            for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
-              if (project.getSemanticTypeCategoryMap()
-                  .containsKey(sty.getSemanticType())) {
-                record.setClusterType(project.getSemanticTypeCategoryMap()
-                    .get(sty.getSemanticType()));
-                break;
-              }
-            }
-          }
-          // Add all atom ids as component ids
-          for (final Atom atom : concept.getAtoms()) {
-            record.getComponentIds().add(atom.getId());
-
-            // compute workflow status for atoms
-            if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-              record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-            }
-          }
-
-          // Set the worklist name
-          if (record.getWorklistName() == null) {
-            if (conceptIdWorklistNameMap.containsKey(conceptId)) {
-              record.setWorklistName(conceptIdWorklistNameMap.get(conceptId));
-            }
-          }
-
-          // Compute workflow status for tracking record
-          if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
-            record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          }
-
-        }
-        record.setIndexedData(conceptNames.toString());
-
-        workflowService.addTrackingRecord(record);
-        bin.getTrackingRecords().add(record);
-      }
-    }
-    workflowService.updateWorkflowBin(bin);
-
-    return bin;
-
   }
 
   /* see superclass */

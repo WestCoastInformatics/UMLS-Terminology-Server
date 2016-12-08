@@ -403,6 +403,8 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       algo2.setTerminology(term.getTerminology());
       algo2.setVersion(term.getVersion());
       algo2.setIdType(term.getOrganizingClassType());
+      algo2.setWorkId(getWorkId());
+      algo2.setActivityId(UUID.randomUUID().toString());
       // some terminologies may have cycles, allow these for now.
       algo2.setCycleTolerant(true);
       algo2.setComputeSemanticType(false);
