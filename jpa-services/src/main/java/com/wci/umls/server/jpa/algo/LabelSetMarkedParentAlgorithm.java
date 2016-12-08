@@ -14,6 +14,7 @@ import java.util.Set;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.meta.LabelSetList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -280,4 +281,9 @@ public class LabelSetMarkedParentAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

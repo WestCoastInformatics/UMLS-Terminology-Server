@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
 
 import java.util.Properties;
@@ -145,5 +148,11 @@ public abstract class AbstractTerminologyLoaderAlgorithm
       return p.getProperty(fullKey);
     }
     return null;
+  }
+  
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
   }
 }

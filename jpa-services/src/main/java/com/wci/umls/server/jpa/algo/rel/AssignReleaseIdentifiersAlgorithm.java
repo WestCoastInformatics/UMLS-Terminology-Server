@@ -14,6 +14,7 @@ import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.model.content.Concept;
@@ -37,7 +38,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-  
+
   /**
    * Instantiates an empty {@link AssignReleaseIdentifiersAlgorithm}.
    *
@@ -60,11 +61,10 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
 
     logInfo("Starting Assign release identifiers");
-    
+
     steps = 3;
     previousProgress = 0;
     stepsCompleted = 0;
-
 
     // Assign CUIs:
     // • TODO: we need to come back and do a better job here.
@@ -120,7 +120,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
       final String origRui = rel.getTerminologyId();
       rel.setTerminologyId("");
-      
+
       final String rui = handler.getTerminologyId(rel,
           relToInverseMap.get(rel.getRelationshipType()),
           relToInverseMap.get(rel.getAdditionalRelationshipType()));
@@ -151,7 +151,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       // For each semantic type component (e.g. concept.getSemanticTypes())
       final String origAtui = sty.getTerminologyId();
       sty.setTerminologyId("");
-      
+
       final String atui = handler.getTerminologyId(sty, c);
       if (!origAtui.equals(atui)) {
         sty.setTerminologyId(atui);
@@ -193,10 +193,16 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
-      checkCancel(); 
+      checkCancel();
       fireProgressEvent(currentProgress,
           "ASSIGN RELEASE IDS progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
   }
 }

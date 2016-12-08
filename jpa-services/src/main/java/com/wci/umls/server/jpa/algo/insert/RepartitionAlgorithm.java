@@ -152,4 +152,8 @@ public class RepartitionAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Regenerates workflow bins.";
+  }
 }

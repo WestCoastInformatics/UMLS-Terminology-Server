@@ -103,19 +103,17 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // other is new
 
     // Generate query string
-    String query =
-        "SELECT DISTINCT a1.id, a2.id "
-            + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
-            + "WHERE NOT a1.id = a2.id "
-            + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
-            + "AND a1.terminology=:terminology AND NOT a1.version=:version "
-            + "AND a2.terminology=:terminology AND a2.version=:version "
-            + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
-            + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId "
-                : "")
-            + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
-            + (codeId ? "AND a1.codeId = a2.codeId " : "")
-            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "");
+    String query = "SELECT DISTINCT a1.id, a2.id "
+        + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
+        + "WHERE NOT a1.id = a2.id "
+        + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
+        + "AND a1.terminology=:terminology AND NOT a1.version=:version "
+        + "AND a2.terminology=:terminology AND a2.version=:version "
+        + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
+        + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId " : "")
+        + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
+        + (codeId ? "AND a1.codeId = a2.codeId " : "")
+        + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "");
 
     // Generate parameters to pass into query executions
     Map<String, String> params = new HashMap<>();
@@ -311,4 +309,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Performs criteria-based safe replacement algorithm.";
+  }
 }

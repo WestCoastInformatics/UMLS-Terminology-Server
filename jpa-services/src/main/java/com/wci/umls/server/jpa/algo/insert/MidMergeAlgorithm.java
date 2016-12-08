@@ -125,4 +125,9 @@ public class MidMergeAlgorithm extends AbstractMergeAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Performs a standard MID merging step for the current insertion.";
+  }
+
 }

@@ -211,4 +211,9 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     return super.getParameters();
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Reassign lexical classes following an update or change in the string normalizer.";
+  }
 }

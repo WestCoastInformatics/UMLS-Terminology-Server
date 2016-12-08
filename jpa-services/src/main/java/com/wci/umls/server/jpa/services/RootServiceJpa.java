@@ -891,7 +891,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T addHasLastModified(
+  public <T extends HasLastModified> T addHasLastModified(
     final T hasLastModified) throws Exception {
 
     // set last modified fields (user, timestamp)
@@ -947,7 +947,7 @@ public abstract class RootServiceJpa implements RootService {
    * @param hasLastModified the has last modified
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> void updateHasLastModified(
+  public <T extends HasLastModified> void updateHasLastModified(
     final T hasLastModified) throws Exception {
 
     // set last modified fields (user, timestamp)
@@ -1001,7 +1001,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T removeHasLastModified(final Long id,
+  public <T extends HasLastModified> T removeHasLastModified(final Long id,
     final Class<T> clazz) throws Exception {
     try {
       // Get transaction and object
@@ -1673,7 +1673,7 @@ public abstract class RootServiceJpa implements RootService {
     String objectClassName = clazz.getSimpleName().toUpperCase();
     if (objectClassName.endsWith("JPA")) {
       objectClassName =
-          objectClassName.substring(0, objectClassName.length()-3);
+          objectClassName.substring(0, objectClassName.length() - 3);
     }
     if (!query.toUpperCase()
         .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
@@ -1821,7 +1821,7 @@ public abstract class RootServiceJpa implements RootService {
     String objectClassName = clazz.getSimpleName().toUpperCase();
     if (objectClassName.endsWith("JPA")) {
       objectClassName =
-          objectClassName.substring(0, objectClassName.length()-3);
+          objectClassName.substring(0, objectClassName.length() - 3);
     }
     if (!query.toUpperCase()
         .matches("SELECT.*FROM.*" + objectClassName + ".*")) {

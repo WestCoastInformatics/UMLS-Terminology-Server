@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.algo.rel;
 import java.util.Properties;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
@@ -57,4 +58,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

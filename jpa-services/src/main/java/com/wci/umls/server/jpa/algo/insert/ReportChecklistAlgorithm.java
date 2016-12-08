@@ -153,4 +153,8 @@ public class ReportChecklistAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Generates standard report table checklists for the insertion.";
+  }
 }

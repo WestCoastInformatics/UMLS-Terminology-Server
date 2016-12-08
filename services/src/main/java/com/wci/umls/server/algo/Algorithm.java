@@ -94,5 +94,11 @@ public interface Algorithm
   public void setParameters(List<AlgorithmParameter> parameter)
     throws Exception;
 
-
+  /**
+   * Returns the default description, especially for algorithms that are
+   * configured via algorighm configs.
+   *
+   * @return the description
+   */
+  public String getDescription();
 }

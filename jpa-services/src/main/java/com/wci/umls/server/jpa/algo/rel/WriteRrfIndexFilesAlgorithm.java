@@ -249,4 +249,10 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
       previousProgress = currentProgress;
     }
   }
+  
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

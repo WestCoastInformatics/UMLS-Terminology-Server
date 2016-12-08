@@ -181,4 +181,9 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
 
     return params;
   }
+
+  @Override
+  public String getDescription() {
+    return "Prepares an insertion to operate and validates starting conditions.";
+  }
 }

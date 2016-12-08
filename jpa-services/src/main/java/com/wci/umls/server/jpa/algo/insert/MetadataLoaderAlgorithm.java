@@ -44,7 +44,7 @@ import com.wci.umls.server.model.meta.UsageType;
  * Implementation of an algorithm to import metadata.
  */
 public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
-  
+
   /** The loaded organizing class types. */
   private Map<String, IdType> loadedOrganizingClassTypes = null;
 
@@ -92,8 +92,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     //
     // Validate AdditionalRelationshipType inverses
     //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "RELA\\|(.*)", null);
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
+        "RELA\\|(.*)", null);
 
     final Set<String> relaMRDOC = new HashSet<>();
     final Set<String> inverseRelaMRDOC = new HashSet<>();
@@ -626,8 +626,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     //
     // Load TTY lines from the MRDOC file
     //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "TTY\\|(.*)", null);
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
+        "TTY\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -712,7 +712,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     // Load the termgroups.src file
     //
 
-    lines = loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
+    lines =
+        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
 
     fields = new String[6];
 
@@ -822,8 +823,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     //
     // Load ATN lines from the MRDOC file
     //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "ATN\\|(.*)", null);
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
+        "ATN\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -879,8 +880,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     //
     // Load RELA lines from the MRDOC file
     //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF", "RELA\\|(.*)", null);
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
+        "RELA\\|(.*)", null);
 
     String fields[] = new String[4];
 
@@ -949,7 +950,6 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
-
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
@@ -961,7 +961,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   public void setProperties(Properties p) throws Exception {
     // n/a
   }
-  
+
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() {
@@ -969,4 +969,10 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     return params;
   }
+
+  @Override
+  public String getDescription() {
+    return "Loads and processes MRDOC.RRF into metadata objects.";
+  }
+
 }

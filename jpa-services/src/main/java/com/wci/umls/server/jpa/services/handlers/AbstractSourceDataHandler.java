@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
@@ -118,4 +119,9 @@ public abstract class AbstractSourceDataHandler extends AbstractAlgorithm
     }
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

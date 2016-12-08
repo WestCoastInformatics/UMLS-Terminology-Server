@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.maint;
 
@@ -119,6 +119,12 @@ public class DummyAlgorithm extends AbstractAlgorithm {
     param.setPossibleValues(valueList);
     params.add(param);
     return params;
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return "Dummy algorithm for testing.";
   }
 
 }

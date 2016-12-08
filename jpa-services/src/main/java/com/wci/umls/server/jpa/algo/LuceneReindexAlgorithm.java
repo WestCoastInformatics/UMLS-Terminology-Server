@@ -19,6 +19,7 @@ import org.reflections.Reflections;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 
@@ -189,5 +190,11 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
     params.add(param);
     return params;
 
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
   }
 }

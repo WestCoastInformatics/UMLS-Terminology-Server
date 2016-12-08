@@ -28,7 +28,8 @@ import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 /**
  * Implementation of an algorithm to import semantic types.
  */
-public class SemanticTypeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class SemanticTypeLoaderAlgorithm
+    extends AbstractSourceInsertionAlgorithm {
 
   /**
    * Instantiates an empty {@link SemanticTypeLoaderAlgorithm}.
@@ -137,9 +138,13 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceInsertionAlgorith
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
         // Load the referenced atom, or preferred atom of atomClass object
-        Component component = getComponent(fields[10], fields[1], getCachedTerminologyName(fields[11]), null);
-        if(component == null){
-          logWarnAndUpdate(line, "Warning - could not find Component for type: " + fields[10] + ", terminologyId: " + fields[1] + ", and terminology:" + fields[11]);
+        Component component = getComponent(fields[10], fields[1],
+            getCachedTerminologyName(fields[11]), null);
+        if (component == null) {
+          logWarnAndUpdate(line,
+              "Warning - could not find Component for type: " + fields[10]
+                  + ", terminologyId: " + fields[1] + ", and terminology:"
+                  + fields[11]);
           continue;
         }
         Atom atom = null;
@@ -257,6 +262,11 @@ public class SemanticTypeLoaderAlgorithm extends AbstractSourceInsertionAlgorith
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Loads and processes an attributes.src file to load semantic type components.";
   }
 
 }

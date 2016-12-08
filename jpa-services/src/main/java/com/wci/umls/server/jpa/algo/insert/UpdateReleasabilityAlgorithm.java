@@ -272,4 +272,8 @@ public class UpdateReleasabilityAlgorithm
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Marks old version terminologies as unreleasable.";
+  }
 }

@@ -692,6 +692,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
     return false;
   }
 
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return getName();
+  }
+
   /**
    * Removes the by id.
    *

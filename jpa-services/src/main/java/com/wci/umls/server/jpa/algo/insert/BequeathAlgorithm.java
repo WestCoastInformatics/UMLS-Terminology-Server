@@ -131,4 +131,9 @@ public class BequeathAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public String getDescription() {
+    return "Bequeaths old-versioned SRC concept(s) to the root SRC concept";
+  }
+
 }

@@ -319,4 +319,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     return params;
   }
+
+  @Override
+  public String getDescription() {
+    return "Loads and performs merges based on mergefacts.src.";
+  }
 }

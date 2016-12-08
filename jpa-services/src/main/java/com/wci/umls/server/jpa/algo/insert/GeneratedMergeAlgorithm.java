@@ -419,4 +419,9 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     return params;
   }
+
+  @Override
+  public String getDescription() {
+    return "Merges <x> with <y> for <purpose>";
+  }
 }
