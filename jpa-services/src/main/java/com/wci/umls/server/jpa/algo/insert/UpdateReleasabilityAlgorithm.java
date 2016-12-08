@@ -111,7 +111,7 @@ public class UpdateReleasabilityAlgorithm
     try {
 
       logInfo(
-          "[UpdateReleasaibility] Making all old version content unpublishable");
+          "[UpdateReleasability] Making all old version content unpublishable");
 
       // Get all terminologies referenced in the sources.src file
       Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
@@ -153,6 +153,7 @@ public class UpdateReleasabilityAlgorithm
         queryAction.setProject(getProject());
         queryAction.setTerminology(getTerminology());
         queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
 
         Properties algoProperties = new Properties();
         algoProperties.put("objectType", clazz.getSimpleName());
