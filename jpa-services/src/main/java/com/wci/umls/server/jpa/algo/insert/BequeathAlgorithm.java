@@ -3,16 +3,28 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
-import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Implementation of an algorithm to bequeath old versioned SRC concepts.
@@ -40,6 +52,17 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
       throw new Exception("Bequeath requires a project to be set");
     }
 
+    // Check the input directories
+
+    final String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }
+
     return validationResult;
   }
 
@@ -55,10 +78,92 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
 
       logInfo("[Bequeath] Bequeathing old versioned SRC concepts");
 
-      
-      
-      // Update the progress
-      updateProgress();
+      // Get all terminologies referenced in the sources.src file
+      // terminologies.left = Terminology
+      // terminolgoies.right = Version
+      Set<Pair<String, String>> terminologies = new HashSet<>();
+      terminologies = getReferencedTerminologies();
+
+      setSteps(terminologies.size());
+
+      // Generate parameters to pass into query executions
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", getProject().getTerminology());
+      params.put("version", getProject().getVersion());
+
+      for (Pair<String, String> terminology : terminologies) {
+
+        final String fromConceptQuery =
+            "atoms.terminology:SRC AND atoms.termType:VAB AND atoms.codeId:V-"
+                + terminology.getLeft() + "* AND NOT atoms.codeId:V-"
+                + terminology.getLeft() + "_" + terminology.getRight();
+
+        // Execute query to get from concept Ids
+        final List<Long[]> fromConceptIds = executeSingleComponentIdQuery(
+            fromConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
+
+        final String toConceptQuery =
+            "atoms.terminology:SRC AND atoms.termType:RAB AND atoms.codeId:V-"
+                + terminology.getLeft();
+
+        // Execute query to get to concept Ids
+        final List<Long[]> toConceptIds = executeSingleComponentIdQuery(
+            toConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
+
+        // Load the to Concept (there can only be one)
+        if (toConceptIds.size() != 1) {
+          throw new Exception(
+              "Unexpected number of concepts returned by: " + toConceptQuery);
+        }
+        final Concept toConcept = getConcept(toConceptIds.get(0)[0]);
+
+        // Load all from concepts, and create "BRO" relationships from each one
+        // to the to concept
+        for (Long[] fromConceptId : fromConceptIds) {
+          final Concept fromConcept = getConcept(fromConceptId[0]);
+
+          // If "BRO" relationship already exists between these concepts, don't
+          // add a new one.
+          boolean existingRelFound = false;
+          for (ConceptRelationship existingRel : fromConcept
+              .getRelationships()) {
+            if (existingRel.getTo().getId().equals(toConcept.getId())
+                && existingRel.getRelationshipType().equals("BRO")) {
+              existingRelFound = true;
+              break;
+            }
+          }
+          if (existingRelFound) {
+            continue;
+          }
+
+          ConceptRelationship bequeathRel = new ConceptRelationshipJpa();
+          bequeathRel.setRelationshipType("BRO");
+          bequeathRel.setTerminologyId("");
+          bequeathRel.setTerminology(getProject().getTerminology());
+          bequeathRel.setVersion(getProject().getVersion());
+          bequeathRel.setFrom(fromConcept);
+          bequeathRel.setTo(toConcept);
+          bequeathRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          bequeathRel = (ConceptRelationship) addRelationship(bequeathRel);
+
+          ConceptRelationship inverseBequeathRel =
+              createInverseConceptRelationship(bequeathRel);
+          inverseBequeathRel =
+              (ConceptRelationship) addRelationship(inverseBequeathRel);
+
+          fromConcept.getRelationships().add(bequeathRel);
+          toConcept.getRelationships().add(inverseBequeathRel);
+
+          updateConcept(fromConcept);
+          updateConcept(toConcept);
+        }
+
+        // Update the progress
+        updateProgress();
+      }
+
+      commitClearBegin();
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
