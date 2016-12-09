@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -572,7 +573,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
-
+    Collections.sort(entries,
+        (a1, a2) -> a2.getId().compareTo(a1.getId()));
+    
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
       final LogEntry entry = entries.get(i);
@@ -611,6 +614,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
+    Collections.sort(entries,
+        (a1, a2) -> a2.getId().compareTo(a1.getId()));
 
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
