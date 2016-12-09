@@ -119,9 +119,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       for (String line : lines) {
 
-        // Check for a cancelled call once every 100 relationships (doing it
-        // every time
-        // makes things too slow)
+        // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0 && isCancelled()) {
           throw new CancelException("Cancelled");
         }

@@ -908,8 +908,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
    * @throws Exception the exception
    */
   public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs) throws Exception {
-    setTransactionPerOperation(false);
-    beginTransaction();
 
     // Add checklist
     final Checklist checklist = new ChecklistJpa();
@@ -979,8 +977,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Add the checklist
     final Checklist newChecklist = addChecklist(checklist);
-
-    commit();
 
     return newChecklist;
   }

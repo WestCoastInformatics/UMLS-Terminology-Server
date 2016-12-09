@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -161,6 +162,10 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Attempt to perform the merge given the integrity checks
 
       for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
+        if (isCancelled()) {
+          throw new CancelException("Cancelled");
+        }      
+        
         merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
             makeDemotions, changeStatus, getProject(), statsMap);
 

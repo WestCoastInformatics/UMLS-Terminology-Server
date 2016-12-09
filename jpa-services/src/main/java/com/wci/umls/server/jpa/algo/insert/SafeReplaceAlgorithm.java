@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -144,6 +145,10 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     Set<Long> safeReplacedAtomIds = new HashSet<>();
 
     for (Pair<Long, Long> atomIdPair : atomIdPairs) {
+      if (isCancelled()) {
+        throw new CancelException("Cancelled");
+      }      
+      
       final Long oldAtomId = atomIdPair.getLeft();
       final Long newAtomId = atomIdPair.getRight();
 

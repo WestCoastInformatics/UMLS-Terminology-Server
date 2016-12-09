@@ -2947,7 +2947,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setLastModifiedBy(userName);
       final Project project = workflowService.getProject(projectId);
 
-      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, userName, pfs);
+      workflowService.setTransactionPerOperation(false);
+      workflowService.beginTransaction();
+      
+      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, name, pfs);
+
+      workflowService.commit();
       
       workflowService.addLogEntry(userName, projectId, newChecklist.getId(), null,
           null, "COMPUTE checklist - " + newChecklist.getId() + ", "
