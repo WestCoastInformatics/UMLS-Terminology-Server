@@ -116,6 +116,9 @@ public abstract class AbstractMergeAlgorithm
 
       // Configure the action
       action.setProject(getProject());
+      action.setTerminology(getProject().getTerminology());
+      action.setVersion(getProject().getVersion());
+      action.setWorkId(getWorkId());
       action.setActivityId(getActivityId());
       action.setConceptId(fromConcept.getId());
       action.setConceptId2(toConcept.getId());

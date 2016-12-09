@@ -323,9 +323,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
           if (algo.getProperties().get(param.getFieldName()) != null) {
-            param.setValue(algo.getProperties().get(param.getFieldName()));
-            param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(";"))));
+            if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
+              param.setValues(new ArrayList<String>(Arrays.asList(
+                  algo.getProperties().get(param.getFieldName()).split(","))));
+            } else {
+              param.setValue(algo.getProperties().get(param.getFieldName()));
+            }
           }
         }
       }
@@ -445,11 +448,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // for each algorithm type)
           if (algorithmExecution.getProperties()
               .get(param.getFieldName()) != null) {
-            param.setValue(
-                algorithmExecution.getProperties().get(param.getFieldName()));
-            param.setValues(
-                new ArrayList<String>(Arrays.asList(algorithmExecution
-                    .getProperties().get(param.getFieldName()).split(","))));
+            if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
+              param.setValues(
+                  new ArrayList<String>(Arrays.asList(algorithmExecution
+                      .getProperties().get(param.getFieldName()).split(","))));
+            } else {
+              param.setValue(
+                  algorithmExecution.getProperties().get(param.getFieldName()));
+            }
           }
         }
       }
@@ -988,9 +994,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // Populate both Value and Values (UI will determine which is required
         // for each algorithm type)
         if (algo.getProperties().get(param.getFieldName()) != null) {
-          param.setValue(algo.getProperties().get(param.getFieldName()));
-          param.setValues(new ArrayList<String>(Arrays.asList(
-              algo.getProperties().get(param.getFieldName()).split(","))));
+          if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
+            param.setValues(new ArrayList<String>(Arrays.asList(
+                algo.getProperties().get(param.getFieldName()).split(","))));
+          } else {
+            param.setValue(algo.getProperties().get(param.getFieldName()));
+          }
         }
       }
 
@@ -1053,9 +1062,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // Populate both Value and Values (UI will determine which is required
         // for each algorithm type)
         if (algo.getProperties().get(param.getFieldName()) != null) {
-          param.setValue(algo.getProperties().get(param.getFieldName()));
-          param.setValues(new ArrayList<String>(Arrays.asList(
-              algo.getProperties().get(param.getFieldName()).split(","))));
+          if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
+            param.setValues(new ArrayList<String>(Arrays.asList(
+                algo.getProperties().get(param.getFieldName()).split(","))));
+          } else {
+            param.setValue(algo.getProperties().get(param.getFieldName()));
+          }
         }
       }
 
@@ -1219,7 +1231,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Create a thread and run the process
       runProcessAsThread(projectId, process.getId(), processExecution.getId(),
-          process.getTerminology() + "_" + process.getVersion(), background, false);
+          process.getTerminology() + "_" + process.getVersion(), background,
+          false);
 
       // Always return the execution id
       return executionId;
@@ -1288,7 +1301,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Create a thread and run the process
       runProcessAsThread(projectId, processConfig.getId(),
-          processExecution.getId(), processExecution.getTerminology() + "_" + processExecution.getVersion(), background, true);
+          processExecution.getId(), processExecution.getTerminology() + "_"
+              + processExecution.getVersion(),
+          background, true);
 
       return id;
     } catch (Exception e) {

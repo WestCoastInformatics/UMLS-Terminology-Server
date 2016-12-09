@@ -251,7 +251,13 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/algo/' + algorithmExecutionId + '/log?projectId=' + projectId).then(
+      $http.get(processUrl + '/algo/' + algorithmExecutionId + '/log?projectId=' + projectId, {
+        transformResponse : [ function(response) {
+          // Data response is plain text at this point
+          // So just return it, or do your parsing here
+          return response;
+        } ]
+      }).then(
       // success
       function(response) {
         console.debug('  log = ', response.data);
