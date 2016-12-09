@@ -15,13 +15,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
@@ -208,37 +206,6 @@ public class UpdateReleasabilityAlgorithm
       logError("Unexpected problem - " + e.getMessage());
       throw e;
     }
-
-  }
-
-  /**
-   * Returns the referenced terminologies.
-   *
-   * @return the referenced terminologies
-   * @throws Exception the exception
-   */
-  private Set<Pair<String, String>> getReferencedTerminologies()
-    throws Exception {
-
-    Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
-
-    //
-    // Load the sources.src file
-    //
-    List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
-
-    String fields[] = new String[20];
-
-    // Each line of sources.src corresponds to one terminology.
-    // Save the each terminology and version as a pair, and add to the results
-    // list
-    for (String line : lines) {
-      FieldedStringTokenizer.split(line, "|", 20, fields);
-      referencedTerminologies.add(new ImmutablePair<>(fields[4], fields[5]));
-    }
-
-    return referencedTerminologies;
 
   }
 

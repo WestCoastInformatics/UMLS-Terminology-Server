@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -936,26 +935,37 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             securityService, authToken, "stamping worklist", UserRole.AUTHOR);
         final Project project = algorithm.getProject(projectId);
 
+        // Lookup workflow config
+        final WorkflowConfig workflowConfig =
+            algorithm.getWorkflowConfig(project, type);
+        
         algorithm.setLastModifiedBy(userName);
         algorithm.setProject(project);
         algorithm.setTerminology(project.getTerminology());
         algorithm.setVersion(project.getVersion());
+        algorithm.setTransactionPerOperation(false);
+        algorithm.beginTransaction();
 
         final Properties algoProperties = new Properties();
         algoProperties.put("type", type);
         algorithm.setProperties(algoProperties);
 
+        // Check preconditions
         final ValidationResult result = algorithm.checkPreconditions();
         if (!result.isValid()) {
-          return;
+          throw new Exception("Repartition Algorithm failed preconditions: "
+              + result.getErrors());
         }
-
         algorithm.compute();
+        
+        // Commit any changes the algorithm wants to make
+        algorithm.commit();        
 
         // TODO question what would correct objectId be?
         // Websocket notification
-        final ChangeEvent event = new ChangeEventJpa("RegenerateBins",
-            authToken, "BINS", /*workflowConfig.getId()*/null, getProjectInfo(project));
+        final ChangeEvent event =
+            new ChangeEventJpa("RegenerateBins", authToken, "BINS",
+                workflowConfig.getId(), getProjectInfo(project));
         sendChangeEvent(event);
 
       } catch (Exception e) {
@@ -2931,90 +2941,17 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             + name + ", " + query);
 
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
-    workflowService.setTransactionPerOperation(false);
-    workflowService.beginTransaction();
     try {
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, "compute checklist", UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
       final Project project = workflowService.getProject(projectId);
 
-      // Add checklist
-      final Checklist checklist = new ChecklistJpa();
-      checklist.setName(name);
-      checklist.setDescription(name + " description");
-      checklist.setProject(project);
-      checklist.setTimestamp(new Date());
-
-      // Aggregate into clusters
-      final Map<String, String> params = new HashMap<>();
-      params.put("terminology", project.getTerminology());
-      params.put("version", project.getVersion());
-      final List<Long[]> results = workflowService
-          .executeClusteredConceptQuery(query, queryType, params);
-
-      final PfsParameter localPfs =
-          (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
-      // keys should remain sorted
-      final Set<Long> clustersEncountered = new HashSet<>();
-      final Map<Long, List<Long>> entries = new TreeMap<>();
-      for (final Long[] result : results) {
-        clustersEncountered.add(result[0]);
-
-        // Keep only prescribed range from the query
-        if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
-            || clustersEncountered.size() > localPfs.getMaxResults()) {
-          continue;
-        }
-
-        if (!entries.containsKey(result[0])) {
-          entries.put(result[0], new ArrayList<>());
-        }
-        entries.get(result[0]).add(result[1]);
-      }
-      clustersEncountered.clear();
-
-      // Add tracking records
-      long i = 1L;
-      for (final Long clusterId : entries.keySet()) {
-
-        final TrackingRecord record = new TrackingRecordJpa();
-        record.setChecklistName(name);
-        // recluster from 1
-        record.setClusterId(i++);
-        record.setClusterType("");
-        record.setProject(project);
-        record.setTerminology(project.getTerminology());
-        record.setTimestamp(new Date());
-        record.setVersion(
-            workflowService.getLatestVersion(project.getTerminology()));
-        final StringBuilder sb = new StringBuilder();
-        for (final Long conceptId : entries.get(clusterId)) {
-          final Concept concept = workflowService.getConcept(conceptId);
-          record.getComponentIds().addAll(concept.getAtoms().stream()
-              .map(a -> a.getId()).collect(Collectors.toSet()));
-          record.getOrigConceptIds().add(concept.getId());
-          sb.append(concept.getName()).append(" ");
-        }
-
-        record.setIndexedData(sb.toString());
-        workflowService.computeTrackingRecordStatus(record);
-        final TrackingRecord newRecord =
-            workflowService.addTrackingRecord(record);
-
-        // Add the record to the checklist.
-        checklist.getTrackingRecords().add(newRecord);
-      }
-
-      // Add the checklist
-      final Checklist newChecklist = workflowService.addChecklist(checklist);
-
-      // End transaction
-      workflowService.addLogEntry(userName, projectId, checklist.getId(), null,
-          null, "COMPUTE checklist - " + checklist.getId() + ", "
-              + checklist.getName() + ", " + query);
-
-      workflowService.commit();
+      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, userName, pfs);
+      
+      workflowService.addLogEntry(userName, projectId, newChecklist.getId(), null,
+          null, "COMPUTE checklist - " + newChecklist.getId() + ", "
+              + newChecklist.getName() + ", " + query);
 
       // Websocket notification
       final ChangeEvent event =

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -25,6 +26,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -894,6 +896,95 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     return results;
   }
 
+  /**
+   * Compute checklist.
+   *
+   * @param project the project
+   * @param query the query
+   * @param queryType the query type
+   * @param name the name
+   * @param pfs the pfs
+   * @return the checklist
+   * @throws Exception the exception
+   */
+  public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs) throws Exception {
+    setTransactionPerOperation(false);
+    beginTransaction();
+
+    // Add checklist
+    final Checklist checklist = new ChecklistJpa();
+    checklist.setName(name);
+    checklist.setDescription(name + " description");
+    checklist.setProject(project);
+    checklist.setTimestamp(new Date());
+
+    // Aggregate into clusters
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
+    final List<Long[]> results = executeClusteredConceptQuery(query, queryType, params);
+
+    final PfsParameter localPfs =
+        (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+    // keys should remain sorted
+    final Set<Long> clustersEncountered = new HashSet<>();
+    final Map<Long, List<Long>> entries = new TreeMap<>();
+    for (final Long[] result : results) {
+      clustersEncountered.add(result[0]);
+
+      // Keep only prescribed range from the query
+      if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
+          || clustersEncountered.size() > localPfs.getMaxResults()) {
+        continue;
+      }
+
+      if (!entries.containsKey(result[0])) {
+        entries.put(result[0], new ArrayList<>());
+      }
+      entries.get(result[0]).add(result[1]);
+    }
+    clustersEncountered.clear();
+
+    // Add tracking records
+    long i = 1L;
+    for (final Long clusterId : entries.keySet()) {
+
+      final TrackingRecord record = new TrackingRecordJpa();
+      record.setChecklistName(name);
+      // recluster from 1
+      record.setClusterId(i++);
+      record.setClusterType("");
+      record.setProject(project);
+      record.setTerminology(project.getTerminology());
+      record.setTimestamp(new Date());
+      record.setVersion(
+          getLatestVersion(project.getTerminology()));
+      final StringBuilder sb = new StringBuilder();
+      for (final Long conceptId : entries.get(clusterId)) {
+        final Concept concept = getConcept(conceptId);
+        record.getComponentIds().addAll(concept.getAtoms().stream()
+            .map(a -> a.getId()).collect(Collectors.toSet()));
+        record.getOrigConceptIds().add(concept.getId());
+        sb.append(concept.getName()).append(" ");
+      }
+
+      record.setIndexedData(sb.toString());
+      computeTrackingRecordStatus(record);
+      final TrackingRecord newRecord =
+          addTrackingRecord(record);
+
+      // Add the record to the checklist.
+      checklist.getTrackingRecords().add(newRecord);
+    }
+
+    // Add the checklist
+    final Checklist newChecklist = addChecklist(checklist);
+
+    commit();
+
+    return newChecklist;
+  }
+  
   /* see superclass */
   @Override
   public StringList getWorkflowPaths() {

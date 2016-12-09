@@ -14,11 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -1268,4 +1271,36 @@ public abstract class AbstractSourceInsertionAlgorithm
     }
   }
 
+
+  /**
+   * Returns the referenced terminologies.
+   *
+   * @return the referenced terminologies
+   * @throws Exception the exception
+   */
+  public Set<Pair<String, String>> getReferencedTerminologies()
+    throws Exception {
+
+    Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+
+    //
+    // Load the sources.src file
+    //
+    List<String> lines =
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+
+    String fields[] = new String[20];
+
+    // Each line of sources.src corresponds to one terminology.
+    // Save the each terminology and version as a pair, and add to the results
+    // list
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 20, fields);
+      referencedTerminologies.add(new ImmutablePair<>(fields[4], fields[5]));
+    }
+
+    return referencedTerminologies;
+
+  }  
+  
 }
