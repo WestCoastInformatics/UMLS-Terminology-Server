@@ -924,9 +924,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         }
       }
     }
-    // if (override), then remove old checklist
-    // if (!ovverride), throw LocalException("very detailed message here") 
-    
+
     // Add checklist
     final Checklist checklist = new ChecklistJpa();
     checklist.setName(name);
