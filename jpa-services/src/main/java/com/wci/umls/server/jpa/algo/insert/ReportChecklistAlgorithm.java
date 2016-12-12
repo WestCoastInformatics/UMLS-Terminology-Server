@@ -14,11 +14,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.model.workflow.Checklist;
 
 /**
  * Implementation of an algorithm to create report table checklists.
@@ -82,7 +82,7 @@ public class ReportChecklistAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     try {
 
-      logInfo("[Report Checklist] Creating the report table checklists");
+      logInfo("[ReportChecklist] Creating the report table checklists");
 
       // Get all terminologies referenced in the sources.src file
       // terminologies.left = Terminology
@@ -96,30 +96,44 @@ public class ReportChecklistAlgorithm extends AbstractSourceInsertionAlgorithm {
       for (Pair<String, String> terminology : terminologies) {
         final String term = terminology.getLeft();
         final String version = terminology.getRight();
-        
-        if (isCancelled()) {
-          throw new CancelException("Cancelled");
-        }        
-        
+
+        checkCancel();
+
         // All four queries start with the same clauses
-        final String queryPrefix = "atoms.terminology:" + term
-            + " AND atoms.version:" + version;
+        final String queryPrefix =
+            "atoms.terminology:" + term + " AND atoms.version:" + version;
 
-        computeChecklist(getProject(),
+        Checklist checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.workflowStatus:NEEDS_REVIEW",
-            QueryType.LUCENE, "chk_"+term+"_"+version+"_NEEDS_REVIEW", null);
+            QueryType.LUCENE, "chk_" + term + "_" + version + "_NEEDS_REVIEW",
+            null, true);
+        logInfo("[ReportChecklist] Created chk_" + term + "_" + version
+            + "_NEEDS_REVIEW checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.");
 
-        computeChecklist(getProject(),
+        checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.workflowStatus:DEMOTION",
-            QueryType.LUCENE, "chk_"+term+"_"+version+"_DEMOTION", null);
+            QueryType.LUCENE, "chk_" + term + "_" + version + "_DEMOTION", null,
+            true);
+        logInfo("[ReportChecklist] Created chk_" + term + "_" + version
+            + "_DEMOTION checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.");
 
-        computeChecklist(getProject(),
+        checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.workflowStatus:READY_FOR_PUBLICATION",
-            QueryType.LUCENE, "chk_"+term+"_"+version+"_READY_FOR_PUBLICATION", null);
+            QueryType.LUCENE,
+            "chk_" + term + "_" + version + "_READY_FOR_PUBLICATION", null,
+            true);
+        logInfo("[ReportChecklist] Created chk_" + term + "_" + version
+            + "_READY_FOR_PUBLICATION checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.");
 
-        computeChecklist(getProject(),
+        checklist = computeChecklist(getProject(),
             queryPrefix + " AND atoms.lastModifiedBy:ENG-*", QueryType.LUCENE,
-            "chk_"+term+"_"+version+"_MIDMERGES", null);
+            "chk_" + term + "_" + version + "_MIDMERGES", null, true);
+        logInfo("[ReportChecklist] Created chk_" + term + "_" + version
+            + "_MIDMERGES checklist, containing "
+            + checklist.getTrackingRecords().size() + " tracking records.");
 
         // Update the progress
         updateProgress();

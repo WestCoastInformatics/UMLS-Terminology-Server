@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -120,9 +119,7 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
     setSteps(componentIds.size());
 
     for (Long[] componentId : componentIds) {
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
 
       // Handle field-change actions
       if (!action.equals("Remove Demotions")) {

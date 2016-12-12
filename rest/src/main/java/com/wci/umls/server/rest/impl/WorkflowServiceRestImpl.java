@@ -2950,7 +2950,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.setTransactionPerOperation(false);
       workflowService.beginTransaction();
       
-      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, name, pfs);
+      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, name, pfs, false);
 
       workflowService.commit();
       

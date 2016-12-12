@@ -330,7 +330,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max atom class Id
       maxIds.put("AUI", atomId);
-      Logger.getLogger(getClass()).info("Initializing max AUI = " + atomId);
+      Logger.getLogger(getClass()).info("Initializing max AUI = " + (atomId + 1));
     }
     final long result = maxIds.get("AUI") + 1;
     maxIds.put("AUI", result);
@@ -441,7 +441,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max string class Id
       maxIds.put("SUI", stringId);
-      Logger.getLogger(getClass()).info("Initializing max SUI = " + stringId);
+      Logger.getLogger(getClass()).info("Initializing max SUI = " + (stringId + 1));
     }
     final long result = maxIds.get("SUI") + 1;
     maxIds.put("SUI", result);
@@ -547,7 +547,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max lexical class Id
       maxIds.put("LUI", lexicalId);
-      Logger.getLogger(getClass()).info("Initializing max LUI = " + lexicalId);
+      Logger.getLogger(getClass()).info("Initializing max LUI = " + (lexicalId + 1));
     }
     final long result = maxIds.get("LUI") + 1;
     maxIds.put("LUI", result);

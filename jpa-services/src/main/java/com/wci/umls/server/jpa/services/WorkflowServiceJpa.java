@@ -904,11 +904,29 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
    * @param queryType the query type
    * @param name the name
    * @param pfs the pfs
+   * @param override the override
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs) throws Exception {
+  public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs,  Boolean override) throws Exception {
 
+    //Check to see if checklist with the same name and project already exists
+    // if override flag is set, remove the old checklist
+    // if override flag is not set, throw LocalException
+    final ChecklistList checklists = findChecklists(project, null, null);
+    for(final Checklist checklist : checklists.getObjects()){
+      if(checklist.getName().equals(name) && checklist.getProject().equals(project)){
+        if(override){
+          removeChecklist(checklist.getId(), true);
+        }
+        else{
+          throw new LocalException("A checklist for project " + project.getName() + " with name " + checklist.getName() + " already exists.");
+        }
+      }
+    }
+    // if (override), then remove old checklist
+    // if (!ovverride), throw LocalException("very detailed message here") 
+    
     // Add checklist
     final Checklist checklist = new ChecklistJpa();
     checklist.setName(name);

@@ -18,7 +18,6 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -217,9 +216,7 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       for (String line : linesToLoad) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
-          if (isCancelled()) {
-            throw new CancelException("Cancelled");
-          }
+          checkCancel();
         }
 
         loadContexts(line);
@@ -368,9 +365,7 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   private void calculateContexts(Terminology term) throws Exception {
 
     // Check for a cancelled call before starting
-    if (isCancelled()) {
-      throw new CancelException("Cancelled");
-    }
+    checkCancel();
 
     // Don't handle transitiveRelationships
     // //

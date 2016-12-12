@@ -1594,9 +1594,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // Create and configure the algorithm
-            // TODO: this method should create a fully configured instance of
-            // the algorithm, including taking into account config.properties
-            // settings for the algorithm
             final Algorithm algorithm = processService
                 .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
             algorithm.setProject(processExecution.getProject());
@@ -1692,6 +1689,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Process has finished
           processExecution.setFinishDate(new Date());
           processService.updateProcessExecution(processExecution);
+          processService.saveLogToFile(projectId, processExecution);
 
           // Mark process as finished
           lookupPeProgressMap.remove(processExecution.getId());
@@ -1717,8 +1715,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
         } catch (Exception e) {
           // e.printStackTrace();
-          exceptions[0] = e;
-
+          exceptions[0] = e;          
+          
           // Remove process and algorithm from the maps
           processAlgorithmMap.remove(processExecutionId);
           lookupPeProgressMap.remove(processExecutionId);
@@ -1736,6 +1734,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             processExecution.setFailDate(new Date());
             processService.updateProcessExecution(processExecution);
+            processService.saveLogToFile(projectId, processExecution);
           } catch (Exception ex) {
             handleException(ex, "trying to update execution info");
           }
@@ -1790,6 +1789,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+
 
   /* see superclass */
   @GET

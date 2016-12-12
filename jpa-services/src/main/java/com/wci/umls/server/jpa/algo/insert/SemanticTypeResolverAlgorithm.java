@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -133,9 +132,7 @@ public class SemanticTypeResolverAlgorithm
       setSteps(conceptIdArray.size());
 
       for (Long[] conceptId : conceptIdArray) {
-        if (isCancelled()) {
-          throw new CancelException("Cancelled");
-        }      
+        checkCancel();    
         
         Concept concept = getConcept(conceptId[0]);
         for (SemanticTypeComponent sty : new ArrayList<>(

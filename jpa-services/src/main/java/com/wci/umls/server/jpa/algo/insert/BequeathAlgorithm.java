@@ -16,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -93,9 +92,7 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
       params.put("version", getProject().getVersion());
 
       for (Pair<String, String> terminology : terminologies) {
-        if (isCancelled()) {
-          throw new CancelException("Cancelled");
-        }              
+        checkCancel();        
 
         final String fromConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:VAB AND atoms.codeId:V-"

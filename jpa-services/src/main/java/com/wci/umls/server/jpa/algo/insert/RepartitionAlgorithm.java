@@ -14,7 +14,6 @@ import java.util.UUID;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -131,9 +130,7 @@ public class RepartitionAlgorithm extends AbstractSourceInsertionAlgorithm {
       int rank = 0;
       for (final WorkflowBinDefinition definition : workflowConfig
           .getWorkflowBinDefinitions()) {
-        if (isCancelled()) {
-          throw new CancelException("Cancelled");
-        }
+        checkCancel();
 
         workflowService.regenerateBinHelper(project, definition, ++rank,
             conceptsSeen, conceptIdWorklistNameMap);
