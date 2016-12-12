@@ -32,12 +32,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 @Mojo(name = "ad-hoc", defaultPhase = LifecyclePhase.PACKAGE)
 public class AdHocMojo extends AbstractMojo {
 
-  /** The terminology. */
-  String terminology = "UMLS";
-
-  /** The version. */
-  String version = "latest";
-
   /**
    * Instantiates a {@link AdHocMojo} from the specified parameters.
    */

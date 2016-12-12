@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.hibernate.ScrollMode;
@@ -542,7 +543,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // e.g.
         // STY|T001|Organism|A1.1|Generally, a living individual, including all
         // plants and animals.||NULL||orgm||
-
         final SemanticType sty = new SemanticTypeJpa();
         sty.setAbbreviation(fields[8]);
         sty.setDefinition(fields[4]);
@@ -612,17 +612,23 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       linePre = linePre.replace("\r", "");
       lines.add(linePre);
     }
-    // Fake MRDOC entries for XR, BRO, BRB, BRN
+    // Fake MRDOC entries for XR, BRO, BRB, BRN (only if not already there)
     // REL|RN|expanded_form|has a narrower relationship|
     // REL|RN|rel_inverse|RB|
-    lines.add("REL|XR|expanded_form|Not related|");
-    lines.add("REL|XR|rel_inverse|XR|");
-    lines.add("REL|BRO|expanded_form|Bequeath otherwise|");
-    lines.add("REL|BRN|expanded_form|Bequeath narrower|");
-    lines.add("REL|BRB|expanded_form|Bequeath broader|");
-    lines.add("REL|BRO|rel_inverse|BRO|");
-    lines.add("REL|BRN|rel_inverse|BRB|");
-    lines.add("REL|BRB|rel_inverse|BRN|");
+    if (lines.stream().filter(s -> s.contains("REL|XR|"))
+        .collect(Collectors.toList()).size() == 0) {
+      lines.add("REL|XR|expanded_form|Not related|");
+      lines.add("REL|XR|rel_inverse|XR|");
+    }
+    if (lines.stream().filter(s -> s.contains("REL|BRO|"))
+        .collect(Collectors.toList()).size() == 0) {
+      lines.add("REL|BRO|expanded_form|Bequeath otherwise|");
+      lines.add("REL|BRN|expanded_form|Bequeath narrower|");
+      lines.add("REL|BRB|expanded_form|Bequeath broader|");
+      lines.add("REL|BRO|rel_inverse|BRO|");
+      lines.add("REL|BRN|rel_inverse|BRB|");
+      lines.add("REL|BRB|rel_inverse|BRN|");
+    }
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 4, fields);
 
@@ -1172,7 +1178,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
     }
 
-    // Add the terminology for this load, e.g. "UMLS"
+    // Add the terminology for this rrf loader execution
     // Skip in single mode
     if (!singleMode && !loadedTerminologies.containsKey(getTerminology())) {
       final Terminology term = new TerminologyJpa();
@@ -1735,6 +1741,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // e.g. C0000002|2000AC|SY|||C0007404|Y|
       //
 
+      // Skip if MAPIN=N
+      if (fields[6].equals("N")) {
+        continue;
+      }
+
       // Assume the concept does not exist
       if (conceptIdMap.containsKey(getTerminology() + fields[0])) {
         throw new Exception("Unexpected live CUI in MRCUI: " + fields[0]);
@@ -1746,7 +1757,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       history.setLastModified(releaseVersionDate);
       history.setLastModifiedBy(loader);
       history.setPublished(true);
-      history.setPublishable(false);
+      history.setPublishable(true);
       history.setTerminology(getTerminology());
       history.setTerminologyId(fields[0]);
       history.setVersion(getVersion());
@@ -2049,7 +2060,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         }
       }
     } else if (atn.equals("MAPSETGRAMMAR")) {
-      // n/a - leave this as an attribute of the XR atom and don't render in map set
+      // n/a - leave this as an attribute of the XR atom and don't render in map
+      // set
     } else if (atn.equals("MAPSETXRTARGETID")) {
       // n/a - no need for this anymore - inverters should stop making it
     } else if (atn.equals("MAPSETRSAB")) {

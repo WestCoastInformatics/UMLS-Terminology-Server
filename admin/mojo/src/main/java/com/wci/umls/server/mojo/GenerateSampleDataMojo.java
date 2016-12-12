@@ -100,10 +100,12 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
   private String mode = null;
 
   /** The terminology. */
-  private final String terminology = "UMLS";
+  @Parameter
+  private String terminology = "NCIMTH";
 
   /** The version. */
-  private final String version = "latest";
+  @Parameter
+  private String version = "latest";
 
   /** The next release. */
   // private final String nextRelease = "2016AB";
@@ -361,41 +363,38 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 
-    // Create and set up a release process and algorithm configuration for testing    
-    /* TODO add and test
-    processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Process for release testing use");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Test Release Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(terminology);
-    processConfig.setVersion(version);
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Release");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
+    // Create and set up a release process and algorithm configuration for
+    // testing
+    /*
+     * TODO add and test processConfig = new ProcessConfigJpa();
+     * processConfig.setDescription("Process for release testing use");
+     * processConfig.setFeedbackEmail(null);
+     * processConfig.setName("Test Release Process");
+     * processConfig.setProject(project1);
+     * processConfig.setTerminology(terminology);
+     * processConfig.setVersion(version); processConfig.setTimestamp(new
+     * Date()); processConfig.setType("Release"); processConfig =
+     * process.addProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+     * authToken); process = new ProcessServiceRestImpl();
+     * 
+     * algoConfig = new AlgorithmConfigJpa();
+     * algoConfig.setAlgorithmKey("RRFHISTORY");
+     * algoConfig.setDescription("Rrf history algorithm for testing use");
+     * algoConfig.setEnabled(true);
+     * algoConfig.setName("Test RRF History algorithm");
+     * algoConfig.setProcess(processConfig); algoConfig.setProject(project1);
+     * algoConfig.setTerminology(terminology); algoConfig.setTimestamp(new
+     * Date()); algoConfig.setVersion(version);
+     * 
+     * algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+     * (AlgorithmConfigJpa) algoConfig, authToken); process = new
+     * ProcessServiceRestImpl();
+     * 
+     * processConfig.getSteps().add(algoConfig);
+     * process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+     * authToken);
+     */
 
-    algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("RRFHISTORY");
-    algoConfig.setDescription("Rrf history algorithm for testing use");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("Test RRF History algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTerminology(terminology);
-    algoConfig.setTimestamp(new Date());
-    algoConfig.setVersion(version);
-
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    processConfig.getSteps().add(algoConfig);
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);*/
-
-    
     //
     // Fake some data as needs review
     //
@@ -760,8 +759,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
         // Create two non-chem worklist
         workflowService = new WorkflowServiceRestImpl();
-        workflowService.createWorklist(projectId, bin.getId(), null, pfs,
-            authToken);
+        worklist = workflowService.createWorklist(projectId, bin.getId(), null,
+            pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
         getLog().info("    count = "
             + workflowService.findTrackingRecordsForWorklist(projectId,
@@ -789,17 +788,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
                 checklist.getId(), pfs, authToken).getTotalCount());
 
         workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_random_worklist_" + chk++, "test desc", true, false, "", pfs,
-            authToken);
-        workflowService = new WorkflowServiceRestImpl();
-        getLog().info("    count = "
-            + workflowService.findTrackingRecordsForChecklist(projectId,
-                checklist.getId(), pfs, authToken).getTotalCount());
-
-        workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_nonrandom_noworklist_" + chk++, "test desc", false, true, "",
+        checklist = workflowService.createChecklist(projectId, bin.getId(),
+            null, "chk_random_worklist_" + chk++, "test desc", true, false, "",
             pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
         getLog().info("    count = "
@@ -807,9 +797,18 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
                 checklist.getId(), pfs, authToken).getTotalCount());
 
         workflowService = new WorkflowServiceRestImpl();
-        workflowService.createChecklist(projectId, bin.getId(), null,
-            "chk_nonrandom_worklist_" + chk++, "test desc", false, false, "",
-            pfs, authToken);
+        checklist = workflowService.createChecklist(projectId, bin.getId(),
+            null, "chk_nonrandom_noworklist_" + chk++, "test desc", false, true,
+            "", pfs, authToken);
+        workflowService = new WorkflowServiceRestImpl();
+        getLog().info("    count = "
+            + workflowService.findTrackingRecordsForChecklist(projectId,
+                checklist.getId(), pfs, authToken).getTotalCount());
+
+        workflowService = new WorkflowServiceRestImpl();
+        checklist = workflowService.createChecklist(projectId, bin.getId(),
+            null, "chk_nonrandom_worklist_" + chk++, "test desc", false, false,
+            "", pfs, authToken);
         workflowService = new WorkflowServiceRestImpl();
         getLog().info("    count = "
             + workflowService.findTrackingRecordsForChecklist(projectId,

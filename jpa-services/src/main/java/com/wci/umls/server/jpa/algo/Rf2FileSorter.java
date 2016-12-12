@@ -56,7 +56,7 @@ public class Rf2FileSorter {
     dirMap.put("Refset_Simple", "/Refset/Content");
     dirMap.put("AttributeValue", "/Refset/Content");
     dirMap.put("AssociationReference", "/Refset/Content");
-    dirMap.put("ComplexMap", "/Refset/Map");
+    // dirMap.put("ComplexMap", "/Refset/Map");
     dirMap.put("ExtendedMap", "/Refset/Map");
     dirMap.put("SimpleMap", "/Refset/Map");
     dirMap.put("Language", "/Refset/Language");
@@ -171,7 +171,7 @@ public class Rf2FileSorter {
     sortByMap.put("Refset_Simple", 5);
     sortByMap.put("AttributeValue", 5);
     sortByMap.put("AssociationReference", 5);
-    sortByMap.put("ComplexMap", 5);
+//    sortByMap.put("ComplexMap", 5);
     sortByMap.put("ExtendedMap", 5);
     sortByMap.put("SimpleMap", 5);
     sortByMap.put("Language", 5);
@@ -190,7 +190,7 @@ public class Rf2FileSorter {
     fileMap.put("AttributeValue", "attributeValueRefsetsByRefCompId.sort");
     fileMap.put("AssociationReference",
         "associationReferenceRefsetsByRefCompId.sort");
-    fileMap.put("ComplexMap", "complexMapRefsetsByConcept.sort");
+//    fileMap.put("ComplexMap", "complexMapRefsetsByConcept.sort");
     fileMap.put("ExtendedMap", "extendedMapRefsetsByConcept.sort");
     fileMap.put("SimpleMap", "simpleMapRefsetsByConcept.sort");
     fileMap.put("Language", "languageRefsetsByDescription.sort");

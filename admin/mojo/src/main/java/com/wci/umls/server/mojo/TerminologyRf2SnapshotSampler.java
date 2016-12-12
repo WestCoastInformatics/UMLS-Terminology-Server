@@ -65,12 +65,15 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
   /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
-
+    boolean keepInferred = true;
+    boolean keepDescendants = false;
     try {
       getLog().info("RF2 Snapshot Terminology Sampler called via mojo.");
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Input file    : " + inputFile);
       getLog().info("  Expect server up   : " + server);
+      getLog().info("  Keep inferred      : " + keepInferred);
+      getLog().info("  Keep descendants   : " + keepDescendants);
 
       // Properties properties = ConfigUtility.getConfigProperties();
 
@@ -117,7 +120,9 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       sorter.setSortByEffectiveTime(true);
       sorter.setRequireAllFiles(true);
       File sortDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      // sorter.sortFiles(inputDirFile, sortDir);
+      sorter.setInputDir(inputDir);
+      sorter.setOutputDir(sortDir.getPath());
+      sorter.compute();
 
       // Open readers
       getLog().info("  Open RF2 Readers");
@@ -129,7 +134,7 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       Rf2SnapshotSamplerAlgorithm algorithm = new Rf2SnapshotSamplerAlgorithm();
       algorithm.setLastModifiedBy("admin");
       algorithm.setKeepInferred(true);
-      algorithm.setKeepDescendants(true);
+      algorithm.setKeepDescendants(false);
       algorithm.setReaders(readers);
       algorithm.setInputConcepts(inputConcepts);
       algorithm.compute();
