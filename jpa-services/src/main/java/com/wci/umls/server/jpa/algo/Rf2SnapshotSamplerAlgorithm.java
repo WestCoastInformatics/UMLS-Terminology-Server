@@ -160,9 +160,9 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
         Logger.getLogger(getClass())
             .info("    count (after simple map) = " + concepts.size());
 
-        addComplexMapMetadata(concepts);
+        addExtendedMapMetadata(concepts);
         Logger.getLogger(getClass())
-            .info("    count (after complex map) = " + concepts.size());
+            .info("    count (after extended map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
         Logger.getLogger(getClass())
@@ -435,29 +435,29 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
    * @param concepts the concepts
    * @throws Exception the exception
    */
-  private void addComplexMapMetadata(Set<String> concepts) throws Exception {
+  private void addExtendedMapMetadata(Set<String> concepts) throws Exception {
 
     String line = "";
 
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
-    while ((line = reader.readLine()) != null) {
-
-      line = line.replace("\r", "");
-      final String fields[] = FieldedStringTokenizer.split(line, "\t");
-
-      if (!fields[0].equals("id")) {
-
-        if (concepts.contains(fields[5])) {
-          concepts.add(fields[3]);
-          concepts.add(fields[4]);
-          concepts.add(fields[11]);
-        }
-      }
-    }
+    // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    // while ((line = reader.readLine()) != null) {
+    //
+    // line = line.replace("\r", "");
+    // final String fields[] = FieldedStringTokenizer.split(line, "\t");
+    //
+    // if (!fields[0].equals("id")) {
+    //
+    // if (concepts.contains(fields[5])) {
+    // concepts.add(fields[3]);
+    // concepts.add(fields[4]);
+    // concepts.add(fields[11]);
+    // }
+    // }
+    // }
 
     // handle extended too
 
-    reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     while ((line = reader.readLine()) != null) {
 
       line = line.replace("\r", "");

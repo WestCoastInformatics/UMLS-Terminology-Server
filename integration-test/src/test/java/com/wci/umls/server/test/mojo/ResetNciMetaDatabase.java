@@ -48,12 +48,8 @@ public class ResetNciMetaDatabase {
    * Test the sequence:
    * 
    * <pre>
-   * Run Updatedb mojo in "create" mode to clear the database
-   * Run Reindex mojo to clear the indexes
-   * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.
-   * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
-   * Start an editing cycle for "UMLS"
-   * stop here and the db is ready to use
+   * Load sample data
+   * GenrateNciMetaData
    * </pre>
    * 
    * @throws Exception the exception
@@ -75,10 +71,10 @@ public class ResetNciMetaDatabase {
     p.setProperty("editMode", "true");
     p.setProperty("server", server);
     p.setProperty("mode", "create");
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "NCIMTH");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SAMPLE_UMLS");
+        "../../config/src/main/resources/data/SAMPLE_NCI");
     if (System.getProperty("input.dir") != null) {
       p.setProperty("input.dir", System.getProperty("input.dir"));
     }
@@ -96,6 +92,8 @@ public class ResetNciMetaDatabase {
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("terminology", "NCIMTH");
+    p.setProperty("version", "latest");
     p.setProperty("mode", "update");
     request.setProperties(p);
     invoker = new DefaultInvoker();

@@ -394,6 +394,8 @@
                 </goals>
                 <configuration>
                   <mode>${mode}</mode>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
                 </configuration>
               </execution>
             </executions>
@@ -420,6 +422,8 @@
                 </goals>
                 <configuration>
                   <mode>${mode}</mode>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
                 </configuration>
               </execution>
             </executions>

@@ -1366,9 +1366,9 @@ public class Rf2DeltaLoaderAlgorithm
       result.getAttributes().size();
     }
 
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
-    loadMapSetMembers(reader);
-    reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    // loadMapSetMembers(reader);
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     loadMapSetMembers(reader);
 
   }

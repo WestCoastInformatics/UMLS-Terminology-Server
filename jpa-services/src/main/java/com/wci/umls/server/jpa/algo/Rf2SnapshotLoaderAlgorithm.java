@@ -1206,37 +1206,37 @@ public class Rf2SnapshotLoaderAlgorithm
     String line = "";
     objectCt = 0;
 
-    PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
-    // Iterate over mappings
-    while ((line = reader.readLine()) != null) {
-
-      // Split line
-      final String fields[] = FieldedStringTokenizer.split(line, "\t");
-      // Skip header
-      if (!fields[0].equals(id)) {
-
-        // Stop if the effective time is past the release getVersion()
-        if (fields[1].compareTo(getReleaseVersion()) > 0) {
-          reader.push(line);
-          break;
-        }
-
-        // Configure mapping
-        final Mapping mapping = new MappingJpa();
-
-        // configure mapping and create map set if needed
-        mapSetHelper(mapping, fields);
-
-        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-
-      }
-    }
-
-    // Final commit
-    commitClearBegin();
+    // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    // // Iterate over mappings
+    // while ((line = reader.readLine()) != null) {
+    //
+    // // Split line
+    // final String fields[] = FieldedStringTokenizer.split(line, "\t");
+    // // Skip header
+    // if (!fields[0].equals(id)) {
+    //
+    // // Stop if the effective time is past the release getVersion()
+    // if (fields[1].compareTo(getReleaseVersion()) > 0) {
+    // reader.push(line);
+    // break;
+    // }
+    //
+    // // Configure mapping
+    // final Mapping mapping = new MappingJpa();
+    //
+    // // configure mapping and create map set if needed
+    // mapSetHelper(mapping, fields);
+    //
+    // logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    //
+    // }
+    // }
+    //
+    // // Final commit
+    // commitClearBegin();
 
     // Extended maps
-    reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
     // Iterate over mappings
     while ((line = reader.readLine()) != null) {
 

@@ -75,7 +75,6 @@ public class Rf2FileCopier {
     dirMap.put("Refset_Simple", "/Refset/Content");
     dirMap.put("AttributeValue", "/Refset/Content");
     dirMap.put("AssociationReference", "/Refset/Content");
-    dirMap.put("ComplexMap", "/Refset/Map");
     dirMap.put("ExtendedMap", "/Refset/Map");
     dirMap.put("SimpleMap", "/Refset/Map");
     dirMap.put("Language", "/Refset/Language");
@@ -92,7 +91,6 @@ public class Rf2FileCopier {
     keyMap.put("Refset_Simple", 5);
     keyMap.put("AttributeValue", 5);
     keyMap.put("AssociationReference", 5);
-    keyMap.put("ComplexMap", 5);
     keyMap.put("ExtendedMap", 5);
     keyMap.put("SimpleMap", 5);
     keyMap.put("Language", 5);
@@ -108,7 +106,7 @@ public class Rf2FileCopier {
 
       final File outputFile =
           new File(new File(outputDir + dirMap.get(key)), file.getName());
-      Logger.getLogger(getClass()).info("    output file = " + file);
+      Logger.getLogger(getClass()).info("    output file = " + outputFile);
 
       // Now, iterate through input file and copy lines with headers
       // or where the "keyMap" field is in concepts/descriptions
@@ -131,7 +129,8 @@ public class Rf2FileCopier {
 
         // Relationship requires both ends to be connected
         if (key.contains("Relationship")) {
-          if (concepts.contains(fields[index]) && concepts.contains(fields[5])) {
+          if (concepts.contains(fields[index])
+              && concepts.contains(fields[5])) {
             out.println(line);
           }
         }
