@@ -240,6 +240,16 @@ public interface ProcessService extends ProjectService {
   public String getProcessLog(Long projectId, Long processExecutionId)
     throws Exception;
 
+  /**
+   * Save log to file.
+   *
+   * @param projectId the project id
+   * @param processExecution the process execution
+   * @throws Exception the exception
+   */
+  public void saveLogToFile(Long projectId, ProcessExecution processExecution)
+      throws Exception;  
+  
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions

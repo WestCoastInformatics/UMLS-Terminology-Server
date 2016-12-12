@@ -12,7 +12,6 @@ import java.util.UUID;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -120,11 +119,9 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       // If it does not, add it.
       for (String line : lines) {
 
-        // Check for a cancelled call once every 100 relationships (doing it
-        // every time
-        // makes things too slow)
-        if (getStepsCompleted() % 100 == 0 && isCancelled()) {
-          throw new CancelException("Cancelled");
+        // Check for a cancelled call once every 100 lines
+        if (getStepsCompleted() % 100 == 0) {
+          checkCancel();
         }
 
         FieldedStringTokenizer.split(line, "|", 14, fields);

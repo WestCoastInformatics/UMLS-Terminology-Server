@@ -144,6 +144,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     Set<Long> safeReplacedAtomIds = new HashSet<>();
 
     for (Pair<Long, Long> atomIdPair : atomIdPairs) {
+      checkCancel();  
+      
       final Long oldAtomId = atomIdPair.getLeft();
       final Long newAtomId = atomIdPair.getRight();
 

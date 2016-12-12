@@ -5,11 +5,13 @@ package com.wci.umls.server.jpa.services;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
@@ -24,6 +26,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -42,6 +45,7 @@ import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.jpa.workflow.WorklistJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -523,6 +527,165 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   }
 
+
+  /**
+   * Regenerate bin helper. From the set of parameters it creates and populates
+   * a single workflow bin. For complete regeneration of bins this can be
+   * repeatedly used.
+   *
+   * @param project the project
+   * @param definition the definition
+   * @param rank the rank
+   * @param conceptsSeen the concepts seen
+   * @param conceptIdWorklistNameMap the concept id worklist name map
+   * @return the workflow bin
+   * @throws Exception the exception
+   */
+  public WorkflowBin regenerateBinHelper(Project project,
+    WorkflowBinDefinition definition, int rank, Set<Long> conceptsSeen,
+    Map<Long, String> conceptIdWorklistNameMap) throws Exception {
+    Logger.getLogger(getClass()).info("Regenerate bin " + definition.getName());
+
+    // Create the workflow bin
+    final WorkflowBin bin = new WorkflowBinJpa();
+    bin.setCreationTime(new Date().getTime());
+    bin.setName(definition.getName());
+    bin.setDescription(definition.getDescription());
+    bin.setEditable(definition.isEditable());
+    bin.setEnabled(definition.isEnabled());
+    bin.setRequired(definition.isRequired());
+    bin.setProject(project);
+    bin.setRank(rank);
+    bin.setTerminology(project.getTerminology());
+    bin.setVersion(getLatestVersion(project.getTerminology()));
+    bin.setTerminologyId("");
+    bin.setTimestamp(new Date());
+    bin.setType(definition.getWorkflowConfig().getType());
+    addWorkflowBin(bin);
+
+    // Bail if the definition is not enabled
+    if (!definition.isEnabled()) {
+      return bin;
+    }
+
+    // execute the query
+    final String query = definition.getQuery();
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
+
+    List<Long[]> results = executeClusteredConceptQuery(query,
+        definition.getQueryType(), params);
+
+    if (results == null)
+      throw new Exception("Failed to retrieve results for query");
+
+    final Map<Long, Set<Long>> clusterIdConceptIdsMap = new HashMap<>();
+    Logger.getLogger(getClass()).info("  results = " + results.size());
+
+    // put query results into map
+    for (final Long[] result : results) {
+      final Long clusterId = Long.parseLong(result[0].toString());
+      final Long componentId = Long.parseLong(result[1].toString());
+
+      // skip result entry where the conceptId is already in conceptsSeen
+      // and workflow config is mutually exclusive
+      if (!conceptsSeen.contains(componentId)
+          || !definition.getWorkflowConfig().isMutuallyExclusive()) {
+        if (clusterIdConceptIdsMap.containsKey(clusterId)) {
+          final Set<Long> componentIds = clusterIdConceptIdsMap.get(clusterId);
+          componentIds.add(componentId);
+          clusterIdConceptIdsMap.put(clusterId, componentIds);
+        } else {
+          final Set<Long> componentIds = new HashSet<>();
+          componentIds.add(componentId);
+          clusterIdConceptIdsMap.put(clusterId, componentIds);
+        }
+      }
+      if (definition.getWorkflowConfig().isMutuallyExclusive()) {
+        conceptsSeen.add(componentId);
+      }
+    }
+
+    // Set the raw cluster count
+    bin.setClusterCt(clusterIdConceptIdsMap.size());
+    Logger.getLogger(getClass())
+        .info("  clusters = " + clusterIdConceptIdsMap.size());
+
+    // for each cluster in clusterIdComponentIdsMap create a tracking record if
+    // unassigned bin
+    if (definition.isEditable()) {
+      long clusterIdCt = 1L;
+      for (final Long clusterId : clusterIdConceptIdsMap.keySet()) {
+
+        // Create the tracking record
+        final TrackingRecord record = new TrackingRecordJpa();
+        record.setClusterId(clusterIdCt++);
+        record.setTerminology(project.getTerminology());
+        record.setTimestamp(new Date());
+        record.setVersion(
+            getLatestVersion(project.getTerminology()));
+        record.setWorkflowBinName(bin.getName());
+        record.setProject(project);
+        record.setWorklistName(null);
+        record.setClusterType("");
+        record.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+
+        // Load the concept ids involved
+        final StringBuilder conceptNames = new StringBuilder();
+        for (final Long conceptId : clusterIdConceptIdsMap.get(clusterId)) {
+          final Concept concept = getConcept(conceptId);
+          record.getOrigConceptIds().add(conceptId);
+          // collect all the concept names for the indexed data
+          conceptNames.append(concept.getName()).append(" ");
+
+          // Set cluster type if a concept has an STY associated with a cluster
+          // type in the project
+          if (record.getClusterType().equals("")) {
+            for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
+              if (project.getSemanticTypeCategoryMap()
+                  .containsKey(sty.getSemanticType())) {
+                record.setClusterType(project.getSemanticTypeCategoryMap()
+                    .get(sty.getSemanticType()));
+                break;
+              }
+            }
+          }
+          // Add all atom ids as component ids
+          for (final Atom atom : concept.getAtoms()) {
+            record.getComponentIds().add(atom.getId());
+
+            // compute workflow status for atoms
+            if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+              record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+            }
+          }
+
+          // Set the worklist name
+          if (record.getWorklistName() == null) {
+            if (conceptIdWorklistNameMap.containsKey(conceptId)) {
+              record.setWorklistName(conceptIdWorklistNameMap.get(conceptId));
+            }
+          }
+
+          // Compute workflow status for tracking record
+          if (concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+            record.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+          }
+
+        }
+        record.setIndexedData(conceptNames.toString());
+
+        addTrackingRecord(record);
+        bin.getTrackingRecords().add(record);
+      }
+    }
+    updateWorkflowBin(bin);
+
+    return bin;
+
+  }  
+  
   /* see superclass */
   @Override
   public List<WorkflowBin> getWorkflowBins(Project project, String type)
@@ -733,6 +896,109 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     return results;
   }
 
+  /**
+   * Compute checklist.
+   *
+   * @param project the project
+   * @param query the query
+   * @param queryType the query type
+   * @param name the name
+   * @param pfs the pfs
+   * @param override the override
+   * @return the checklist
+   * @throws Exception the exception
+   */
+  public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs,  Boolean override) throws Exception {
+
+    //Check to see if checklist with the same name and project already exists
+    // if override flag is set, remove the old checklist
+    // if override flag is not set, throw LocalException
+    final ChecklistList checklists = findChecklists(project, null, null);
+    for(final Checklist checklist : checklists.getObjects()){
+      if(checklist.getName().equals(name) && checklist.getProject().equals(project)){
+        if(override){
+          removeChecklist(checklist.getId(), true);
+        }
+        else{
+          throw new LocalException("A checklist for project " + project.getName() + " with name " + checklist.getName() + " already exists.");
+        }
+      }
+    }
+    // if (override), then remove old checklist
+    // if (!ovverride), throw LocalException("very detailed message here") 
+    
+    // Add checklist
+    final Checklist checklist = new ChecklistJpa();
+    checklist.setName(name);
+    checklist.setDescription(name + " description");
+    checklist.setProject(project);
+    checklist.setTimestamp(new Date());
+
+    // Aggregate into clusters
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
+    final List<Long[]> results = executeClusteredConceptQuery(query, queryType, params);
+
+    final PfsParameter localPfs =
+        (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
+    // keys should remain sorted
+    final Set<Long> clustersEncountered = new HashSet<>();
+    final Map<Long, List<Long>> entries = new TreeMap<>();
+    for (final Long[] result : results) {
+      clustersEncountered.add(result[0]);
+
+      // Keep only prescribed range from the query
+      if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
+          || clustersEncountered.size() > localPfs.getMaxResults()) {
+        continue;
+      }
+
+      if (!entries.containsKey(result[0])) {
+        entries.put(result[0], new ArrayList<>());
+      }
+      entries.get(result[0]).add(result[1]);
+    }
+    clustersEncountered.clear();
+
+    // Add tracking records
+    long i = 1L;
+    for (final Long clusterId : entries.keySet()) {
+
+      final TrackingRecord record = new TrackingRecordJpa();
+      record.setChecklistName(name);
+      // recluster from 1
+      record.setClusterId(i++);
+      record.setClusterType("");
+      record.setProject(project);
+      record.setTerminology(project.getTerminology());
+      record.setTimestamp(new Date());
+      record.setVersion(
+          getLatestVersion(project.getTerminology()));
+      final StringBuilder sb = new StringBuilder();
+      for (final Long conceptId : entries.get(clusterId)) {
+        final Concept concept = getConcept(conceptId);
+        record.getComponentIds().addAll(concept.getAtoms().stream()
+            .map(a -> a.getId()).collect(Collectors.toSet()));
+        record.getOrigConceptIds().add(concept.getId());
+        sb.append(concept.getName()).append(" ");
+      }
+
+      record.setIndexedData(sb.toString());
+      computeTrackingRecordStatus(record);
+      final TrackingRecord newRecord =
+          addTrackingRecord(record);
+
+      // Add the record to the checklist.
+      checklist.getTrackingRecords().add(newRecord);
+    }
+
+    // Add the checklist
+    final Checklist newChecklist = addChecklist(checklist);
+
+    return newChecklist;
+  }
+  
   /* see superclass */
   @Override
   public StringList getWorkflowPaths() {

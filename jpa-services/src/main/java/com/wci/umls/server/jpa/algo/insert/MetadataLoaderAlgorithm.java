@@ -17,7 +17,6 @@ import java.util.UUID;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -159,27 +158,21 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       //
       // Load the terminologies from sources.src
       //
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       handleTerminologies();
       updateProgress();
 
       //
       // Load the TermTypes from termgroups.src and MRDOC
       //
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       handleTermTypes();
       updateProgress();
 
       //
       // Load the AttibuteNames
       //
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       handleAttributeNames();
 
       updateProgress();
@@ -187,9 +180,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       //
       // Load AdditionalRelationshipTypes (and inverses)
       //
-      if (isCancelled()) {
-        throw new CancelException("Cancelled");
-      }
+      checkCancel();
       handleAdditionalRelationshipTypes();
       updateProgress();
 

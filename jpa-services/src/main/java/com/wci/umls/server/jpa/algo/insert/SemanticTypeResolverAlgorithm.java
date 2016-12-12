@@ -132,6 +132,8 @@ public class SemanticTypeResolverAlgorithm
       setSteps(conceptIdArray.size());
 
       for (Long[] conceptId : conceptIdArray) {
+        checkCancel();    
+        
         Concept concept = getConcept(conceptId[0]);
         for (SemanticTypeComponent sty : new ArrayList<>(
             concept.getSemanticTypes())) {

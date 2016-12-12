@@ -913,8 +913,8 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Flatten the log into a single line, so we can use regular expressions
     // against it.
     String processExecutionLogFlat = processExecutionLog.replace("\n", " ");
-    assertTrue(processExecutionLogFlat.matches(".*" + authToken + " Starting "
-        + algorithmConfig.getAlgorithmKey() + ".*" + authToken + " Starting "
+    assertTrue(processExecutionLogFlat.matches(".*" + processExecution.getLastModifiedBy() + " Starting "
+        + algorithmConfig.getAlgorithmKey() + ".*" + processExecution.getLastModifiedBy() + " Starting "
         + algorithmConfig2.getAlgorithmKey() + ".*"));
 
     // Make sure all of the process' algorithms created log entries for just
@@ -928,12 +928,12 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       String algorithmExecutionLogFlat =
           algorithmExecutionLog.replace("\n", " ");
       // Make sure it doesn't contain BOTH algorithm's log lines
-      assertFalse(algorithmExecutionLogFlat.matches(".*" + authToken
-          + " Starting " + algorithmConfig.getAlgorithmKey() + ".*" + authToken
+      assertFalse(algorithmExecutionLogFlat.matches(".*" + ae.getLastModifiedBy()
+          + " Starting " + algorithmConfig.getAlgorithmKey() + ".*" + ae.getLastModifiedBy()
           + " Starting " + algorithmConfig2.getAlgorithmKey() + ".*"));
       // Make sure it DOES contain its own log lines
       assertTrue(algorithmExecutionLogFlat.matches(
-          ".*" + authToken + " Starting " + ae.getAlgorithmKey() + ".*"));
+          ".*" + ae.getLastModifiedBy() + " Starting " + ae.getAlgorithmKey() + ".*"));
     }
 
   }

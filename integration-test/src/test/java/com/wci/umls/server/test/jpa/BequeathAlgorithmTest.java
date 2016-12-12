@@ -6,7 +6,7 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Properties;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -20,9 +20,12 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.GeneratedMergeAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.BequeathAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.PreInsertionAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
@@ -30,10 +33,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
+public class BequeathAlgorithmTest extends IntegrationUnitSupport {
 
   /** The algorithm. */
-  GeneratedMergeAlgorithm algo = null;
+  BequeathAlgorithm algo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -46,6 +49,12 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
+
+  /** The concept id. */
+  Long conceptId;
+
+  /** The sty id. */
+  Long styId;
 
   /**
    * Setup class.
@@ -64,7 +73,10 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   public void setup() throws Exception {
 
     processService = new ProcessServiceJpa();
+    processService.setLastModifiedBy("admin");
     contentService = new ContentServiceJpa();
+    contentService.setLastModifiedBy("admin");
+    contentService.setMolecularActionFlag(false);
 
     // load the project (should be only one)
     ProjectList projects = processService.getProjects();
@@ -77,11 +89,29 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
+    processExecution.setDescription("TESTTEST");
+    processExecution.setName("TESTTEST");
+    processExecution.setProcessConfigId(1L);
+    processExecution.setStartDate(new Date());
+    processExecution.setType("Insertion");
     processExecution.setInputPath("terminologies/NCI_INSERT/src");
-    processExecution.getExecutionInfo().put("maxAtomIdPreInsertion", "374673");
-                    
+
+    // Persist the execution (teardown will remove it later)
+    processExecution = processService.addProcessExecution(processExecution);
+
+    // Run the preinsertion algorithm (to populate the
+    // executionInfo map on the process execution)
+    PreInsertionAlgorithm preInsertionalgo = new PreInsertionAlgorithm();
+    preInsertionalgo.setLastModifiedBy("admin");
+    preInsertionalgo.setLastModifiedFlag(true);
+    preInsertionalgo.setProcess(processExecution);
+    preInsertionalgo.setProject(processExecution.getProject());
+    preInsertionalgo.setTerminology("NCI");
+    preInsertionalgo.setVersion("2016_05E");
+    preInsertionalgo.compute();
+
     // Create and configure the algorithm
-    algo = new GeneratedMergeAlgorithm();
+    algo = new BequeathAlgorithm();
 
     // Configure the algorithm
     algo.setLastModifiedBy("admin");
@@ -94,54 +124,21 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test generated merge normal use.
+   * Test bequeath action.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testGeneratedMerge() throws Exception {
+  public void testBequeathAction() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the PRECOMPUTEDMERGE algorithm
+    //
+    // Run the BEQUEATH algorithm
+    //
     try {
 
       algo.setTransactionPerOperation(false);
       algo.beginTransaction();
-
-      //
-      // Set properties for the algorithm
-      //
-      Properties algoProperties = new Properties();
-      algoProperties.put("queryType", "JQL");
-      algoProperties.put("query",
-          "select a1.id, a2.id "
-              + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//              + "where c1.terminology = :projectTerminology "
-//              + "and c2.terminology = :projectTerminology "
-//              + "and c1.id != c2.id " 
-//              + "and a1.terminology = :terminology "
-//              + "and a1.version = :version "
-//              + "and a2.terminology = :terminology "
-//              + "and a2.version = :version "
-              + "where a1.id in (100,1) "
-              + "and a2.id in (2,99,5) ");
-//              + "and a1.codeId = a2.codeId "
-//              + "and a1.stringClassId = a2.stringClassId "
-//              + "and a1.termType = a2.termType");
-      algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
-      algoProperties.put("newAtomsOnly", "false");
-      algoProperties.put("filterQueryType", "LUCENE");
-      algoProperties.put("filterQuery", "atoms.id:(1)");
-//      algoProperties.put("filterQueryType", "JQL");
-//      algoProperties.put("filterQuery", "select a1.id, a2.id "
-//          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//          + "where a1.id in (100,1) "
-//          + "and a2.id in (2,99) ");
-      algoProperties.put("makeDemotions", "true");
-      algoProperties.put("changeStatus", "true");
-      algoProperties.put("mergeSet", "NCI-SY");
-      algoProperties.put("midMerge", "true");
-      algo.setProperties(algoProperties);
 
       //
       // Check prerequisites
@@ -175,6 +172,26 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
+
+    processService = new ProcessServiceJpa();
+    processService.setLastModifiedBy("admin");
+    contentService = new ContentServiceJpa();
+    contentService.setLastModifiedBy("admin");
+    contentService.setMolecularActionFlag(false);
+
+    processExecution =
+        processService.getProcessExecution(processExecution.getId());
+    processService.removeProcessExecution(processExecution.getId());
+
+    // Remove the Sty added in the test, if the algorithm missed it.
+    if (contentService.getSemanticTypeComponent(styId) != null) {
+      Concept concept = contentService.getConcept(conceptId);
+      SemanticTypeComponent sty =
+          contentService.getSemanticTypeComponent(styId);
+      concept.getSemanticTypes().remove(sty);
+      contentService.updateConcept(concept);
+      contentService.removeSemanticTypeComponent(styId);
+    }
 
     processService.close();
     contentService.close();

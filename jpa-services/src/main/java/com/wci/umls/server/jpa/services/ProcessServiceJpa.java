@@ -3,7 +3,13 @@
  */
 package com.wci.umls.server.jpa.services;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +25,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -572,6 +579,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
+    Collections.sort(entries, (a1, a2) -> a2.getId().compareTo(a1.getId()));
 
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
@@ -611,6 +619,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
+    Collections.sort(entries, (a1, a2) -> a2.getId().compareTo(a1.getId()));
 
     final StringBuilder log = new StringBuilder();
     for (int i = entries.size() - 1; i >= 0; i--) {
@@ -625,6 +634,41 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
 
     return log.toString();
+  }
+
+  /* see superclass */
+  @Override
+  public void saveLogToFile(Long projectId, ProcessExecution processExecution)
+    throws Exception {
+
+    // Check the input directories
+    String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + processExecution.getInputPath();
+
+    // If input directory is completely empty, don't throw an error (some
+    // processes are fine to run without input directory specified)
+    if (ConfigUtility.isEmpty(srcFullPath)) {
+      return;
+    }
+
+    final File saveLocation = new File(srcFullPath);
+    if (!saveLocation.exists()) {
+      throw new LocalException(
+          "Specified input directory does not exist - could not save Process Log to disk");
+    }
+
+    // Create and populate the log
+    final String runDate =
+        new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+    final File outputFile = new File(srcFullPath, "process."
+        + processExecution.getProcessConfigId() + "." + runDate + ".log");
+
+    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    String processLog = getProcessLog(projectId, processExecution.getId());
+    out.print(processLog);
+    out.close();
+
   }
 
 }

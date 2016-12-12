@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -32,6 +32,7 @@ import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -73,7 +74,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   private int stepsCompleted = 0;
 
   /**
-   * The atom ID cache. Key = AlternateTerminologyId; Value = atomJpa Id
+   * The atom ID cache. Key = AUI; Value = atomJpa Id
    */
   private static Map<String, Long> atomIdCache = new HashMap<>();
 
@@ -83,7 +84,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Set<String> atomCachedTerms = new HashSet<>();
 
   /**
-   * The attribute ID cache. Key = AlternateTerminologyId Value = attributeJpa
+   * The attribute ID cache. Key = ATUI Value = attributeJpa
    * Id
    */
   private static Map<String, Long> attributeIdCache = new HashMap<>();
@@ -94,7 +95,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Set<String> attributeCachedTerms = new HashSet<>();
 
   /**
-   * The definition ID cache. Key = AlternateTerminologyId Value = definitionJpa
+   * The definition ID cache. Key = DUI Value = definitionJpa
    * Id
    */
   private static Map<String, Long> definitionIdCache = new HashMap<>();
@@ -182,6 +183,13 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
   /**
+   * The cached MapSets. Key = code+terminology of the XM atom in the concept
+   * whose terminologyId is the mapset alternate terminology id Value = MapSet
+   * object
+   */
+  private static Map<String, MapSet> cachedMapSets = new HashMap<>();
+
+  /**
    * Load file into string list.
    *
    * @param srcDirFile the src dir file
@@ -240,25 +248,22 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
+    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
-    logInfo(
-        "[SourceLoader] Loading code Atom Ids from database for terminology "
-            + terminology);
-
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
       atomIdCache.put(terminologyId, id);
     }
-    results.close();
+
+    logInfo("[SourceLoader] Loading Atom Ids from database for terminology "
+        + terminology);
 
     // Add this terminology to the cached set.
     atomCachedTerms.add(terminology);
@@ -270,25 +275,23 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
+    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading attribute alternate Terminology Ids from database for terminology "
             + terminology);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
       attributeIdCache.put(terminologyId, id);
     }
-    results.close();
 
     // Add this terminology to the cached set.
     attributeCachedTerms.add(terminology);
@@ -300,25 +303,23 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
+    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading definition alternate Terminology Ids from database for terminology "
             + terminology);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
       definitionIdCache.put(terminologyId, id);
     }
-    results.close();
 
     // Add this terminology to the cached set.
     definitionCachedTerms.add(terminology);
@@ -330,6 +331,7 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingRelationshipIds(String terminology)
     throws Exception {
 
@@ -343,20 +345,21 @@ public abstract class AbstractSourceInsertionAlgorithm
     // Get RUIs for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      final Session session = manager.unwrap(Session.class);
-      org.hibernate.Query hQuery =
-          session.createQuery("select value(b), a.id from " + relPrefix
+      final javax.persistence.Query jpaQuery = getEntityManager()
+          .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
-      hQuery.setParameter("terminology", terminology);
-      hQuery.setReadOnly(true).setFetchSize(10000);
+      jpaQuery.setParameter("terminology", terminology);
 
-      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-      while (results.next()) {
-        final String terminologyId = results.get()[0].toString();
-        final Long id = Long.valueOf(results.get()[1].toString());
+      logInfo(
+          "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
+              + terminology);
+
+      final List<Object[]> list = jpaQuery.getResultList();
+      for (final Object[] entry : list) {
+        final String terminologyId = entry[0].toString();
+        final Long id = Long.valueOf(entry[1].toString());
         relIdCache.put(terminologyId, id);
       }
-      results.close();
     }
 
     // Add this terminology to the cached set.
@@ -445,31 +448,58 @@ public abstract class AbstractSourceInsertionAlgorithm
   }
 
   /**
+   * Cache existing mapSets. Key = code+terminology of the XM atom in the
+   * concept whose terminologyId is the mapset alternate terminology id
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheExistingMapSets() throws Exception {
+
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("SELECT m, a FROM "
+            + "MapSetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
+            + "WHERE key(alt) = :terminology "
+            + "AND value(alt) = c.terminologyId "
+            + "AND a.termType = :termType ");
+    jpaQuery.setParameter("terminology", getProject().getTerminology());
+    jpaQuery.setParameter("termType", "XM");
+
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final MapSet mapSet = (MapSet) entry[0];
+      final Atom atom = (Atom) entry[1];
+      // TODO question - is codeId correct here?
+      final String codeId = atom.getCodeId();
+      final String terminology = atom.getTerminology();
+      cachedMapSets.put(codeId + "_" + terminology, mapSet);
+    }
+  }
+
+  /**
    * Cache existing codes.
    *
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingCodeIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.id "
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from CodeJpa c where terminology = :terminology AND publishable=1");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading code Terminology Ids from database for terminology "
             + terminology);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      codeIdCache.put(terminologyId + terminology, id);
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
+      codeIdCache.put(terminologyId, id);
     }
-    results.close();
 
     // Add this terminology to the cached set.
     codeCachedTerms.add(terminology);
@@ -481,26 +511,24 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.id "
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from ConceptJpa c where terminology = :terminology AND publishable=1");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading concept Terminology Ids from database for terminology "
             + terminology);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      conceptIdCache.put(terminologyId + terminology, id);
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
+      conceptIdCache.put(terminologyId, id);
     }
-    results.close();
 
     // Add this terminology to the cached set.
     conceptCachedTerms.add(terminology);
@@ -512,26 +540,24 @@ public abstract class AbstractSourceInsertionAlgorithm
    * @param terminology the terminology
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void cacheExistingDescriptorIds(String terminology) throws Exception {
 
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery =
-        session.createQuery("select c.terminologyId, c.id "
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from DescriptorJpa c where terminology = :terminology AND publishable=1");
-    hQuery.setParameter("terminology", terminology);
-    hQuery.setReadOnly(true).setFetchSize(10000);
+    jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
             + terminology);
 
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final String terminologyId = results.get()[0].toString();
-      final Long id = Long.valueOf(results.get()[1].toString());
-      descriptorIdCache.put(terminologyId + terminology, id);
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
+      descriptorIdCache.put(terminologyId, id);
     }
-    results.close();
 
     // Add this terminology to the cached set.
     descriptorCachedTerms.add(terminology);
@@ -923,6 +949,36 @@ public abstract class AbstractSourceInsertionAlgorithm
   }
 
   /**
+   * Returns the cached map sets.
+   *
+   * @return the cached map sets
+   * @throws Exception the exception
+   */
+  public Map<String, MapSet> getCachedMapSets() throws Exception {
+    if (cachedMapSets.isEmpty()) {
+      cacheExistingMapSets();
+    }
+
+    return cachedMapSets;
+  }
+
+  /**
+   * Returns the cached map set.
+   *
+   * @param codeAndTerminology the code and terminology
+   * @return the cached map set
+   * @throws Exception the exception
+   */
+  public MapSet getCachedMapSet(String codeAndTerminology) throws Exception {
+
+    if (cachedMapSets.isEmpty()) {
+      cacheExistingMapSets();
+    }
+
+    return cachedMapSets.get(codeAndTerminology);
+  }
+
+  /**
    * Returns the id.
    *
    * @param abbreviation the abbreviation
@@ -1154,14 +1210,13 @@ public abstract class AbstractSourceInsertionAlgorithm
    */
   public void updateProgress() throws Exception {
     String algoName = getClass().getSimpleName();
-    if(algoName.contains("Loader")){
+    if (algoName.contains("Loader")) {
       updateProgressForLoadingAlgos();
-    }
-    else{
+    } else {
       updateProgressForComputingAlgos();
-    }    
+    }
   }
-  
+
   /**
    * Update progress for Algorithms that load data from an SRC file.
    *
@@ -1206,10 +1261,10 @@ public abstract class AbstractSourceInsertionAlgorithm
     }
 
     if (!transactionPerOperation) {
-      logAndCommit("[" + shortName + "] steps completed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
+      logAndCommit("[" + shortName + "] steps completed ", stepsCompleted,
+          RootService.logCt, RootService.commitCt);
     }
-  }  
+  } 
   
   /**
    * Clear out all of the caches.
@@ -1242,30 +1297,62 @@ public abstract class AbstractSourceInsertionAlgorithm
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   public void clearRelationshipAltTerminologies() throws Exception {
 
     List<String> relationshipPrefixes =
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
-    for (String relPrefix : relationshipPrefixes) {
-      final Session session = manager.unwrap(Session.class);
-      org.hibernate.Query hQuery = session.createQuery("select a from "
-          + relPrefix
-          + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
-      hQuery.setParameter("terminology",
-          getProject().getTerminology() + "-SRC");
-      hQuery.setReadOnly(true).setFetchSize(10000);
+    logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
+        + "Relatinoship Alternate Terminology Ids from database");
 
-      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-      while (results.next()) {
-        final Relationship<?, ?> relationship =
-            (Relationship<?, ?>) results.get()[0];
+    for (String relPrefix : relationshipPrefixes) {
+
+      final javax.persistence.Query jpaQuery =
+          getEntityManager().createQuery("select a from " + relPrefix
+              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+      jpaQuery.setParameter("terminology",
+          getProject().getTerminology() + "-SRC");
+
+      final List<Object[]> list = jpaQuery.getResultList();
+      for (final Object[] entry : list) {
+        final Relationship<?, ?> relationship = (Relationship<?, ?>) entry[0];
         relationship.getAlternateTerminologyIds()
             .remove(getProject().getTerminology() + "-SRC");
         updateRelationship(relationship);
       }
-      results.close();
     }
+  }
+
+  /**
+   * Returns the referenced terminologies.
+   *
+   * @return the referenced terminologies
+   * @throws Exception the exception
+   */
+  public Set<Pair<String, String>> getReferencedTerminologies()
+    throws Exception {
+
+    Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+
+    //
+    // Load the sources.src file
+    //
+    List<String> lines =
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+
+    String fields[] = new String[20];
+
+    // Each line of sources.src corresponds to one terminology.
+    // Save the each terminology and version as a pair, and add to the results
+    // list
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 20, fields);
+      referencedTerminologies.add(new ImmutablePair<>(fields[4], fields[5]));
+    }
+
+    return referencedTerminologies;
+
   }
 
 }
