@@ -85,6 +85,12 @@ public class UpdateConceptMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(updateConcept);
 
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " " + getConcept());

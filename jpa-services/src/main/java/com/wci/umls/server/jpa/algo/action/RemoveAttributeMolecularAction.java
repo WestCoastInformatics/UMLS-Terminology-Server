@@ -98,7 +98,7 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
     //
 
     // Remove the attribute from the concept
-    removeById(getConcept().getAttributes(),attribute.getId());
+    removeById(getConcept().getAttributes(), attribute.getId());
 
     // Update Concept
     updateConcept(getConcept());
@@ -113,6 +113,11 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
 
     // Update Concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
@@ -125,6 +130,7 @@ public class RemoveAttributeMolecularAction extends AbstractMolecularAction {
         "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
             + getConcept().getName() + "\n  attribute = " + attribute.getName()
             + ", " + attribute.getValue());
+
   }
 
 }

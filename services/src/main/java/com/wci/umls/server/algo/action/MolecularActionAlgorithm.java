@@ -87,5 +87,12 @@ public interface MolecularActionAlgorithm extends Algorithm {
    * @return true, if successful
    */
   public boolean lockRelatedConcepts();
+  
+  /**
+   * Log action.
+   *
+   * @throws Exception the exception
+   */
+  public void logAction() throws Exception;
 
 }

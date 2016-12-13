@@ -22,6 +22,12 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
   /** The atom 2. */
   private Atom atom2;
 
+  /** The demotion relationship. */
+  private AtomRelationship demotionRelationship = null;
+
+  /** The inverse demotion relationship. */
+  private AtomRelationship inverseDemotionRelationship = null;
+
   /**
    * Instantiates an empty {@link AddDemotionMolecularAction}.
    *
@@ -88,7 +94,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     //
 
     // Construct the demotion relationship
-    AtomRelationship demotionRelationship = new AtomRelationshipJpa();
+    demotionRelationship = new AtomRelationshipJpa();
     demotionRelationship.setFrom(atom);
     demotionRelationship.setTo(atom2);
     demotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
@@ -99,7 +105,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     demotionRelationship.setVersion(getVersion());
 
     // construct inverse relationship
-    AtomRelationship inverseDemotionRelationship = new AtomRelationshipJpa();
+    inverseDemotionRelationship = new AtomRelationshipJpa();
     inverseDemotionRelationship.setFrom(atom2);
     inverseDemotionRelationship.setTo(atom);
     inverseDemotionRelationship.setWorkflowStatus(WorkflowStatus.DEMOTION);
@@ -159,6 +165,11 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       updateConcept(getConcept());
       updateConcept(getConcept2());
     }
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),

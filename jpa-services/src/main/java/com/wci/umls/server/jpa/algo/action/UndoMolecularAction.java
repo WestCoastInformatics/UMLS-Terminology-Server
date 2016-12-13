@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -33,6 +33,9 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
   /** Whether to force the undo, regardless of current object state. */
   private Boolean force = false;
+
+  /** The undo molecular action. */
+  private MolecularAction undoMolecularAction = null;
 
   /**
    * Instantiates an empty {@link UndoMolecularAction}.
@@ -117,8 +120,7 @@ public class UndoMolecularAction extends AbstractMolecularAction {
   public void compute() throws Exception {
 
     // Call up the molecular Action we're undoing
-    final MolecularAction undoMolecularAction =
-        getMolecularAction(molecularActionId);
+    undoMolecularAction = getMolecularAction(molecularActionId);
 
     // Perform the opposite action for each of the molecular action's atomic
     // actions
@@ -265,8 +267,13 @@ public class UndoMolecularAction extends AbstractMolecularAction {
 
     // Set the molecular action undone flag
     undoMolecularAction.setUndoneFlag(true);
-    this.updateMolecularAction(undoMolecularAction);
+    updateMolecularAction(undoMolecularAction);
 
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
     // log the REST call
 
     addLogEntry(getLastModifiedBy(), getProject().getId(),

@@ -109,7 +109,8 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-    validationResult.merge(super.validateAtom(getProject().getValidationChecks(), getAtom()));
+    validationResult.merge(
+        super.validateAtom(getProject().getValidationChecks(), getAtom()));
     return validationResult;
   }
 
@@ -137,6 +138,11 @@ public class UpdateAtomMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),

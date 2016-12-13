@@ -109,6 +109,11 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
@@ -116,13 +121,12 @@ public class AddSemanticTypeMolecularAction extends AbstractMolecularAction {
         getName() + " to concept " + getConcept().getId() + " " + sty);
 
     // Log for the molecular action report
-    if (isMolecularActionFlag()) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(),
-          getMolecularAction().getId(), getActivityId(), getWorkId(),
-          "\nACTION  " + getName() + "\n  concept = " + getConcept().getId()
-              + " " + getConcept().getName() + "\n  semantic type = "
-              + getSemanticTypeComponent().getSemanticType());
-    }
+    addLogEntry(getLastModifiedBy(), getProject().getId(),
+        getMolecularAction().getId(), getActivityId(), getWorkId(),
+        "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
+            + getConcept().getName() + "\n  semantic type = "
+            + getSemanticTypeComponent().getSemanticType());
+
   }
 
 }
