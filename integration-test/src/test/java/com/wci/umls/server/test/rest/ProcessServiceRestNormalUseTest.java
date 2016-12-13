@@ -206,8 +206,6 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig1.setName("Sample " + new Date().getTime());
     algorithmConfig1.setProject(project);
     algorithmConfig1.setProcess(processConfig);
-    algorithmConfig1.setTerminology(umlsTerminology);
-    algorithmConfig1.setVersion(umlsVersion);
     algorithmConfig1.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig1 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
@@ -234,8 +232,6 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setName("Sample 2 " + new Date().getTime());
     algorithmConfig2.setProject(project);
     algorithmConfig2.setProcess(processConfig);
-    algorithmConfig2.setTerminology(umlsTerminology);
-    algorithmConfig2.setVersion(umlsVersion);
     algorithmConfig2.setAlgorithmKey("WAIT");
     AlgorithmConfigJpa addedAlgorithmConfig2 =
         (AlgorithmConfigJpa) processService.addAlgorithmConfig(project.getId(),
@@ -389,9 +385,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setName("Test WAIT algorithm - Short");
     algorithmConfig.setProcess(processConfig);
     algorithmConfig.setProject(project);
-    algorithmConfig.setTerminology(umlsTerminology);
     algorithmConfig.setTimestamp(new Date());
-    algorithmConfig.setVersion(umlsVersion);
 
     // Create and set required algorithm parameters
     List<AlgorithmParameter> algoParameters =
@@ -415,9 +409,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setName("Test WAIT algorithm - Short2");
     algorithmConfig2.setProcess(processConfig);
     algorithmConfig2.setProject(project);
-    algorithmConfig2.setTerminology(umlsTerminology);
     algorithmConfig2.setTimestamp(new Date());
-    algorithmConfig2.setVersion(umlsVersion);
 
     // Set required algorithm parameters (use same as above)
     algorithmConfig2
@@ -527,9 +519,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setName("Test WAIT algorithm - Short");
     algorithmConfig.setProcess(processConfig2);
     algorithmConfig.setProject(project);
-    algorithmConfig.setTerminology(umlsTerminology);
     algorithmConfig.setTimestamp(new Date());
-    algorithmConfig.setVersion(umlsVersion);
 
     // Create and set required algorithm parameters
     List<AlgorithmParameter> algoParameters =
@@ -554,9 +544,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setName("Test WAIT algorithm - Short2");
     algorithmConfig2.setProcess(processConfig2);
     algorithmConfig2.setProject(project);
-    algorithmConfig2.setTerminology(umlsTerminology);
     algorithmConfig2.setTimestamp(new Date());
-    algorithmConfig2.setVersion(umlsVersion);
 
     // Set required algorithm parameters (use same as above)
     algorithmConfig2
@@ -760,9 +748,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setName("Test FAILONCE algorithm");
     algorithmConfig.setProcess(processConfig);
     algorithmConfig.setProject(project);
-    algorithmConfig.setTerminology(umlsTerminology);
     algorithmConfig.setTimestamp(new Date());
-    algorithmConfig.setVersion(umlsVersion);
     algorithmConfig.setParameters(new ArrayList<AlgorithmParameter>());
     algorithmConfig = processService.addAlgorithmConfig(project.getId(),
         processConfig.getId(), (AlgorithmConfigJpa) algorithmConfig, authToken);
@@ -854,9 +840,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig.setName("Test WAIT algorithm - Short");
     algorithmConfig.setProcess(processConfig);
     algorithmConfig.setProject(project);
-    algorithmConfig.setTerminology(umlsTerminology);
     algorithmConfig.setTimestamp(new Date());
-    algorithmConfig.setVersion(umlsVersion);
 
     // Create and set required algorithm parameters
     List<AlgorithmParameter> algoParameters =
@@ -880,9 +864,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     algorithmConfig2.setName("Test WAIT algorithm - Short2");
     algorithmConfig2.setProcess(processConfig);
     algorithmConfig2.setProject(project);
-    algorithmConfig2.setTerminology(umlsTerminology);
     algorithmConfig2.setTimestamp(new Date());
-    algorithmConfig2.setVersion(umlsVersion);
 
     // Set required algorithm parameters (use same as above)
     algorithmConfig2
@@ -913,9 +895,11 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Flatten the log into a single line, so we can use regular expressions
     // against it.
     String processExecutionLogFlat = processExecutionLog.replace("\n", " ");
-    assertTrue(processExecutionLogFlat.matches(".*" + processExecution.getLastModifiedBy() + " Starting "
-        + algorithmConfig.getAlgorithmKey() + ".*" + processExecution.getLastModifiedBy() + " Starting "
-        + algorithmConfig2.getAlgorithmKey() + ".*"));
+    assertTrue(processExecutionLogFlat
+        .matches(".*" + processExecution.getLastModifiedBy() + " Starting "
+            + algorithmConfig.getAlgorithmKey() + ".*"
+            + processExecution.getLastModifiedBy() + " Starting "
+            + algorithmConfig2.getAlgorithmKey() + ".*"));
 
     // Make sure all of the process' algorithms created log entries for just
     // their own algorithm
@@ -928,12 +912,13 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
       String algorithmExecutionLogFlat =
           algorithmExecutionLog.replace("\n", " ");
       // Make sure it doesn't contain BOTH algorithm's log lines
-      assertFalse(algorithmExecutionLogFlat.matches(".*" + ae.getLastModifiedBy()
-          + " Starting " + algorithmConfig.getAlgorithmKey() + ".*" + ae.getLastModifiedBy()
+      assertFalse(algorithmExecutionLogFlat.matches(".*"
+          + ae.getLastModifiedBy() + " Starting "
+          + algorithmConfig.getAlgorithmKey() + ".*" + ae.getLastModifiedBy()
           + " Starting " + algorithmConfig2.getAlgorithmKey() + ".*"));
       // Make sure it DOES contain its own log lines
-      assertTrue(algorithmExecutionLogFlat.matches(
-          ".*" + ae.getLastModifiedBy() + " Starting " + ae.getAlgorithmKey() + ".*"));
+      assertTrue(algorithmExecutionLogFlat.matches(".*" + ae.getLastModifiedBy()
+          + " Starting " + ae.getAlgorithmKey() + ".*"));
     }
 
   }

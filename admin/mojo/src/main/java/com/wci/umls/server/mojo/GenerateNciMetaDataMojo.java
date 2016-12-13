@@ -325,9 +325,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("Test WAIT algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
-    algoConfig.setTerminology(terminology);
     algoConfig.setTimestamp(new Date());
-    algoConfig.setVersion(version);
 
     // Create and set required algorithm properties
     Map<String, String> algoProperties = new HashMap<String, String>();

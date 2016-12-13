@@ -111,7 +111,9 @@ tsApp.service('processService', [
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/config/algo/' + key + '/new?projectId=' + projectId  + '&processId=' + processId).then(
+      $http.get(
+        processUrl + '/config/algo/' + key + '/new?projectId=' + projectId + '&processId='
+          + processId).then(
       // success
       function(response) {
         console.debug('  algo = ', response.data);
@@ -173,6 +175,29 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // prepare process
+    this.prepareProcess = function(projectId, id) {
+      console.debug('prepareProcess', projectId, id);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(processUrl + '/config/' + id + '/prepare?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  prepared process = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
     // execute process
     this.executeProcess = function(projectId, id, background) {
       console.debug('executeProcess', projectId, id, background);
@@ -181,11 +206,36 @@ tsApp.service('processService', [
       // Get projects
       gpService.increment();
       $http.get(
-        processUrl + '/config/' + id + '/execute?projectId=' + projectId + '&background='
+        processUrl + '/execution/' + id + '/execute?projectId=' + projectId + '&background='
           + background).then(
       // success
       function(response) {
         console.debug('  execute = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // step process
+    this.stepProcess = function(projectId, id, step, background) {
+      console.debug('stepProcess', projectId, id, step, background);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(
+        processUrl + '/execution/' + id + '/step?step=' + step + '&projectId=' + projectId
+          + '&background=' + background).then(
+      // success
+      function(response) {
+        console.debug('  step = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -516,6 +566,30 @@ tsApp.service('processService', [
       // Get projects
       gpService.increment();
       $http.post(processUrl + '/config/algo?projectId=' + projectId + '&processId=' + processId,
+        algo).then(
+      // success
+      function(response) {
+        console.debug('  algo = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // update algorithm exec
+    this.updateAlgorithmExec = function(projectId, processId, algo) {
+      console.debug('updateAlgorithmExec', projectId, processId, algo);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.post(processUrl + '/execution/algo?projectId=' + projectId + '&processId=' + processId,
         algo).then(
       // success
       function(response) {

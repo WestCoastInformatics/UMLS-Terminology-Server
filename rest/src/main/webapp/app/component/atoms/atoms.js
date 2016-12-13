@@ -3,8 +3,8 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
   return {
     restrict : 'A',
     scope : {
-      component : '=',
-      metadata : '=',
+      selected : '=',
+      lists : '=',
       showHidden : '=',
       callbacks : '='
     },
@@ -19,7 +19,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
 
       // Paging function
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.atoms.filter(
+        scope.pagedData = utilService.getPagedArray(scope.selected.component.atoms.filter(
         // handle hidden flag
         function(item) {
           return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
@@ -37,7 +37,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
 
       // watch the component
       scope.$watch('component', function() {
-        if (scope.component) {
+        if (scope.selected.component) {
           // reset paging
           // commented out - interferes with Show All/Show Paged
           // scope.paging = utilService.getPaging();
@@ -80,6 +80,52 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
           return 'noul glyphicon glyphicon-plus';
       };
 
+      // Determine if the atom has a prject"new atom termgroup"
+      scope.isNewAtomTermgroup = function(atom) {
+        console.debug('xxx', atom, scope.selected);
+        if (!scope.selected.project) {
+          return false;
+        }
+        for (var i = 0; i < scope.selected.project.newAtomTermgroups.length; i++) {
+          var tg = scope.selected.project.newAtomTermgroups[i];
+          if (atom.terminology + '/' + atom.termType == tg) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // Edit atom modal
+      $scope.openEditAtomModal = function(latom) {
+
+        var modalInstance = $uibModal.open({
+          templateUrl : 'app/page/edit/atoms/editAtom.html',
+          backdrop : 'static',
+          controller : 'AtomModalCtrl',
+          resolve : {
+            atom : function() {
+              return latom;
+            },
+            action : function() {
+              return 'Edit';
+            },
+            selected : function() {
+              return $scope.selected;
+            },
+            lists : function() {
+              return $scope.lists;
+            }
+          }
+        });
+
+        modalInstance.result.then(
+        // Success
+        function(user) {
+          $scope.getPagedAtoms();
+        });
+      };
+
+      // end
     }
   };
 } ]);

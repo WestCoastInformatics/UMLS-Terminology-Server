@@ -28,15 +28,13 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
       });
     } else if ($scope.action == 'Add') {
-      processService.newAlgorithmConfig($scope.project.id, selected.process.id, selected.algorithmConfigType.key).then(
-        function(data) {
-          $scope.algorithm = data;
-          $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
-          $scope.algorithm.name = selected.algorithmConfigType.value + ' algorithm';
-          $scope.algorithm.description = selected.algorithmConfigType.value + ' description';
-          $scope.algorithm.terminology = selected.project.terminology;
-          $scope.algorithm.version = selected.project.version;
-        });
+      processService.newAlgorithmConfig($scope.project.id, selected.process.id,
+        selected.algorithmConfigType.key).then(function(data) {
+        $scope.algorithm = data;
+        $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
+        $scope.algorithm.name = selected.algorithmConfigType.value;
+        $scope.description = selected.algorithmConfigType.value + ' <description>';
+      });
     }
 
     // Update algorithm
@@ -76,11 +74,13 @@ tsApp.controller('AlgorithmModalCtrl', [
     // Dismiss modal
     $scope.validate = function(algorithm) {
       $scope.errors = [];
+      $scope.messages = [];
       processService.validateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
         .then(
         // Success
         function(data) {
           $scope.validated = true;
+          $scope.messages.push('Algorithm configuration successfully validated.')
         },
         // Error
         function(data) {

@@ -11,7 +11,6 @@ tsApp
       '$q',
       '$anchorScroll',
       '$sce',
-      '$uibModal',
       'gpService',
       'utilService',
       'tabService',
@@ -22,8 +21,8 @@ tsApp
       'contentService',
       'appConfig',
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
-        $uibModal, gpService, utilService, tabService, configureService, securityService,
-        projectService, metadataService, contentService, appConfig) {
+        gpService, utilService, tabService, configureService, securityService, projectService,
+        metadataService, contentService, appConfig) {
         console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
@@ -36,10 +35,11 @@ tsApp
           tabService.setShowing(true);
           utilService.setHeaderFooterShowing(true);
         }
-        // tabService.setSelectedTabByLabel('Content');
+
         utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
+        tabService.setSelectedTabByLabel('Content');
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
@@ -60,9 +60,11 @@ tsApp
         $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
         $scope.selected = {
           metadata : metadataService.getModel(),
-          component : null
+          component : null,
+          project : null
         };
         $scope.lists = {
+          projects : [],
           terminologies : []
         };
 
@@ -122,11 +124,13 @@ tsApp
 
           // set the autocomplete url, with pattern:
           // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = $scope.selected.metadata.terminology.organizingClassType.toLowerCase()
-            + '/' + $scope.selected.metadata.terminology.terminology + '/'
+          $scope.autocompleteUrl = $scope.selected.metadata.terminology.organizingClassType
+            .toLowerCase()
+            + '/'
+            + $scope.selected.metadata.terminology.terminology
+            + '/'
             + $scope.selected.metadata.terminology.version + "/autocomplete/";
 
-          
           // Load all metadata for this terminology, store it in the metadata
           // service and return deferred promise
           var deferred = $q.defer();
@@ -157,6 +161,18 @@ tsApp
           });
 
           return deferred.promise;
+        };
+
+        // Retrieve all projects
+        $scope.getProjects = function() {
+
+          projectService.getProjectsForUser($scope.user).then(
+          // Success
+          function(data) {
+            $scope.lists.projects = data.projects;
+            $scope.selected.project = data.project;
+          });
+
         };
 
         // Autocomplete function
@@ -285,8 +301,8 @@ tsApp
 
           contentService.findComponentsAsList($scope.searchParams.query,
             $scope.selected.metadata.terminology.organizingClassType,
-            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version,
-            $scope.searchParams).then(function(data) {
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version, $scope.searchParams).then(function(data) {
             $scope.searchResults = data;
 
             if (loadFirst && $scope.searchResults.results.length > 0) {
@@ -310,8 +326,8 @@ tsApp
 
           contentService.findComponentsAsTree($scope.searchParams.query,
             $scope.selected.metadata.terminology.organizingClassType,
-            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version,
-            $scope.searchParams).then(function(data) {
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version, $scope.searchParams).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive force the single tree into a ui-tree structure
@@ -351,22 +367,22 @@ tsApp
           $scope.searchParams.query = null;
 
           contentService.getTreeRoots($scope.selected.metadata.terminology.organizingClassType,
-            $scope.selected.metadata.terminology.terminology, $scope.selected.metadata.terminology.version).then(
-            function(data) {
-              // for ease and consistency of use of the ui tree
-              // directive
-              // force the single tree into a ui-tree data
-              // structure with count
-              // variables
-              $scope.queryForTree = true;
-              $scope.searchResults.tree = [];
-              $scope.searchResults.tree.push(data);
-              // treeList array of size 1
-              $scope.searchResults.tree.totalCount = data.totalCount;
-              if (data.objects) {
-                $scope.searchResults.tree.objects.length = data.objects.length
-              }
-            });
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version).then(function(data) {
+            // for ease and consistency of use of the ui tree
+            // directive
+            // force the single tree into a ui-tree data
+            // structure with count
+            // variables
+            $scope.queryForTree = true;
+            $scope.searchResults.tree = [];
+            $scope.searchResults.tree.push(data);
+            // treeList array of size 1
+            $scope.searchResults.tree.totalCount = data.totalCount;
+            if (data.objects) {
+              $scope.searchResults.tree.objects.length = data.objects.length
+            }
+          });
         };
 
         $scope.toggleAtomElement = function() {
@@ -549,6 +565,46 @@ tsApp
           // });
         };
 
+        // remove atom
+        $scope.removeAtom = function(atom) {
+          metaEditingService.removeAtom($scope.selected.project.id, $scope.selected.activityId,
+            $scope.selected.component, atom.id, true);
+        }
+
+        //
+        // MODALS
+        //
+
+        // Add atom modal
+        $scope.openAddAtomModal = function(latom) {
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/edit/atoms/editAtom.html',
+            backdrop : 'static',
+            controller : 'AtomModalCtrl',
+            resolve : {
+              atom : function() {
+                return null;
+              },
+              action : function() {
+                return 'Add';
+              },
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(user) {
+            $scope.getPagedAtoms();
+          });
+        };
+
         // Open notes modal, from either wrapper or component
         $scope.viewNotes = function(wrapper) {
 
@@ -720,6 +776,8 @@ tsApp
 
           $scope.configureExpressions();
           $scope.configureCallbacks();
+          $scope.getProjects();
+
           //
           // Check for values preserved in content service (after route changes)
           //

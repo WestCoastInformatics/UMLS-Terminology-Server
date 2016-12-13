@@ -129,8 +129,6 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("project");
     tester.include("description");
     tester.include("process");
-    tester.include("terminology");
-    tester.include("version");
     tester.include("properties");
 
     // This is not a real getter, skip it
@@ -210,8 +208,6 @@ public class AlgorithmConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("description");
     tester.include("algorithmKey");
-    tester.include("terminology");
-    tester.include("version");
     tester.include("enabled");
     assertTrue(tester.testNotNullFields());
   }

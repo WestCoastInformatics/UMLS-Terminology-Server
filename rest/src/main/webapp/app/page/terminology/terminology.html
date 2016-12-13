@@ -1,0 +1,115 @@
+<!-- Controlled by MetadataCtrl (in metadataController.js)  -->
+<div class="row">
+
+  <div class="col-md-12 col-xs-12 alert alert-warning"
+    style="margin-left: 25px;" ng-show="!lists.terminologies">No
+    terminology available.</div>
+
+  <div class="col-md-12 col-xs-12">
+
+    <div class="mt10">
+      <h4 style="display: inline;">&nbsp;</h4>
+    </div>
+
+    <span ng-show="lists.terminologies.length > 10" style="float: right;">
+      Page size: <select ng-model="paging['t'].pageSize" title="Page Size"
+        ng-change="paging['t'].callbacks.getPagedList()">
+        <option value="10">10</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="1000000">All</option>
+      </select>
+    </span>
+    <div pager paging="paging['t']" count="lists.terminologies.length"
+      callbacks="paging['t'].callbacks"></div>
+    <table class="table pointer">
+      <thead>
+        <tr>
+          <th class="col-md-2 col-xs-2"><span
+              ng-click="setSortField('t','terminology')">Terminology</span> <span
+              ng-bind="getSortIndicator('t','terminology')"></span></th>
+          <th class="col-md-1 col-xs-1"><span
+              ng-click="setSortField('t','version')">Version</span> <span
+              ng-bind="getSortIndicator('t','version')"></span></th>
+          <th class="col-md-1 col-xs-1">Class Type</th>
+          <th class="col-md-4 col-xs-4">Name</th>
+          <th class="col-md-4 col-xs-4">Citation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat-start="terminology in pagedTerminologies" class="pointer"
+          ng-class="{selected: terminology.id == selected.terminology.id}"
+          ng-click="setTerminology(terminology)">
+          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.terminology}}</td>
+          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.version}}</td>
+          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.organizingClassType}}</td>
+          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.preferredName}}</td>
+          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{getCitationValue(terminology.citation)}}</td>
+
+        </tr>
+        <tr ng-if="terminology.id == selected.terminology.id" ng-repeat-end>
+          <td colspan="5">
+            <table class="ml20 mr20 slim table pointer">
+              <tbody>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>Restriction Level</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">{{selected.rootTerminology.restrictionLevel}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>Language</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">{{selected.rootTerminology.language}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>Acquisition Contact</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.acquisitionContact)}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>Content Contact</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.contentContact)}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>License Contact</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.licenseContact)}}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-md-3 col-xs-3">
+                    <b>Access Data</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">
+                    <span class="btn btn-xs btn-primary"
+                      ng-click="navigateContent()">Browse Content</span>
+                    &nbsp; &nbsp;
+                    <span class="btn btn-xs btn-primary"
+                      ng-click="navigateMetadata()">View Metadata</span>
+                    &nbsp; &nbsp;
+                    <span class="btn btn-xs btn-primary" ng-click="export()">Export</span>
+
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+  </div>
+</div>

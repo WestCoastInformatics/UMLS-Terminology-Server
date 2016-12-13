@@ -843,8 +843,8 @@ tsApp
 
             gpService.increment();
             $http.post(
-              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note', note).then(
-              function(response) {
+              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note', note)
+              .then(function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
               }, function(response) {
@@ -867,8 +867,7 @@ tsApp
           } else {
 
             gpService.increment();
-            $http['delete'](
-              contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId )
+            $http['delete'](contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId)
               .then(function(response) {
                 console.debug('  successful remove note');
                 gpService.decrement();
@@ -980,8 +979,7 @@ tsApp
             type : 'ATOM'
           }, projectId);
         };
-        
-        
+
         // Find mappings
         this.findMappings = function(component, pfs) {
           console.debug('findMappings', component, pfs);
@@ -1024,4 +1022,40 @@ tsApp
           newWindow.focus();
 
         };
+
+        // Gets the tree for the specified component
+        this.exportTerminologySimple = function(terminology, version) {
+          console.debug('exportTerminologySimple', terminology, version);
+
+          // Make post call
+          gpService.increment();
+          $http.get(
+            contentUrl + '/terminology/export/simple?terminology=' + terminology + '&version='
+              + version).then(
+          // Success
+          function(response) {
+            var blob = new Blob([ response.data ], {
+              type : ''
+            });
+
+            // fake a file URL and download it
+            var fileURL = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = fileURL;
+            a.target = '_blank';
+            a.download = terminology + '_' + version + '.txt';
+            document.body.appendChild(a);
+            gpService.decrement();
+            a.click();
+            window.URL.revokeObjectURL(fileURL);
+
+          },
+          // Error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+          });
+
+        };
+        // end
       } ]);

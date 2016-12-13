@@ -3,9 +3,13 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,6 +32,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -102,6 +107,7 @@ import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
@@ -110,6 +116,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -569,7 +576,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           // some terminologies may have cycles, allow these for now.
           algo3.setCycleTolerant(true);
           // compute "semantic types" for concept hierarchies
-          // but only for "concept" oriented terminologies, and only for browser mode 
+          // but only for "concept" oriented terminologies, and only for browser
+          // mode
           if (!editMode && t.getOrganizingClassType() == IdType.CONCEPT) {
             algo3.setComputeSemanticType(!editMode);
           }
@@ -4057,7 +4065,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(conceptService, projectId, securityService, authToken,
           "validate descriptor", UserRole.USER);
       final Project project = conceptService.getProject(projectId);
-      return conceptService.validateDescriptor(project.getValidationChecks(), descriptor);
+      return conceptService.validateDescriptor(project.getValidationChecks(),
+          descriptor);
     } catch (Exception e) {
       handleException(e, "trying to validate descriptor");
       return null;
@@ -4144,7 +4153,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate conceptm", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateConcept(project.getValidationChecks(), concept);
+      return contentService.validateConcept(project.getValidationChecks(),
+          concept);
     } catch (Exception e) {
       handleException(e, "trying to validate concept");
       return null;
@@ -4189,5 +4199,75 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       contentService.close();
       securityService.close();
     }
+  }
+
+  /* see superclass */
+  @GET
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/terminology/export/simple")
+  @ApiOperation(value = "Export termionlogy to simple code file", notes = "Exports terminology to a simple codes file", response = InputStream.class)
+  public InputStream exportTerminologySimple(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Translation):  /terminology/export/simple"
+            + terminology + ", " + version);
+
+    final ContentServiceJpa contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "export simple",
+          UserRole.VIEWER);
+
+      final Terminology t = contentService.getTerminology(terminology, version);
+      if (t == null) {
+        throw new LocalException(
+            "Invalid terminology: " + terminology + ", " + version);
+      }
+
+      StringBuilder sb = new StringBuilder();
+      if (t.getOrganizingClassType() == IdType.CONCEPT) {
+        final SearchHandler handler =
+            contentService.getSearchHandler(terminology);
+        List<ConceptJpa> list = handler.getQueryResults(terminology, version,
+            Branch.ROOT, null, null, ConceptJpa.class, null, new int[1],
+            contentService.getEntityManager());
+        for (final Concept concept : list) {
+          sb.append(concept.getTerminologyId()).append("|");
+          for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
+            sb.append(sty.getSemanticType());
+            break;
+          }
+          sb.append("|").append(concept.getName()).append("|");
+          final Set<String> seen = new HashSet<>();
+          for (final Atom atom : concept.getAtoms()) {
+            if (!atom.getName().equals(concept.getName())
+                && !seen.contains(atom.getName())) {
+              if (seen.size() > 0) {
+                sb.append("|");
+              }
+              sb.append(atom.getName());
+            }
+          }
+          sb.append("|\n");
+        }
+      } else {
+        throw new LocalException(
+            "Currently exportSimple only supports CONCEPT-based terminologies");
+      }
+
+      return new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
+    } catch (Exception e) {
+      handleException(e, "Trying to export terminology ");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+    return new ByteArrayInputStream("".getBytes("UTF-8"));
   }
 }

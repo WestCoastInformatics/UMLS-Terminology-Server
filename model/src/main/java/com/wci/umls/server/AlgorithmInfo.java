@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -9,15 +9,14 @@ import java.util.Map;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasName;
 import com.wci.umls.server.helpers.HasProject;
-import com.wci.umls.server.helpers.HasTerminology;
 
 /**
  * Represents a process configuration.
  * @param <T> the process info type (e.g. config or execution)
  */
 public interface AlgorithmInfo<T extends ProcessInfo<?>>
-    extends HasLastModified, HasTerminology, HasName, HasProject {
-  
+    extends HasLastModified, HasName, HasProject {
+
   /**
    * Returns the description.
    * 

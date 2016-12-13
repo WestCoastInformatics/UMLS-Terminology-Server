@@ -206,6 +206,32 @@ tsApp
           }
         }
 
+        this.toCamelCase = function(text) {
+          // Lower cases the string
+          return text.toLowerCase()
+          // Replaces any - or _ characters with a space
+          .replace(/[-_]+/g, ' ')
+          // Removes any non alphanumeric characters
+          .replace(/[^\w\s]/g, '')
+          // Uppercases the first character in each group immediately following
+          // a space
+          // (delimited by spaces)
+          .replace(/ (.)/g, function($1) {
+            return $1.toUpperCase();
+          })
+          // Removes spaces
+          .replace(/ /g, '');
+        }
+
+        this.yyyymmdd = function(dateIn) {
+          var yyyy = dateIn.getFullYear();
+          // getMonth() is zero-based
+          var mm = dateIn.getMonth() + 1;
+          var dd = dateIn.getDate();
+          // Leading zeros for mm and dd
+          return String(10000 * yyyy + 100 * mm + dd);
+        }
+
         // Convert date to a string
         this.toDate = function(lastModified) {
           if (!lastModified) {
@@ -333,7 +359,6 @@ tsApp
         // use when all data is already loaded
         this.getPagedArray = function(array, paging) {
           var newArray = new Array();
-
           // if array blank or not an array, return blank list
           if (array == null || array == undefined || !Array.isArray(array)) {
             return newArray;
@@ -370,7 +395,6 @@ tsApp
             totalCount : newArray.length
           };
         };
-
 
         // function for sorting an array by (string) field and direction
         this.sortBy = function(field, reverse) {
