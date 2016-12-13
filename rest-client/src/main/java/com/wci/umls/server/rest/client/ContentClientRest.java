@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Properties;
 
@@ -2328,4 +2329,34 @@ public class ContentClientRest extends RootClientRest
         TreePositionListJpa.class);
   }
 
+  /* see superclass */
+  @Override
+  public InputStream exportTerminologySimple(String terminology, String version,
+    String authToken) throws Exception {
+
+    Logger.getLogger(getClass())
+        .debug("Translation Client - export terminology simple format = "
+            + terminology + ", " + version);
+
+    validateNotEmpty(terminology, "terminology");
+    validateNotEmpty(version, "version");
+
+    Client client = ClientBuilder.newClient();
+
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/terminology/export/simple?terminology=" + terminology + "&version="
+        + version);
+
+    Response response = target.request(MediaType.APPLICATION_OCTET_STREAM)
+        .header("Authorization", authToken).get();
+
+    InputStream resultString = response.readEntity(InputStream.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    return resultString;
+  }
 }

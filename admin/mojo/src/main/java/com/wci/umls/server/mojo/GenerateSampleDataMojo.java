@@ -101,7 +101,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
   /** The terminology. */
   @Parameter
-  private String terminology = "NCIMTH";
+  private String terminology = "UMLS";
 
   /** The version. */
   @Parameter

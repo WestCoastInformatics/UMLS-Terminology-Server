@@ -96,7 +96,7 @@ public class ResetDevDatabase {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("mode", "update");
-    p.setProperty("terminology", "NCIMTH");
+    p.setProperty("terminology", "UMLS");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
