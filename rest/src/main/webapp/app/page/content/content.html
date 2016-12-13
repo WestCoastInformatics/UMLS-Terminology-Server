@@ -349,6 +349,13 @@
         <i ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(selected.component)" title="Remove favorites"
           class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
+
+        <!-- Add Synonym - show if showing terminology tab -->
+        <span
+          ng-show="appConfig['deploy.enabled.tabs'].indexOf('terminology') != -1"
+          style="float: right; transform: scale(.8, .8);"
+          class="btn btn-xs btn-primary" ng-click="openAddAtomModal()">Add
+          Synonym</span>
       </div>
     </div>
     <!-- Component display -->

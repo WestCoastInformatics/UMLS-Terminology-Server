@@ -81,21 +81,13 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   @Column(nullable = false)
   private String algorithmKey;
 
-  /** The terminology. */
-  @Column(nullable = false)
-  private String terminology;
-
-  /** The version. */
-  @Column(nullable = false)
-  private String version;
-
   /** The project. */
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
 
   /** the properties */
   @ElementCollection
-  @Column(length=4000)
+  @Column(length = 4000)
   private Map<String, String> properties = new HashMap<>();
 
   /** parameters. */
@@ -122,8 +114,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     name = info.getName();
     description = info.getDescription();
     project = info.getProject();
-    terminology = info.getTerminology();
-    version = info.getVersion();
     properties = new HashMap<>(info.getProperties());
     parameters = new ArrayList<>(info.getParameters());
     algorithmKey = info.getAlgorithmKey();
@@ -217,30 +207,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   /* see superclass */
   @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
-  }
-
-  /* see superclass */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /* see superclass */
-  @Override
   @XmlTransient
   public Project getProject() {
     return project;
@@ -319,10 +285,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result
         + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
-
-    result =
-        prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
     result =
         prime * result + ((properties == null) ? 0 : properties.hashCode());
 
@@ -360,16 +322,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
         return false;
     } else if (!getProjectId().equals(other.getProjectId()))
       return false;
-    if (terminology == null) {
-      if (other.terminology != null)
-        return false;
-    } else if (!terminology.equals(other.terminology))
-      return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
     if (properties == null) {
       if (other.properties != null)
         return false;
@@ -383,8 +335,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     return "AbstractAlgorithmInfo [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", description=" + description + ", algorithmKey="
-        + algorithmKey + ", terminology=" + terminology + ", version=" + version
-        + ", properties=" + properties + "]";
+        + algorithmKey + ", properties=" + properties + "]";
   }
 
 }

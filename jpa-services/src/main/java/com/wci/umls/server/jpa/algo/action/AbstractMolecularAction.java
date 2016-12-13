@@ -325,13 +325,13 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       setMolecularAction(newMolecularAction);
     }
 
-    // throw exception on terminology mismatch
-    if (!project.getTerminology().equals((concept != null
-        ? concept.getTerminology() : concept2.getTerminology()))) {
-      // unlock concepts and fail
-      rollback();
-      throw new Exception("Project and concept terminologies do not match");
-    }
+//    // throw exception on terminology mismatch
+//    if (!project.getTerminology().equals((concept != null
+//        ? concept.getTerminology() : concept2.getTerminology()))) {
+//      // unlock concepts and fail
+//      rollback();
+//      throw new Exception("Project and concept terminologies do not match");
+//    }
 
     // Concept freshness check - the driving concept of the action
     // should match the "last modified" value.

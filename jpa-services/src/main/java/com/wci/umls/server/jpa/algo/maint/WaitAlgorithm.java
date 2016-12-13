@@ -57,7 +57,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
 
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
-    for (int i = 1; i <= num; i += 1) {     
+    for (int i = 1; i <= num; i += 1) {
       checkCancel();
       Thread.sleep(delay);
       int currentProgress = (int) ((100.0 / num) * i);
@@ -76,7 +76,9 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // n/a - No reset
+    logInfo("Starting WAIT - RESET");
+    logInfo("  no operation");
+    logInfo("Finished WAIT - RESET");
   }
 
   /* see superclass */

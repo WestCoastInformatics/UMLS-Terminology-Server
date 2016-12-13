@@ -39,7 +39,7 @@ public class AlgorithmExecutionJpa extends
     AbstractAlgorithmInfo<ProcessExecution> implements AlgorithmExecution {
 
   /** The last modified. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date startDate;
 

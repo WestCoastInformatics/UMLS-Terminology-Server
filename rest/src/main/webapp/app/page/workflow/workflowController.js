@@ -48,7 +48,7 @@ tsApp.controller('WorkflowCtrl', [
       queryTypes : [],
       recordTypes : workflowService.getRecordTypes()
     }
-    
+
     // Accordion Groups
     $scope.groups = [ {
       title : "Bins",
@@ -159,11 +159,11 @@ tsApp.controller('WorkflowCtrl', [
     $scope.getProjects = function() {
 
       projectService.getProjectsForUser($scope.user).then(
-      // Success
-      function(data) {
-        $scope.lists.projects = data.projects;
-        $scope.setProject(data.project);
-      });
+        // Success
+        function(data) {
+          $scope.lists.projects = data.projects;
+          $scope.setProject(data.project);
+        });
 
     };
 
@@ -304,19 +304,19 @@ tsApp.controller('WorkflowCtrl', [
     $scope.toDate = function(lastModified) {
       return utilService.toDate(lastModified);
     };
-    
-    
+
+    // Save the accorion status
     $scope.saveAccordionStatus = function() {
       console.debug('saveAccordionStatus', $scope.groups);
-      $scope.user.userPreferences.properties['workflowGroups'] = JSON
-        .stringify($scope.groups);
+      $scope.user.userPreferences.properties['workflowGroups'] = JSON.stringify($scope.groups);
       securityService.updateUserPreferences($scope.user.userPreferences);
     }
 
+    // Indicate whether user has permission
     $scope.hasPermissions = function(action) {
       return securityService.hasPermissions(action);
     }
-    
+
     //
     // MODALS
     //

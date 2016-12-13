@@ -858,6 +858,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Iterate through terminologies
     for (final String terminology : versionsMap.keySet()) {
 
+      // Skip the insertion terminology
+      if (terminology.equals(getTerminology())) {
+        continue;
+      }
+
       // Skip terminologies not represented
       if (!sourceMetadataMap.containsKey(terminology)) {
         continue;

@@ -161,8 +161,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Attempt to perform the merge given the integrity checks
 
       for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
-        checkCancel();   
-        
+        checkCancel();
+
         merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
             makeDemotions, changeStatus, getProject(), statsMap);
 
@@ -205,6 +205,15 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     }
   }
 
+  /**
+   * Apply filters.
+   *
+   * @param atomIdPairs the atom id pairs
+   * @param params the params
+   * @param statsMap the stats map
+   * @return the list
+   * @throws Exception the exception
+   */
   private List<Pair<Long, Long>> applyFilters(List<Long[]> atomIdPairs,
     Map<String, String> params, Map<String, Integer> statsMap)
     throws Exception {
@@ -331,7 +340,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("queryType") != null) {
-      queryType = QueryType.valueOf(QueryType.class,
+      queryType = Enum.valueOf(QueryType.class,
           String.valueOf(p.getProperty("queryType")));
     }
     if (p.getProperty("query") != null) {
@@ -345,7 +354,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       newAtomsOnly = Boolean.parseBoolean(p.getProperty("newAtomsOnly"));
     }
     if (p.getProperty("filterQueryType") != null) {
-      filterQueryType = QueryType.valueOf(QueryType.class,
+      filterQueryType = Enum.valueOf(QueryType.class,
           String.valueOf(p.getProperty("filterQueryType")));
     }
     if (p.getProperty("filterQuery") != null) {
@@ -446,7 +455,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   public String getDescription() {
     return "Merges <x> with <y> for <purpose>";
   }
-  
+
   /**
    * Sets the mid merge.
    *
@@ -454,5 +463,5 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
    */
   public void setMidMerge(Boolean midMerge) {
     this.midMerge = midMerge;
-  }  
+  }
 }

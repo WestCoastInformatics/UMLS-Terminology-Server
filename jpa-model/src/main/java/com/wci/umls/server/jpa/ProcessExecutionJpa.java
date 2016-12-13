@@ -46,7 +46,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     implements ProcessExecution {
 
   /** The last modified. */
-  @Column(nullable = false)
+  @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date startDate;
 

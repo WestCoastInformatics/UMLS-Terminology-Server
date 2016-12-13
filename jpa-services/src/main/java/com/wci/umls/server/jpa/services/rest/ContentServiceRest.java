@@ -6,6 +6,8 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.io.InputStream;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -473,6 +475,18 @@ public interface ContentServiceRest {
     String inputDir, String authToken) throws Exception;
 
   /**
+   * Export terminology simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  public InputStream exportTerminologySimple(String terminology, String version,
+    String authToken) throws Exception;
+
+  /**
    * Load terminology rrf.
    *
    * @param terminology the terminology
@@ -927,8 +941,8 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addConceptNote(Long id, String noteText, String authToken) throws Exception;
-
+  public void addConceptNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Add code note.
@@ -938,7 +952,8 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addCodeNote(Long id, String noteText, String authToken) throws Exception;
+  public void addCodeNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Remove code note.
@@ -949,7 +964,6 @@ public interface ContentServiceRest {
    */
   public void removeCodeNote(Long noteId, String authToken) throws Exception;
 
-
   /**
    * Add descriptor note.
    *
@@ -958,7 +972,8 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addDescriptorNote(Long id, String noteText, String authToken) throws Exception;
+  public void addDescriptorNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Remove descriptor note.
@@ -1080,7 +1095,6 @@ public interface ContentServiceRest {
     String terminology, String version, PfsParameterJpa pfs, String query,
     String authToken) throws Exception;
 
-
   /**
    * Add atom note.
    *
@@ -1089,8 +1103,8 @@ public interface ContentServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addAtomNote(Long id,
-    String noteText, String authToken) throws Exception;
+  public void addAtomNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Remove atom note.
@@ -1110,5 +1124,6 @@ public interface ContentServiceRest {
    * @return the atom
    * @throws Exception the exception
    */
-  public Atom getAtom(Long atomId, Long projectId, String authToken) throws Exception;
+  public Atom getAtom(Long atomId, Long projectId, String authToken)
+    throws Exception;
 }

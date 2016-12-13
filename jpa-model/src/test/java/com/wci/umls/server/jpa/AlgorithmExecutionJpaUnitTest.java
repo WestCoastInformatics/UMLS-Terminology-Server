@@ -43,8 +43,8 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
   private Project p1;
 
   /** The test fixture p2. */
-  private Project p2;  
-  
+  private Project p2;
+
   /** The test fixture p1. */
   private ProcessExecution pe1;
 
@@ -130,8 +130,6 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("process");
     tester.include("algorithmConfigId");
     tester.include("activityId");
-    tester.include("terminology");
-    tester.include("version");
     tester.include("properties");
 
     // This is not a real getter, skip it
@@ -211,9 +209,6 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("name");
     tester.include("description");
     tester.include("algorithmKey");
-    tester.include("terminology");
-    tester.include("version");
-    tester.include("startDate");
     tester.include("algorithmConfigId");
     assertTrue(tester.testNotNullFields());
   }

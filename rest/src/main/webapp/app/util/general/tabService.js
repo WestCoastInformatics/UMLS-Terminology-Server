@@ -38,6 +38,13 @@ tsApp
                   role : false
                 });
                 break;
+              case 'terminology':
+                this.tabs.push({
+                  link : 'terminology',
+                  label : 'Terminology',
+                  role : false
+                });
+                break;
               case 'metadata':
                 this.tabs.push({
                   link : 'metadata',

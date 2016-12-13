@@ -115,6 +115,17 @@ tsApp.run([
               });
             }
 
+            // Terminology page
+            if (appConfig['deploy.enabled.tabs']
+              && appConfig['deploy.enabled.tabs'].split(',').indexOf('terminology') != -1) {
+              console.debug('Route enabled: /terminology');
+              $routeProviderReference.when('/terminology', {
+                templateUrl : 'app/page/terminology/terminology.html',
+                controller : 'TerminologyCtrl',
+                reloadOnSearch : false
+              });
+            }
+
             // Metadata page
             if (appConfig['deploy.enabled.tabs']
               && appConfig['deploy.enabled.tabs'].split(',').indexOf('metadata') != -1) {

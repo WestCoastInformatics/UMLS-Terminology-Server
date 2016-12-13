@@ -10,6 +10,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
+import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
@@ -152,6 +153,18 @@ public interface ProcessServiceRest {
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
 
   /**
+   * Update algorithm execution.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param algorithmConfig the algorithm config
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateAlgorithmExecution(Long projectId, Long processId,
+    AlgorithmExecutionJpa algorithmConfig, String authToken) throws Exception;
+
+  /**
    * Validate algorithm config.
    *
    * @param projectId the project id
@@ -235,14 +248,40 @@ public interface ProcessServiceRest {
    * Execute process.
    *
    * @param projectId the project id
-   * @param id the process config id
+   * @param processId the process config id
    * @param background the background
    * @param authToken the auth token
    * @return the long process execution id
    * @throws Exception the exception
    */
-  public Long executeProcess(Long projectId, Long id, Boolean background,
+  public Long executeProcess(Long projectId, Long processId, Boolean background,
     String authToken) throws Exception;
+
+  /**
+   * Prepare process.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param authToken the auth token
+   * @return the long
+   * @throws Exception the exception
+   */
+  public Long prepareProcess(Long projectId, Long processId, String authToken)
+    throws Exception;
+
+  /**
+   * Step process.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param step the step, -1 to unstep, 1 to step forward, 0/null does nothing.
+   * @param background the background
+   * @param authToken the auth token
+   * @return the long
+   * @throws Exception the exception
+   */
+  public Long stepProcess(Long projectId, Long processId, Integer step,
+    Boolean background, String authToken) throws Exception;
 
   /**
    * Cancel process.
@@ -327,7 +366,7 @@ public interface ProcessServiceRest {
    * @return the algorithm config
    * @throws Exception the exception
    */
-  public AlgorithmConfig newAlgorithmConfig(Long projectId, Long processId, String key,
-    String authToken) throws Exception;
+  public AlgorithmConfig newAlgorithmConfig(Long projectId, Long processId,
+    String key, String authToken) throws Exception;
 
 }

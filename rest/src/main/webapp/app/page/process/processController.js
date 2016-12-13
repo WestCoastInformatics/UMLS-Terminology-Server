@@ -198,25 +198,41 @@ tsApp
           }
         }
 
+        // prepare process
+        $scope.prepareProcess = function() {
+          $scope.processConfig = $scope.selected.process;
+          processService.prepareProcess($scope.selected.project.id, $scope.selected.process.id)
+            .then(
+              // Success
+              function(data) {
+                $scope.selected.process.id = data;
+                // don't call setMode because it reloads processes
+                $scope.selected.mode = 'Execution';
+                securityService.saveProperty($scope.user.userPreferences, 'processMode',
+                  $scope.selected.mode);
+                gpService.increment();
+                $timeout(function() {
+                  $scope.selectProcess($scope.selected.process);
+                  gpService.decrement();
+                }, 1000);
+              });
+        }
+
         // execute process
         $scope.executeProcess = function() {
           $scope.processConfig = $scope.selected.process;
           processService.executeProcess($scope.selected.project.id, $scope.selected.process.id,
             true).then(
-            // Success
-            function(data) {
-              $scope.selected.process.id = data;
-              // don't call setMode because it reloads processes
-              $scope.selected.mode = 'Execution';
-              securityService.saveProperty($scope.user.userPreferences, 'processMode',
-                $scope.selected.mode);
-              gpService.increment();
-              $timeout(function() {
-                $scope.selectProcess($scope.selected.process);
-                gpService.decrement();
-              }, 1000);
-            });
+          // Success
+          function(data) {
+            gpService.increment();
+            $timeout(function() {
+              $scope.selectProcess($scope.selected.process);
+              gpService.decrement();
+            }, 1000);
+          });
         }
+
         // Refresh process progress
         $scope.refreshProcessProgress = function() {
           if (!$scope.selected.process) {
@@ -381,11 +397,13 @@ tsApp
           } else if (!execution.failDate && !execution.finishDate) {
             return 'RUNNING';
           } else if (execution.failDate && execution.finishDate) {
-            return 'CANCELLED';
+            return 'STOPPED';
           } else if (!execution.failDate && execution.finishDate) {
             return 'COMPLETE';
           } else if (execution.failDate && !execution.finishDate) {
             return 'FAILED';
+          } else if (!execution.startDate) {
+            return 'READY';
           }
         }
 

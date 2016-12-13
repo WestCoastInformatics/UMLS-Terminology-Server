@@ -38,7 +38,7 @@
           ng-options="processType for processType in lists.processTypes"></select>
         <button ng-click="openAddProcessModal()" title="Add new process"
           ng-show="selected.mode != 'Execution' && hasPermissions('EditProcessOrStep')"
-          class="btn btn-xs btn-primary">Add Process</button>
+          class="ml20 btn btn-xs btn-primary">Add Process</button>
       </span>
     </div>
 
@@ -52,8 +52,8 @@
               Name
               <span ng-bind="getSortIndicator('process','name')"></span>
             </span></th>
-          <th class="col-md-3 col-xs-3">State</th>
-          <th class="col-md-3 col-xs-3"><span
+          <th class="col-md-2 col-xs-2">State</th>
+          <th class="col-md-4 col-xs-4"><span
               ng-click="setSortField('process','lastModified')">
               Last Modified
               <span ng-bind="getSortIndicator('process','lastModified')"></span>
@@ -221,23 +221,25 @@
             ng-change="changeAlgorithmConfigType()"
             ng-options="configType.value for configType in lists.algorithmConfigTypes"></select>
           <button ng-click="openAddAlgorithmModal()" title="Add"
-            class="btn btn-xs btn-primary">Add</button>
+            class="ml20 btn btn-xs btn-primary">Add</button>
         </span>
       </div>
 
       <table class="slim table pointer">
         <thead>
           <tr>
-            <th class="col-md-3 col-xs-3">Name</th>
-            <th class="col-md-5 col-xs-5">Description</th>
+            <th class="col-md-4 col-xs-4">Name</th>
+            <th class="col-md-4 col-xs-4">Description</th>
             <th class="col-md-3 col-xs-3">Last Modified</th>
-            <th class="col-md-1 col-xs-1">Actions</th>
+            <th ng-show="hasPermissions('EditProcessOrStep')"
+              class="col-md-1 col-xs-1">Actions</th>
           </tr>
         </thead>
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
           ng-class="{selected: step.id == selected.step.id}">
-          <td class="col-md-4 col-xs-4">
+          <td>
+            {{$index}}.
             <span ng-show="selected.mode != 'Execution'" class="nobreak">
               <!-- Actions - move up-->
               <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
@@ -253,14 +255,14 @@
             </span>
             {{step.name}}
           </td>
-          <td class="col-md-4 col-xs-4">{{step.description}}</td>
-          <td class="col-md-3 col-xs-3">
+          <td>{{step.description}}</td>
+          <td>
             {{toDate(step.lastModified)}}
             <span ng-show="selected.mode == 'Execution'">
               <br />getExecutionState(step)
             </span>
           </td>
-          <td class="col-md-1 col-xs-1 nobreak">
+          <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
               type="Step"></span>
 
@@ -281,7 +283,10 @@
       </table>
       <span ng-show="hasPermissions('EditProcessOrStep')">
         <button ng-show="selected.process && selected.mode == 'Config'"
-          class="btn btn-primary"
+          class="btn btn-primary btn-xs" ng-click="prepareProcess(); ">Prepare</button>
+        <button
+          ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) == 'READY'"
+          class="btn btn-primary btn-xs"
           confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
           ng-click="executeProcess(); ">Execute</button>
         <button
@@ -290,7 +295,7 @@
           ng-click="cancelProcess(selected.process.id); ">Cancel</button>
         <button
           ng-show="selected.process && selected.mode == 'Execution' && 
-      (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'CANCELLED')"
+      (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'STOPPED')"
           class="btn btn-primary"
           ng-click="restartProcess(selected.process.id); ">Restart</button>
       </span>
