@@ -30,6 +30,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -210,6 +211,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         // Check to see if atom with matching AUI already exists in the database
         Atom oldAtom = (Atom) getComponent("AUI", newAtomAui, null, null);
 
+        // Create a blank mapSet object
+        MapSet mapSet = null;
+
+        // If this is an XM atom, populate the mapSet. Otherwise, leave it null.
+        if(newAtom.getTermType().equals("XM")){
+          
+        }
+
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
         if (oldAtom == null) {
@@ -239,7 +248,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           putComponent(newAtom, newAtomAui);
 
           // Reconcile code/concept/descriptor
-          reconcileCodeConceptDescriptor(newAtom);
+          reconcileCodeConceptDescriptor(newAtom, mapSet);
 
         }
         // If a previous atom with same AUI exists, update that object.
@@ -287,7 +296,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
             updateCount++;
 
             // Reconcile code/concept/descriptor
-            reconcileCodeConceptDescriptor(oldAtom);
+            reconcileCodeConceptDescriptor(oldAtom, mapSet);
           }
         }
 
@@ -323,7 +332,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * @param atom the atom
    * @throws Exception the exception
    */
-  private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {
+  private void reconcileCodeConceptDescriptor(Atom atom, MapSet mapSet)
+    throws Exception {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {
 
