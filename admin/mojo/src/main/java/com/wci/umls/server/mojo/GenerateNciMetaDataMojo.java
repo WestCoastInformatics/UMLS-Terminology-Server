@@ -369,6 +369,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("PREINSERTION algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -382,6 +384,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("METADATALOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -395,6 +399,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("ATOMLOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -408,6 +414,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("RELATIONSHIPLOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -421,6 +429,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("CONTEXTLOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -434,6 +444,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("SEMANTICTYPELOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -447,6 +459,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setName("ATTRIBUTELOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
+    algoConfig.setTerminology("NCI");
+    algoConfig.setVersion("2016_05E");
     algoConfig.setTimestamp(new Date());
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);

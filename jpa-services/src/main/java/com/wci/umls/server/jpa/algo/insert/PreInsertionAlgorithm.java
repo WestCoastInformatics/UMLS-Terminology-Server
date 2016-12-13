@@ -16,8 +16,6 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
-import com.wci.umls.server.jpa.services.ProcessServiceJpa;
-import com.wci.umls.server.services.ProcessService;
 
 /**
  * Implementation of an algorithm to save information before an insertion.
@@ -140,9 +138,8 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
     logInfo(" maxStyIdPreInsertion = "
         + processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
 
-    ProcessService processService = new ProcessServiceJpa();
-    processService.setLastModifiedBy("admin");
-    processService.updateProcessExecution(processExecution);
+    // NOTE: the processExecution is updated by the calling method,
+    // typically RunProcessAsThread in ProcessServiceRestImpl
 
     logInfo(" project = " + getProject().getId());
     logInfo(" workId = " + getWorkId());
