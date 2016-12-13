@@ -341,15 +341,128 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
+    process = new ProcessServiceRestImpl();
+
+    // Create and set up a test NCI_2016_05E insertion process and algorithm
+    // configuration
+    processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Insertion process for NCI_2016_05E");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Insertion process for NCI_2016_05E");
+    processConfig.setProject(project1);
+    processConfig.setTerminology("NCI");
+    processConfig.setVersion("2016_05E");
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Insertion");
+    //TODO question - set to something obviously wrong?
+    // Like "SET ME!"
+    // Or just leave blank?
+    processConfig.setInputPath("SET ME!");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREINSERTION");
+    algoConfig.setDescription("PREINSERTION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREINSERTION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("METADATALOADING");
+    algoConfig.setDescription("METADATALOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("METADATALOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATOMLOADING");
+    algoConfig.setDescription("ATOMLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATOMLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RELATIONSHIPLOADING");
+    algoConfig.setDescription("RELATIONSHIPLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RELATIONSHIPLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CONTEXTLOADING");
+    algoConfig.setDescription("CONTEXTLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CONTEXTLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SEMANTICTYPELOADING");
+    algoConfig.setDescription("SEMANTICTYPELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SEMANTICTYPELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
+    algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATTRIBUTELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
 
     // Create and set up a release process and algorithm configuration for
     // testing
     /*
      * TODO add and test processConfig = new ProcessConfigJpa();
      * processConfig.setDescription("Process for release testing use");
-     * processConfig.setFeedbackEmail(null);
-     * processConfig.setName("Test Release Process");
-     * processConfig.setProject(project1);
+     * processConfig.setFeedbackEmail(null); processConfig.setName(
+     * "Test Release Process"); processConfig.setProject(project1);
      * processConfig.setTerminology(terminology);
      * processConfig.setVersion(version); processConfig.setTimestamp(new
      * Date()); processConfig.setType("Release"); processConfig =
@@ -357,9 +470,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
      * authToken); process = new ProcessServiceRestImpl();
      * 
      * algoConfig = new AlgorithmConfigJpa();
-     * algoConfig.setAlgorithmKey("RRFHISTORY");
-     * algoConfig.setDescription("Rrf history algorithm for testing use");
-     * algoConfig.setEnabled(true);
+     * algoConfig.setAlgorithmKey("RRFHISTORY"); algoConfig.setDescription(
+     * "Rrf history algorithm for testing use"); algoConfig.setEnabled(true);
      * algoConfig.setName("Test RRF History algorithm");
      * algoConfig.setProcess(processConfig); algoConfig.setProject(project1);
      * algoConfig.setTerminology(terminology); algoConfig.setTimestamp(new
