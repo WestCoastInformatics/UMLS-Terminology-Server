@@ -155,6 +155,11 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),

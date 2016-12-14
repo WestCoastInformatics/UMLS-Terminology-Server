@@ -378,6 +378,12 @@ public class SplitMolecularAction extends AbstractMolecularAction {
       updateConcept(concept);
     }
 
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
+
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(),
         getFromConcept().getId(), getActivityId(), getWorkId(),

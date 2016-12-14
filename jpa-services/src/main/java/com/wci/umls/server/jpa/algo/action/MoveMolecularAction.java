@@ -134,7 +134,8 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     for (final Atom atom : moveAtoms) {
       Atom atomCopy = new AtomJpa(atom, true);
       moveAtomsCopies.add(atomCopy);
-      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(atom.getRelationships())) {
+      for (final AtomRelationship atomRel : new ArrayList<AtomRelationship>(
+          atom.getRelationships())) {
         if (atomRel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)
             && getToConcept().getAtoms().contains(atomRel.getTo())) {
           atomCopy.getRelationships().remove(atomRel);
@@ -211,6 +212,12 @@ public class MoveMolecularAction extends AbstractMolecularAction {
     //
     updateConcept(getToConcept());
     updateConcept(getFromConcept());
+
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(),

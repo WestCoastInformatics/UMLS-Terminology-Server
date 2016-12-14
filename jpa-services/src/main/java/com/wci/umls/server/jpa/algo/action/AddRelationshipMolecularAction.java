@@ -221,6 +221,11 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
     // update the concept
     updateConcept(getConcept());
 
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
         getActivityId(), getWorkId(), getName() + " to concept "
@@ -240,5 +245,5 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
             + ", " + getRelationship().getAdditionalRelationshipType() + ", "
             + relationship.getTerminology());
   }
-
+  
 }

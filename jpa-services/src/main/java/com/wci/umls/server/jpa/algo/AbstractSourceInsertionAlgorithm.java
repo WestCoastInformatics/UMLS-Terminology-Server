@@ -84,8 +84,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Set<String> atomCachedTerms = new HashSet<>();
 
   /**
-   * The attribute ID cache. Key = ATUI Value = attributeJpa
-   * Id
+   * The attribute ID cache. Key = ATUI Value = attributeJpa Id
    */
   private static Map<String, Long> attributeIdCache = new HashMap<>();
 
@@ -95,8 +94,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Set<String> attributeCachedTerms = new HashSet<>();
 
   /**
-   * The definition ID cache. Key = DUI Value = definitionJpa
-   * Id
+   * The definition ID cache. Key = DUI Value = definitionJpa Id
    */
   private static Map<String, Long> definitionIdCache = new HashMap<>();
 
@@ -979,6 +977,16 @@ public abstract class AbstractSourceInsertionAlgorithm
   }
 
   /**
+   * Put map set into the cache.
+   *
+   * @param mapSet the map set
+   * @param codeIdAndTerminology the code id and terminology
+   */
+  public void putMapSet(String codeIdAndTerminology, MapSet mapSet){
+    cachedMapSets.put(codeIdAndTerminology, mapSet);
+  }
+
+  /**
    * Returns the id.
    *
    * @param abbreviation the abbreviation
@@ -1264,8 +1272,8 @@ public abstract class AbstractSourceInsertionAlgorithm
       logAndCommit("[" + shortName + "] steps completed ", stepsCompleted,
           RootService.logCt, RootService.commitCt);
     }
-  } 
-  
+  }
+
   /**
    * Clear out all of the caches.
    */

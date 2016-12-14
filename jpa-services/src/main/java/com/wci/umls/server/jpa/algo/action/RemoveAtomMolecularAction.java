@@ -115,6 +115,11 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     }
     // Update Concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
@@ -128,6 +133,7 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
             + getConcept().getName() + "\n  atom = " + atom.getName() + ", "
             + atom.getTerminology() + "/" + atom.getTermType() + ","
             + atom.getCodeId());
+
   }
 
   /**

@@ -33,6 +33,9 @@ public class RedoMolecularAction extends AbstractMolecularAction {
 
   /** Whether to force the redo, regardless of current object state. */
   private Boolean force = false;
+  
+  /** The redo molecular action. */
+  private MolecularAction redoMolecularAction = null;
 
   /**
    * Instantiates an empty {@link RedoMolecularAction}.
@@ -109,7 +112,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
   public void compute() throws Exception {
 
     // Call up the molecular Action we're redoing
-    final MolecularAction redoMolecularAction =
+    redoMolecularAction =
         getMolecularAction(molecularActionId);
 
     // Perform the opposite action for each of the molecular action's atomic
@@ -261,6 +264,12 @@ public class RedoMolecularAction extends AbstractMolecularAction {
     // Unset the molecular action flag
     redoMolecularAction.setUndoneFlag(false);
     this.updateMolecularAction(redoMolecularAction);
+  }
+
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(),
@@ -274,6 +283,7 @@ public class RedoMolecularAction extends AbstractMolecularAction {
           getName() + " " + redoMolecularAction.getName() + ", "
               + molecularActionId);
     }
-  }
 
+  }  
+  
 }

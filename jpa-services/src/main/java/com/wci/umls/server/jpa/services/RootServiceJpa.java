@@ -1520,6 +1520,9 @@ public abstract class RootServiceJpa implements RootService {
     // Perform the action
     //
     action.compute();
+    
+    // create the log entries
+    action.logAction();
 
     // commit (also removes the lock)
     action.commit();

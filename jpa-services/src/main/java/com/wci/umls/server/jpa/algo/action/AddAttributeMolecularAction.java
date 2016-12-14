@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.action;
 
@@ -102,6 +102,11 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST call
     addLogEntry(getLastModifiedBy(), getProject().getId(), getConcept().getId(),
@@ -114,6 +119,7 @@ public class AddAttributeMolecularAction extends AbstractMolecularAction {
         "\nACTION  " + getName() + "\n  concept = " + getConcept().getId() + " "
             + getConcept().getName() + "\n  attribute = "
             + getAttribute().getName() + ", " + attribute.getValue());
+
   }
 
 }

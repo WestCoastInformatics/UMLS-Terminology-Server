@@ -347,6 +347,11 @@ public class MergeMolecularAction extends AbstractMolecularAction {
     // Delete the from concept
     //
     removeConcept(getFromConcept().getId());
+  }
+
+  /* see superclass */
+  @Override
+  public void logAction() throws Exception {
 
     // log the REST calls
     addLogEntry(getLastModifiedBy(), getProject().getId(),
@@ -367,8 +372,8 @@ public class MergeMolecularAction extends AbstractMolecularAction {
                 + getToConcept().getId() + " " + getToConcept().getName()
                 : ""));
 
-  }
-
+  }  
+  
   /* see superclass */
   @Override
   public boolean lockRelatedConcepts() {
