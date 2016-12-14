@@ -1283,7 +1283,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
           processService).getObjects()) {
         if (exec.getProcessConfigId().equals(process.getId())) {
-          throw new Exception(
+          throw new LocalException(
               "There is already a currently running execution of process "
                   + process.getId());
         }
@@ -1294,9 +1294,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // No start date yet
       execution.setWorkId(UUID.randomUUID().toString());
       execution.setSteps(new ArrayList<>());
-      final ProcessExecution processExecution =
+      final ProcessExecution newExecution =
           processService.addProcessExecution(execution);
-      executionId = processExecution.getId();
+      executionId = newExecution.getId();
+
+      // Log the prepare
+      processService.addLogEntry(userName, projectId, newExecution.getId(),
+          null, newExecution.getWorkId(),
+          "PREPARE processConfig for execution - " + process);
 
       // Always return the execution id
       return executionId;
@@ -1315,25 +1320,22 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/execution/{id}/execute")
+  @Path("/execution/{processId}/execute")
   @Produces("text/plain")
   @ApiOperation(value = "Execute a process", notes = "Execute the specified process", response = Long.class)
   public Long executeProcess(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Process Executoin id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Process Execution id, e.g. 3", required = true) @PathParam("processId") Long processId,
     @ApiParam(value = "Background, e.g. true", required = true) @QueryParam("background") Boolean background,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Process): /execution/" + id + "/execute?projectId="
-            + projectId
+        .info("RESTful call (Process): /execution/" + processId
+            + "/execute?projectId=" + projectId
             + ((background != null && background) ? "&background=true" : "")
             + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
-
-    Long executionId = null;
-
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -1341,11 +1343,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
-      final ProcessExecution process = processService.getProcessExecution(id);
+      final ProcessExecution process =
+          processService.getProcessExecution(processId);
 
       // Make sure processConfig exists
       if (process == null) {
-        throw new Exception("Process execution " + id + " does not exist");
+        throw new LocalException(
+            "Process execution " + processId + " does not exist");
       }
 
       // Verify that passed projectId matches ID of the processConfig's project
@@ -1355,7 +1359,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
           processService).getObjects()) {
         if (exec.getProcessConfigId().equals(process.getId())) {
-          throw new Exception(
+          throw new LocalException(
               "There is already a currently running execution of process "
                   + process.getId());
         }
@@ -1378,7 +1382,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           false, null);
 
       // Always return the execution id
-      return executionId;
+      return processId;
 
     } catch (
 
@@ -1388,7 +1392,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.close();
       securityService.close();
     }
-    return executionId;
+    return null;
   }
 
   /* see superclass */
@@ -1423,14 +1427,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Make sure processExecution exists
       if (processExecution == null) {
-        throw new Exception("ProcessExecution " + id + " does not exist");
+        throw new LocalException("ProcessExecution " + id + " does not exist");
       }
 
       // Make sure the processExecution isn't already running
       for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
           projectId, authToken).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
-          throw new Exception("Process execution " + processExecution.getId()
+          throw new LocalException("Process execution " + processExecution.getId()
               + " is already currently running");
         }
       }
@@ -1503,14 +1507,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Make sure processExecution exists
       if (processExecution == null) {
-        throw new Exception("ProcessExecution " + id + " does not exist");
+        throw new LocalException("ProcessExecution " + id + " does not exist");
       }
 
       // Make sure the processExecution isn't already running
       for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
           projectId, authToken).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
-          throw new Exception("Process execution " + processExecution.getId()
+          throw new LocalException("Process execution " + processExecution.getId()
               + " is already currently running");
         }
       }
@@ -1567,7 +1571,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final ProcessExecution processExecution =
           processService.getProcessExecution(id);
       if (processExecution == null) {
-        throw new Exception("Process execution does not exist for " + id);
+        throw new LocalException("Process execution does not exist for " + id);
       }
       // Verify the project
       verifyProject(processExecution, projectId);
@@ -1583,7 +1587,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       if (!processRunning) {
-        throw new Exception("Error canceling process Execution " + id
+        throw new LocalException("Error canceling process Execution " + id
             + ": not currently running.");
       }
 
@@ -1791,7 +1795,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   .remove(lastCompletedAlgorithm.getAlgorithmConfigId());
               algorithmToRestart = lastCompletedAlgorithm;
               firstRestartedAlgorithm = true;
-
             }
 
             // Update the processExecution progress and step-count
@@ -1837,7 +1840,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithmExecution.setStartDate(new Date());
               algorithmExecution =
                   processService.addAlgorithmExecution(algorithmExecution);
-
+              // Add the execution to the proces
+              processExecution.getSteps().add(algorithmExecution);
+              processService.updateProcessExecution(processExecution);
             }
 
             // Create and configure the algorithm
@@ -1865,7 +1870,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // Check preconditions
             final ValidationResult result = algorithm.checkPreconditions();
             if (!result.isValid()) {
-              throw new Exception("Algorithm " + algorithmExecution.getId()
+              throw new LocalException("Algorithm " + algorithmExecution.getId()
                   + " failed preconditions: " + result.getErrors());
             }
 
@@ -1900,7 +1905,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // If we're in restart mode, and if this is the First algorithm
             // we're running, reset the algorithm.
-            if (restart && firstRestartedAlgorithm) {
+            if (restart && firstRestartedAlgorithm
+                && algorithmToRestart != null) {
               algorithm.reset();
               // Commit and reset transaction
               algorithm.commitClearBegin();
@@ -1911,8 +1917,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // If stepping back, remove the algorithm execution
             if (step != null && step < 0) {
 
-              // Add the algorithm execution to the process
-              processExecution.getSteps().add(algorithmExecution);
+              // Remove the algorithm execution from the process
+              processExecution.getSteps().remove(algorithmExecution);
               processService.updateProcessExecution(processExecution);
               processService
                   .removeAlgorithmExecution(algorithmExecution.getId());

@@ -151,28 +151,28 @@
             </td>
           </tr>
 
-          <tr
-            ng-show="selected.mode == 'Execution' && selected.process.startDate">
+          <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Start date</b>
             </td>
-            <td>{{toDate(selected.process.startDate)}}</td>
+            <td ng-if="selected.process.startDate">{{toDate(selected.process.startDate)}}</td>
+            <td ng-if="!selected.process.startDate">n/a</td>
           </tr>
 
-          <tr
-            ng-show="selected.mode == 'Execution' && selected.process.failDate">
+          <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Fail date</b>
             </td>
-            <td>{{toDate(selected.process.failDate)}}</td>
+            <td ng-if="selected.process.failDate">{{toDate(selected.process.failDate)}}</td>
+            <td ng-if="!selected.process.failDate">n/a</td>
           </tr>
 
-          <tr
-            ng-show="selected.mode == 'Execution' && selected.process.finishDate">
+          <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Finish date</b>
             </td>
-            <td>{{toDate(selected.process.finishDate)}}</td>
+            <td ng-if="selected.process.finishDate">{{toDate(selected.process.finishDate)}}</td>
+            <td ng-if="!selected.process.finishDate">n/a</td>
           </tr>
 
           <tr ng-show="selected.mode == 'Execution'">
@@ -197,7 +197,7 @@
           </tr>
 
           <tr
-            ng-show="selected.mode == 'Execution' && selected.lastAlgorithm.startDate && !selected.lastAlgorithm.finishDate && !selected.lastAlgorithm.failDate">
+            ng-show="selected.mode == 'Execution' && selected.lastAlgorithm.startDate && !selected.process.finishDate && !selected.process.failDate">
             <td>
               <b>Step Progress</b>
             </td>
@@ -205,8 +205,6 @@
               <uib-progressbar max="max" value="stepProgress">
               <span style="color: white; white-space: nowrap;">{{stepProgress}}
                 / {{max}}</span></uib-progressbar>
-              <i class="noul glyphicon glypihicon-refresh"
-                ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
 
@@ -259,7 +257,7 @@
           <td>
             {{toDate(step.lastModified)}}
             <span ng-show="selected.mode == 'Execution'">
-              <br />getExecutionState(step)
+              <br />{{getExecutionState(step)}}
             </span>
           </td>
           <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
@@ -283,20 +281,21 @@
       </table>
       <span ng-show="hasPermissions('EditProcessOrStep')">
         <button ng-show="selected.process && selected.mode == 'Config'"
-          class="btn btn-primary btn-xs" ng-click="prepareProcess(); ">Prepare</button>
+          class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>
         <button
           ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) == 'READY'"
           class="btn btn-primary btn-xs"
           confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
           ng-click="executeProcess(); ">Execute</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && !selected.process.failDate && !selected.process.finishDate"
-          class="btn btn-primary"
+          ng-show="selected.process && selected.mode == 'Execution' && selected.process.startDate && !selected.process.failDate && !selected.process.finishDate"
+          class="btn btn-xs btn-primary"
           ng-click="cancelProcess(selected.process.id); ">Cancel</button>
         <button
           ng-show="selected.process && selected.mode == 'Execution' && 
       (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'STOPPED')"
-          class="btn btn-primary"
+          confirm="Are you sure you want to restart the process ({{selected.process.name}})?"
+          class="btn btn-xs btn-primary"
           ng-click="restartProcess(selected.process.id); ">Restart</button>
       </span>
     </div>

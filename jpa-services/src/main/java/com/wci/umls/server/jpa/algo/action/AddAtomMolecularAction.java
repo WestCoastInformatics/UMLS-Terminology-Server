@@ -68,13 +68,17 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Metadata referential integrity checking
     if (getTermType(atom.getTermType(), getConcept().getTerminology(),
-        getConcept().getVersion()) == null) {
+        getConcept().getVersion()) == null
+        && getTermType(atom.getTermType(), getProject().getTerminology(),
+            getProject().getVersion()) == null) {
       rollback();
       throw new LocalException(
           "Cannot add atom with invalid term type - " + atom.getTermType());
     }
     if (getLanguage(atom.getLanguage(), getConcept().getTerminology(),
-        getConcept().getVersion()) == null) {
+        getConcept().getVersion()) == null
+        && getLanguage(atom.getLanguage(), getProject().getTerminology(),
+            getProject().getVersion()) == null) {
       rollback();
       throw new LocalException(
           "Cannot add atom with invalid language - " + atom.getLanguage());
@@ -95,7 +99,8 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Check preconditions
     validationResult.merge(super.checkPreconditions());
-    validationResult.merge(super.validateAtom(getProject().getValidationChecks(), getAtom()));
+    validationResult.merge(
+        super.validateAtom(getProject().getValidationChecks(), getAtom()));
     return validationResult;
   }
 

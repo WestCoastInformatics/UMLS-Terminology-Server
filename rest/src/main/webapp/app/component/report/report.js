@@ -5,6 +5,7 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
     scope : {
       // selected features
       selected : '=',
+      lists : '=',
       // callbacks functions
       callbacks : '='
     },

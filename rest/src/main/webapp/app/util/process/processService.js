@@ -310,7 +310,6 @@ tsApp.service('processService', [
       }).then(
       // success
       function(response) {
-        console.debug('  log = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -360,7 +359,6 @@ tsApp.service('processService', [
       }).then(
       // success
       function(response) {
-        console.debug('  log = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },

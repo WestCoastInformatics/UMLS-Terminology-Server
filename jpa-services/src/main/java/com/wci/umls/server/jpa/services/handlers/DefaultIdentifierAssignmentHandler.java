@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -44,51 +44,56 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
   /* see superclass */
   @Override
   public String getTerminologyId(Concept concept) throws Exception {
-    return concept.getTerminologyId();
+    return concept.getTerminologyId() == null ? "" : concept.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Descriptor descriptor) throws Exception {
-    return descriptor.getTerminologyId();
+    return descriptor.getTerminologyId() == null ? ""
+        : descriptor.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Code code) throws Exception {
-    return code.getTerminologyId();
+    return code.getTerminologyId() == null ? "" : code.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(StringClass stringClass) throws Exception {
-    return stringClass.getTerminologyId();
+    return stringClass.getTerminologyId() == null ? ""
+        : stringClass.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(LexicalClass lexicalClass) throws Exception {
-    return lexicalClass.getTerminologyId();
+    return lexicalClass.getTerminologyId() == null ? ""
+        : lexicalClass.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Atom atom) throws Exception {
-    return atom.getTerminologyId();
+    return atom.getTerminologyId() == null ? "" : atom.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Attribute attribute, ComponentInfo component)
     throws Exception {
-    return attribute.getTerminologyId();
+    return attribute.getTerminologyId() == null ? ""
+        : attribute.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Definition definition,
     ComponentHasDefinitions component) throws Exception {
-    return definition.getTerminologyId();
+    return definition.getTerminologyId() == null ? ""
+        : definition.getTerminologyId();
   }
 
   /* see superclass */
@@ -96,14 +101,16 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
   public String getTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     String inverseRelType, String inverseAdditionalRelType) throws Exception {
-    return relationship.getTerminologyId();
+    return relationship.getTerminologyId() == null ? ""
+        : relationship.getTerminologyId();
   }
 
   @Override
   public String getInverseTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     String inverseRelType, String inverseAdditionalRelType) throws Exception {
-    return relationship.getTerminologyId();
+    return relationship.getTerminologyId() == null ? ""
+        : relationship.getTerminologyId();
   }
 
   /* see superclass */
@@ -111,7 +118,8 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
   public String getTerminologyId(
     TransitiveRelationship<? extends ComponentHasAttributes> relationship)
     throws Exception {
-    return relationship.getTerminologyId();
+    return relationship.getTerminologyId() == null ? ""
+        : relationship.getTerminologyId();
   }
 
   /* see superclass */
@@ -119,13 +127,13 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
   public String getTerminologyId(
     TreePosition<? extends ComponentHasAttributesAndName> treepos)
     throws Exception {
-    return treepos.getTerminologyId();
+    return treepos.getTerminologyId() == null ? "" : treepos.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(Subset subset) throws Exception {
-    return subset.getTerminologyId();
+    return subset.getTerminologyId() == null ? "" : subset.getTerminologyId();
   }
 
   /* see superclass */
@@ -133,14 +141,15 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
   public String getTerminologyId(
     SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member)
     throws Exception {
-    return member.getTerminologyId();
+    return member.getTerminologyId() == null ? "" : member.getTerminologyId();
   }
 
   /* see superclass */
   @Override
   public String getTerminologyId(SemanticTypeComponent semanticTypeComponent,
     Concept concept) throws Exception {
-    return semanticTypeComponent.getTerminologyId();
+    return semanticTypeComponent.getTerminologyId() == null ? ""
+        : semanticTypeComponent.getTerminologyId();
   }
 
   /* see superclass */
@@ -236,6 +245,6 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
     throws Exception {
     // N/A
 
-  }  
-  
+  }
+
 }

@@ -654,8 +654,11 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     final File saveLocation = new File(srcFullPath);
     if (!saveLocation.exists()) {
-      throw new LocalException(
-          "Specified input directory does not exist - could not save Process Log to disk");
+      // bail if location doesn't exist
+      return;
+      // throw new LocalException(
+      // "Specified input directory does not exist - could not save Process Log
+      // to disk");
     }
 
     // Create and populate the log

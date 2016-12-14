@@ -1104,7 +1104,7 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public void addAtomNote(Long id, String noteText, String authToken)
-    throws Exception;
+      throws Exception;
 
   /**
    * Remove atom note.

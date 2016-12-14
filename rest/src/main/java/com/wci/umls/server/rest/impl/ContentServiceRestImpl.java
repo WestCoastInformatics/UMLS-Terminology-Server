@@ -4237,6 +4237,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
             Branch.ROOT, null, null, ConceptJpa.class, null, new int[1],
             contentService.getEntityManager());
         for (final Concept concept : list) {
+          if (!concept.isPublishable()) {
+            continue;
+          }
           sb.append(concept.getTerminologyId()).append("|");
           for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
             sb.append(sty.getSemanticType());

@@ -86,6 +86,9 @@ tsApp.controller('TerminologyCtrl', [
 
     // Put citation together
     $scope.getCitationValue = function(citation) {
+      if (!citation) {
+        return 'n/a';
+      }
       var str = (citation.author + '; ' + citation.address + '; ' + citation.organization + '; '
         + citation.editor + '; ' + citation.title + '; ' + citation.contentDesignator + '; '
         + citation.mediumDesignator + '; ' + citation.edition + '; ' + citation.placeOfPublication

@@ -17,7 +17,7 @@ tsApp
       'metadataService',
       function($scope, $location, $uibModal, $timeout, configureService, gpService, tabService,
         utilService, securityService, projectService, processService, metadataService) {
-        console.debug("configure ProcessCtrl");
+        console.debug('configure ProcessCtrl');
 
         // Set up tabs and controller
         tabService.setShowing(true);
@@ -68,12 +68,10 @@ tsApp
           pageSize : 10,
           filter : '',
           filterFields : null,
-          sortField : null,
+          sortField : 'lastModified',
           sortAscending : true,
           sortOptions : []
-        };// utilService.getPaging();
-        $scope.paging['process'].sortField = 'lastModified';
-        $scope.paging['process'].pageSize = 5;
+        };
         $scope.paging['process'].callbacks = {
           getPagedList : getProcesses
         };
@@ -141,17 +139,18 @@ tsApp
         }
 
         // Get $scope.lists.processes
-        $scope.getProcesses = function() {
+        $scope.getProcesses = function(process) {
           // Set the processType property
           securityService.saveProperty($scope.user.userPreferences, 'processType',
             $scope.selected.processType);
-          getProcesses();
+          getProcesses(process);
         }
-        function getProcesses() {
+        function getProcesses(process) {
+          $scope.selected.process = null;
           if ($scope.selected.mode == 'Config') {
-            $scope.getProcessConfigs();
+            $scope.getProcessConfigs(process);
           } else if ($scope.selected.mode == 'Execution') {
-            $scope.getProcessExecutions();
+            $scope.getProcessExecutions(process);
           }
         }
 
@@ -165,17 +164,25 @@ tsApp
 
             // Set selected
             $scope.selected.process = data;
-
             // Start polling for this one
             if (!noprogress && $scope.selected.mode == 'Execution') {
               $timeout(function() {
                 $scope.refreshProcessProgress();
               }, 1000);
+              $timeout(function() {
+                $scope.refreshStepProgress();
+              }, 1000);
+            }
+
+            for (var i = 0; i < $scope.lists.processes.length; i++) {
+              if ($scope.lists.processes[i].id == $scope.selected.process.id) {
+                $scope.lists.processes[i] = $scope.selected.process;
+              }
+
             }
 
           });
 
-          // Look up algorithm types (if in config mode)
           if ($scope.selected.mode == 'Config') {
             $scope.lists.algorithmConfigTypes = [];
             processService['get' + $scope.selected.processType + 'Algorithms'](
@@ -190,12 +197,6 @@ tsApp
             });
           }
 
-          // // Start polling
-          if (!noprogress && $scope.selected.mode == 'Execution') {
-            $timeout(function() {
-              $scope.refreshStepProgress();
-            }, 1000);
-          }
         }
 
         // prepare process
@@ -205,14 +206,15 @@ tsApp
             .then(
               // Success
               function(data) {
-                $scope.selected.process.id = data;
                 // don't call setMode because it reloads processes
                 $scope.selected.mode = 'Execution';
                 securityService.saveProperty($scope.user.userPreferences, 'processMode',
                   $scope.selected.mode);
                 gpService.increment();
                 $timeout(function() {
-                  $scope.selectProcess($scope.selected.process);
+                  $scope.getProcesses({
+                    id : data
+                  });
                   gpService.decrement();
                 }, 1000);
               });
@@ -227,7 +229,9 @@ tsApp
           function(data) {
             gpService.increment();
             $timeout(function() {
-              $scope.selectProcess($scope.selected.process);
+              $scope.selectProcess({
+                id : data
+              });
               gpService.decrement();
             }, 1000);
           });
@@ -243,11 +247,12 @@ tsApp
             // Success
             function(data) {
               $scope.processProgress = data;
-
-              // stop interval if process progress has reached 100, reread with
-              // no progress start
-              if (data == "100" || data === "-1") {
-                // finished
+              // stop interval if process progress has reached 100, reread
+              // with no progress start
+              if (data == '100' || data == '-1') {
+                if ($scope.selected.process) {
+                  $scope.selectProcess($scope.selected.process, true);
+                }
               } else {
                 // Reselect the process to refresh everything and restart
                 // progress monitors as needed
@@ -264,21 +269,20 @@ tsApp
 
           // Bail if there are no steps
           if (!i) {
-            console.debug("process has no steps yet.");
+            console.debug('process has no steps yet.');
             return;
           }
-
-          $scope.selected.lastAlgorithm = $scope.selected.process.steps[i - 1].id;
+          $scope.selected.lastAlgorithm = $scope.selected.process.steps[i - 1];
           processService.getAlgorithmProgress($scope.selected.project.id,
-            $scope.selected.lastAlgorithm).then(
+            $scope.selected.lastAlgorithm.id).then(
           // Success
           function(data) {
 
             $scope.stepProgress = data;
 
             // stop interval if step is not running or progress has finished
-            if (data == "100" || data == "-1") {
-              // finished
+            if (data == '100' || data == '-1') {
+              $scope.selectProcess($scope.selected.process, data == '-1');
             } else {
               // Reselect the process to refresh everything and restart
               // progress monitors as needed
@@ -290,7 +294,7 @@ tsApp
         };
 
         // Get process configs
-        $scope.getProcessConfigs = function() {
+        $scope.getProcessConfigs = function(process) {
           var paging = $scope.paging['process'];
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -306,7 +310,9 @@ tsApp
             $scope.lists.processes = data.processes;
             $scope.lists.processes.totalCount = data.totalCount;
             $scope.counts[$scope.selected.mode] = data.totalCount;
-            if ($scope.lists.processes && $scope.lists.processes.length > 0) {
+            if (process) {
+              $scope.selectProcess(process);
+            } else if ($scope.lists.processes && $scope.lists.processes.length > 0) {
               $scope.selectProcess($scope.lists.processes[0]);
             }
 
@@ -341,7 +347,9 @@ tsApp
           function() {
             gpService.increment();
             $timeout(function() {
-              $scope.selectProcess($scope.selected.process);
+              $scope.selectProcess({
+                id : processId
+              });
               gpService.decrement();
             }, 750);
           });
@@ -349,13 +357,14 @@ tsApp
 
         // Restart process
         $scope.restartProcess = function(processId) {
-          gpService.increment();
           processService.restartProcess($scope.selected.project.id, processId, true).then(
           // Success
           function() {
             gpService.increment();
             $timeout(function() {
-              $scope.selectProcess($scope.selected.process);
+              $scope.selectProcess({
+                id : processId
+              });
               gpService.decrement();
             }, 750);
 
@@ -363,7 +372,7 @@ tsApp
         }
 
         // Get process executions
-        $scope.getProcessExecutions = function() {
+        $scope.getProcessExecutions = function(process) {
           var paging = $scope.paging['process'];
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
@@ -379,7 +388,9 @@ tsApp
             $scope.lists.processes = data.processes;
             $scope.lists.processes.totalCount = data.totalCount;
             $scope.counts[$scope.selected.mode] = data.totalCount;
-            if ($scope.lists.processes && $scope.lists.processes.length > 0) {
+            if (process) {
+              $scope.selectProcess(process);
+            } else if ($scope.lists.processes && $scope.lists.processes.length > 0) {
               $scope.selectProcess($scope.lists.processes[0]);
             }
 
@@ -394,6 +405,8 @@ tsApp
             return '';
           } else if ($scope.selected.mode == 'Config') {
             return 'CONFIG';
+          } else if (!execution.startDate && !execution.failDate && !execution.finishDate) {
+            return 'READY';
           } else if (!execution.failDate && !execution.finishDate) {
             return 'RUNNING';
           } else if (execution.failDate && execution.finishDate) {

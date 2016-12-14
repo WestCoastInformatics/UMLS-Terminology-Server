@@ -165,7 +165,6 @@ tsApp
 
         // Retrieve all projects
         $scope.getProjects = function() {
-
           projectService.getProjectsForUser($scope.user).then(
           // Success
           function(data) {

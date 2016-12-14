@@ -25,7 +25,6 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
           return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
         }), scope.paging);
 
-        console.debug('paged atoms', scope.pagedData);
       }
 
       // instantiate paging and paging callbacks function
@@ -36,7 +35,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
       };
 
       // watch the component
-      scope.$watch('component', function() {
+      scope.$watch('selected.component', function() {
         if (scope.selected.component) {
           // reset paging
           // commented out - interferes with Show All/Show Paged
@@ -82,7 +81,6 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
 
       // Determine if the atom has a prject"new atom termgroup"
       scope.isNewAtomTermgroup = function(atom) {
-        console.debug('xxx', atom, scope.selected);
         if (!scope.selected.project) {
           return false;
         }
@@ -96,7 +94,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
       }
 
       // Edit atom modal
-      $scope.openEditAtomModal = function(latom) {
+      scope.openEditAtomModal = function(latom) {
 
         var modalInstance = $uibModal.open({
           templateUrl : 'app/page/edit/atoms/editAtom.html',
@@ -110,10 +108,10 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
               return 'Edit';
             },
             selected : function() {
-              return $scope.selected;
+              return scope.selected;
             },
             lists : function() {
-              return $scope.lists;
+              return scope.lists;
             }
           }
         });
@@ -121,7 +119,7 @@ tsApp.directive('atoms', [ 'utilService', 'contentService', function(utilService
         modalInstance.result.then(
         // Success
         function(user) {
-          $scope.getPagedAtoms();
+          scope.getPagedList();
         });
       };
 

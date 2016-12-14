@@ -10,7 +10,7 @@ tsApp.controller('AtomModalCtrl', [
   'lists',
   function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected,
     lists) {
-    console.debug('Entered atom modal control', atom, action);
+    console.debug('Entered atom modal control', atom, action, lists);
 
     // Scope vars
     $scope.selected = selected;
@@ -36,6 +36,7 @@ tsApp.controller('AtomModalCtrl', [
     }
 
     $scope.getTerminology = function(terminology) {
+      console.debug('xxx', terminology, $scope.lists.terminologies);
       for (var i = 0; i < $scope.lists.terminologies.length; i++) {
         if ($scope.lists.terminologies[i].terminology == terminology) {
           return $scope.lists.terminologies[i];
