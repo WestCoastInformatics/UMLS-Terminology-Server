@@ -122,6 +122,7 @@ public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
         atomId.toString());
     logInfo(" maxAtomIdPreInsertion = "
         + processExecution.getExecutionInfo().get("maxAtomIdPreInsertion"));
+    commitClearBegin();
 
     // Get the max Semantic Type Component Id prior to the insertion starting
     Long styId = null;

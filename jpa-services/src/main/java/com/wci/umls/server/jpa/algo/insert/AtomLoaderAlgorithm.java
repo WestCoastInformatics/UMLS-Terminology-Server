@@ -108,6 +108,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
+      commitClearBegin();
 
       // Set the number of steps to the number of atoms to be processed
       setSteps(lines.size());

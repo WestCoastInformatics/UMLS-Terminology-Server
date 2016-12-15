@@ -110,6 +110,7 @@ public class UpdateReleasabilityAlgorithm
 
       logInfo(
           "[UpdateReleasability] Making all old version content unpublishable");
+      commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
       Set<Pair<String, String>> referencedTerminologies = new HashSet<>();

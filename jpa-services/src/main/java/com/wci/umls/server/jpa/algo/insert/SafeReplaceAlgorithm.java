@@ -138,6 +138,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     sortPairsByMergeLevelAndId(atomIdPairs);
 
     logInfo("[Safe Replace] performing safe replacements");
+    commitClearBegin();
 
     // Track which new atoms have been safe-replaced:
     // Each new atom can only be safe-replaced by a single old-atom.

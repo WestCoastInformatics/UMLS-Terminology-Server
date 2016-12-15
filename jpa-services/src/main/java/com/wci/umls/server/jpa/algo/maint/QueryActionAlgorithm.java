@@ -101,6 +101,7 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
     logInfo("[QueryAction]: " + action + " "
         + ConfigUtility.getNameFromClass(objectTypeClass) + " for results of "
         + queryType.toString() + " query: " + query);
+    commitClearBegin();
 
     // Count number of actions successfully performed
     successfulActions = 0;

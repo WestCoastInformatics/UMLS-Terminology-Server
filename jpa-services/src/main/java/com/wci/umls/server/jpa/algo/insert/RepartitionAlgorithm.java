@@ -98,6 +98,7 @@ public class RepartitionAlgorithm extends AbstractSourceInsertionAlgorithm {
       // Start by clearing the bins
       // remove bins and all of the tracking records in the bins
       logInfo("[Repartition] Clearing Current " + type + " Bins");
+      commitClearBegin();
 
       final List<WorkflowBin> results =
           workflowService.getWorkflowBins(project, type);
@@ -113,6 +114,7 @@ public class RepartitionAlgorithm extends AbstractSourceInsertionAlgorithm {
 
       logInfo("[Repartition] Clearing Current " + type + " Bins Completed");
       logInfo("[Repartition] Regenerating " + type + " Bins");
+      commitClearBegin();
 
       // reread after the commit
       project = workflowService.getProject(project.getId());

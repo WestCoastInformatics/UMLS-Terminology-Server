@@ -149,6 +149,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting METADATALOADING");
+    commitClearBegin();
 
     try {
 

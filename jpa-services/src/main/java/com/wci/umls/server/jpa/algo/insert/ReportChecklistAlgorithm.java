@@ -83,6 +83,7 @@ public class ReportChecklistAlgorithm extends AbstractSourceInsertionAlgorithm {
     try {
 
       logInfo("[ReportChecklist] Creating the report table checklists");
+      commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
       // terminologies.left = Terminology

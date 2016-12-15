@@ -109,7 +109,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
     }
     Logger.getLogger(getClass()).info(message);
-    commitClearBegin();
   }
 
   /**

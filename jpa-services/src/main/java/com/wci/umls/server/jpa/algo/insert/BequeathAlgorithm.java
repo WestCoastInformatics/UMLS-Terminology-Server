@@ -77,6 +77,7 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
     try {
 
       logInfo("[Bequeath] Bequeathing old versioned SRC concepts");
+      commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
       // terminologies.left = Terminology

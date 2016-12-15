@@ -110,6 +110,7 @@ public class RelationshipLoaderAlgorithm
     try {
 
       logInfo("[RelationshipLoader] Checking for new/updated Relationships");
+      commitClearBegin();
 
       //
       // Load the relationships.src file

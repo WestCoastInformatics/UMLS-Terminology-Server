@@ -131,6 +131,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     try {
       logInfo("[" + algoCamelName + "] Performing generated merges");
+      commitClearBegin();
 
       // Generate parameters to pass into query executions
       Map<String, String> params = new HashMap<>();

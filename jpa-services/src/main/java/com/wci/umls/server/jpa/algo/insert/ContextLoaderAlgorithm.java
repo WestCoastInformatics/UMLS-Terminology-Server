@@ -120,6 +120,8 @@ public class ContextLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     try {
 
       logInfo("[ContextLoader] Checking for new/updated Contexts");
+      commitClearBegin();
+      
       //
       // Load the contexts.src file
       //

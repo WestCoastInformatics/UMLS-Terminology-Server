@@ -104,6 +104,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     try {
 
       logInfo("[PrecomputedMerge] Performing precomputed merges");
+      commitClearBegin();
 
       //
       // Load the mergefacts.src file
