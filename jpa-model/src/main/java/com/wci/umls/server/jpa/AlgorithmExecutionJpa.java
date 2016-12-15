@@ -64,8 +64,8 @@ public class AlgorithmExecutionJpa extends
   /** The project. */
   @ManyToOne(targetEntity = ProcessExecutionJpa.class, optional = false)
   private ProcessExecution process;
-  
-  /**   Has the algorithm had a warning fired during its execution?. */
+
+  /** Has the algorithm had a warning fired during its execution?. */
   private Boolean warning;
 
   /**
@@ -93,19 +93,19 @@ public class AlgorithmExecutionJpa extends
 
   /**
    * Instantiates a {@link AlgorithmExecutionJpa} from the specified parameters.
-   *    
+   * 
    * @param config the config
    */
   public AlgorithmExecutionJpa(AlgorithmConfig config) {
     super(config);
-    //Clear out the id copied from the config
+    // Clear out the id copied from the config
     this.setId(null);
     algorithmConfigId = config.getId();
   }
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getStartDate() {
     return startDate;
   }
@@ -118,7 +118,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getFinishDate() {
     return finishDate;
   }
@@ -131,7 +131,7 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)  
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getFailDate() {
     return failDate;
   }
@@ -281,5 +281,7 @@ public class AlgorithmExecutionJpa extends
   public void setWarning(Boolean warning) {
     this.warning = warning;
   }
+
+
 
 }

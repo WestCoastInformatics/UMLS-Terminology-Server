@@ -232,6 +232,19 @@ tsApp
           return String(10000 * yyyy + 100 * mm + dd);
         }
 
+        this.yyyymmddhhmmss = function(dateIn) {
+          var yyyy = dateIn.getFullYear();
+          // getMonth() is zero-based
+          var MM = dateIn.getMonth() + 1;
+          var dd = dateIn.getDate();
+          var hh = dateIn.getHours();
+          var mm = dateIn.getMinutes();
+          var ss = dateIn.getSeconds();
+          // Leading zeros for mm and dd
+          return String(10000000000 * yyyy + 100000000 * MM + 1000000 * dd + 10000 * hh + 100 * mm
+            * ss);
+        }
+
         // Convert date to a string
         this.toDate = function(lastModified) {
           if (!lastModified) {

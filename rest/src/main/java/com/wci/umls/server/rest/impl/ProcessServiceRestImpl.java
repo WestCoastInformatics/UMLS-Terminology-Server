@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,8 +27,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
@@ -105,7 +111,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @PUT
   @Path("/config")
-  @ApiOperation(value = "Add new processConfig", notes = "Creates a new processConfig", response = ProcessConfigJpa.class)
+  @ApiOperation(value = "Add new process config", notes = "Creates a new process config", response = ProcessConfigJpa.class)
   public ProcessConfig addProcessConfig(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "ProcessConfig, as POST data", required = true) ProcessConfigJpa process,
@@ -124,7 +130,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Make sure processConfig was passed in
       if (process == null) {
-        throw new LocalException("Error: trying to add null processConfig");
+        throw new LocalException("Error: trying to add null process config");
       }
 
       // Load project
@@ -134,6 +140,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Re-add project to processConfig (it does not make it intact through
       // XML)
       process.setProject(project);
+
+      final ProcessConfigList list =
+          processService.findProcessConfigs(projectId,
+              "nameSort:\"" + QueryParserBase.escape(process.getName()) + "\"",
+              null);
+      if (list.size() > 0) {
+        process.setName(process.getName() + " - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+
+      }
 
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(process, projectId);
@@ -153,7 +169,116 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       return newProcess;
     } catch (Exception e) {
-      handleException(e, "trying to add a processConfig");
+      handleException(e, "trying to add a process config");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Path("/config/import")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @ApiOperation(value = "Import process config", notes = "Imports a process config", response = ProcessConfigJpa.class)
+  public ProcessConfig importProcessConfig(
+    @ApiParam(value = "Form data header", required = true) @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+    @ApiParam(value = "Content of members file", required = true) @FormDataParam("file") InputStream in,
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /config/import?projectId=" + projectId);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "adding a process config", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+      // This should be atomic
+      processService.setTransactionPerOperation(false);
+      processService.beginTransaction();
+
+      // Load project
+      final Project project = processService.getProject(projectId);
+
+      // Convert to a String
+      final String json = IOUtils.toString(in, "UTF-8");
+      // Convert to an object
+      final ProcessConfigJpa process =
+          ConfigUtility.getGraphForJson(json, ProcessConfigJpa.class);
+
+      // Clean up the imported process
+      process.setProject(project);
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(process, projectId);
+
+      process.setId(null);
+      final List<AlgorithmConfig> configs = new ArrayList<>(process.getSteps());
+      process.getSteps().clear();
+      for (final AlgorithmConfig config : configs) {
+        config.setId(null);
+        process.getSteps().add(processService.addAlgorithmConfig(config));
+      }
+
+      final ProcessConfigList list = processService.findProcessConfigs(
+          projectId,
+          "name:\"" + QueryParserBase.escape(process.getName()) + "\"", null);
+      if (list.size() > 0) {
+        process.setName(process.getName() + " - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+      }
+
+      final ProcessConfig newProcess = processService.addProcessConfig(process);
+      processService.addLogEntry(userName, projectId, process.getId(), null,
+          null, "IMPORT process config - " + process);
+
+      processService.commit();
+      return newProcess;
+    } catch (Exception e) {
+      handleException(e, "trying to add a process config");
+      return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/config/export")
+  @ApiOperation(value = "Export process config", notes = "Exports a process config", response = InputStream.class)
+  public InputStream exportProcessConfig(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process id, e.g. 23425", required = true) @QueryParam("processId") Long processId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /config/export?projectId=" + projectId);
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(processService, projectId, securityService,
+              authToken, "adding a process config", UserRole.ADMINISTRATOR);
+      processService.setLastModifiedBy(userName);
+
+      // Load project/process
+      final ProcessConfig process = processService.getProcessConfig(processId);
+      verifyProject(process, projectId);
+
+      return new ByteArrayInputStream(
+          ConfigUtility.getJsonForGraph(process).getBytes("UTF-8"));
+
+    } catch (Exception e) {
+      handleException(e, "trying to export aprocess config");
       return null;
     } finally {
       processService.close();
@@ -166,7 +291,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/config")
-  @ApiOperation(value = "Update processConfig", notes = "Updates the specified processConfig")
+  @ApiOperation(value = "Update process config", notes = "Updates the specified process config")
   public void updateProcessConfig(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "ProcessConfig, as POST data", required = true) ProcessConfigJpa processConfig,
@@ -180,12 +305,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "update processConfig", UserRole.ADMINISTRATOR);
+              authToken, "update process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Make sure processConfig was passed in
       if (processConfig == null) {
-        throw new LocalException("Error: trying to update null processConfig");
+        throw new LocalException("Error: trying to update null process config");
       }
 
       // Load project
@@ -214,7 +339,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           null, null, "UPDATE processConfig " + processConfig);
 
     } catch (Exception e) {
-      handleException(e, "trying to update a processConfig");
+      handleException(e, "trying to update a process config");
     } finally {
       processService.close();
       securityService.close();
@@ -226,7 +351,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @DELETE
   @Path("/config/{id}")
-  @ApiOperation(value = "Remove processConfig", notes = "Removes the processConfig with the specified id")
+  @ApiOperation(value = "Remove process config", notes = "Removes the processConfig with the specified id")
   public void removeProcessConfig(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "ProcessConfig id, e.g. 3", required = true) @PathParam("id") Long id,
@@ -242,7 +367,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "remove processConfig", UserRole.ADMINISTRATOR);
+              authToken, "remove process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
@@ -276,7 +401,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "REMOVE processConfig " + id);
 
     } catch (Exception e) {
-      handleException(e, "trying to remove a processConfig");
+      handleException(e, "trying to remove a process config");
     } finally {
       processService.close();
       securityService.close();
@@ -300,7 +425,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "getting the processConfig", UserRole.AUTHOR);
+              authToken, "getting the process config", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
@@ -335,7 +460,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       return process;
     } catch (Exception e) {
-      handleException(e, "trying to get a processConfig");
+      handleException(e, "trying to get a process config");
       return null;
     } finally {
       processService.close();
@@ -420,7 +545,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "getting the processExecution", UserRole.AUTHOR);
+              authToken, "getting the process execution", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
@@ -462,7 +587,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       return processExecution;
     } catch (Exception e) {
-      handleException(e, "trying to get a processExecution");
+      handleException(e, "trying to get a process execution");
       return null;
     } finally {
       processService.close();
@@ -574,7 +699,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     ProcessService processService) throws Exception {
     final ProcessExecutionList processExecutions =
         processService.findProcessExecutions(projectId,
-            "NOT failDate:[* TO *] AND NOT finishDate:[* TO *]", null);
+            "startDate:[* TO *] AND NOT failDate:[* TO *] AND NOT finishDate:[* TO *] AND NOT stopDate:[* TO *]",
+            null);
 
     // Only keep process Executions if they in the currently
     // executing processes progress map and have a progress of less than 100
@@ -601,7 +727,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @DELETE
   @Path("/execution/{id}")
-  @ApiOperation(value = "Remove processExecution", notes = "Removes the processExecution with the specified id")
+  @ApiOperation(value = "Remove process execution", notes = "Removes the processExecution with the specified id")
   public void removeProcessExecution(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "ProcessExecution id, e.g. 3", required = true) @PathParam("id") Long id,
@@ -617,7 +743,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "remove processExecution", UserRole.ADMINISTRATOR);
+              authToken, "remove process execution", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
@@ -652,7 +778,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "REMOVE processExecution " + id);
 
     } catch (Exception e) {
-      handleException(e, "trying to remove a processExecution");
+      handleException(e, "trying to remove a process execution");
     } finally {
       processService.close();
       securityService.close();
@@ -1265,7 +1391,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "execute processConfig", UserRole.ADMINISTRATOR);
+              authToken, "execute process config", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Load processConfig object
@@ -1418,7 +1544,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "restart processExecution", UserRole.ADMINISTRATOR);
+              authToken, "restart process execution", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
@@ -1434,8 +1560,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
           projectId, authToken).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
-          throw new LocalException("Process execution " + processExecution.getId()
-              + " is already currently running");
+          throw new LocalException("Process execution "
+              + processExecution.getId() + " is already currently running");
         }
       }
 
@@ -1457,7 +1583,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       runProcessAsThread(projectId, processConfig.getId(),
           processExecution.getId(), processExecution.getTerminology() + "_"
               + processExecution.getVersion(),
-          background, false, null);
+          background, true, null);
 
       return id;
     } catch (Exception e) {
@@ -1493,7 +1619,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
-              authToken, "restart processExecution", UserRole.ADMINISTRATOR);
+              authToken, "restart process execution", UserRole.ADMINISTRATOR);
       processService.setLastModifiedBy(userName);
 
       // do nothing on a null step.
@@ -1514,8 +1640,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
           projectId, authToken).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
-          throw new LocalException("Process execution " + processExecution.getId()
-              + " is already currently running");
+          throw new LocalException("Process execution "
+              + processExecution.getId() + " is already currently running");
         }
       }
 
@@ -1523,6 +1649,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Steps can only be revered one at a time.");
       }
 
+      if (processExecution.getStartDate() == null) {
+        processExecution.setStartDate(new Date());
+        processService.updateProcessExecution(processExecution);
+      }
       // Load the processExecution's config
       final ProcessConfig processConfig = processService
           .getProcessConfig(processExecution.getProcessConfigId());
@@ -1728,7 +1858,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     final boolean handleException = background != null && background;
 
     // Set up the service, and load the process Config and Execution
-    final ProcessService processService = new ProcessServiceJpa();
+    final ProcessServiceJpa processService = new ProcessServiceJpa();
     processService.setLastModifiedBy(userName);
 
     final ProcessConfig processConfig =
@@ -1738,6 +1868,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
     // Clear out the finish and fail date fields (these could have been
     // populated from a previous run)
+    processExecution.setStopDate(null);
     processExecution.setFailDate(null);
     processExecution.setFinishDate(null);
     processService.updateProcessConfig(processConfig);
@@ -1838,9 +1969,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithmExecution.setProcess(processExecution);
               algorithmExecution.setActivityId(UUID.randomUUID().toString());
               algorithmExecution.setStartDate(new Date());
+
               algorithmExecution =
                   processService.addAlgorithmExecution(algorithmExecution);
-              // Add the execution to the proces
+              // Add the execution to the process
               processExecution.getSteps().add(algorithmExecution);
               processService.updateProcessExecution(processExecution);
             }
@@ -1952,13 +2084,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
             // If this is a "step" operation, we're done.
             if (step != null) {
+              processExecution.setStopDate(new Date());
+              processService.updateProcessExecution(processExecution);
               break;
             }
 
           } // end "for algorithm config"
 
           // Check if process has finished, mark it so
-          if (ct == processConfig.getSteps().size()) {
+          if (ct == processConfig.getSteps().size()
+              && (step == null || step > 0)) {
+            processExecution.setStopDate(null);
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
@@ -2001,6 +2137,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // set cancel conditions if cancel was used.
             algorithmExecution.setFailDate(new Date());
             if (e instanceof CancelException) {
+
+              processService.addLogEntry(processExecution.getProject().getId(),
+                  processExecution.getLastModifiedBy(),
+                  processExecution.getTerminology(),
+                  processExecution.getVersion(),
+                  algorithmExecution.getActivityId(),
+                  processExecution.getWorkId(),
+                  "CANCELLED " + algorithmExecution.getName());
+              Logger.getLogger(getClass())
+                  .info("CANCELLED " + algorithmExecution.getName());
+
               algorithmExecution.setFinishDate(new Date());
               processExecution.setFinishDate(new Date());
             }
@@ -2042,7 +2189,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             handleException(e, "trying to execute a process");
           }
 
-        } finally {
+        } finally
+
+        {
           try {
             processService.close();
           } catch (Exception e) {

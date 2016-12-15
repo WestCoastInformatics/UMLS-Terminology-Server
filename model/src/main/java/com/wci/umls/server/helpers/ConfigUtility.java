@@ -86,11 +86,11 @@ public class ConfigUtility {
       FastDateFormat.getInstance("yyyyMMdd");
 
   /** The Constant DATE_FORMAT2. */
-  public final static FastDateFormat DATE_FORMAT2 =
+  public final static FastDateFormat DATE_YYYY_MM_DD =
       FastDateFormat.getInstance("yyyy_MM_dd");
 
   /** The Constant DATE_FORMAT3. */
-  public final static FastDateFormat DATE_FORMAT3 =
+  public final static FastDateFormat DATE_YYYY =
       FastDateFormat.getInstance("yyyy");
 
   /** The Constant DATE_FORMAT4. */
@@ -100,6 +100,10 @@ public class ConfigUtility {
   /** The Constant DATE_FORMAT5. */
   public final static FastDateFormat DATE_FORMAT5 =
       FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+  /** The Constant DATE_FORMAT4. */
+  public final static FastDateFormat DATE_YYYYMMDDHHMMSS =
+      FastDateFormat.getInstance("yyyyMMddhhmmss");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =

@@ -39,6 +39,9 @@
         <button ng-click="openAddProcessModal()" title="Add new process"
           ng-show="selected.mode != 'Execution' && hasPermissions('EditProcessOrStep')"
           class="ml20 btn btn-xs btn-primary">Add Process</button>
+        &nbsp;
+        <i ng-click="openImportProcessModal()" title="Import process"
+          class="noul glyphicon glyphicon-upload"></i>
       </span>
     </div>
 
@@ -112,7 +115,11 @@
             <td>
               <b>Name</b>
             </td>
-            <td>{{selected.process.name}}</td>
+            <td>
+              {{selected.process.name}} &nbsp;
+              <i ng-click="exportProcess()" title="Export process"
+                class="noul glyphicon glyphicon-download"></i>
+            </td>
           </tr>
           <tr>
             <td>
@@ -147,7 +154,8 @@
               <b>Log</b>
             </td>
             <td>
-              <div log selected="selected" type="Process"></div>
+              <div log selected="selected" type="Process"
+                poll="{{selected.mode == 'Execution' && !selected.process.finishDate  && !selected.process.stopDate  && !selected.process.failDate}}"></div>
             </td>
           </tr>
 
@@ -157,6 +165,13 @@
             </td>
             <td ng-if="selected.process.startDate">{{toDate(selected.process.startDate)}}</td>
             <td ng-if="!selected.process.startDate">n/a</td>
+          </tr>
+          <tr ng-show="selected.mode == 'Execution'">
+            <td>
+              <b>Stop date</b>
+            </td>
+            <td ng-if="selected.process.stopDate">{{toDate(selected.process.stopDate)}}</td>
+            <td ng-if="!selected.process.stopDate">n/a</td>
           </tr>
 
           <tr ng-show="selected.mode == 'Execution'">
@@ -211,7 +226,9 @@
         </tbody>
       </table>
       <div style="margin-bottom: 10px;">
-        <h5 style="display: inline;">Steps</h5>
+        <h5 ng-show="selected.mode == 'Config'" style="display: inline;">Steps</h5>
+        <h5 ng-show="selected.mode == 'Execution'" style="display: inline;">Step
+          History</h5>
         <span
           ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
           style="float: right;">
@@ -262,7 +279,8 @@
           </td>
           <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
             <span ng-show="selected.mode == 'Execution'" log selected="selected"
-              type="Step"></span>
+              type="Step"
+              poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>
 
             <i title="Edit step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
@@ -276,27 +294,38 @@
               class="noul glyphicon glyphicon-trash"></i>
           </td>
         </tr>
-        <span ng-show="selected.process.steps.length == 0"
-          class="alert alert-warning">There are no steps. Add a step. </span>
       </table>
+      <div ng-show="selected.process.steps.length == 0"
+        class="alert alert-warning">There are no steps. Add a step.</div>
       <span ng-show="hasPermissions('EditProcessOrStep')">
         <button ng-show="selected.process && selected.mode == 'Config'"
           class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) == 'READY'"
+          ng-show="selected.process && selected.mode == 'Execution' && !selected.process.startDate"
           class="btn btn-primary btn-xs"
-          confirm="Are you sure you want to execute the process ({{selected.process.name}})?"
+          confirm="Are you sure you want to execute the process?"
           ng-click="executeProcess(); ">Execute</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && selected.process.startDate && !selected.process.failDate && !selected.process.finishDate"
+          ng-show="selected.process && selected.mode == 'Execution' && selected.process.startDate && !selected.process.stopDate && !selected.process.failDate && !selected.process.finishDate"
           class="btn btn-xs btn-primary"
           ng-click="cancelProcess(selected.process.id); ">Cancel</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && 
-      (getExecutionState(selected.process) == 'FAILED' || getExecutionState(selected.process) == 'STOPPED')"
-          confirm="Are you sure you want to restart the process ({{selected.process.name}})?"
+          ng-show="selected.process && selected.mode == 'Execution' && selected.process.startDate && (selected.process.stopDate || selected.process.failDate)"
+          confirm="Are you sure you want to restart the process?"
           class="btn btn-xs btn-primary"
           ng-click="restartProcess(selected.process.id); ">Restart</button>
+        <button
+          ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) != 'RUNNING' && getExecutionState(selected.process) != 'COMPLETE'"
+          confirm="
+          Are you sure you want to step the process
+          forward?"
+          class="btn btn-xs btn-primary"
+          ng-click="stepProcess(selected.process.id,1); ">Step</button>
+        <button
+          ng-show="selected.process && selected.process.steps.length > 0 && selected.mode == 'Execution' && selected.process.startDate && (selected.process.stopDate || selected.process.failDate)"
+          confirm="Are you sure you want to step the process back?"
+          class="btn btn-xs btn-primary"
+          ng-click="stepProcess(selected.process.id,-1); ">Unstep</button>
       </span>
     </div>
   </div>

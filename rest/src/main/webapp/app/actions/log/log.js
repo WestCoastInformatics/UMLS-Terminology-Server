@@ -14,13 +14,20 @@ tsApp.directive('log', [ function() {
       '$scope',
       '$uibModal',
       '$interval',
+      '$location',
+      '$anchorScroll',
       'utilService',
       'projectService',
       'workflowService',
       'processService',
-      function($scope, $uibModal, $interval, utilService, projectService, workflowService,
-        processService) {
+      function($scope, $uibModal, $interval, $location, $anchorScroll, utilService, projectService,
+        workflowService, processService) {
         console.debug('configure LogDirective', $scope.selected);
+
+        // default lines of 100
+        if (!$scope.lines) {
+          $scope.lines = 100;
+        }
 
         // Log modal
         $scope.openLogModal = function() {
@@ -44,9 +51,19 @@ tsApp.directive('log', [ function() {
           });
 
           // NO need for result function - no action on close
-          // modalInstance.result.then(function(data) {});
+          modalInstance.result.then(
+          // success
+          function(data) {
+          },
+          // dismiss
+          function() {
+            if ($scope.pollInterval) {
+              $interval.cancel($scope.pollInterval);
+            }
+
+          });
         };
-        var LogModalCtrl = function($scope, $uibModalInstance, selected, type, poll) {
+        var LogModalCtrl = function($scope, $window, $uibModalInstance, selected, type, poll) {
           $scope.type = type;
           $scope.poll = poll;
           $scope.errors = [];
@@ -116,21 +133,28 @@ tsApp.directive('log', [ function() {
             else {
               $scope.errors.push('Invalid type passed to log modal controller - ' + type);
             }
+
+            $location.hash('bottom');
+            $anchorScroll();
           };
 
           // Close modal
           $scope.close = function() {
+            if ($scope.pollInterval) {
+              $interval.cancel($scope.pollInterval);
+            }
+
             // nothing changed, don't pass a refset
             $uibModalInstance.close();
           };
 
           // initialize
-          if ($scope.poll) {
-            $interval(function() {
+          $scope.getLog();
+          // because of injection, this is evaulated as a string
+          if ($scope.poll == 'true') {
+            $scope.pollInterval = $interval(function() {
               $scope.getLog();
-            }, 2000);
-          } else {
-            $scope.getLog();
+            }, 1000);
           }
         };
 

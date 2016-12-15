@@ -701,5 +701,64 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    this.exportProcess = function(projectId, processId) {
+      console.debug('exportProcess', projectId, processId);
+      gpService.increment();
+      $http.post(processUrl + '/config/export?projectId=' + projectId + '&processId=' + processId,
+        '').then(
+      // Success
+      function(response) {
+        var blob = new Blob([ JSON.stringify(response.data, null, 2) ], {
+          type : ''
+        });
+
+        // fake a file URL and download it
+        var fileURL = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = fileURL;
+        a.target = '_blank';
+        a.download = 'process.' + processId + '.txt';
+        document.body.appendChild(a);
+        gpService.decrement();
+        a.click();
+
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };
+
+    // Import process
+    this.importProcess = function(projectId, file) {
+      console.debug('importProcess', projectId);
+      var deferred = $q.defer();
+      gpService.increment();
+      Upload.upload({
+        url : processUrl + '/config/import?projectId=' + projectId,
+        data : {
+          file : file
+        }
+      }).then(
+      // Success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      },
+      // event
+      function(evt) {
+        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+        console.debug('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+      });
+      return deferred.promise;
+    };
+
     // end
   } ]);

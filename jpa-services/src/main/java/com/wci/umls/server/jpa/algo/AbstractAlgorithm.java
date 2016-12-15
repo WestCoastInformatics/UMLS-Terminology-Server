@@ -155,26 +155,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
   }
 
   /**
-   * Log cancel to console and the database.
-   *
-   * @throws Exception the exception
-   */
-  public void logCancel() throws Exception {
-    // Log the cancel, and commit it
-    String message = getClass().getSimpleName() + " canceled by user.";
-
-    if (project != null) {
-      addLogEntry(project.getId(), getLastModifiedBy(), getTerminology(),
-          getVersion(), activityId, workId, message);
-    } else {
-      addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
-          activityId, workId, message);
-    }
-    Logger.getLogger(getClass()).info(message);
-    commit();
-  }
-
-  /**
    * Cancel.
    *
    * @throws Exception the exception
@@ -202,7 +182,6 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
    */
   public boolean checkCancel() throws Exception, CancelException {
     if (isCancelled()) {
-      logCancel();
       throw new CancelException("Operation cancelled");
     }
     return false;

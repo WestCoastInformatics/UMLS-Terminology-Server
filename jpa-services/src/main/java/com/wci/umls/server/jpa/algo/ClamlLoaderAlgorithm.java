@@ -176,7 +176,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // open input file and get effective time and version and language
       releaseVersion = getFileVersion();
       logInfo("  release version = " + releaseVersion);
-      releaseVersionDate = ConfigUtility.DATE_FORMAT3.parse(releaseVersion);
+      releaseVersionDate = ConfigUtility.DATE_YYYY.parse(releaseVersion);
       findLanguage();
 
       // Prep SAX parser

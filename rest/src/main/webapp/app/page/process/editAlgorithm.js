@@ -75,6 +75,10 @@ tsApp.controller('AlgorithmModalCtrl', [
     $scope.validate = function(algorithm) {
       $scope.errors = [];
       $scope.messages = [];
+      // fix algorithm value - sometimes null
+      if (algorithm.value == 'null') {
+        algorithm.value = null;
+      }
       processService.validateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
         .then(
         // Success

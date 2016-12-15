@@ -21,6 +21,9 @@ cd /meme_work/ncim/data
 wget https://wci1.s3.amazonaws.com/TermServer/SAMPLE_NCI.zip
 unzip SAMPLE_NCI.zip
 
+cd /meme_work/ncim/code
+unzip config/target/term*zip -d /meme_work/ncim/data
+
 # unpack config and scripts
 cd /meme_work/ncim
 unzip /meme_work/ncim/code/config/prod-nci-meta/target/term*.zip -d config

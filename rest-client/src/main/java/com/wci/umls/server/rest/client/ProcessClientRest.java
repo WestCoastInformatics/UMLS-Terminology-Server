@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Properties;
 
@@ -15,6 +16,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.apache.log4j.Logger;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
@@ -862,6 +868,69 @@ public class ProcessClientRest extends RootClientRest
 
     // converting to object
     return resultString;
+  }
+
+  /* see superclass */
+  @Override
+  public ProcessConfig importProcessConfig(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String authToken) throws Exception {
+
+    Logger.getLogger(getClass())
+        .debug("Process Client - import process config");
+    validateNotEmpty(projectId, "projectId");
+
+    StreamDataBodyPart fileDataBodyPart = new StreamDataBodyPart("file", in,
+        "filename.dat", MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    FormDataMultiPart multiPart = new FormDataMultiPart();
+    multiPart.bodyPart(fileDataBodyPart);
+
+    ClientConfig clientConfig = new ClientConfig();
+    clientConfig.register(MultiPartFeature.class);
+    Client client = ClientBuilder.newClient(clientConfig);
+
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/config/import" + "?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+
+    String resultString = response.readEntity(String.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ProcessConfigJpa.class);
+
+  }
+
+  @Override
+  public InputStream exportProcessConfig(Long projectId, Long processId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Refset Client - export process - " + projectId + ", " + processId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(processId, "processId");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/config/export"
+            + "?projectId=" + projectId + "&processId=" + processId);
+    Response response = target.request(MediaType.APPLICATION_OCTET_STREAM)
+        .header("Authorization", authToken).post(Entity.text(""));
+
+    InputStream in = response.readEntity(InputStream.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    return in;
   }
 
 }

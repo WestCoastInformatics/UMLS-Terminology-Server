@@ -65,6 +65,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
         fireProgressEvent(currentProgress,
             "WAIT progress: " + currentProgress + "%");
         logInfo("WAIT progress " + currentProgress + "%");
+        commitClearBegin();
         previousProgress = currentProgress;
       }
     }

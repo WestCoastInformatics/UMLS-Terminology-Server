@@ -3,6 +3,10 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.io.InputStream;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
@@ -30,6 +34,32 @@ public interface ProcessServiceRest {
    */
   public ProcessConfig addProcessConfig(Long projectId,
     ProcessConfigJpa processConfig, String authToken) throws Exception;
+
+  /**
+   * Import process config.
+   *
+   * @param contentDispositionHeader the content disposition header
+   * @param in the in
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the process config
+   * @throws Exception the exception
+   */
+  public ProcessConfig importProcessConfig(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String authToken) throws Exception;
+
+  /**
+   * Export process config.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param authToken the auth token
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  public InputStream exportProcessConfig(Long projectId, Long processId,
+    String authToken) throws Exception;
 
   /**
    * Update process config.

@@ -1131,13 +1131,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         term.setCitation(new CitationJpa(fields[24]));
         term.setCurrent(fields[21].equals("Y"));
         if (!fields[8].equals("")) {
-          term.setEndDate(ConfigUtility.DATE_FORMAT2.parse(fields[8]));
+          term.setEndDate(ConfigUtility.DATE_YYYY_MM_DD.parse(fields[8]));
         }
 
         term.setOrganizingClassType(IdType.CODE);
         term.setPreferredName(fields[4]);
         if (!fields[7].equals("")) {
-          term.setStartDate(ConfigUtility.DATE_FORMAT2.parse(fields[7]));
+          term.setStartDate(ConfigUtility.DATE_YYYY_MM_DD.parse(fields[7]));
         }
 
         term.setTimestamp(releaseVersionDate);

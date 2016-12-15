@@ -45,10 +45,15 @@ import com.wci.umls.server.ProcessExecution;
 public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     implements ProcessExecution {
 
-  /** The last modified. */
+  /** The stop date. */
   @Column(nullable = true)
   @Temporal(TemporalType.TIMESTAMP)
   private Date startDate;
+
+  /** The stop date. */
+  @Column(nullable = true)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date stopDate;
 
   /** The finish date. */
   @Column(nullable = true)
@@ -101,6 +106,8 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   public ProcessExecutionJpa(ProcessExecution exec) {
     super(exec);
     startDate = exec.getStartDate();
+    stopDate = exec.getStopDate();
+    finishDate = exec.getStartDate();
     finishDate = exec.getFinishDate();
     failDate = exec.getFailDate();
     processConfigId = exec.getProcessConfigId();
@@ -136,6 +143,19 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Override
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public Date getStopDate() {
+    return stopDate;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStopDate(Date stopDate) {
+    this.stopDate = stopDate;
   }
 
   /* see superclass */
@@ -291,10 +311,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   /* see superclass */
   @Override
   public String toString() {
-    return "ProcessExecutionJpa [startDate=" + startDate + ", finishDate="
-        + finishDate + ", failDate=" + failDate + ", steps=" + steps
-        + ", workId=" + workId + ", processConfigId=" + processConfigId
-        + ", type=" + type + "] " + super.toString();
+    return "ProcessExecutionJpa [startDate=" + startDate + ", stopDate="
+        + stopDate + ", finishDate=" + finishDate + ", failDate=" + failDate
+        + ", steps=" + steps + ", workId=" + workId + ", processConfigId="
+        + processConfigId + ", type=" + type + "] " + super.toString();
 
   }
 }

@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server;
 
+import java.util.Date;
 import java.util.Map;
 
 import com.wci.umls.server.helpers.HasExecution;
@@ -12,6 +13,19 @@ import com.wci.umls.server.helpers.HasExecution;
  */
 public interface ProcessExecution
     extends ProcessInfo<AlgorithmExecution>, HasExecution {
+  /**
+   * Returns the stop date.
+   *
+   * @return the stop date
+   */
+  public Date getStopDate();
+
+  /**
+   * Sets the stop date.
+   *
+   * @param stopDate the stop date
+   */
+  public void setStopDate(Date stopDate);
 
   /**
    * Returns the work id.
@@ -40,7 +54,7 @@ public interface ProcessExecution
    * @param processConfigId the process config id
    */
   public void setProcessConfigId(Long processConfigId);
-  
+
   /**
    * Returns the execution info.
    *
@@ -53,6 +67,5 @@ public interface ProcessExecution
    *
    * @param executionInfo the execution info
    */
-  public void setExecutionInfo(
-    Map<String, String> executionInfo);  
+  public void setExecutionInfo(Map<String, String> executionInfo);
 }

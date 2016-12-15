@@ -4,7 +4,8 @@ tsApp.directive('errors', [ function() {
     restrict : 'A',
     scope : {
       errors : '=',
-      warnings : '='
+      warnings : '=',
+      comments : '='
     },
     templateUrl : 'app/util/errors/errors.html',
     controller : [ '$scope', function($scope) {
