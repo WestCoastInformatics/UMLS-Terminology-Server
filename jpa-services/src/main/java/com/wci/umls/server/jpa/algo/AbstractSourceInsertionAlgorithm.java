@@ -1313,7 +1313,7 @@ public abstract class AbstractSourceInsertionAlgorithm
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
     logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
-        + "Relatinoship Alternate Terminology Ids from database");
+        + " Relationship Alternate Terminology Ids from database");
 
     for (String relPrefix : relationshipPrefixes) {
 
