@@ -311,7 +311,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(processConfig);
 
     // Execute the process
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig.getId(), true, authToken);
 
     // Wait a couple seconds until it gets set up and going
@@ -426,7 +426,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         (ProcessConfigJpa) processConfig, authToken);
 
     // Execute the process in the background
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig.getId(), true, authToken);
 
     // Wait a few seconds until it gets set up and going
@@ -465,7 +465,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(processConfig);
 
     // Execute the process
-    Long processExecutionId2 = processService.executeProcess(project.getId(),
+    Long processExecutionId2 = processService.prepareAndExecuteProcess(project.getId(),
         preDefinedProcessConfig.getId(), true, authToken);
 
     // Wait a few more seconds, to build the suspense
@@ -561,7 +561,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         (ProcessConfigJpa) processConfig2, authToken);
 
     // Execute the process in the background
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig2.getId(), true, authToken);
 
     // Wait a few seconds until it gets set up and going
@@ -656,7 +656,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(processConfig);
 
     // Execute the process
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig.getId(), true, authToken);
 
     // Wait a couple seconds until it gets set up and going
@@ -762,7 +762,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // Execute the process (this should fail)
     Long processExecutionId = null;
     try {
-      processExecutionId = processService.executeProcess(project.getId(),
+      processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
           processConfig.getId(), false, authToken);
       fail("Execute should fail the first time it's run");
     } catch (Exception e) {
@@ -881,7 +881,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
         (ProcessConfigJpa) processConfig, authToken);
 
     // Execute the process (not in background)
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig.getId(), false, authToken);
 
     // Get the process execution
@@ -969,7 +969,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     assertNotNull(processConfig);
 
     // Execute the process
-    Long processExecutionId = processService.executeProcess(project.getId(),
+    Long processExecutionId = processService.prepareAndExecuteProcess(project.getId(),
         processConfig.getId(), false, authToken);
 
     // Make sure the processExecution was created

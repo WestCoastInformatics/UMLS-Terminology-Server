@@ -708,6 +708,25 @@ public class ProcessClientRest extends RootClientRest
 
   }
 
+  /**
+   * Prepare and execute process.
+   *
+   * @param projectId the project id
+   * @param configId the config id
+   * @param background the background
+   * @param authToken the auth token
+   * @return the long
+   * @throws Exception the exception
+   */
+  public Long prepareAndExecuteProcess(Long projectId, Long configId,
+    Boolean background, String authToken) throws Exception {
+
+    Long executionId = prepareProcess(projectId, configId, authToken);
+    executionId = executeProcess(projectId, executionId, background, authToken);
+    return executionId;
+
+  }
+
   /* see superclass */
   @Override
   public Long cancelProcess(Long projectId, Long id, String authToken)
