@@ -200,6 +200,14 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
+  /**
+   * Change component approval status.
+   *
+   * @param component the component
+   * @param approvalStatus the approval status
+   * @return the boolean
+   * @throws Exception the exception
+   */
   @SuppressWarnings("rawtypes")
   private Boolean changeComponentApprovalStatus(Component component,
     WorkflowStatus approvalStatus) throws Exception {
@@ -270,6 +278,7 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
   }
 
   /* see superclass */
+  @SuppressWarnings("static-access")
   @Override
   public void setProperties(Properties p) throws Exception {
 

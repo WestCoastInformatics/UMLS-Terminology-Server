@@ -320,6 +320,12 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
+  /**
+   * Reconcile map set.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
   private void reconcileMapSet(Atom atom) throws Exception {
 
     // Only XM atoms get a mapSet
@@ -353,7 +359,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * Reconcile code concept descriptor.
    *
    * @param atom the atom
-   * @param mapSet the map set
    * @throws Exception the exception
    */
   private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {

@@ -39,7 +39,9 @@ tsApp.controller('AlgorithmModalCtrl', [
 
     // Update algorithm
     $scope.submitAlgorithm = function(algorithm) {
-
+      if (algorithm && algorithm.value == 'null') {
+        algorithm.value = null;
+      }
       if (action == 'Edit') {
         processService.updateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
           .then(

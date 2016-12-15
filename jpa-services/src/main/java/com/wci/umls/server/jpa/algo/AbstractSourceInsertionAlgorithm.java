@@ -979,10 +979,11 @@ public abstract class AbstractSourceInsertionAlgorithm
   /**
    * Put map set into the cache.
    *
-   * @param mapSet the map set
    * @param codeIdAndTerminology the code id and terminology
+   * @param mapSet the map set
    */
-  public void putMapSet(String codeIdAndTerminology, MapSet mapSet){
+  @SuppressWarnings("static-method")
+  public void putMapSet(String codeIdAndTerminology, MapSet mapSet) {
     cachedMapSets.put(codeIdAndTerminology, mapSet);
   }
 

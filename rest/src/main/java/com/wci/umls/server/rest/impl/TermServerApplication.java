@@ -11,7 +11,6 @@ import javax.ws.rs.ApplicationPath;
 
 import org.apache.log4j.Logger;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -62,7 +61,7 @@ public class TermServerApplication extends ResourceConfig {
     register(ReportServiceRestImpl.class);
 
     // Enable this for logging
-    //register(LoggingFeature.class);
+    // register(LoggingFeature.class);
 
     // Make integration test rest services available in dev environment
     try {

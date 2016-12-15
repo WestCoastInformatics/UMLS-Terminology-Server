@@ -480,7 +480,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery.append("subsetTerminologyId:" + subsetId);
+      finalQuery
+          .append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
     }
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
@@ -511,7 +512,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery.append("subsetTerminologyId:" + subsetId);
+      finalQuery
+          .append("subsetTerminologyId:" + QueryParserBase.escape(subsetId));
     }
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
@@ -1651,8 +1653,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     return null;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
@@ -3736,16 +3738,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     clauses.add(query);
 
     // escape special chars
-    if (!ConfigUtility.isEmpty(terminologyId)) {
-      terminologyId = QueryParserBase.escape(terminologyId);
-    }
-
     // 2. to/fromTerminologyId
     if (inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
-      clauses.add("toTerminologyId:" + terminologyId);
+      clauses.add("toTerminologyId:" + QueryParserBase.escape(terminologyId));
     }
     if (!inverseFlag && !ConfigUtility.isEmpty(terminologyId)) {
-      clauses.add("fromTerminologyId:" + terminologyId);
+      clauses.add("fromTerminologyId:" + QueryParserBase.escape(terminologyId));
     }
 
     // 3. to/fromTerminology
@@ -3813,9 +3811,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       finalQuery.append(" AND ");
     }
 
-    finalQuery
-        .append("fromTerminologyId:" + terminologyId + " AND fromTerminology:"
-            + terminology + " AND fromVersion:" + version);
+    finalQuery.append("fromTerminologyId:"
+        + QueryParserBase.escape(terminologyId) + " AND fromTerminology:"
+        + terminology + " AND fromVersion:" + version);
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
     final int[] totalCt = new int[1];
@@ -3861,7 +3859,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
       if (finalQuery.length() > 0) {
         finalQuery.append(" AND ");
       }
-      finalQuery.append("nodeTerminologyId:" + terminologyId);
+      finalQuery
+          .append("nodeTerminologyId:" + QueryParserBase.escape(terminologyId));
     }
 
     final SearchHandler searchHandler = getSearchHandler(terminology);
@@ -4782,7 +4781,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateConcept(List<String> validationChecks, Concept concept) {
+  public ValidationResult validateConcept(List<String> validationChecks,
+    Concept concept) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4808,7 +4808,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateAtom(List<String> validationChecks, Atom atom) {
+  public ValidationResult validateAtom(List<String> validationChecks,
+    Atom atom) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4833,7 +4834,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public ValidationResult validateCode(List<String> validationChecks, Code code) {
+  public ValidationResult validateCode(List<String> validationChecks,
+    Code code) {
     final ValidationResult result = new ValidationResultJpa();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (validationChecks.contains(key)) {
@@ -4879,7 +4881,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  @SuppressWarnings("static-method")
+  /**
+   * Handle lazy init.
+   *
+   * @param concept the concept
+   */
   private void handleLazyInit(Concept concept) {
     if (concept == null) {
       return;
@@ -4889,6 +4895,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
+  /**
+   * Handle lazy init.
+   *
+   * @param atom the atom
+   */
   @SuppressWarnings("static-method")
   private void handleLazyInit(Atom atom) {
     if (atom == null) {

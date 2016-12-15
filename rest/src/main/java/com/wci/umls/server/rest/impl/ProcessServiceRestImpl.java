@@ -208,6 +208,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // Convert to a String
       final String json = IOUtils.toString(in, "UTF-8");
+
       // Convert to an object
       final ProcessConfigJpa process =
           ConfigUtility.getGraphForJson(json, ProcessConfigJpa.class);
@@ -217,14 +218,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processConfig's project
       verifyProject(process, projectId);
 
-      process.setId(null);
+      // Save steps
       final List<AlgorithmConfig> configs = new ArrayList<>(process.getSteps());
-      process.getSteps().clear();
-      for (final AlgorithmConfig config : configs) {
-        config.setId(null);
-        process.getSteps().add(processService.addAlgorithmConfig(config));
-      }
 
+      // Prep process
+      process.setId(null);
+      process.getSteps().clear();
       final ProcessConfigList list = processService.findProcessConfigs(
           projectId,
           "name:\"" + QueryParserBase.escape(process.getName()) + "\"", null);
@@ -232,10 +231,18 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         process.setName(process.getName() + " - "
             + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
       }
-
       final ProcessConfig newProcess = processService.addProcessConfig(process);
-      processService.addLogEntry(userName, projectId, process.getId(), null,
-          null, "IMPORT process config - " + process);
+
+      // Add steps
+      for (final AlgorithmConfig config : configs) {
+        config.setId(null);
+        config.setProcess(newProcess);
+        newProcess.getSteps().add(processService.addAlgorithmConfig(config));
+      }
+
+      processService.updateProcessConfig(newProcess);
+      processService.addLogEntry(userName, projectId, newProcess.getId(), null,
+          null, "IMPORT process config - " + newProcess);
 
       processService.commit();
       return newProcess;
