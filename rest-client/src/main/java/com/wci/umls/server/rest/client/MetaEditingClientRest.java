@@ -21,6 +21,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
@@ -46,9 +47,8 @@ public class MetaEditingClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult addSemanticType(Long projectId, Long conceptId,
-    String activityId, Long lastModified,
-    String semanticType, boolean overrideWarnings,
-    String authToken) throws Exception {
+    String activityId, Long lastModified, String semanticType,
+    boolean overrideWarnings, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add semantic type to concept" + projectId
             + ", " + conceptId + ", " + semanticType.toString() + ", "
@@ -61,11 +61,8 @@ public class MetaEditingClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/meta/sty/add?projectId=" + projectId + "&conceptId=" + conceptId
         + (activityId == null ? "" : "&activityId=" + activityId)
-        + "&lastModified=" + lastModified
-        + "&semanticType=" + semanticType
+        + "&lastModified=" + lastModified + "&semanticType=" + semanticType
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
-
-    
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(null);
@@ -382,6 +379,46 @@ public class MetaEditingClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public ValidationResult addDemotion(Long projectId, Long conceptId,
+    String activityId, Long lastModified, Long conceptId2,
+    AtomRelationshipJpa demotion, boolean overrideWarnings, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("MetaEditing Client - add demotion " + projectId + ", "
+            + conceptId + ", " + demotion.toString() + ", " + lastModified
+            + ", " + overrideWarnings + ", " + authToken);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
+    validateNotEmpty(conceptId2, "conceptId2");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/meta/demotion/add?projectId=" + projectId + "&conceptId="
+        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
+        + (overrideWarnings ? "&overrideWarnings=true" : ""));
+
+    String relString = ConfigUtility.getJsonForGraph(
+        demotion == null ? new AtomRelationshipJpa() : demotion);
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.json(relString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        ValidationResultJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public ValidationResult mergeConcepts(Long projectId, Long conceptId,
     String activityId, Long lastModified, Long conceptId2,
     boolean overrideWarnings, String authToken) throws Exception {
@@ -433,8 +470,8 @@ public class MetaEditingClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/meta/atom/move?projectId=" + projectId + "&conceptId="
-        + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
+        + "/meta/atom/move?projectId=" + projectId + "&conceptId=" + conceptId
+        + (activityId == null ? "" : "&activityId=" + activityId)
         + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 

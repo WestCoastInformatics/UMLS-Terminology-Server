@@ -26,6 +26,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.action.AddAtomMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddAttributeMolecularAction;
+import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddRelationshipMolecularAction;
 import com.wci.umls.server.jpa.algo.action.AddSemanticTypeMolecularAction;
 import com.wci.umls.server.jpa.algo.action.ApproveMolecularAction;
@@ -40,6 +41,7 @@ import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UpdateAtomMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -768,6 +770,91 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
   }
+  
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/demotion/add")
+  @ApiOperation(value = "Add demotion between atoms", notes = "Add demotion between atoms on a project branch", response = ValidationResultJpa.class)
+  public ValidationResult addDemotion(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "From Concept id, e.g. 2", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
+    @ApiParam(value = "From Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
+    @ApiParam(value = "To Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
+    @ApiParam(value = "Demotion to add", required = true) AtomRelationshipJpa demotion,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (MetaEditing): /demotion/add " + projectId + ","
+            + conceptId + " for user " + authToken + " with demotion value "
+            + demotion);
+
+    // Instantiate services
+    final AddDemotionMolecularAction action =
+        new AddDemotionMolecularAction();
+    try {
+
+      // Authorize project role, get userName
+      final String userName = authorizeProject(action, projectId,
+          securityService, authToken, "adding a demotion", UserRole.AUTHOR);
+
+      // Retrieve the project
+      final Project project = action.getProject(projectId);
+      if (!project.isEditingEnabled()) {
+        throw new LocalException(
+            "Editing is disabled on project: " + project.getName());
+      }
+
+      // Configure the action
+      action.setProject(project);
+      action.setActivityId(activityId);
+      action.setConceptId(conceptId);
+      action.setLastModifiedBy("E-" + userName);
+      action.setLastModified(lastModified);
+      action.setOverrideWarnings(overrideWarnings);
+      action.setTransactionPerOperation(false);
+      action.setMolecularActionFlag(true);
+      action.setChangeStatusFlag(true);
+
+      action.setConceptId2(conceptId2);
+      action.setAtom(demotion.getFrom());
+      action.setAtom2(demotion.getTo());
+
+      // Perform the action
+      final ValidationResult validationResult =
+          action.performMolecularAction(action, userName, true);
+
+      // If the action failed, bail out now.
+      if (!validationResult.isValid()
+          || (!overrideWarnings && validationResult.getWarnings().size() > 0)) {
+        return validationResult;
+      }
+
+      // Websocket notification
+      final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
+          IdType.RELATIONSHIP.toString(), action.getDemotionRelationship().getId(),
+          action.getConcept());
+      sendChangeEvent(event);
+
+      return validationResult;
+
+    } catch (Exception e) {
+      try {
+        action.rollback();
+      } catch (Exception e2) {
+        // do nothing
+      }
+      handleException(e, "adding a demotion");
+      return null;
+    } finally {
+      action.close();
+      securityService.close();
+    }
+
+  }  
 
   /* see superclass */
   @Override

@@ -295,19 +295,21 @@ tsApp.service('processService', [
     };
 
     // get algorithm log
-    this.getAlgorithmLog = function(projectId, algorithmExecutionId) {
-      console.debug('get algorithm log', projectId, algorithmExecutionId);
+    this.getAlgorithmLog = function(projectId, algorithmExecutionId, query) {
+      console.debug('get algorithm log', projectId, algorithmExecutionId, query);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/algo/' + algorithmExecutionId + '/log?projectId=' + projectId, {
-        transformResponse : [ function(response) {
-          // Data response is plain text at this point
-          // So just return it, or do your parsing here
-          return response;
-        } ]
-      }).then(
+      $http.get(
+        processUrl + '/algo/' + algorithmExecutionId + '/log?projectId=' + projectId
+          + (query ? '&query=' + utilService.prepQuery(query) : ''), {
+          transformResponse : [ function(response) {
+            // Data response is plain text at this point
+            // So just return it, or do your parsing here
+            return response;
+          } ]
+        }).then(
       // success
       function(response) {
         gpService.decrement();
@@ -343,20 +345,22 @@ tsApp.service('processService', [
     };
 
     // get process log
-    this.getProcessLog = function(projectId, processExecutionId) {
-      console.debug('get process log', projectId, processExecutionId);
+    this.getProcessLog = function(projectId, processExecutionId, query) {
+      console.debug('get process log', projectId, processExecutionId, query);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
 
-      $http.get(processUrl + '/' + processExecutionId + '/log?projectId=' + projectId, {
-        transformResponse : [ function(response) {
-          // Data response is plain text at this point
-          // So just return it, or do your parsing here
-          return response;
-        } ]
-      }).then(
+      $http.get(
+        processUrl + '/' + processExecutionId + '/log?projectId=' + projectId
+          + (query ? '&query=' + utilService.prepQuery(query) : ''), {
+          transformResponse : [ function(response) {
+            // Data response is plain text at this point
+            // So just return it, or do your parsing here
+            return response;
+          } ]
+        }).then(
       // success
       function(response) {
         gpService.decrement();

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 
@@ -271,5 +272,24 @@ public interface MetaEditingServiceRest {
    */
   public ValidationResult redoAction(Long projectId, Long molecularActionId,
     String activityId, boolean force, String authToken) throws Exception;
+
+  /**
+   * Adds the demotion.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param activityId the activity id
+   * @param lastModified the last modified
+   * @param conceptId2 the concept id 2
+   * @param demotion the demotion
+   * @param overrideWarnings the override warnings
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult addDemotion(Long projectId, Long conceptId,
+    String activityId, Long lastModified, Long conceptId2,
+    AtomRelationshipJpa demotion, boolean overrideWarnings, String authToken)
+    throws Exception;
 
 }

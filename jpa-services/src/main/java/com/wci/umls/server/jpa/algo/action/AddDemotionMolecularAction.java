@@ -21,7 +21,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
   /** The atom 2. */
   private Atom atom2;
-
+  
   /** The demotion relationship. */
   private AtomRelationship demotionRelationship = null;
 
@@ -68,7 +68,7 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       throw new Exception(
           "Unexpected self-referential relationship, the fromConcept Id should not match toConcept Id");
     }
-
+    
     // If the atoms already have a demotion relationship between them, return an
     // error
     for (AtomRelationship atomRel : atom.getRelationships()) {
@@ -83,6 +83,24 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
     validationResult.merge(super.checkPreconditions());
     return validationResult;
+  }
+
+  /**
+   * Returns the demotion relationship.
+   *
+   * @return the demotion relationship
+   */
+  public AtomRelationship getDemotionRelationship() {
+    return demotionRelationship;
+  }
+
+  /**
+   * Returns the inverse demotion relationship.
+   *
+   * @return the inverse demotion relationship
+   */
+  public AtomRelationship getInverseDemotionRelationship() {
+    return inverseDemotionRelationship;
   }
 
   /* see superclass */

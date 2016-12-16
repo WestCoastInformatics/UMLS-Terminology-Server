@@ -1286,6 +1286,7 @@ public abstract class AbstractSourceInsertionAlgorithm
     attributeIdCache.clear();
     cachedAdditionalRelationshipTypes.clear();
     cachedAttributeNames.clear();
+    cachedMapSets.clear();
     cachedRootTerminologies.clear();
     cachedTerminologies.clear();
     cachedTermTypes.clear();

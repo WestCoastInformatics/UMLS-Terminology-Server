@@ -2124,7 +2124,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   "[Terminology Server] Run Complete for Process: "
                       + processExecution.getName(),
                   from, recipients,
-                  processService.getProcessLog(projectId, processExecutionId),
+                  processService.getProcessLog(projectId, processExecutionId, null),
                   config);
             }
           }
@@ -2184,7 +2184,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                       + processExecution.getName() + " at Algorithm step: "
                       + algorithmExecution.getName(),
                   from, recipients,
-                  processService.getProcessLog(projectId, processExecutionId),
+                  processService.getProcessLog(projectId, processExecutionId, null),
                   config);
             } catch (Exception e2) {
               e2.printStackTrace();
@@ -2228,11 +2228,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   public String getProcessLog(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("processExecutionId") Long processExecutionId,
+    @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Process): /" + processExecutionId
-            + "/log?projectId=" + projectId + " for user " + authToken);
+            + "/log?projectId=" + projectId + ", " + query + " for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2245,7 +2246,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "getting the process execution log entries", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getProcessLog(projectId, processExecutionId);
+      return processService.getProcessLog(projectId, processExecutionId, query);
     } catch (Exception e) {
       handleException(e, "trying to get the process execution log entries");
       return null;
@@ -2263,11 +2264,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   public String getAlgorithmLog(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("algorithmExecutionId") Long algorithmExecutionId,
+    @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Process): /algo/" + algorithmExecutionId
-            + "/log?projectId=" + projectId + " for user " + authToken);
+            + "/log?projectId=" + projectId + ", " + query + " for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2280,7 +2282,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "getting the algorithm execution log entries", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getAlgorithmLog(projectId, algorithmExecutionId);
+      return processService.getAlgorithmLog(projectId, algorithmExecutionId, query);
 
     } catch (Exception e) {
       handleException(e, "trying to get the algorithm execution log entries");

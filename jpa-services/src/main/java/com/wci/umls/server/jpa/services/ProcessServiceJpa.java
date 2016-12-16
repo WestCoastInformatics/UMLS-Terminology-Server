@@ -498,9 +498,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     if (processConfig == null) {
       return;
     }
-    processConfig.getSteps().size();
     processConfig.getProject().getId();
     for (AlgorithmConfig algo : processConfig.getSteps()) {
+      processConfig.getSteps().size();
       handleLazyInit(algo);
     }
 
@@ -515,9 +515,9 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     if (processExecution == null) {
       return;
     }
-    processExecution.getSteps().size();
     processExecution.getProject().getId();
     for (AlgorithmExecution algo : processExecution.getSteps()) {
+      processExecution.getSteps().size();
       handleLazyInit(algo);
     }
 
@@ -557,7 +557,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId)
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query)
     throws Exception {
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
@@ -571,7 +571,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
     final List<String> clauses = new ArrayList<>();
     clauses.add("projectId:" + projectId);
-
+    clauses.add(query);
+    
     if (!ConfigUtility.isEmpty(activityId)) {
       clauses.add(activityId);
     }
@@ -597,7 +598,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public String getProcessLog(Long projectId, Long processExecutionId)
+  public String getProcessLog(Long projectId, Long processExecutionId, String query)
     throws Exception {
 
     final PfsParameter pfs = new PfsParameterJpa();
@@ -615,6 +616,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     if (!ConfigUtility.isEmpty(workId)) {
       clauses.add(workId);
     }
+    clauses.add(query);
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
     final List<LogEntry> entries = findLogEntries(fullQuery, pfs);
@@ -667,7 +669,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         + processExecution.getProcessConfigId() + "." + runDate + ".log");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    String processLog = getProcessLog(projectId, processExecution.getId());
+    String processLog = getProcessLog(projectId, processExecution.getId(), null);
     out.print(processLog);
     out.close();
 
