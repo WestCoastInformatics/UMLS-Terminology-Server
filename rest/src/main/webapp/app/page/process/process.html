@@ -252,10 +252,13 @@
         </thead>
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
+          ng-style="{'opacity' : step.enabled == 0 ? 0.4 : 1}"
           ng-class="{selected: step.id == selected.step.id}">
           <td>
             {{$index}}.
             <span ng-show="selected.mode != 'Execution'" class="nobreak">
+            <!--  Enable/Disable step -->
+            <input type="checkbox" title="Enable/Disable Step" ng-change="toggleEnable(step);" ng-model="step.enabled" class="ng-pristine ng-valid ng-touched">
               <!-- Actions - move up-->
               <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
                 title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>

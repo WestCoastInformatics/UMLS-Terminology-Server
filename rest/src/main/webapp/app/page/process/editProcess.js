@@ -58,7 +58,7 @@ tsApp
             processService.addProcessConfig($scope.project.id, process).then(
             // Success - add definition
             function(data) {
-              $uibModalInstance.close(process);
+              $uibModalInstance.close(data);
             },
             // Error - add definition
             function(data) {

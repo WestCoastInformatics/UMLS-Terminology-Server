@@ -345,6 +345,26 @@ tsApp
           });
         }
 
+        // enable/disable
+        $scope.toggleEnable = function(algorithm) {
+
+          processService.getAlgorithmConfig($scope.selected.project.id, algorithm.id).then(
+            function(response) {
+              var retAlgorithm = response;
+              if (retAlgorithm.enabled) {
+                retAlgorithm.enabled = false;
+              } else {
+                retAlgorithm.enabled = true;
+              }
+              
+              processService.updateAlgorithmConfig($scope.selected.project.id, $scope.selected.process.id, retAlgorithm).then(
+                // Success
+                function(data) {
+                  $scope.selectProcess($scope.selected.process);
+                });
+            });
+        }       
+        
         // Remove an algorithm config
         $scope.removeAlgorithmConfig = function(algorithmId) {
           processService.removeAlgorithmConfig($scope.selected.project.id, algorithmId).then(
@@ -619,7 +639,7 @@ tsApp
           modalInstance.result.then(
           // dialog closed
           function(data) {
-            $scope.getProcessConfigs();
+            $scope.getProcessConfigs(data);
           });
         };
 
@@ -652,7 +672,7 @@ tsApp
           modalInstance.result.then(
           // dialog closed
           function(data) {
-            $scope.getProcessConfigs();
+            $scope.getProcessConfigs(data);
           });
         };
 
