@@ -29,7 +29,7 @@ Project Structure
 
 Documentation
 -------------
-Find comprehensive documentation here: http://wiki.terminology.tools/confluence/display/UTS/UMLS+Terminology+Server+Home
+Find comprehensive documentation here: https://wiki.terminology.tools/display/UTS/WCI+Terminology+Server+Home
 
 License
 -------
