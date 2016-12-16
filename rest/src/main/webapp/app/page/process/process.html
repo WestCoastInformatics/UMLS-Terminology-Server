@@ -298,8 +298,10 @@
           </td>
         </tr>
       </table>
-      <div ng-show="selected.process.steps.length == 0"
+      <div ng-show="selected.process.steps.length == 0 && selected.mode == 'Config'"
         class="alert alert-warning">There are no steps. Add a step.</div>
+      <div ng-show="selected.process.steps.length == 0 && selected.mode == 'Execution'"
+        class="alert alert-warning">No steps have been executed yet.</div>
       <span ng-show="hasPermissions('EditProcessOrStep')">
         <button ng-show="selected.process && selected.mode == 'Config'"
           class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>

@@ -18,6 +18,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
@@ -575,7 +576,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         query += " AND objectId:" + objectId;
       }
       if (message != null) {
-        query += " AND message:" + message;
+        query += " AND message:\"" + QueryParserBase.escape(message) + "\"";
       }
 
       if (query.isEmpty()) {

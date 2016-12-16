@@ -1573,8 +1573,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // If process has any execution steps, then restart needs to be called
-      if (processExecution.getSteps().size() == 0
-          || processExecution.getStartDate() == null) {
+      if (processExecution.getStartDate() == null) {
         throw new LocalException(
             "Process has not yet been started, use execute instead.");
       }
