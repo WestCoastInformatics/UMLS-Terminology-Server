@@ -281,7 +281,7 @@
             </span>
           </td>
           <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
-            <span ng-show="selected.mode == 'Execution'" log selected="selected"
+            <span ng-show="selected.mode == 'Execution'" log selected="{step : step, project : selected.project}"
               type="Step"
               poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>
 
