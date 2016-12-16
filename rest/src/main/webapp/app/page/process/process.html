@@ -252,27 +252,26 @@
         </thead>
         <tr ng-repeat="step in selected.process.steps"
           ng-click="selectStep(step);"
+          ng-style="{'opacity' : step.enabled == 0 ? 0.4 : 1}"
           ng-class="{selected: step.id == selected.step.id}">
           <td>
-            <div>
-              <span ng-show="selected.mode != 'Execution'" class="nobreak">
-                {{$index}}.
-                <!-- Actions - move up-->
-                <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
-                  title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>
-                <i
-                  ng-if="isFirstIndex(step) && selected.process.steps.length > 2"
-                  class="glyphicon glyphicon-plus glyphicon-none"></i>
-                <!-- Actions - move down-->
-                <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
-                  title="Move step down"
-                  class="noul glyphicon glyphicon-arrow-down"></i>
-                <i
-                  ng-if="isLastIndex(step) && selected.process.steps.length > 2"
-                  class="glyphicon glyphicon-plus glyphicon-none"></i>
-              </span>
-              <span>{{step.name}}</span>
-            </div>
+            {{$index}}.
+            <span ng-show="selected.mode != 'Execution'" class="nobreak">
+            <!--  Enable/Disable step -->
+            <input type="checkbox" title="Enable/Disable Step" ng-change="toggleEnable(step);" ng-model="step.enabled" class="ng-pristine ng-valid ng-touched">
+              <!-- Actions - move up-->
+              <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
+                title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>
+              <i ng-if="isFirstIndex(step) && selected.process.steps.length > 2"
+                class="glyphicon glyphicon-plus glyphicon-none"></i>
+              <!-- Actions - move down-->
+              <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
+                title="Move step down"
+                class="noul glyphicon glyphicon-arrow-down"></i>
+              <i ng-if="isLastIndex(step) && selected.process.steps.length > 2"
+                class="glyphicon glyphicon-plus glyphicon-none"></i>
+            </span>
+            {{step.name}}
           </td>
           <td>{{step.description}}</td>
           <td>
@@ -282,7 +281,7 @@
             </span>
           </td>
           <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
-            <span ng-show="selected.mode == 'Execution'" log selected="selected"
+            <span ng-show="selected.mode == 'Execution'" log selected="{step : step, project : selected.project}"
               type="Step"
               poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>
 

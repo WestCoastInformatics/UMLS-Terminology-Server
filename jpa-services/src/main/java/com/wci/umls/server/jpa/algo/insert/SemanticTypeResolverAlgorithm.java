@@ -106,6 +106,7 @@ public class SemanticTypeResolverAlgorithm
     try {
       logInfo(
           "[SemanticTypeResolver] Finding all concepts that contain both new and old Semantic Types.");
+      commitClearBegin();
 
       // Find all concepts that contain old and new semantic type components
 

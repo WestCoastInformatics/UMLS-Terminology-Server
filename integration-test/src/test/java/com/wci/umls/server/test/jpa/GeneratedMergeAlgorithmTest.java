@@ -140,7 +140,6 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       algoProperties.put("makeDemotions", "true");
       algoProperties.put("changeStatus", "true");
       algoProperties.put("mergeSet", "NCI-SY");
-      algoProperties.put("midMerge", "true");
       algo.setProperties(algoProperties);
 
       //

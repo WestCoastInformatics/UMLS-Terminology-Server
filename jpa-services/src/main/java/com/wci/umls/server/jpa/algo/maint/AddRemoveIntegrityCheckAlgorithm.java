@@ -101,6 +101,7 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
 
       logInfo(
           "[Add/Remove Integrity Check] Adding/Removing Integrity Checks to the project");
+      commitClearBegin();
 
       // Each AddRemove check has only a single step
       steps = 1;

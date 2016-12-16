@@ -98,6 +98,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
       logInfo(
           "[AttributeLoader] Checking for new/updated Attributes and Definitions");
+      commitClearBegin();
 
       //
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,

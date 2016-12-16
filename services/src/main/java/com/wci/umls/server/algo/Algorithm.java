@@ -101,4 +101,5 @@ public interface Algorithm
    * @return the description
    */
   public String getDescription();
+  
 }

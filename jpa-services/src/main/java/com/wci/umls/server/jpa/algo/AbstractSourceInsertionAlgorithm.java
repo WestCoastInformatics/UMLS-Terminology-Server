@@ -496,7 +496,7 @@ public abstract class AbstractSourceInsertionAlgorithm
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
-      codeIdCache.put(terminologyId, id);
+      codeIdCache.put(terminologyId + terminology, id);
     }
 
     // Add this terminology to the cached set.
@@ -525,7 +525,7 @@ public abstract class AbstractSourceInsertionAlgorithm
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
-      conceptIdCache.put(terminologyId, id);
+      conceptIdCache.put(terminologyId + terminology, id);
     }
 
     // Add this terminology to the cached set.
@@ -554,7 +554,7 @@ public abstract class AbstractSourceInsertionAlgorithm
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
-      descriptorIdCache.put(terminologyId, id);
+      descriptorIdCache.put(terminologyId + terminology, id);
     }
 
     // Add this terminology to the cached set.
@@ -1313,7 +1313,7 @@ public abstract class AbstractSourceInsertionAlgorithm
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
     logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
-        + "Relatinoship Alternate Terminology Ids from database");
+        + " Relationship Alternate Terminology Ids from database");
 
     for (String relPrefix : relationshipPrefixes) {
 

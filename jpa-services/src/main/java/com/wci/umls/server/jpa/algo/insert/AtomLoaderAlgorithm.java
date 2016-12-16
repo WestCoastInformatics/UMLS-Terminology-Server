@@ -108,6 +108,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           "classes_atoms.src", null, null);
 
       logInfo("[AtomLoader] Checking for new/updated Atoms");
+      commitClearBegin();
 
       // Set the number of steps to the number of atoms to be processed
       setSteps(lines.size());
@@ -238,7 +239,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           putComponent(newAtom, newAtomAui);
 
           // Reconcile mapSet
-          reconcileMapSet(newAtom);
+          //reconcileMapSet(newAtom);
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom);
 
@@ -288,7 +289,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
             updateCount++;
 
             // Reconcile mapSet
-            reconcileMapSet(newAtom);
+            // reconcileMapSet(newAtom);
             // Reconcile code/concept/descriptor
             reconcileCodeConceptDescriptor(oldAtom);
           }
@@ -364,7 +365,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   private void reconcileCodeConceptDescriptor(Atom atom) throws Exception {
     // Check map to see if code already exists
     if (!atom.getCodeId().isEmpty()) {
-
+      
       Code existingCode = (Code) getComponent("CODE_SOURCE", atom.getCodeId(),
           atom.getTerminology(), null);
 
@@ -374,7 +375,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         updateCode(existingCode);
 
         // Read code relationships and updateRelationship on each one
-        // (to update the indexes with the new concept information)
+        // (to update the indexes with the new code information)
         for (CodeRelationship codeRelationship : existingCode
             .getRelationships()) {
           updateRelationship(codeRelationship);
@@ -412,15 +413,15 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         updateConcept(existingConcept);
 
         // If this atom is associated with a mapSet, update it
-        if (getCachedMapSet(
-            atom.getCodeId() + "_" + atom.getTerminology()) != null) {
-          MapSet mapSet =
-              getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
-          mapSet.setName(existingConcept.getName());
-          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-              existingConcept.getTerminologyId());
-          updateMapSet(mapSet);
-        }
+//        if (getCachedMapSet(
+//            atom.getCodeId() + "_" + atom.getTerminology()) != null) {
+//          MapSet mapSet =
+//              getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
+//          mapSet.setName(existingConcept.getName());
+//          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
+//              existingConcept.getTerminologyId());
+//          updateMapSet(mapSet);
+//        }
 
         // Read concept relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
@@ -450,15 +451,15 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
         // If this atom is associated with a mapSet, update its
         // alternateTerminologyId
-        if (getCachedMapSet(
-            atom.getCodeId() + "_" + atom.getTerminology()) != null) {
-          MapSet mapSet =
-              getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
-          mapSet.setName(newConcept.getName());
-          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-              newConcept.getTerminologyId());
-          updateMapSet(mapSet);
-        }
+//        if (getCachedMapSet(
+//            atom.getCodeId() + "_" + atom.getTerminology()) != null) {
+//          MapSet mapSet =
+//              getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
+//          mapSet.setName(newConcept.getName());
+//          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
+//              newConcept.getTerminologyId());
+//          updateMapSet(mapSet);
+//        }
       }
     }
     // Check map to see if descriptor already exists
@@ -473,7 +474,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         updateDescriptor(existingDescriptor);
 
         // Read descriptor relationships and updateRelationship on each one
-        // (to update the indexes with the new concept information)
+        // (to update the indexes with the new descriptor information)
         for (DescriptorRelationship descriptorRelationship : existingDescriptor
             .getRelationships()) {
           updateRelationship(descriptorRelationship);
