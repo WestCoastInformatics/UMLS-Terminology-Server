@@ -254,21 +254,25 @@
           ng-click="selectStep(step);"
           ng-class="{selected: step.id == selected.step.id}">
           <td>
-            {{$index}}.
-            <span ng-show="selected.mode != 'Execution'" class="nobreak">
-              <!-- Actions - move up-->
-              <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
-                title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>
-              <i ng-if="isFirstIndex(step) && selected.process.steps.length > 2"
-                class="glyphicon glyphicon-plus glyphicon-none"></i>
-              <!-- Actions - move down-->
-              <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
-                title="Move step down"
-                class="noul glyphicon glyphicon-arrow-down"></i>
-              <i ng-if="isLastIndex(step) && selected.process.steps.length > 2"
-                class="glyphicon glyphicon-plus glyphicon-none"></i>
-            </span>
-            {{step.name}}
+            <div>
+              <span ng-show="selected.mode != 'Execution'" class="nobreak">
+                {{$index}}.
+                <!-- Actions - move up-->
+                <i ng-if="!isFirstIndex(step)" ng-click="moveStepUp(step)"
+                  title="Move step up" class="noul glyphicon glyphicon-arrow-up"></i>
+                <i
+                  ng-if="isFirstIndex(step) && selected.process.steps.length > 2"
+                  class="glyphicon glyphicon-plus glyphicon-none"></i>
+                <!-- Actions - move down-->
+                <i ng-if="!isLastIndex(step)" ng-click="moveStepDown(step)"
+                  title="Move step down"
+                  class="noul glyphicon glyphicon-arrow-down"></i>
+                <i
+                  ng-if="isLastIndex(step) && selected.process.steps.length > 2"
+                  class="glyphicon glyphicon-plus glyphicon-none"></i>
+              </span>
+              <span>{{step.name}}</span>
+            </div>
           </td>
           <td>{{step.description}}</td>
           <td>
@@ -295,8 +299,10 @@
           </td>
         </tr>
       </table>
-      <div ng-show="selected.process.steps.length == 0"
+      <div ng-show="selected.process.steps.length == 0 && selected.mode == 'Config'"
         class="alert alert-warning">There are no steps. Add a step.</div>
+      <div ng-show="selected.process.steps.length == 0 && selected.mode == 'Execution'"
+        class="alert alert-warning">No steps have been executed yet.</div>
       <span ng-show="hasPermissions('EditProcessOrStep')">
         <button ng-show="selected.process && selected.mode == 'Config'"
           class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>

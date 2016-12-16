@@ -189,6 +189,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     // close print writers
     closeWriters();
+    
+    // TODO:
+    // Write AMBIGSUI/LUI
+
   }
 
   /**

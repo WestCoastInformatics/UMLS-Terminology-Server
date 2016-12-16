@@ -17,6 +17,8 @@ tsApp.directive('treeComponent', [
 
         console.debug('callbacks', scope.callbacks);
 
+        scope.showing = true;
+
         // watch for component change
         scope.$watch('component', function() {
           if (scope.component) {

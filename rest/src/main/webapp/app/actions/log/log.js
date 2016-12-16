@@ -118,7 +118,8 @@ tsApp.directive('log', [ function() {
 
               // Make different calls depending upon the object type
               var objectId = (type == 'Project' ? null : selected.component.id);
-              projectService.getLog(selected.project.id, objectId).then(
+              var filter = (type == 'Project' ? $scope.filter : null);
+              projectService.getLog(selected.project.id, objectId, filter).then(
               // Success
               function(data) {
                 $scope.log = data;

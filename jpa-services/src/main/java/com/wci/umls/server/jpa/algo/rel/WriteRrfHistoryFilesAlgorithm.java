@@ -81,6 +81,9 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     writeMrcui();
     closeWriters();
     logInfo("Finishing Write RRF Indexes");
+    
+    // TODO: write CHAGNE/* files
+    // only MERGEDCUI/DELETEDCUI, make other ones blank.
   }
 
   private void writeMrcui() throws Exception {

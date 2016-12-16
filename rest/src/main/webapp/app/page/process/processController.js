@@ -38,6 +38,7 @@ tsApp
           projectRole : null,
           process : null,
           algorithm : null,
+          step : null,
           processType : securityService.getProperty($scope.user.userPreferences, 'processType',
             'Insertion'),
           mode : securityService.getProperty($scope.user.userPreferences, 'processMode', 'Config')
