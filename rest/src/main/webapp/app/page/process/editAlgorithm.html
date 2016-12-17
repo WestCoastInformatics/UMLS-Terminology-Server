@@ -56,7 +56,13 @@
               ng-options="possibleValue for possibleValue in parameter.possibleValues"
               ng-change="validated = false">
             </select>
-          </span>
+            <span>
+              <span class="btn btn-xs btn-primary"
+                ng-click="parameter.values = parameter.possibleValues"
+                title="All">All</span>
+              <span class="btn btn-xs btn-primary"
+                ng-click="parameter.values = []" title="All">None</span>
+            </span>
         </td>
         <td ng-show="parameter.type == 'INTEGER'">
           <input type="number" string-to-number class="w100"

@@ -37,8 +37,8 @@ tsApp
         // Update process
         $scope.submitProcess = function(process) {
           $scope.errors = [];
-          if (process.feedbackEmail && !validateEmail(process.email)) {
-            $scope.errors.push('Invalid email: ' + process.email);
+          if (process.feedbackEmail && !validateEmail(process.feedbackEmail)) {
+            $scope.errors.push('Invalid email: ' + process.feedbackEmail);
             return;
           }
 
