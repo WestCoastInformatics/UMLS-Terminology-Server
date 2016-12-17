@@ -837,7 +837,7 @@ public class ProcessClientRest extends RootClientRest
   }
 
   @Override
-  public String getProcessLog(Long projectId, Long processExecutionId,
+  public String getProcessLog(Long projectId, Long processExecutionId, String query,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Project Client - find log entries of specified process execution");
@@ -847,7 +847,9 @@ public class ProcessClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/" + processExecutionId + "/log?projectId=" + projectId);
+        + "/process/" + processExecutionId + "/log?projectId=" + projectId+ "&query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -863,7 +865,7 @@ public class ProcessClientRest extends RootClientRest
   }
 
   @Override
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId,
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query,
     String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Project Client - find log entries of specified process execution");
@@ -874,7 +876,9 @@ public class ProcessClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/process/algo/"
-            + algorithmExecutionId + "/log?projectId=" + projectId);
+            + algorithmExecutionId + "/log?projectId=" + projectId + "&query="
+                + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 

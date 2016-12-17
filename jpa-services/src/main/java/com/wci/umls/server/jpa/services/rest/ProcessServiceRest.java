@@ -371,7 +371,7 @@ public interface ProcessServiceRest {
    * @return the process log
    * @throws Exception the exception
    */
-  public String getProcessLog(Long projectId, Long processId, String authToken)
+  public String getProcessLog(Long projectId, Long processId, String query, String authToken)
     throws Exception;
 
   /**
@@ -383,7 +383,7 @@ public interface ProcessServiceRest {
    * @return the algorithm log
    * @throws Exception the exception
    */
-  public String getAlgorithmLog(Long projectId, Long algorithmId,
+  public String getAlgorithmLog(Long projectId, Long algorithmId, String query,
     String authToken) throws Exception;
 
   /**

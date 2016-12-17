@@ -32,7 +32,7 @@
 <div class="modal-footer">
   <span style="float: left">
     <input placeholder="Search log"
-      ng-show="type == 'Project' && log && poll != 'true'" type="text"
+      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && log && poll != 'true'" type="text"
       ng-model="filter" ng-model-options="{ debounce: 300 }"
       ng-change="getLog()">
     <button class="btn btn-xs btn-warning" ng-show="filter"

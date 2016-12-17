@@ -890,7 +890,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
 
     // Test to make sure the process created log entries for both algorithms
     String processExecutionLog = processService.getProcessLog(project.getId(),
-        processExecutionId, authToken);
+        processExecutionId, null, authToken);
     assertNotNull(processExecutionLog);
     // Flatten the log into a single line, so we can use regular expressions
     // against it.
@@ -905,7 +905,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
     // their own algorithm
     for (AlgorithmExecution ae : processExecution.getSteps()) {
       String algorithmExecutionLog = processService
-          .getAlgorithmLog(project.getId(), ae.getId(), authToken);
+          .getAlgorithmLog(project.getId(), ae.getId(), null, authToken);
       assertNotNull(algorithmExecutionLog);
       // Flatten the log into a single line, so we can use regular expressions
       // against it.

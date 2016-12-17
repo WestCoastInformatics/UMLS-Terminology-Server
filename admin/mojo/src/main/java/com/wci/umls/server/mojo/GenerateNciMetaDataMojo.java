@@ -47,16 +47,16 @@ import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
-import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.IntegrationTestServiceRest;
+import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.jpa.services.rest.MetadataServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
@@ -65,6 +65,7 @@ import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowConfigJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowEpochJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.Checklist;
 import com.wci.umls.server.model.workflow.WorkflowAction;
@@ -74,12 +75,12 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
 import com.wci.umls.server.rest.impl.IntegrationTestServiceRestImpl;
+import com.wci.umls.server.rest.impl.MetaEditingServiceRestImpl;
 import com.wci.umls.server.rest.impl.MetadataServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProcessServiceRestImpl;
 import com.wci.umls.server.rest.impl.ProjectServiceRestImpl;
 import com.wci.umls.server.rest.impl.SecurityServiceRestImpl;
 import com.wci.umls.server.rest.impl.WorkflowServiceRestImpl;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
 
 /**
@@ -244,7 +245,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     validCategories.add("chem");
     project1.setValidCategories(validCategories);
 
-    Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap();
+    Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap(authToken);
     project1.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
 
     final List<String> validationChecks = new ArrayList<>();
@@ -767,28 +768,17 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     for (int i = 0; i < id1s.length; i++) {
 
       contentService = new ContentServiceRestImpl();
-      final Atom from = contentService.getConcept(id1s[i], projectId, authToken)
-          .getAtoms().iterator().next();
+      final Concept fromConcept = contentService.getConcept(id1s[i], projectId, authToken);
+      final Atom from = fromConcept.getAtoms().get(0);
       contentService = new ContentServiceRestImpl();
       final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
           .getAtoms().iterator().next();
 
-      final AddDemotionMolecularAction action =
-          new AddDemotionMolecularAction();
-      action.setTransactionPerOperation(false);
-      action.setProject(project1);
-      action.setTerminology(project1.getTerminology());
-      action.setVersion(project1.getVersion());
-      action.setWorkId("GENERATE_SAMPLE");
-      action.setActivityId("DEMOTIONS");
-      action.setAtom(from);
-      action.setAtom2(to);
-      action.setChangeStatusFlag(true);
-      action.setConceptId(id1s[i]);
-      action.setConceptId2(id2s[i]);
-      action.setLastModifiedBy("loader");
-      action.performMolecularAction(action, "loader", true);
-      action.close();
+      final MetaEditingServiceRest metaEditingService = new MetaEditingServiceRestImpl();
+      final AtomRelationshipJpa demotion = new AtomRelationshipJpa();
+      demotion.setFrom(from);
+      demotion.setTo(to);
+      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS", fromConcept.getLastModified().getTime(), id2s[i], demotion, false, authToken);
     }
 
     // Status N NCIt concepts (and atoms)
@@ -1318,12 +1308,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @return the semantic type category map
    * @throws Exception the exception
    */
-  private Map<String, String> getSemanticTypeCategoryMap() throws Exception {
+  private Map<String, String> getSemanticTypeCategoryMap(String authToken) throws Exception {
     final Map<String, String> map = new HashMap<>();
-    final MetadataService service = new MetadataServiceJpa();
+    final MetadataServiceRest service = new MetadataServiceRestImpl();
     try {
       final SemanticTypeList styList =
-          service.getSemanticTypes(terminology, version);
+          service.getSemanticTypes(terminology, version, authToken);
 
       // Obtain "Chemical" semantic type.
       String chemStn = null;
@@ -1351,7 +1341,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     } catch (Exception e) {
       throw e;
     } finally {
-      service.close();
+      // n/a
     }
     return map;
   }

@@ -89,7 +89,7 @@ tsApp.directive('log', [ function() {
             }
 
             else if (type == 'Process') {
-              processService.getProcessLog(selected.project.id, selected.process.id).then(
+              processService.getProcessLog(selected.project.id, selected.process.id, $scope.filter).then(
               // Success
               function(data) {
                 $scope.log = data;
@@ -101,7 +101,7 @@ tsApp.directive('log', [ function() {
             }
 
             else if (type == 'Step') {
-              processService.getAlgorithmLog(selected.project.id, selected.step.id).then(
+              processService.getAlgorithmLog(selected.project.id, selected.step.id, $scope.filter).then(
               // Success
               function(data) {
                 $scope.log = data;

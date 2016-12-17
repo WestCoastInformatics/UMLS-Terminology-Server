@@ -223,10 +223,11 @@ public interface ProcessService extends ProjectService {
    *
    * @param projectId the project id
    * @param algorithmExecutionId the algorithm execution id
+   * @param query the query
    * @return the algorithm log
    * @throws Exception the exception
    */
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId)
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query)
     throws Exception;
 
   /**
@@ -234,10 +235,11 @@ public interface ProcessService extends ProjectService {
    *
    * @param projectId the project id
    * @param processExecutionId the process execution id
+   * @param query the query
    * @return the process log
    * @throws Exception the exception
    */
-  public String getProcessLog(Long projectId, Long processExecutionId)
+  public String getProcessLog(Long projectId, Long processExecutionId, String query)
     throws Exception;
 
   /**
