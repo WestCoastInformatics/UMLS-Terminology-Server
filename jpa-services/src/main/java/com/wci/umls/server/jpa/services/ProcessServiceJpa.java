@@ -517,7 +517,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     processExecution.getProject().getId();
     for (AlgorithmExecution algo : processExecution.getSteps()) {
-      processExecution.getSteps().size();
       handleLazyInit(algo);
     }
 

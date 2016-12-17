@@ -431,5 +431,34 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- Run a custom patch function, for updating the DB when things change, -Drefset.config=... -->
+    <profile>
+      <id>Patch</id>
+      <build>
+        <plugins>
+
+          <!-- Update the database schema (or create it) -->
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>patch</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>patch</goal>
+                </goals>
+                <configuration>
+                  <start>${start}</start>
+                  <end>${end}</end>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
