@@ -1,7 +1,10 @@
 <div class="modal-header">
-  <h4>{{component.terminology}}
+  <h4 style="display: inline">{{component.terminology}}
     {{metadata.terminology.organizingClassType}} Notes:
     {{component.terminologyId}} {{component.name}}</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 <div class="modal-body">
   <div>

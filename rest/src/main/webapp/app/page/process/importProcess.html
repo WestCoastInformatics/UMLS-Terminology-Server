@@ -1,6 +1,9 @@
 <form ng-submit="importProcess(file);">
   <div class="modal-header">
-    <h4>Import Process</h4>
+    <h4 style="display: inline">Import Process</h4>
+    <span style="float: right">
+      <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
   </div>
 
   <div class="modal-body">
@@ -8,7 +11,7 @@
       <!-- Refset info -->
 
       <table class="table">
-        <tr> 
+        <tr>
           <td>
             <b>Choose File</b>
           </td>

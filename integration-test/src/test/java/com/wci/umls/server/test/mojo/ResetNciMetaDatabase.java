@@ -19,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.algo.RrfUnpublishedLoaderAlgorithm;
 
 /**
  * A mechanism to reset to the stock dev database for NCI-META testing.
@@ -27,7 +28,6 @@ public class ResetNciMetaDatabase {
 
   /** The properties. */
   static Properties config;
-
   /** The server. */
   static String server = "false";
 
@@ -101,6 +101,25 @@ public class ResetNciMetaDatabase {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
+
+    // RRF Unpublished
+    final RrfUnpublishedLoaderAlgorithm algo =
+        new RrfUnpublishedLoaderAlgorithm();
+    algo.setActivityId("LOADER");
+    algo.setWorkId("LOADER");
+    // ASSUMPTION: one project
+    algo.setProject(algo.getProjects().getObjects().get(0));
+    algo.setInputPath(
+        "../../config/src/main/resources/data/SAMPLE_NCI/unpublished");
+    if (System.getProperty("input.dir") != null) {
+      algo.setInputPath(System.getProperty("input.dir") + "/unpublished");
+    }
+    algo.setLastModifiedBy("admin");
+    algo.setLastModifiedFlag(true);
+    algo.setMolecularActionFlag(false);
+    algo.setTerminology("NCIMTH");
+    algo.setVersion("latest");
+    algo.compute();
 
   }
 

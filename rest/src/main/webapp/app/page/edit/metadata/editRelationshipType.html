@@ -1,7 +1,11 @@
 <div class="modal-header">
-  <h4 ng-show="mode == 'relationshipType'">{{action}} Relationship Type</h4>
-  <h4 ng-show="mode == 'addRelType'">{{action}} Additional Relationship
-    Type</h4>
+  <h4 style="display: inline" ng-show="mode == 'relationshipType'">{{action}}
+    Relationship Type</h4>
+  <h4 style="display: inline" ng-show="mode == 'addRelType'">{{action}}
+    Additional Relationship Type</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">

@@ -245,7 +245,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     validCategories.add("chem");
     project1.setValidCategories(validCategories);
 
-    Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap(authToken);
+    Map<String, String> semanticTypeCategoryMap =
+        getSemanticTypeCategoryMap(authToken);
     project1.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
 
     final List<String> validationChecks = new ArrayList<>();
@@ -469,7 +470,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("mergeSet", "NCI-SRC");
@@ -489,32 +490,28 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
-    algoProperties.put("query",
-        "select a1.id, a2.id "
-            + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-            + "where c1.terminology = :projectTerminology "
-            + "and c2.terminology = :projectTerminology "
-            + "and c1.id != c2.id " 
-            + "and a1.terminology = :terminology "
-            + "and a1.version = :version "
-            + "and a2.terminology = :terminology "
-            + "and a2.version = :version "
-            + "and a1.codeId = a2.codeId "
-            + "and a1.stringClassId = a2.stringClassId "
-            + "and a1.termType = a2.termType");
+    algoProperties.put("query", "select a1.id, a2.id "
+        + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+        + "where c1.terminology = :projectTerminology "
+        + "and c2.terminology = :projectTerminology " + "and c1.id != c2.id "
+        + "and a1.terminology = :terminology " + "and a1.version = :version "
+        + "and a2.terminology = :terminology " + "and a2.version = :version "
+        + "and a1.codeId = a2.codeId "
+        + "and a1.stringClassId = a2.stringClassId "
+        + "and a1.termType = a2.termType");
     algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
     algoProperties.put("newAtomsOnly", "false");
-//    algoProperties.put("filterQueryType", "LUCENE");
-//    algoProperties.put("filterQuery", "atoms.id:(1)");
-//    algoProperties.put("filterQueryType", "JQL");
-//    algoProperties.put("filterQuery", "select a1.id, a2.id "
-//        + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//        + "where a1.id in (100,1) "
-//        + "and a2.id in (2,99) ");
+    // algoProperties.put("filterQueryType", "LUCENE");
+    // algoProperties.put("filterQuery", "atoms.id:(1)");
+    // algoProperties.put("filterQueryType", "JQL");
+    // algoProperties.put("filterQuery", "select a1.id, a2.id "
+    // + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+    // + "where a1.id in (100,1) "
+    // + "and a2.id in (2,99) ");
     algoProperties.put("makeDemotions", "true");
     algoProperties.put("changeStatus", "true");
     algoProperties.put("mergeSet", "NCI-SY");
@@ -533,7 +530,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("stringClassId", "true");
@@ -546,7 +543,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);  
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("MIDMERGE");
@@ -556,32 +553,28 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
-    algoProperties.put("query",
-        "select a1.id, a2.id "
-            + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-            + "where c1.terminology = :projectTerminology "
-            + "and c2.terminology = :projectTerminology "
-            + "and c1.id != c2.id " 
-            + "and a1.terminology = :terminology "
-            + "and a1.version = :version "
-            + "and a2.terminology = :terminology "
-            + "and a2.version = :version "
-            + "and a1.codeId = a2.codeId "
-            + "and a1.stringClassId = a2.stringClassId "
-            + "and a1.termType = a2.termType");
+    algoProperties.put("query", "select a1.id, a2.id "
+        + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+        + "where c1.terminology = :projectTerminology "
+        + "and c2.terminology = :projectTerminology " + "and c1.id != c2.id "
+        + "and a1.terminology = :terminology " + "and a1.version = :version "
+        + "and a2.terminology = :terminology " + "and a2.version = :version "
+        + "and a1.codeId = a2.codeId "
+        + "and a1.stringClassId = a2.stringClassId "
+        + "and a1.termType = a2.termType");
     algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
     algoProperties.put("newAtomsOnly", "false");
-//    algoProperties.put("filterQueryType", "LUCENE");
-//    algoProperties.put("filterQuery", "atoms.id:(1)");
-//    algoProperties.put("filterQueryType", "JQL");
-//    algoProperties.put("filterQuery", "select a1.id, a2.id "
-//        + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//        + "where a1.id in (100,1) "
-//        + "and a2.id in (2,99) ");
+    // algoProperties.put("filterQueryType", "LUCENE");
+    // algoProperties.put("filterQuery", "atoms.id:(1)");
+    // algoProperties.put("filterQueryType", "JQL");
+    // algoProperties.put("filterQuery", "select a1.id, a2.id "
+    // + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+    // + "where a1.id in (100,1) "
+    // + "and a2.id in (2,99) ");
     algoProperties.put("makeDemotions", "true");
     algoProperties.put("changeStatus", "true");
     algoProperties.put("mergeSet", "NCI-SY");
@@ -591,7 +584,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);  
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("QUERYACTION");
@@ -601,7 +594,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("objectType", "SemanticTypeComponentJpa");
@@ -614,7 +607,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);     
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("SEMANTICTYPERESOLVER");
@@ -624,7 +617,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
-    //TODO - need to set to real insertion properties
+    // TODO - need to set to real insertion properties
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("winLose", "win");
@@ -633,7 +626,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);     
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("UPDATERELEASABILITY");
@@ -647,7 +640,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);      
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("BEQUEATH");
@@ -661,7 +654,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);   
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("REPORTCHECKLIST");
@@ -675,7 +668,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);  
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("REPARTITION");
@@ -689,7 +682,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig); 
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("MATRIXINIT");
@@ -703,8 +696,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig); 
-    
+    processConfig.getSteps().add(algoConfig);
+
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 
@@ -768,17 +761,21 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     for (int i = 0; i < id1s.length; i++) {
 
       contentService = new ContentServiceRestImpl();
-      final Concept fromConcept = contentService.getConcept(id1s[i], projectId, authToken);
+      final Concept fromConcept =
+          contentService.getConcept(id1s[i], projectId, authToken);
       final Atom from = fromConcept.getAtoms().get(0);
       contentService = new ContentServiceRestImpl();
       final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
           .getAtoms().iterator().next();
 
-      final MetaEditingServiceRest metaEditingService = new MetaEditingServiceRestImpl();
+      final MetaEditingServiceRest metaEditingService =
+          new MetaEditingServiceRestImpl();
       final AtomRelationshipJpa demotion = new AtomRelationshipJpa();
       demotion.setFrom(from);
       demotion.setTo(to);
-      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS", fromConcept.getLastModified().getTime(), id2s[i], demotion, false, authToken);
+      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS",
+          fromConcept.getLastModified().getTime(), id2s[i], demotion, false,
+          authToken);
     }
 
     // Status N NCIt concepts (and atoms)
@@ -1305,10 +1302,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   /**
    * Returns the semantic type category map.
    *
+   * @param authToken the auth token
    * @return the semantic type category map
    * @throws Exception the exception
    */
-  private Map<String, String> getSemanticTypeCategoryMap(String authToken) throws Exception {
+  private Map<String, String> getSemanticTypeCategoryMap(String authToken)
+    throws Exception {
     final Map<String, String> map = new HashMap<>();
     final MetadataServiceRest service = new MetadataServiceRestImpl();
     try {

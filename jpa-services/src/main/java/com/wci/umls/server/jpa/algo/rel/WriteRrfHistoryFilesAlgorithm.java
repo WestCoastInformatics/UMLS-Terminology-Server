@@ -43,11 +43,13 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-  
-  private File dir;  
 
+  /** The dir. */
+  private File dir;
+
+  /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
-  
+
   /**
    * Instantiates an empty {@link WriteRrfHistoryFilesAlgorithm}.
    *
@@ -69,23 +71,29 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting Write RRF History");
-    
+
     openWriters();
 
     previousProgress = 0;
     stepsCompleted = 0;
-    
+
     writeMraui();
     updateProgress();
 
     writeMrcui();
     closeWriters();
     logInfo("Finishing Write RRF Indexes");
-    
+
     // TODO: write CHAGNE/* files
     // only MERGEDCUI/DELETEDCUI, make other ones blank.
   }
 
+  /**
+   * Write mrcui.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
   private void writeMrcui() throws Exception {
     // 0 CUI1 Unique identifier for first concept - Retired CUI - was present in
     // some prior release, but is currently missing
@@ -163,7 +171,8 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     // Determine "split" cases - all keys from atomsMoved where the value is
     // size()>1 and the key is not in current cuis.
     // write RO rows for both "value" CUIs.
-    // Note: split concept must be merged into third concept in order to meet !currentCuis requirement
+    // Note: split concept must be merged into third concept in order to meet
+    // !currentCuis requirement
     for (Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       String lastReleaseCui = entry.getKey();
       if (entry.getValue().size() > 1
@@ -231,10 +240,13 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
             StringBuilder sb = new StringBuilder();
             sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
             sb.append(getProcess().getVersion()).append("|"); // 1 VER
-            sb.append(bequeathalRel.getRelationshipType().substring(1)).append("|"); // 2 REL
+            sb.append(bequeathalRel.getRelationshipType().substring(1))
+                .append("|"); // 2 REL
             sb.append("|"); // 3 RELA
             sb.append("|"); // 4 MAPREASON
-            sb.append(bequeathalRel.getTo().getTerminologyId()).append("|"); // 5 CUI2 getTo.getTId
+            sb.append(bequeathalRel.getTo().getTerminologyId()).append("|"); // 5
+                                                                             // CUI2
+                                                                             // getTo.getTId
             sb.append("Y").append("|"); // 6 MAPIN
             sb.append("\n");
             writerMap.get("MRCUI.RRF").print(sb.toString());
@@ -265,7 +277,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
           else if (history.getRelationshipType().equals("SY")
               || history.getRelationshipType().startsWith("R")) {
 
-            // if "referenced concept" is publishable, write it out as is 
+            // if "referenced concept" is publishable, write it out as is
             if (history.getReferencedConcept().isPublishable()) {
               StringBuilder sb = new StringBuilder();
               sb.append(history.getLastModifiedBy()).append("|"); // CUI1
@@ -327,67 +339,85 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     for (String writerName : writerMap.keySet()) {
       File inputFile = new File(dir, writerName);
       File outputFile = new File(dir, writerName + ".sorted");
-      FileSorter.sortFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), 
-          ConfigUtility.getByteComparator());
+      FileSorter.sortFile(inputFile.getAbsolutePath(),
+          outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
     }
-    
+
     // move sorted files into orig files
     for (String writerName : writerMap.keySet()) {
 
       File inputFile = new File(dir, writerName);
       File outputFile = new File(dir, writerName + ".sorted");
       inputFile.delete();
-      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile() );
+      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
     }
   }
-  
-  //this means concept.getRelationships() has 1 or more relationships with BRO, BRN, BRB as relationshiptype (write out without the leading B)  
+
+  /**
+   * Returns the bequeathal rels.
+   *
+   * @param c the c
+   * @return the bequeathal rels
+   */
+  // this means concept.getRelationships() has 1 or more relationships with BRO,
+  // BRN, BRB as relationshiptype (write out without the leading B)
+  @SuppressWarnings("static-method")
   private List<ConceptRelationship> getBequeathalRels(Concept c) {
     List<ConceptRelationship> bequeathalRels = new ArrayList<>();
     for (ConceptRelationship rel : c.getRelationships()) {
-      if (rel.getRelationshipType().equals("BRO") || rel.getRelationshipType().equals("BRN") ||
-          rel.getRelationshipType().equals("BRB")) {
+      if (rel.getRelationshipType().equals("BRO")
+          || rel.getRelationshipType().equals("BRN")
+          || rel.getRelationshipType().equals("BRB")) {
         bequeathalRels.add(rel);
       }
     }
     return bequeathalRels;
   }
-  
+
+  /**
+   * Write mraui.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
   private void writeMraui() throws Exception {
-    // This file records the movement of Atom Unique Identifiers (AUIs) from a concept (CUI1) 
-    // in one version of the Metathesaurus to a concept (CUI2) in the next version (VER) of 
-    // the Metathesaurus. The file is historical. 
+    // This file records the movement of Atom Unique Identifiers (AUIs) from a
+    // concept (CUI1)
+    // in one version of the Metathesaurus to a concept (CUI2) in the next
+    // version (VER) of
+    // the Metathesaurus. The file is historical.
     // Field Description
     // 0 AUI1
     // 1 CUI1
-    // 2 VER  version in which this change to the AUI first occurred
+    // 2 VER version in which this change to the AUI first occurred
     // 3 REL
     // 4 RELA
     // 5 MAPREASON
     // 6 AUI2
-    // 7 CUI2   the current CUI that CUI1 most closely maps to
-    // 8 MAPIN  is AUI2 in current subset
+    // 7 CUI2 the current CUI that CUI1 most closely maps to
+    // 8 MAPIN is AUI2 in current subset
     //
     // e.g.
-    //A0009348|C0030499|201604|||move|A0009348|C0747256|Y|
-    //atom->alternateTerminologyIds(project.terminolgy) -> A0009348  AUI1
-    //atom->conceptTerminologyIds(project.terminolgy) -> C0030499 (aka "last release cui").CUI1
-    //C0747256 = concept.getTerminologyId() for the concept containing this atom. CUI2
+    // A0009348|C0030499|201604|||move|A0009348|C0747256|Y|
+    // atom->alternateTerminologyIds(project.terminolgy) -> A0009348 AUI1
+    // atom->conceptTerminologyIds(project.terminolgy) -> C0030499 (aka "last
+    // release cui").CUI1
+    // C0747256 = concept.getTerminologyId() for the concept containing this
+    // atom. CUI2
     // Algorithm
-    //Find all atoms where the lastReleaseCui != current CUi, write an entry.
+    // Find all atoms where the lastReleaseCui != current CUi, write an entry.
 
     final List<Object[]> results = new ArrayList<>();
 
     String queryStr = null;
     javax.persistence.Query query = null;
-    queryStr =
-        "select value(aid), value(cid), c.terminologyId  "
-            + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
-            + "join a.alternateTerminologyIds aid "
-            + "where c.terminology = :terminology and c.version = :version "
-            + "and c.publishable = true " + "and a.publishable = true "
-            + "and key(aid) = :terminology " + "and key(cid) = :terminology "
-            + "and value(cid) != c.terminologyId";
+    queryStr = "select value(aid), value(cid), c.terminologyId  "
+        + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
+        + "join a.alternateTerminologyIds aid "
+        + "where c.terminology = :terminology and c.version = :version "
+        + "and c.publishable = true " + "and a.publishable = true "
+        + "and key(aid) = :terminology " + "and key(cid) = :terminology "
+        + "and value(cid) != c.terminologyId";
     query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
@@ -402,17 +432,22 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
       sb.append(aui).append("|"); // 0 AUI1
       sb.append(lastReleaseCui).append("|"); // 1 CUI1 last release cui
       sb.append(getProcess().getVersion()).append("|"); // 2 VER
-      sb.append("|"); // 3 REL  
-      sb.append("|");// 4 RELA  
-      sb.append("move").append("|"); // 5 MAPREASON 
-      sb.append(aui).append("|"); // 6 AUI2  same as aui1
-      sb.append(cui).append("|"); // 7 CUI2  current cui
+      sb.append("|"); // 3 REL
+      sb.append("|");// 4 RELA
+      sb.append("move").append("|"); // 5 MAPREASON
+      sb.append(aui).append("|"); // 6 AUI2 same as aui1
+      sb.append(cui).append("|"); // 7 CUI2 current cui
       sb.append("Y").append("|"); // 8 MAPIN always Y
       sb.append("\n");
       writerMap.get("MRAUI.RRF").print(sb.toString());
     }
   }
-  
+
+  /**
+   * Open writers.
+   *
+   * @throws Exception the exception
+   */
   private void openWriters() throws Exception {
     dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
@@ -423,13 +458,16 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     writerMap.put("MRCUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCUI.RRF"))));
   }
-  
+
+  /**
+   * Close writers.
+   */
   private void closeWriters() {
     for (PrintWriter writer : writerMap.values()) {
       writer.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   public void reset() throws Exception {
@@ -459,13 +497,13 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
-      checkCancel(); 
+      checkCancel();
       fireProgressEvent(currentProgress,
           "WRITE RRF HISTORY progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
-  
+
   /* see superclass */
   @Override
   public String getDescription() {

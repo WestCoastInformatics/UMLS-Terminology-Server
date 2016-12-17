@@ -189,7 +189,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     // close print writers
     closeWriters();
-    
+
     // TODO:
     // Write AMBIGSUI/LUI
 
@@ -788,7 +788,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
 
         // look up component info relationships where STYPE1=SCUI
-        for (Relationship relationship : findComponentInfoRelationships(
+        for (Relationship<?, ?> relationship : findComponentInfoRelationships(
             scui.getTerminologyId(), scui.getTerminology(), scui.getVersion(),
             scui.getType(), Branch.ROOT, null, true, null).getObjects()) {
           final ComponentInfoRelationship rel =
@@ -888,7 +888,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
 
         // look up component info relationships where STYPE1=CODE
-        for (Relationship relationship : findComponentInfoRelationships(
+        for (Relationship<?, ?> relationship : findComponentInfoRelationships(
             code.getTerminologyId(), code.getTerminology(), code.getVersion(),
             code.getType(), Branch.ROOT, null, true, null).getObjects()) {
           final ComponentInfoRelationship rel =
@@ -989,7 +989,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         }
 
         // look up component info relationships where STYPE1=SDUI
-        for (Relationship relationship : findComponentInfoRelationships(
+        for (Relationship<?, ?> relationship : findComponentInfoRelationships(
             descriptor.getTerminologyId(), descriptor.getTerminology(),
             descriptor.getVersion(), descriptor.getType(), Branch.ROOT, null,
             true, null).getObjects()) {
@@ -1075,17 +1075,15 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     // e.g. C0001175|A2878223|1|A3316611|SNOMEDCT|isa|
     // A3684559.A3886745.A2880798.A3512117.A3082701.A3316611|||
 
-    List<String> lines = new ArrayList<>();
+    final List<String> lines = new ArrayList<>();
 
     for (final Atom atom : c.getAtoms()) {
-      boolean found = false;
 
       int ct = 1;
       for (final AtomTreePosition treepos : handler.getQueryResults(null, null,
           Branch.ROOT, "nodeId:" + atom.getId(), null,
           AtomTreePositionJpa.class, null, new int[1], manager)) {
 
-        found = true;
         String aui = atom.getAlternateTerminologyIds()
             .get(getProject().getTerminology());
         String cxn = new Integer(ct++).toString();

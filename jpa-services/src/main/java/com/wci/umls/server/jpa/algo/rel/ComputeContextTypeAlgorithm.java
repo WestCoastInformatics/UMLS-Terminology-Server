@@ -27,7 +27,7 @@ import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.IdType;
@@ -71,6 +71,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   }
 
   /* see superclass */
+  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     boolean includeSiblings = false;
@@ -232,9 +233,10 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
         ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
         while (results.next()) {
-          final Concept from = (Concept) results.get()[0];
-          final Concept to = (Concept) results.get()[1];
+          final Component from = (Component) results.get()[0];
+          final Component to = (Component) results.get()[1];
           final String addRelType = results.get()[2].toString();
+          @SuppressWarnings("rawtypes")
           Relationship newRel = null;
           if (organizingClassType == IdType.ATOM) {
             newRel = new AtomRelationshipJpa();
@@ -245,7 +247,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           } else if (organizingClassType == IdType.DESCRIPTOR) {
             newRel = new DescriptorRelationshipJpa();
           }
-          newRel.setFrom(from);
+          newRel.setTo(from);
           newRel.setTo(to);
           newRel.setAdditionalRelationshipType(addRelType);
           newRel.setTerminology(term.getTerminology());

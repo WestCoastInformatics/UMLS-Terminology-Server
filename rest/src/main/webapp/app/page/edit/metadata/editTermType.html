@@ -1,6 +1,9 @@
 <div class="modal-header">
-  <h4 ng-show="mode == 'termType'">{{action}} Term Type</h4>
-  <h4 ng-show="mode == 'attributeName'">{{action}} Attribute Name</h4>
+  <h4 style="display:inline"ng-show="mode == 'termType'">{{action}} Term Type</h4>
+  <h4 style="display:inline" ng-show="mode == 'attributeName'">{{action}} Attribute Name</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">

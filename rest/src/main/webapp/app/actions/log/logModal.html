@@ -1,5 +1,8 @@
 <div class="modal-header">
-  <h4>{{type}} Log</h4>
+  <h4 style="display: inline">{{type}} Log</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="close()"></i>
+  </span>
 </div>
 
 <div class="modal-body">
@@ -32,8 +35,8 @@
 <div class="modal-footer">
   <span style="float: left">
     <input placeholder="Search log"
-      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && log && poll != 'true'" type="text"
-      ng-model="filter" ng-model-options="{ debounce: 300 }"
+      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && log && poll != 'true'"
+      type="text" ng-model="filter" ng-model-options="{ debounce: 300 }"
       ng-change="getLog()">
     <button class="btn btn-xs btn-warning" ng-show="filter"
       ng-click="filter = ''; getLog()" title="Click to clear filter text">Clear</button>

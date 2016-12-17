@@ -1,6 +1,8 @@
 <div class="modal-header">
-  <h4>{{action}} {{worklist.name}}</h4>
-
+  <h4 style="display: inline">{{action}} {{worklist.name}}</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">
@@ -14,9 +16,10 @@
       </td>
       <td>
         <input ng-model="hours" type="number" size="3" />
-      </td><tr>
+      </td>
+    <tr>
       <td>
-    
+
         <b>Minutes</b>
       </td>
       <td>
@@ -31,7 +34,6 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary"
-    ng-click="finish()">{{action}}</button>
+  <button class="btn btn-primary" ng-click="finish()">{{action}}</button>
   <button class="btn btn-warning" ng-click="cancel()">Close</button>
 </div>

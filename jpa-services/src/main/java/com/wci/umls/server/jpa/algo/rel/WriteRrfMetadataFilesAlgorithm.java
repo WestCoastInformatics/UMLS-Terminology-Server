@@ -28,7 +28,6 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -85,6 +84,11 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
 
   }
 
+  /**
+   * Write mrrank.
+   *
+   * @throws Exception the exception
+   */
   private void writeMrrank() throws Exception {
     logInfo("  Write MRRANK data");
     final File dir = new File(config.getProperty("source.data.dir") + "/"
@@ -116,6 +120,11 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     out.close();
   }
 
+  /**
+   * Write mrcols mrfiles.
+   *
+   * @throws Exception the exception
+   */
   private void writeMrcolsMrfiles() throws Exception {
     logInfo("  Write MRCOLS/MRFILES data");
     Path source = Paths.get(config.getProperty("source.data.dir") + "/"
@@ -135,6 +144,11 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
   }
 
+  /**
+   * Write mrsab.
+   *
+   * @throws Exception the exception
+   */
   private void writeMrsab() throws Exception {
     logInfo("  Write MRSAB data");
     final File dir = new File(config.getProperty("source.data.dir") + "/"
@@ -203,7 +217,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
             getConcept(results.getObjects().get(0).getId());
         rcui = rootTerminologyConcept.getTerminologyId();
         // TODO VCUIs still not showing up
-        for (Relationship rel : this
+        for (Relationship<?, ?> rel : this
             .findConceptDeepRelationships(
                 rootTerminologyConcept.getTerminologyId(),
                 getProject().getTerminology(), getProject().getVersion(),
@@ -271,6 +285,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     out.close();
   }
 
+  /**
+   * Returns the tfr.
+   *
+   * @param terminology the terminology
+   * @return the tfr
+   */
   private String getTfr(String terminology) {
     String queryStr = "select count(*) " + "from AtomJpa a " + "where "
         + "a.terminology = :terminology and a.publishable = true";
@@ -279,6 +299,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     return query.getSingleResult().toString();
   }
 
+  /**
+   * Returns the cfr.
+   *
+   * @param terminology the terminology
+   * @return the cfr
+   */
   private String getCfr(String terminology) {
     String queryStr = "select count(*) "
         + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology"
@@ -289,12 +315,19 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     return query.getSingleResult().toString();
   }
 
+  /**
+   * Returns the ttyl.
+   *
+   * @param terminology the terminology
+   * @return the ttyl
+   */
   private String getTtyl(String terminology) {
     String queryStr = "select distinct termType "
         + "from AtomJpa a where a.terminology = :terminology"
         + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
+    @SuppressWarnings("unchecked")
     List<String> list = query.getResultList();
     Collections.sort(list);
     StringBuilder sb = new StringBuilder();
@@ -307,12 +340,19 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     return "";
   }
 
+  /**
+   * Returns the atnl.
+   *
+   * @param terminology the terminology
+   * @return the atnl
+   */
   private String getAtnl(String terminology) {
     String queryStr = "select distinct name "
         + "from AttributeJpa a where a.terminology = :terminology"
         + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
+    @SuppressWarnings("unchecked")
     List<String> list = query.getResultList();
     Collections.sort(list);
     StringBuilder sb = new StringBuilder();
@@ -527,12 +567,13 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
-
+    // n/a
   }
 
+  /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-
+    // n/a
   }
 
   /**
