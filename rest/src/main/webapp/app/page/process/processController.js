@@ -157,7 +157,8 @@ tsApp
         }
 
         // Select a process
-        $scope.selectProcess = function(process, noprogress) {
+        $scope.selectProcess = function(process, processProgress, algorithmProgress) {
+          console.debug('selectProcess executed.  processProgres: ' + processProgress + ', algorithProgress: ' + algorithmProgress);
           // Read the process
           processService['getProcess' + $scope.selected.mode]($scope.selected.project.id,
             process.id).then(
@@ -171,13 +172,17 @@ tsApp
                 $scope.selected.lastAlgorithm = null;
               }
               // Start polling for this one
-              if (!noprogress && $scope.selected.mode == 'Execution') {
-                $timeout(function() {
-                  $scope.refreshProcessProgress();
-                }, 1000);
-                $timeout(function() {
-                  $scope.refreshStepProgress();
-                }, 1000);
+              if ($scope.selected.mode == 'Execution') {
+                if (processProgress) {
+                  $timeout(function() {
+                    $scope.refreshProcessProgress();
+                  }, 1000);
+                }
+                if (algorithmProgress) {
+                  $timeout(function() {
+                    $scope.refreshStepProgress();
+                  }, 1000);
+                }
               }
 
               for (var i = 0; i < $scope.lists.processes.length; i++) {
@@ -237,7 +242,7 @@ tsApp
             $timeout(function() {
               $scope.selectProcess({
                 id : data
-              });
+              }, true, true);
               gpService.decrement();
             }, 1000);
           });
@@ -257,7 +262,7 @@ tsApp
               // with no progress start
               if (data == '100' || data == '-1') {
                 if ($scope.selected.process) {
-                  $scope.selectProcess($scope.selected.process, true);
+                  $scope.selectProcess($scope.selected.process, false, false);
                 }
               } else {
                 // don't refresh if process is stopped
@@ -296,7 +301,7 @@ tsApp
             // stop interval if step is not running or progress has finished
             if (data == '100' || data == '-1') {
               if (!$scope.selected.process.finishDate && !$scope.selected.process.stopDate) {
-                $scope.selectProcess($scope.selected.process, data == '-1');
+                $scope.selectProcess($scope.selected.process, false, data != '-1');
               }
             } else {
               // Reselect the process to refresh everything and restart
@@ -357,15 +362,16 @@ tsApp
               } else {
                 retAlgorithm.enabled = true;
               }
-              
-              processService.updateAlgorithmConfig($scope.selected.project.id, $scope.selected.process.id, retAlgorithm).then(
-                // Success
-                function(data) {
-                  $scope.selectProcess($scope.selected.process);
-                });
+
+              processService.updateAlgorithmConfig($scope.selected.project.id,
+                $scope.selected.process.id, retAlgorithm).then(
+              // Success
+              function(data) {
+                $scope.selectProcess($scope.selected.process);
+              });
             });
-        }       
-        
+        }
+
         // Remove an algorithm config
         $scope.removeAlgorithmConfig = function(algorithmId) {
           processService.removeAlgorithmConfig($scope.selected.project.id, algorithmId).then(
@@ -399,7 +405,7 @@ tsApp
             $timeout(function() {
               $scope.selectProcess({
                 id : processId
-              });
+              }, true, true);
               gpService.decrement();
             }, 750);
 
@@ -415,7 +421,7 @@ tsApp
             $timeout(function() {
               $scope.selectProcess({
                 id : processId
-              });
+              }, true, true);
               gpService.decrement();
             }, 750);
 
@@ -610,7 +616,7 @@ tsApp
             }
           });
         };
-        
+
         // Add new process
         $scope.openAddProcessModal = function() {
 

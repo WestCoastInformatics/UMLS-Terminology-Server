@@ -85,6 +85,9 @@ import io.swagger.annotations.SwaggerDefinition;
 public class ProcessServiceRestImpl extends RootServiceRestImpl
     implements ProcessServiceRest {
 
+  /** The lock. */
+  private static String lock = "LOCK";
+
   /** The security service. */
   private SecurityService securityService;
 
@@ -556,8 +559,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       processService.setLastModifiedBy(userName);
 
       // Load processExecution object
-      final ProcessExecution processExecution =
-          processService.getProcessExecution(id);
+      ProcessExecution processExecution = null;
+      synchronized (lock) {
+        processExecution = processService.getProcessExecution(id);
+      }
 
       if (processExecution == null) {
         return processExecution;
@@ -1766,8 +1771,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               authToken, "finding process progress", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      final ProcessExecution processExecution =
-          processService.getProcessExecution(id);
+      ProcessExecution processExecution = null;
+      synchronized (lock) {
+        processExecution = processService.getProcessExecution(id);
+      }
       if (processExecution == null) {
         return -1;
       }
@@ -1976,11 +1983,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithmExecution.setActivityId(UUID.randomUUID().toString());
               algorithmExecution.setStartDate(new Date());
 
-              algorithmExecution =
-                  processService.addAlgorithmExecution(algorithmExecution);
-              // Add the execution to the process
-              processExecution.getSteps().add(algorithmExecution);
-              processService.updateProcessExecution(processExecution);
+              synchronized (lock) {
+                algorithmExecution =
+                    processService.addAlgorithmExecution(algorithmExecution);
+                // Add the execution to the process
+                processExecution.getSteps().add(algorithmExecution);
+                processService.updateProcessExecution(processExecution);
+              }
             }
 
             // Create and configure the algorithm
@@ -2122,8 +2131,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               ConfigUtility.sendEmail(
                   "[Terminology Server] Run Complete for Process: "
                       + processExecution.getName(),
-                  from, recipients,
-                  processService.getProcessLog(projectId, processExecutionId, null),
+                  from, recipients, processService.getProcessLog(projectId,
+                      processExecutionId, null),
                   config);
             }
           }
@@ -2182,8 +2191,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   "[Terminology Server] Process Run Failed for Process: "
                       + processExecution.getName() + " at Algorithm step: "
                       + algorithmExecution.getName(),
-                  from, recipients,
-                  processService.getProcessLog(projectId, processExecutionId, null),
+                  from, recipients, processService.getProcessLog(projectId,
+                      processExecutionId, null),
                   config);
             } catch (Exception e2) {
               e2.printStackTrace();
@@ -2230,9 +2239,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /" + processExecutionId
-            + "/log?projectId=" + projectId + ", " + query + " for user " + authToken);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Process): /" + processExecutionId + "/log?projectId="
+            + projectId + ", " + query + " for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2268,7 +2277,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Process): /algo/" + algorithmExecutionId
-            + "/log?projectId=" + projectId + ", " + query + " for user " + authToken);
+            + "/log?projectId=" + projectId + ", " + query + " for user "
+            + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2281,7 +2291,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           "getting the algorithm execution log entries", UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getAlgorithmLog(projectId, algorithmExecutionId, query);
+      return processService.getAlgorithmLog(projectId, algorithmExecutionId,
+          query);
 
     } catch (Exception e) {
       handleException(e, "trying to get the algorithm execution log entries");
