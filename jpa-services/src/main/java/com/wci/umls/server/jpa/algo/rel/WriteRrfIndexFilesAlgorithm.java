@@ -41,13 +41,13 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
 
   /** The steps completed. */
   private int stepsCompleted;
-  
+
   /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
-  
+
   /** The dir. */
   private File dir = null;
-  
+
   /**
    * Instantiates an empty {@link WriteRrfIndexFilesAlgorithm}.
    *
@@ -69,7 +69,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting Write RRF Indexes");
-    
+
     openWriters();
 
     previousProgress = 0;
@@ -82,8 +82,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     query.setParameter("terminology", getProject().getTerminology());
     steps = Integer.parseInt(query.getSingleResult().toString());
 
-    NormalizedStringHandler handler =
-        getNormalizedStringHandler();
+    NormalizedStringHandler handler = getNormalizedStringHandler();
 
     // process one concept at a time
     final Session session = manager.unwrap(Session.class);
@@ -99,10 +98,10 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
       // caching to support only unique rows in output
       HashSet<String> seen = new HashSet<>();
       HashSet<String> wordsSeen = new HashSet<>();
-      
+
       for (final Atom atom : c.getAtoms()) {
         if (atom.isPublishable()) {
-         
+
           // MRXNS_ENG.RRF
 
           // 0 LAT Abbreviation of language of the string (always ENG in this
@@ -131,7 +130,8 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             // MRXNW_ENG.RRF
             for (final String word : FieldedStringTokenizer
                 .split(normalizedString, ConfigUtility.PUNCTUATION)) {
-              if (!wordsSeen.contains("MRXNW" + word + atom.getStringClassId())) {
+              if (!wordsSeen
+                  .contains("MRXNW" + word + atom.getStringClassId())) {
                 sb = new StringBuilder();
                 sb.append("ENG").append("|"); // 0 LAT
                 sb.append(word).append("|"); // 1 WORD
@@ -149,7 +149,8 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
             // for all languages write MRXW_<language>.RRF
             for (final String word : FieldedStringTokenizer
                 .split(atom.getName(), ConfigUtility.PUNCTUATION)) {
-              if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word + atom.getStringClassId())) {
+              if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word
+                  + atom.getStringClassId())) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(atom.getLanguage()).append("|"); // 0 LAT
                 sb.append(word).append("|"); // 1 WORD
@@ -159,7 +160,8 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
                 sb.append("\n");
                 writerMap.get("MRXW_" + atom.getLanguage() + ".RRF")
                     .write(sb.toString());
-                wordsSeen.add("MRXW_" + atom.getLanguage() + word + atom.getStringClassId());
+                wordsSeen.add("MRXW_" + atom.getLanguage() + word
+                    + atom.getStringClassId());
               }
             }
             seen.add("MRXW" + atom.getStringClassId());
@@ -193,6 +195,11 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     // n/a
   }
 
+  /**
+   * Open writers.
+   *
+   * @throws Exception the exception
+   */
   private void openWriters() throws Exception {
     dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
@@ -203,37 +210,44 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
 
     writerMap.put("MRXNW_ENG.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRXNW_ENG.RRF"))));
-    for (Language lat : getLanguages(getProject().getTerminology(), getProject().getVersion()).getObjects()) {
+    for (Language lat : getLanguages(getProject().getTerminology(),
+        getProject().getVersion()).getObjects()) {
       writerMap.put("MRXW_" + lat.getAbbreviation() + ".RRF",
-          new PrintWriter(new FileWriter(new File(dir, "MRXW_" + lat.getAbbreviation() + ".RRF"))));
+          new PrintWriter(new FileWriter(
+              new File(dir, "MRXW_" + lat.getAbbreviation() + ".RRF"))));
     }
   }
-  
+
+  /**
+   * Close writers.
+   *
+   * @throws Exception the exception
+   */
   private void closeWriters() throws Exception {
     // close writers
     for (PrintWriter writer : writerMap.values()) {
       writer.close();
     }
-    
+
     // sort files
     for (String writerName : writerMap.keySet()) {
       File inputFile = new File(dir, writerName);
       File outputFile = new File(dir, writerName + ".sorted");
-      FileSorter.sortFile(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), 
-          ConfigUtility.getByteComparator());
+      FileSorter.sortFile(inputFile.getAbsolutePath(),
+          outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
     }
-    
+
     // move sorted files into orig files
     for (String writerName : writerMap.keySet()) {
 
       File inputFile = new File(dir, writerName);
       File outputFile = new File(dir, writerName + ".sorted");
       inputFile.delete();
-      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile() );
+      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
     }
 
   }
-  
+
   /**
    * Update progress.
    *
@@ -243,13 +257,13 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     stepsCompleted++;
     int currentProgress = (int) ((100.0 * stepsCompleted / steps));
     if (currentProgress > previousProgress) {
-      checkCancel(); 
+      checkCancel();
       fireProgressEvent(currentProgress,
           "WRITE RRF INDEXES progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
-  
+
   /* see superclass */
   @Override
   public String getDescription() {

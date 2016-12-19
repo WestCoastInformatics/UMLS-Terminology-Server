@@ -367,18 +367,20 @@ public interface ProcessServiceRest {
    *
    * @param projectId the project id
    * @param processId the process id
+   * @param query the query
    * @param authToken the auth token
    * @return the process log
    * @throws Exception the exception
    */
-  public String getProcessLog(Long projectId, Long processId, String query, String authToken)
-    throws Exception;
+  public String getProcessLog(Long projectId, Long processId, String query,
+    String authToken) throws Exception;
 
   /**
    * Returns the algorithm log.
    *
    * @param projectId the project id
    * @param algorithmId the algorithm id
+   * @param query the query
    * @param authToken the auth token
    * @return the algorithm log
    * @throws Exception the exception

@@ -251,7 +251,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     validCategories.add("chem");
     project1.setValidCategories(validCategories);
 
-    Map<String, String> semanticTypeCategoryMap = getSemanticTypeCategoryMap(authToken);
+    Map<String, String> semanticTypeCategoryMap =
+        getSemanticTypeCategoryMap(authToken);
     project1.setSemanticTypeCategoryMap(semanticTypeCategoryMap);
 
     final List<String> validationChecks = new ArrayList<>();
@@ -423,17 +424,21 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     for (int i = 0; i < id1s.length; i++) {
 
       contentService = new ContentServiceRestImpl();
-      final Concept fromConcept = contentService.getConcept(id1s[i], projectId, authToken);
+      final Concept fromConcept =
+          contentService.getConcept(id1s[i], projectId, authToken);
       final Atom from = fromConcept.getAtoms().get(0);
       contentService = new ContentServiceRestImpl();
       final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
           .getAtoms().iterator().next();
 
-      final MetaEditingServiceRest metaEditingService = new MetaEditingServiceRestImpl();
+      final MetaEditingServiceRest metaEditingService =
+          new MetaEditingServiceRestImpl();
       final AtomRelationshipJpa demotion = new AtomRelationshipJpa();
       demotion.setFrom(from);
       demotion.setTo(to);
-      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS", fromConcept.getLastModified().getTime(), id2s[i], demotion, false, authToken);
+      metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS",
+          fromConcept.getLastModified().getTime(), id2s[i], demotion, false,
+          authToken);
     }
 
     // Status N NCIt concepts (and atoms)
@@ -972,10 +977,12 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
   /**
    * Returns the semantic type category map.
    *
+   * @param authToken the auth token
    * @return the semantic type category map
    * @throws Exception the exception
    */
-  private Map<String, String> getSemanticTypeCategoryMap(String authToken) throws Exception {
+  private Map<String, String> getSemanticTypeCategoryMap(String authToken)
+    throws Exception {
     final Map<String, String> map = new HashMap<>();
     final MetadataServiceRest service = new MetadataServiceRestImpl();
     try {

@@ -1,5 +1,9 @@
 <div class="modal-header">
-  <h4>Edit {{terminology.terminology}} {{terminology.version}}</h4>
+  <h4 style="display: inline">Edit {{terminology.terminology}}
+    {{terminology.version}}</h4>
+  <span style="float: right">
+    <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">
@@ -65,7 +69,7 @@
             <table ng-show="tab == 'Raw'" class="slim table">
               <tr>
                 <td>
-                <br/>
+                  <br />
                   <textarea ng-model="terminology.citation.unstructuredValue"
                     rows="10" style="width: 100%"></textarea>
                 </td>

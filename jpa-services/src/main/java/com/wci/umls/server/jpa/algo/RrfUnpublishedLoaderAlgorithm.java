@@ -24,10 +24,11 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptNoteJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
+import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
 
 /**
@@ -67,10 +68,6 @@ public class RrfUnpublishedLoaderAlgorithm
 
     logInfo("Done ...");
 
-    // clear and commit
-    commit();
-    clear();
-
     // Final logging messages
     Logger.getLogger(getClass())
         .info("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
@@ -84,7 +81,6 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadDeletedConceptNames() throws Exception {
-    logInfo("  Load deleted concept names");
 
     // TODO: make fault tolerant if data doesn't exist so it works for mini
     // ==> deletedCuiNames.txt <==
@@ -101,46 +97,42 @@ public class RrfUnpublishedLoaderAlgorithm
 
     // For each concept in the file, find the CUI, expect it to be
     // unpublished, and set the name and save
-    final ContentService service = new ContentServiceJpa();
-    try {
-      service.setLastModifiedBy("admin");
-      service.setTransactionPerOperation(false);
-      service.beginTransaction();
-      service.setMolecularActionFlag(false);
+    logInfo("  Load deleted concept names");
+    setLastModifiedBy("admin");
+    setTransactionPerOperation(false);
+    beginTransaction();
+    setMolecularActionFlag(false);
 
-      final List<String> lines =
-          Files.readLines(new File(getInputPath(), "deletedCuiNames.txt"),
-              Charset.forName("UTF-8"));
+    final List<String> lines =
+        Files.readLines(new File(getInputPath(), "deletedCuiNames.txt"),
+            Charset.forName("UTF-8"));
 
-      int ct = 0;
-      for (final String line : lines) {
-        final String[] tokens = FieldedStringTokenizer.split(line, "|");
-        final String cui = tokens[0];
-        final String name = tokens[1];
-        final Concept concept = service.getConcept(cui, getTerminology(),
-            getVersion(), Branch.ROOT);
-        // Skip concepts
-        if (concept == null) {
-          logInfo("    skip nonexistent = " + cui);
-          continue;
-        }
-        // Skip publishable concepts
-        if (concept.isPublishable()) {
-          logInfo("    skip unpublishable = " + cui);
-          continue;
-        }
-
-        concept.setName(name);
-        service.updateConcept(concept);
-        service.logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    int ct = 0;
+    for (final String line : lines) {
+      final String[] tokens = FieldedStringTokenizer.split(line, "|");
+      final String cui = tokens[0];
+      final String name = tokens[1];
+      final Concept concept =
+          getConcept(cui, getTerminology(), getVersion(), Branch.ROOT);
+      // Skip concepts
+      if (concept == null) {
+        logInfo("    skip nonexistent = " + cui);
+        continue;
       }
-      commit();
+      // Skip publishable concepts
+      if (concept.isPublishable()) {
+        logInfo("    skip unpublishable = " + cui);
+        continue;
+      }
 
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      service.close();
+      concept.setName(name);
+      updateConcept(concept);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
+    commit();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
+
   }
 
   /**
@@ -164,7 +156,7 @@ public class RrfUnpublishedLoaderAlgorithm
     // will be fixed in NCIt. MNC 4/20/11|E-MNC|20-APR-11
 
     // For each line in the file, create a concept note if the CUI exists
-
+    logInfo("  Load concept notes");
     setLastModifiedBy("admin");
     setTransactionPerOperation(false);
     beginTransaction();
@@ -208,6 +200,8 @@ public class RrfUnpublishedLoaderAlgorithm
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commit();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
 
   }
 
@@ -222,7 +216,7 @@ public class RrfUnpublishedLoaderAlgorithm
     // A1996431|<>Long_Attribute<>:63319088|E-GSC|18-DEC-13
 
     // For each line in the file, create a concept note if the CUI exists
-
+    logInfo("  Load atom notes");
     setLastModifiedBy("admin");
     setTransactionPerOperation(false);
     beginTransaction();
@@ -246,6 +240,7 @@ public class RrfUnpublishedLoaderAlgorithm
       final Long id = (Long) results.get()[1];
       map.put(aui, id);
     }
+    results.close();
 
     int ct = 0;
     final FastDateFormat df = FastDateFormat.getInstance("yyyy-MM-dd");
@@ -281,6 +276,8 @@ public class RrfUnpublishedLoaderAlgorithm
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commit();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
 
   }
 
@@ -300,6 +297,7 @@ public class RrfUnpublishedLoaderAlgorithm
     // MGV_SCUI|N|SOURCE|NCI_2016_10E
     // MGV_SCUI|N|SOURCE|NCI_2016_11D
     // MGV_SCUI|N|SOURCE|NCI_2016_10E
+    // n/a - this is already handled by GenerateNciMetaDataMojo
 
   }
 
@@ -321,6 +319,57 @@ public class RrfUnpublishedLoaderAlgorithm
     // 380470158|A3177443
     // 380933951|A14753603
     // 254716564|A14843410
+
+    // For each line in the file, create a concept note if the CUI exists
+    logInfo("  Load src atom ids");
+    setLastModifiedBy("admin");
+    setTransactionPerOperation(false);
+    beginTransaction();
+    setMolecularActionFlag(false);
+
+    final List<String> lines = Files.readLines(
+        new File(getInputPath(), "srcAtomIds.txt"), Charset.forName("UTF-8"));
+
+    final Session session = manager.unwrap(Session.class);
+    final org.hibernate.Query hQuery =
+        session.createSQLQuery("select b.alternateTerminologyIds, a.id "
+            + "from atoms a, AtomJpa_alternateTerminologyIds b "
+            + "where b.AtomJpa_id = a.id "
+            + "  and b.alternateTerminologyIds_KEY = :terminology ");
+    hQuery.setParameter("terminology", getTerminology());
+    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
+    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    final Map<String, Long> map = new HashMap<>();
+    while (results.next()) {
+      final String aui = (String) results.get()[0];
+      final Long id = (Long) results.get()[1];
+      map.put(aui, id);
+    }
+    results.close();
+
+    int ct = 0;
+    for (final String line : lines) {
+      final String[] tokens = FieldedStringTokenizer.split(line, "|");
+      final String src = tokens[0];
+      final String aui = tokens[1];
+
+      final Atom atom = getAtom(map.get(aui));
+      // Skip concepts
+      if (atom == null) {
+        logInfo("    skip nonexistent = " + aui);
+        continue;
+      }
+
+      // Set the SRC atom id
+      atom.getAlternateTerminologyIds().put(getTerminology() + "-SRC", src);
+      updateAtom(atom);
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commit();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
+
   }
 
   /**
@@ -341,6 +390,74 @@ public class RrfUnpublishedLoaderAlgorithm
     // C1948049|C1269647|E-CFC
     // C1413700|C2986600|E-MNC
     // C1423936|C1435016|E-GSC
+
+    // For each concept in the file, find the CUI, expect it to be
+    // unpublished, and set the name and save
+    logInfo("  Load XR relationships");
+    setLastModifiedBy("admin");
+    setTransactionPerOperation(false);
+    beginTransaction();
+    setMolecularActionFlag(false);
+    setLastModifiedFlag(false);
+
+    final List<String> lines =
+        Files.readLines(new File(getInputPath(), "xrRelationships.txt"),
+            Charset.forName("UTF-8"));
+
+    int ct = 0;
+    for (final String line : lines) {
+      final String[] tokens = FieldedStringTokenizer.split(line, "|");
+      final String cui1 = tokens[0];
+      final String cui2 = tokens[1];
+      final String lastModifiedBy = tokens[2];
+      final Concept concept =
+          getConcept(cui1, getTerminology(), getVersion(), Branch.ROOT);
+      // Skip concepts
+      if (concept == null) {
+        logInfo("    skip nonexistent = " + cui1);
+        continue;
+      }
+      // Skip publishable concepts
+      if (concept.isPublishable()) {
+        logInfo("    skip unpublishable = " + cui1);
+        continue;
+      }
+      final Concept concept2 =
+          getConcept(cui2, getTerminology(), getVersion(), Branch.ROOT);
+      // Skip concepts
+      if (concept2 == null) {
+        logInfo("    skip nonexistent = " + cui2);
+        continue;
+      }
+      // Skip publishable concepts
+      if (concept2.isPublishable()) {
+        logInfo("    skip unpublishable = " + cui2);
+        continue;
+      }
+
+      final ConceptRelationship xr = new ConceptRelationshipJpa();
+      xr.setAdditionalRelationshipType("");
+      xr.setAssertedDirection(false);
+      xr.setFrom(concept);
+      xr.setLastModifiedBy(lastModifiedBy);
+      xr.setLastModified(new Date());
+      xr.setObsolete(false);
+      xr.setPublishable(false);
+      xr.setPublished(false);
+      xr.setRelationshipType("XR");
+      xr.setStated(true);
+      xr.setInferred(true);
+      xr.setTerminology(getTerminology());
+      xr.setTerminologyId("");
+      xr.setTo(concept2);
+      xr.setVersion(getVersion());
+      xr.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+      addRelationship(xr);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commit();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
   }
 
   /* see superclass */
@@ -360,7 +477,7 @@ public class RrfUnpublishedLoaderAlgorithm
       throw new Exception("Specified input directory does not exist");
     }
 
-    File file;
+    File file = null;
 
     final String[] files = new String[] {
         "deletedCuiNames.txt", "conceptNotes.txt", "atomNotes.txt",
@@ -369,7 +486,7 @@ public class RrfUnpublishedLoaderAlgorithm
     for (final String f : files) {
       // Check file
       file = new File(getInputPath(), f);
-      if (!inputDirFile.exists()) {
+      if (!file.exists()) {
         throw new Exception("Specified " + f + " does not exist");
       }
     }
