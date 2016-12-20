@@ -25,8 +25,11 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
+import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 
@@ -325,7 +328,29 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // n/a - No reset
+
+    // Collect any merges previously performed, and UNDO them
+    final MolecularActionList molecularActions =
+        findMolecularActions(null, getProject().getTerminology(),
+            getProject().getVersion(), "activityId:" + getActivityId(), null);
+
+    for (MolecularAction molecularAction : molecularActions.getObjects()) {
+      // Create and set up an undo action
+      final UndoMolecularAction undoAction = new UndoMolecularAction();
+
+      // Configure and run the undo action
+      undoAction.setProject(getProject());
+      undoAction.setActivityId(molecularAction.getActivityId());
+      undoAction.setConceptId(null);
+      undoAction.setConceptId2(molecularAction.getComponentId2());
+      undoAction.setLastModifiedBy(molecularAction.getLastModifiedBy());
+      undoAction.setTransactionPerOperation(false);
+      undoAction.setMolecularActionFlag(false);
+      undoAction.setChangeStatusFlag(true);
+      undoAction.setMolecularActionId(molecularAction.getId());
+      undoAction.setForce(false);
+      undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false);
+    }
   }
 
   /* see superclass */
