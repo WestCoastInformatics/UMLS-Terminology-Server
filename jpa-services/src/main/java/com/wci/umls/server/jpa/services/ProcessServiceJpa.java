@@ -500,7 +500,6 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     }
     processConfig.getProject().getId();
     for (AlgorithmConfig algo : processConfig.getSteps()) {
-      processConfig.getSteps().size();
       handleLazyInit(algo);
     }
 
@@ -556,8 +555,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query)
-    throws Exception {
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId,
+    String query) throws Exception {
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setAscending(false);
@@ -571,7 +570,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     final List<String> clauses = new ArrayList<>();
     clauses.add("projectId:" + projectId);
     clauses.add(query);
-    
+
     if (!ConfigUtility.isEmpty(activityId)) {
       clauses.add(activityId);
     }
@@ -597,8 +596,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public String getProcessLog(Long projectId, Long processExecutionId, String query)
-    throws Exception {
+  public String getProcessLog(Long projectId, Long processExecutionId,
+    String query) throws Exception {
 
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
@@ -606,7 +605,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     pfs.setSortField("lastModified");
 
     // Load the processExecution, to get the workId
-    ProcessExecution processExecution = getProcessExecution(processExecutionId);
+    ProcessExecution processExecution =
+        getProcessExecution(processExecutionId);
     String workId = processExecution.getWorkId();
 
     final List<String> clauses = new ArrayList<>();
@@ -668,7 +668,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
         + processExecution.getProcessConfigId() + "." + runDate + ".log");
 
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    String processLog = getProcessLog(projectId, processExecution.getId(), null);
+    String processLog =
+        getProcessLog(projectId, processExecution.getId(), null);
     out.print(processLog);
     out.close();
 

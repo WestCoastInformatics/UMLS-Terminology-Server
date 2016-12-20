@@ -79,8 +79,8 @@ public class PreInsertionAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setDescription("TESTTEST");
-    processExecution.setName("TESTTEST");
+    processExecution.setDescription("TEST Description");
+    processExecution.setName("TEST Name");
     processExecution.setProcessConfigId(1L);
     processExecution.setStartDate(new Date());
     processExecution.setType("Insertion");
