@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -87,6 +88,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
 
   /** the properties */
   @ElementCollection
+  @MapKeyColumn(length = 255)
   @Column(length = 4000)
   private Map<String, String> properties = new HashMap<>();
 

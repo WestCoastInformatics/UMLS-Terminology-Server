@@ -43,7 +43,7 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
     </dependency>
-    
+
   </dependencies>
 
   <build>
@@ -132,7 +132,7 @@
                 <include>**/com/wci/umls/server/test/mojo/*Test.java</include>
               </includes>
               <excludes>
-                <exclude>**/com/wci/umls/server/test/mojo/Reset*Test.java
+                <exclude>**/com/wci/umls/server/test/mojo/Reset*.java
                 </exclude>
               </excludes>
               <additionalClasspathElements>

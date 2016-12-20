@@ -90,8 +90,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<ComponentHistory> componentHistories = null;
 
   /** The concept terminology id map. */
-  @ElementCollection()
-  // consider this: @Fetch(sFetchMode.JOIN)
+  @ElementCollection
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIds;
 
@@ -368,11 +367,11 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   @Fields({
-    @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
-    @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
-    @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
-    @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
-})
+      @Field(name = "name", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord")),
+      @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
+      @Field(name = "edgeNGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteEdgeAnalyzer")),
+      @Field(name = "nGramName", index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "autocompleteNGramAnalyzer"))
+  })
   public String getName() {
     return name;
   }

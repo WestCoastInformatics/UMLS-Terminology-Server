@@ -6,8 +6,11 @@ package com.wci.umls.server.jpa.content;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -40,12 +43,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Column(nullable = false, length = 4000)
   private String description;
 
-  /** The alternate terminology ids. */
-  @ElementCollection()
-  // consider this: @Fetch(FetchMode.JOIN)
-  @Column(nullable = true)
-  private Map<String, String> alternateTerminologyIds;
-
   /** The branched to. */
   @Column(nullable = true)
   private String branchedTo;
@@ -68,8 +65,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
     name = subset.getName();
     description = subset.getDescription();
     branchedTo = subset.getBranchedTo();
-    alternateTerminologyIds =
-        new HashMap<>(subset.getAlternateTerminologyIds());
   }
 
   /* see superclass */
@@ -106,24 +101,6 @@ public abstract class AbstractSubset extends AbstractComponentHasAttributes
   @Override
   public void setBranchedTo(String branchedTo) {
     this.branchedTo = branchedTo;
-  }
-
-  /* see superclass */
-  @Override
-  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
-  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-  public Map<String, String> getAlternateTerminologyIds() {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    return alternateTerminologyIds;
-  }
-
-  /* see superclass */
-  @Override
-  public void setAlternateTerminologyIds(
-    Map<String, String> alternateTerminologyIds) {
-    this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
   /* see superclass */
