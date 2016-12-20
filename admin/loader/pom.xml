@@ -78,6 +78,36 @@
       </build>
     </profile>
 
+    <!-- Load multiple RRF terminologies, but no Metathesaurus, specify -Drun.config.umls=... 
+      -Dterminology=... -->
+    <profile>
+      <id>RRF-multi</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rrf-multi</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rrf-multi</goal>
+                </goals>
+                <configuration>
+                  <prefix>${prefix}</prefix>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Load Simple, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>Simple</id>

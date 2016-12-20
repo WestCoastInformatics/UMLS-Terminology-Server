@@ -22,23 +22,10 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for sample usage
  */
-@Mojo(name = "load-rrf-umls", defaultPhase = LifecyclePhase.PACKAGE)
-public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
+@Mojo(name = "load-rrf-multi", defaultPhase = LifecyclePhase.PACKAGE)
+public class TerminologyRrfMultiLoaderMojo extends AbstractLoaderMojo {
 
   /**
-   * Name of terminology to be loaded.
-   */
-  @Parameter
-  private String terminology;
-
-  /**
-   * The version.
-   */
-  @Parameter
-  private String version;
-
-  /**
-   * The version.
    */
   @Parameter
   private String prefix;
@@ -51,28 +38,23 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Whether to run this mojo against an active server.
+   *
+   * @parameter
    */
-  @Parameter
   private boolean server = false;
 
   /**
-   * Whether to run this in edit mode.
+   * Mode - for recreating db
+   * @parameter
    */
-  @Parameter
-  private boolean editMode = false;
-
-  /**
-   * Mode - for recreating db.
-   */
-  @Parameter
   private String mode = null;
 
   /**
-   * Instantiates a {@link TerminologyRrfUmlsLoaderMojo} from the specified
+   * Instantiates a {@link TerminologyRrfMultiLoaderMojo} from the specified
    * parameters.
    * 
    */
-  public TerminologyRrfUmlsLoaderMojo() {
+  public TerminologyRrfMultiLoaderMojo() {
     // do nothing
   }
 
@@ -81,29 +63,15 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
   public void execute() throws MojoFailureException {
 
     try {
-      getLog().info("RRF UMLS Terminology Loader called via mojo.");
-      getLog().info("  Terminology        : " + terminology);
-      getLog().info("  version: " + version);
+      getLog().info("RRF Multi Terminology Loader called via mojo.");
       getLog().info("  Input directory    : " + inputDir);
-      getLog().info("  Edit Mode          : " + editMode);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      // Rebuild the database
-      if (mode != null && mode.equals("create")) {
-        createDb(ConfigUtility.isServerActive());
-      }
-
-      // authenticate
-      SecurityService service = new SecurityServiceJpa();
-      String authToken =
-          service.authenticate(properties.getProperty("admin.user"),
-              properties.getProperty("admin.password")).getAuthToken();
-      service.close();
-
       boolean serverRunning = ConfigUtility.isServerActive();
+
       getLog()
           .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
@@ -117,13 +85,24 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
             "Mojo expects server to be running, but server is down");
       }
 
+      // Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
+      }
+
+      // authenticate
+      SecurityService service = new SecurityServiceJpa();
+      String authToken =
+          service.authenticate(properties.getProperty("admin.user"),
+              properties.getProperty("admin.password")).getAuthToken();
+      service.close();
+
       if (!serverRunning) {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version,
-            editMode ? RrfLoaderAlgorithm.Style.META_EDIT.toString()
-                : RrfLoaderAlgorithm.Style.META_BROWSE.toString(),
+        contentService.loadTerminologyRrf("", "",
+            RrfLoaderAlgorithm.Style.MULTI.toString(),
             prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
@@ -133,9 +112,8 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
         ContentClientRest client = new ContentClientRest(properties);
 
         // load terminology
-        client.loadTerminologyRrf(terminology, version,
-            editMode ? RrfLoaderAlgorithm.Style.META_EDIT.toString()
-                : RrfLoaderAlgorithm.Style.META_BROWSE.toString(),
+        client.loadTerminologyRrf(null, null,
+            RrfLoaderAlgorithm.Style.MULTI.toString(),
             prefix == null ? "MR" : prefix, inputDir, authToken);
       }
 

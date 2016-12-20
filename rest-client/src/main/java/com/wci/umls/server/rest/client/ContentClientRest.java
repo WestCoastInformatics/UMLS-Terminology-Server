@@ -112,8 +112,8 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean editMode, Boolean codeFlag, String prefix,
-    String inputDir, String authToken) throws Exception {
+    String style, String prefix, String inputDir, String authToken)
+    throws Exception {
     Logger.getLogger(getClass()).debug("Content Client - load terminology rrf "
         + terminology + ", " + version + ", " + inputDir);
 
@@ -125,9 +125,7 @@ public class ContentClientRest extends RootClientRest
     final WebTarget target = client.target(
         config.getProperty("base.url") + "/terminology/load/rrf?terminology="
             + terminology + "&version=" + version + "&prefix=" + prefix
-            + "&singleMode=" + (singleMode == null ? false : singleMode)
-            + "&editMode=" + (editMode == null ? false : editMode)
-            + (codeFlag == null ? "" : "&codeFlag=" + codeFlag));
+            + "&style=" + (style == null ? false : style));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).put(Entity.text(inputDir));

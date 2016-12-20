@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -114,8 +115,9 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, true, false,
-            true, prefix == null ? "MR" : prefix, inputDir, authToken);
+        contentService.loadTerminologyRrf(terminology, version,
+            RrfLoaderAlgorithm.Style.SINGLE.toString(),
+            prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
         getLog().info("Running against server");
@@ -124,8 +126,9 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
         ContentClientRest client = new ContentClientRest(properties);
 
         // load terminology
-        client.loadTerminologyRrf(terminology, version, true, false, true,
-            inputDir, prefix == null ? "MR" : prefix, authToken);
+        client.loadTerminologyRrf(terminology, version,
+            RrfLoaderAlgorithm.Style.SINGLE.toString(),
+            prefix == null ? "MR" : prefix, inputDir, authToken);
       }
 
     } catch (Exception e) {

@@ -490,9 +490,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
    *
    * @param terminology the terminology
    * @param version the version
-   * @param singleMode the single mode
-   * @param editMode the edit mode
-   * @param codeFlag the code flag
+   * @param style the load style
    * @param prefix the prefix
    * @param inputDir the input dir
    * @param authToken the auth token
@@ -507,9 +505,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Single mode, e.g. false", required = true) @QueryParam("singleMode") Boolean singleMode,
-    @ApiParam(value = "Edit mode, e.g. false", required = true) @QueryParam("editMode") Boolean editMode,
-    @ApiParam(value = "Code flag, e.g. false", required = true) @QueryParam("codeFlag") Boolean codeFlag,
+    @ApiParam(value = "Style, e.g. SINGLE", required = true) @QueryParam("style") String style,
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -531,9 +527,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       algo = new RrfLoaderAlgorithm();
       algo.setLastModifiedBy(userName);
-      algo.setSingleMode(singleMode);
-      algo.setEditMode(editMode);
-      algo.setCodesFlag(codeFlag);
+      algo.setStyle(RrfLoaderAlgorithm.Style.valueOf(style));
       algo.setPrefix(prefix);
       algo.setTerminology(terminology);
       algo.setVersion(version);
@@ -578,8 +572,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           // compute "semantic types" for concept hierarchies
           // but only for "concept" oriented terminologies, and only for browser
           // mode
-          if (!editMode && t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo3.setComputeSemanticType(!editMode);
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo3.setComputeSemanticType(
+                !style.equals(RrfLoaderAlgorithm.Style.META_EDIT.toString()));
           }
           algo3.compute();
           algo3.close();
