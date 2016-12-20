@@ -58,9 +58,10 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
   /** The alternate terminology ids. */
   @ElementCollection
-  @CollectionTable(name = "concept_subset_altIds", joinColumns = @JoinColumn(name = "altIds", referencedColumnName = "terminologyId"))
-  @MapKeyColumn(name = "terminology", length = 100)
-  @Column(nullable = true, length = 100)
+  // @CollectionTable(name = "concept_subset_altIds", joinColumns =
+  // @JoinColumn(name = "altIds", referencedColumnName = "terminologyId"))
+  // @MapKeyColumn(name = "terminology", length = 100)
+  // @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
   /**

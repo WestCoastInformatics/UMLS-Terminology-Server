@@ -78,7 +78,8 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       atom.getName();
       atom.getConceptTerminologyIds().keySet();
       atom.getAlternateTerminologyIds().keySet();
-
+      atom.getNotes().size();
+      
       // Attributes
       resolveAttributes(atom, nullId);
 
