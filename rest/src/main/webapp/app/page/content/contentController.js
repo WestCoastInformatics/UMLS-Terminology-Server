@@ -578,9 +578,9 @@ tsApp
         $scope.openAddAtomModal = function(latom) {
 
           var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/atoms/editAtom.html',
+            templateUrl : 'app/page/content/editAtom.html',
             backdrop : 'static',
-            controller : 'AtomModalCtrl',
+            controller : 'SimpleAtomModalCtrl',
             resolve : {
               atom : function() {
                 return null;

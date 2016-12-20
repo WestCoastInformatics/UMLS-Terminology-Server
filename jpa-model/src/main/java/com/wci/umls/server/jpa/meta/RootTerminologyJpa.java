@@ -85,7 +85,6 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
-
   /**
    * Instantiates an empty {@link RootTerminologyJpa}.
    */

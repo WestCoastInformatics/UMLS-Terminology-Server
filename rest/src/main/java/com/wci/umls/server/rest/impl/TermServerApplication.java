@@ -50,6 +50,7 @@ public class TermServerApplication extends ResourceConfig {
     // register REST implementations
     register(SecurityServiceRestImpl.class);
     register(ContentServiceRestImpl.class);
+    register(SimpleEditServiceRestImpl.class);
     register(HistoryServiceRestImpl.class);
     register(MetadataServiceRestImpl.class);
     register(ProjectServiceRestImpl.class);

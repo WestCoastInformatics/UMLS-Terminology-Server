@@ -32,7 +32,7 @@
           </div>
           <div style="display: table-cell; padding: 1px;" class="w100">
             <span style="float: right; margin-right: 25px"
-              ng-show="isNewAtomTermgroup(item)">
+              ng-show="appConfig['deploy.simpleedit.enabled'] == 'true' && isNewAtomTermgroup(item)">
               <i ng-click="openEditAtomModal(item);" title="Edit"
                 class="noul glyphicon glyphicon-pencil"></i>
 

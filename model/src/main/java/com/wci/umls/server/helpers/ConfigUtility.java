@@ -292,7 +292,7 @@ public class ConfigUtility {
         }
       }
 
-      Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+      Logger.getLogger(ConfigUtility.class).debug("  properties = " + config);
     }
     return config;
   }
@@ -407,8 +407,10 @@ public class ConfigUtility {
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
         String shortKey = key.toString()
             .substring((property + "." + handlerName + ".").length());
-        Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
-            + " = " + config.getProperty(key.toString()));
+        if (!property.contains("password")) {
+          Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
+              + " = " + config.getProperty(key.toString()));
+        }
         handlerProperties.put(shortKey, config.getProperty(key.toString()));
       }
     }

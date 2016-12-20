@@ -1,16 +1,15 @@
-// Atom modal controller
-tsApp.controller('AtomModalCtrl', [
+// Simple atom modal controller
+tsApp.controller('SimpleAtomModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
-  'metaEditingService',
+  'editService',
   'atom',
   'action',
   'selected',
   'lists',
-  function($scope, $uibModalInstance, utilService, metaEditingService, atom, action, selected,
-    lists) {
-    console.debug('Entered atom modal control', atom, action, lists);
+  function($scope, $uibModalInstance, utilService, editService, atom, action, selected, lists) {
+    console.debug('Entered simple atom modal control', atom, action, selected, lists);
 
     // Scope vars
     $scope.selected = selected;
@@ -32,9 +31,17 @@ tsApp.controller('AtomModalCtrl', [
         };
         $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
       }
-
     }
 
+    // Initialize languages
+    if ($scope.selected.metadata.languages.length == 0) {
+      $scope.selected.metadata.languages = [ {
+        key : "ENG",
+        value : "English"
+      } ];
+    }
+
+    // Get terminology object for a terminology value
     $scope.getTerminology = function(terminology) {
       for (var i = 0; i < $scope.lists.terminologies.length; i++) {
         if ($scope.lists.terminologies[i].terminology == terminology) {
@@ -42,13 +49,13 @@ tsApp.controller('AtomModalCtrl', [
         }
       }
     }
+
     // Perform add or edit/update
     $scope.submitAtom = function(atom) {
       $scope.errors = [];
       if ($scope.action == 'Add') {
-        if (!atom || !atom.name || !$scope.selectedTermgroup
-          || (!atom.codeId && !atom.conceptId && !atom.descriptorId)) {
-          $scope.errors.push('Name, termgroup and at least one id must be entered for new atom.');
+        if (!atom || !atom.name || !$scope.selectedTermgroup) {
+          $scope.errors.push('Name and  termgroup must be selected.');
           return;
         }
         atom.terminology = $scope.selectedTermgroup
@@ -65,36 +72,21 @@ tsApp.controller('AtomModalCtrl', [
         if (!atom.workflowStatus)
           atom.workflowStatus = 'NEEDS_REVIEW';
 
-        metaEditingService.addAtom($scope.selected.project.id, $scope.selected.activityId,
-          $scope.selected.component, atom, $scope.overrideWarnings).then(
+        console.debug('xxx', $scope.selected.component.id);
+        editService.addAtom($scope.selected.project.id, $scope.selected.component.id, atom).then(
         // Success
         function(data) {
-          $scope.warnings = data.warnings;
-          $scope.errors = data.errors;
-          if ($scope.warnings.length > 0) {
-            $scope.overrideWarnings = true;
-          }
-          if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
-            $uibModalInstance.close();
-          }
+          $uibModalInstance.close();
         },
         // Error
         function(data) {
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
-        metaEditingService.updateAtom($scope.selected.project.id, $scope.selected.activityId,
-          $scope.selected.component, atom, $scope.overrideWarnings).then(
+        editService.updateAtom($scope.selected.project.id, atom).then(
         // Success
         function(data) {
-          $scope.warnings = data.warnings;
-          $scope.errors = data.errors;
-          if ($scope.warnings.length > 0) {
-            $scope.overrideWarnings = true;
-          }
-          if ($scope.warnings.length == 0 && $scope.errors.length == 0) {
-            $uibModalInstance.close();
-          }
+          $uibModalInstance.close();
         },
         // Error
         function(data) {
