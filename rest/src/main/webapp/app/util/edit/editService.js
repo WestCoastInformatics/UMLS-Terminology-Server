@@ -31,12 +31,12 @@ tsApp.service('editService', [
     }
 
     // update atom
-    this.updateAtom = function(projectId, atom) {
-      console.debug('updateAtom', projectId, atom);
+    this.updateAtom = function(projectId, conceptId, atom) {
+      console.debug('updateAtom', projectId, conceptId, atom);
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/atom?projectId=' + projectId, atom).then(
+      $http.post(editUrl + '/atom?projectId=' + projectId + '&conceptId=' + conceptId, atom).then(
       // success
       function(response) {
         console.debug('  successful update atom');

@@ -14,6 +14,11 @@
         <option value="1000000">All</option>
       </select>
     </span>
+    <!-- Add Synonym - show if showing terminology tab -->
+    <span ng-show="appConfig['deploy.simpleedit.enabled'] == 'true'"
+      style="float: right; transform: scale(.8, .8);"
+      class="btn btn-xs btn-primary" ng-click="openAddAtomModal()">Add
+      Synonym</span>
 
     <span class="alert alert-warning" style="margin-left: 15px"
       ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">

@@ -28,6 +28,7 @@ import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.SimpleEditServiceRest;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -97,8 +98,22 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Invalid concept = " + conceptId);
       }
 
+      // Borrow info from concept
+      atom.setStringClassId("");
+      atom.setLexicalClassId("");
+      atom.setStringClassId("");
+      atom.setStringClassId("");
+      atom.setCodeId("");
+      atom.setDescriptorId("");
+      atom.setConceptId(concept.getTerminologyId());
+      atom.setTerminology(concept.getTerminology());
+      atom.setVersion(concept.getVersion());
       final Atom newAtom = contentService.addAtom(atom);
+
       concept.getAtoms().add(newAtom);
+      if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
       contentService.updateConcept(concept);
 
       // TODO: consider other atom class maintenance.
@@ -106,7 +121,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       contentService.commit();
       return newAtom;
     } catch (Exception e) {
-      handleException(e, "trying to add atom note");
+      handleException(e, "trying to add atom");
     } finally {
       securityService.close();
     }
@@ -121,11 +136,12 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
   @Override
   public void updateAtom(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 43232345", required = true) @QueryParam("conceptId") Long conceptId,
     @ApiParam(value = "Atom to add, as POST data", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Edit): /atom update " + projectId + ", " + atom.getId());
+    Logger.getLogger(getClass()).info("RESTful call (Edit): /atom update "
+        + projectId + ", " + conceptId + ", " + atom.getId());
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -145,9 +161,37 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       if (origAtom == null) {
         throw new Exception("Unexpected missing atom = " + atom.getId());
       }
+      final Concept concept = contentService.getConcept(conceptId);
+      if (concept == null) {
+        throw new LocalException("Invalid concept = " + conceptId);
+      }
+      boolean found = false;
+      for (final Atom a : concept.getAtoms()) {
+        if (a.getId().equals(atom.getId())) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw new LocalException(
+            "Invalid concept/atom combination = " + conceptId + ", " + atom);
+      }
 
-      // for now, allow all changes
+      atom.setStringClassId("");
+      atom.setLexicalClassId("");
+      atom.setStringClassId("");
+      atom.setStringClassId("");
+      atom.setCodeId("");
+      atom.setDescriptorId("");
+      atom.setConceptId(origAtom.getTerminologyId());
+      atom.setTerminology(origAtom.getTerminology());
+      atom.setVersion(origAtom.getVersion());
+
       contentService.updateAtom(atom);
+      // for now, allow all changes
+      if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
+        concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
+      }
 
     } catch (Exception e) {
       handleException(e, "trying to add atom note");

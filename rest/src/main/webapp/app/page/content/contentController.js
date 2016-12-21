@@ -131,6 +131,20 @@ tsApp
             + '/'
             + $scope.selected.metadata.terminology.version + "/autocomplete/";
 
+          // Choose a project
+          for (var i = 0; i < $scope.lists.projects.length; i++) {
+            var p = $scope.lists.projects[i];
+            // Pick the first project if nothing has been selected
+            if (!$scope.selected.project) {
+              $scope.selected.project = p;
+            }              
+            if (p.terminology == terminology) {
+              $scope.selected.project = p;
+            }
+          } 
+          // otherwise, leave project setting as is (last chosen)
+
+          
           // Load all metadata for this terminology, store it in the metadata
           // service and return deferred promise
           var deferred = $q.defer();
@@ -564,45 +578,11 @@ tsApp
           // });
         };
 
-        // remove atom
-        $scope.removeAtom = function(atom) {
-          metaEditingService.removeAtom($scope.selected.project.id, $scope.selected.activityId,
-            $scope.selected.component, atom.id, true);
-        }
+
 
         //
         // MODALS
         //
-
-        // Add atom modal
-        $scope.openAddAtomModal = function(latom) {
-
-          var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/content/editAtom.html',
-            backdrop : 'static',
-            controller : 'SimpleAtomModalCtrl',
-            resolve : {
-              atom : function() {
-                return null;
-              },
-              action : function() {
-                return 'Add';
-              },
-              selected : function() {
-                return $scope.selected;
-              },
-              lists : function() {
-                return $scope.lists;
-              }
-            }
-          });
-
-          modalInstance.result.then(
-          // Success
-          function(user) {
-            $scope.getPagedAtoms();
-          });
-        };
 
         // Open notes modal, from either wrapper or component
         $scope.viewNotes = function(wrapper) {

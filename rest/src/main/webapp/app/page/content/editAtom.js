@@ -29,17 +29,19 @@ tsApp.controller('SimpleAtomModalCtrl', [
           publishable : true,
           language : 'ENG'
         };
-        $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
+
       }
     }
 
-    // Initialize languages
-    if ($scope.selected.metadata.languages.length == 0) {
-      $scope.selected.metadata.languages = [ {
-        key : "ENG",
-        value : "English"
-      } ];
-    }
+    // TODO: hopefully not needed anymore
+    // // Initialize languages
+    // if ($scope.selected.metadata.languages.length == 0) {
+    // // TODO:
+    // $scope.selected.metadata.languages = [ {
+    // key : "ENG",
+    // value : "English"
+    // } ];
+    // }
 
     // Get terminology object for a terminology value
     $scope.getTerminology = function(terminology) {
@@ -58,21 +60,16 @@ tsApp.controller('SimpleAtomModalCtrl', [
           $scope.errors.push('Name and  termgroup must be selected.');
           return;
         }
+        // terminology/version will be chosen by the concept
         atom.terminology = $scope.selectedTermgroup
           .substr(0, $scope.selectedTermgroup.indexOf('/'));
         atom.termType = $scope.selectedTermgroup.substr($scope.selectedTermgroup.indexOf('/') + 1);
-        atom.version = $scope.getTerminology(atom.terminology).version;
         atom.terminologyId = '';
-        if (!atom.conceptId)
-          atom.conceptId = '';
-        if (!atom.codeId)
-          atom.codeId = '';
-        if (!atom.descriptorId)
-          atom.descriptorId = '';
-        if (!atom.workflowStatus)
-          atom.workflowStatus = 'NEEDS_REVIEW';
 
-        console.debug('xxx', $scope.selected.component.id);
+        if (!atom.workflowStatus) {
+          atom.workflowStatus = 'NEEDS_REVIEW';
+        }
+
         editService.addAtom($scope.selected.project.id, $scope.selected.component.id, atom).then(
         // Success
         function(data) {
@@ -83,15 +80,16 @@ tsApp.controller('SimpleAtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
-        editService.updateAtom($scope.selected.project.id, atom).then(
-        // Success
-        function(data) {
-          $uibModalInstance.close();
-        },
-        // Error
-        function(data) {
-          utilService.handleDialogError($scope.errors, data);
-        });
+        editService.updateAtom($scope.selected.project.id, $scope.selected.component.id, atom)
+          .then(
+          // Success
+          function(data) {
+            $uibModalInstance.close();
+          },
+          // Error
+          function(data) {
+            utilService.handleDialogError($scope.errors, data);
+          });
       }
     };
 

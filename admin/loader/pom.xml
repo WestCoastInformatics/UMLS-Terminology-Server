@@ -462,6 +462,32 @@
       </build>
     </profile>
 
+    <!-- Generate demo data, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>GenerateDemoData</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>generate-demo-data</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>generate-demo-data</goal>
+                </goals>
+                <configuration>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Run a custom patch function, for updating the DB when things change, -Drefset.config=... -->
     <profile>
       <id>Patch</id>

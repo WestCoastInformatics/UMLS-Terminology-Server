@@ -2498,6 +2498,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
+
           setRelationshipFields(fields, conceptRel);
           addRelationship(conceptRel);
           relationshipMap.put(fields[8], conceptRel.getId());
@@ -2520,6 +2521,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
+
           setRelationshipFields(fields, descriptorRel);
           addRelationship(descriptorRel);
           relationshipMap.put(fields[8], descriptorRel.getId());
@@ -2541,6 +2543,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
           codeRel.setFrom(getCode(fromId));
           codeRel.setTo(getCode(toId));
+
           setRelationshipFields(fields, codeRel);
           addRelationship(codeRel);
           relationshipMap.put(fields[8], codeRel.getId());
@@ -2554,6 +2557,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // Skip if CUI and not in meta mode
         if (!style.toString().startsWith("META")
             && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+          continue;
+        }
+
+        // Skip if SINGLE
+        if (style == Style.SINGLE) {
           continue;
         }
 

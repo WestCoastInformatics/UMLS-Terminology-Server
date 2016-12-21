@@ -103,14 +103,42 @@ tsApp.directive('atoms', [
             .then(
             // success
             function(data) {
-              scope.getPagedList();              
+              scope.getPagedList();
             });
         }
 
         //
         // MODALS
         //
+        // Add atom modal
+        scope.openAddAtomModal = function(latom) {
 
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/content/editAtom.html',
+            backdrop : 'static',
+            controller : 'SimpleAtomModalCtrl',
+            resolve : {
+              atom : function() {
+                return null;
+              },
+              action : function() {
+                return 'Add';
+              },
+              selected : function() {
+                return scope.selected;
+              },
+              lists : function() {
+                return scope.lists;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(user) {
+            scope.getPagedAtoms();
+          });
+        };
         // Edit atom modal
         scope.openEditAtomModal = function(latom) {
 

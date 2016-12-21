@@ -31,12 +31,13 @@ public interface SimpleEditServiceRest {
    * Update atom.
    *
    * @param projectId the project id
+   * @param conceptId the concept id
    * @param atom the atom
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateAtom(Long projectId, AtomJpa atom, String authToken)
-    throws Exception;
+  public void updateAtom(Long projectId, Long conceptId, AtomJpa atom,
+    String authToken) throws Exception;
 
   /**
    * Removes the atom.

@@ -97,6 +97,7 @@ public class ResetNciMetaDatabase {
     p.setProperty("version", "latest");
     p.setProperty("mode", "update");
     request.setProperties(p);
+    request.setMavenOpts("-Xmx15G");
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
     if (result.getExitCode() != 0) {

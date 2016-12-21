@@ -57,8 +57,8 @@ public class TerminologyRrfSingleLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Mode - for recreating db
-   * @parameter
    */
+  @Parameter
   private String mode = null;
 
   /**

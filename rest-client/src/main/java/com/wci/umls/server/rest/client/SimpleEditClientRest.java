@@ -77,14 +77,15 @@ public class SimpleEditClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public void updateAtom(Long projectId, AtomJpa atom, String authToken)
-    throws Exception {
+  public void updateAtom(Long projectId, Long conceptId, AtomJpa atom,
+    String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Simple Edit Client - update atom " + projectId + ", " + atom);
     validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(conceptId, "conceptId");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(
-        config.getProperty("base.url") + "/simple/atom?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/simple/atom?projectId=" + projectId + "&conceptId=" + conceptId);
     String atomString =
         ConfigUtility.getStringForGraph(atom == null ? new AtomJpa() : atom);
     Response response = target.request(MediaType.APPLICATION_XML)
