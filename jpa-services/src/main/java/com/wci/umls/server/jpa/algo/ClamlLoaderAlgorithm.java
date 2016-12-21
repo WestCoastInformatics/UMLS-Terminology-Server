@@ -92,6 +92,9 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The terminology language. */
   String terminologyLanguage;
+  
+  /** The terminology preferred name. */
+  String preferredName;
 
   /** counter for objects created, reset in each load section. */
   int objectCt;
@@ -401,8 +404,10 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       try {
         // add current tag to stack
         tagStack.push(qName.toLowerCase());
-
-        if (qName.equalsIgnoreCase("meta")) {
+        
+        if (qName.equalsIgnoreCase("title")) {
+          preferredName = attributes.getValue("name");
+        } else if (qName.equalsIgnoreCase("meta")) {
           // e.g. <Meta name="TopLevelSort"
           // value="- A B D F H K L N P R S T U W X Y Z"/>
           final String name = attributes.getValue("name");
@@ -1976,7 +1981,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
-    root.setPreferredName(getTerminology());
+    root.setPreferredName(preferredName == null ? getTerminology() : preferredName);
     root.setRestrictionLevel(-1);
     root.setTerminology(getTerminology());
     addRootTerminology(root);
@@ -1992,7 +1997,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(false);
     term.setOrganizingClassType(IdType.CONCEPT);
-    term.setPreferredName(root.getPreferredName());
+    term.setPreferredName(preferredName == null ? getTerminology() : preferredName);
     term.setRootTerminology(root);
     addTerminology(term);
 
