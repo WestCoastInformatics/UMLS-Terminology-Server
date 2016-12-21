@@ -28,9 +28,7 @@ import com.wci.umls.server.model.meta.RelationshipIdentity;
  */
 @Entity
 @Table(name = "relationship_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "additionalRelationshipType", "fromId", "fromTerminology", "fromType",
-    "relationshipType", "terminology", "terminologyId", "toId", "toTerminology",
-    "toType"
+    "fromId", "fromTerminology", "fromType", "id"
 }))
 @XmlRootElement(name = "relationshipIdentity")
 @Indexed

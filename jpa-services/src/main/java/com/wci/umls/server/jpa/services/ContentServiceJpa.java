@@ -268,7 +268,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).debug("Content Service - get concept " + id);
 
     Concept concept = getComponent(id, ConceptJpa.class);
-    handleLazyInit(concept);
 
     return concept;
   }
@@ -289,10 +288,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     list.setTotalCount(concepts.size());
     list.setObjects(concepts);
 
-    for (Concept concept : list.getObjects()) {
-      handleLazyInit(concept);
-    }
-
     return list;
   }
 
@@ -305,7 +300,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     final Concept concept = getComponent(terminologyId, terminology, version,
         branch, ConceptJpa.class);
-    handleLazyInit(concept);
 
     return concept;
   }
@@ -1408,7 +1402,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass()).debug("Content Service - get atom " + id);
 
     Atom atom = getComponent(id, AtomJpa.class);
-    handleLazyInit(atom);
 
     return atom;
   }
@@ -1429,9 +1422,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
     list.setTotalCount(atoms.size());
     list.setObjects(atoms);
 
-    for (Atom atom : list.getObjects()) {
-      handleLazyInit(atom);
-    }
     return list;
   }
 
@@ -1444,7 +1434,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
     Atom atom = getComponent(terminologyId, terminology, version, branch,
         AtomJpa.class);
-    handleLazyInit(atom);
 
     return atom;
   }
@@ -4879,33 +4868,6 @@ public class ContentServiceJpa extends MetadataServiceJpa
       throw new Exception("search.handler." + ConfigUtility.ATOMCLASS
           + " expected and does not exist.");
     }
-  }
-
-  /**
-   * Handle lazy init.
-   *
-   * @param concept the concept
-   */
-  private void handleLazyInit(Concept concept) {
-    if (concept == null) {
-      return;
-    }
-    for (Atom atom : concept.getAtoms()) {
-      handleLazyInit(atom);
-    }
-  }
-
-  /**
-   * Handle lazy init.
-   *
-   * @param atom the atom
-   */
-  @SuppressWarnings("static-method")
-  private void handleLazyInit(Atom atom) {
-    if (atom == null) {
-      return;
-    }
-    atom.getNotes().size();
   }
 
 }

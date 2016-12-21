@@ -473,6 +473,12 @@ public abstract class RootServiceJpa implements RootService {
     // handle filtering based on query restriction
     if (pfs != null && pfs.getQueryRestriction() != null
         && !pfs.getQueryRestriction().isEmpty()) {
+
+      if (pfs.getQueryRestriction().contains(" OR ")) {
+        throw new LocalException("Query with OR clause not supported here = "
+            + pfs.getQueryRestriction());
+      }
+
       result = new ArrayList<>();
       for (final T t : list) {
         final StringBuilder sb = new StringBuilder();
@@ -1520,7 +1526,7 @@ public abstract class RootServiceJpa implements RootService {
     // Perform the action
     //
     action.compute();
-    
+
     // create the log entries
     action.logAction();
 

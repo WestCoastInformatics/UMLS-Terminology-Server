@@ -4,8 +4,11 @@
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -14,7 +17,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
@@ -35,6 +44,13 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
   @OneToMany(mappedBy = "subset", targetEntity = AtomSubsetMemberJpa.class)
   private List<AtomSubsetMember> members = null;
 
+  /** The alternate terminology ids. */
+  @ElementCollection
+//  @CollectionTable(name = "atom_subset_altIds", joinColumns = @JoinColumn(name = "altIds", referencedColumnName = "terminologyId"))
+//  @MapKeyColumn(name = "terminology", length = 100)
+//  @Column(nullable = true, length = 100)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link AtomSubsetJpa}.
    */
@@ -50,6 +66,8 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
    */
   public AtomSubsetJpa(AtomSubset subset, boolean collectionCopy) {
     super(subset, collectionCopy);
+    alternateTerminologyIds =
+        new HashMap<>(subset.getAlternateTerminologyIds());
 
     if (collectionCopy) {
       members = new ArrayList<>(subset.getMembers());
@@ -76,6 +94,24 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
   @Override
   public void clearMembers() {
     members = new ArrayList<>();
+  }
+
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>(2);
+    }
+    return alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
 }

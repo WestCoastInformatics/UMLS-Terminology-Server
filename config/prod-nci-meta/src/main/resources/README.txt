@@ -37,13 +37,11 @@ cp config/config.properties config/config-load.properties
 # edit config.properties, the -load version uses DEFAULT security
 # set the NLM license key
 
-RESTORE DEV DATABASE
+RESTORE DEV (use default dir)
 
 cd /meme_work/ncim/code/integration-test
-mvn install -Preset -Drun.config.umls=/meme_work/ncim/config/config.properties \
-  -Dinput.dir=/meme_work/ncim/data/SAMPLE_NCI
-
-
+mvn install -Preset-meta -Drun.config.umls=/meme_work/ncim/config/config.properties \
+  -DskipTests=false -Dmaven.home=/h1/meme/apache-maven-3.3.9
 
 REDEPLOY INSTRUCTIONS
 

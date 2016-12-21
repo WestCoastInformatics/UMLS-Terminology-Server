@@ -279,15 +279,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/config/{id}/remove")
+  @Path("/config/{id}")
   @ApiOperation(value = "Remove a workflow config", notes = "Remove a workflow config")
   public void removeWorkflowConfig(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow config id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Workflow): /config/remove " + id + " " + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /config " + id + " " + projectId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -401,7 +401,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/worklist/{id}/remove")
+  @Path("/worklist/{id}")
   @ApiOperation(value = "Remove a worklist", notes = "Remove a worklist")
   public void removeWorklist(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -409,7 +409,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /worklist/" + id + "/remove");
+        .info("RESTful call (Workflow): /worklist/" + id);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -462,7 +462,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/checklist/{id}/remove")
+  @Path("/checklist/{id}")
   @ApiOperation(value = "Remove a checklist", notes = "Remove a checklist")
   public void removeChecklist(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -470,7 +470,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/" + id + "/remove");
+        .info("RESTful call (Workflow): /checklist/" + id);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -622,7 +622,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/epoch/{id}/remove")
+  @Path("/epoch/{id}")
   @ApiOperation(value = "Remove a workflow epoch", notes = "Remove a workflow epoch")
   public void removeWorkflowEpoch(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -630,7 +630,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /epoch/remove " + id + " " + projectId);
+        .info("RESTful call (Workflow): /epoch " + id + " " + projectId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -706,7 +706,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/definition/{id}/remove")
+  @Path("/definition/{id}")
   @ApiOperation(value = "Remove a workflow bin definition", notes = "Remove a workflow bin definition")
   public void removeWorkflowBinDefinition(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
@@ -714,7 +714,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /definition/" + id + "/remove");
+        .info("RESTful call (Workflow): /definition/" + id);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -754,15 +754,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/bin/{id}/remove")
+  @Path("/bin/{id}")
   @ApiOperation(value = "Remove a workflow bin ", notes = "Remove a workflow bin ")
   public void removeWorkflowBin(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Workflow bin id, e.g. 1", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /bin/" + id + "/remove");
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /bin/" + id);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -938,7 +937,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Lookup workflow config
         final WorkflowConfig workflowConfig =
             algorithm.getWorkflowConfig(project, type);
-        
+
         algorithm.setLastModifiedBy(userName);
         algorithm.setProject(project);
         algorithm.setTerminology(project.getTerminology());
@@ -957,15 +956,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
               + result.getErrors());
         }
         algorithm.compute();
-        
+
         // Commit any changes the algorithm wants to make
-        algorithm.commit();        
+        algorithm.commit();
 
         // TODO question what would correct objectId be?
         // Websocket notification
-        final ChangeEvent event =
-            new ChangeEventJpa("RegenerateBins", authToken, "BINS",
-                workflowConfig.getId(), getProjectInfo(project));
+        final ChangeEvent event = new ChangeEventJpa("RegenerateBins",
+            authToken, "BINS", workflowConfig.getId(), getProjectInfo(project));
         sendChangeEvent(event);
 
       } catch (Exception e) {
@@ -2490,7 +2488,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @DELETE
-  @Path("/report/{fileName}/remove")
+  @Path("/report/{fileName}")
   @ApiOperation(value = "Get generated concept report", notes = "Get generated concept report", response = String.class)
   public void removeGeneratedConceptReport(
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
@@ -2498,7 +2496,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /report/" + fileName + "/remove");
+        .info("RESTful call (Workflow): /report/" + fileName);
     final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
 
     try {
@@ -2687,7 +2685,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Workflow): /checklist/note/" + noteId + "");
+        .info("RESTful call (Workflow): /checklist/note/" + noteId);
 
     final WorkflowService workflowService = new WorkflowServiceJpa();
     try {
@@ -2949,13 +2947,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       workflowService.setTransactionPerOperation(false);
       workflowService.beginTransaction();
-      
-      Checklist newChecklist = workflowService.computeChecklist(project, query, queryType, name, pfs, false);
+
+      Checklist newChecklist = workflowService.computeChecklist(project, query,
+          queryType, name, pfs, false);
 
       workflowService.commit();
-      
-      workflowService.addLogEntry(userName, projectId, newChecklist.getId(), null,
-          null, "COMPUTE checklist - " + newChecklist.getId() + ", "
+
+      workflowService.addLogEntry(userName, projectId, newChecklist.getId(),
+          null, null, "COMPUTE checklist - " + newChecklist.getId() + ", "
               + newChecklist.getName() + ", " + query);
 
       // Websocket notification

@@ -452,24 +452,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       //
       // Compute tree positions
       //
-      for (final Terminology t : list.getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          algo3 = new TreePositionAlgorithm();
-          algo3.setLastModifiedBy(userName);
-          algo3.setTerminology(t.getTerminology());
-          algo3.setVersion(t.getVersion());
-          algo3.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo3.setCycleTolerant(true);
-          // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo3.setComputeSemanticType(true);
-          }
-          algo3.compute();
-          algo3.close();
-        }
-      }
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo3.setCycleTolerant(true);
+      // compute "semantic types" for concept hierarchies
+      algo3.setComputeSemanticType(true);
+      algo3.compute();
+      algo3.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load simple terminology from directory");
@@ -490,9 +483,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
    *
    * @param terminology the terminology
    * @param version the version
-   * @param singleMode the single mode
-   * @param editMode the edit mode
-   * @param codeFlag the code flag
+   * @param style the load style
    * @param prefix the prefix
    * @param inputDir the input dir
    * @param authToken the auth token
@@ -507,9 +498,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Single mode, e.g. false", required = true) @QueryParam("singleMode") Boolean singleMode,
-    @ApiParam(value = "Edit mode, e.g. false", required = true) @QueryParam("editMode") Boolean editMode,
-    @ApiParam(value = "Code flag, e.g. false", required = true) @QueryParam("codeFlag") Boolean codeFlag,
+    @ApiParam(value = "Style, e.g. SINGLE", required = true) @QueryParam("style") String style,
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -531,9 +520,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       algo = new RrfLoaderAlgorithm();
       algo.setLastModifiedBy(userName);
-      algo.setSingleMode(singleMode);
-      algo.setEditMode(editMode);
-      algo.setCodesFlag(codeFlag);
+      algo.setStyle(RrfLoaderAlgorithm.Style.valueOf(style));
       algo.setPrefix(prefix);
       algo.setTerminology(terminology);
       algo.setVersion(version);
@@ -566,6 +553,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
       for (final Terminology t : list.getObjects()) {
+
+        // if SINGLE, skip unless it matches this terminology
+        if (style == RrfLoaderAlgorithm.Style.SINGLE.toString()
+            && !t.getTerminology().equals(t.getTerminology())) {
+          continue;
+        }
+
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
           algo3 = new TreePositionAlgorithm();
@@ -578,8 +572,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           // compute "semantic types" for concept hierarchies
           // but only for "concept" oriented terminologies, and only for browser
           // mode
-          if (!editMode && t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo3.setComputeSemanticType(!editMode);
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo3.setComputeSemanticType(
+                !style.equals(RrfLoaderAlgorithm.Style.META_EDIT.toString()));
           }
           algo3.compute();
           algo3.close();

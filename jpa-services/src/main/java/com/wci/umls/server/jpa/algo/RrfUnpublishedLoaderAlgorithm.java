@@ -54,7 +54,6 @@ public class RrfUnpublishedLoaderAlgorithm
     logInfo("  terminology = " + getTerminology());
     logInfo("  version = " + getVersion());
     logInfo("  inputDir = " + getInputPath());
-
     // Track system level information
     long startTimeOrig = System.nanoTime();
     // control transaction scope

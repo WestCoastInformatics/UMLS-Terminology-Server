@@ -115,12 +115,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
     algorithm.setTerminology(sourceData.getTerminology());
     algorithm.setVersion(sourceData.getVersion());
-    if (codeFlag == null || codeFlag) {
-      algorithm.setCodesFlag(true);
-    } else {
-      algorithm.setCodesFlag(false);
-    }
-    algorithm.setSingleMode(singleMode);
+    algorithm.setStyle(RrfLoaderAlgorithm.Style.SINGLE);
     algorithm.compute();
     algorithm.close();
 

@@ -4,9 +4,12 @@
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -15,7 +18,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -44,6 +53,14 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @OneToMany(mappedBy = "subset", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
 
+  /** The alternate terminology ids. */
+  @ElementCollection
+  // @CollectionTable(name = "concept_subset_altIds", joinColumns =
+  // @JoinColumn(name = "altIds", referencedColumnName = "terminologyId"))
+  // @MapKeyColumn(name = "terminology", length = 100)
+  // @Column(nullable = true, length = 100)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link ConceptSubsetJpa}.
    */
@@ -61,6 +78,9 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
     super(subset, collectionCopy);
     disjointSubset = subset.isDisjointSubset();
     labelSubset = subset.isLabelSubset();
+    alternateTerminologyIds =
+        new HashMap<>(subset.getAlternateTerminologyIds());
+
     if (collectionCopy) {
       members = new ArrayList<>(subset.getMembers());
     }
@@ -111,6 +131,24 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @Override
   public void setLabelSubset(boolean labelSubset) {
     this.labelSubset = labelSubset;
+  }
+
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>(2);
+    }
+    return alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
   /* see superclass */

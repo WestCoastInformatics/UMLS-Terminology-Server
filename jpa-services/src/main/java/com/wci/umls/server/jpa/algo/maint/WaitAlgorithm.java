@@ -27,6 +27,9 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /** The delay. */
   private int delay = 1000;
 
+  /** The warning flag. */
+  private boolean warningFlag = false;
+
   /**
    * Instantiates an empty {@link WaitAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -55,6 +58,11 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
     logInfo("Starting WAIT");
 
+    // fire warning event
+    if (warningFlag) {
+      logWarn("Sample Warning");
+      this.fireWarningEvent("Sample warning");
+    }
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
     for (int i = 1; i <= num; i += 1) {
@@ -101,6 +109,9 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     if (p.getProperty("delay") != null) {
       delay = Integer.parseInt(p.getProperty("delay"));
     }
+    if (p.getProperty("warning") != null) {
+      warningFlag = "true".equals(p.getProperty("warning"));
+    }
   }
 
   /* see superclass */
@@ -115,6 +126,10 @@ public class WaitAlgorithm extends AbstractAlgorithm {
     param = new AlgorithmParameterJpa("Delay", "delay",
         "Delay time in milliseconds", "e.g. 500", 10,
         AlgorithmParameter.Type.INTEGER, "500");
+    params.add(param);
+    // Support reporting a warning
+    param = new AlgorithmParameterJpa("Warning flag", "warning", "Warning flat",
+        null, 0, AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
 
     return params;

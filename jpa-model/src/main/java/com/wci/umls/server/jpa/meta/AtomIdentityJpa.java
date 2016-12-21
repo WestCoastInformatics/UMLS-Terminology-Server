@@ -24,10 +24,17 @@ import com.wci.umls.server.model.meta.AtomIdentity;
  * JPA and JAXB enabled implementation of {@link AtomIdentity}.
  */
 @Entity
-@Table(name = "atom_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "codeId", "conceptId", "descriptorId", "stringClassId", "termType",
-    "terminology", "terminologyId"
-}))
+@Table(name = "atom_identity", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "stringClassId", "terminology", "terminologyId", "id"
+    }), @UniqueConstraint(columnNames = {
+        "conceptId", "terminology", "terminologyId", "id"
+    }), @UniqueConstraint(columnNames = {
+        "descriptorId", "terminology", "terminologyId", "id"
+    }), @UniqueConstraint(columnNames = {
+        "codeId", "terminology", "terminologyId", "id"
+    })
+})
 @XmlRootElement(name = "atomIdentity")
 @Indexed
 public class AtomIdentityJpa implements AtomIdentity {

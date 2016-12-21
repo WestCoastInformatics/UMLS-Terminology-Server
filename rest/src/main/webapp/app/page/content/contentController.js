@@ -19,10 +19,11 @@ tsApp
       'projectService',
       'metadataService',
       'contentService',
+      'websocketService',
       'appConfig',
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
         gpService, utilService, tabService, configureService, securityService, projectService,
-        metadataService, contentService, appConfig) {
+        metadataService, contentService, websocketService, appConfig) {
         console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
@@ -131,6 +132,23 @@ tsApp
             + '/'
             + $scope.selected.metadata.terminology.version + "/autocomplete/";
 
+          // Choose a project
+          for (var i = 0; i < $scope.lists.projects.length; i++) {
+            var p = $scope.lists.projects[i];
+            // Pick the first project if nothing has been selected
+            if (!$scope.selected.project) {
+              $scope.selected.project = p;
+            }
+            if (p.terminology == terminology.terminology) {
+              $scope.selected.project = p;
+            }
+          }
+          if ($scope.selected.project) {
+            securityService.saveProjectId($scope.user.userPreferences, $scope.selected.project.id);
+          }
+
+          // otherwise, leave project setting as is (last chosen)
+
           // Load all metadata for this terminology, store it in the metadata
           // service and return deferred promise
           var deferred = $q.defer();
@@ -166,11 +184,15 @@ tsApp
         // Retrieve all projects
         $scope.getProjects = function() {
           projectService.getProjectsForUser($scope.user).then(
-          // Success
-          function(data) {
-            $scope.lists.projects = data.projects;
-            $scope.selected.project = data.project;
-          });
+            // Success
+            function(data) {
+              $scope.lists.projects = data.projects;
+              $scope.selected.project = data.project;
+              if ($scope.selected.project) {
+                securityService.saveProjectId($scope.user.userPreferences,
+                  $scope.selected.project.id);
+              }
+            });
 
         };
 
@@ -564,45 +586,9 @@ tsApp
           // });
         };
 
-        // remove atom
-        $scope.removeAtom = function(atom) {
-          metaEditingService.removeAtom($scope.selected.project.id, $scope.selected.activityId,
-            $scope.selected.component, atom.id, true);
-        }
-
         //
         // MODALS
         //
-
-        // Add atom modal
-        $scope.openAddAtomModal = function(latom) {
-
-          var modalInstance = $uibModal.open({
-            templateUrl : 'app/page/edit/atoms/editAtom.html',
-            backdrop : 'static',
-            controller : 'AtomModalCtrl',
-            resolve : {
-              atom : function() {
-                return null;
-              },
-              action : function() {
-                return 'Add';
-              },
-              selected : function() {
-                return $scope.selected;
-              },
-              lists : function() {
-                return $scope.lists;
-              }
-            }
-          });
-
-          modalInstance.result.then(
-          // Success
-          function(user) {
-            $scope.getPagedAtoms();
-          });
-        };
 
         // Open notes modal, from either wrapper or component
         $scope.viewNotes = function(wrapper) {
@@ -644,12 +630,16 @@ tsApp
         // Toggle favorite
         $scope.toggleFavorite = function(component) {
           if (securityService.isUserFavorite(component)) {
-            securityService.removeUserFavorite(component).then(function() {
+            securityService.removeUserFavorite(component).then(
+            // Success
+            function() {
               $scope.isFavorite = false;
               websocketService.fireFavoriteChange();
             });
           } else {
-            securityService.addUserFavorite(component).then(function() {
+            securityService.addUserFavorite(component).then(
+            // Favorite
+            function() {
               $scope.isFavorite = true;
               websocketService.fireFavoriteChange();
             });
@@ -691,7 +681,6 @@ tsApp
             // Success
             function(data) {
               $scope.lists.terminologies = data.terminologies;
-
               // Load all terminologies upon controller load (unless already
               // loaded)
               if ($scope.lists.terminologies) {

@@ -117,6 +117,21 @@ import gnu.trove.strategy.HashingStrategy;
  */
 public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
+  /**
+   * The Enum Style.
+   */
+  public static enum Style {
+
+    /** The single. */
+    SINGLE,
+    /** The multi. */
+    MULTI,
+    /** The metathesaurus style. */
+    META_EDIT,
+    /** The metathesaurus style. */
+    META_BROWSE
+  }
+
   /** The prefix. */
   private String prefix = "MR";
 
@@ -128,14 +143,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   // TODO: should be configurable
   private String proxyTerminology = "MTH";
 
-  /** The single mode. */
-  private boolean singleMode = false;
-
-  /** The edit mode - true when loading RRF for an editing environment. */
-  private boolean editMode = false;
-
-  /** The codes flag. */
-  private boolean codesFlag = true;
+  /** The load style **/
+  private Style style = null;
 
   /** The release version date. */
   private Date releaseVersionDate;
@@ -263,30 +272,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Sets the single mode.
+   * Sets the style .
    *
-   * @param singleMode the single mode
+   * @param style the style
    */
-  public void setSingleMode(boolean singleMode) {
-    this.singleMode = singleMode;
-  }
-
-  /**
-   * Sets the edits the mode.
-   *
-   * @param editMode the edits the mode
-   */
-  public void setEditMode(boolean editMode) {
-    this.editMode = editMode;
-  }
-
-  /**
-   * Sets the codes flag.
-   *
-   * @param codesFlag the codes flag
-   */
-  public void setCodesFlag(boolean codesFlag) {
-    this.codesFlag = codesFlag;
+  public void setStyle(RrfLoaderAlgorithm.Style style) {
+    this.style = style;
   }
 
   /**
@@ -325,8 +316,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("Start loading RRF");
     logInfo("  terminology = " + getTerminology());
     logInfo("  version = " + getVersion());
-    logInfo("  single mode = " + singleMode);
-    logInfo("  edit mode = " + editMode);
+
+    logInfo("  style = " + style);
     logInfo("  inputDir = " + getInputPath());
 
     // Track system level information
@@ -374,19 +365,22 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Load the metadata
     //
 
-    // Load semantic types
-    if (!singleMode) {
+    // Load semantic types (for META styles)
+    if (style.toString().startsWith("META")) {
       loadSrdef();
     }
 
     // Load MRDOC data
-    loadMrdoc();
+    if (style != Style.MULTI) {
+      loadMrdoc();
+    }
 
     // Load MRSAB data
     cacheExistingTerminologies();
     loadMrsab();
 
-    // Load precedence info
+    // Load precedence info (even in multi mode, we need to initialize this,
+    // then we can subset it for individual terminologies)
     loadMrrank();
 
     // Commit
@@ -399,8 +393,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Definitions
     loadMrdef();
 
-    // Semantic Types (skip in single mode)
-    if (!singleMode) {
+    // Semantic Types (for META styles)
+    if (style.toString().startsWith("META")) {
       loadMrsty();
     }
 
@@ -411,10 +405,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     loadMrsat();
 
     // Load concept and atom history data
-    loadHistory();
+    // skip in single/multi mode
+    if (style.toString().startsWith("META")) {
+      loadHistory();
+    }
 
     // Mappings - only for non-single mode
-    if (!singleMode) {
+    if (style != Style.SINGLE) {
       loadMrmap();
     }
 
@@ -428,15 +425,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Make subsets and label sets
     loadExtensionLabelSets();
 
-    // Load terminology-specific metadata
-
-    if (!singleMode && editMode) {
+    // Load terminology-specific metadata except for SINGLE and edit modes.
+    if (style == Style.MULTI || style == Style.META_BROWSE) {
       loadTerminologyMetadata();
     }
     commitClearBegin();
 
-    // Load release info
-    loadReleaseInfo();
+    // Load release info (no terminology/version for multi)
+    if (style != Style.MULTI) {
+      loadReleaseInfo();
+    }
     commitClearBegin();
 
     // Clear concept cache
@@ -460,11 +458,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     ConfigUtility.deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
     // Identity Loader
-    umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
-    umlsIdentityLoaderAlgo.setTerminology(getTerminology());
-    umlsIdentityLoaderAlgo.setInputPath(getInputPath());
-    umlsIdentityLoaderAlgo.compute();
-    umlsIdentityLoaderAlgo.close();
+    if (style.toString().startsWith("META")) {
+      umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
+      umlsIdentityLoaderAlgo.setTerminology(getTerminology());
+      umlsIdentityLoaderAlgo.setInputPath(getInputPath());
+      umlsIdentityLoaderAlgo.compute();
+      umlsIdentityLoaderAlgo.close();
+    }
 
     // Final logging messages
     Logger.getLogger(getClass())
@@ -571,6 +571,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
     }
+
+    // If no rows and in META mode, fail
+    if (style.toString().startsWith("META") && objectCt == 0) {
+      throw new Exception("Loading in META mode without any entries in SRDEF, "
+          + "this is probably a mistake.");
+    }
+
     commitClearBegin();
 
     SemanticTypeList structuralDescendants = getSemanticTypeDescendants(
@@ -1056,7 +1063,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 25, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[3].equals(getTerminology())) {
+      if (style == Style.SINGLE && !fields[3].equals(getTerminology())) {
         continue;
       }
 
@@ -1118,7 +1125,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
       String termVersion = null;
-      if (singleMode || fields[6].equals(""))
+      if (style == Style.SINGLE || fields[6].equals(""))
         termVersion = getVersion();
       else
         termVersion = fields[6];
@@ -1184,8 +1191,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     // Add the terminology for this rrf loader execution
-    // Skip in single mode
-    if (!singleMode && !loadedTerminologies.containsKey(getTerminology())) {
+    // Skip in single/multi mode
+    if (style.toString().startsWith("META")
+        && !loadedTerminologies.containsKey(getTerminology())) {
       final Terminology term = new TerminologyJpa();
       term.setAssertsRelDirection(false);
       term.setCurrent(true);
@@ -1254,7 +1262,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 0586|MTH|PN|N|
 
       // Skip entries for other terminologies
-      if (singleMode && !fields[1].equals(getTerminology())) {
+      if (style == Style.SINGLE && !fields[1].equals(getTerminology())) {
         continue;
       }
 
@@ -1298,7 +1306,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 8, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[4].equals(getTerminology())) {
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())) {
         continue;
       }
 
@@ -1339,7 +1347,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       def.setSuppressible(!fields[6].equals("N"));
       def.setPublished(true);
       def.setPublishable(true);
-      if (!singleMode) {
+      // skip in single/multi mode
+      if (style.toString().startsWith("META")) {
         def.getAlternateTerminologyIds().put(getTerminology(), fields[2]);
       }
       def.setTerminologyId(fields[3]);
@@ -1397,7 +1406,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[9].equals(getTerminology())
+      if (style == Style.SINGLE && !fields[9].equals(getTerminology())
           && !fields[9].equals("SAB")) {
         continue;
       }
@@ -1440,7 +1449,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       att.setPublished(true);
       att.setPublishable(true);
       // fields[5] CODE not used - redundant
-      if (!singleMode) {
+      // skip in single/multi mode
+      if (style.toString().startsWith("META")) {
         att.getAlternateTerminologyIds().put(getTerminology(), fields[6]);
       }
       att.setTerminologyId(fields[7]);
@@ -1476,7 +1486,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // UMLS has one case of an early XM atom with NOCODE (ICD9CM to CCS map)
       // In loadMrconso we skip NOCODE codes, never creating them as Code
       // objects.
-      else if (codesFlag && fields[4].equals("CODE")
+      else if (fields[4].equals("CODE")
           && atomCodeIdMap.get(fields[3]).equals("NOCODE")) {
         // Get the concept for the AUI
         final Atom atom = getAtom(atomIdMap.get(fields[3]));
@@ -1488,7 +1498,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             getRelationship(relationshipMap.get(fields[3]), null);
         relationship.getAttributes().add(att);
         addAttribute(att, relationship);
-      } else if (codesFlag && fields[4].equals("CODE")) {
+      } else if (fields[4].equals("CODE")) {
         final Long codeId = codeIdMap.get(
             atomTerminologyMap.get(fields[3]) + atomCodeIdMap.get(fields[3]));
         if (codeId == null) {
@@ -1502,7 +1512,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.getAttributes().add(att);
           addAttribute(att, code);
         }
-      } else if (fields[4].equals("CUI")) {
+      }
+      // Only handle CUI attributes in META mode
+      else if (style.toString().startsWith("META") && fields[4].equals("CUI")) {
         // Get the concept for the terminology and CUI
         att.setTerminology(getTerminology());
         att.setVersion(getVersion());
@@ -1558,7 +1570,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
       // Avoid if in single mode
-      if (!singleMode && isMapSetAttribute(fields[8])) {
+      if (style != Style.SINGLE && isMapSetAttribute(fields[8])) {
         processMapSetAttribute(fields);
       }
 
@@ -1722,10 +1734,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private void loadHistory() throws Exception {
     logInfo("  Load MRCUI, MRAUI data");
 
-    if (singleMode) {
-      return;
-    }
-
     String line = null;
     int objectCt = 0;
     PushBackReader reader = readers.getReader(RrfReaders.Keys.MRCUI);
@@ -1833,7 +1841,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 26, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[1].equals(getTerminology())) {
+      if (style == Style.SINGLE && !fields[1].equals(getTerminology())) {
         continue;
       }
 
@@ -2144,7 +2152,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[9].equals(getTerminology())
+      if (style == Style.SINGLE && !fields[9].equals(getTerminology())
           && !fields[9].equals("SAB")) {
         continue;
       }
@@ -2390,7 +2398,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 16, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[10].equals(getTerminology())
+      if (style == Style.SINGLE && !fields[10].equals(getTerminology())
           && !fields[10].equals("SAB")) {
         continue;
       }
@@ -2439,7 +2447,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addRelationship(aRel);
         relationshipMap.put(fields[8], aRel.getId());
 
-      } else if (fields[2].equals("CUI") && fields[6].equals("CUI")) {
+      }
+      // Only handle CUI rels in META mode
+      else if (style.toString().startsWith("META") && fields[2].equals("CUI")
+          && fields[6].equals("CUI")) {
         final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
 
         if (fields[4].isEmpty() || fields[0].isEmpty()) {
@@ -2489,6 +2500,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           conceptRel.setFrom(getConcept(fromId));
           conceptRel.setTo(getConcept(toId));
+
           setRelationshipFields(fields, conceptRel);
           addRelationship(conceptRel);
           relationshipMap.put(fields[8], conceptRel.getId());
@@ -2511,13 +2523,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         } else {
           descriptorRel.setFrom(getDescriptor(fromId));
           descriptorRel.setTo(getDescriptor(toId));
+
           setRelationshipFields(fields, descriptorRel);
           addRelationship(descriptorRel);
           relationshipMap.put(fields[8], descriptorRel.getId());
         }
 
-      } else if (codesFlag && fields[2].equals("CODE")
-          && fields[6].equals("CODE")) {
+      } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
         final CodeRelationship codeRel = new CodeRelationshipJpa();
 
         final Long fromId = codeIdMap.get(
@@ -2533,6 +2545,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
           codeRel.setFrom(getCode(fromId));
           codeRel.setTo(getCode(toId));
+
           setRelationshipFields(fields, codeRel);
           addRelationship(codeRel);
           relationshipMap.put(fields[8], codeRel.getId());
@@ -2542,6 +2555,17 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       else {
         String stype1 = fields[2];
         String stype2 = fields[6];
+
+        // Skip if CUI and not in meta mode
+        if (!style.toString().startsWith("META")
+            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+          continue;
+        }
+
+        // Skip if SINGLE
+        if (style == Style.SINGLE) {
+          continue;
+        }
 
         final ComponentInfoRelationship componentInfoRel =
             new ComponentInfoRelationshipJpa();
@@ -2656,7 +2680,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // If terminology Id was set to RUI for CUI-CUI rel, skip this part
     if (relationship.getTerminologyId() == null) {
-      if (!singleMode) {
+      // skip in single/multi mode
+      if (style.toString().startsWith("META")) {
         relationship.getAlternateTerminologyIds().put(getTerminology(),
             fields[8]);
       }
@@ -2788,7 +2813,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line, "|", 18, fields);
 
       // Skip non-matching in single mode
-      if (singleMode && !fields[11].equals(getTerminology())) {
+      if (style == Style.SINGLE && !fields[11].equals(getTerminology())) {
         continue;
       }
 
@@ -2835,8 +2860,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             "Atom references terminology that does not exist: " + fields[11]);
       }
       atom.setVersion(loadedTerminologies.get(fields[11]).getVersion());
-      // skip in single mode
-      if (!singleMode) {
+      // skip in single/multi mode
+      if (style.toString().startsWith("META")) {
         atom.getAlternateTerminologyIds().put(getTerminology(), fields[7]);
       }
       atom.setTerminologyId(fields[8]);
@@ -2925,8 +2950,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         termIdTypeMap.put(atom.getTerminology(), IdType.CONCEPT);
       } // OTHERWISE it remains "CODE"
 
-      // skip in single mode
-      if (!singleMode) {
+      // skip in single/multi mode
+      if (style.toString().startsWith("META")) {
         atom.putConceptTerminologyId(getTerminology(), fields[0]);
       }
 
@@ -2942,8 +2967,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atomDescriptorIdMap.put(fields[7], atom.getDescriptorId().length() == 0
           ? "".intern() : atom.getDescriptorId());
 
-      // CUI - skip in single mode
-      if (!singleMode) {
+      // CUI - only for META modes
+      if (style.toString().startsWith("META")) {
         // Add concept
         if (prevCui == null || !fields[0].equals(prevCui)) {
           if (prevCui != null) {
@@ -3112,80 +3137,78 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     results.close();
 
     // Use flag to decide whether to handle codes
-    if (codesFlag) {
-      logInfo("  Add codes");
-      objectCt = 0;
-      // NOTE: Hibernate-specific to support iterating
-      // Skip NOCODE
-      hQuery = session
-          .createQuery("select a from AtomJpa a " + "where codeId is not null "
-              + "and codeId != '' and timestamp = :timestamp "
-              + "order by terminology, codeId");
-      hQuery.setParameter("timestamp", releaseVersionDate);
-      hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-      results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-      String prevCode = null;
-      Code code = null;
-      int atomCt = 0;
-      while (results.next()) {
-        final Atom atom = (Atom) results.get()[0];
-        if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
-          continue;
-        }
-
-        // UMLS still connects a lot of things to codes, so keep them
-        // if (!atom.getTerminology().equals("LNC")) {
-        // // skip where code == concept
-        // if (atom.getCodeId().equals(atom.getConceptId())) {
-        // continue;
-        // }
-        // // skip where code == descriptor
-        // if (atom.getCodeId().equals(atom.getDescriptorId())) {
-        // continue;
-        // }
-        // }
-
-        if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
-          if (code != null && atomCt < 3001) {
-            // compute preferred name
-            code.setName(getComputedPreferredName(code, list));
-            addCode(code);
-            codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
-                code.getId());
-            logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-          }
-          code = new CodeJpa();
-          code.setTimestamp(releaseVersionDate);
-          code.setLastModified(releaseVersionDate);
-          code.setLastModifiedBy(loader);
-          code.setPublished(true);
-          code.setPublishable(true);
-          code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          code.setTerminology(atom.getTerminology());
-          code.setTerminologyId(atom.getCodeId());
-          code.setVersion(atom.getVersion());
-          code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          atomCt = 0;
-        }
-        atomCt++;
-        if (atomCt == 3000) {
-          Logger.getLogger(getClass()).warn("Code with > 3000 atoms, skipping: "
-              + atom.getTerminology() + ", " + atom.getCodeId());
-        }
-        if (atomCt < 3001) {
-          code.getAtoms().add(atom);
-        }
-        prevCode = atom.getCodeId();
+    logInfo("  Add codes");
+    objectCt = 0;
+    // NOTE: Hibernate-specific to support iterating
+    // Skip NOCODE
+    hQuery = session
+        .createQuery("select a from AtomJpa a " + "where codeId is not null "
+            + "and codeId != '' and timestamp = :timestamp "
+            + "order by terminology, codeId");
+    hQuery.setParameter("timestamp", releaseVersionDate);
+    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
+    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    String prevCode = null;
+    Code code = null;
+    int atomCt = 0;
+    while (results.next()) {
+      final Atom atom = (Atom) results.get()[0];
+      if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
+        continue;
       }
-      if (code != null) {
-        code.setName(getComputedPreferredName(code, list));
-        addCode(code);
-        codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
-            code.getId());
-        commitClearBegin();
+
+      // UMLS still connects a lot of things to codes, so keep them
+      // if (!atom.getTerminology().equals("LNC")) {
+      // // skip where code == concept
+      // if (atom.getCodeId().equals(atom.getConceptId())) {
+      // continue;
+      // }
+      // // skip where code == descriptor
+      // if (atom.getCodeId().equals(atom.getDescriptorId())) {
+      // continue;
+      // }
+      // }
+
+      if (prevCode == null || !prevCode.equals(atom.getCodeId())) {
+        if (code != null && atomCt < 3001) {
+          // compute preferred name
+          code.setName(getComputedPreferredName(code, list));
+          addCode(code);
+          codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
+              code.getId());
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+        }
+        code = new CodeJpa();
+        code.setTimestamp(releaseVersionDate);
+        code.setLastModified(releaseVersionDate);
+        code.setLastModifiedBy(loader);
+        code.setPublished(true);
+        code.setPublishable(true);
+        code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        code.setTerminology(atom.getTerminology());
+        code.setTerminologyId(atom.getCodeId());
+        code.setVersion(atom.getVersion());
+        code.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        atomCt = 0;
       }
-      results.close();
+      atomCt++;
+      if (atomCt == 3000) {
+        Logger.getLogger(getClass()).warn("Code with > 3000 atoms, skipping: "
+            + atom.getTerminology() + ", " + atom.getCodeId());
+      }
+      if (atomCt < 3001) {
+        code.getAtoms().add(atom);
+      }
+      prevCode = atom.getCodeId();
     }
+    if (code != null) {
+      code.setName(getComputedPreferredName(code, list));
+      addCode(code);
+      codeIdMap.put(code.getTerminology() + code.getTerminologyId(),
+          code.getId());
+      commitClearBegin();
+    }
+    results.close();
 
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects
@@ -3430,17 +3453,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (p.getProperty("inputDir") != null) {
       setInputPath(p.getProperty("inputDir"));
     }
-
-    if (p.getProperty("codesFlag") != null)
-
-    {
-      codesFlag = Boolean.valueOf(p.getProperty("codesFlag"));
-    }
-    if (p.getProperty("singleMode") != null) {
-      singleMode = Boolean.valueOf(p.getProperty("singleMode"));
-    }
-    if (p.getProperty("prefix") != null) {
-      prefix = p.getProperty("codesFlag");
+    if (p.getProperty("style") != null) {
+      style = Style.valueOf(p.getProperty("style"));
     }
     if (p.getProperty("proxyTerminology") != null) {
       proxyTerminology = p.getProperty("proxyTerminology");
@@ -3462,9 +3476,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         "Indicator of whether to load CodeJpa objects or not", "true", -1,
         AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
-    param = new AlgorithmParameterJpa("Single Mode", "singleMode",
+    param = new AlgorithmParameterJpa("Style", "style",
         "Indicator of whether to load a single terminology or all objects or not",
-        "true", -1, AlgorithmParameter.Type.BOOLEAN, "");
+        "true", -1, AlgorithmParameter.Type.ENUM, "");
+    param.setPossibleValues(Arrays.stream(Style.values()).map(e -> e.toString())
+        .collect(Collectors.toList()));
+
     params.add(param);
     param = new AlgorithmParameterJpa("Prefix", "prefix",
         "File name prefix for data set", "MR", -1,

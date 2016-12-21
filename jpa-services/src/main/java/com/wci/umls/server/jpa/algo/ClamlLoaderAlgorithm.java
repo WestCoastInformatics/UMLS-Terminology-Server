@@ -84,12 +84,6 @@ import com.wci.umls.server.services.RootService;
  */
 public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
-  /** The terminology. */
-  String terminology;
-
-  /** The version. */
-  String version;
-
   /** The release version. */
   String releaseVersion;
 
@@ -148,8 +142,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
     logInfo("Starting loading Claml terminology");
     logInfo("  inputFile = inputFile");
-    logInfo("  terminology = " + terminology);
-    logInfo("  version = " + version);
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
 
     long startTimeOrig = System.nanoTime();
 
@@ -200,16 +194,16 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       //
       // Create ReleaseInfo for this release if it does not already exist
       //
-      ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+      ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
       if (info == null) {
         info = new ReleaseInfoJpa();
         info.setName(releaseVersion);
-        info.setDescription(terminology + " " + releaseVersion + " release");
+        info.setDescription(getTerminology() + " " + releaseVersion + " release");
         info.setPlanned(false);
         info.setPublished(true);
         info.setReleaseBeginDate(releaseVersionDate);
         info.setReleaseFinishDate(releaseVersionDate);
-        info.setTerminology(terminology);
+        info.setTerminology(getTerminology());
         info.setVersion(releaseVersion);
         info.setLastModified(releaseVersionDate);
         info.setLastModifiedBy(loader);
@@ -655,8 +649,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           // For the first label in the code, create the concept
           if (!conceptMap.containsKey(code)) {
             concept.setTerminologyId(code);
-            concept.setTerminology(terminology);
-            concept.setVersion(version);
+            concept.setTerminology(getTerminology());
+            concept.setVersion(getVersion());
             concept.setName(labelChars.toString());
             concept.setLastModified(releaseVersionDate);
             concept.setTimestamp(releaseVersionDate);
@@ -679,8 +673,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           if (rubricKind.equals("definition")) {
             final Definition def = new DefinitionJpa();
             def.setTerminologyId(rubricId);
-            def.setTerminology(terminology);
-            def.setVersion(version);
+            def.setTerminology(getTerminology());
+            def.setVersion(getVersion());
             def.setValue(labelChars.toString());
             def.setLastModified(releaseVersionDate);
             def.setTimestamp(releaseVersionDate);
@@ -905,8 +899,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                 final AtomRelationship relationship = new AtomRelationshipJpa();
                 relationship.setTerminologyId(relId);
 
-                relationship.setTerminology(terminology);
-                relationship.setVersion(version);
+                relationship.setTerminology(getTerminology());
+                relationship.setVersion(getVersion());
 
                 Atom fromAtom = null;
                 for (final Atom atom : childConcept.getAtoms()) {
@@ -993,8 +987,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                     .setTerminologyId(new Integer(relIdCounter++).toString());
               }
 
-              relationship.setTerminology(terminology);
-              relationship.setVersion(version);
+              relationship.setTerminology(getTerminology());
+              relationship.setVersion(getVersion());
 
               relationship.setTo(conceptMap.get(parentCode));
               relationship.setFrom(childConcept);
@@ -1092,8 +1086,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       String code = modifier + modifierCode;
       if (!conceptMap.containsKey(code)) {
         concept.setTerminologyId(modifier + modifierCode);
-        concept.setTerminology(terminology);
-        concept.setVersion(version);
+        concept.setTerminology(getTerminology());
+        concept.setVersion(getVersion());
         concept.setName(labelChars.toString());
         concept.setLastModified(releaseVersionDate);
         concept.setTimestamp(releaseVersionDate);
@@ -1119,8 +1113,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (rubricKind.equals("definition")) {
         final Definition def = new DefinitionJpa();
         def.setTerminologyId(rubricId);
-        def.setTerminology(terminology);
-        def.setVersion(version);
+        def.setTerminology(getTerminology());
+        def.setVersion(getVersion());
         def.setValue(labelChars.toString());
         def.setLastModified(releaseVersionDate);
         def.setTimestamp(releaseVersionDate);
@@ -1280,8 +1274,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             placeholderConcept.setName(" - PLACEHOLDER 4th digit");
             placeholderConcept
                 .setTerminologyId(conceptToModify.getTerminologyId() + ".X");
-            placeholderConcept.setTerminology(terminology);
-            placeholderConcept.setVersion(version);
+            placeholderConcept.setTerminology(getTerminology());
+            placeholderConcept.setVersion(getVersion());
             placeholderConcept.setLastModified(releaseVersionDate);
             placeholderConcept.setTimestamp(releaseVersionDate);
             placeholderConcept.setLastModifiedBy(loader);
@@ -1403,8 +1397,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Create isa rel
       final ConceptRelationship relationship = new ConceptRelationshipJpa();
       relationship.setTerminologyId("");
-      relationship.setTerminology(terminology);
-      relationship.setVersion(version);
+      relationship.setTerminology(getTerminology());
+      relationship.setVersion(getVersion());
       relationship.setRelationshipType("CHD");
       relationship.setAdditionalRelationshipType("isa");
       relationship.setHierarchical(true);
@@ -1454,8 +1448,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       att.setValue(value);
       att.setTimestamp(releaseVersionDate);
       att.setTerminologyId("");
-      att.setTerminology(terminology);
-      att.setVersion(version);
+      att.setTerminology(getTerminology());
+      att.setVersion(getVersion());
       att.setLastModified(releaseVersionDate);
       att.setLastModifiedBy(loader);
       att.setObsolete(false);
@@ -1478,8 +1472,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       String conceptId) {
       final Atom atom = new AtomJpa();
       atom.setTerminologyId(rubricId);
-      atom.setTerminology(terminology);
-      atom.setVersion(version);
+      atom.setTerminology(getTerminology());
+      atom.setVersion(getVersion());
       // strip whitespace
       atom.setName(name.trim().replaceAll("\r", "").replaceAll("\n", ""));
       atom.setCodeId(conceptId);
@@ -1800,8 +1794,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     RelationshipType ro = null;
     for (final String rel : relTypes) {
       final RelationshipType type = new RelationshipTypeJpa();
-      type.setTerminology(terminology);
-      type.setVersion(version);
+      type.setTerminology(getTerminology());
+      type.setVersion(getVersion());
       type.setLastModified(releaseVersionDate);
       type.setLastModifiedBy(loader);
       type.setPublishable(true);
@@ -1842,9 +1836,9 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       relType.setLastModifiedBy(loader);
       relType.setPublishable(true);
       relType.setPublished(true);
-      relType.setTerminology(terminology);
+      relType.setTerminology(getTerminology());
       relType.setTimestamp(releaseVersionDate);
-      relType.setVersion(version);
+      relType.setVersion(getVersion());
       relType.setHierarchical(false);
 
       addAdditionalRelationshipType(relType);
@@ -1881,10 +1875,10 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       termType.setPublished(true);
       termType.setStyle(TermTypeStyle.STRUCTURAL);
       termType.setSuppressible(false);
-      termType.setTerminology(terminology);
+      termType.setTerminology(getTerminology());
       termType.setTimestamp(releaseVersionDate);
       termType.setUsageType(UsageType.UNDEFINED);
-      termType.setVersion(version);
+      termType.setVersion(getVersion());
 
       addTermType(termType);
 
@@ -1897,16 +1891,16 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     language.setLastModifiedBy(loader);
     language.setPublishable(true);
     language.setPublished(true);
-    language.setTerminology(terminology);
+    language.setTerminology(getTerminology());
     language.setTimestamp(releaseVersionDate);
     language.setISO3Code("???");
     language.setISOCode(terminologyLanguage);
-    language.setVersion(version);
+    language.setVersion(getVersion());
     addLanguage(language);
 
     final AttributeName name = new AttributeNameJpa();
-    name.setTerminology(terminology);
-    name.setVersion(version);
+    name.setTerminology(getTerminology());
+    name.setVersion(getVersion());
     name.setLastModified(releaseVersionDate);
     name.setLastModifiedBy(loader);
     name.setPublishable(true);
@@ -1921,14 +1915,14 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Start with preferred
     final KeyValuePair pr = new KeyValuePair();
-    pr.setKey(terminology);
+    pr.setKey(getTerminology());
     pr.setValue("preferred");
     lkvp.add(pr);
     // next do anything else starting with "preferred"
     for (final String tty : termTypes) {
       if (!tty.equals("preferred") && tty.startsWith("preferred")) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -1938,7 +1932,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (tty.indexOf("preferred") == -1 && !tty.equals("inclusion")
           && !tty.equals("exclusion")) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -1947,7 +1941,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     for (final String tty : termTypes) {
       if (tty.equals("inclusion")) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -1956,7 +1950,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     for (final String tty : termTypes) {
       if (tty.equals("exclusion")) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -1969,28 +1963,28 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     list.setLastModified(releaseVersionDate);
     list.setLastModifiedBy(loader);
     list.setName("DEFAULT");
-    list.setTerminology(terminology);
-    list.setVersion(version);
+    list.setTerminology(getTerminology());
+    list.setVersion(getVersion());
     addPrecedenceList(list);
 
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
-    root.setFamily(terminology);
-    root.setHierarchicalName(terminology);
+    root.setFamily(getTerminology());
+    root.setHierarchicalName(getTerminology());
     root.setLanguage(language.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
-    root.setPreferredName(terminology);
+    root.setPreferredName(getTerminology());
     root.setRestrictionLevel(-1);
-    root.setTerminology(terminology);
+    root.setTerminology(getTerminology());
     addRootTerminology(root);
 
     // Terminology
     Terminology term = new TerminologyJpa();
-    term.setTerminology(terminology);
-    term.setVersion(version);
+    term.setTerminology(getTerminology());
+    term.setVersion(getVersion());
     term.setTimestamp(releaseVersionDate);
     term.setLastModified(releaseVersionDate);
     term.setLastModifiedBy(loader);
@@ -2012,8 +2006,8 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int i = 0;
     for (final String label : labels) {
       final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
-      entry.setTerminology(terminology);
-      entry.setVersion(version);
+      entry.setTerminology(getTerminology());
+      entry.setVersion(getVersion());
       entry.setLastModified(releaseVersionDate);
       entry.setLastModifiedBy(loader);
       entry.setPublishable(true);
@@ -2024,18 +2018,6 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       entry.setType("label_values");
       addGeneralMetadataEntry(entry);
     }
-  }
-
-  /* see superclass */
-  @Override
-  public String getTerminology() {
-    return terminology;
-  }
-
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
   }
 
   /* see superclass */

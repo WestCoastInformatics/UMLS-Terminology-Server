@@ -28,8 +28,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class SnomedctGraphResolutionHandler extends
-    DefaultGraphResolutionHandler {
+public class SnomedctGraphResolutionHandler
+    extends DefaultGraphResolutionHandler {
 
   /** The atv prop. */
   private static Properties prop = null;
@@ -148,6 +148,7 @@ public class SnomedctGraphResolutionHandler extends
 
       // skip rels
       atom.setRelationships(new ArrayList<AtomRelationship>());
+      atom.getNotes().size();
 
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");
@@ -172,9 +173,10 @@ public class SnomedctGraphResolutionHandler extends
         relationship.getAlternateTerminologyIds().keySet();
       }
 
-      if (prop.getProperty(relationship.getAdditionalRelationshipType()) != null) {
-        relationship.setAdditionalRelationshipType(prop
-            .getProperty(relationship.getAdditionalRelationshipType()));
+      if (prop
+          .getProperty(relationship.getAdditionalRelationshipType()) != null) {
+        relationship.setAdditionalRelationshipType(
+            prop.getProperty(relationship.getAdditionalRelationshipType()));
       }
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
@@ -198,8 +200,8 @@ public class SnomedctGraphResolutionHandler extends
         att.setId(null);
       }
       if (prop.getProperty(att.getValue()) != null) {
-        att.setValue(prop.getProperty(att.getValue()) + " (" + att.getValue()
-            + ")");
+        att.setValue(
+            prop.getProperty(att.getValue()) + " (" + att.getValue() + ")");
       }
     }
   }

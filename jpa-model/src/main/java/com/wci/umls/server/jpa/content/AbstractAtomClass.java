@@ -151,10 +151,9 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
-  @Analyzer(definition = "noStopWord")
   public String getName() {
     return name;
   }

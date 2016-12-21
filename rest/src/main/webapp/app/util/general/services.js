@@ -597,7 +597,11 @@ tsApp.service('gpService', [ '$timeout', function($timeout) {
     }
     glassPane.counter--;
     if (glassPane.counter == 0) {
-      glassPane.enabled = false;
+      $timeout(function() {
+        if (glassPane.counter == 0) {
+          glassPane.enabled = false;
+        }
+      }, 100);
     }
   };
 

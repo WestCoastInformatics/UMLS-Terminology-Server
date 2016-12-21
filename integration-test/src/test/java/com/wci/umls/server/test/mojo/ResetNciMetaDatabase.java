@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -28,6 +29,7 @@ public class ResetNciMetaDatabase {
 
   /** The properties. */
   static Properties config;
+
   /** The server. */
   static String server = "false";
 
@@ -54,7 +56,6 @@ public class ResetNciMetaDatabase {
    * 
    * @throws Exception the exception
    */
-  @SuppressWarnings("static-method")
   @Test
   public void test() throws Exception {
 
@@ -96,6 +97,7 @@ public class ResetNciMetaDatabase {
     p.setProperty("version", "latest");
     p.setProperty("mode", "update");
     request.setProperties(p);
+    request.setMavenOpts("-Xmx15G");
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
     if (result.getExitCode() != 0) {
@@ -103,14 +105,16 @@ public class ResetNciMetaDatabase {
     }
 
     // RRF Unpublished
+    Logger.getLogger(getClass()).info("Run unpublished loader algorithm");
     final RrfUnpublishedLoaderAlgorithm algo =
         new RrfUnpublishedLoaderAlgorithm();
     algo.setActivityId("LOADER");
     algo.setWorkId("LOADER");
     // ASSUMPTION: one project
     algo.setProject(algo.getProjects().getObjects().get(0));
+    // ONLY one ".." here because it's running from integration-tests
     algo.setInputPath(
-        "../../config/src/main/resources/data/SAMPLE_NCI/unpublished");
+        "../config/src/main/resources/data/SAMPLE_NCI/unpublished");
     if (System.getProperty("input.dir") != null) {
       algo.setInputPath(System.getProperty("input.dir") + "/unpublished");
     }
@@ -120,6 +124,7 @@ public class ResetNciMetaDatabase {
     algo.setTerminology("NCIMTH");
     algo.setVersion("latest");
     algo.compute();
+    Logger.getLogger(getClass()).info("Finished unpublished loader algorithm");
 
   }
 

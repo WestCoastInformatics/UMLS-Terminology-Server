@@ -336,7 +336,7 @@
           class="glyphicon glyphicon-share noul glyphicon-muted"></i>
         &nbsp;&nbsp;
         <!-- Notes controls -->
-        <i ng-show="component.notes.length > 0" ng-click="viewNotes()"
+        <i ng-show="selected.component.notes.length > 0" ng-click="viewNotes()"
           title="View, Add, or Remove Notes"
           class="glyphicon glyphicon-tags noul glyphicon-muted"></i>
         <i ng-show="selected.component.notes.length == 0" ng-click="viewNotes()"
@@ -349,13 +349,6 @@
         <i ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(selected.component)" title="Remove favorites"
           class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
-
-        <!-- Add Synonym - show if showing terminology tab -->
-        <span
-          ng-show="appConfig['deploy.enabled.tabs'].indexOf('terminology') != -1"
-          style="float: right; transform: scale(.8, .8);"
-          class="btn btn-xs btn-primary" ng-click="openAddAtomModal()">Add
-          Synonym</span>
       </div>
     </div>
     <!-- Component display -->

@@ -90,8 +90,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   private List<ComponentHistory> componentHistories = null;
 
   /** The concept terminology id map. */
-  @ElementCollection()
-  // consider this: @Fetch(sFetchMode.JOIN)
+  @ElementCollection
   @Column(nullable = false)
   Map<String, String> conceptTerminologyIds;
 

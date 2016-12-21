@@ -2,7 +2,15 @@
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
   <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
     ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
-  <h5>{{selected.metadata.atomsLabel}} ({{pagedData.totalCount}})</h5>
+  <div style="margin-bottom: 10px">
+    <h5 style="display: inline;">{{selected.metadata.atomsLabel}}
+      ({{pagedData.totalCount}})</h5>
+    <!-- Add Synonym - show if showing terminology tab -->
+    <span ng-show="appConfig['deploy.simpleedit.enabled'] == 'true'"
+      style="float: right; transform: scale(.8, .8);"
+      class="btn btn-xs btn-primary" ng-click="openAddAtomModal()">Add
+      Synonym</span>
+  </div>
   <div ng-show="showing">
     <span ng-show="pagedData.totalCount > 10" style="float: right;">
       Page size: <select ng-model="paging.pageSize" title="Page Size"
@@ -14,7 +22,6 @@
         <option value="1000000">All</option>
       </select>
     </span>
-
     <span class="alert alert-warning" style="margin-left: 15px"
       ng-show="!showHidden && pagedData.totalCount == 0 && !paging.filter">
       Click button above to show Obsolete
@@ -24,7 +31,7 @@
     <div pager paging="paging" count="pagedData.totalCount"
       callbacks="pageCallbacks"></div>
     <ul class="icon-list">
-      <li ng-class="cr-list" ng-repeat="item in pagedData.data">
+      <li ng-class="cr-list" ng-repeat="item in pagedData.data | orderBy:'name'">
         <div>
           <div style="display: table-cell; padding: 1px;">
             <i ng-class="getCollapseIcon(item)"
@@ -32,7 +39,7 @@
           </div>
           <div style="display: table-cell; padding: 1px;" class="w100">
             <span style="float: right; margin-right: 25px"
-              ng-show="isNewAtomTermgroup(item)">
+              ng-show="appConfig['deploy.simpleedit.enabled'] == 'true' && isNewAtomTermgroup(item)">
               <i ng-click="openEditAtomModal(item);" title="Edit"
                 class="noul glyphicon glyphicon-pencil"></i>
 

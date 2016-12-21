@@ -36,7 +36,6 @@ tsApp.controller('AtomModalCtrl', [
     }
 
     $scope.getTerminology = function(terminology) {
-      console.debug('xxx', terminology, $scope.lists.terminologies);
       for (var i = 0; i < $scope.lists.terminologies.length; i++) {
         if ($scope.lists.terminologies[i].terminology == terminology) {
           return $scope.lists.terminologies[i];
