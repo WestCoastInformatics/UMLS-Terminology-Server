@@ -63,6 +63,27 @@ public class ResetDemoDatabase {
     Invoker invoker;
     InvocationResult result;
 
+    // Load RRF - LOINC
+    request = new DefaultInvocationRequest();
+    request.setPomFile(new File("../admin/loader/pom.xml"));
+    request.setProfiles(Arrays.asList("RRF-single"));
+    request.setGoals(Arrays.asList("clean", "install"));
+    p = new Properties();
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
+    p.setProperty("server", server);
+    p.setProperty("mode", "create");
+    p.setProperty("terminology", "LNC");
+    p.setProperty("version", "248");
+    p.setProperty("input.dir",
+        "../../config/src/main/resources/data/SAMPLE_UMLS");
+    request.setProperties(p);
+    request.setMavenOpts("-Xmx2G");
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
+    if (result.getExitCode() != 0) {
+      throw result.getExecutionException();
+    }
+    
     // Load RF2 snapshot - SNOMEDCT
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
@@ -71,7 +92,7 @@ public class ResetDemoDatabase {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("mode", "create");
+    p.setProperty("mode", "update");
     p.setProperty("terminology", "SNOMEDCT");
     p.setProperty("version", "20160731");
     p.setProperty("input.dir",
@@ -140,27 +161,6 @@ public class ResetDemoDatabase {
     p.setProperty("version", "2016");
     p.setProperty("input.file",
         "../../config/src/main/resources/data/icd10cm.xml");
-    request.setProperties(p);
-    request.setMavenOpts("-Xmx2G");
-    invoker = new DefaultInvoker();
-    result = invoker.execute(request);
-    if (result.getExitCode() != 0) {
-      throw result.getExecutionException();
-    }
-
-    // Load RRF - LOINC
-    request = new DefaultInvocationRequest();
-    request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("RRF-single"));
-    request.setGoals(Arrays.asList("clean", "install"));
-    p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
-    p.setProperty("server", server);
-    p.setProperty("mode", "update");
-    p.setProperty("terminology", "LNC");
-    p.setProperty("version", "248");
-    p.setProperty("input.dir",
-        "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
     request.setMavenOpts("-Xmx2G");
     invoker = new DefaultInvoker();

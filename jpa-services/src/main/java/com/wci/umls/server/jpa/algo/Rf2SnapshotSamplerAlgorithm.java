@@ -249,6 +249,25 @@ public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
 
       }
     }
+
+    // Add definition metadata too
+    reader = readers.getReader(Rf2Readers.Keys.DEFINITION);
+    while ((line = reader.readLine()) != null) {
+
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+
+      if (!fields[0].equals("id")) {
+
+        // If concept id matches, add description metadata
+        if (concepts.contains(fields[4])) {
+          descriptions.add(fields[0]);
+          concepts.add(fields[3]);
+          concepts.add(fields[6]);
+          concepts.add(fields[8]);
+        }
+
+      }
+    }
   }
 
   /**

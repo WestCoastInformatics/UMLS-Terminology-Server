@@ -139,10 +139,14 @@ tsApp
             if (!$scope.selected.project) {
               $scope.selected.project = p;
             }
-            if (p.terminology == terminology) {
+            if (p.terminology == terminology.terminology) {
               $scope.selected.project = p;
             }
           }
+          if ($scope.selected.project) {
+            securityService.saveProjectId($scope.user.userPreferences, $scope.selected.project.id);
+          }
+
           // otherwise, leave project setting as is (last chosen)
 
           // Load all metadata for this terminology, store it in the metadata
@@ -180,11 +184,15 @@ tsApp
         // Retrieve all projects
         $scope.getProjects = function() {
           projectService.getProjectsForUser($scope.user).then(
-          // Success
-          function(data) {
-            $scope.lists.projects = data.projects;
-            $scope.selected.project = data.project;
-          });
+            // Success
+            function(data) {
+              $scope.lists.projects = data.projects;
+              $scope.selected.project = data.project;
+              if ($scope.selected.project) {
+                securityService.saveProjectId($scope.user.userPreferences,
+                  $scope.selected.project.id);
+              }
+            });
 
         };
 

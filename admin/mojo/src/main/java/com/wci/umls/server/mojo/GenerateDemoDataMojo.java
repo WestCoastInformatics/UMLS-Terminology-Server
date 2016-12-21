@@ -338,7 +338,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       definition.setName("need review");
       definition.setDescription("Concepts needing review");
       definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
+          + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW' and terminology= :terminology");
       definition.setEditable(true);
       definition.setEnabled(true);
       definition.setRequired(true);

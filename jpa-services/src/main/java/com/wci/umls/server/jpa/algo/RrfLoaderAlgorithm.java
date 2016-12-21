@@ -458,11 +458,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     ConfigUtility.deleteDirectory(new File(inputDirFile, "/RRF-sorted-temp/"));
 
     // Identity Loader
-    umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
-    umlsIdentityLoaderAlgo.setTerminology(getTerminology());
-    umlsIdentityLoaderAlgo.setInputPath(getInputPath());
-    umlsIdentityLoaderAlgo.compute();
-    umlsIdentityLoaderAlgo.close();
+    if (style.toString().startsWith("META")) {
+      umlsIdentityLoaderAlgo = new UmlsIdentityLoaderAlgorithm();
+      umlsIdentityLoaderAlgo.setTerminology(getTerminology());
+      umlsIdentityLoaderAlgo.setInputPath(getInputPath());
+      umlsIdentityLoaderAlgo.compute();
+      umlsIdentityLoaderAlgo.close();
+    }
 
     // Final logging messages
     Logger.getLogger(getClass())
