@@ -157,8 +157,8 @@ public abstract class AbstractMergeAlgorithm
           action2.setVersion(getProject().getVersion());
           action2.setWorkId(getWorkId());
           action2.setActivityId(getActivityId());
-          action2.setAtom(fromAtom);
-          action2.setAtom2(toAtom);
+          action2.setAtomId(fromAtom.getId());
+          action2.setAtomId2(toAtom.getId());
           action2.setChangeStatusFlag(changeStatus);
           action2.setConceptId(fromConcept.getId());
           action2.setConceptId2(toConcept.getId());

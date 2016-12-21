@@ -48,7 +48,6 @@ import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
@@ -356,10 +355,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setVersion("2016_05E");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Insertion");
-    // TODO question - set to something obviously wrong?
-    // Like "SET ME!"
-    // Or just leave blank?
-    processConfig.setInputPath("SET ME!");
+    processConfig.setInputPath("inv/NCI_2016_05E/insert");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -763,18 +759,15 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       contentService = new ContentServiceRestImpl();
       final Concept fromConcept =
           contentService.getConcept(id1s[i], projectId, authToken);
-      final Atom from = fromConcept.getAtoms().get(0);
+      final Long fromId = fromConcept.getAtoms().get(0).getId();
       contentService = new ContentServiceRestImpl();
-      final Atom to = contentService.getConcept(id2s[i], projectId, authToken)
-          .getAtoms().iterator().next();
+      final Long toId = contentService.getConcept(id2s[i], projectId, authToken)
+          .getAtoms().iterator().next().getId();
 
       final MetaEditingServiceRest metaEditingService =
           new MetaEditingServiceRestImpl();
-      final AtomRelationshipJpa demotion = new AtomRelationshipJpa();
-      demotion.setFrom(from);
-      demotion.setTo(to);
       metaEditingService.addDemotion(projectId, id1s[i], "DEMOTIONS",
-          fromConcept.getLastModified().getTime(), id2s[i], demotion, false,
+          fromConcept.getLastModified().getTime(), id2s[i], fromId, toId, false,
           authToken);
     }
 

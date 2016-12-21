@@ -41,7 +41,6 @@ import com.wci.umls.server.jpa.algo.action.SplitMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.algo.action.UpdateAtomMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
@@ -782,15 +781,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "From Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "To Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
-    @ApiParam(value = "Demotion to add", required = true) AtomRelationshipJpa demotion,
-    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "From Atom id, e.g. 3", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "To Atom id, e.g. 3", required = true) @PathParam("atomId2") Long atomId2,    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (MetaEditing): /demotion/add " + projectId + ","
-            + conceptId + " for user " + authToken + " with demotion value "
-            + demotion);
+            + conceptId + " from atom " + atomId + " to atom " + atomId2 + " for user " + authToken);
 
     // Instantiate services
     final AddDemotionMolecularAction action =
@@ -820,8 +818,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       action.setChangeStatusFlag(true);
 
       action.setConceptId2(conceptId2);
-      action.setAtom(demotion.getFrom());
-      action.setAtom2(demotion.getTo());
+      action.setAtomId(atomId);
+      action.setAtomId2(atomId2);
 
       // Perform the action
       final ValidationResult validationResult =

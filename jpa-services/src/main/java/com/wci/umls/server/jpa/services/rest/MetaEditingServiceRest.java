@@ -281,7 +281,8 @@ public interface MetaEditingServiceRest {
    * @param activityId the activity id
    * @param lastModified the last modified
    * @param conceptId2 the concept id 2
-   * @param demotion the demotion
+   * @param atomId the atom id
+   * @param atomId2 the atom id 2
    * @param overrideWarnings the override warnings
    * @param authToken the auth token
    * @return the validation result
@@ -289,7 +290,7 @@ public interface MetaEditingServiceRest {
    */
   public ValidationResult addDemotion(Long projectId, Long conceptId,
     String activityId, Long lastModified, Long conceptId2,
-    AtomRelationshipJpa demotion, boolean overrideWarnings, String authToken)
+    Long atomId, Long atomId2, boolean overrideWarnings, String authToken)
     throws Exception;
 
 }
