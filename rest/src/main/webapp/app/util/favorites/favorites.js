@@ -100,6 +100,7 @@ tsApp.directive('favorites', [
         };
 
         scope.removeFavorite = function(favorite) {
+        	console.debug('remove favorite', favorite);
           securityService.removeUserFavorite(favorite).then(
           // Success
           function(response) {
