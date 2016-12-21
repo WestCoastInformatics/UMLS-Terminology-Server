@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.UserJpa;
@@ -186,19 +187,13 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
     //
     // Make a project
     //
+
     final String[] terminologies = new String[] {
-        "LNC"
+        "SNOMEDCT", "SNOMEDCT_US", "ICD9CM", "ICD10CM", "LNC"
     };
     final String[] versions = new String[] {
-        "248"
+        "20160731", "20160901", "2013", "2016", "248"
     };
-
-    // final String[] terminologies = new String[] {
-    // "SNOMEDCT", "SNOMEDCT_US", "ICD9CM", "ICD10CM", "LNC"
-    // };
-    // final String[] versions = new String[] {
-    // "20160731", "20160901", "2013", "2016", "248"
-    // };
 
     for (int i = 0; i < terminologies.length; i++) {
 
@@ -220,20 +215,24 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       validationChecks.add("DEFAULT");
       project1.setValidationChecks(validationChecks);
 
-      // Handle precedence list
+      // Handle precedence list (if exists)
       MetadataServiceRest metadataService = new MetadataServiceRestImpl();
-      PrecedenceListJpa list =
-          new PrecedenceListJpa(metadataService.getDefaultPrecedenceList(
-              project1.getTerminology(), project1.getVersion(), authToken));
-      list.setId(null);
-      list.setTerminology(terminologies[i]);
-      list.setVersion(project1.getVersion());
-      metadataService = new MetadataServiceRestImpl();
-      list = (PrecedenceListJpa) metadataService.addPrecedenceList(list,
-          authToken);
-      project1.setPrecedenceList(list);
+      PrecedenceList origList = metadataService.getDefaultPrecedenceList(
+          project1.getTerminology(), "latest", authToken);
+
+      if (origList != null) {
+        PrecedenceListJpa list = new PrecedenceListJpa(origList);
+        list.setId(null);
+        list.setTerminology("");
+        list.setVersion("");
+        metadataService = new MetadataServiceRestImpl();
+        list = (PrecedenceListJpa) metadataService.addPrecedenceList(list,
+            authToken);
+        project1.setPrecedenceList(list);
+      }
 
       // Add project
+      project = new ProjectServiceRestImpl();
       project1 = (ProjectJpa) project.addProject(project1, authToken);
       final Long projectId = project1.getId();
 

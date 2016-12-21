@@ -86,7 +86,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     implements ProcessServiceRest {
 
   /** The lock. */
-  private static String lock = "LOCK";
+  static String lock = "LOCK";
 
   /** The security service. */
   private SecurityService securityService;

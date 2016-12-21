@@ -1,9 +1,11 @@
 // Atoms directive
 tsApp.directive('atoms', [
+  '$uibModal',
   'utilService',
   'contentService',
   'editService',
-  function(utilService, contentService) {
+  'appConfig',
+  function($uibModal, utilService, contentService, editService, appConfig) {
     return {
       restrict : 'A',
       scope : {
@@ -15,6 +17,7 @@ tsApp.directive('atoms', [
       templateUrl : 'app/component/atoms/atoms.html',
       link : function(scope, element, attrs) {
 
+        scope.appConfig = appConfig;
         scope.expanded = {};
         scope.showing = true;
         scope.getPagedList = function() {
@@ -99,11 +102,11 @@ tsApp.directive('atoms', [
 
         // Remove an atom
         scope.removeAtom = function(atom) {
-          editService.removeAtom(scope.selected.project.id, scope.selected.concept.id, atom.id)
+          editService.removeAtom(scope.selected.project.id, scope.selected.component.id, atom.id)
             .then(
             // success
             function(data) {
-              scope.getPagedList();
+              scope.callbacks.getComponent(scope.selected.component);
             });
         }
 
@@ -136,7 +139,7 @@ tsApp.directive('atoms', [
           modalInstance.result.then(
           // Success
           function(user) {
-            scope.getPagedAtoms();
+            scope.callbacks.getComponent(scope.selected.component);
           });
         };
         // Edit atom modal
@@ -165,7 +168,7 @@ tsApp.directive('atoms', [
           modalInstance.result.then(
           // Success
           function(user) {
-            scope.getPagedList();
+            scope.callbacks.getComponent(scope.selected.component);
           });
         };
 

@@ -59,20 +59,19 @@ tsApp.service('editService', [
 
       gpService.increment();
       $http['delete'](
-        editUrl + '/atom/' + atomId + '?projectId=' + projectId + '&conceptId=' + conceptId, atom)
-        .then(
-        // success
-        function(response) {
-          console.debug('  successful remove atom');
-          gpService.decrement();
-          deferred.resolve(response.data);
-        },
-        // error
-        function(response) {
-          utilService.handleError(response);
-          gpService.decrement();
-          deferred.reject(response.data);
-        });
+        editUrl + '/atom/' + atomId + '?projectId=' + projectId + '&conceptId=' + conceptId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove atom');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     }
 

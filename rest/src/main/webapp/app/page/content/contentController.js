@@ -19,10 +19,11 @@ tsApp
       'projectService',
       'metadataService',
       'contentService',
+      'websocketService',
       'appConfig',
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
         gpService, utilService, tabService, configureService, securityService, projectService,
-        metadataService, contentService, appConfig) {
+        metadataService, contentService, websocketService, appConfig) {
         console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
@@ -137,14 +138,13 @@ tsApp
             // Pick the first project if nothing has been selected
             if (!$scope.selected.project) {
               $scope.selected.project = p;
-            }              
+            }
             if (p.terminology == terminology) {
               $scope.selected.project = p;
             }
-          } 
+          }
           // otherwise, leave project setting as is (last chosen)
 
-          
           // Load all metadata for this terminology, store it in the metadata
           // service and return deferred promise
           var deferred = $q.defer();
@@ -578,8 +578,6 @@ tsApp
           // });
         };
 
-
-
         //
         // MODALS
         //
@@ -624,12 +622,16 @@ tsApp
         // Toggle favorite
         $scope.toggleFavorite = function(component) {
           if (securityService.isUserFavorite(component)) {
-            securityService.removeUserFavorite(component).then(function() {
+            securityService.removeUserFavorite(component).then(
+            // Success
+            function() {
               $scope.isFavorite = false;
               websocketService.fireFavoriteChange();
             });
           } else {
-            securityService.addUserFavorite(component).then(function() {
+            securityService.addUserFavorite(component).then(
+            // Favorite
+            function() {
               $scope.isFavorite = true;
               websocketService.fireFavoriteChange();
             });
@@ -671,7 +673,6 @@ tsApp
             // Success
             function(data) {
               $scope.lists.terminologies = data.terminologies;
-
               // Load all terminologies upon controller load (unless already
               // loaded)
               if ($scope.lists.terminologies) {

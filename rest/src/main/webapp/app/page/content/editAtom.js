@@ -14,12 +14,16 @@ tsApp.controller('SimpleAtomModalCtrl', [
     // Scope vars
     $scope.selected = selected;
     $scope.lists = lists;
-    $scope.atom = atom;
+    $scope.atom = atom ? atom : {
+      language : $scope.selected.metadata.languages[0].key,
+      publishable : true
+    };
     $scope.action = action;
     $scope.overrideWarnings = false;
     $scope.warnings = [];
     $scope.errors = [];
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+    $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
 
     // Init modal
     function initialize() {

@@ -156,7 +156,7 @@ public class ResetDemoDatabase {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("mode", "create");
+    p.setProperty("mode", "update");
     p.setProperty("terminology", "LNC");
     p.setProperty("version", "248");
     p.setProperty("input.dir",

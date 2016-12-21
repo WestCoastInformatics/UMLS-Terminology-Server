@@ -11,7 +11,6 @@ tsApp.controller('EditTerminologyModalCtrl', [
   function($scope, $uibModalInstance, utilService, metadataService, selected, lists, user,
     terminology) {
 
-    console.debug('XXX',terminology);
     // Scope variables
     $scope.terminology = terminology;
     $scope.selected = selected;

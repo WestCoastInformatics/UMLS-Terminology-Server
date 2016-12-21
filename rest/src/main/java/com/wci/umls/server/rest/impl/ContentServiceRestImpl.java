@@ -452,24 +452,17 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       //
       // Compute tree positions
       //
-      for (final Terminology t : list.getObjects()) {
-        // Only compute for organizing class types
-        if (t.getOrganizingClassType() != null) {
-          algo3 = new TreePositionAlgorithm();
-          algo3.setLastModifiedBy(userName);
-          algo3.setTerminology(t.getTerminology());
-          algo3.setVersion(t.getVersion());
-          algo3.setIdType(t.getOrganizingClassType());
-          // some terminologies may have cycles, allow these for now.
-          algo3.setCycleTolerant(true);
-          // compute "semantic types" for concept hierarchies
-          if (t.getOrganizingClassType() == IdType.CONCEPT) {
-            algo3.setComputeSemanticType(true);
-          }
-          algo3.compute();
-          algo3.close();
-        }
-      }
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo3.setCycleTolerant(true);
+      // compute "semantic types" for concept hierarchies
+      algo3.setComputeSemanticType(true);
+      algo3.compute();
+      algo3.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load simple terminology from directory");
@@ -560,6 +553,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Compute tree positions
       // Refresh caches after metadata has changed in loader
       for (final Terminology t : list.getObjects()) {
+
+        // if SINGLE, skip unless it matches this terminology
+        if (style == RrfLoaderAlgorithm.Style.SINGLE.toString()
+            && !t.getTerminology().equals(t.getTerminology())) {
+          continue;
+        }
+
         // Only compute for organizing class types
         if (t.getOrganizingClassType() != null) {
           algo3 = new TreePositionAlgorithm();

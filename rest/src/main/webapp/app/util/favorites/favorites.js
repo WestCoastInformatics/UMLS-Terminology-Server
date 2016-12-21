@@ -52,7 +52,9 @@ tsApp.directive('favorites', [
         function getPagedList() {
 
           // Request from service
-          contentService.getUserFavorites(scope.paging).then(function(response) {
+          contentService.getUserFavorites(scope.paging).then(
+          // Success
+          function(response) {
             scope.pagedData = response;
 
           });
@@ -98,11 +100,12 @@ tsApp.directive('favorites', [
         };
 
         scope.removeFavorite = function(favorite) {
-          securityService.removeUserFavorite(favorite.type, favorite.terminology, favorite.version,
-            favorite.terminologyId, favorite.value).then(function(response) {
+          securityService.removeUserFavorite(favorite).then(
+          // Success
+          function(response) {
             getPagedList();
             scope.callbacks.checkFavoriteStatus();
-
+            websocketService.fireFavoriteChange();
           });
         };
 
