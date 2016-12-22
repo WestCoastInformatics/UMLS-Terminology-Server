@@ -234,7 +234,7 @@ public class Rf2SnapshotLoaderAlgorithm
         sorter.setInputDir(getInputPath());
         sorter.setOutputDir(getInputPath() + "/RF2-sorted-temp/");
         sorter.setSortByEffectiveTime(false);
-        sorter.setRequireAllFiles(true);
+        sorter.setRequireAllFiles(false);
         Logger.getLogger(getClass()).info("  Sort RF2 Files");
         Logger.getLogger(getClass()).info("    sort by effective time: false");
         Logger.getLogger(getClass()).info("    require all files     : false");
@@ -594,7 +594,7 @@ public class Rf2SnapshotLoaderAlgorithm
                     + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship" + relationship.getTerminologyId()
+            throw new Exception("Relationship " + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }

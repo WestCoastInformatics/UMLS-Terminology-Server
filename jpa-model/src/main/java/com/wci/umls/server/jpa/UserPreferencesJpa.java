@@ -13,7 +13,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -76,11 +75,11 @@ public class UserPreferencesJpa implements UserPreferences {
   private PrecedenceList precedenceList = null;
 
   /** The favorites. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   private List<String> favorites = null;
 
   /** The properties. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = true)
   private Map<String, String> properties;
 

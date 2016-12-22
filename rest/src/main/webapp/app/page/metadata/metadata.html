@@ -2,10 +2,12 @@
 <div class="row">
 
   <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;"
-    ng-show="!selected.metadata.terminology.terminology">No terminology selected.</div>
+    ng-show="!selected.metadata.terminology.terminology">No terminology
+    selected.</div>
 
   <!-- Metadata -->
-  <div class="col-md-12 col-xs-12" ng-show="selected.metadata.terminology.terminology">
+  <div class="col-md-12 col-xs-12"
+    ng-show="selected.metadata.terminology.terminology">
 
 
     <h3>Metadata for {{selected.metadata.terminology.terminology}}</h3>
@@ -24,9 +26,12 @@
           ng-class="[{'glyphicon-chevron-right' : !resultsExpanded['pl']}, {'glyphicon-chevron-down' : resultsExpanded['pl']}]"></i>
         &nbsp; Precedence List (in rank order)
       </div>
-      <ul ng-show="resultsExpanded['pl']">
+      <ul ng-show="resultsExpanded['pl'] && selected.precedenceList">
         <li ng-repeat="pair in selected.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
       </ul>
+      <span ng-show="resultsExpanded['pl'] && !selected.precedenceList"
+        class="alert alert-warning"> This terminology load does not use a
+        precedence list. </span>
     </div>
 
     <!-- Other metadata -->
@@ -37,9 +42,13 @@
           ng-class="[{'glyphicon-chevron-right' : !resultsExpanded[item.name]}, {'glyphicon-chevron-down' : resultsExpanded[item.name]}]"></i>
         &nbsp; {{getItemName(item)}}
       </div>
-      <ul ng-show="resultsExpanded[item.name]">
+      <ul ng-show="resultsExpanded[item.name] && item.keyValuePairs.length>0">
         <li ng-repeat="pair in item.keyValuePairs"><span
             class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
+      </ul>
+      <ul
+        ng-show="resultsExpanded[item.name]  && item.keyValuePairs.length == 0"
+        class="alert alert-warning">No {{item.name}} metadata found.
       </ul>
     </div>
   </div>
