@@ -690,8 +690,8 @@ public class IndexUtility {
           // check for LONG fields
           if (sortFieldStr.equals("lastModified")
               || sortFieldStr.equals("timestamp")
-              || sortFieldStr.toLowerCase().endsWith("id")
-              || sortFieldStr.toLowerCase().endsWith("idsort")) {
+              || (sortFieldStr.toLowerCase().endsWith("id") && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
+              || sortFieldStr.toLowerCase().endsWith("idsort") && !sortFieldStr.toLowerCase().endsWith("terminologyidsort")) {
             sortField = new SortField(sortFieldStr, SortField.Type.LONG,
                 !pfs.isAscending());
           }
