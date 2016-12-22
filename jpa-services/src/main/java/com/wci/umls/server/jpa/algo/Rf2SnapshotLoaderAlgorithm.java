@@ -119,6 +119,9 @@ public class Rf2SnapshotLoaderAlgorithm
   /** The release version date. */
   private Date releaseVersionDate = null;
 
+  /** The extension (and optional namespace) information */
+  private String extensionInfo = null;
+
   /** The readers. */
   private Rf2Readers readers;
 
@@ -225,6 +228,24 @@ public class Rf2SnapshotLoaderAlgorithm
       // faster performance.
       beginTransaction();
 
+      // Get release version if not set externally
+      if (getReleaseVersion() == null) {
+        setReleaseVersion(getFileVersion());
+      }
+
+      // get extension information if not set externally
+      try {
+        extensionInfo = getFileExtensionInfo();
+        Logger.getLogger(getClass()).info("  extensionInfo = " + extensionInfo);
+      } catch (Exception e) {
+        Logger.getLogger(getClass()).warn(
+            "Could not retrieve extension and namespace information from file structure");
+      }
+
+      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
+      Logger.getLogger(getClass())
+          .info("  releaseVersion = " + getReleaseVersion());
+
       // Sort files if indicated (otherwise sorted externally, e.g. by "full"
       // loader)
       if (isSortFiles()) {
@@ -244,14 +265,6 @@ public class Rf2SnapshotLoaderAlgorithm
         throw new Exception(
             "No sort specified, but previously sorted files do not exist.");
       }
-
-      // Get release version if not set externally
-      if (getReleaseVersion() == null) {
-        setReleaseVersion(getFileVersion());
-      }
-      releaseVersionDate = ConfigUtility.DATE_FORMAT.parse(getReleaseVersion());
-      Logger.getLogger(getClass())
-          .info("  releaseVersion = " + getReleaseVersion());
 
       // Open readers if not opened externally
       boolean leaveReadersOpen = readers != null;
@@ -423,6 +436,17 @@ public class Rf2SnapshotLoaderAlgorithm
     Rf2FileSorter sorter = new Rf2FileSorter();
     sorter.setInputDir(getInputPath());
     return sorter.getFileVersion();
+  }
+
+  /**
+   * Gets the RF2 extension (and optional namespace information)
+   * @return the extension & namespace string
+   * @throws Exception
+   */
+  public String getFileExtensionInfo() throws Exception {
+    Rf2FileSorter sorter = new Rf2FileSorter();
+    sorter.setInputDir(getInputPath());
+    return sorter.getFileExtensionInfo();
   }
 
   /**
@@ -812,6 +836,7 @@ public class Rf2SnapshotLoaderAlgorithm
                       + concept.getTerminologyId());
             }
           }
+
           concept.setName(prefName);
           prefName = null;
 
@@ -1840,13 +1865,22 @@ public class Rf2SnapshotLoaderAlgorithm
 
     // semantic types - n/a
 
+    // Compute root terminology name - remove any occurrence of "Concept"
+    Concept rootConcept = null;
+    if (conceptIdMap.containsKey(rootConceptId)) {
+      rootConcept = getConcept(conceptIdMap.get(rootConceptId));
+    }
+
     // Root Terminology
+    String rootPrefName = null;
+    if (rootConcept != null) {
+      rootPrefName = rootConcept.getName().replaceAll("Concept", "")
+          + (extensionInfo != null && !extensionInfo.isEmpty()
+              ? " " + extensionInfo + " Edition" : "");
+    }
     RootTerminology root = new RootTerminologyJpa();
     root.setFamily(getTerminology());
-    if (conceptIdMap.containsKey(rootConceptId)) {
-      root.setHierarchicalName(
-          getConcept(conceptIdMap.get(rootConceptId)).getName());
-    }
+    root.setHierarchicalName(rootConcept != null ? rootConcept.getName() : "");
     root.setLanguage(
         rootLanguage == null ? "en" : rootLanguage.getAbbreviation());
     root.setTimestamp(releaseVersionDate);
@@ -1854,7 +1888,7 @@ public class Rf2SnapshotLoaderAlgorithm
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
     root.setPreferredName(
-        root.getHierarchicalName() == null ? "" : root.getHierarchicalName());
+        rootPrefName == null ? root.getHierarchicalName() : rootPrefName);
     root.setRestrictionLevel(-1);
     root.setTerminology(getTerminology());
     addRootTerminology(root);
@@ -1871,7 +1905,7 @@ public class Rf2SnapshotLoaderAlgorithm
     term.setDescriptionLogicTerminology(true);
     term.setOrganizingClassType(IdType.CONCEPT);
     term.setPreferredName(
-        root.getPreferredName() == null ? "" : root.getPreferredName());
+        root.getPreferredName() == null ? "" : root.getPreferredName() + ", " + getFileVersion());
     term.setRootTerminology(root);
     addTerminology(term);
 
