@@ -135,6 +135,41 @@ public class Rf2FileSorter {
     }
     return fileVersion;
   }
+  
+  /**
+   * Return the extension (and namespace if present)
+   * 
+   * @return
+   * @throws Exception
+   */
+  public String getFileExtensionInfo() throws Exception { 
+    String fileExtension = null;
+   
+    for (final String dirName : dirMap.values()) {
+      final File file = new File(inputDir + dirName);
+      if (file != null && file.exists()) {
+        for (final String fileName : file.list()) {
+          // match last _dddddd
+          try {
+            
+            Matcher matcher = Pattern.compile(".*_Concept_Snapshot_([^_]*)")
+                .matcher(fileName);
+            matcher.find();
+            fileExtension = matcher.group(1);
+          } catch (Exception e) {
+            // do nothing
+          }
+
+        }
+      }
+    }
+
+    if (fileExtension == null) {
+      throw new Exception(
+          "Unable to determine file version from input directory " + inputDir);
+    }
+    return fileExtension;
+  }
 
   /**
    * Sort files.

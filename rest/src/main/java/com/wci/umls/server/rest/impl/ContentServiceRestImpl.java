@@ -3456,7 +3456,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-
+  /**
+   * NOTE: Located in Content Service as codes/concepts/descriptors are directly retrieved for note details
+   */
   @POST
   @Path("/favorites")
   @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)

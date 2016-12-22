@@ -76,11 +76,11 @@ public class UserPreferencesJpa implements UserPreferences {
   private PrecedenceList precedenceList = null;
 
   /** The favorites. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   private List<String> favorites = null;
 
   /** The properties. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = true)
   private Map<String, String> properties;
 

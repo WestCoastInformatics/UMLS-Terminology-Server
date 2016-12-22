@@ -35,12 +35,13 @@ tsApp
           console.debug('  no-params mode detected, show tabs');
           tabService.setShowing(true);
           utilService.setHeaderFooterShowing(true);
+          tabService.setSelectedTabByLabel('Content');
         }
 
         utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
-        tabService.setSelectedTabByLabel('Content');
+        
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
