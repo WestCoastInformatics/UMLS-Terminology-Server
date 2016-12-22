@@ -21,7 +21,6 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
@@ -381,11 +380,11 @@ public class MetaEditingClientRest extends RootClientRest
   @Override
   public ValidationResult addDemotion(Long projectId, Long conceptId,
     String activityId, Long lastModified, Long conceptId2,
-    AtomRelationshipJpa demotion, boolean overrideWarnings, String authToken)
+    Long atomId, Long atomId2, boolean overrideWarnings, String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("MetaEditing Client - add demotion " + projectId + ", "
-            + conceptId + ", " + demotion.toString() + ", " + lastModified
+            + conceptId + ", atomId: " + atomId + ", atomId2: " + atomId2 + ", " + lastModified
             + ", " + overrideWarnings + ", " + authToken);
 
     validateNotEmpty(projectId, "projectId");
@@ -397,13 +396,12 @@ public class MetaEditingClientRest extends RootClientRest
         + "/meta/demotion/add?projectId=" + projectId + "&conceptId="
         + conceptId + (activityId == null ? "" : "&activityId=" + activityId)
         + "&lastModified=" + lastModified + "&conceptId2=" + conceptId2
+        + "&atomdId=" + atomId
+        + "&atomId2=" + atomId2
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
-    String relString = ConfigUtility.getJsonForGraph(
-        demotion == null ? new AtomRelationshipJpa() : demotion);
-
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(relString));
+        .header("Authorization", authToken).post(null);
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {

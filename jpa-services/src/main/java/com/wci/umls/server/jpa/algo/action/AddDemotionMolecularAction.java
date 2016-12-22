@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo.action;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -21,7 +22,13 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
 
   /** The atom 2. */
   private Atom atom2;
-  
+
+  /** The atom id 1. */
+  private Long atomId;
+
+  /** The atom id 2. */
+  private Long atomId2;
+
   /** The demotion relationship. */
   private AtomRelationship demotionRelationship = null;
 
@@ -39,21 +46,21 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
   }
 
   /**
-   * Sets the atom 1.
+   * Sets the atom id.
    *
-   * @param atom the atom 1
+   * @param atomId the atom id
    */
-  public void setAtom(Atom atom) {
-    this.atom = atom;
+  public void setAtomId(Long atomId) {
+    this.atomId = atomId;
   }
 
   /**
-   * Sets the atom 2.
+   * Sets the atom id 2.
    *
-   * @param atom2 the atom 2
+   * @param atomId2 the atom id 2
    */
-  public void setAtom2(Atom atom2) {
-    this.atom2 = atom2;
+  public void setAtomId2(Long atomId2) {
+    this.atomId2 = atomId2;
   }
 
   /* see superclass */
@@ -68,7 +75,22 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
       throw new Exception(
           "Unexpected self-referential relationship, the fromConcept Id should not match toConcept Id");
     }
-    
+
+    // Exists for atoms check
+    if (atom == null) {
+      atom = getAtom(atomId);
+      if (atom == null) {
+        throw new LocalException("Atom id " + atomId + " does not exist");
+      }
+    }
+
+    if (atom2 == null) {
+      atom2 = getAtom(atomId2);
+      if (atom2 == null) {
+        throw new LocalException("Atom id " + atomId2 + " does not exist");
+      }
+    }
+
     // If the atoms already have a demotion relationship between them, return an
     // error
     for (AtomRelationship atomRel : atom.getRelationships()) {

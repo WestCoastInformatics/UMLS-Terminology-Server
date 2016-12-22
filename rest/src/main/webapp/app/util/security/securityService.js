@@ -500,7 +500,7 @@ tsApp.service('securityService', [
       var terminology = component.terminology;
       var version = component.version;
       var terminologyId = component.terminologyId;
-      var name = component.name;
+      var name = component.name ? component.name : component.value;
       return type + '~~' + terminology + '~~' + version + '~~' + terminologyId + '~~' + name;
     }
 
@@ -545,6 +545,7 @@ tsApp.service('securityService', [
       var deferred = $q.defer();
       if (this.isGuestUser()) {
         $q.reject('Cannot add favorites for guest user');
+        utilService.handleError('Guest users cannot add favorites');
       } else {
         if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
           deferred.reject('Insufficient arguments');
@@ -580,17 +581,22 @@ tsApp.service('securityService', [
       var terminology = component.terminology;
       var version = component.version;
       var terminologyId = component.terminologyId;
-      var name = component.name;
-      console.debug('remove user favorite', type, terminology, version, terminologyId, name);
+      var name = component.name ? component.name : component.value;
+      
+      console.debug('remove user favorite', component, type, terminology, version, terminologyId, name);
 
       var deferred = $q.defer();
       if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
-        deferred.reject('Insufficient arguments');
+        utilService.handleError({
+          data : 'Unexpected error removing favorite: insufficient arguments'
+        });
+        deferred.reject('Unexpected error removing favorite');
       }
       var delimitedStr = getUserFavoriteStr(component);
 
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
+        console.debug(user.userPreferences.favorites[i], delimitedStr)
         if (user.userPreferences.favorites[i].indexOf(delimitedStr) != -1) {
           console.debug('match found: ', user.userPreferences.favorites[i]);
           matchFound = true;
@@ -605,7 +611,10 @@ tsApp.service('securityService', [
           deferred.reject(response);
         });
       } else {
-        deferred.reject('Favorite not in list');
+        utilService.handleError({
+          data : 'Unexpected error removing favorite: favorite not found'
+        });
+        deferred.reject('Unexpected error removing favorite: favorite not found');
       }
 
       return deferred.promise;

@@ -268,7 +268,9 @@ public class SecurityServiceJpa extends RootServiceJpa
   /* see superclass */
   @Override
   public User getUser(Long id) throws Exception {
-    return manager.find(UserJpa.class, id);
+    final User user = manager.find(UserJpa.class, id);
+    handleLazyInit(user);
+    return user;
   }
 
   /* see superclass */
@@ -278,7 +280,9 @@ public class SecurityServiceJpa extends RootServiceJpa
         .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", username);
     try {
-      return (User) query.getSingleResult();
+      final User user = (User) query.getSingleResult();
+      handleLazyInit(user);
+      return user;
     } catch (NoResultException e) {
       return null;
     }
@@ -384,6 +388,10 @@ public class SecurityServiceJpa extends RootServiceJpa
   public void handleLazyInit(User user) {
     if (user.getProjectRoleMap() != null) {
       user.getProjectRoleMap().size();
+    }
+    if (user.getUserPreferences() != null) {
+      user.getUserPreferences().getFavorites().size();
+      user.getUserPreferences().getProperties().size();
     }
   }
 

@@ -244,8 +244,8 @@ public class AddDemotionTest extends IntegrationUnitSupport {
       action.setTerminology(umlsTerminology);
       action.setVersion(umlsVersion);
 
-      action.setAtom(atom);
-      action.setAtom2(atom2);
+      action.setAtomId(atom.getId());
+      action.setAtomId2(atom2.getId());
 
       // Perform the action
       validationResult = action.performMolecularAction(action, "admin", true);
