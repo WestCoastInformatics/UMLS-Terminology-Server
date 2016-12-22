@@ -1889,7 +1889,7 @@ public class Rf2SnapshotLoaderAlgorithm
     root.setPolyhierarchy(true);
     root.setPreferredName(
         rootPrefName == null ? root.getHierarchicalName() : rootPrefName);
-    root.setRestrictionLevel(-1);
+    root.setRestrictionLevel(0);
     root.setTerminology(getTerminology());
     addRootTerminology(root);
 
