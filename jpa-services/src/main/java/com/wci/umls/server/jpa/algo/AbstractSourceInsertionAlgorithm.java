@@ -963,28 +963,32 @@ public abstract class AbstractSourceInsertionAlgorithm
   /**
    * Returns the cached map set.
    *
-   * @param codeAndTerminology the code and terminology
+   * @param sourceAtomAltId the source atom alt id
    * @return the cached map set
    * @throws Exception the exception
    */
-  public MapSet getCachedMapSet(String codeAndTerminology) throws Exception {
+  public MapSet getCachedMapSet(String sourceAtomAltId) throws Exception {
 
     if (cachedMapSets.isEmpty()) {
       cacheExistingMapSets();
     }
 
-    return cachedMapSets.get(codeAndTerminology);
+    return cachedMapSets.get(sourceAtomAltId);
   }
 
   /**
    * Put map set into the cache.
    *
-   * @param codeIdAndTerminology the code id and terminology
+   * @param sourceAtomAltId the code id and terminology
    * @param mapSet the map set
    */
   @SuppressWarnings("static-method")
-  public void putMapSet(String codeIdAndTerminology, MapSet mapSet) {
-    cachedMapSets.put(codeIdAndTerminology, mapSet);
+  public void putMapSet(String sourceAtomAltId, MapSet mapSet) {
+    if (cachedMapSets.isEmpty()) {
+      cachedMapSets = new HashMap<>();
+    }
+
+    cachedMapSets.put(sourceAtomAltId, mapSet);
   }
 
   /**
