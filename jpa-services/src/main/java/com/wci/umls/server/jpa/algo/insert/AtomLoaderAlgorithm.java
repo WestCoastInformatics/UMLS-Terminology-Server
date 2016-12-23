@@ -239,7 +239,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           putComponent(newAtom, newAtomAui);
 
           // Reconcile mapSet
-          // reconcileMapSet(newAtom);
+          reconcileMapSet(newAtom);
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom);
 
@@ -289,7 +289,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
             updateCount++;
 
             // Reconcile mapSet
-            // reconcileMapSet(newAtom);
+            reconcileMapSet(newAtom);
             // Reconcile code/concept/descriptor
             reconcileCodeConceptDescriptor(oldAtom);
           }
@@ -327,32 +327,35 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * @param atom the atom
    * @throws Exception the exception
    */
-  @SuppressWarnings("unused")
   private void reconcileMapSet(Atom atom) throws Exception {
 
     // Only XM atoms get a mapSet
-    if (atom.getTermType().equals("XM")) {
+    if (!atom.getTermType().equals("XM")) {
       return;
     }
 
-    final MapSet existingMapSet =
-        getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
+    // create a new placeholder mapSet, if one doesn't already exist
+    // NOTE: some of these fields will be altered by MappingsLoaderAlgorithm
+    // later
+    if (getCachedMapSet(atom.getAlternateTerminologyIds()
+        .get(getProject().getTerminology() + "-SRC")) == null) {
 
-    // Check map to see if map set already exists
-    if (existingMapSet != null) {
-      // TODO - figure out and fill this out
-      // existingMapSet.set...();
-      updateMapSet(existingMapSet);
-    }
+      MapSet mapSet = new MapSetJpa();
+      mapSet.setObsolete(false);
+      mapSet.setSuppressible(false);
+      mapSet.setPublished(false);
+      mapSet.setPublishable(true);
+      mapSet.setName("");
+      mapSet.setTerminology(getProcess().getTerminology());
+      mapSet.setFromTerminology(getProcess().getTerminology());
+      mapSet.setVersion(getProcess().getVersion());
+      mapSet.setTerminologyId("");
 
-    // else create a new map set
-    else {
-      final MapSet newMapSet = new MapSetJpa();
-      // TODO - figure out and fill this out
-      // newMapSet.set...();
+      mapSet = addMapSet(mapSet);
 
-      addMapSet(newMapSet);
-      putMapSet(atom.getCodeId() + "_" + atom.getTerminology(), newMapSet);
+      // Cache the mapSet, so MappingsLoaderAlgorithm can look it up later
+      putMapSet(atom.getAlternateTerminologyIds()
+          .get(getProject().getTerminology() + "-SRC"), mapSet);
     }
 
   }
@@ -414,15 +417,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         updateConcept(existingConcept);
 
         // If this atom is associated with a mapSet, update it
-        // if (getCachedMapSet(
-        // atom.getCodeId() + "_" + atom.getTerminology()) != null) {
-        // MapSet mapSet =
-        // getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
-        // mapSet.setName(existingConcept.getName());
-        // mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-        // existingConcept.getTerminologyId());
-        // updateMapSet(mapSet);
-        // }
+        if (getCachedMapSet(atom.getAlternateTerminologyIds()
+            .get(getProject().getTerminology() + "-SRC")) != null) {
+          MapSet mapSet = getCachedMapSet(atom.getAlternateTerminologyIds()
+              .get(getProject().getTerminology() + "-SRC"));
+          mapSet.setName(existingConcept.getName());
+          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
+              existingConcept.getTerminologyId());
+        }
 
         // Read concept relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
@@ -451,16 +453,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         putComponent(newConcept, newConcept.getTerminologyId());
 
         // If this atom is associated with a mapSet, update its
-        // alternateTerminologyId
-        // if (getCachedMapSet(
-        // atom.getCodeId() + "_" + atom.getTerminology()) != null) {
-        // MapSet mapSet =
-        // getCachedMapSet(atom.getCodeId() + "_" + atom.getTerminology());
-        // mapSet.setName(newConcept.getName());
-        // mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-        // newConcept.getTerminologyId());
-        // updateMapSet(mapSet);
-        // }
+        if (getCachedMapSet(atom.getAlternateTerminologyIds()
+            .get(getProject().getTerminology() + "-SRC")) != null) {
+          MapSet mapSet = getCachedMapSet(atom.getAlternateTerminologyIds()
+              .get(getProject().getTerminology() + "-SRC"));
+          mapSet.setName(newConcept.getName());
+          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
+              newConcept.getTerminologyId());
+        }
       }
     }
     // Check map to see if descriptor already exists

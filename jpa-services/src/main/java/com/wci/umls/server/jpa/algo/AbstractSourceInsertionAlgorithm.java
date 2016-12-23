@@ -445,34 +445,34 @@ public abstract class AbstractSourceInsertionAlgorithm
     }
   }
 
-  /**
-   * Cache existing mapSets. Key = code+terminology of the XM atom in the
-   * concept whose terminologyId is the mapset alternate terminology id
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingMapSets() throws Exception {
-
-    final javax.persistence.Query jpaQuery =
-        getEntityManager().createQuery("SELECT m, a FROM "
-            + "MapSetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
-            + "WHERE key(alt) = :terminology "
-            + "AND value(alt) = c.terminologyId "
-            + "AND a.termType = :termType ");
-    jpaQuery.setParameter("terminology", getProject().getTerminology());
-    jpaQuery.setParameter("termType", "XM");
-
-    final List<Object[]> list = jpaQuery.getResultList();
-    for (final Object[] entry : list) {
-      final MapSet mapSet = (MapSet) entry[0];
-      final Atom atom = (Atom) entry[1];
-      // TODO question - is codeId correct here?
-      final String codeId = atom.getCodeId();
-      final String terminology = atom.getTerminology();
-      cachedMapSets.put(codeId + "_" + terminology, mapSet);
-    }
-  }
+//  /**
+//   * Cache existing mapSets. Key = code+terminology of the XM atom in the
+//   * concept whose terminologyId is the mapset alternate terminology id
+//   *
+//   * @throws Exception the exception
+//   */
+//  @SuppressWarnings("unchecked")
+//  private void cacheExistingMapSets() throws Exception {
+//
+//    final javax.persistence.Query jpaQuery =
+//        getEntityManager().createQuery("SELECT m, a FROM "
+//            + "MapSetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
+//            + "WHERE key(alt) = :terminology "
+//            + "AND value(alt) = c.terminologyId "
+//            + "AND a.termType = :termType ");
+//    jpaQuery.setParameter("terminology", getProject().getTerminology());
+//    jpaQuery.setParameter("termType", "XM");
+//
+//    final List<Object[]> list = jpaQuery.getResultList();
+//    for (final Object[] entry : list) {
+//      final MapSet mapSet = (MapSet) entry[0];
+//      final Atom atom = (Atom) entry[1];
+//      // TODO question - is codeId correct here?
+//      final String codeId = atom.getCodeId();
+//      final String terminology = atom.getTerminology();
+//      cachedMapSets.put(codeId + "_" + terminology, mapSet);
+//    }
+//  }
 
   /**
    * Cache existing codes.
@@ -954,7 +954,7 @@ public abstract class AbstractSourceInsertionAlgorithm
    */
   public Map<String, MapSet> getCachedMapSets() throws Exception {
     if (cachedMapSets.isEmpty()) {
-      cacheExistingMapSets();
+      cachedMapSets = new HashMap<>();
     }
 
     return cachedMapSets;
@@ -970,7 +970,7 @@ public abstract class AbstractSourceInsertionAlgorithm
   public MapSet getCachedMapSet(String sourceAtomAltId) throws Exception {
 
     if (cachedMapSets.isEmpty()) {
-      cacheExistingMapSets();
+      cachedMapSets = new HashMap<>();
     }
 
     return cachedMapSets.get(sourceAtomAltId);
