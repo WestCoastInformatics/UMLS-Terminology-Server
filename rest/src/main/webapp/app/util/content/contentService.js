@@ -906,7 +906,7 @@ tsApp
             $http.post(contentUrl + '/favorites', pfs).then(
             // Success
             function(response) {
-              console.debug('  user favorites = ',response.data);
+              console.debug('  user favorites = ', response.data);
 
               gpService.decrement();
               deferred.resolve(response.data);
@@ -995,7 +995,7 @@ tsApp
           gpService.increment();
 
           $http.post(
-            contentUrl + '/' + type.toLowerCase() + '/' + component.terminologyId + '/'
+            contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminologyId + '/'
               + component.terminology + '/' + component.version + '/mappings', pfs).then(
           // success
           function(response) {

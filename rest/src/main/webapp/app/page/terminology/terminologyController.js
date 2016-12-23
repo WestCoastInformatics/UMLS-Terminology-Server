@@ -45,12 +45,23 @@ tsApp.controller('TerminologyCtrl', [
     };
 
     // Paging function
-    $scope.getPagedList = function() {
-      getPagedList();
+    $scope.getPagedList = function(terminology) {
+      getPagedList(terminology);
     }
-    function getPagedList() {
+    function getPagedList(terminology) {
+      if (terminology) {
+        $scope.paging['t'].filter = terminology;
+      }
       $scope.pagedTerminologies = utilService.getPagedArray($scope.lists.terminologies,
         $scope.paging['t']).data;
+      if (terminology) {
+        var terminologies = $scope.pagedTerminologies.filter(function(item) {
+          return terminology == item.terminology
+        });
+        if (terminologies.length>0) {
+          $scope.setTerminology(terminologies[0]);
+        }
+      }
     }
 
     // Table sorting mechanism
@@ -68,7 +79,6 @@ tsApp.controller('TerminologyCtrl', [
     $scope.setTerminology = function(terminology) {
 
       metadataService.setTerminology(terminology);
-
       if ($scope.selected.terminology && $scope.selected.terminology.id == terminology.id) {
         $scope.selected.terminology = null;
         $scope.selected.rootTerminology = null;

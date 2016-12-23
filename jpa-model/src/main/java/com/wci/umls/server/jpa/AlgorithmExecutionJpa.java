@@ -70,7 +70,8 @@ public class AlgorithmExecutionJpa extends
   private ProcessExecution process;
 
   /** Has the algorithm had a warning fired during its execution?. */
-  private Boolean warning;
+  @Column(nullable = false)
+  private boolean warning = false;
 
   /** the properties */
   @ElementCollection

@@ -91,6 +91,17 @@
                   <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.licenseContact)}}
                   </td>
                 </tr>
+                <tr ng-show="terminology.metathesaurus">
+                  <td class="col-md-3 col-xs-3">
+                    <b>Related Terminologies</b>
+                  </td>
+                  <td class="col-md-9 col-xs-9">
+                    <span class="noul"
+                      ng-click="getPagedList(item)"
+                      ng-repeat="item in terminology.relatedTerminologies">{{item}}
+                    </span>
+                  </td>
+                </tr>
                 <tr>
                   <td class="col-md-3 col-xs-3">
                     <b>Access Data</b>

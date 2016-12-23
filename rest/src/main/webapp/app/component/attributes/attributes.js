@@ -13,13 +13,7 @@ tsApp.directive('attributes', [ function() {
     templateUrl : 'app/component/attributes/attributes.html',
     controller : [ '$scope', 'utilService', function($scope, utilService) {
 
-      function getPagedList() {
-        $scope.pagedData = utilService.getPagedArray($scope.component.attributes.filter(
-        // handle hidden flag
-        function(item) {
-          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
-        }), $scope.paging);
-      }
+      $scope.showing = true;
 
       // instantiate paging and paging callbacks function
       $scope.pagedData = [];
@@ -51,6 +45,13 @@ tsApp.directive('attributes', [ function() {
         }
       });
 
+      function getPagedList() {
+        $scope.pagedData = utilService.getPagedArray($scope.component.attributes.filter(
+        // handle hidden flag
+        function(item) {
+          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), $scope.paging);
+      }
       // end controller
     } ]
   };

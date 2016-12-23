@@ -10,12 +10,9 @@ tsApp.directive('mappings', [ function() {
       callbacks : '='
     },
     templateUrl : 'app/component/mappings/mappings.html',
-    controller : [
-      '$scope',
-      'utilService',
-      'contentService',
+    controller : [ '$scope', 'utilService', 'contentService',
       function($scope, utilService, contentService) {
-
+        $scope.showing = true;
         // Paging vars
         $scope.pagedData = [];
         $scope.paging = utilService.getPaging();
@@ -39,7 +36,7 @@ tsApp.directive('mappings', [ function() {
         // Get paged data
         function getPagedList() {
 
-          var paging = $$scope.paging;
+          var paging = $scope.paging;
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -49,10 +46,10 @@ tsApp.directive('mappings', [ function() {
           };
 
           // Request from service
-          contentService.findMappings($scope.component.type, $scope.component.terminologyId,
-            $scope.component.terminology, $scope.component.version, pfs).then(
+          contentService.findMappings($scope.component, pfs).then(
           // Success
           function(data) {
+            console.debug('bacxxx',data);
             $scope.pagedMappings = data.mappings;
             $scope.pagedMappings.totalCount = data.totalCount;
           });

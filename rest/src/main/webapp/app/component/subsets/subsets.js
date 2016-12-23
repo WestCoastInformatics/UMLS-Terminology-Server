@@ -11,16 +11,7 @@ tsApp.directive('subsets', [ function() {
     },
     templateUrl : 'app/component/subsets/subsets.html',
     controller : [ '$scope', 'utilService', function($scope, utilService) {
-
-      function getPagedList() {
-
-        $scope.pagedData = utilService.getPagedArray($scope.component.members.filter(
-        // handle hidden flag
-        function(item) {
-          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
-        }), $scope.paging);
-        console.debug('subsets', $scope.pagedData);
-      }
+      $scope.showing = true;
 
       // instantiate paging and paging callbacks function
       $scope.pagedData = [];
@@ -51,7 +42,19 @@ tsApp.directive('subsets', [ function() {
           getPagedList();
         }
       });
-      // end controlle
+
+      // get paged list
+      function getPagedList() {
+
+        $scope.pagedData = utilService.getPagedArray($scope.component.members.filter(
+        // handle hidden flag
+        function(item) {
+          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), $scope.paging);
+        console.debug('subsets', $scope.pagedData);
+      }
+
+      // end controller
     } ]
   };
 } ]);
