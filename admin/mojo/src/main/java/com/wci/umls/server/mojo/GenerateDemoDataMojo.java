@@ -192,7 +192,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
         "SNOMEDCT", "SNOMEDCT_US", "ICD9CM", "ICD10CM", "LNC"
     };
     final String[] versions = new String[] {
-        "20160731", "20160901", "2013", "2016", "248"
+        "20160731", "20160901", "2013", "2016", "254"
     };
 
     for (int i = 0; i < terminologies.length; i++) {
@@ -216,7 +216,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       project1.setValidationChecks(validationChecks);
 
       // Handle precedence list (if exists)
-      MetadataServiceRest metadataService = new MetadataServiceRestImpl();
+      MetadataServiceRest metadataService = new MetadataServiceRestImpl();      
       PrecedenceList origList = metadataService.getDefaultPrecedenceList(
           project1.getTerminology(), "latest", authToken);
 

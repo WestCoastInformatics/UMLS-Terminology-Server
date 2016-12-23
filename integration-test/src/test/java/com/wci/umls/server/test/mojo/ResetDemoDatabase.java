@@ -73,7 +73,7 @@ public class ResetDemoDatabase {
     p.setProperty("server", server);
     p.setProperty("mode", "create");
     p.setProperty("terminology", "LNC");
-    p.setProperty("version", "248");
+    p.setProperty("version", "254");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);

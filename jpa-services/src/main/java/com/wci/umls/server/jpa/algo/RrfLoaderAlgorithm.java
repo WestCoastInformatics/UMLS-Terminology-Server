@@ -1133,7 +1133,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       Terminology term = loadedTerminologies.get(fields[3]);
       if (term == null || !term.getVersion().equals(termVersion)) {
         term = new TerminologyJpa();
-
         term.setAssertsRelDirection(false);
         term.setCitation(new CitationJpa(fields[24]));
         term.setCurrent(fields[21].equals("Y"));
@@ -2898,7 +2897,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          logError("  Null root " + line);
+          logError("  SRC/SSN with missing versioned or root terminology (ok for mini) "
+              + fields[13].substring(2));
         } else {
           t.getRootTerminology().setShortName(fields[14]);
         }
@@ -2906,7 +2906,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          logError("  Null root " + line);
+          logError("  SRC/RHT with missing versioned or root terminology (ok for mini) "
+              + fields[13].substring(2));
         } else {
           t.getRootTerminology().setHierarchicalName(fields[14]);
         }

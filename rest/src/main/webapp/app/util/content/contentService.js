@@ -249,7 +249,6 @@ tsApp
 
         // add a component history entry
         this.addComponentToHistory = function(component) {
-
           var terminologyId = component.terminologyId;
           var terminology = component.terminology;
           var version = component.version;
@@ -904,10 +903,16 @@ tsApp
             };
 
             gpService.increment();
-            $http.post(contentUrl + '/favorites', pfs).then(function(response) {
+            $http.post(contentUrl + '/favorites', pfs).then(
+            // Success
+            function(response) {
+              console.debug('  user favorites = ',response.data);
+
               gpService.decrement();
               deferred.resolve(response.data);
-            }, function(response) {
+            },
+            // Failure
+            function(response) {
               utilService.handleError(response);
               gpService.decrement();
               // return the original concept without additional annotation

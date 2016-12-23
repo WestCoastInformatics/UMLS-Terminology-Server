@@ -7,6 +7,8 @@ TOMCAT SETUP (as tomcata)
 ** add -Xms4G -Xmx15G
 * webapps directory
 ** /local/content/tomcat/meme-8080/webapps
+* Make the meme indexes directory writeable by all
+chmod 777 
 
 SETUP
 
@@ -48,6 +50,7 @@ REDEPLOY INSTRUCTIONS
 cd /meme_work/ncim/code
 git pull
 mvn clean install -Drun.config.label=ncim -Dconfig.artifactId=term-server-config-prod-nci-meta 
+chmod -R 777 /meme_work/ncim/data/indexes/
 
 As tomcata:
 /bin/rm -rf /local/content/tomcat/meme-8080/work/Catalina/localhost/ncim-server-rest

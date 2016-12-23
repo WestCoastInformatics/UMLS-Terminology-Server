@@ -110,13 +110,20 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       atom.setVersion(concept.getVersion());
       final Atom newAtom = contentService.addAtom(atom);
 
+      // TODO: consider other features:
+      // e.g. molecular actions, logging, or maybe none of these things happened
+      // here and this is just a very simple, unaudited change - e.g. use molecular actions instead.
+
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+
       concept.getAtoms().add(newAtom);
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
       contentService.updateConcept(concept);
-
-      // TODO: consider other atom class maintenance.
 
       contentService.commit();
       return newAtom;

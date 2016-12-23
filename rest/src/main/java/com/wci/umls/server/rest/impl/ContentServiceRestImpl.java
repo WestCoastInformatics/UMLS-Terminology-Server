@@ -432,8 +432,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       // Compute transitive closure - CURRENTLY DISABLED
       //
       contentService = new ContentServiceJpa();
-      final TerminologyList list =
-          contentService.getTerminologyLatestVersions();
+      // final TerminologyList list =
+      // contentService.getTerminologyLatestVersions();
       // for (final Terminology t : list.getObjects()) {
       // // Only compute for organizing class types
       // if (t.getOrganizingClassType() != null) {
