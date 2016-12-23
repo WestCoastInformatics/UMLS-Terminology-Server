@@ -1,5 +1,5 @@
 // Attributes
-tsApp.directive('attributes', [ 'utilService', function(utilService) {
+tsApp.directive('attributes', [ function() {
   console.debug('configure attributes directive');
   return {
     restrict : 'A',
@@ -11,29 +11,29 @@ tsApp.directive('attributes', [ 'utilService', function(utilService) {
 
     },
     templateUrl : 'app/component/attributes/attributes.html',
-    link : function(scope, element, attrs) {
+    controller : [ '$scope', 'utilService', function($scope, utilService) {
 
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.attributes.filter(
+        $scope.pagedData = utilService.getPagedArray($scope.component.attributes.filter(
         // handle hidden flag
         function(item) {
-          return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
-        }), scope.paging);
+          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), $scope.paging);
       }
 
       // instantiate paging and paging callbacks function
-      scope.pagedData = [];
-      scope.paging = utilService.getPaging();
-      scope.pageCallbacks = {
+      $scope.pagedData = [];
+      $scope.paging = utilService.getPaging();
+      $scope.pageCallbacks = {
         getPagedList : getPagedList
       };
 
       // watch the component
-      scope.$watch('component', function() {
-        if (scope.component) {
+      $scope.$watch('component', function() {
+        if ($scope.component) {
           // Clear paging
-          scope.paging = utilService.getPaging();
-          scope.pageCallbacks = {
+          $scope.paging = utilService.getPaging();
+          $scope.pageCallbacks = {
             getPagedList : getPagedList
           };
           // Get data
@@ -42,14 +42,16 @@ tsApp.directive('attributes', [ 'utilService', function(utilService) {
       }, true);
 
       // watch show hidden flag
-      scope.$watch('showHidden', function(newValue, oldValue) {
-        scope.paging.showHidden = scope.showHidden;
+      $scope.$watch('showHidden', function(newValue, oldValue) {
+        $scope.paging.showHidden = $scope.showHidden;
 
         // if value changed, get paged list
         if (newValue != oldValue) {
           getPagedList();
         }
       });
-    }
+
+      // end controller
+    } ]
   };
 } ]);

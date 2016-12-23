@@ -82,6 +82,10 @@ public class TerminologyJpa extends AbstractHasLastModified
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
+  /** The synonymous names. */
+  @ElementCollection
+  private List<String> relatedTerminologies = new ArrayList<>();
+
   /** The version. */
   @Column(nullable = false)
   private String version;
@@ -150,6 +154,7 @@ public class TerminologyJpa extends AbstractHasLastModified
     rootTerminology = copy.getRootTerminology();
     startDate = copy.getStartDate();
     synonymousNames = new ArrayList<>(copy.getSynonymousNames());
+    relatedTerminologies = new ArrayList<>(copy.getRelatedTerminologies());
     version = copy.getVersion();
     assertsRelDirection = copy.isAssertsRelDirection();
     current = copy.isCurrent();
@@ -292,6 +297,21 @@ public class TerminologyJpa extends AbstractHasLastModified
   @Override
   public void setSynonymousNames(List<String> synonymousNames) {
     this.synonymousNames = synonymousNames;
+  }
+
+  /* see superclass */
+  @Override
+  public List<String> getRelatedTerminologies() {
+    if (relatedTerminologies == null) {
+      relatedTerminologies = new ArrayList<>();
+    }
+    return relatedTerminologies;
+  }
+
+  /* see superclass */
+  @Override
+  public void setRelatedTerminologies(List<String> relatedTerminologies) {
+    this.relatedTerminologies = relatedTerminologies;
   }
 
   /* see superclass */
@@ -524,11 +544,6 @@ public class TerminologyJpa extends AbstractHasLastModified
         return false;
     } else if (!startDate.equals(other.startDate))
       return false;
-    if (synonymousNames == null) {
-      if (other.synonymousNames != null)
-        return false;
-    } else if (!synonymousNames.equals(other.synonymousNames))
-      return false;
     if (terminology == null) {
       if (other.terminology != null)
         return false;
@@ -560,13 +575,12 @@ public class TerminologyJpa extends AbstractHasLastModified
     return "TerminologyJpa [terminology=" + terminology + ", citation="
         + citation + ", endDate=" + endDate + ", organizingClassType="
         + organizingClassType + ", preferredName=" + preferredName
-        + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
-        + ", version=" + version + ", assertsRelDirection="
-        + assertsRelDirection + ", metathesaurus=" + metathesaurus
-        + ", descriptionLogicTerminology=" + descriptionLogicTerminology
-        + ", descriptionLogicProfile=" + descriptionLogicProfile
-        + ", inverterEmail=" + inverterEmail + ", includeSiblings="
-        + includeSiblings + ", url=" + url + "]";
+        + ", startDate=" + startDate + ", version=" + version
+        + ", assertsRelDirection=" + assertsRelDirection + ", metathesaurus="
+        + metathesaurus + ", descriptionLogicTerminology="
+        + descriptionLogicTerminology + ", descriptionLogicProfile="
+        + descriptionLogicProfile + ", inverterEmail=" + inverterEmail
+        + ", includeSiblings=" + includeSiblings + ", url=" + url + "]";
   }
 
 }

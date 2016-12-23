@@ -1,8 +1,7 @@
-<span
-        ng-show="!selected.project.editingEnabled"
-        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
+<span ng-show="!selected.project.editingEnabled" style="display: block;"
+  class="alert alert-danger">Editing is disabled.</span>
 <h4>
-  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Atoms
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.atomsLabel}}
     ({{selected.component.atoms.length}})</b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">
     {{selected.component.name}} {{selected.component.id}} </span>
@@ -49,7 +48,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr ng-repeat="atom in pagedAtoms.data" class="{{getAtomClass(atom)}}" 
+    <tr ng-repeat-start="atom in pagedAtoms.data" class="{{getAtomClass(atom)}}"
       ng-class="{selected: isRowSelected(atom)}">
       <td ng-click="toggleSelection(atom)">
         <input type="checkbox" value="{{atom.name}}"
@@ -61,17 +60,66 @@
       <td ng-click="toggleSelection(atom)">{{atom.descriptorId}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.lastModifiedBy}}</td>
       <td class="nobreak">
-        <span notes selected="{component:atom, project:selected.project}" empty="atom.notes"
-                type="Atom"></span>
-                
-        <i ng-click="openEditAtomModal(atom); $event.stopPropagation()"
-          ng-show="selected.project.editingEnabled"
-          title="Edit" class="noul glyphicon glyphicon-pencil"></i>
+        <span notes selected="{component:atom, project:selected.project}"
+          empty="atom.notes" type="Atom"></span>
 
-        <i ng-show="isAtomDeleteable(atom) && selected.project.editingEnabled" confirm="Are you sure you want to remove the atom ({{atom.name}})?"
+        <i ng-click="openEditAtomModal(atom); $event.stopPropagation()"
+          ng-show="selected.project.editingEnabled" title="Edit"
+          class="noul glyphicon glyphicon-pencil"></i>
+
+        <i ng-show="isAtomDeleteable(atom) && selected.project.editingEnabled"
+          confirm="Are you sure you want to remove the atom ({{atom.name}})?"
           ng-click="removeAtomFromConcept(atom); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
+        <button ng-disabled="!attributes[atom.id]"
+          class="btn btn-xs btn-primary"
+          title="{{attributes[atom.id] ? 'Hide' : 'Show'}} attribures"
+          ng-click="toggleAttributes(atom)">
+          A
+          </span>
+      </td>
+    </tr>
+    <tr ng-if="attributes[atom.id].ct > 0" ng-repeat-end>
+      <td colspan="7">
+        <table class="slim table" ng-show="attributes[atom.id].atom.length>0">
+          <tr ng-repeat="att in attributes[atom.id].atom">
+            <td>{{att.name}}</td>
+            <td>{{att.value}}</td>
+          </tr>
+        </table>
+        <div ng-if="attributes[atom.id].code.length">
+          <h5>Code: {{atom.terminology}} {{atom.codeId}}</h5>
+          <table class="slim table" ng-show="attributes[atom.id].code.length>0">
+            <tr ng-repeat="att in attributes[atom.id].code">
+              <td>{{att.name}}</td>
+              <td>{{att.value}}</td>
+            </tr>
+          </table>
+        </div>
+        <div ng-if="attributes[atom.id].concept.length">
+          <h5>Concept: {{atom.terminology}} {{atom.conceptId}}</h5>
+          <table class="slim table"
+            ng-show="attributes[atom.id].concept.length>0">
+            <tr ng-repeat="att in attributes[atom.id].concept">
+              <td>{{att.name}}</td>
+              <td>{{att.value}}</td>
+            </tr>
+          </table>
+        </div>
+        <div ng-if="attributes[atom.id].descriptor.length">
+          <h5>Descriptor: {{atom.terminology}} {{atom.descriptorId}}</h5>
+          <table class="slim table"
+            ng-show="attributes[atom.id].descriptor.length>0">
+            <tr ng-repeat="att in attributes[atom.id].descriptor">
+              <td>{{att.name}}</td>
+              <td>{{att.value}}</td>
+            </tr>
+          </table>
+        </div>
+
+        <span ng-show="attributes[atom.id].ct == 0" class="alert alert-warning">
+          No attributes</span>
       </td>
     </tr>
   </tbody>
@@ -90,20 +138,21 @@
       <button ng-click="approveConcept()" title="Approve"
         ng-disabled="!selected.project.editingEnabled"
         class="btn btn-xs btn-primary">Approve</button>
-      <button ng-click="next()" title="Next" 
-        ng-disabled="!selected.project.editingEnabled" class="btn btn-xs btn-primary">Next</button>
+      <button ng-click="next()" title="Next"
+        ng-disabled="!selected.project.editingEnabled"
+        class="btn btn-xs btn-primary">Next</button>
       <button ng-click="approveNext()" title="Approve/Next"
         ng-disabled="!selected.project.editingEnabled"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Merge"
-        class="btn btn-xs btn-primary">Merge</button>
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        title="Merge" class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Move"
-        class="btn btn-xs btn-primary">Move</button>
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        title="Move" class="btn btn-xs btn-primary">Move</button>
       <button ng-click="openSplitModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled" title="Split"
-        class="btn btn-xs btn-primary">Split</button>
+        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        title="Split" class="btn btn-xs btn-primary">Split</button>
     </span>
   </div>
 </nav>

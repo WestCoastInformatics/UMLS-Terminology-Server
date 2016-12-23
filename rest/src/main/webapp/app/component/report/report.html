@@ -48,12 +48,12 @@
   <!-- Relationships -->
   <div relationships component="selected.component" metadata="selected.metadata"
     show-hidden="showHidden" callbacks="callbacks"></div>
-  <!-- Deep relationships -->
+  <!-- Deep relationships for metathesaurus CONCEPTs only-->
   <div
     ng-if="selected.metadata.terminology.metathesaurus && selected.component.type === 'CONCEPT'"
     relationships-deep component="selected.component"
     metadata="selected.metadata" show-hidden="showHidden" callbacks="callbacks"></div>
-  <!-- Mappings 
+  <!-- Mappings -->
   <div mappings component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>-->
+    show-hidden="showHidden" callbacks="callbacks"></div>
 </div>

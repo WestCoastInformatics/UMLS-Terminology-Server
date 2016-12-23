@@ -1,33 +1,34 @@
 // Mappings
-tsApp.directive('mappings', [
-  'utilService',
-  'contentService',
-  function(utilService, contentService) {
-    console.debug('configure mappingss directive');
-    return {
-      restrict : 'A',
-      scope : {
-        component : '=',
-        metadata : '=',
-        showHidden : '=',
-        callbacks : '='
-      },
-      templateUrl : 'app/component/mappings/mappings.html',
-      link : function(scope, element, attrs) {
+tsApp.directive('mappings', [ function() {
+  console.debug('configure mappingss directive');
+  return {
+    restrict : 'A',
+    scope : {
+      component : '=',
+      metadata : '=',
+      showHidden : '=',
+      callbacks : '='
+    },
+    templateUrl : 'app/component/mappings/mappings.html',
+    controller : [
+      '$scope',
+      'utilService',
+      'contentService',
+      function($scope, utilService, contentService) {
 
         // Paging vars
-        scope.pagedData = [];
-        scope.paging = utilService.getPaging();
-        scope.pageCallbacks = {
+        $scope.pagedData = [];
+        $scope.paging = utilService.getPaging();
+        $scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 
         // watch the component
-        scope.$watch('component', function() {
-          if (scope.component) {
+        $scope.$watch('component', function() {
+          if ($scope.component) {
             // Clear paging
-            scope.paging = utilService.getPaging();
-            scope.pageCallbacks = {
+            $scope.paging = utilService.getPaging();
+            $scope.pageCallbacks = {
               getPagedList : getPagedList
             };
             // Get data
@@ -38,7 +39,7 @@ tsApp.directive('mappings', [
         // Get paged data
         function getPagedList() {
 
-          var paging = $scope.paging;
+          var paging = $$scope.paging;
           var pfs = {
             startIndex : (paging.page - 1) * paging.pageSize,
             maxResults : paging.pageSize,
@@ -48,15 +49,16 @@ tsApp.directive('mappings', [
           };
 
           // Request from service
-          contentService.findMappings(scope.component.type, scope.component.terminologyId,
-            scope.component.terminology, scope.component.version, pfs).then(
+          contentService.findMappings($scope.component.type, $scope.component.terminologyId,
+            $scope.component.terminology, $scope.component.version, pfs).then(
           // Success
           function(data) {
-            scope.pagedMappings = data.mappings;
-            scope.pagedMappings.totalCount = data.totalCount;
+            $scope.pagedMappings = data.mappings;
+            $scope.pagedMappings.totalCount = data.totalCount;
           });
         }
 
-      }
-    };
-  } ]);
+        // end controller
+      } ]
+  };
+} ]);

@@ -5,17 +5,13 @@ package com.wci.umls.server.jpa;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -86,12 +82,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
   @ManyToOne(targetEntity = ProjectJpa.class, optional = false)
   private Project project;
 
-  /** the properties */
-  @ElementCollection
-  @MapKeyColumn(length = 255)
-  @Column(length = 4000)
-  private Map<String, String> properties = new HashMap<>();
-
   /** parameters. */
   @Transient
   private List<AlgorithmParameter> parameters = new ArrayList<>();
@@ -116,7 +106,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     name = info.getName();
     description = info.getDescription();
     project = info.getProject();
-    properties = new HashMap<>(info.getProperties());
     parameters = new ArrayList<>(info.getParameters());
     algorithmKey = info.getAlgorithmKey();
 
@@ -259,21 +248,6 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     this.parameters = parameters;
   }
 
-  /* see superclass */
-  @Override
-  @XmlTransient
-  public Map<String, String> getProperties() {
-    if (properties == null) {
-      properties = new HashMap<>();
-    }
-    return properties;
-  }
-
-  /* see superclass */
-  @Override
-  public void setProperties(Map<String, String> properties) {
-    this.properties = properties;
-  }
 
   /* see superclass */
   @Override
@@ -287,8 +261,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result
         + ((getProjectId() == null) ? 0 : getProjectId().hashCode());
-    result =
-        prime * result + ((properties == null) ? 0 : properties.hashCode());
+   
 
     return result;
   }
@@ -324,11 +297,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
         return false;
     } else if (!getProjectId().equals(other.getProjectId()))
       return false;
-    if (properties == null) {
-      if (other.properties != null)
-        return false;
-    } else if (!properties.equals(other.properties))
-      return false;
+   
     return true;
   }
 
@@ -337,7 +306,7 @@ public abstract class AbstractAlgorithmInfo<T extends ProcessInfo<?>>
     return "AbstractAlgorithmInfo [id=" + id + ", lastModified=" + lastModified
         + ", lastModifiedBy=" + lastModifiedBy + ", timestamp=" + timestamp
         + ", name=" + name + ", description=" + description + ", algorithmKey="
-        + algorithmKey + ", properties=" + properties + "]";
+        + algorithmKey + "]";
   }
 
 }

@@ -1,8 +1,7 @@
-<span
-        ng-show="!selected.project.editingEnabled"
-        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
+<span ng-show="!selected.project.editingEnabled" style="display: block;"
+  class="alert alert-danger">Editing is disabled.</span>
 <h4>
-  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Relationships
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.relationshipsLabel}}
     ({{pagedRelationships.totalCount}})</b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
     {{selected.component.id}}</span>
@@ -85,9 +84,10 @@
         ng-click="getPagedRelationships()" title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
-        ng-disabled="!selected.relationship || !selected.project.editingEnabled" title="Transfer concept to editor"
-        class="btn btn-xs btn-primary">Transfer</button>
-      <button ng-click="openMergeModal()" ng-disabled="!selected.relationship || !selected.project.editingEnabled"
+        ng-disabled="!selected.relationship || !selected.project.editingEnabled"
+        title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
+      <button ng-click="openMergeModal()"
+        ng-disabled="!selected.relationship || !selected.project.editingEnabled"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>

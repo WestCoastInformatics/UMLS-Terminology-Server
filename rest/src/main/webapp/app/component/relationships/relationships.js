@@ -1,42 +1,42 @@
 // Relationships
-tsApp.directive('relationships', [
-  'utilService',
-  'contentService',
-  function(utilService) {
-    console.debug('configure relationships directive');
-    return {
-      restrict : 'A',
-      scope : {
-        component : '=',
-        metadata : '=',
-        showHidden : '=',
-        callbacks : '='
-      },
-      templateUrl : 'app/component/relationships/relationships.html',
-      link : function(scope, element, attrs) {
+tsApp.directive('relationships', [ function() {
+  console.debug('configure relationships directive');
+  return {
+    restrict : 'A',
+    scope : {
+      component : '=',
+      metadata : '=',
+      showHidden : '=',
+      callbacks : '='
+    },
+    templateUrl : 'app/component/relationships/relationships.html',
+    controller : [
+      '$scope',
+      'utilService',
+      function($scope, utilService) {
 
         // check callbacks supplied
-        if (!scope.callbacks || !scope.callbacks.findRelationships) {
+        if (!$scope.callbacks || !$scope.callbacks.findRelationships) {
           utilService
             .setError('Relationships directive requires callbacks.findRelationships function');
         }
 
-        scope.showing = true;
+        $scope.showing = true;
 
         // instantiate paging and paging callbacks function
-        scope.pagedData = [];
-        scope.paging = utilService.getPaging();
-        scope.pageCallbacks = {
+        $scope.pagedData = [];
+        $scope.paging = utilService.getPaging();
+        $scope.pageCallbacks = {
           getPagedList : getPagedList
         };
-        scope.paging.sortField = 'group';
-        scope.paging.sortAscending = true;
-        scope.paging.showInferred = false;
+        $scope.paging.sortField = 'group';
+        $scope.paging.sortAscending = true;
+        $scope.paging.showInferred = false;
 
         // Default is Group/Type, where in getpagedData
         // relationshipType is automatically appended as a multi-
         // sort search
-        scope.paging.sortOptions = [ {
+        $scope.paging.sortOptions = [ {
           key : 'Group, Type',
           value : 'group'
         }, {
@@ -50,7 +50,7 @@ tsApp.directive('relationships', [
           value : 'toName'
         } ];
 
-        scope.getPagedList = function() {
+        $scope.getPagedList = function() {
           getPagedList();
         }
         function getPagedList() {
@@ -62,44 +62,44 @@ tsApp.directive('relationships', [
           // always sort intelligently around relationship type and additional
           // relationship type
           var sortFields = new Array();
-          if (scope.paging.sortField === 'group') {
+          if ($scope.paging.sortField === 'group') {
             sortFields = [ 'group', 'relationshipType', 'additionalRelationshipType', 'toName' ];
-          } else if (scope.paging.sortField === 'relationshipType') {
+          } else if ($scope.paging.sortField === 'relationshipType') {
             sortFields = [ 'relationshipType', 'additionalRelationshipType', 'group', 'toName' ];
-          } else if (scope.paging.sortFied === 'additionalRelationshipType') {
+          } else if ($scope.paging.sortFied === 'additionalRelationshipType') {
             sortFields = [ 'additionalRelationshipType', 'relationshipType', 'group', 'toName' ];
           } else {
-            sortFields = [ scope.paging.sortField, 'group', 'relationshipType',
+            sortFields = [ $scope.paging.sortField, 'group', 'relationshipType',
               'additionalRelationshipType', 'toName' ];
           }
 
           var paging = {
-            page : scope.paging.page,
-            pageSize : scope.paging.pageSize,
-            showSuppressible : scope.showHidden,
-            showObsolete : scope.showHidden,
-            showInferred : scope.paging.showInferred,
-            text : scope.paging.filter,
+            page : $scope.paging.page,
+            pageSize : $scope.paging.pageSize,
+            showSuppressible : $scope.showHidden,
+            showObsolete : $scope.showHidden,
+            showInferred : $scope.paging.showInferred,
+            text : $scope.paging.filter,
             sortFields : sortFields,
-            sortAscending : scope.paging.sortAscending
+            sortAscending : $scope.paging.sortAscending
           };
 
           // Request from service
-          scope.callbacks.findRelationships(scope.component, paging).then(
+          $scope.callbacks.findRelationships($scope.component, paging).then(
           // Success
           function(data) {
 
-            scope.pagedData.data = data.relationships;
-            scope.pagedData.totalCount = data.totalCount;
+            $scope.pagedData.data = data.relationships;
+            $scope.pagedData.totalCount = data.totalCount;
 
           });
         }
         // watch the component
-        scope.$watch('component', function() {
-          if (scope.component) {
+        $scope.$watch('component', function() {
+          if ($scope.component) {
             // Reset paging
-            scope.paging.page = 1;
-            scope.paging.filter = null;
+            $scope.paging.page = 1;
+            $scope.paging.filter = null;
 
             // Get data
             getPagedList();
@@ -107,8 +107,8 @@ tsApp.directive('relationships', [
         }, true);
 
         // watch show hidden flag
-        scope.$watch('showHidden', function(newValue, oldValue) {
-          scope.paging.showHidden = scope.showHidden;
+        $scope.$watch('showHidden', function(newValue, oldValue) {
+          $scope.paging.showHidden = $scope.showHidden;
 
           // if value changed, get paged list
           if (newValue != oldValue) {
@@ -117,15 +117,16 @@ tsApp.directive('relationships', [
         });
 
         // Function to toggle inferred flag and apply paging
-        scope.toggleInferred = function() {
-          if (scope.paging.showInferred == null || scope.paging.showInferred == undefined) {
-            scope.paging.showInferred = false;
+        $scope.toggleInferred = function() {
+          if ($scope.paging.showInferred == null || $scope.paging.showInferred == undefined) {
+            $scope.paging.showInferred = false;
           } else {
-            scope.paging.showInferred = !scope.paging.showInferred;
+            $scope.paging.showInferred = !$scope.paging.showInferred;
           }
           getPagedList();
         };
 
-      }
-    };
-  } ]);
+        // end controller
+      } ]
+  };
+} ]);

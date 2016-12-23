@@ -1,6 +1,6 @@
 <h4>
-  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Contexts
-    ({{pagedEntries.length}})</b>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.hierarchiesLabel}}
+    and {{selected.metadata.attributesLabel}} ({{pagedEntries.length}})</b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
     {{selected.component.id}}</span>
 </h4>
@@ -48,40 +48,6 @@
 
 <div tree-component component="component" metadata="selected.metadata"
   callbacks="callbacks"></div>
-
-
-<span ng-show="component.attributes.length > 0">
-  <hr>
-  <h4>
-    <span style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Attributes
-      ({{pagedAttributes.totalCount}})</span>
-    <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">&nbsp;</span>
-  </h4>
-  <span ng-show="pagedAttributes.totalCount > 5" style="float: right;">
-    Page size: <select ng-model="paging['attributes'].pageSize"
-      title="Page Size"
-      ng-change="paging['attributes'].callbacks.getPagedList()">
-      <option selected value="5">5</option>
-      <option value="20">20</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-    </select>
-  </span>
-
-  <div pager paging="paging['attributes']" count="pagedAttributes.totalCount"
-    callbacks="paging['attributes'].callbacks"></div>
-
-
-  <table class="slim table pointer">
-    <tbody>
-      <tr ng-repeat="attribute in pagedAttributes.data">
-        <td>{{attribute.id}}</td>
-        <td>{{attribute.name}}</td>
-        <td>{{attribute.value}}</td>
-      </tr>
-    </tbody>
-  </table>
-</span>
 
 <div ng-if="treeCount == 0">
   <span style="display: block;" class="alert alert-warning">No

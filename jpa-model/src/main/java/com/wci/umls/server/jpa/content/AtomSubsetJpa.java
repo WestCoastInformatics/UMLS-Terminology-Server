@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -46,9 +48,8 @@ public class AtomSubsetJpa extends AbstractSubset implements AtomSubset {
 
   /** The alternate terminology ids. */
   @ElementCollection
-//  @CollectionTable(name = "atom_subset_altIds", joinColumns = @JoinColumn(name = "altIds", referencedColumnName = "terminologyId"))
-//  @MapKeyColumn(name = "terminology", length = 100)
-//  @Column(nullable = true, length = 100)
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
   /**

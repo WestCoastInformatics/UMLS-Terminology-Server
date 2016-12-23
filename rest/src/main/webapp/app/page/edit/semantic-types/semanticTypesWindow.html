@@ -1,8 +1,7 @@
-<span
-        ng-show="!selected.project.editingEnabled"
-        style="display: block;" class="alert alert-danger">Editing is disabled.</span>
+<span ng-show="!selected.project.editingEnabled" style="display: block;"
+  class="alert alert-danger">Editing is disabled.</span>
 <h4>
-  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">Semantic Types
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.semanticTypesLabel}}
     ({{selected.component.semanticTypes.length}})</b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
     {{selected.component.id}}</span>
@@ -30,7 +29,7 @@
   <button ng-click="approveConcept()" title="Approve"
     ng-disabled="!selected.project.editingEnabled"
     class="btn btn-xs btn-primary">Approve</button>
-  <button ng-click="next()" title="Next" 
+  <button ng-click="next()" title="Next"
     ng-disabled="!selected.project.editingEnabled"
     class="btn btn-xs btn-primary">Next</button>
   <button ng-click="approveNext()" title="Approve/Next"
@@ -79,7 +78,7 @@
       <td>
         <button ng-click="addSemanticTypeToConcept(semanticType.expandedForm); "
           ng-disabled="!selected.project.editingEnabled"
-    		title="Add Semantic Type" class="btn btn-xs btn-primary">Add</button>
+          title="Add Semantic Type" class="btn btn-xs btn-primary">Add</button>
       </td>
     </tr>
   </tbody>

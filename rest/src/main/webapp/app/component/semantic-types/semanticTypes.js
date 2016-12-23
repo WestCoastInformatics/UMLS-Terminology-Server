@@ -1,5 +1,5 @@
 // Semantic types
-tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
+tsApp.directive('semanticTypes', [ function() {
   console.debug('configure semanticTypes directive');
   return {
     restrict : 'A',
@@ -10,44 +10,49 @@ tsApp.directive('semanticTypes', [ 'utilService', function(utilService) {
       callbacks : '='
     },
     templateUrl : 'app/component/semantic-types/semanticTypes.html',
-    link : function(scope, element, attrs) {
+    controller : [
+      '$scope',
+      'utilService',
+      function($scope, utilService) {
 
-      function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.semanticTypes, scope.paging);
-      }
-
-      scope.showing = true;
-
-      // instantiate paging and paging callbacks function
-      scope.pagedData = [];
-      scope.paging = utilService.getPaging();
-      scope.pageCallbacks = {
-        getPagedList : getPagedList
-      };
-
-      // watch the component
-      scope.$watch('component', function() {
-        if (scope.component) {
-          // Clear paging
-          scope.paging = utilService.getPaging();
-          scope.pageCallbacks = {
-            getPagedList : getPagedList
-          };
-          // Get data
-          getPagedList();
+        function getPagedList() {
+          $scope.pagedData = utilService.getPagedArray($scope.component.semanticTypes,
+            $scope.paging);
         }
-      }, true);
 
-      // watch show hidden flag
-      scope.$watch('showHidden', function(newValue, oldValue) {
-        scope.paging.showHidden = scope.showHidden;
+        $scope.showing = true;
 
-        // if value changed, get paged list
-        if (newValue != oldValue) {
-          getPagedList();
-        }
-      });
+        // instantiate paging and paging callbacks function
+        $scope.pagedData = [];
+        $scope.paging = utilService.getPaging();
+        $scope.pageCallbacks = {
+          getPagedList : getPagedList
+        };
 
-    }
+        // watch the component
+        $scope.$watch('component', function() {
+          if ($scope.component) {
+            // Clear paging
+            $scope.paging = utilService.getPaging();
+            $scope.pageCallbacks = {
+              getPagedList : getPagedList
+            };
+            // Get data
+            getPagedList();
+          }
+        }, true);
+
+        // watch show hidden flag
+        $scope.$watch('showHidden', function(newValue, oldValue) {
+          $scope.paging.showHidden = $scope.showHidden;
+
+          // if value changed, get paged list
+          if (newValue != oldValue) {
+            getPagedList();
+          }
+        });
+
+        // end controller
+      } ]
   };
 } ]);
