@@ -4,7 +4,7 @@
   ng-show="metadata.terminology.metathesaurus && component.terminology === metadata.terminology.terminology && (pagedData.totalCount > 0 || paging.filter)">
   <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
     ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
-  <h5>Deep {{metadata.relationshipsLabel}}
+  <h5 class="ml10">Deep {{metadata.relationshipsLabel}}
     ({{pagedData.totalCount}})&nbsp;&nbsp;</h5>
   <div ng-show="showing">
     <span ng-show="pagedData.totalCount > 10" style="float: right;">

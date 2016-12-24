@@ -563,6 +563,7 @@ tsApp.controller('WorkflowCtrl', [
     $scope.initialize = function() {
       // configure tab
       securityService.saveTab($scope.user.userPreferences, '/workflow');
+
       $scope.getProjects();
       // Get query types
       projectService.getQueryTypes().then(function(data) {

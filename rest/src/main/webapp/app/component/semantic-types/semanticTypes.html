@@ -3,7 +3,8 @@
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
   <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
     ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
-  <h5>{{metadata.semanticTypesLabel}} ({{pagedData.totalCount}})</h5>
+  <h5 class="ml10">{{metadata.semanticTypesLabel}}
+    ({{pagedData.totalCount}})</h5>
   <div ng-show="showing">
     <div pager paging="paging" data="data" callbacks="callbacks"></div>
     <ul class="icon-list">

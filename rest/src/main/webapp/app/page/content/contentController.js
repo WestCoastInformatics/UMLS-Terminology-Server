@@ -41,7 +41,6 @@ tsApp
         utilService.clearError();
         $scope.user = securityService.getUser();
         projectService.getUserHasAnyRole();
-        
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
@@ -760,8 +759,10 @@ tsApp
         // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
         //
         $scope.initialize = function() {
-          // configure tab
-          securityService.saveTab($scope.user.userPreferences, '/content');
+          // configure tab unless we're showing a popout report
+          if (!$routeParams) {
+            securityService.saveTab($scope.user.userPreferences, '/content');
+          }
 
           $scope.configureExpressions();
           $scope.configureCallbacks();
