@@ -130,7 +130,7 @@ public class RrfUnpublishedLoaderAlgorithm
       }
       // Skip publishable concepts
       if (concept.isPublishable()) {
-        logInfo("    skip unpublishable = " + cui);
+        logInfo("    skip publishable = " + cui);
         continue;
       }
 
