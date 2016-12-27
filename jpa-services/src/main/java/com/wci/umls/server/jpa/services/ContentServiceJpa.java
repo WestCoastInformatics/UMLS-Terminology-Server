@@ -72,6 +72,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
@@ -157,7 +158,7 @@ import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
- * The Class ContentServiceJpa.
+ * JPA enabled implementation of the content service.
  */
 public class ContentServiceJpa extends MetadataServiceJpa
     implements ContentService {
@@ -1205,6 +1206,40 @@ public class ContentServiceJpa extends MetadataServiceJpa
     return list;
   }
 
+  @Override
+  public AtomList findDescendantAtoms(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - find descendant atoms " + terminologyId + ", "
+            + terminology);
+    final long[] totalCt = new long[1];
+    @SuppressWarnings("unchecked")
+    final List<Atom> descendants =
+        findDescendantsHelper(terminologyId, terminology, version, childrenOnly,
+            branch, pfs, AtomJpa.class, totalCt);
+    final AtomList list = new AtomListJpa();
+    list.setObjects(descendants);
+    list.setTotalCount((int) totalCt[0]);
+    return list;
+  }
+
+  @Override
+  public AtomList findAncestorAtoms(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - find ancestor atoms "
+        + terminologyId + ", " + terminology);
+    final long[] totalCt = new long[1];
+    @SuppressWarnings("unchecked")
+    final List<Atom> ancestors = findAncestorsHelper(terminologyId, terminology,
+        version, parentsOnly, branch, pfs, AtomJpa.class, totalCt);
+    final AtomList list = new AtomListJpa();
+    list.setObjects(ancestors);
+    list.setTotalCount((int) totalCt[0]);
+    return list;
+  }
+
   /**
    * Find descendants helper.
    *
@@ -1908,22 +1943,24 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
+  @SuppressWarnings("rawtypes")
   @Override
-  public TreePosition<? extends AtomClass> getTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception {
+  public TreePosition<?> getTreePosition(Long id,
+    Class<? extends TreePosition> treeposClass) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - get tree position " + id);
     if (treeposClass != null) {
       return getComponent(id, treeposClass);
     } else {
-      TreePosition<? extends AtomClass> treepos =
-          getComponent(id, ConceptTreePositionJpa.class);
+      TreePosition<?> treepos = getComponent(id, ConceptTreePositionJpa.class);
       if (treepos == null) {
         treepos = getComponent(id, CodeTreePositionJpa.class);
       }
       if (treepos == null) {
         treepos = getComponent(id, DescriptorTreePositionJpa.class);
+      }
+      if (treepos == null) {
+        treepos = getComponent(id, AtomTreePositionJpa.class);
       }
       return treepos;
     }
@@ -1931,8 +1968,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+  public TreePosition<?> addTreePosition(TreePosition<?> treepos)
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - add tree position " + treepos);
@@ -1949,17 +1985,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
 
     // Add component
-    final TreePosition<? extends ComponentHasAttributesAndName> newTreepos =
-        addComponent(treepos);
+    final TreePosition<?> newTreepos = addComponent(treepos);
 
     return newTreepos;
   }
 
   /* see superclass */
   @Override
-  public void updateTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
-    throws Exception {
+  public void updateTreePosition(TreePosition<?> treepos) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - update tree position " + treepos);
 
@@ -1968,8 +2001,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         getIdentifierAssignmentHandler(treepos.getTerminology());
     if (assignIdentifiersFlag) {
       if (!idHandler.allowIdChangeOnUpdate()) {
-        @SuppressWarnings("unchecked")
-        TreePosition<? extends ComponentHasAttributesAndName> treepos2 =
+        TreePosition<?> treepos2 =
             getComponent(treepos.getId(), treepos.getClass());
         if (!idHandler.getTerminologyId(treepos)
             .equals(idHandler.getTerminologyId(treepos2))) {
@@ -1987,14 +2019,15 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
+  @SuppressWarnings({
+      "rawtypes"
+  })
   @Override
   public void removeTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception {
+    Class<? extends TreePosition> treeposClass) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - remove tree position " + id);
-    final TreePosition<? extends ComponentHasAttributesAndName> treepos =
-        getComponent(id, treeposClass);
+    final TreePosition<?> treepos = getComponent(id, treeposClass);
     removeComponent(id, treepos.getClass());
   }
 
@@ -3928,10 +3961,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Tree getTreeForTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treePosition)
+  public Tree getTreeForTreePosition(TreePosition<?> treePosition)
     throws Exception {
     Logger.getLogger(getClass())
         .info("Content Service - get tree for tree position "
@@ -4011,9 +4042,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       }
 
-      final TreePosition<? extends AtomClass> treepos =
-          (TreePosition<? extends AtomClass>) fullTextQuery.getResultList()
-              .get(0);
+      final TreePosition<?> treepos =
+          (TreePosition<?>) fullTextQuery.getResultList().get(0);
 
       final Tree partTree = new TreeJpa(treepos);
 
@@ -4036,79 +4066,30 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
+  @SuppressWarnings("rawtypes")
   @Override
-  public TreePositionList findConceptTreePositions(String terminologyId,
+  public TreePositionList findTreePositions(String terminologyId,
     String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Content Service - find concept tree positions " + terminologyId
             + "/" + terminology + "/" + version + "/" + query);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, ConceptTreePositionJpa.class);
+        query, pfs, clazz);
   }
 
   /* see superclass */
+  @SuppressWarnings("rawtypes")
   @Override
-  public TreePositionList findDescriptorTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - find descriptor tree positions "
-            + terminologyId + "/" + terminology + "/" + version + "/" + query);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, DescriptorTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findCodeTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception {
-    Logger.getLogger(getClass())
-        .info("Content Service - find code tree positions " + terminologyId
-            + "/" + terminology + "/" + version + "/" + query);
-    return findTreePositionsHelper(terminologyId, terminology, version, branch,
-        query, pfs, CodeTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findConceptTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception {
+  public TreePositionList findTreePositionChildren(String terminologyId,
+    String terminology, String version, String branch,
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass())
         .info("Content Service - find children of a concept tree position "
             + terminologyId + "/" + terminology + "/" + version);
     return getTreePositionChildrenHelper(terminologyId, terminology, version,
-        branch, pfs, ConceptTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findDescriptorTreePositionChildren(
-    String terminologyId, String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception {
-
-    Logger.getLogger(getClass())
-        .info("Content Service - find children of a descriptor tree position "
-            + terminology + "/" + version);
-    return getTreePositionChildrenHelper(terminologyId, terminology, version,
-        branch, pfs, DescriptorTreePositionJpa.class);
-  }
-
-  /* see superclass */
-  @Override
-  public TreePositionList findCodeTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception {
-
-    Logger.getLogger(getClass())
-        .info("Content Service - find children of a code tree position "
-            + terminology + "/" + version);
-
-    return getTreePositionChildrenHelper(terminologyId, terminology, version,
-        branch, pfs, CodeTreePositionJpa.class);
+        branch, pfs, clazz);
   }
 
   /**
@@ -4140,8 +4121,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (tpList.size() == 0) {
       return new TreePositionListJpa();
     }
-    final TreePosition<? extends ComponentHasAttributesAndName> treePosition =
-        tpList.getObjects().get(0);
+    final TreePosition<?> treePosition = tpList.getObjects().get(0);
 
     final Long tpId = treePosition.getNode().getId();
     final String fullAncPath = treePosition.getAncestorPath()
@@ -4643,7 +4623,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({
+      "rawtypes"
+  })
   @Override
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
     String terminology, String version, String branch, String query,
@@ -4653,114 +4635,121 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .debug("Content Service - find tree positions for concept "
             + terminologyId + "/" + terminology + "/" + version + "/" + query);
 
-    String lterminologyId = terminologyId;
-    try {
-      ConceptJpa concept = getComponent(lterminologyId, terminology, version,
-          branch, ConceptJpa.class);
-      final Set<String> uniqueSet = new HashSet<>();
-      List<TreePosition> treePositionList = new ArrayList<>();
-      // collect all unique terminology, version, terminologyId, type combos
-      // from
-      // atoms in concept - ATOMS are in order
-      int ct = 0;
-      for (final Atom atom : concept.getAtoms()) {
-
-        final Terminology fullTerminology =
-            getTerminology(atom.getTerminology(), atom.getVersion());
-        final IdType type = fullTerminology.getOrganizingClassType();
-
-        if (type == IdType.CODE) {
-          lterminologyId = atom.getCodeId();
-        } else if (type == IdType.CONCEPT) {
-          lterminologyId = atom.getConceptId();
-        } else if (type == IdType.DESCRIPTOR) {
-          lterminologyId = atom.getDescriptorId();
-        } else {
-          continue;
-        }
-
-        // skip all non-english contexts
-        if (!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
-          continue;
-        }
-
-        final String entry = type + ":" + atom.getTerminology() + ":"
-            + atom.getVersion() + ":" + lterminologyId;
-        // If new entry
-        if (!uniqueSet.contains(entry)) {
-          // Break if we've reached the limit
-          if (ct >= 100) {
-            break;
-          }
-
-          // See if there is a tree position
-          final TreePosition<?> treePos = getTreePosition(type, lterminologyId,
-              atom.getTerminology(), atom.getVersion());
-          // Increment if so
-          if (treePos != null) {
-            ++ct;
-            // handle lazy init
-            treePos.getAttributes().size();
-            treePositionList.add(treePos);
-          }
-
-          // Get tree position
-        }
-        uniqueSet.add(entry);
-      }
-
-      // Sort tree positions by terminology
-      Collections.sort(treePositionList,
-          (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
-
-      // set filter as query restriction for use in applyPfsToList
-      final PfsParameter pfsLocal = new PfsParameterJpa(pfs);
-      pfsLocal.setQueryRestriction(query);
-
-      final int[] totalCt = new int[1];
-      treePositionList = applyPfsToList(treePositionList, TreePosition.class,
-          totalCt, pfsLocal);
-
-      TreePositionList list = new TreePositionListJpa();
-      list.setTotalCount(totalCt[0]);
-      for (final TreePosition<?> tp : treePositionList) {
-        list.getObjects().add(tp);
-      }
-
-      return list;
-    } catch (NoResultException e) {
+    final Concept concept =
+        this.getConcept(terminologyId, terminology, version, branch);
+    if (concept == null) {
       return null;
     }
+
+    List<TreePosition> treePositionList = new ArrayList<>();
+
+    // Check for atom tree positions
+    final List<String> clauses = concept.getAtoms().stream()
+        .map(a -> "nodeId:" + a.getId()).collect(Collectors.toList());
+    final TreePositionList atomTrees = findTreePositions(null, null, null,
+        Branch.ROOT, ConfigUtility.composeQuery("OR", clauses),
+        AtomTreePositionJpa.class, pfs);
+    final Set<Long> nodesSeen = new HashSet<>();
+    for (final TreePosition tp : atomTrees.getObjects()) {
+      // keep the first one encountered
+      if (!nodesSeen.contains(tp.getNode().getId())) {
+        treePositionList.add(tp);
+      }
+      nodesSeen.add(tp.getNode().getId());
+    }
+
+    final Set<String> seen = new HashSet<>();
+    // collect all unique terminology, version, terminologyId, type combos
+    // from atoms in concept - ATOMS are in order
+    for (final Atom atom : concept.getAtoms()) {
+
+      // Skip things already processed for having atom trees
+      if (nodesSeen.contains(atom.getId())) {
+        continue;
+      }
+
+      String lterminologyId = null;
+      Class<? extends TreePosition> clazz;
+      String type;
+      // Try descriptor, then concept, then code
+      if (!atom.getDescriptorId().equals("")) {
+        type = "descriptor";
+        lterminologyId = atom.getDescriptorId();
+        clazz = DescriptorTreePositionJpa.class;
+      } else if (!atom.getConceptId().equals("")) {
+        type = "concept";
+        lterminologyId = atom.getConceptId();
+        clazz = ConceptTreePositionJpa.class;
+      } else {
+        type = "code";
+        lterminologyId = atom.getCodeId();
+        clazz = CodeTreePositionJpa.class;
+      }
+
+      final String entry = type + ":" + atom.getTerminology() + ":"
+          + atom.getVersion() + ":" + lterminologyId;
+
+      // Try to find it if we haven't seen one yet
+      if (!seen.contains(entry)) {
+        // Break if we've reached the limit
+        if (treePositionList.size() >= 100) {
+          break;
+        }
+
+        // See if there is a tree position
+        final TreePosition<?> treePos = getFirstTreePosition(lterminologyId,
+            atom.getTerminology(), atom.getVersion(), clazz);
+        // Increment if so
+        if (treePos != null) {
+          // handle lazy init
+          treePos.setAttributes(new ArrayList<>(0));
+          treePositionList.add(treePos);
+        }
+      }
+      seen.add(entry);
+    }
+
+    // set filter as query restriction for use in applyPfsToList
+    final PfsParameter pfsLocal = new PfsParameterJpa(pfs);
+    pfsLocal.setQueryRestriction(query);
+    pfsLocal.setSortField("terminology");
+
+    final int[] totalCt = new int[1];
+    treePositionList =
+        applyPfsToList(treePositionList, TreePosition.class, totalCt, pfsLocal);
+
+    // need to copy list again
+    final TreePositionList list = new TreePositionListJpa();
+    list.setTotalCount(totalCt[0]);
+    // Transform to "TreePosition<?>"
+    for (final TreePosition<?> tp : treePositionList) {
+      list.getObjects().add(tp);
+    }
+
+    return list;
+
   }
 
   /**
-   * Returns the tree position.
+   * Returns the first tree position for the specified parameters.
    *
-   * @param type the type
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param clazz the clazz
    * @return the tree position
    * @throws Exception the exception
    */
-  private TreePosition<?> getTreePosition(IdType type, String terminologyId,
-    String terminology, String version) throws Exception {
+  @SuppressWarnings("rawtypes")
+  private TreePosition<?> getFirstTreePosition(String terminologyId,
+    String terminology, String version, Class<? extends TreePosition> clazz)
+    throws Exception {
     // for each unique entry, get all tree positions
     final PfsParameter singleResultPfs = new PfsParameterJpa();
     singleResultPfs.setStartIndex(0);
     singleResultPfs.setMaxResults(1);
-
-    TreePositionList list = null;
-    if (type == IdType.CONCEPT) {
-      list = findConceptTreePositions(terminologyId, terminology, version, null,
-          null, singleResultPfs);
-    } else if (type == IdType.DESCRIPTOR) {
-      list = findDescriptorTreePositions(terminologyId, terminology, version,
-          null, null, singleResultPfs);
-    } else if (type == IdType.CODE) {
-      list = findConceptTreePositions(terminologyId, terminology, version, null,
-          null, singleResultPfs);
-    }
+    final TreePositionList list = findTreePositions(terminologyId, terminology,
+        version, null, null, clazz, singleResultPfs);
     if (list.size() > 0) {
       return list.getObjects().get(0);
     }

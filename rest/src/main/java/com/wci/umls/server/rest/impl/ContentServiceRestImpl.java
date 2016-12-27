@@ -69,11 +69,14 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomNoteJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -629,7 +632,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       if (algo4 != null) {
         algo4.close();
       }
-      contentService.close();
+      if (contentService != null) {
+        contentService.close();
+      }
       securityService.close();
     }
   }
@@ -2586,8 +2591,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve trees for the concept ", UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findConceptTreePositions(
-          terminologyId, terminology, version, Branch.ROOT, null, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, ConceptTreePositionJpa.class, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2628,8 +2634,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve trees for the descriptor ", UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findDescriptorTreePositions(
-          terminologyId, terminology, version, Branch.ROOT, null, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, DescriptorTreePositionJpa.class, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2672,8 +2679,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "retrieve trees for the code",
           UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findCodeTreePositions(
-          terminologyId, terminology, version, Branch.ROOT, null, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, CodeTreePositionJpa.class, pfs);
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
@@ -2718,8 +2727,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find trees for the concept",
           UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findConceptTreePositions(
-          null, terminology, version, Branch.ROOT, queryStr, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, ConceptTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       Tree dummyTree = new TreeJpa();
@@ -2792,8 +2802,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find trees for the descriptor",
           UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findDescriptorTreePositions(
-          null, terminology, version, Branch.ROOT, queryStr, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, DescriptorTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       final Tree dummyTree = new TreeJpa();
@@ -2866,8 +2877,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
-      TreePositionList list = contentService.findCodeTreePositions(null,
-          terminology, version, Branch.ROOT, queryStr, pfs);
+      TreePositionList list =
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, CodeTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       final Tree dummyTree = new TreeJpa();
@@ -2944,8 +2956,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // instantiate child tree positions array, used to construct trees
       final TreePositionList childTreePositions =
-          contentService.findConceptTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findTreePositionChildren(terminologyId, terminology,
+              version, Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2993,8 +3005,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // instantiate child tree positions array, used to construct trees
       final TreePositionList childTreePositions =
-          contentService.findCodeTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findTreePositionChildren(terminologyId, terminology,
+              version, Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3042,8 +3054,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // instantiate child tree positions array, used to construct trees
       final TreePositionList childTreePositions =
-          contentService.findDescriptorTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findTreePositionChildren(terminologyId, terminology,
+              version, Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3087,8 +3099,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findConceptTreePositions(null,
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          ConceptTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
       // if a terminology with a single root concept
@@ -3099,9 +3112,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findConceptTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3161,8 +3175,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findDescriptorTreePositions(null,
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          DescriptorTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
 
@@ -3174,9 +3189,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findDescriptorTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3237,8 +3253,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findCodeTreePositions(null,
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          CodeTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
 
@@ -3250,9 +3267,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findCodeTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3457,7 +3475,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   /**
-   * NOTE: Located in Content Service as codes/concepts/descriptors are directly retrieved for note details
+   * NOTE: Located in Content Service as codes/concepts/descriptors are directly
+   * retrieved for note details
    */
   @POST
   @Path("/favorites")
@@ -4183,7 +4202,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken,
-          "retrieve deep relationships for the concept", UserRole.VIEWER);
+          "retrieve deep tree positionsfor the concept", UserRole.VIEWER);
 
       return contentService.findConceptDeepTreePositions(terminologyId,
           terminology, version, Branch.ROOT, query, pfs);

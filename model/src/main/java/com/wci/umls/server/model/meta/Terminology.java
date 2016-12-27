@@ -292,4 +292,17 @@ public interface Terminology extends HasLastModified {
    */
   public void setLastReleases(Map<String, String> lastReleases);
 
+  /**
+   * Returns the related terminologies.
+   *
+   * @return the related terminologies
+   */
+  public List<String> getRelatedTerminologies();
+
+  /**
+   * Sets the relatied terminologies.
+   *
+   * @param relatedTerminologies the relatied terminologies
+   */
+  public void setRelatedTerminologies(List<String> relatedTerminologies);
 }

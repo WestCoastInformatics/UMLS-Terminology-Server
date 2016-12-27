@@ -207,6 +207,7 @@ public class AlgorithmExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("timestamp");
     tester.include("name");
+    tester.include("warning");
     tester.include("description");
     tester.include("algorithmKey");
     tester.include("algorithmConfigId");

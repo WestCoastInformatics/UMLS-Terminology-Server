@@ -1,6 +1,6 @@
 <form ng-submit="submitAtom(atom)">
   <div class="modal-header">
-    <h4 style="display: inline">{{action}} Atom</h4>
+    <h4 style="display: inline">{{action}} {{selected.metadata.atomsLabel}}</h4>
     <span style="float: right">
       <i class="glyphicon glyphicon-remove" ng-click="cancel()"></i>
     </span>
@@ -15,7 +15,7 @@
           </td>
           <td>
             <textarea autofocus rows="2" cols="40" ng-show="action == 'Add'"
-              ng-model="atom.name" placeholder="Name of atom"></textarea>
+              ng-model="atom.name" placeholder="Name"></textarea>
             <span ng-show="action != 'Add'">{{atom.name}}</span>
           </td>
         </tr>
@@ -76,7 +76,7 @@
           </td>
           <td>
             <input type="checkbox" ng-model="atom.publishable"
-              title="Atom is publishable.">
+              title="Publishable flag">
           </td>
         </tr>
         <!-- <tr>
@@ -95,7 +95,7 @@
           </td>
           <td>
             <input type="checkbox" ng-model="atom.suppressible"
-              title="Atom is suppressible">
+              title="Suppressible flag">
           </td>
         </tr>
       </table>

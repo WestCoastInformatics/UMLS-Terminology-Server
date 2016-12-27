@@ -10,32 +10,32 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
       callbacks : '='
     },
     templateUrl : 'app/component/definitions/definitions.html',
-    link : function(scope, element, attrs) {
+    controller : [ '$scope', 'utilService', function($scope, utilService) {
 
       function getPagedList() {
-        scope.pagedData = utilService.getPagedArray(scope.component.definitions.filter(
+        $scope.pagedData = utilService.getPagedArray($scope.component.definitions.filter(
         // handle hidden flag
         function(item) {
-          return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
-        }), scope.paging);
+          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), $scope.paging);
       }
 
       // indicator of showing
-      scope.showing = false;
+      $scope.showing = false;
 
       // instantiate paging and paging callbacks function
-      scope.pagedData = [];
-      scope.paging = utilService.getPaging();
-      scope.pageCallbacks = {
+      $scope.pagedData = [];
+      $scope.paging = utilService.getPaging();
+      $scope.pageCallbacks = {
         getPagedList : getPagedList
       };
 
       // watch the component
-      scope.$watch('component', function() {
-        if (scope.component) {
+      $scope.$watch('component', function() {
+        if ($scope.component) {
           // Clear paging
-          scope.paging = utilService.getPaging();
-          scope.pageCallbacks = {
+          $scope.paging = utilService.getPaging();
+          $scope.pageCallbacks = {
             getPagedList : getPagedList
           };
           // Get data
@@ -44,8 +44,8 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
       }, true);
 
       // watch show hidden flag
-      scope.$watch('showHidden', function(newValue, oldValue) {
-        scope.paging.showHidden = scope.showHidden;
+      $scope.$watch('showHidden', function(newValue, oldValue) {
+        $scope.paging.showHidden = $scope.showHidden;
 
         // if value changed, get paged list
         if (newValue != oldValue) {
@@ -53,6 +53,7 @@ tsApp.directive('definitions', [ 'utilService', function(utilService) {
         }
       });
 
-    }
+      // end controller
+    } ]
   };
 } ]);

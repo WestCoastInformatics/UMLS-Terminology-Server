@@ -408,11 +408,7 @@ C0001163|7-27-06 Discussed with Nick.  Split SY of acoustic nerve disorder and c
 C0007194|7-28-06 Per Dorland's, ICD9, and Snomed: Hypertrophic Cardiomyopathy and Hypertrophic Obstructive Cardiomyopathy are not SYN.  I split Mesh accordingly. LLW|MTH2006AB|10-FEB-07
 C0007194|7-28-06 Per Dorland's, ICD9, and Snomed: Hypertrophic Cardiomyopathy and Hypertrophic Obstructive Cardiomyopathy are not SYN.  I split Mesh accordingly. LLW|E-LLW|28-JUL-06
 C0011603|7-31-06 Discussed with Nick.  Two concepts in NCIt-- Dermatitis and Skin Inflammation.  Concepts now merged.  LLW|E-LLW|31-JUL-06
-C1704220|6-17-06 Discussed with Nick, at one time these terms were made
-   SY for each other. Now, they are three separate concepts in
-   NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3.
-   Adamantinoma. I have split based on the new NCI classification.
-   LLW|E-LLW|12-JUL-07
+C1704220|6-17-06 Discussed with Nick, at one time these terms were made; SY for each other. Now, they are three separate concepts in; NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3.;  Adamantinoma. I have split based on the new NCI classification.;  LLW|E-LLW|12-JUL-07
 C0020629|9-5-06 Discussed with Nick, hypopharynx and laryngopharynx are SY.  Terms will be merged in NCIt.  LLW|E-LLW|05-SEP-06
 C0704829|All of these drugs appear to have a final concentration of 100mg/ml. Atoms where wt/vol ratios were not present were left in the concepts where the total strength of the drug matched the total strength in one of the vials.--2006.09.14--AG|E-HAG|14-SEP-06
 C0006388|2 NCI Codes are contained in this concept. These concepts have  been corrected in TDE.--2006.10.10--AG|E-HAG|10-OCT-06
@@ -434,32 +430,6 @@ C1882816|[cfc 2-14-07] 11D concept is retired C63911 -- so I merged this with th
 C1882818|[cfc 2-14-07] 11D concept is retired C63912 -- so I merged this with the equivalent concept in 12D, even though they have different NCI codes.|E-CFC|14-FEB-07
 C0005119|2-14-07 Bereavement was split into different concepts based on source context.  1-Mesh is bereavement the natural mental process. 2-MDR90 is bereavement reaction treed under disorder, and SNOMEDCT has two finding concepts one broader than the other.  I respected the source on these.  LLW|MTH2006AC|14-APR-07
 C0184661|[cfc 2-16-07] The inactive concept C16197 is retired in TDE and cross-referenced to this current concept.|E-CFC|16-FEB-07
-C2937287|2-22-07 Hemolyis was split into the following concepts-- LLW
-Concept 1354100  is Hemolysis Laboratory Result
-Concept 13545099 is Pathologic Hemolysis
-Concept 103504 is Hemolysis Biological Process
-Concept 13545098 is Hemolysis Attribute
-Concept 11863957 is Hemolysis Adverse Reaction
-
-
-2-6-07 Hemolyis was split into the following concepts-- LLW
-Concept 10316292  is Hemolysis Laboratory Result
-Concept 6955171 is Pathologic Hemolysis
-Concept 103504 is Hemolysis Biological Process
-Concept 11863958 is Hemolysis Attribute
-Concept 11863957 is Hemolysis Adverse Reaction|E-LLW|20-APR-07
-C0019054|2-22-07 Hemolyis was split into the following concepts-- LLW
-Concept 1354100  is Hemolysis Laboratory Result
-Concept 13545099 is Pathologic Hemolysis
-Concept 103504 is Hemolysis Biological Process
-Concept 13545098 is Hemolysis Attribute
-Concept 11863957 is Hemolysis Adverse Reaction|E-CFC|23-AUG-09
-C1548794|2-22-07 Hemolyis was split into the following concepts-- LLW
-Concept 1354100  is Hemolysis Laboratory Result
-Concept 13545099 is Pathologic Hemolysis
-Concept 103504 is Hemolysis Biological Process
-Concept 13545098 is Hemolysis Attribute
-Concept 11863957 is Hemolysis Adverse Reaction|E-LLW|22-FEB-07
 C1541282|[cfc] There is a cross-reference in TDE stating to refer to Alternative Medical Procedure, from the retired concept of Alternative Product Therapy.|E-CFC|28-FEB-07
 C0591457|2 NCIt codes OK in this concept, due to creation of narrower concept specific to Erwinia.--2007.03.01--AG|E-HAG|01-MAR-07
 C1515713|1-30-07 Requested merge between the two NCI PTs In Thesaurus.  Both C27214 and C36316 have a PT of  t(11;22)(q24;q12).  LLW|E-LLW|13-MAR-07
@@ -481,9 +451,7 @@ C2348382|[cfc 4-1-08] These two concepts are indeed different and should stay se
 C0004083|[cfc 4-25-08] Per Lyuba Remennik, the two NCIt concepts that have the same PT of Relationship: in NCIt everything looks clean: C71472 Relationship was merged into Relationship C25648 (which has the PT Relationship, but the concept name - Related.)|E-CFC|25-APR-08
 C0152288|[cfc 5-12-08] Per Nick Sioutos, these two different NCI concepts (Foramen of Magendie C32626 Magendie's Foramen C33047) should be the same. Lori Whiteman advised merging them here in Meta. Fix in NCI Thesaurus is pending.|E-CFC|26-JUN-08
 C0152288|[cfc 6-26-08] I checked in the current NCIt and Magendie's Foramen C33047 is now listed as RETIRED. So, hopefully the change will trickle through to Meta soon.|E-CFC|26-JUN-08
-C0162342|[cfc 5-12-08] These two separate NCI concepts should be merged (Lenticular Nucleus C32977 Lentiform Nucleus C32978 ), per Nick Sioutos and Lori Whiteman. Changes in NCIt are pending.
-
-[cfc 6-26-08] I checked in the current NCIt and Lentiform Nucleus C32978 is now listed as retired. Changes should trickle through to Meta soon.|E-CFC|26-JUN-08
+C0162342|[cfc 5-12-08] These two separate NCI concepts should be merged (Lenticular Nucleus C32977 Lentiform Nucleus C32978 ), per Nick Sioutos and Lori Whiteman. Changes in NCIt are pending.; [cfc 6-26-08] I checked in the current NCIt and Lentiform Nucleus C32978 is now listed as retired. Changes should trickle through to Meta soon.|E-CFC|26-JUN-08
 C1369038|[cfc 25-Jul-08] Waiting to resolve this in NCIt -- the NCI-GLOSS and NCI atoms should be split out. Will leave them together for now until the issue is resolved in NCIt. Eventually, will want to split out NCI-GLOSS and merge it into CN#5103319 (Distraction Therapy).|E-CFC|25-JUL-08
 CL383716|[cfc 8-7-08] Note to self...split this out from other concept #2650092 Adult Oligodendroglial Tumor per Lori's advice on other concepts where she split out brain or spinal/meninges as NRW from the general type of tumor.|E-CFC|07-AUG-08
 C0205097|[cfc 8-19-08] Per Nick Sioutos and Nicole Thomas - these two concepts have a slightly different meaning; caudad relates more to the positioning of the body in relation with the head (spatial concept), whereas caudal relates more to the specific anatomic site.|E-CFC|19-AUG-08
@@ -541,8 +509,7 @@ C0001127|12-30-2009 Two NCI PTs in this concept. Appear to be duplicates, note s
 CL412926|[cfc 1-7-10] There are two different concepts in NCIt -- Fabry Disease C84701 will remain separate from Angiokeratoma Corporis Diffusum C27528, respecting the source.|E-CFC|07-JAN-10
 C0002986|[cfc 1-7-10] There are two different concepts in NCIt -- Fabry Disease C84701 will remain separate from Angiokeratoma Corporis Diffusum C27528, respecting the source.|E-CFC|07-JAN-10
 C0012517|[cfc 1-9-10] Two NCI concepts are here because they are being merged in NCIt - Dipetalonema Infection C84674 and Dipetalonemiasis C34540. C34540 is the surviving concept, per Nick S.|E-CFC|09-JAN-10
-C0014072|[cfc 1-9-10] Combined two NCI concepts that are being merged in NCIt, per Nick S. Experimental Autoimmune Encephalomyelitis C84700
-and Experimental Allergic Encephalomyelitis C3006. C3006 is the surviving concept.|E-CFC|09-JAN-10
+C0014072|[cfc 1-9-10] Combined two NCI concepts that are being merged in NCIt, per Nick S. Experimental Autoimmune Encephalomyelitis C84700 and Experimental Allergic Encephalomyelitis C3006. C3006 is the surviving concept.|E-CFC|09-JAN-10
 C0028271|[cfc 1-24-10] Per Nick S., NCIt concept Noma (C84936) is the same as Gangrenous Stomatitis (C34852), so they were merged in NCIt with the surviving concept being gangrenous stomatitis (C34852).|E-CFC|24-JAN-10
 CL413025|[cfc 1-24-10] Per Nick S. Toxemia of pregnancy (C34943) is a spectrum of disorders characterized by pregnancy-induced hypertension. Preeclampsia (C85021)is at one end of the spectrum and should remain separate.|E-CFC|24-JAN-10
 C0032914|[cfc 1-24-10] Per Nick S. Toxemia of pregnancy (C34943) is a spectrum of disorders characterized by pregnancy-induced hypertension. Preeclampsia (C85021)is at one end of the spectrum and should remain separate.|E-CFC|24-JAN-10
@@ -593,8 +560,7 @@ C0976961|Note: I have requested the removal of the PN "Fluorescein 100 MG/ML Inj
 C0027732|[cfc 2-3-11] Ureteronephrectomy C94447 is merged into Nephroureterectomy C51646 - these are the same according to Nick Sioutos and Nicole Thomas and will be merged in NCIt.|E-CFC|03-FEB-11
 C0011389|02-11-2011 The NCI GLOSS definition is too broad for the NCIt concept dental plaque. I have notified Nicole and Nick. LLW|E-LLW|11-FEB-11
 C1869115|Please note that the MeSH note here is incorrect; it is the autosomal recessive form of Weill-Marchesani syndrome that is associated with Adamts10 gene mutations.  The autosomal dominant form is associated with FBN1 gene mutations.  MNC  2/14/11|E-MNC|14-FEB-11
-C2987040|Zinviroxime has been fixed in NCIt so that it does not have an SY of "Enviroxime" and it has the appropriate FDA PT, i.e. "ZINVIROXIME".
-MNC 3/2/11|E-MNC|02-MAR-11
+C2987040|Zinviroxime has been fixed in NCIt so that it does not have an SY of "Enviroxime" and it has the appropriate FDA PT, i.e. "ZINVIROXIME".; MNC 3/2/11|E-MNC|02-MAR-11
 C1363844|I moved the MeSH atoms from 1550461 to this concept because they seemed more appropriate here.  MNC 3/4/11|E-MNC|04-MAR-11
 C0072511|Deleted "Theophyline Ethylenediamine [NCI2011_01E/SY/C80339]" from NCIt because "theophylline ethylenediamine" is aminophylline, not proxyphylline.  MNC 4/13/11|E-MNC|13-APR-11
 C0024452|Please note that "Sulfamylon" has been deleted from the "Mafenide" concept in NCIt, because "Sulfamylon" is Mafenide Acetate.   MNC 12/14/11|E-MNC|14-APR-11
@@ -619,8 +585,7 @@ C0315276|[cfc, 6-20-12]  Wen-Ling will merge C101490 into the existing concept C
 C0003466|[cfc, 6-22-12] Anal Atresia - C101280 and Imperforate Anus - C84784 are being merged in NCIt by Nick S. These are the same.|E-CFC|22-JUN-12
 C0671135|12/16/05 (cfc) Wen-Ling confirmed that these two concepts (Picoplatin and ZD0473) are synonymous, so we should keep them together here. She will take care of making the change to NCI Thesaurus.|E-CFC|16-DEC-05
 C0392979|12/16/05 (cfc) Wen-Ling verified that the atoms here are synonymous (XRP9881 and the RPR 190881A) and that she will make any necessary changes in NCI Thesaurus.|E-CFC|16-DEC-05
-CL448741|1/12/06 (cfc) Per Nicole Thomas: In response to caDSR needs I was asked to add "standard notation" for addresses. In addition to "normal" things like "Block" or "City" it included things like "Door" and "Staircase". I had trouble coming up with decent definitions to reflect that this refers to a physical part of a building used as part of an address. Perhaps I should change these to:
-Door: "The entrance through which you enter or leave a room or building used as an element of an address."|E-CFC|12-JAN-06
+CL448741|1/12/06 (cfc) Per Nicole Thomas: In response to caDSR needs I was asked to add "standard notation" for addresses. In addition to "normal" things like "Block" or "City" it included things like "Door" and "Staircase". I had trouble coming up with decent definitions to reflect that this refers to a physical part of a building used as part of an address. Perhaps I should change these to:; Door: "The entrance through which you enter or leave a room or building used as an element of an address."|E-CFC|12-JAN-06
 C0006938|Capoten (all NCI codes) belongs in the Captopril concept (not Enalaprilat). Corrected in NCIt.--AG--2006.1.18|E-HAG|19-JAN-06
 C0000905|The two NCI PTs will be merged in TDE. Spinal Accessory Nerve and Accessory Nerve are synonyms.--AG--2006.1.27|E-HAG|27-JAN-06
 C0025696|Aquatensen [NCI2005_10E/BN/C47557] belongs in this concept (as does the SY). It has been corrected in NCIt.-AG-2006.1.30|E-HAG|30-JAN-06
@@ -794,9 +759,7 @@ C0475590|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015
 C2910046|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015_08E/LLT/10022841] C117202 because of bad synonomy.|E-CFC|18-SEP-15
 C0475591|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015_08E/LLT/10022841] C99140 due to bad synonomy.|E-CFC|18-SEP-15
 C3899347|[cfc, 9-18-15] split R []  Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115162 due to bad synonomy.|E-CFC|18-SEP-15
-C3899350|[9-18-15] split N []  Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115162
-D   A         N        Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115161
-due to bad synonomy.|E-CFC|18-SEP-15
+C3899350|[9-18-15] split N []  Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115162, D   A         N        Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115161; due to bad synonomy.|E-CFC|18-SEP-15
 C1827547|[cfc, 9-22-15] split Stereotypy/habit disorder [MEDDRA_2015_08E/LLT/10042009] C117193 due to bad synonomy.|E-CFC|22-SEP-15
 C0271202|[cfc, 9-22-15] split Homonymous hemianopsia [MEDDRA_2015_08E/LLT/10020368] C118729 due to bad synonomy.|E-CFC|22-SEP-15
 C0242567|[cfc, 9-22-15] split Opsoclonus myoclonus [MEDDRA_2015_08E/LLT/10053854] C118720 due to bad synonomy.|E-CFC|22-SEP-15

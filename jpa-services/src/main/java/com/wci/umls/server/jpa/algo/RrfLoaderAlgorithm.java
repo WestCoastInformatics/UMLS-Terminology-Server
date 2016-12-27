@@ -1191,41 +1191,61 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Add the terminology for this rrf loader execution
     // Skip in single/multi mode
-    if (style.toString().startsWith("META")
-        && !loadedTerminologies.containsKey(getTerminology())) {
-      final Terminology term = new TerminologyJpa();
-      term.setAssertsRelDirection(false);
-      term.setCurrent(true);
-      term.setOrganizingClassType(IdType.CONCEPT);
-      term.setPreferredName(getTerminology());
-      term.setTimestamp(releaseVersionDate);
-      term.setLastModified(releaseVersionDate);
-      term.setLastModifiedBy(loader);
-      term.setTerminology(getTerminology());
-      term.setVersion(getVersion());
-      term.setDescriptionLogicTerminology(false);
-      term.setMetathesaurus(true);
-
-      RootTerminology root = loadedRootTerminologies.get(getTerminology());
-      if (!loadedRootTerminologies.containsKey(getTerminology())) {
-        root = new RootTerminologyJpa();
-        root.setFamily(getTerminology());
-        root.setPreferredName(getTerminology());
-        root.setRestrictionLevel(0);
-        root.setTerminology(getTerminology());
-        root.setTimestamp(releaseVersionDate);
-        root.setLastModified(releaseVersionDate);
-        root.setLastModifiedBy(loader);
-        root.setLanguage("ENG");
-        if (root.getLanguage() == null) {
-          throw new Exception("Unable to find ENG langauge.");
+    if (style.toString().startsWith("META")) {
+      Terminology term = null;
+      if (loadedTerminologies.containsKey(getTerminology())) {
+        term = loadedTerminologies.get(getTerminology());
+        term.setMetathesaurus(true);
+      } else {
+        term = new TerminologyJpa();
+        term.setAssertsRelDirection(false);
+        term.setCurrent(true);
+        term.setOrganizingClassType(IdType.CONCEPT);
+        term.setPreferredName(getTerminology());
+        term.setTimestamp(releaseVersionDate);
+        term.setLastModified(releaseVersionDate);
+        term.setLastModifiedBy(loader);
+        term.setTerminology(getTerminology());
+        term.setVersion(getVersion());
+        term.setDescriptionLogicTerminology(false);
+        term.setMetathesaurus(true);
+        RootTerminology root = loadedRootTerminologies.get(getTerminology());
+        if (!loadedRootTerminologies.containsKey(getTerminology())) {
+          root = new RootTerminologyJpa();
+          root.setFamily(getTerminology());
+          root.setPreferredName(getTerminology());
+          root.setRestrictionLevel(0);
+          root.setTerminology(getTerminology());
+          root.setTimestamp(releaseVersionDate);
+          root.setLastModified(releaseVersionDate);
+          root.setLastModifiedBy(loader);
+          root.setLanguage("ENG");
+          if (root.getLanguage() == null) {
+            throw new Exception("Unable to find ENG langauge.");
+          }
+          addRootTerminology(root);
+          loadedRootTerminologies.put(root.getTerminology(), root);
         }
-        addRootTerminology(root);
-        loadedRootTerminologies.put(root.getTerminology(), root);
+        term.setRootTerminology(root);
+        addTerminology(term);
+        loadedTerminologies.put(term.getTerminology(), term);
       }
-      term.setRootTerminology(root);
-      addTerminology(term);
-      loadedTerminologies.put(term.getTerminology(), term);
+
+      // Connect loaded terminologies to the metathesaurus
+      final Set<String> relatedTerminologies = new HashSet<>();
+      for (final Terminology lt : loadedTerminologies.values()) {
+        if (!lt.getTerminology().equals(getTerminology()) && lt.isCurrent()) {
+          relatedTerminologies.add(lt.getTerminology());
+        }
+      }
+      term.getRelatedTerminologies().addAll(relatedTerminologies);
+
+      if (loadedTerminologies.containsKey(getTerminology())) {
+        updateTerminology(term);
+      } else {
+        addTerminology(term);
+      }
+
     }
   }
 
@@ -2897,8 +2917,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (fields[11].equals("SRC") && fields[12].equals("SSN")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          logError("  SRC/SSN with missing versioned or root terminology (ok for mini) "
-              + fields[13].substring(2));
+          logError(
+              "  SRC/SSN with missing versioned or root terminology (ok for mini) "
+                  + fields[13].substring(2));
         } else {
           t.getRootTerminology().setShortName(fields[14]);
         }
@@ -2906,8 +2927,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (fields[11].equals("SRC") && fields[12].equals("RHT")) {
         final Terminology t = loadedTerminologies.get(fields[13].substring(2));
         if (t == null || t.getRootTerminology() == null) {
-          logError("  SRC/RHT with missing versioned or root terminology (ok for mini) "
-              + fields[13].substring(2));
+          logError(
+              "  SRC/RHT with missing versioned or root terminology (ok for mini) "
+                  + fields[13].substring(2));
         } else {
           t.getRootTerminology().setHierarchicalName(fields[14]);
         }

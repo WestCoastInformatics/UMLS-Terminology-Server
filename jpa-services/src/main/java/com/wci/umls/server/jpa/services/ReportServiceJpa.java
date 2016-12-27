@@ -41,8 +41,6 @@ import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.TreePosition;
-import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.ReportService;
@@ -261,7 +259,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(notesBuffer.toString());
     }
     sb.append(lineEnd);
-    
+
     //
     // Atoms
     //
@@ -577,36 +575,30 @@ public class ReportServiceJpa extends HistoryServiceJpa
     else {
 
       final StringBuilder cxtBuilder = new StringBuilder();
-
-      // TODO : deal with atom tree positions
       boolean firstContext = true;
 
-      TreePositionList treePositionList = findConceptDeepTreePositions(
+      final TreePositionList treePositionList = findConceptDeepTreePositions(
           concept.getTerminologyId(), concept.getTerminology(),
           concept.getVersion(), Branch.ROOT, null, new PfsParameterJpa());
 
       // display context for each tree position
       for (final TreePosition<?> treePos : treePositionList.getObjects()) {
 
-        if (treePos.getAncestorPath().equals(""))
-          continue;
-
+        // Write header
         if (firstContext) {
           cxtBuilder.append("CONTEXTS").append(lineEnd);
           firstContext = false;
         }
 
-        final Terminology fullTerminology = getTerminology(
-            treePos.getNode().getTerminology(), treePos.getNode().getVersion());
-
-        // skip all non-english contexts
-        if (!fullTerminology.getRootTerminology().getLanguage().equals("ENG")) {
-          continue;
-        }
-
         cxtBuilder.append(getTerminologyAndVersion(treePos.getNode()));
-        cxtBuilder.append("/").append(treePos.getNode().getTerminologyId())
-            .append(lineEnd);
+        cxtBuilder.append("/");
+
+        if (treePos.getNode() instanceof Atom) {
+          cxtBuilder.append(((Atom) treePos.getNode()).getCodeId());
+        } else {
+          cxtBuilder.append(treePos.getNode().getTerminologyId());
+        }
+        cxtBuilder.append(lineEnd);
 
         final Tree tree = getTreeForTreePosition(treePos);
 
@@ -625,53 +617,25 @@ public class ReportServiceJpa extends HistoryServiceJpa
           }
         }
 
-        // children
-        final IdType type = fullTerminology.getOrganizingClassType();
-
         TreePositionList siblings = null;
         TreePositionList children = null;
         final PfsParameter childPfs = new PfsParameterJpa();
         childPfs.setStartIndex(0);
         childPfs.setMaxResults(10);
-        if (type == IdType.CONCEPT) {
-          if (treePos.getChildCt() > 0) {
-            children = findConceptTreePositionChildren(
-                treePos.getNode().getTerminologyId(),
-                treePos.getNode().getTerminology(),
-                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-          } else {
-            children = new TreePositionListJpa();
-          }
-          siblings = findConceptTreePositionChildren(
-              parent.getNodeTerminologyId(), parent.getTerminology(),
-              parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
-        } else if (type == IdType.CODE) {
-          if (treePos.getChildCt() > 0) {
-            children = findCodeTreePositionChildren(
-                treePos.getNode().getTerminologyId(),
-                treePos.getNode().getTerminology(),
-                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-          } else {
-            children = new TreePositionListJpa();
-          }
-          siblings = findCodeTreePositionChildren(parent.getNodeTerminologyId(),
-              parent.getTerminology(), parent.getVersion(), Branch.ROOT,
-              new PfsParameterJpa());
-        } else if (type == IdType.DESCRIPTOR) {
-          if (treePos.getChildCt() > 0) {
-            children = findDescriptorTreePositionChildren(
-                treePos.getNode().getTerminologyId(),
-                treePos.getNode().getTerminology(),
-                treePos.getNode().getVersion(), Branch.ROOT, childPfs);
-          } else {
-            children = new TreePositionListJpa();
-          }
-          siblings = findDescriptorTreePositionChildren(
-              parent.getNodeTerminologyId(), parent.getTerminology(),
-              parent.getVersion(), Branch.ROOT, new PfsParameterJpa());
+
+        if (treePos.getChildCt() > 0) {
+          children =
+              findTreePositionChildren(treePos.getNode().getTerminologyId(),
+                  treePos.getNode().getTerminology(),
+                  treePos.getNode().getVersion(), Branch.ROOT,
+                  treePos.getClass(), childPfs);
         } else {
-          throw new Exception("Unexpected it type - " + type);
+          children = new TreePositionListJpa();
         }
+
+        siblings = findTreePositionChildren(parent.getNodeTerminologyId(),
+            parent.getTerminology(), parent.getVersion(), Branch.ROOT,
+            treePos.getClass(), new PfsParameterJpa());
 
         // siblings & self node
         indent = indent.substring(0, indent.length() - 2);
@@ -757,42 +721,6 @@ public class ReportServiceJpa extends HistoryServiceJpa
     if (treePos.getChildCt() > 10) {
       sb.append(indent).append("more...").append(lineEnd);
     }
-  }
-
-  /**
-   * Returns the tree position.
-   *
-   * @param type the type
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @return the tree position
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unused")
-  private TreePosition<?> getTreePosition(IdType type, String terminologyId,
-    String terminology, String version) throws Exception {
-    // for each unique entry, get all tree positions
-    final PfsParameter singleResultPfs = new PfsParameterJpa();
-    singleResultPfs.setStartIndex(0);
-    singleResultPfs.setMaxResults(1);
-
-    TreePositionList list = null;
-    if (type == IdType.CONCEPT) {
-      list = findConceptTreePositions(terminologyId, terminology, version, null,
-          null, singleResultPfs);
-    } else if (type == IdType.DESCRIPTOR) {
-      list = findDescriptorTreePositions(terminologyId, terminology, version,
-          null, null, singleResultPfs);
-    } else if (type == IdType.CODE) {
-      list = findConceptTreePositions(terminologyId, terminology, version, null,
-          null, singleResultPfs);
-    }
-    if (list.size() > 0) {
-      return list.getObjects().get(0);
-    }
-    return null;
-
   }
 
   /**

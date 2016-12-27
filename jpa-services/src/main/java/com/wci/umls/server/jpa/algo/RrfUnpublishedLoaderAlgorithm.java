@@ -4,7 +4,10 @@
 package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +68,13 @@ public class RrfUnpublishedLoaderAlgorithm
     // Turn off action handling
     setMolecularActionFlag(false);
 
+    loadDeletedConceptNames();
+    loadConceptNotes();
+    loadAtomNotes();
+    loadIntegrityData();
+    loadSrcAtomIds();
+    loadXrRelationships();
+
     logInfo("Done ...");
 
     // Final logging messages
@@ -120,7 +130,7 @@ public class RrfUnpublishedLoaderAlgorithm
       }
       // Skip publishable concepts
       if (concept.isPublishable()) {
-        logInfo("    skip unpublishable = " + cui);
+        logInfo("    skip publishable = " + cui);
         continue;
       }
 
@@ -165,20 +175,23 @@ public class RrfUnpublishedLoaderAlgorithm
         new File(getInputPath(), "conceptNotes.txt"), Charset.forName("UTF-8"));
 
     int ct = 0;
-    final FastDateFormat df = FastDateFormat.getInstance("yyyy-MM-dd");
+    // dates to parese - 29-NOV-12
+    final DateFormat df = new SimpleDateFormat("dd-MMM-yy");
     for (final String line : lines) {
       final String[] tokens = FieldedStringTokenizer.split(line, "|");
+
       final String cui = tokens[0];
       final String note = tokens[1];
       final String lastModifiedBy = tokens[2];
-      final String dateStr = "20" + tokens[3];
+      final String dateStr = tokens[3];
       final Date date = df.parse(dateStr);
 
       final Concept concept =
           getConcept(cui, getTerminology(), getVersion(), Branch.ROOT);
       // Skip concepts
-      if (concept == null) {
-        logInfo("    skip nonexistent = " + cui);
+      if (concept != null) {
+        logInfo("    add note " + cui);
+      } else {
         continue;
       }
 
@@ -236,7 +249,7 @@ public class RrfUnpublishedLoaderAlgorithm
     final Map<String, Long> map = new HashMap<>();
     while (results.next()) {
       final String aui = (String) results.get()[0];
-      final Long id = (Long) results.get()[1];
+      final Long id = ((BigInteger) results.get()[1]).longValue();
       map.put(aui, id);
     }
     results.close();
@@ -253,8 +266,9 @@ public class RrfUnpublishedLoaderAlgorithm
 
       final Atom atom = getAtom(map.get(aui));
       // Skip concepts
-      if (atom == null) {
-        logInfo("    skip nonexistent = " + aui);
+      if (atom != null) {
+        logInfo("    add note = " + aui);
+      } else {
         continue;
       }
 
@@ -341,7 +355,7 @@ public class RrfUnpublishedLoaderAlgorithm
     final Map<String, Long> map = new HashMap<>();
     while (results.next()) {
       final String aui = (String) results.get()[0];
-      final Long id = (Long) results.get()[1];
+      final Long id = ((BigInteger) results.get()[1]).longValue();
       map.put(aui, id);
     }
     results.close();
@@ -354,8 +368,9 @@ public class RrfUnpublishedLoaderAlgorithm
 
       final Atom atom = getAtom(map.get(aui));
       // Skip concepts
-      if (atom == null) {
-        logInfo("    skip nonexistent = " + aui);
+      if (atom != null) {
+        logInfo("    attach src atom id = " + aui + ", " + src);
+      } else {
         continue;
       }
 
@@ -413,24 +428,20 @@ public class RrfUnpublishedLoaderAlgorithm
           getConcept(cui1, getTerminology(), getVersion(), Branch.ROOT);
       // Skip concepts
       if (concept == null) {
-        logInfo("    skip nonexistent = " + cui1);
         continue;
       }
       // Skip publishable concepts
       if (concept.isPublishable()) {
-        logInfo("    skip unpublishable = " + cui1);
         continue;
       }
       final Concept concept2 =
           getConcept(cui2, getTerminology(), getVersion(), Branch.ROOT);
       // Skip concepts
       if (concept2 == null) {
-        logInfo("    skip nonexistent = " + cui2);
         continue;
       }
       // Skip publishable concepts
       if (concept2.isPublishable()) {
-        logInfo("    skip unpublishable = " + cui2);
         continue;
       }
 
@@ -451,6 +462,7 @@ public class RrfUnpublishedLoaderAlgorithm
       xr.setTo(concept2);
       xr.setVersion(getVersion());
       xr.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+      logInfo("    add xr = " + xr);
       addRelationship(xr);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }

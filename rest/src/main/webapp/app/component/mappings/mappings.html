@@ -1,8 +1,10 @@
 
 <!-- Mappings -->
-<div>
-  <button ng-click="pageCallbacks.getPagedList()">Test</button>
-  <h4>{{metadata.mappingsLabel}} ({{pagedMappings.totalCount}})</h4>
+<div ng-show="pagedData.totalCount > 0 || paging.filter">
+  <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
+    ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <h5 class="ml10">{{metadata.mappingsLabel}}
+    ({{pagedMappings.totalCount}})</h5>
   <div pager paging="paging" count="pagedData.totalCount"
     callbacks="pageCallbacks"></div>
   <ul class="icon-list">
@@ -21,12 +23,13 @@
       {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
         class="hidden-xs">
         <a
-          ng-click="getComponent({{componentType, item.toTerminologyId, item.toTerminology, component.version)"
+          ng-click="getComponent({ type: componentType, terminologyId: item.toTerminologyId, terminology: item.toTerminology, 
+          version: component.version})"
           uib-tooltip="{{item.toTerminology}} {{componentType | lowercase}}">{{item.toTerminologyId}}</a>
         {{item.toName}}
       </span> <span class="visible-xs-inline">
         <a
-          ng-click="getComponent(componentType, item.toTerminologyId, item.toTerminology, component.version)"
+          ng-click="getComponent({type: componentType, terminologyId: item.toTerminologyId, terminology: item.toTerminology, version: component.version})"
           uib-tooltip="{{item.toTerminology}} {{terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
       </span></li>
   </ul>

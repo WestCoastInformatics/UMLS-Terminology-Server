@@ -4,10 +4,14 @@
 package com.wci.umls.server.jpa;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -31,7 +35,7 @@ import com.wci.umls.server.ProcessExecution;
  * JPA and JAXB enabled implementation of {@link AlgorithmExecution}.
  */
 @Entity
-@Table(name = "algorithm_executions")
+@Table(name = "algorithm_execs")
 @Audited
 @Indexed
 @XmlRootElement(name = "algortihmExecution")
@@ -66,7 +70,14 @@ public class AlgorithmExecutionJpa extends
   private ProcessExecution process;
 
   /** Has the algorithm had a warning fired during its execution?. */
-  private Boolean warning;
+  @Column(nullable = false)
+  private boolean warning = false;
+
+  /** the properties */
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 4000)
+  private Map<String, String> properties = new HashMap<>();
 
   /**
    * Instantiates an empty {@link AlgorithmExecutionJpa}.
@@ -89,6 +100,7 @@ public class AlgorithmExecutionJpa extends
     algorithmConfigId = exec.getAlgorithmConfigId();
     activityId = exec.getActivityId();
     warning = exec.isWarning();
+    properties = new HashMap<>(exec.getProperties());
   }
 
   /**
@@ -101,6 +113,7 @@ public class AlgorithmExecutionJpa extends
     // Clear out the id copied from the config
     this.setId(null);
     algorithmConfigId = config.getId();
+    properties = new HashMap<>(config.getProperties());
   }
 
   /* see superclass */
@@ -213,6 +226,22 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  @XmlTransient
+  public Map<String, String> getProperties() {
+    if (properties == null) {
+      properties = new HashMap<>();
+    }
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -222,6 +251,8 @@ public class AlgorithmExecutionJpa extends
         prime * result + ((activityId == null) ? 0 : activityId.hashCode());
     result = prime * result
         + ((getProcessId() == null) ? 0 : getProcessId().hashCode());
+    result =
+        prime * result + ((properties == null) ? 0 : properties.hashCode());
     return result;
   }
 
@@ -249,6 +280,11 @@ public class AlgorithmExecutionJpa extends
       if (other.getProcessId() != null)
         return false;
     } else if (!getProcessId().equals(other.getProcessId()))
+      return false;
+    if (properties == null) {
+      if (other.properties != null)
+        return false;
+    } else if (!properties.equals(other.properties))
       return false;
     return true;
   }
@@ -281,7 +317,5 @@ public class AlgorithmExecutionJpa extends
   public void setWarning(Boolean warning) {
     this.warning = warning;
   }
-
-
 
 }

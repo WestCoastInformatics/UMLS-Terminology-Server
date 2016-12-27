@@ -1,5 +1,5 @@
 // Subsets
-tsApp.directive('subsets', [ 'utilService', function(utilService) {
+tsApp.directive('subsets', [ function() {
   console.debug('configure subsets directive');
   return {
     restrict : 'A',
@@ -10,31 +10,22 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
       callbacks : '='
     },
     templateUrl : 'app/component/subsets/subsets.html',
-    link : function(scope, element, attrs) {
-
-      function getPagedList() {
-
-        scope.pagedData = utilService.getPagedArray(scope.component.members.filter(
-        // handle hidden flag
-        function(item) {
-          return scope.paging.showHidden || (!item.obsolete && !item.suppressible);
-        }), scope.paging);
-        console.debug('subsets', scope.pagedData);
-      }
+    controller : [ '$scope', 'utilService', function($scope, utilService) {
+      $scope.showing = true;
 
       // instantiate paging and paging callbacks function
-      scope.pagedData = [];
-      scope.paging = utilService.getPaging();
-      scope.pageCallbacks = {
+      $scope.pagedData = [];
+      $scope.paging = utilService.getPaging();
+      $scope.pageCallbacks = {
         getPagedList : getPagedList
       };
 
       // watch the component
-      scope.$watch('component', function() {
-        if (scope.component) {
+      $scope.$watch('component', function() {
+        if ($scope.component) {
           // Clear paging
-          scope.paging = utilService.getPaging();
-          scope.pageCallbacks = {
+          $scope.paging = utilService.getPaging();
+          $scope.pageCallbacks = {
             getPagedList : getPagedList
           };
           // Get data
@@ -43,8 +34,8 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
       }, true);
 
       // watch show hidden flag
-      scope.$watch('showHidden', function(newValue, oldValue) {
-        scope.paging.showHidden = scope.showHidden;
+      $scope.$watch('showHidden', function(newValue, oldValue) {
+        $scope.paging.showHidden = $scope.showHidden;
 
         // if value changed, get paged list
         if (newValue != oldValue) {
@@ -52,6 +43,18 @@ tsApp.directive('subsets', [ 'utilService', function(utilService) {
         }
       });
 
-    }
+      // get paged list
+      function getPagedList() {
+
+        $scope.pagedData = utilService.getPagedArray($scope.component.members.filter(
+        // handle hidden flag
+        function(item) {
+          return $scope.paging.showHidden || (!item.obsolete && !item.suppressible);
+        }), $scope.paging);
+        console.debug('subsets', $scope.pagedData);
+      }
+
+      // end controller
+    } ]
   };
 } ]);

@@ -149,7 +149,6 @@ public class TerminologyJpaUnitTest extends ModelUnitSupport {
     tester.include("organizingClassType");
     tester.include("preferredName");
     tester.include("startDate");
-    tester.include("synonymousNames");
     tester.include("terminology");
     tester.include("version");
     tester.include("descriptionLogicTerminology");

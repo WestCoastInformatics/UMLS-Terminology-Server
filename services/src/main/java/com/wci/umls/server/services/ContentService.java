@@ -575,52 +575,54 @@ public interface ContentService extends MetadataService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Find tree positions for concept.
+   * Find descendant atoms.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param childrenOnly the children only
    * @param branch the branch
-   * @param query the query
    * @param pfs the pfs
-   * @return the tree position list
+   * @return the atom list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public AtomList findDescendantAtoms(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
-   * Find descriptor tree positions for query.
+   * Find ancestor atoms.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param parentsOnly the parents only
    * @param branch the branch
-   * @param query the query
    * @param pfs the pfs
-   * @return the tree position list
+   * @return the atom list
    * @throws Exception the exception
    */
-  public TreePositionList findDescriptorTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public AtomList findAncestorAtoms(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs)
+    throws Exception;
 
   /**
-   * Find code tree positions for query.
+   * Find tree positions for the specified type.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
    * @param query the query
+   * @param clazz the clazz
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findCodeTreePositions(String terminologyId,
+  @SuppressWarnings("rawtypes")
+  public TreePositionList findTreePositions(String terminologyId,
     String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -841,9 +843,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position
    * @throws Exception the exception
    */
-  public TreePosition<? extends AtomClass> getTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception;
+  @SuppressWarnings("rawtypes")
+  public TreePosition<?> getTreePosition(Long id,
+    Class<? extends TreePosition> treeposClass) throws Exception;
 
   /**
    * Add tree position.
@@ -852,8 +854,7 @@ public interface ContentService extends MetadataService {
    * @return the tree position
    * @throws Exception the exception
    */
-  public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+  public TreePosition<?> addTreePosition(TreePosition<?> treepos)
     throws Exception;
 
   /**
@@ -862,9 +863,7 @@ public interface ContentService extends MetadataService {
    * @param treepos the treepos
    * @throws Exception the exception
    */
-  public void updateTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
-    throws Exception;
+  public void updateTreePosition(TreePosition<?> treepos) throws Exception;
 
   /**
    * Remove tree position.
@@ -873,9 +872,9 @@ public interface ContentService extends MetadataService {
    * @param treeposClass the treepos class
    * @throws Exception the exception
    */
+  @SuppressWarnings("rawtypes")
   public void removeTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception;
+    Class<? extends TreePosition> treeposClass) throws Exception;
 
   /**
    * Add subset.
@@ -1411,7 +1410,7 @@ public interface ContentService extends MetadataService {
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
-  
+
   /**
    * Creates the inverse concept relationship.
    *
@@ -1512,8 +1511,7 @@ public interface ContentService extends MetadataService {
    * @return the tree for tree position
    * @throws Exception the exception
    */
-  public Tree getTreeForTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treePosition)
+  public Tree getTreeForTreePosition(TreePosition<?> treePosition)
     throws Exception;
 
   /**
@@ -1523,43 +1521,15 @@ public interface ContentService extends MetadataService {
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param clazz the clazz
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find code tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findCodeTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find descriptor tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findDescriptorTreePositionChildren(
-    String terminologyId, String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception;
+  @SuppressWarnings("rawtypes")
+  public TreePositionList findTreePositionChildren(String terminologyId,
+    String terminology, String version, String branch,
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception;
 
   /**
    * Add general concept axiom.
@@ -1877,8 +1847,8 @@ public interface ContentService extends MetadataService {
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(List<String> validationChecks, Concept concept)
-    throws Exception;
+  public ValidationResult validateConcept(List<String> validationChecks,
+    Concept concept) throws Exception;
 
   /**
    * Validate concepts.
@@ -1898,7 +1868,8 @@ public interface ContentService extends MetadataService {
    * @param atom the atom
    * @return the validation result
    */
-  public ValidationResult validateAtom(List<String> validationChecks, Atom atom);
+  public ValidationResult validateAtom(List<String> validationChecks,
+    Atom atom);
 
   /**
    * Validate descriptor.
@@ -1917,7 +1888,8 @@ public interface ContentService extends MetadataService {
    * @param code the code
    * @return the validation result
    */
-  public ValidationResult validateCode(List<String> validationChecks, Code code);
+  public ValidationResult validateCode(List<String> validationChecks,
+    Code code);
 
   /**
    * Returns the ambiguous atom ids.
@@ -1936,7 +1908,6 @@ public interface ContentService extends MetadataService {
    */
   IdentifierAssignmentHandler newIdentifierAssignmentHandler(String terminology)
     throws Exception;
-  
 
   /**
    * Find concept deep tree positions.
@@ -1951,7 +1922,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
-    String terminology, String version, String branch, String query, PfsParameter pfs) throws Exception;
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Gets the normalized string handler.

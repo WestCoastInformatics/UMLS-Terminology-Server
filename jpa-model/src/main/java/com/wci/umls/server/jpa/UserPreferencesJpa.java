@@ -16,6 +16,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -80,7 +81,8 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /** The properties. */
   @ElementCollection
-  @Column(nullable = true)
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 4000)
   private Map<String, String> properties;
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -135,23 +135,23 @@ public class Rf2FileSorter {
     }
     return fileVersion;
   }
-  
+
   /**
-   * Return the extension (and namespace if present)
-   * 
-   * @return
-   * @throws Exception
+   * Return the extension (and namespace if present).
+   *
+   * @return the file extension info
+   * @throws Exception the exception
    */
-  public String getFileExtensionInfo() throws Exception { 
+  public String getFileExtensionInfo() throws Exception {
     String fileExtension = null;
-   
+
     for (final String dirName : dirMap.values()) {
       final File file = new File(inputDir + dirName);
       if (file != null && file.exists()) {
         for (final String fileName : file.list()) {
           // match last _dddddd
           try {
-            
+
             Matcher matcher = Pattern.compile(".*_Concept_Snapshot_([^_]*)")
                 .matcher(fileName);
             matcher.find();

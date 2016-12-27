@@ -3,9 +3,14 @@
  */
 package com.wci.umls.server.jpa;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -39,6 +44,12 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
   @Column(nullable = false)
   private boolean enabled = true;
 
+  /** the properties */
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 4000)
+  private Map<String, String> properties = new HashMap<>();
+
   /**
    * Instantiates an empty {@link AlgorithmConfigJpa}.
    */
@@ -55,7 +66,7 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
     super(config);
     enabled = config.isEnabled();
     process = config.getProcess();
-
+    properties = new HashMap<>(config.getProperties());
   }
 
   /* see superclass */
@@ -107,11 +118,29 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
 
   /* see superclass */
   @Override
+  @XmlTransient
+  public Map<String, String> getProperties() {
+    if (properties == null) {
+      properties = new HashMap<>();
+    }
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result
         + ((getProcessId() == null) ? 0 : getProcessId().hashCode());
+    result =
+        prime * result + ((properties == null) ? 0 : properties.hashCode());
     return result;
   }
 
@@ -130,14 +159,19 @@ public class AlgorithmConfigJpa extends AbstractAlgorithmInfo<ProcessConfig>
         return false;
     } else if (!getProcessId().equals(other.getProcessId()))
       return false;
+    if (properties == null) {
+      if (other.properties != null)
+        return false;
+    } else if (!properties.equals(other.properties))
+      return false;
     return true;
   }
 
   /* see superclass */
   @Override
   public String toString() {
-    return "AlgorithmConfigJpa [processId=" + getProcessId() + "] "
-        + super.toString();
+    return "AlgorithmConfigJpa [processId=" + getProcessId() + ", properties="
+        + properties + "] " + super.toString();
   }
 
 }

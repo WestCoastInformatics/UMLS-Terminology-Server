@@ -30,27 +30,16 @@ tsApp.controller('ContextsCtrl', [
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';
     $scope.paging['entries'].pageSize = 5;
-    $scope.paging['entries'].filterList = [ 'SNOMED_CT', 'ICD10CM' ];
+    $scope.paging['entries'].filterList = [];
     $scope.paging['entries'].filterFields = {};
     $scope.paging['entries'].filterFields.terminology = 1;
     $scope.paging['entries'].sortAscending = false;
     $scope.paging['entries'].callbacks = {
       getPagedList : getPagedEntries
     };
-    $scope.paging['attributes'] = utilService.getPaging();
-    $scope.paging['attributes'].sortField = 'name';
-    $scope.paging['attributes'].pageSize = 5;
-    $scope.paging['attributes'].filterFields = {};
-    $scope.paging['attributes'].filterFields.id = 1;
-    $scope.paging['attributes'].filterFields.name = 1;
-    $scope.paging['attributes'].filterFields.value = 1;
-    $scope.paging['attributes'].sortAscending = false;
-    $scope.paging['attributes'].callbacks = {
-      getPagedList : getPagedAttributes
-    };
-    
+
+    // Watch for component change
     $scope.$watch('selected.component', function() {
-      console.debug('in watch');
       $scope.getPagedEntries();
     });
 
@@ -70,29 +59,20 @@ tsApp.controller('ContextsCtrl', [
     function getPagedEntries() {
       $scope.entries = [];
       contentService.findDeepTreePositions({
-          terminology : $scope.selected.project.terminology,
-          version : $scope.selected.project.version,
-          terminologyId : $scope.selected.component.terminologyId,
-          type : $scope.selected.component.type
-        }, $scope.paging['entries']).then(
-        // Success
-        function(data) {
-          $scope.pagedEntries = data.treePositions;
-          $scope.pagedEntries.totalCount = data.totalCount;
-          $scope.selectEntry(null, data.treePositions[0]);
-        });
-      } ;
+        terminology : $scope.selected.project.terminology,
+        version : $scope.selected.project.version,
+        terminologyId : $scope.selected.component.terminologyId,
+        type : $scope.selected.component.type
+      }, $scope.paging['entries']).then(
+      // Success
+      function(data) {
+        $scope.pagedEntries = data.treePositions;
+        $scope.pagedEntries.totalCount = data.totalCount;
+        $scope.selectEntry(null, data.treePositions[0]);
+      });
+    }
 
-      // Get paged attributes (assume all are loaded)
-      $scope.getPagedAttributes = function() {
-        getPagedAttributes();
-      }
-      function getPagedAttributes() {
-        // page from the stys that are available to add
-        $scope.pagedAttributes = utilService.getPagedArray($scope.component.attributes,
-          $scope.paging['attributes']);
-      }
-      
+
     // refresh
     $scope.refresh = function() {
       $scope.$apply();
@@ -106,16 +86,16 @@ tsApp.controller('ContextsCtrl', [
     // on window resize, save dimensions and screen location to user preferences
     $window.onresize = function(evt) {
       clearTimeout(window.resizedFinished);
-      window.resizedFinished = setTimeout(function(){
-          console.log('Resized finished on context window.');
-          $scope.user.userPreferences.properties['contextWidth'] = window.outerWidth;
-          $scope.user.userPreferences.properties['contextHeight'] = window.outerHeight;
-          $scope.user.userPreferences.properties['contextX'] = window.screenX;
-          $scope.user.userPreferences.properties['contextY'] = window.screenY;
-          securityService.updateUserPreferences($scope.user.userPreferences);
+      window.resizedFinished = setTimeout(function() {
+        console.log('Resized finished on context window.');
+        $scope.user.userPreferences.properties['contextWidth'] = window.outerWidth;
+        $scope.user.userPreferences.properties['contextHeight'] = window.outerHeight;
+        $scope.user.userPreferences.properties['contextX'] = window.screenX;
+        $scope.user.userPreferences.properties['contextY'] = window.screenY;
+        securityService.updateUserPreferences($scope.user.userPreferences);
       }, 250);
     }
-   
+
     // Table sorting mechanism
     $scope.setSortField = function(table, field, object) {
       utilService.setSortField(table, field, $scope.paging);
@@ -131,17 +111,15 @@ tsApp.controller('ContextsCtrl', [
     $scope.selectEntry = function(event, entry) {
       $scope.selected.entry = entry;
       var lcomponent = {
-    	        id: entry.nodeId, 
-    	        type: entry.type, 
-    	        terminology: entry.nodeTerminology,
-    	        version: entry.nodeVersion,
-    	        terminologyId: entry.nodeTerminologyId
-    	      };
-    	      contentService.getComponent(lcomponent, $scope.selected.project.id).then(
-    	        function(data) {
-    	          $scope.component = data;
-    	          $scope.getPagedAttributes();
-    	        });
+        id : entry.nodeId,
+        type : entry.type,
+        terminology : entry.nodeTerminology,
+        version : entry.nodeVersion,
+        terminologyId : entry.nodeTerminologyId
+      };
+      contentService.getComponent(lcomponent, $scope.selected.project.id).then(function(data) {
+        $scope.component = data;
+      });
     };
 
     // indicates if a particular row is selected

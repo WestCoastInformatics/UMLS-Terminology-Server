@@ -491,6 +491,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
     if (terminology != null) {
       terminology.getSynonymousNames().size();
       terminology.getRootTerminology().getTerminology();
+      terminology.getRelatedTerminologies().size();
     }
   }
 

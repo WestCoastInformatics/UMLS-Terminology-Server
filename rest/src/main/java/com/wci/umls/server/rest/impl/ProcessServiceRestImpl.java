@@ -2033,6 +2033,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               @Override
               public void updateProgress(ProgressEvent processEvent) {
                 if (processEvent.isWarning()) {
+                  // TODO: also set a flag on the process execution.
                   finalAlgorithmExecution.setWarning(true);
                   return;
                 }

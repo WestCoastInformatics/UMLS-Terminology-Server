@@ -29,8 +29,7 @@ import com.wci.umls.server.model.meta.IdType;
  */
 @Entity
 @Table(name = "attribute_identity", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "componentId", "componentTerminology", "componentType", "hashcode", "name",
-    "terminology", "terminologyId"
+    "componentId", "componentTerminology", "componentType", "id"
 }))
 @XmlRootElement(name = "attributeIdentity")
 @Indexed

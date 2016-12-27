@@ -234,15 +234,18 @@
         class="alert alert-warning">No concepts</span>
       <!-- Open new windows -->
       <span style="float: left;">
-        <button ng-click="openStyWindow(null, null)" title="Stys"
+        <button ng-click="openStyWindow(null, null)"
+          title="{{selected.metadata.semanticTypesLabel}}"
           ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
-        <button ng-click="openAtomsWindow(null, null)" title="Atoms"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Atoms</button>
+        <button ng-click="openAtomsWindow(null, null)"
+          title="{{selected.metadata.atomsLabel}}"
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
         <button ng-click="openRelationshipsWindow(null, null)"
-          title="Relationships" ng-disabled="!selected.component"
-          class="btn btn-xs btn-primary">Rels</button>
-        <button ng-click="openContextsWindow(null, null)" title="Contexts"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Contexts</button>
+          title="{{selected.metadata.relationshipsLabel}}"
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
+        <button ng-click="openContextsWindow(null, null)"
+          title="{{selected.metadata.hierarchiesLabel}} and {{selected.metadata.attributesLabel}}"
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Tree</button>
         <i ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>

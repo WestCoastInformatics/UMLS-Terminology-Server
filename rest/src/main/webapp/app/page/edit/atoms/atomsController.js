@@ -79,15 +79,13 @@ tsApp
 
         // add atom
         $scope.addAtomToConcept = function(atom) {
-          metaEditingService.addAtom($scope.selected.project.id,
-            $scope.selected.activityId,
+          metaEditingService.addAtom($scope.selected.project.id, $scope.selected.activityId,
             $scope.selected.component, atom);
         }
 
         // remove atom
         $scope.removeAtomFromConcept = function(atom) {
-          metaEditingService.removeAtom($scope.selected.project.id,
-            $scope.selected.activityId,
+          metaEditingService.removeAtom($scope.selected.project.id, $scope.selected.activityId,
             $scope.selected.component, atom.id, true);
         }
 
@@ -215,6 +213,65 @@ tsApp
             }
           }
           return false;
+        }
+
+        // Toggle attributes for an atom
+        $scope.attributes = {};
+        $scope.toggleAttributes = function(atom) {
+          if (attributes[atom.id]) {
+            delete attributes[atom.id];
+            return;
+          }
+
+          // Assemble the attributes for the atom
+          $scope.attributes[atom.id].atom = angular.copy(atom.attributes);
+          $scope.attributes[atom.id].ct = $scope.attributes[atom.id].atom.length;
+          if (atom.descriptorId) {
+            contentService.getComponent({
+              type : 'DESCRIPTOR',
+              terminologyId : atom.descriptorId,
+              terminology : atom.terminology,
+              version : atom.version
+            }).then(
+            // Success
+            function(data) {
+              if (data) {
+                $scope.attributes[atom.id].descriptor = data;
+                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].descriptor.length;
+              }
+            });
+          }
+          if (atom.conceptId) {
+            contentService.getComponent({
+              type : 'CONCEPT',
+              terminologyId : atom.conceptId,
+              terminology : atom.terminology,
+              version : atom.version
+            }).then(
+            // Success
+            function(data) {
+              if (data) {
+                $scope.attributes[atom.id].concept = data;
+                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].concept.length;
+              }
+            });
+          }
+          if (atom.codeId && atom.codeId != atom.conceptId && atom.codeId != atom.descriptorId) {
+            contentService.getComponent({
+              type : 'CODE',
+              terminologyId : atom.codeId,
+              terminology : atom.terminology,
+              version : atom.version
+            }).then(
+            // Success
+            function(data) {
+              if (data) {
+                $scope.attributes[atom.id].code = data;
+                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].code.length;
+              }
+            });
+          }
+
         }
 
         //
