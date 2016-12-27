@@ -1981,6 +1981,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
+    root.setHierarchyComputable(true);
     root.setPreferredName(preferredName == null ? getTerminology() : preferredName);
     root.setRestrictionLevel(0);
     root.setTerminology(getTerminology());

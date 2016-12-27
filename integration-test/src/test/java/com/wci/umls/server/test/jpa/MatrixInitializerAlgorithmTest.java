@@ -31,7 +31,6 @@ import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -40,7 +39,7 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class MatrixInitializerTest extends IntegrationUnitSupport {
+public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
 
   /** The service. */
   MatrixInitializerAlgorithm algo = null;
@@ -87,20 +86,20 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
     algo.setTerminology("UMLS");
     algo.setVersion("latest");
 
-    // C0000005 is PUBLISHED, and all components are PUBLISHED as well.
-    concept = contentService.getConcept("C0000005", "UMLS", "latest", null);
-
-    // C0029744 is PUBLISHED, but contains a DEMOTION relationship.
-    concept2 = contentService.getConcept("C0029744", "UMLS", "latest", null);
-
-    OUTER: for (final Atom atom : concept2.getAtoms()) {
-      for (final AtomRelationship rel : atom.getRelationships()) {
-        if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
-          relationship = rel;
-          break OUTER;
-        }
-      }
-    }
+//    // C0000005 is PUBLISHED, and all components are PUBLISHED as well.
+//    concept = contentService.getConcept("C0000005", "UMLS", "latest", null);
+//
+//    // C0029744 is PUBLISHED, but contains a DEMOTION relationship.
+//    concept2 = contentService.getConcept("C0029744", "UMLS", "latest", null);
+//
+//    OUTER: for (final Atom atom : concept2.getAtoms()) {
+//      for (final AtomRelationship rel : atom.getRelationships()) {
+//        if (rel.getWorkflowStatus().equals(WorkflowStatus.DEMOTION)) {
+//          relationship = rel;
+//          break OUTER;
+//        }
+//      }
+//    }
   }
 
   /**
@@ -293,6 +292,48 @@ public class MatrixInitializerTest extends IntegrationUnitSupport {
 
   }
 
+
+  /**
+   * Quick test for NCIMTH
+   *
+   * @throws Exception the exception
+   */
+  //@Test
+  public void quickTest() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
+
+    algo.setLastModifiedBy("admin");
+    algo.setLastModifiedFlag(true);
+    algo.setProject(algo.getProjects().getObjects().get(0));
+    algo.setTerminology("NCIMTH");
+    algo.setVersion("latest");
+    // Send the whole project through the initializer
+    try {
+
+      //
+      // Check prerequisites
+      //
+      ValidationResult validationResult = algo.checkPreconditions();
+      // if prerequisites fail, return validation result
+      if (!validationResult.getErrors().isEmpty()
+          || (!validationResult.getWarnings().isEmpty())) {
+        // rollback -- unlocks the concept and closes transaction
+        algo.rollback();
+      }
+      assertTrue(validationResult.getErrors().isEmpty());
+
+      //
+      // Perform the algorithm
+      //
+      algo.compute();
+
+    } catch (Exception e) {
+      algo.rollback();
+    } finally {
+      algo.close();
+    }
+
+  }
   /**
    * Test matrix init degenerate use.
    *

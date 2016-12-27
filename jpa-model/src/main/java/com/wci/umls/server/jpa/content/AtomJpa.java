@@ -13,6 +13,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -62,6 +63,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
         "stringClassId", "terminology", "version", "id"
     }), @UniqueConstraint(columnNames = {
         "lowerNameHash", "conceptId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
     })
 })
 @Audited
@@ -91,13 +94,14 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
 
   /** The concept terminology id map. */
   @ElementCollection
-  @Column(nullable = false)
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   Map<String, String> conceptTerminologyIds;
 
   /** The alternate terminology ids. */
   @ElementCollection()
-  // consider this: @Fetch(FetchMode.JOIN)
-  @Column(nullable = true)
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
   /** The code id. */

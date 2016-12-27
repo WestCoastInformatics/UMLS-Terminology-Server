@@ -30,9 +30,13 @@ import com.wci.umls.server.model.meta.IdType;
  * JPA and JAXB enabled implementation of a {@link Code}.
  */
 @Entity
-@Table(name = "codes", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "codes", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
+    })
+})
 @Audited
 @Indexed
 @XmlRootElement(name = "code")
@@ -88,7 +92,6 @@ public class CodeJpa extends AbstractAtomClass implements Code {
     }
     return relationships;
   }
-
 
   /* see superclass */
   @XmlTransient

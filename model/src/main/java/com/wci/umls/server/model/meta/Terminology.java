@@ -305,4 +305,5 @@ public interface Terminology extends HasLastModified {
    * @param relatedTerminologies the relatied terminologies
    */
   public void setRelatedTerminologies(List<String> relatedTerminologies);
+
 }

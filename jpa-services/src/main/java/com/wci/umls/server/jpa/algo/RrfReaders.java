@@ -47,6 +47,9 @@ public class RrfReaders {
     /** The mrrel. */
     MRREL,
 
+    /** The mrhier. */
+    MRHIER,
+
     /** The mrsab. */
     MRSAB,
 
@@ -92,6 +95,7 @@ public class RrfReaders {
     // readers.put(Keys.MRMAP, getReader("mapByConcept.sort"));
     // readers.put(Keys.MRRANK, getReader("rankByRank.sort"));
     // readers.put(Keys.MRREL, getReader("relByConcept.sort"));
+    // readers.put(Keys.MRHIER, getReader("relByConcept.sort"));
     // readers.put(Keys.MRSAB, getReader("sabBySab.sort"));
     // readers.put(Keys.MRSAT, getReader("satByConcept.sort"));
     // readers.put(Keys.MRSTY, getReader("styByConcept.sort"));
