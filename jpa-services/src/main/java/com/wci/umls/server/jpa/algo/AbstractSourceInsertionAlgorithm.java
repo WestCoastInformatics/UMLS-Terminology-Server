@@ -446,8 +446,8 @@ public abstract class AbstractSourceInsertionAlgorithm
   }
 
   /**
-   * Cache existing mapSets. Key = code+terminology of the XM atom in the
-   * concept whose terminologyId is the mapset alternate terminology id
+   * Cache existing mapSets. Key = alternate terminology Id of the XM atom in
+   * the concept whose terminologyId is the mapset alternate terminology id
    *
    * @throws Exception the exception
    */
@@ -467,10 +467,13 @@ public abstract class AbstractSourceInsertionAlgorithm
     for (final Object[] entry : list) {
       final MapSet mapSet = (MapSet) entry[0];
       final Atom atom = (Atom) entry[1];
-      // TODO question - is codeId correct here?
-      final String codeId = atom.getCodeId();
-      final String terminology = atom.getTerminology();
-      cachedMapSets.put(codeId + "_" + terminology, mapSet);
+      // Only add the mapSet if the atom has an alternate Terminology Id where
+      // key is Project + '-SRC'
+      final String sourceAtomAltId = atom.getAlternateTerminologyIds()
+          .get(getProject().toString() + "-SRC");
+      if (sourceAtomAltId != null) {
+        cachedMapSets.put(sourceAtomAltId, mapSet);
+      }
     }
   }
 
@@ -963,28 +966,33 @@ public abstract class AbstractSourceInsertionAlgorithm
   /**
    * Returns the cached map set.
    *
-   * @param codeAndTerminology the code and terminology
+   * @param sourceAtomAltId the source atom alt id
    * @return the cached map set
    * @throws Exception the exception
    */
-  public MapSet getCachedMapSet(String codeAndTerminology) throws Exception {
+  public MapSet getCachedMapSet(String sourceAtomAltId) throws Exception {
 
     if (cachedMapSets.isEmpty()) {
       cacheExistingMapSets();
     }
 
-    return cachedMapSets.get(codeAndTerminology);
+    return cachedMapSets.get(sourceAtomAltId);
   }
 
   /**
    * Put map set into the cache.
    *
-   * @param codeIdAndTerminology the code id and terminology
+   * @param sourceAtomAltId the code id and terminology
    * @param mapSet the map set
+   * @throws Exception 
    */
   @SuppressWarnings("static-method")
-  public void putMapSet(String codeIdAndTerminology, MapSet mapSet) {
-    cachedMapSets.put(codeIdAndTerminology, mapSet);
+  public void putMapSet(String sourceAtomAltId, MapSet mapSet) throws Exception {
+    if (cachedMapSets.isEmpty()) {
+      cacheExistingMapSets();
+    }
+
+    cachedMapSets.put(sourceAtomAltId, mapSet);
   }
 
   /**

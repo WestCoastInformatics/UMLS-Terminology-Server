@@ -91,6 +91,16 @@ tsApp.directive('relationshipsDeep', [ function() {
             $scope.pagedData.totalCount = data.totalCount;
           });
         }
+        
+     // calls callback with constructed component from type and terminology triple
+        $scope.getComponent = function(organizingClassType, terminologyId, terminology, version) {
+          $scope.callbacks.getComponent( {
+            type : organizingClassType,
+            terminologyId : terminologyId,
+            terminology: terminology,
+            version : version
+          });
+        }
 
         // watch the component
         $scope.$watch('component', function() {
