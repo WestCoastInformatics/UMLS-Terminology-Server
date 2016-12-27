@@ -76,7 +76,7 @@ public enum IdType {
       return CONCEPT;
     } else if (abbrev.equals("SCUI")) {
       return CONCEPT;
-    } else if (abbrev.equals("DUI")) {
+    } else if (abbrev.equals("DUI") || abbrev.equals("SDUI")) {
       return DESCRIPTOR;
     } else if (abbrev.equals("CODE")) {
       return CODE;
