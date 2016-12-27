@@ -4,9 +4,12 @@
 # 1. attributeIdentity.txt
 # 2. relationshipIdentity.txt
 # 3. atomIdentity.txt
-# ??
+# ...
 #
-set terminology = UMLS
+set terminology = $1
+if ("x$terminology" == "x") then
+  echo "Usage: $0 <terminology>"
+endif
 echo "------------------------------------------"
 echo "Starting `/bin/date`"
 echo "------------------------------------------"
@@ -146,14 +149,14 @@ join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/;
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 #
 echo "  Compute relationship identity for MRREL"
-lib/mrrel.pl MRREL.RRF > relationshipIdentity.txt
+cat MRREL.RRF | lib/mrrel.pl $terminology > relationshipIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRREL.RRF"
 	exit 1
 endif
 
 if (`perl -ne '@_=split/\|/; print unless $_[11]' relationshipIdentity.txt | wc -l` > 0) then
-	echo "ERROR blank inverseRui in relationshipIdentity
+	echo "ERROR blank inverseRui in relationshipIdentity"
 endif
 
 

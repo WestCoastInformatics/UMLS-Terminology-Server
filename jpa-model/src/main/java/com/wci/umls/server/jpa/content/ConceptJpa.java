@@ -45,9 +45,14 @@ import com.wci.umls.server.model.meta.IdType;
  * JPA and JAXB enabled implementation of {@link Concept}.
  */
 @Entity
-@Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "concepts", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
+    })
+})
+
 @Audited
 @XmlRootElement(name = "concept")
 @Indexed
@@ -61,7 +66,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
 
-  /**  The inverse relationships. */
+  /** The inverse relationships. */
   @OneToMany(mappedBy = "to", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> inverseRelationships = null;
 
@@ -337,7 +342,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /* see superclass */
   @Override
-  public void setNotes(List<Note> notes) {    
+  public void setNotes(List<Note> notes) {
     this.notes = notes;
 
   }

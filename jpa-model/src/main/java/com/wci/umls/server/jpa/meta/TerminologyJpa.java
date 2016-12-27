@@ -561,6 +561,7 @@ public class TerminologyJpa extends AbstractHasLastModified
       return false;
     if (includeSiblings != other.includeSiblings)
       return false;
+
     if (url == null) {
       if (other.url != null)
         return false;

@@ -11,7 +11,6 @@ import java.io.InputStream;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
-import com.wci.umls.server.helpers.content.AttributeList;
 import com.wci.umls.server.helpers.content.CodeList;
 import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.helpers.content.DescriptorList;

@@ -455,6 +455,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
+    root.setHierarchyComputable(true);
     root.setPreferredName(topConcept.getName());
     root.setRestrictionLevel(-1);
     root.setTerminology(getTerminology());

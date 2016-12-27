@@ -3,22 +3,17 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.SearchResult;
-import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UpdateConceptMolecularAction;
@@ -26,6 +21,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Implementation of an algorithm to perform a recomputation of Metathesaurus
@@ -62,40 +58,28 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(0, "Starting...find publishable atoms");
     try {
 
-      // Get all concepts having at least one releasable atom
-      SearchResultList list = findConcepts(getTerminology(), getVersion(),
-          Branch.ROOT, "atoms.publishable:true", null);
-      final Set<Long> publishableConcepts = list.getObjects().stream()
-          .map(SearchResult::getId).collect(Collectors.toSet());
-      logInfo("  publishable = " + list.getTotalCount());
+      final SearchHandler handler = getSearchHandler(ConfigUtility.DEFAULT);
 
-      // Get all concepts where any of its atoms are set to NEEDS REVIEW or
-      // DEMOTION
-      fireProgressEvent(5, "Find needs review atoms...");
+      // Get unpublishable concepts with publishable atoms
+      final Set<Long> makePublishable =
+          new HashSet<>(handler.getIdResults(getTerminology(), getVersion(),
+              Branch.ROOT, "publishable:false AND atoms.publishable:true", null,
+              ConceptJpa.class, null, new int[1], manager));
       checkCancel();
+      fireProgressEvent(10, "Found concepts to make publishable");
+      logInfo("  make publishable = " + makePublishable.size());
 
-      list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
-          "(atoms.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW
-              + " OR atoms.workflowStatus:" + WorkflowStatus.DEMOTION + ")",
-          null);
-      final Set<Long> atomConceptIds = list.getObjects().stream()
-          .map(SearchResult::getId).collect(Collectors.toSet());
-      logInfo("  need review atoms = " + list.getTotalCount());
-
-      // Get all concepts where any of its semantic type components are set to
-      // NEEDS REVIEW
-      fireProgressEvent(10, "Find needs review STYs...");
+      // Get publishable concepts without publishable atoms
+      final Set<Long> makeUnpublishable =
+          new HashSet<>(handler.getIdResults(getTerminology(), getVersion(),
+              Branch.ROOT, "publishable:true AND NOT atoms.publishable:true",
+              null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
+      fireProgressEvent(20, "Found concepts to make unpublishable");
+      logInfo("  make unpublishable = " + makePublishable.size());
 
-      list = findConcepts(getTerminology(), getVersion(), Branch.ROOT,
-          "semanticTypes.workflowStatus:" + WorkflowStatus.NEEDS_REVIEW, null);
-      final Set<Long> styConceptIds = list.getObjects().stream()
-          .map(SearchResult::getId).collect(Collectors.toSet());
-      logInfo("  need review sty = " + list.getTotalCount());
-
-      // Get all concepts where any of its relationships are set to NEEDS REVIEW
-      fireProgressEvent(15, "Find needs review relationships...");
-      checkCancel();
+      // Find concepts connected to needs review relationships
+      final Set<String> needsReviewR = new HashSet<>();
       javax.persistence.Query query =
           manager.createQuery("select r from ConceptRelationshipJpa r "
               + " where terminology = :terminology and version = :version "
@@ -106,84 +90,105 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       @SuppressWarnings("unchecked")
       final List<ConceptRelationship> rels = query.getResultList();
-      final Set<Long> relConceptIds = new HashSet<Long>();
       for (final ConceptRelationship rel : rels) {
-        relConceptIds.add(rel.getFrom().getId());
-        relConceptIds.add(rel.getTo().getId());
+        needsReviewR.add("id:" + rel.getFrom().getId());
+        needsReviewR.add("id:" + rel.getTo().getId());
       }
+      checkCancel();
+      fireProgressEvent(30, "Find concepts with NEEDS_REVIEW relationships");
       logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
-      fireProgressEvent(20, "Find validation failures...");
-      checkCancel();
       final Set<Long> conceptIds = new HashSet<>(
           getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
       final Set<Long> failures = validateConcepts(getProject(), conceptIds);
+      checkCancel();
+      fireProgressEvent(40, "Find concepts with validation failures");
       logInfo("  validation failures = " + failures.size());
 
-      final Set<Long> allNeedsReviewConceptIds = new HashSet<Long>();
-      allNeedsReviewConceptIds.addAll(atomConceptIds);
-      allNeedsReviewConceptIds.addAll(styConceptIds);
-      allNeedsReviewConceptIds.addAll(relConceptIds);
-      allNeedsReviewConceptIds.addAll(failures);
-
-      // NOTE: Hibernate-specific to support iterating
-      // Restrict to timestamp used for THESE atoms, in case multiple RRF
-      // files are loaded
-      fireProgressEvent(25, "Iterate through all concepts...");
+      // Find NEEDS_REVIEW concepts that should be READY_FOR_PUBLICATION
+      final Set<Long> makeReviewed = new HashSet<>(
+          handler.getIdResults(getTerminology(), getVersion(), Branch.ROOT,
+              "workflowStatus:NEEDS_REVIEW AND NOT atoms.workflowStatus:NEEDS_REVIEW "
+                  + "AND NOT atoms.workflowStatus:DEMOTION AND NOT semanticTypes.workflowStatus:NEEDS_REVIEW "
+                  + (needsReviewR.size() == 0 ? ""
+                      : " AND NOT " + ConfigUtility.composeQuery("OR",
+                          new ArrayList<>(needsReviewR))),
+              null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
-      final Session session = manager.unwrap(Session.class);
-      org.hibernate.Query hQuery = session.createQuery(
-          "select c from ConceptJpa c " + "where terminology = :terminology "
-              + "  and version = :version");
-      hQuery.setParameter("terminology", getTerminology());
-      hQuery.setParameter("version", getVersion());
-      hQuery.setReadOnly(true).setFetchSize(2000);
-      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      fireProgressEvent(50, "Found concepts to make reviewed");
+      logInfo("  concepts to make reviewed = " + failures.size());
 
-      int prevProgress = 25;
+      // Find READY_FOR_PUBLICATION or PUBLISHED concepts that should be
+      // NEEDS_REVIEW
+      final Set<Long> makeNeedsReview = new HashSet<>(
+          handler.getIdResults(getTerminology(), getVersion(), Branch.ROOT,
+              "(workflowStatus:READY_FOR_PUBLICATION OR workflowStatus:PUBLISHED) "
+                  + "AND (atoms.workflowStatus:NEEDS_REVIEW OR atoms.workflowStatus:DEMOTION "
+                  + "OR semanticTypes.workflowStatus:NEEDS_REVIEW "
+                  + (needsReviewR.size() == 0 ? ""
+                      : " OR " + ConfigUtility.composeQuery("OR",
+                          new ArrayList<>(needsReviewR)))
+                  + ")",
+              null, ConceptJpa.class, null, new int[1], manager));
+      checkCancel();
+      fireProgressEvent(60, "Found concepts to make needs review");
+      logInfo("  concepts to make reviewed = " + failures.size());
+
+      final Set<Long> conceptsToChange = new HashSet<>();
+      conceptsToChange.addAll(makePublishable);
+      conceptsToChange.addAll(makeUnpublishable);
+      conceptsToChange.addAll(makeReviewed);
+      conceptsToChange.addAll(makeNeedsReview);
+
+      int prevProgress = 60;
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
-      while (results.next()) {
-        final Concept concept =
-            new ConceptJpa((ConceptJpa) results.get()[0], false);
-
-        boolean changePublishable = false;
-        // Starting point for changing workflow status
-        final WorkflowStatus initialStatus =
-            concept.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW
-                ? WorkflowStatus.NEEDS_REVIEW
-                : WorkflowStatus.READY_FOR_PUBLICATION;
-        WorkflowStatus status = initialStatus;
+      for (final Long conceptId : conceptsToChange) {
+        final Concept concept = getConcept(conceptId);
 
         // determine status change
-        if (allNeedsReviewConceptIds.contains(concept.getId())) {
-          int progress = (int) (25.0
-              + ((statusChangeCt * 75.0) / allNeedsReviewConceptIds.size()));
-          if (progress != prevProgress) {
-            fireProgressEvent(progress, "Iterate through all concepts...");
-            checkCancel();
-            prevProgress = progress;
-          }
-          if (status != WorkflowStatus.NEEDS_REVIEW) {
-            logInfo("  status change  = " + concept.getId());
-            status = WorkflowStatus.NEEDS_REVIEW;
-            statusChangeCt++;
-          }
+        int progress =
+            (int) (60.0 + ((statusChangeCt * 40.0) / conceptsToChange.size()));
+        if (progress != prevProgress) {
+          fireProgressEvent(progress, "Iterate through concepts to change...");
+          checkCancel();
+          prevProgress = progress;
         }
 
-        // determine publishable change
-        final boolean publishable =
-            publishableConcepts.contains(concept.getId());
-        if (publishable != concept.isPublishable()) {
+        boolean found = false;
+        Boolean publishable = null;
+        if (makePublishable.contains(conceptId)) {
+          publishable = true;
           logInfo("  publishable change  = " + concept.getId());
-          changePublishable = true;
           publishableChangeCt++;
+          found = false;
         }
 
-        // change either from N to R or R to N or publishable from true/false or
-        // false/true
-        if (initialStatus != status || changePublishable) {
+        if (makeUnpublishable.contains(conceptId)) {
+          publishable = false;
+          logInfo("  publishable change  = " + concept.getId());
+          publishableChangeCt++;
+          found = false;
+        }
+
+        WorkflowStatus status = null;
+        if (makeReviewed.contains(conceptId)) {
+          status = WorkflowStatus.READY_FOR_PUBLICATION;
+          logInfo("  status change  = " + concept.getId());
+          statusChangeCt++;
+          found = false;
+        }
+
+        if (makeNeedsReview.contains(conceptId)) {
+          status = WorkflowStatus.NEEDS_REVIEW;
+          statusChangeCt++;
+          logInfo("  status change  = " + concept.getId());
+          found = false;
+        }
+
+        // If changing concept, change it
+        if (found) {
           // Send change to a conceptUpdate molecular action
           final UpdateConceptMolecularAction action =
               new UpdateConceptMolecularAction();
@@ -199,8 +204,13 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.setMolecularActionFlag(true);
             action.setChangeStatusFlag(true);
 
-            action.setWorkflowStatus(status);
-            action.setPublishable(publishable);
+            // One or both of these will be changing..
+            if (status != null) {
+              action.setWorkflowStatus(status);
+            }
+            if (publishable != null) {
+              action.setPublishable(publishable);
+            }
             action.setActivityId(getActivityId());
             action.setWorkId(getWorkId());
 
@@ -224,7 +234,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       fireProgressEvent(100, "Finished ...");
       logInfo("Finished MATRIXINIT");
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       logError("Unexpected problem - " + e.getMessage());
       throw e;
     }
