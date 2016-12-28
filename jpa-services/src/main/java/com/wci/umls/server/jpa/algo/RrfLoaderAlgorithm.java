@@ -1951,19 +1951,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       if (fields[6] != null && !fields[6].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
-            fields[4]);
+            fields[6]);
       }
       if (fields[7] != null && !fields[7].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
-            fields[4]);
+            fields[7]);
       }
       if (fields[14] != null && !fields[14].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
-            fields[4]);
+            fields[14]);
       }
       if (fields[15] != null && !fields[15].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
-            fields[4]);
+            fields[15]);
       }
 
       // Make mapping attributes
