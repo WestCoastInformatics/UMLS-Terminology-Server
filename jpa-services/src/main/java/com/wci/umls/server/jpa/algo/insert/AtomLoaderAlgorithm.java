@@ -44,10 +44,13 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
+  /** The add count. */
   private int addCount = 0;
 
+  /** The update count. */
   private int updateCount = 0;
 
+  /** The mapset add count. */
   private int mapsetAddCount = 0;
 
   /**

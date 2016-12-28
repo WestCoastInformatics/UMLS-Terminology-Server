@@ -31,20 +31,28 @@ import com.wci.umls.server.model.meta.Terminology;
  */
 public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
+  /** The xmap from map. */
   private Map<String, String> xmapFromMap = new HashMap<>();
 
+  /** The xmap to map. */
   private Map<String, String> xmapToMap = new HashMap<>();
 
+  /** The xmap from used set. */
   private Set<String> xmapFromUsedSet = new HashSet<>();
 
+  /** The xmap to used set. */
   private Set<String> xmapToUsedSet = new HashSet<>();
 
+  /** The xmap entries. */
   private Set<String> xmapEntries = new HashSet<>();
 
+  /** The mapping add count. */
   private int mappingAddCount = 0;
 
+  /** The mapping attribute add count. */
   private int mappingAttributeAddCount = 0;
 
+  /** The mapset update count. */
   private int mapsetUpdateCount = 0;
 
   /**
@@ -186,13 +194,12 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       xmapToUnusuedSet.removeAll(xmapToUsedSet);
       for (String xmapToUnusued : xmapToUnusuedSet) {
         logWarn("Warning - XMAPTO line never used: " + xmapToUnusued);
-      }      
-      
+      }
+
       logInfo("[MappingLoader] Added " + mappingAddCount + " new Mappings.");
       logInfo("[MappingLoader] Added " + mappingAttributeAddCount
           + " new Mapping Attributes.");
       logInfo("[MappingLoader] " + mapsetUpdateCount + " MapSets updated.");
-
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -207,6 +214,13 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
+  /**
+   * Populate xmap maps.
+   *
+   * @param line the line
+   * @param fields the fields
+   * @throws Exception the exception
+   */
   private void populateXmapMaps(String line, String fields[]) throws Exception {
 
     final String atn = fields[3];
@@ -232,6 +246,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * @param atn the atn
    * @return true, if is map set attribute
    */
+  @SuppressWarnings("static-method")
   private boolean isMapSetAttribute(String atn) {
     if (atn.equals("MAPSETNAME") || atn.equals("MAPSETVERSION")
         || atn.equals("TOVSAB") || atn.equals("TORSAB")
@@ -249,6 +264,13 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     return false;
   }
 
+  /**
+   * Indicates whether or not xmap attribute is the case.
+   *
+   * @param atn the atn
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  @SuppressWarnings("static-method")
   private boolean isXmapAttribute(String atn) {
     if (atn.equals("XMAP") || atn.equals("XMAPFROM") || atn.equals("XMAPTO")) {
       return true;
@@ -259,6 +281,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   /**
    * Process map set attribute.
    *
+   * @param line the line
    * @param fields the fields
    * @throws Exception the exception
    */
@@ -352,6 +375,12 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
   }
 
+  /**
+   * Process xmap entry.
+   *
+   * @param xmapEntry the xmap entry
+   * @throws Exception the exception
+   */
   private void processXmapEntry(String xmapEntry) throws Exception {
 
     final String fields[] = new String[14];
@@ -479,6 +508,15 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
+  /**
+   * Make attribute.
+   *
+   * @param mapping the mapping
+   * @param name the name
+   * @param value the value
+   * @return the attribute
+   * @throws Exception the exception
+   */
   private Attribute makeAttribute(Mapping mapping, String name, String value)
     throws Exception {
     Attribute att = new AttributeJpa();
@@ -524,6 +562,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     return params;
   }
 
+  /* see superclass */
   @Override
   public String getDescription() {
     return "Loads and processes an attributes.src file to load Mapping objects.";

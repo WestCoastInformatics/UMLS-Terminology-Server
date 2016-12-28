@@ -74,14 +74,19 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The temporary attributes.src file. */
   private File attributesOutputFile = null;
 
+  /** The added atom. */
   private Atom addedAtom = null;
 
+  /** The added concept. */
   private Concept addedConcept = null;
 
+  /** The added concept 2. */
   private Concept addedConcept2 = null;
 
+  /** The added map set. */
   private MapSet addedMapSet = null;
 
+  /** The added mappings. */
   private MappingList addedMappings = null;
 
   /**
@@ -263,15 +268,12 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // atomAlgo will create two concepts - one for project terminology, and
       // the other for the atom's terminology. Load the other one as well.
-      list =
-          contentService.findConcepts("NCI",
-              "2016_05E", Branch.ROOT,
-              "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
-              null);
+      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+          "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
+          null);
       assertEquals(1, list.size());
       addedConcept2 =
           contentService.getConcept(list.getObjects().get(0).getId());
-
 
       // Make sure a new mapSet was added.
       MapSetList mapSetList =
