@@ -86,11 +86,11 @@ public class DT_M1Test extends IntegrationUnitSupport {
 
     // Get three concepts
     conceptNoSty =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptNoPublishableSty =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
     conceptPublishableSty =
-        contentService.getConcept("C0000074", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000074", "MTH", "latest", Branch.ROOT);
 
     // Remove all Semantic Types from conceptNoSty
     conceptNoSty.setSemanticTypes(new ArrayList<SemanticTypeComponent>());
@@ -170,13 +170,13 @@ public class DT_M1Test extends IntegrationUnitSupport {
     // 1. Read all concepts
     Logger.getLogger(getClass()).info("  Read all concept ids ");
     final List<Long> conceptIds =
-        contentService.getAllConceptIds("UMLS", "latest", Branch.ROOT);
+        contentService.getAllConceptIds("MTH", "latest", Branch.ROOT);
 
     // 2. Perform the batch test
     Logger.getLogger(getClass()).info("  Validate check");
     final DT_M1 check = new DT_M1();
     final Set<Long> failures = check.validateConcepts(new HashSet<>(conceptIds),
-        "UMLS", "latest", contentService);
+        "MTH", "latest", contentService);
     Logger.getLogger(getClass()).info("    count = " + failures.size());
     for (final Long id : failures) {
       Logger.getLogger(getClass())

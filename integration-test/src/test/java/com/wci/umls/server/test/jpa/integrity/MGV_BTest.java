@@ -89,11 +89,11 @@ public class MGV_BTest extends IntegrationUnitSupport {
     // Get two concepts that both contain publishable "MTH" atoms, and one with
     // no "MTH" atoms
     conceptMTH1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptMTH2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
     conceptNoMTH =
-        contentService.getConcept("C0000074", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000074", "MTH", "latest", Branch.ROOT);
 
   }
 

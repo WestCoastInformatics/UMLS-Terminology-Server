@@ -97,12 +97,12 @@ public class MGV_ITest extends IntegrationUnitSupport {
     // Get two concepts that both contain publishable "MSH" atoms, and 
     // create new concept     
     conceptMSH1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptMSH2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
     ConceptJpa c = new ConceptJpa(
-        contentService.getConcept("C0000734", "UMLS", "latest", Branch.ROOT),
+        contentService.getConcept("C0000734", "MTH", "latest", Branch.ROOT),
         false);
     c.setId(null);
     c = (ConceptJpa) contentService.addConcept(c);

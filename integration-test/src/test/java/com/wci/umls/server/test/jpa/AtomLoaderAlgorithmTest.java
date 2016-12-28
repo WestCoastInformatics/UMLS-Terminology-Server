@@ -185,12 +185,12 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // Make sure the atoms in the temporary input file were added.
       SearchResultList list =
-          contentService.findConcepts("UMLS", "latest", Branch.ROOT,
+          contentService.findConcepts("MTH", "latest", Branch.ROOT,
               "atoms.nameSort:\"National Cancer Institute Thesaurus, 2016_05E\"",
               null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts("UMLS", "latest", Branch.ROOT,
+      list = contentService.findConcepts("MTH", "latest", Branch.ROOT,
           "atoms.nameSort:\"NCI_2016_05E\"", null);
       assertEquals(1, list.size());
 

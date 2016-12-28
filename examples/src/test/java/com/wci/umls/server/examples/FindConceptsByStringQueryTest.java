@@ -111,7 +111,7 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
   public void findUmlsConceptsByStringQueryTest() throws Exception {
 
     // Terminology/version
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // Find concepts using a simple query

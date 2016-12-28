@@ -66,14 +66,15 @@ public class ResetDemoDatabase {
     // Load RRF - LOINC
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
-    request.setProfiles(Arrays.asList("RRF-single"));
+    request.setProfiles(Arrays.asList("RRF-multi"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("mode", "create");
-    p.setProperty("terminology", "LNC");
-    p.setProperty("version", "254");
+    // This is actually the overall "meta" to ignore
+    p.setProperty("terminology", "MTH");
+    p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
     request.setProperties(p);
@@ -83,7 +84,7 @@ public class ResetDemoDatabase {
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
-    
+
     // Load RF2 snapshot - SNOMEDCT
     request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
@@ -137,7 +138,7 @@ public class ResetDemoDatabase {
     p.setProperty("server", server);
     p.setProperty("mode", "update");
     p.setProperty("terminology", "ICD9CM");
-    p.setProperty("version", "2013");
+    p.setProperty("version", "2016");
     p.setProperty("input.file",
         "../../config/src/main/resources/data/icd9cm-2013.xml");
     request.setProperties(p);
@@ -158,7 +159,7 @@ public class ResetDemoDatabase {
     p.setProperty("server", server);
     p.setProperty("mode", "update");
     p.setProperty("terminology", "ICD10CM");
-    p.setProperty("version", "2016");
+    p.setProperty("version", "2015");
     p.setProperty("input.file",
         "../../config/src/main/resources/data/icd10cm.xml");
     request.setProperties(p);

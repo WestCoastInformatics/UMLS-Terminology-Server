@@ -66,7 +66,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass())
         .info("  Test basic findDeepRelationshipsForConcept call");
     RelationshipList list = service.findConceptDeepRelationships("C0000097",
-        "UMLS", "latest", Branch.ROOT, null, false, false, false, false,
+        "MTH", "latest", Branch.ROOT, null, false, false, false, false,
         new PfsParameterJpa());
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
@@ -85,7 +85,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     // inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential
     Logger.getLogger(getClass())
         .info("  Test findDeepRelationshipsForConcept call - concept");
-    list = service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
+    list = service.findConceptDeepRelationships("C0000097", "MTH", "latest",
         Branch.ROOT, null, false, true, false, false, new PfsParameterJpa());
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
@@ -104,7 +104,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     // inverseFlag, includeConceptRels, preferredOnly, includeSelfReferential
     Logger.getLogger(getClass())
         .info("  Test findDeepRelationshipsForConcept call - selfref");
-    list = service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
+    list = service.findConceptDeepRelationships("C0000097", "MTH", "latest",
         Branch.ROOT, null, false, false, false, true, new PfsParameterJpa());
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
@@ -122,7 +122,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     // include pref only
     Logger.getLogger(getClass())
         .info("  Test findDeepRelationshipsForConcept call - prefonly");
-    list = service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
+    list = service.findConceptDeepRelationships("C0000097", "MTH", "latest",
         Branch.ROOT, null, false, true, true, false, new PfsParameterJpa());
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {
@@ -143,7 +143,7 @@ public class ContentDeepRelsTest extends IntegrationUnitSupport {
     pfs.setMaxResults(10);
     pfs.setStartIndex(0);
     pfs.setSortField("relationshipType");
-    list = service.findConceptDeepRelationships("C0000097", "UMLS", "latest",
+    list = service.findConceptDeepRelationships("C0000097", "MTH", "latest",
         Branch.ROOT, null, false, false, false, false, pfs);
     for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
         .getObjects()) {

@@ -98,11 +98,11 @@ public class MGV_ETest extends IntegrationUnitSupport {
 
     // Get two UMLS concepts connected by UMLS relationships, and one that is not
     conceptICD10CMRelated1 =
-        contentService.getConcept("C0041327", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0041327", "MTH", "latest", Branch.ROOT);
     conceptICD10CMRelated2 =
-        contentService.getConcept("C0041296", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0041296", "MTH", "latest", Branch.ROOT);
     conceptICD10CMUnrelated =
-        contentService.getConcept("C0000727", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000727", "MTH", "latest", Branch.ROOT);
 
   }
 

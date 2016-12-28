@@ -59,7 +59,7 @@ public class FailOnceAlgorithmTest extends IntegrationUnitSupport {
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProject(algo.getProjects().getObjects().get(0));
-    algo.setTerminology("UMLS");
+    algo.setTerminology("MTH");
     algo.setVersion("latest");
   }
 

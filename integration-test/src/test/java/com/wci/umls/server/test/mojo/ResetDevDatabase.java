@@ -49,8 +49,8 @@ public class ResetDevDatabase {
    * 
    * <pre>
    * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.  This will create db and reindex.
-   * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
-   * Start an editing cycle for "UMLS"
+   * Create a "MTH" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
+   * Start an editing cycle for "MTH"
    * stop here and the db is ready to use
    * </pre>
    * 
@@ -73,7 +73,7 @@ public class ResetDevDatabase {
     p.setProperty("editMode", "true");
     p.setProperty("server", server);
     p.setProperty("mode", "create");
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_UMLS");
@@ -96,7 +96,7 @@ public class ResetDevDatabase {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("mode", "update");
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();

@@ -89,15 +89,15 @@ public class DT_I3BTest extends IntegrationUnitSupport {
     // Get three concepts, two with DEMOTION relationships,
     // and one without any DEMOTION relationships
     conceptDemotionsNoCorresponding =
-        contentService.getConcept("C0029744", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0029744", "MTH", "latest", Branch.ROOT);
     conceptDemotionsWithCorresponding =
-        contentService.getConcept("C0032460", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0032460", "MTH", "latest", Branch.ROOT);
     conceptNoDemotions =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
     // Add matching conceptRelationships to the DEMOTION relationship for
     // conceptDemotionsWithRels
-    Concept matchingConcept = contentService.getConcept("C0035629", "UMLS", "latest", Branch.ROOT);
+    Concept matchingConcept = contentService.getConcept("C0035629", "MTH", "latest", Branch.ROOT);
         ConceptRelationship matchingRel = 
             new ConceptRelationshipJpa();
         matchingRel.setFrom(conceptDemotionsWithCorresponding);
@@ -169,13 +169,13 @@ public class DT_I3BTest extends IntegrationUnitSupport {
     // 1. Read all concepts
     Logger.getLogger(getClass()).info("  Read all concept ids ");
     final List<Long> conceptIds =
-        contentService.getAllConceptIds("UMLS", "latest", Branch.ROOT);
+        contentService.getAllConceptIds("MTH", "latest", Branch.ROOT);
 
     // 2. Perform the batch test
     Logger.getLogger(getClass()).info("  Validate check");
     final DT_I3B check = new DT_I3B();
     final Set<Long> failures = check.validateConcepts(new HashSet<>(conceptIds),
-        "UMLS", "latest", contentService);
+        "MTH", "latest", contentService);
     Logger.getLogger(getClass()).info("    count = " + failures.size());
     for (final Long id : failures) {
       Logger.getLogger(getClass())

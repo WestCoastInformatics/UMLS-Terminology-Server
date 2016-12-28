@@ -139,14 +139,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The prefix. */
   private String prefix = "MR";
 
-  /**
-   * An SAB used in a Metathesaurus that really should belong to
-   * getTerminology().
-   */
-  /** e.g. MTH is really UMLS */
-  // TODO: should be configurable
-  private String proxyTerminology = "MTH";
-
   /** The load style **/
   private Style style = null;
 
@@ -285,15 +277,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Sets the proxy flag.
-   *
-   * @param proxyTerminology the proxy flag
-   */
-  public void setProxyTerminology(String proxyTerminology) {
-    this.proxyTerminology = proxyTerminology;
-  }
-
-  /**
    * Sets the prefix.
    *
    * @param prefix the prefix
@@ -375,9 +358,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     // Load MRDOC data
-    if (style != Style.MULTI) {
-      loadMrdoc();
-    }
+    loadMrdoc();
 
     // Load MRSAB data
     cacheExistingTerminologies();
@@ -392,6 +373,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Load the content
     list = getPrecedenceList(getTerminology(), getVersion());
+    // lazy initialize?
+    list.getPrecedence().getKeyValuePairs().size();
     loadMrconso();
 
     // Definitions
@@ -418,7 +401,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       loadHistory();
     }
 
-    // Mappings - only for non-single mode
+    // Mappings - only for non-single mode (multi?)
     if (style != Style.SINGLE) {
       loadMrmap();
     }
@@ -1030,6 +1013,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     }
 
+    // TODO: If we're in "multi" mode, get rid of the data structures
+    // loaded with the terminology/version
   }
 
   /**
@@ -1110,14 +1095,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
-      // SKIP SABIN=N - may be an issue later for maps.
-      if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
-        // Logger.getLogger(getClass()).info(" Skip terminology " + fields[2]);
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[3].equals("SRC")) {
         continue;
       }
 
+      // DONT do this anymore
+      // // SKIP SABIN=N - may be an issue later for maps.
+      // if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
+      // // Logger.getLogger(getClass()).info(" Skip terminology " + fields[2]);
+      // continue;
+      // }
+
       // Set up sourceMetadataMap for fields[3]
-      if (!fields[22].equals("N") || fields[3].equals(proxyTerminology)) {
+      if (!fields[22].equals("N") || fields[3].equals(getTerminology())) {
         final Map<String, Set<String>> typeAbbrMap = new HashMap<>();
         // NO need to worry about "label sets" or "general entries" here.
         for (final String type : new String[] {
@@ -1906,7 +1897,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Mapping mapping = new MappingJpa();
 
       // look up mapSet from MAPSETCUI
-      MapSet mapSet = mapSetMap.get(fields[0]);
+      final MapSet mapSet = mapSetMap.get(fields[0]);
       mapping.setMapSet(mapSet);
       mapping.setGroup(fields[2]);
       mapping.setRank(fields[3]);
@@ -1936,7 +1927,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapping.setPublished(true);
       mapping.setPublishable(true);
       // If really a metathesaurus mapping, use terminology/version
-      if (fields[1].equals(proxyTerminology)) {
+      if (fields[1].equals(getTerminology())) {
         mapping.setTerminology(getTerminology());
         mapping.setVersion(getVersion());
       }
@@ -2034,6 +2025,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void processMapSetAttribute(String[] fields) throws Exception {
     final String cui = fields[0];
+    final String aui = fields[3];
     final String atn = fields[8];
     final String atv = fields[10];
 
@@ -2041,9 +2033,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (!mapSetMap.containsKey(cui)) {
       mapset = new MapSetJpa();
       mapSetMap.put(cui, mapset);
-      // Set map set name to preferred name of the cui
-      mapset.setName(
-          getConcept(conceptIdMap.get(getTerminology() + cui)).getName());
+      // Set map set name to name of the atom (in case no MAPSETNAME attribute)
+      mapset.setName(getAtom(atomIdMap.get(aui)).getName());
     }
     mapset = mapSetMap.get(cui);
     if (atn.equals("MAPSETNAME")) {
@@ -2067,7 +2058,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setFromTerminology(getTerminology());
         mapset.setFromVersion(getVersion());
       } else {
@@ -2080,7 +2071,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
     } else if (atn.equals("FROMVSAB")) {
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setFromTerminology(getTerminology());
         mapset.setFromVersion(getVersion());
       } else {
@@ -2099,7 +2090,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // n/a - no need for this anymore - inverters should stop making it
     } else if (atn.equals("MAPSETRSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setTerminology(getTerminology());
         mapset.setVersion(getVersion());
       }
@@ -2119,7 +2110,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapset.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setTerminology(getTerminology());
         mapset.setVersion(getVersion());
       }
@@ -2421,8 +2412,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line1, "|", 9, fields);
 
       // Skip non-matching in single mode
-      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
-          && !fields[10].equals("SAB")) {
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())) {
         continue;
       }
 
@@ -2488,8 +2478,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line2, "|", 9, fields);
 
       // Skip non-matching in single mode
-      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
-          && !fields[10].equals("SAB")) {
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())) {
         continue;
       }
 
@@ -2616,6 +2605,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Skip non-matching in single mode
       if (style == Style.SINGLE && !fields[10].equals(getTerminology())
           && !fields[10].equals("SAB")) {
+        continue;
+      }
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[10].equals("SRC")) {
         continue;
       }
 
@@ -3028,6 +3021,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Skip non-matching in single mode
       if (style == Style.SINGLE && !fields[11].equals(getTerminology())) {
+        continue;
+      }
+
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[11].equals("SRC")) {
         continue;
       }
 
@@ -3673,9 +3671,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
     if (p.getProperty("style") != null) {
       style = Style.valueOf(p.getProperty("style"));
-    }
-    if (p.getProperty("proxyTerminology") != null) {
-      proxyTerminology = p.getProperty("proxyTerminology");
     }
     if (p.getProperty("inputDir") != null) {
       setInputPath(p.getProperty("inputDir"));

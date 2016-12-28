@@ -80,11 +80,11 @@ public class MGV_CTest extends IntegrationUnitSupport {
     // Get two concepts that both contain publishable "MSH" atoms, and one with
     // no "MSH" atoms
     conceptMSH1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptMSH2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
     conceptNoMSH =
-        contentService.getConcept("C0000734", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000734", "MTH", "latest", Branch.ROOT);
 
   }
 

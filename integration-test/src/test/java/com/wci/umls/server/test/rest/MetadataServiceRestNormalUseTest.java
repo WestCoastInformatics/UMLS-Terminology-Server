@@ -82,7 +82,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     for (Terminology terminology : termList.getObjects()) {
       // test versions
       switch (terminology.getTerminology()) {
-        case "UMLS":
+        case "MTH":
           foundUmls = true;
           assertEquals("latest", terminology.getVersion());
           break;
@@ -114,7 +114,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test UMLS metadata
-    assertTrue(testUmlsMetadata(metadataService.getAllMetadata("UMLS",
+    assertTrue(testUmlsMetadata(metadataService.getAllMetadata("MTH",
         "latest", authToken)));
 
     // test SNOMED metadata
@@ -137,7 +137,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test UMLS metadata
     Terminology umls =
-        metadataService.getTerminology("UMLS", "latest", authToken);
+        metadataService.getTerminology("MTH", "latest", authToken);
     assertEquals("loader", umls.getLastModifiedBy());
     assertFalse(umls.isAssertsRelDirection());
     assertTrue(umls.isCurrent());
@@ -145,11 +145,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(umls.getEndDate());
     assertNull(umls.getStartDate());
     assertEquals(IdType.CONCEPT, umls.getOrganizingClassType());
-    assertEquals("UMLS", umls.getPreferredName());
-    assertEquals("UMLS", umls.getTerminology());
+    assertEquals("MTH", umls.getPreferredName());
+    assertEquals("MTH", umls.getTerminology());
     assertEquals("latest", umls.getVersion());
 
-    assertEquals("UMLS", umls.getRootTerminology().getTerminology());
+    assertEquals("MTH", umls.getRootTerminology().getTerminology());
     // Because of XML Transient
     assertNull(umls.getRootTerminology().getLastModifiedBy());
     assertNull(umls.getRootTerminology().getFamily());
@@ -228,9 +228,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test precedence list
     PrecedenceList precedence =
-        metadataService.getDefaultPrecedenceList("UMLS", "latest", authToken);
+        metadataService.getDefaultPrecedenceList("MTH", "latest", authToken);
     assertEquals("loader", precedence.getLastModifiedBy());
-    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("MTH", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
     assertEquals("SRC", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());
@@ -246,7 +246,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         metadataService.getDefaultPrecedenceList("MSH", "2016_2016_02_26",
             authToken);
     // assertEquals("loader", precedence.getLastModifiedBy());
-    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("MTH", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
     assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());

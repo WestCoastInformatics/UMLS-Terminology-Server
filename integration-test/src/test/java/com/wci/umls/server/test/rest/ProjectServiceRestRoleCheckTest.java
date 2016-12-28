@@ -63,7 +63,7 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
 
     project.setDescription("Sample " + new Date().getTime());
     project.setName("Sample");
-    project.setTerminology("UMLS");
+    project.setTerminology("MTH");
     project.setWorkflowPath("DEFAULT");
 
     try {

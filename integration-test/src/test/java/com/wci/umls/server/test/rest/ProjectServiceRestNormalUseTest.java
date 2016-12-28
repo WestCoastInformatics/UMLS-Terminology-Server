@@ -58,7 +58,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
 
     project.setDescription("Sample");
     project.setName("Sample " + new Date().getTime());
-    project.setTerminology("UMLS");
+    project.setTerminology("MTH");
     project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 =
         (ProjectJpa) projectService.addProject(project, authToken);
@@ -101,7 +101,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     values.add("PUBLISHED");
     project.setDescription("Sample");
     project.setName("Sample " + new Date().getTime());
-    project.setTerminology("UMLS");
+    project.setTerminology("MTH");
     project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 = new ProjectJpa(project);
     project = (ProjectJpa) projectService.addProject(project, authToken);
@@ -110,7 +110,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Logger.getLogger(getClass()).info("  Add second project");
     project2.setName("Sample 2 " + new Date().getTime());
     project2.setDescription("Sample 2");
-    project2.setTerminology("UMLS");
+    project2.setTerminology("MTH");
     project2.setWorkflowPath("DEFAULT");
     project2 = (ProjectJpa) projectService.addProject(project2, authToken);
 

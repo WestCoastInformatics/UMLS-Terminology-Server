@@ -83,14 +83,14 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setProject(algo.getProjects().getObjects().get(0));
-    algo.setTerminology("UMLS");
+    algo.setTerminology("MTH");
     algo.setVersion("latest");
 
 //    // C0000005 is PUBLISHED, and all components are PUBLISHED as well.
-//    concept = contentService.getConcept("C0000005", "UMLS", "latest", null);
+//    concept = contentService.getConcept("C0000005", "MTH", "latest", null);
 //
 //    // C0029744 is PUBLISHED, but contains a DEMOTION relationship.
-//    concept2 = contentService.getConcept("C0029744", "UMLS", "latest", null);
+//    concept2 = contentService.getConcept("C0029744", "MTH", "latest", null);
 //
 //    OUTER: for (final Atom atom : concept2.getAtoms()) {
 //      for (final AtomRelationship rel : atom.getRelationships()) {
@@ -221,7 +221,7 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
     MolecularActionList list = contentService
-        .findMolecularActions(concept.getId(), "UMLS", "latest", null, pfs);
+        .findMolecularActions(concept.getId(), "MTH", "latest", null, pfs);
     assertTrue(list.size() > 0);
     MolecularAction ma = list.getObjects().get(0);
     assertNotNull(ma);
@@ -257,7 +257,7 @@ public class MatrixInitializerAlgorithmTest extends IntegrationUnitSupport {
     pfs = new PfsParameterJpa();
     pfs.setSortField("lastModified");
     pfs.setAscending(false);
-    list = contentService.findMolecularActions(concept2.getId(), "UMLS",
+    list = contentService.findMolecularActions(concept2.getId(), "MTH",
         "latest", null, pfs);
     assertTrue(list.size() > 0);
     MolecularAction ma2 = list.getObjects().get(0);
