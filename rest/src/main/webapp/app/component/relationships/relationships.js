@@ -125,6 +125,17 @@ tsApp.directive('relationships', [ function() {
           }
           getPagedList();
         };
+        
+        // calls callback with constructed component from type and terminology triple
+        $scope.getComponent = function(organizingClassType, terminologyId, terminology, version) {
+          $scope.callbacks.getComponent( {
+            type : organizingClassType,
+            terminologyId : terminologyId,
+            terminology: terminology,
+            version : version
+          });
+        }
+            
 
         // end controller
       } ]

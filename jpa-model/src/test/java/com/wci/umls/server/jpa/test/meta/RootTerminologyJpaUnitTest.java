@@ -151,6 +151,7 @@ public class RootTerminologyJpaUnitTest extends ModelUnitSupport {
     tester.include("language");
     tester.include("licenseContact");
     tester.include("polyhierarchy");
+    tester.include("hierarchyComputable");
     tester.include("preferredName");
     tester.include("restrictionLevel");
     tester.include("shortName");
@@ -240,6 +241,7 @@ public class RootTerminologyJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("terminology");
     tester.include("polyhierarchy");
+    tester.include("hierarchyComputable");
     tester.include("family");
     tester.include("preferredName");
     tester.include("restrictionLevel");

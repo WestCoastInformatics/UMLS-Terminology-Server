@@ -31,9 +31,13 @@ import com.wci.umls.server.model.meta.IdType;
  * JPA and JAXB enabled implementation of {@link Descriptor}.
  */
 @Entity
-@Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "descriptors", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
+    })
+})
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptor")

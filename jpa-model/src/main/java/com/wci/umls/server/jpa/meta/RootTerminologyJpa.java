@@ -53,6 +53,10 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   @Column(nullable = false)
   private boolean polyhierarchy;
 
+  /** The hierarchy computable. */
+  @Column(nullable = false)
+  private boolean hierarchyComputable = true;
+
   /** The family. */
   @Column(nullable = false)
   private String family;
@@ -95,22 +99,23 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   /**
    * Instantiates a {@link RootTerminologyJpa} from the specified parameters.
    *
-   * @param rootTerminology the root terminology
+   * @param copy the root terminology
    */
-  public RootTerminologyJpa(RootTerminology rootTerminology) {
-    super(rootTerminology);
-    terminology = rootTerminology.getTerminology();
-    acquisitionContact = rootTerminology.getAcquisitionContact();
-    contentContact = rootTerminology.getContentContact();
-    family = rootTerminology.getFamily();
-    hierarchicalName = rootTerminology.getHierarchicalName();
-    language = rootTerminology.getLanguage();
-    licenseContact = rootTerminology.getLicenseContact();
-    preferredName = rootTerminology.getPreferredName();
-    restrictionLevel = rootTerminology.getRestrictionLevel();
-    shortName = rootTerminology.getShortName();
-    synonymousNames = new ArrayList<>(rootTerminology.getSynonymousNames());
-    polyhierarchy = rootTerminology.isPolyhierarchy();
+  public RootTerminologyJpa(RootTerminology copy) {
+    super(copy);
+    terminology = copy.getTerminology();
+    acquisitionContact = copy.getAcquisitionContact();
+    contentContact = copy.getContentContact();
+    family = copy.getFamily();
+    hierarchicalName = copy.getHierarchicalName();
+    language = copy.getLanguage();
+    licenseContact = copy.getLicenseContact();
+    preferredName = copy.getPreferredName();
+    restrictionLevel = copy.getRestrictionLevel();
+    shortName = copy.getShortName();
+    synonymousNames = new ArrayList<>(copy.getSynonymousNames());
+    polyhierarchy = copy.isPolyhierarchy();
+    hierarchyComputable = copy.isHierarchyComputable();
 
   }
 
@@ -156,6 +161,18 @@ public class RootTerminologyJpa extends AbstractHasLastModified
   @Override
   public void setPolyhierarchy(boolean polyhierarchy) {
     this.polyhierarchy = polyhierarchy;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isHierarchyComputable() {
+    return hierarchyComputable;
+  }
+
+  /* see superclass */
+  @Override
+  public void setHierarchyComputable(boolean hierarchyComputable) {
+    this.hierarchyComputable = hierarchyComputable;
   }
 
   /* see superclass */
@@ -281,6 +298,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified
     result = prime * result
         + ((licenseContact == null) ? 0 : licenseContact.hashCode());
     result = prime * result + (polyhierarchy ? 1231 : 1237);
+    result = prime * result + (hierarchyComputable ? 1231 : 1237);
     result = prime * result
         + ((preferredName == null) ? 0 : preferredName.hashCode());
     result = prime * result + restrictionLevel;
@@ -334,7 +352,8 @@ public class RootTerminologyJpa extends AbstractHasLastModified
       return false;
     if (polyhierarchy != other.polyhierarchy)
       return false;
-    if (preferredName == null) {
+    if (hierarchyComputable != other.hierarchyComputable)
+      return false;    if (preferredName == null) {
       if (other.preferredName != null)
         return false;
     } else if (!preferredName.equals(other.preferredName))

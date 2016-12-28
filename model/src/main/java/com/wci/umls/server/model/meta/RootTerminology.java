@@ -70,6 +70,20 @@ public interface RootTerminology extends HasLanguage, HasLastModified {
   public void setPolyhierarchy(boolean polyhierarchy);
 
   /**
+   * Indicates whether or not hierarchy computable is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchyComputable();
+
+  /**
+   * Sets the hierarchy computable.
+   *
+   * @param hierarchyComputable the hierarchy computable
+   */
+  public void setHierarchyComputable(boolean hierarchyComputable);
+
+  /**
    * Returns the acquisition contact.
    * 
    * @return the acquisition contact
@@ -166,6 +180,5 @@ public interface RootTerminology extends HasLanguage, HasLastModified {
    * @param hierarchicalName the hierarchical name
    */
   public void setHierarchicalName(String hierarchicalName);
-
 
 }

@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import com.google.common.io.Files;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
@@ -40,6 +42,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
@@ -72,6 +75,7 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
@@ -401,6 +405,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Relationships
     loadMrrel();
 
+    // Loadable hierarchies, NOTE: only terminologies that cannot be
+    // computed via transitive closure should appear here.
+    loadMrhier();
+
     // Attributes
     loadMrsat();
 
@@ -521,7 +529,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     String functionalChemicalTreeNumber = "";
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 10, fields);
 
       if (fields[0].equals("STY")) {
@@ -616,7 +623,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[4];
     final List<String> lines = new ArrayList<>();
     while ((linePre = reader.readLine()) != null) {
-      linePre = linePre.replace("\r", "");
       lines.add(linePre);
     }
     // Fake MRDOC entries for XR, BRO, BRB, BRN (only if not already there)
@@ -1059,7 +1065,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[25];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 25, fields);
 
       // Skip non-matching in single mode
@@ -1167,6 +1172,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           root.setFamily(fields[5]);
           root.setLicenseContact(new ContactInfoJpa(fields[11]));
           root.setPolyhierarchy(fields[16].contains("MULTIPLE"));
+          root.setHierarchyComputable(true);
           root.setPreferredName(fields[4]);
           root.setRestrictionLevel(Integer.parseInt(fields[13]));
           root.setTerminology(fields[3]);
@@ -1269,7 +1275,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[4];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 4, fields);
 
       // FIELDS
@@ -1321,7 +1326,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[8];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 8, fields);
 
       // Skip non-matching in single mode
@@ -1421,7 +1425,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final Set<Concept> modifiedConcepts = new HashSet<>();
     final String fields[] = new String[13];
     while ((line = reader.readLine()) != null) {
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
       // Skip non-matching in single mode
@@ -1759,7 +1762,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     String fields[] = new String[7];
     while ((line = reader.readLine()) != null) {
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 7, fields);
 
       //
@@ -1856,7 +1858,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[26];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 26, fields);
 
       // Skip non-matching in single mode
@@ -2167,7 +2168,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String atvFields[] = new String[3];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 13, fields);
 
       // Skip non-matching in single mode
@@ -2401,6 +2401,204 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
+   * Load MRHIER.
+   *
+   * @throws Exception the exception
+   */
+  private void loadMrhier() throws Exception {
+    logInfo("  Load MRHIER data");
+
+    File file = new File(getInputPath(), prefix + "HIER.RRF");
+    final List<String> lines = Files.readLines(file, Charset.forName("UTF-8"));
+
+    // Sort lines by length of PTR
+    final String fields[] = new String[16];
+    final Map<String, Integer> childCt = new HashMap<>();
+    final Map<String, String> hcdMap = new HashMap<>();
+    final Map<String, Integer> descCt = new HashMap<>();
+    final Set<String> terminologies = new HashSet<>();
+    for (String line1 : lines) {
+      FieldedStringTokenizer.split(line1, "|", 9, fields);
+
+      // Skip non-matching in single mode
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
+          && !fields[10].equals("SAB")) {
+        continue;
+      }
+
+      // 0. CUI
+      // 1. AUI
+      // 2. CXN - n/a
+      // 3. PAUI
+      // 4. SAB
+      // 5. RELA
+      // 6. PTR
+      // 7. HCD
+      // 8. CVF - n/a
+      terminologies.add(fields[4]);
+
+      // every line is an additional child for the PTR
+      final String key = fields[4] + fields[5] + fields[6];
+      if (!childCt.containsKey(key)) {
+        childCt.put(key, 1);
+      } else {
+        int i = childCt.get(key);
+        childCt.put(key, ++i);
+      }
+
+      // Save HCD - include the AUI part here
+      if (!fields[7].equals("")) {
+        if (!fields[6].equals("")) {
+          hcdMap.put(key + "." + fields[1], fields[7]);
+        } else {
+          hcdMap.put(key + fields[1], fields[7]);
+        }
+      }
+
+      // every line is an additional descendant for each part of the ptr
+      String ptr = null;
+      for (final String anc : FieldedStringTokenizer.split(fields[6], ".")) {
+        if (ptr == null) {
+          ptr = anc;
+        } else {
+          ptr += "." + anc;
+        }
+        final String key2 = fields[4] + fields[5] + ptr;
+        if (!descCt.containsKey(key)) {
+          descCt.put(key2, 1);
+        } else {
+          int i = descCt.get(key2);
+          descCt.put(key2, ++i);
+        }
+      }
+    }
+
+    // Set the hierarchyComputed flag to false
+    // in these cases
+    for (final String terminology : terminologies) {
+      final RootTerminology root = loadedRootTerminologies.get(terminology);
+      root.setHierarchyComputable(false);
+      updateRootTerminology(root);
+    }
+
+    // Iterate through again and create tree positions
+    final Set<String> seen = new HashSet<>();
+    int objectCt = 0;
+    for (final String line2 : lines) {
+      FieldedStringTokenizer.split(line2, "|", 9, fields);
+
+      // Skip non-matching in single mode
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
+          && !fields[10].equals("SAB")) {
+        continue;
+      }
+
+      // 0. CUI
+      // 1. AUI
+      // 2. CXN - n/a
+      // 3. PAUI
+      // 4. SAB
+      // 5. RELA
+      // 6. PTR
+      // 7. HCD
+      // 8. CVF - n/a
+
+      // For each line of MRHIER, create and cache atom tree positions all the
+      // way down the PTR eventually for the thing itself.
+      // Convert "AUIs" to atom ids
+      String ptr = null;
+      String ancPath = null;
+      for (final String anc : FieldedStringTokenizer.split(fields[6], ".")) {
+        if (ptr == null) {
+          ptr = anc;
+        } else {
+          ptr += "." + anc;
+        }
+
+        final String key = fields[4] + fields[5] + ptr;
+
+        // Get atom for the PTR part
+        final Atom atom = getAtom(atomIdMap.get(anc));
+        if (ancPath == null) {
+          ancPath = atom.getId().toString();
+        } else {
+          ancPath += "~" + atom.getId();
+        }
+
+        // Skip if we've seen this part already
+        if (seen.contains(key)) {
+          continue;
+        }
+
+        // Create atom tree pos
+        final AtomTreePosition tp = new AtomTreePositionJpa();
+        tp.setAdditionalRelationshipType(fields[5]);
+        tp.setAncestorPath(ancPath);
+        tp.setChildCt(childCt.get(key));
+        tp.setDescendantCt(descCt.get(key));
+        tp.setLastModified(releaseVersionDate);
+        tp.setLastModifiedBy(loader);
+        tp.setNode(atom);
+        tp.setObsolete(false);
+        tp.setPublishable(true);
+        tp.setPublished(true);
+        tp.setSuppressible(false);
+        tp.setTerminologyId("");
+        if (hcdMap.containsKey(key)) {
+          tp.setTerminology(hcdMap.get(key));
+        }
+        // Technically this should be the SAB, but in practice always the same
+        tp.setTerminology(atom.getTerminology());
+        tp.setVersion(atom.getVersion());
+        tp.setTimestamp(releaseVersionDate);
+
+        // Load atom treepos
+        addTreePosition(tp);
+        seen.add(key);
+      }
+
+      final String key = fields[4] + fields[5] + fields[6]
+          + (fields[6].equals("") ? "" : ".") + fields[1];
+      // Get atom for the PTR part
+      final Atom atom = getAtom(atomIdMap.get(fields[1]));
+      if (ancPath == null) {
+        ancPath = atom.getId().toString();
+      } else {
+        ancPath += "~" + atom.getId();
+      }
+
+      // At this point the PTR is set up properly for THIS context, create it
+      // Create atom tree pos
+      final AtomTreePosition tp = new AtomTreePositionJpa();
+      tp.setAdditionalRelationshipType(fields[5]);
+      tp.setAncestorPath(ancPath);
+      tp.setChildCt(childCt.containsKey(key) ? childCt.get(key) : 0);
+      tp.setDescendantCt(childCt.containsKey(key) ? descCt.get(key) : 0);
+      tp.setLastModified(releaseVersionDate);
+      tp.setLastModifiedBy(loader);
+      tp.setNode(atom);
+      tp.setObsolete(false);
+      tp.setPublishable(true);
+      tp.setPublished(true);
+      tp.setSuppressible(false);
+      tp.setTerminologyId(fields[7]);
+      // Technically this should be the SAB, but in practice always the same
+      tp.setTerminology(atom.getTerminology());
+      tp.setVersion(atom.getVersion());
+      tp.setTimestamp(releaseVersionDate);
+
+      // Load atom treepos
+      addTreePosition(tp);
+      seen.add(key);
+      // log and commit periodically
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    }
+    // commit when finished
+    commitClearBegin();
+
+  }
+
+  /**
    * Load MRREL.This is responsible for loading {@link Relationship}s.
    *
    * @throws Exception the exception
@@ -2413,7 +2611,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
     while ((line = reader.readLine()) != null) {
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 16, fields);
 
       // Skip non-matching in single mode
@@ -2751,7 +2948,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     final String fields[] = new String[6];
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 6, fields);
 
       // Field Description
@@ -2828,7 +3024,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     Concept cui = null;
     while ((line = reader.readLine()) != null) {
 
-      line = line.replace("\r", "");
       FieldedStringTokenizer.split(line, "|", 18, fields);
 
       // Skip non-matching in single mode

@@ -465,7 +465,7 @@ tsApp
           console.debug('setHistoryPage: ', $scope.history);
 
           // convenience variables
-          var hps = $scope.historyPageSize;
+          var hps = $scope.history.pageSize;
           var ct = $scope.history.components.length;
           var index = $scope.history.index;
 
@@ -475,6 +475,8 @@ tsApp
 
           // slice the components
           var components = $scope.history.components.slice(fromIndex, toIndex);
+          
+          console.debug('setHistoryPage', hps, ct, index, fromIndex, toIndex, components);
 
           // assign indices for retrieval convenience
           for (var i = 0; i < components.length; i++) {

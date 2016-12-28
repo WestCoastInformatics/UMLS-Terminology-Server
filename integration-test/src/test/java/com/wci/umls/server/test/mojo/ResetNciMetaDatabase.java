@@ -74,6 +74,7 @@ public class ResetNciMetaDatabase {
     p.setProperty("mode", "create");
     p.setProperty("terminology", "NCIMTH");
     p.setProperty("version", "latest");
+    request.setMavenOpts("-Xmx15G");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SAMPLE_NCI");
     if (System.getProperty("input.dir") != null) {

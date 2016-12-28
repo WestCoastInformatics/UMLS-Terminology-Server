@@ -33,6 +33,7 @@ import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
@@ -122,6 +123,14 @@ public class TreePositionAlgorithm extends AbstractAlgorithm {
     logInfo("  version = " + getVersion());
     logInfo("  idType = " + idType);
     fireProgressEvent(0, "Starting...");
+
+    // Get the root terminology and check "computable" flag
+    final RootTerminology rootTerminology =
+        getRootTerminology(getTerminology());
+    if (rootTerminology != null && !rootTerminology.isHierarchyComputable()) {
+      logInfo("  NON COMPUTABLE HIERARCHY");
+      return;
+    }
 
     // Get all relationships
     fireProgressEvent(1, "Initialize additional relationship types");

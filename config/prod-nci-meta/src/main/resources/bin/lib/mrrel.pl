@@ -44,7 +44,7 @@ while(<>) {
   } 
   # concept level rel
   else {
-  	$terminology = "UMLS";
+  	$terminology = $ARGV[0];
   	$toId = $toCui;
   	$toType = "CONCEPT";
   	$toTerminology = $terminology;

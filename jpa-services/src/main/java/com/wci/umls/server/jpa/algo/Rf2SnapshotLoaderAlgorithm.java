@@ -618,7 +618,8 @@ public class Rf2SnapshotLoaderAlgorithm
                     + " -existent source concept " + fields[4]);
           }
           if (toConcept == null) {
-            throw new Exception("Relationship " + relationship.getTerminologyId()
+            throw new Exception("Relationship "
+                + relationship.getTerminologyId()
                 + " references non-existent destination concept " + fields[5]);
           }
         }
@@ -1887,6 +1888,7 @@ public class Rf2SnapshotLoaderAlgorithm
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
+    root.setHierarchyComputable(true);
     root.setPreferredName(
         rootPrefName == null ? root.getHierarchicalName() : rootPrefName);
     root.setRestrictionLevel(0);
@@ -1904,8 +1906,8 @@ public class Rf2SnapshotLoaderAlgorithm
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(true);
     term.setOrganizingClassType(IdType.CONCEPT);
-    term.setPreferredName(
-        root.getPreferredName() == null ? "" : root.getPreferredName() + ", " + getFileVersion());
+    term.setPreferredName(root.getPreferredName() == null ? ""
+        : root.getPreferredName() + ", " + getFileVersion());
     term.setRootTerminology(root);
     addTerminology(term);
 
