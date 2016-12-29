@@ -91,7 +91,8 @@ public abstract class AbstractHasLastModified implements HasLastModified {
    */
   @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   private String getLastModifiedYYYYMMDD() {
-    return ConfigUtility.DATE_FORMAT.format(lastModified);
+    return lastModified == null ? null
+        : ConfigUtility.DATE_FORMAT.format(lastModified);
   }
 
   /* see superclass */

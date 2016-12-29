@@ -55,8 +55,9 @@ while(<>) {
   $inverseId = $map{$id};
   $id =~ s/R0*//;
   $inverseId =~ s/R0*//;
-  
-
-  print "$id|$terminology|$terminologyId|$type|$additionalType|$fromId|$fromType|$fromTerminology|$toId|$toType|$toTerminology|$inverseId|\n";
-  
+  if ($inverseId) {
+    print "$id|$terminology|$terminologyId|$type|$additionalType|$fromId|$fromType|$fromTerminology|$toId|$toType|$toTerminology|$inverseId|\n";
+  } else {
+    print STDERR "SKIP: $id|$terminology|$terminologyId|$type|$additionalType|$fromId|$fromType|$fromTerminology|$toId|$toType|$toTerminology|$inverseId|\n";
+  }
 }

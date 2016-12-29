@@ -81,8 +81,12 @@ public class ConfigUtility {
   /** The Constant ATOMCLASS (search handler for atoms). */
   public final static String ATOMCLASS = "ATOMCLASS";
 
-  /** The date format. */
+  /** The date format. - legacy */
   public final static FastDateFormat DATE_FORMAT =
+      FastDateFormat.getInstance("yyyyMMdd");
+
+  /** The Constant DATE_YYYYMMDD. */
+  public final static FastDateFormat DATE_YYYYMMDD =
       FastDateFormat.getInstance("yyyyMMdd");
 
   /** The Constant DATE_FORMAT2. */

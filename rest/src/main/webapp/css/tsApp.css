@@ -263,6 +263,11 @@ h5 {
 	max-width: 100%;
 }
 
+.w80 {
+	width: 80%;
+	max-width: 80%;
+}
+
 .tab-disabled {
 	color: gray;
 	cursor: pointer;

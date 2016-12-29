@@ -1436,7 +1436,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   public Atom getAtom(Long id) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get atom " + id);
 
-    Atom atom = getComponent(id, AtomJpa.class);
+    final Atom atom = getComponent(id, AtomJpa.class);
 
     return atom;
   }
