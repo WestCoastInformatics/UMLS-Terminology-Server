@@ -149,6 +149,10 @@ public abstract class AbstractMergeAlgorithm
                 + validationResult);
 
         if (makeDemotion) {
+          
+          //TODO - if from and to concepts have a relationship between them,
+          // do NOT make demotion, and add log entry saying why
+          
           final AddDemotionMolecularAction action2 =
               new AddDemotionMolecularAction();
           action2.setTransactionPerOperation(false);

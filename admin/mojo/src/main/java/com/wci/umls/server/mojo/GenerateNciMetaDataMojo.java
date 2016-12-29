@@ -470,7 +470,27 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("mergeSet", "NCI-SRC");
-    algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
+    algoProperties.put("checkNames", "");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // TODO - need to set to real insertion properties
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("mergeSet", "NCI-SY");
+    algoProperties.put("checkNames", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
