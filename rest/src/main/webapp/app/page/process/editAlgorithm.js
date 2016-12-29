@@ -94,6 +94,17 @@ tsApp.controller('AlgorithmModalCtrl', [
         });
     };
 
+    $scope.testQuery = function(query) {
+      // Guess the query type
+      var queryType = 'LUCENE';
+      if (query.matches(/select.*from +[^ ]+jpa,/i)) {
+        queryType = 'JQL';
+      } else      if (query.matches(/select.*/i)) {
+        queryType = 'SQL';
+      }
+      
+    }
+
     // end
   } ]);
 

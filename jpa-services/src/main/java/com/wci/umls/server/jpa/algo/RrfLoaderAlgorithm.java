@@ -1938,40 +1938,40 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // Set terminology ids
       mapping.setTerminologyId(fields[5]);
-      if (fields[4] != null && !fields[4].equals("")) {
+      if (!fields[4].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology(), fields[4]);
       }
-      if (fields[6] != null && !fields[6].equals("")) {
+      if (!fields[6].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
             fields[6]);
       }
-      if (fields[7] != null && !fields[7].equals("")) {
+      if (!fields[7].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
             fields[7]);
       }
-      if (fields[14] != null && !fields[14].equals("")) {
+      if (!fields[14].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
             fields[14]);
       }
-      if (fields[15] != null && !fields[15].equals("")) {
+      if (!fields[15].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
             fields[15]);
       }
 
       // Make mapping attributes
-      if (fields[10] != null && !fields[10].equals("")) {
+      if (!fields[10].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
-      if (fields[11] != null && !fields[11].equals("")) {
+      if (!fields[11].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRES", fields[11]));
       }
-      if (fields[18] != null && !fields[18].equals("")) {
+      if (!fields[18].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORULE", fields[18]));
       }
-      if (fields[19] != null && !fields[19].equals("")) {
+      if (!fields[19].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORES", fields[19]));
       }
@@ -2504,10 +2504,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           ptr += "." + anc;
         }
 
-        final String key = fields[4] + fields[5] + ptr;
-
         // Get atom for the PTR part
         final Atom atom = getAtom(atomIdMap.get(anc));
+
+        // If multi, and top-level atom is null, skip it
+        if (style == Style.MULTI && atom == null && ancPath == null) {
+          continue;
+        }
+
+        // Skip top-level SRC atoms
+        if (atom.getTerminology().equals("SRC") && ancPath == null) {
+          continue;
+        }
+
+        final String key = fields[4] + fields[5] + ptr;
         if (ancPath == null) {
           ancPath = atom.getId().toString();
         } else {
@@ -2549,6 +2559,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final String key = fields[4] + fields[5] + fields[6]
           + (fields[6].equals("") ? "" : ".") + fields[1];
       // Get atom for the PTR part
+      System.out.println("line=" + line2);
+      System.out.println("aui=" + fields[1]);
+      System.out.println("ancPath=" + ancPath);
+      System.out.println("key=" + key);
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
       if (ancPath == null) {
         ancPath = atom.getId().toString();
@@ -2820,7 +2834,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             continue;
           }
           from = new ComponentInfoJpa();
-          from.setTerminologyId(fromAtom.getTerminologyId());
+          from.setTerminologyId(fields[5]);
           from.setType(IdType.ATOM);
         }
 
@@ -2853,11 +2867,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
           // These are likely relationships to SRC thing, skip
           if (toAtom == null && style == Style.MULTI
-              && fields[3].equals("PAR")) {
+              && fields[3].equals("CHD")) {
             continue;
           }
           to = new ComponentInfoJpa();
-          to.setTerminologyId(toAtom.getTerminologyId());
+          to.setTerminologyId(fields[1]);
           to.setType(IdType.ATOM);
 
         }
