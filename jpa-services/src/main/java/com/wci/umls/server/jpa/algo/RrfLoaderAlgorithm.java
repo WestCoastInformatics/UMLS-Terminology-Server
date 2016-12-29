@@ -2611,7 +2611,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (style == Style.MULTI && fields[10].equals("SRC")) {
         continue;
       }
-
       // Field description
       // 0 CUI1
       // 1 AUI1
@@ -2647,9 +2646,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final AtomRelationship aRel = new AtomRelationshipJpa();
 
         final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+        // These are likely relationships to SRC thing, skip
+        if (fromAtom == null && style == Style.MULTI
+            && fields[3].equals("PAR")) {
+          continue;
+        }
         aRel.setFrom(fromAtom);
 
         final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+        // These are likely relationships to SRC thing, skip
+        if (toAtom == null && style == Style.MULTI && fields[3].equals("CHD")) {
+          continue;
+        }
         aRel.setTo(toAtom);
 
         setRelationshipFields(fields, aRel);
@@ -2765,14 +2773,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         String stype1 = fields[2];
         String stype2 = fields[6];
 
-        // Skip if CUI and not in meta mode
-        if (!style.toString().startsWith("META")
-            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+        // Skip if SINGLE
+        if (style == Style.SINGLE) {
           continue;
         }
 
-        // Skip if SINGLE
-        if (style == Style.SINGLE) {
+        // Skip if CUI and not in meta mode
+        if (!style.toString().startsWith("META")
+            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
           continue;
         }
 
@@ -2806,6 +2814,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype2.equals("AUI")) {
           final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+          // These are likely relationships to SRC thing, skip
+          if (fromAtom == null && style == Style.MULTI
+              && fields[3].equals("PAR")) {
+            continue;
+          }
           from = new ComponentInfoJpa();
           from.setTerminologyId(fromAtom.getTerminologyId());
           from.setType(IdType.ATOM);
@@ -2838,6 +2851,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype1.equals("AUI")) {
           final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+          // These are likely relationships to SRC thing, skip
+          if (toAtom == null && style == Style.MULTI
+              && fields[3].equals("PAR")) {
+            continue;
+          }
           to = new ComponentInfoJpa();
           to.setTerminologyId(toAtom.getTerminologyId());
           to.setType(IdType.ATOM);
