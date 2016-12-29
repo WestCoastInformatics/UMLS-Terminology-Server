@@ -224,8 +224,8 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // Get the mapSets that exist prior to the ATOMLOADER run.
       final MapSetList existingMapSets =
-          contentService.getMapSets(processExecution.getTerminology(),
-              processExecution.getVersion(), Branch.ROOT);
+          contentService.getMapSets("",
+              "", Branch.ROOT);
 
       atomAlgo.setTransactionPerOperation(false);
       atomAlgo.beginTransaction();
@@ -276,9 +276,8 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
           contentService.getConcept(list.getObjects().get(0).getId());
 
       // Make sure a new mapSet was added.
-      MapSetList mapSetList =
-          contentService.getMapSets(processExecution.getTerminology(),
-              processExecution.getVersion(), Branch.ROOT);
+      MapSetList mapSetList = contentService.getMapSets("",
+              "", Branch.ROOT);
 
       for (MapSet mapSet : mapSetList.getObjects()) {
         if (!existingMapSets.contains(mapSet)) {
@@ -328,19 +327,11 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
       assertEquals(IdType.CONCEPT, mapping.getFromIdType());
       assertEquals("F41.9", mapping.getToTerminologyId());
       assertEquals(IdType.DESCRIPTOR, mapping.getToIdType());
-
-      // Make sure the mapset was updated
-      addedMapSet = contentService.getMapSet(addedMapSet.getId());
-      assertEquals("ICD-10 complex map reference set", addedMapSet.getName());
-      assertEquals("NCI", addedMapSet.getTerminology());
-      assertEquals("2016_05E", addedMapSet.getVersion());
-      assertEquals("SNOMEDCT_US", addedMapSet.getFromTerminology());
-      assertEquals("2016_09_01", addedMapSet.getFromVersion());
-      assertEquals("ICD10", addedMapSet.getToTerminology());
-      assertEquals("2010", addedMapSet.getToVersion());
-      final List<Attribute> mapSetAttributes = addedMapSet.getAttributes();
-      assertEquals(4, mapSetAttributes.size());
-      for (Attribute attribute : mapSetAttributes) {
+      
+      // Make sure the mapping attributes were set
+      final List<Attribute> mappingAttributes = mapping.getAttributes();
+      assertEquals(4, mappingAttributes.size());
+      for (Attribute attribute : mappingAttributes) {
         if (attribute.getName().equals("FROMRULE")) {
           assertEquals("Test From Rule", attribute.getValue());
         }
@@ -353,7 +344,17 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
         if (attribute.getName().equals("TORES")) {
           assertEquals("Test To Res", attribute.getValue());
         }
-      }
+      }      
+
+      // Make sure the mapset was updated
+      addedMapSet = contentService.getMapSet(addedMapSet.getId());
+      assertEquals("ICD-10 complex map reference set", addedMapSet.getName());
+      assertEquals("NCI", addedMapSet.getTerminology());
+      assertEquals("2016_05E", addedMapSet.getVersion());
+      assertEquals("SNOMEDCT_US", addedMapSet.getFromTerminology());
+      assertEquals("2016_09_01", addedMapSet.getFromVersion());
+      assertEquals("ICD10", addedMapSet.getToTerminology());
+      assertEquals("2010", addedMapSet.getToVersion());
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -392,23 +393,25 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
       if (addedConcept != null) {
         addedConcept.getAtoms().remove(addedAtom);
         contentService.updateConcept(addedConcept);
+        contentService.removeConcept(addedConcept.getId());
       }
       if (addedConcept2 != null) {
-        addedConcept.getAtoms().remove(addedAtom);
+        addedConcept2.getAtoms().remove(addedAtom);
         contentService.updateConcept(addedConcept2);
+        contentService.removeConcept(addedConcept2.getId());
       }
 
       contentService.removeAtom(addedAtom.getId());
     }
-
+    
     if (addedMapSet != null) {
-      contentService.removeMapSet(addedMapSet.getId());
-    }
-
-    if (addedMappings != null) {
-      for (Mapping mapping : addedMappings.getObjects()) {
+      List<Mapping> mappings = addedMapSet.getMappings();
+      for(Mapping mapping : mappings){
         contentService.removeMapping(mapping.getId());
-      }
+      }      
+      addedMapSet.clearMappings();
+      contentService.updateMapSet(addedMapSet);
+      contentService.removeMapSet(addedMapSet.getId());
     }
 
     FileUtils.forceDelete(atomOutputFile);

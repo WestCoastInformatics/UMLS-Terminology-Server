@@ -355,9 +355,9 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       mapSet.setPublishable(true);
       mapSet.setName("");
       mapSet.setLastModifiedBy(getLastModifiedBy());
-      mapSet.setTerminology(getProcess().getTerminology());
-      mapSet.setFromTerminology(getProcess().getTerminology());
-      mapSet.setVersion(getProcess().getVersion());
+      mapSet.setTerminology("");
+      mapSet.setFromTerminology("");
+      mapSet.setVersion("");
       mapSet.setTerminologyId("");
 
       mapSet = addMapSet(mapSet);
