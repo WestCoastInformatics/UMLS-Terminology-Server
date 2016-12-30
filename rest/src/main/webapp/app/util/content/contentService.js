@@ -1022,7 +1022,7 @@ tsApp
             + '/' + component.version + '/' + component.terminologyId;
           var title = 'Component-' + component.terminology + '/' + component.version + ', '
             + component.terminologyId;
-          var newWindow = $window.open(newUrl, title, 'width=601,height=500,scrollbars=yes');
+          var newWindow = $window.open(newUrl, title, 'width=950,height=600,scrollbars=yes');
           newWindow.document.title = title;
           newWindow.focus();
 

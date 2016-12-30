@@ -206,7 +206,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       String vcui = "";
       String rcui = "";
       PfsParameter pfs = new PfsParameterJpa();
-      SearchResultList results = findConcepts(getProject().getTerminology(),
+      SearchResultList results = findConceptSearchResults(getProject().getTerminology(),
           getProject().getVersion(), getProject().getBranch(),
           " atoms.codeId:V-" + term.getTerminology()
               + " AND atoms.terminology:SRC AND atoms.termType:RPT",

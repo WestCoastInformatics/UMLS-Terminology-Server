@@ -564,7 +564,7 @@ public class Rf2DeltaLoaderAlgorithm
     // Cache description (and definition) ids
     final Query query =
         manager.createQuery("select a.terminologyId, a.id from AtomJpa a "
-            + "where version = :version " + "and terminology = :terminology ");
+            + "where version = :version and terminology = :terminology ");
     query.setParameter("terminology", getTerminology());
     query.setParameter("version", getVersion());
     @SuppressWarnings("unchecked")

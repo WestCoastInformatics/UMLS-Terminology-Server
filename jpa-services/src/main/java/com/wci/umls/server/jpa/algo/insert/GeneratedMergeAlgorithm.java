@@ -459,13 +459,13 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     // make demotions
     param = new AlgorithmParameterJpa("Make Demotions", "makeDemotions",
         "Make demotions for failed merges?", "e.g. true", 5,
-        AlgorithmParameter.Type.BOOLEAN, "false");
+        AlgorithmParameter.Type.BOOLEAN, "true");
     params.add(param);
 
     // change status
     param = new AlgorithmParameterJpa("Change Status", "changeStatus",
         "Change status when performing merges?", "e.g. true", 5,
-        AlgorithmParameter.Type.BOOLEAN, "false");
+        AlgorithmParameter.Type.BOOLEAN, "true");
     params.add(param);
 
     // mergeSet

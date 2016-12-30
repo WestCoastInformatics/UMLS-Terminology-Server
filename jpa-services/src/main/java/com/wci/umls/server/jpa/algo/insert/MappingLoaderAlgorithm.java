@@ -183,6 +183,8 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         mapsetUpdateCount++;
       }
 
+      commitClearBegin();
+      
       // If any mapTo or MapFrom entries were unused, log them
       final Set<String> xmapFromUnusuedSet = xmapFromMap.keySet();
       xmapFromUnusuedSet.removeAll(xmapFromUsedSet);
@@ -305,7 +307,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       // n/a - version is picked up from the SAB
       // mapSet.setMapVersion(atv);
     } else if (atn.equals("TOVSAB")) {
-      if (mapset.getToTerminology() != null) {
+      if (!ConfigUtility.isEmpty(mapset.getToTerminology())) {
         String version = atv.substring(mapset.getToTerminology().length());
         mapset.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
@@ -314,20 +316,20 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       }
     } else if (atn.equals("TORSAB")) {
       mapset.setToTerminology(atv);
-      if (mapset.getToVersion() != null) {
+      if (!ConfigUtility.isEmpty(mapset.getToVersion())) {
         String version = mapset.getToVersion().substring(atv.length());
         mapset.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
       mapset.setFromTerminology(atv);
-      if (mapset.getFromVersion() != null) {
+      if (!ConfigUtility.isEmpty(mapset.getFromVersion())) {
         String version = mapset.getFromVersion().substring(atv.length());
         mapset.setFromVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMVSAB")) {
-      if (mapset.getFromTerminology() != null) {
+      if (!ConfigUtility.isEmpty(mapset.getFromTerminology())) {
         String version = atv.substring(mapset.getFromTerminology().length());
         mapset.setFromVersion(
             version.startsWith("_") ? version.substring(1) : version);
@@ -343,7 +345,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       mapset.setTerminology(atv);
       // In case MAPSETVSAB was set first, strip off the RSAB part and use the
       // rest as the version
-      if (mapset.getVersion() != null) {
+      if (!ConfigUtility.isEmpty(mapset.getVersion())) {
         final String version = mapset.getVersion().substring(atv.length());
         mapset.setVersion(
             version.startsWith("_") ? version.substring(1) : version);
@@ -354,8 +356,11 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       mapset.setVersion(atv);
       // In case MAPSETRSAB was set first, strip off the RSAB part and use the
       // rest as the version
-      if (mapset.getTerminology() != null) {
-        mapset.setVersion(atv.substring(mapset.getTerminology().length()));
+      
+      if (!ConfigUtility.isEmpty(mapset.getTerminology())) {
+        final String version = mapset.getVersion().substring(mapset.getTerminology().length());
+        mapset.setVersion(
+            version.startsWith("_") ? version.substring(1) : version);
       }
 
     } else if (atn.equals("MTH_MAPFROMEXHAUSTIVE")) {
@@ -387,7 +392,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     FieldedStringTokenizer.split(xmapEntry, "|", 14, fields);
 
     final String xmapFields[] = new String[12];
-    FieldedStringTokenizer.split(fields[3], "~", 12, xmapFields);
+    FieldedStringTokenizer.split(fields[4], "~", 12, xmapFields);
 
     //
     // Load associated from entry from maps.
@@ -421,7 +426,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
 
     final String xmapToFields[] = new String[6];
-    FieldedStringTokenizer.split(xmapToEntry, "~", 6, xmapFromFields);
+    FieldedStringTokenizer.split(xmapToEntry, "~", 6, xmapToFields);
 
     //
     // Create and populate the new mappingF
@@ -465,7 +470,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
 
     // Set terminology ids
-    mapping.setTerminologyId(xmapFields[5]);
+    mapping.setTerminologyId(xmapFields[10]);
     if (xmapFromFields[0] != null && !xmapFromFields[0].equals("")) {
       mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
           xmapFromFields[0]);

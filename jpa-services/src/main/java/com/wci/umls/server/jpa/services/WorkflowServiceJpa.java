@@ -1076,7 +1076,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
-    if (findConcepts(record.getTerminology(), null, Branch.ROOT,
+    if (findConceptSearchResults(record.getTerminology(), null, Branch.ROOT,
         query
             + " AND (atoms.workflowStatus:NEEDS_REVIEW OR workflowStatus:NEEDS_REVIEW)",
         pfs).getObjects().size() > 0) {
@@ -1139,7 +1139,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final String query = ConfigUtility.composeQuery("OR", clauses);
 
     // add concepts
-    for (final SearchResult result : findConcepts(record.getTerminology(), null,
+    for (final SearchResult result : findConceptSearchResults(record.getTerminology(), null,
         Branch.ROOT, query, null).getObjects()) {
       record.getConcepts().add(new ConceptJpa(result));
     }

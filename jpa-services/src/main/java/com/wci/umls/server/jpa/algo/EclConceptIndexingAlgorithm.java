@@ -264,7 +264,7 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
     do {
       pfs.setStartIndex(pos);
       concepts =
-          findConcepts(getTerminology(), getVersion(), Branch.ROOT, null, pfs);
+          findConceptSearchResults(getTerminology(), getVersion(), Branch.ROOT, null, pfs);
 
       // logging content on first retrieval
       if (pos == 0) {

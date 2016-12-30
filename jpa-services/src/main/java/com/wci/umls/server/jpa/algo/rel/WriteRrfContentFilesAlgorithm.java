@@ -231,7 +231,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     for (Terminology term : this.getTerminologyLatestVersions().getObjects()) {
       Atom srcRhtAtom = null;
-      SearchResultList searchResults = findConcepts(
+      SearchResultList searchResults = findConceptSearchResults(
           getProject().getTerminology(), getProject().getVersion(),
           getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
               + " AND atoms.terminology:SRC AND atoms.termType:RPT",

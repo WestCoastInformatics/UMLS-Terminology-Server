@@ -1423,6 +1423,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && !fields[9].equals("SAB")) {
         continue;
       }
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[9].equals("SRC")) {
+        continue;
+      }
 
       // Skip LT attributes entirely
       // There are issues with the SAB of the atom and the SAB of the LT
@@ -1492,6 +1496,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else if (fields[4].equals("AUI")) {
         // Get the concept for the AUI
         Atom atom = getAtom(atomIdMap.get(fields[3]));
+        // These are likely attributes on SRC thing, skip
+        if (atom == null && style == Style.MULTI) {
+          continue;
+        }
         atom.getAttributes().add(att);
         addAttribute(att, atom);
       }
@@ -1938,40 +1946,40 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // Set terminology ids
       mapping.setTerminologyId(fields[5]);
-      if (fields[4] != null && !fields[4].equals("")) {
+      if (!fields[4].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology(), fields[4]);
       }
-      if (fields[6] != null && !fields[6].equals("")) {
+      if (!fields[6].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
             fields[6]);
       }
-      if (fields[7] != null && !fields[7].equals("")) {
+      if (!fields[7].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
             fields[7]);
       }
-      if (fields[14] != null && !fields[14].equals("")) {
+      if (!fields[14].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
             fields[14]);
       }
-      if (fields[15] != null && !fields[15].equals("")) {
+      if (!fields[15].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
             fields[15]);
       }
 
       // Make mapping attributes
-      if (fields[10] != null && !fields[10].equals("")) {
+      if (!fields[10].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
-      if (fields[11] != null && !fields[11].equals("")) {
+      if (!fields[11].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRES", fields[11]));
       }
-      if (fields[18] != null && !fields[18].equals("")) {
+      if (!fields[18].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORULE", fields[18]));
       }
-      if (fields[19] != null && !fields[19].equals("")) {
+      if (!fields[19].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORES", fields[19]));
       }
@@ -2504,10 +2512,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           ptr += "." + anc;
         }
 
-        final String key = fields[4] + fields[5] + ptr;
-
         // Get atom for the PTR part
         final Atom atom = getAtom(atomIdMap.get(anc));
+
+        // If multi, and top-level atom is null, skip it
+        if (style == Style.MULTI && atom == null && ancPath == null) {
+          continue;
+        }
+
+        // Skip top-level SRC atoms
+        if (atom.getTerminology().equals("SRC") && ancPath == null) {
+          continue;
+        }
+
+        final String key = fields[4] + fields[5] + ptr;
         if (ancPath == null) {
           ancPath = atom.getId().toString();
         } else {
@@ -2548,8 +2566,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       final String key = fields[4] + fields[5] + fields[6]
           + (fields[6].equals("") ? "" : ".") + fields[1];
+
       // Get atom for the PTR part
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
+
+      // If multi, and top-level atom is null, skip it
+      if (style == Style.MULTI && atom == null && ancPath == null) {
+        continue;
+      }
+
+      // Skip top-level SRC atoms
+      if (atom.getTerminology().equals("SRC") && ancPath == null) {
+        continue;
+      }
+
       if (ancPath == null) {
         ancPath = atom.getId().toString();
       } else {
@@ -2611,7 +2641,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (style == Style.MULTI && fields[10].equals("SRC")) {
         continue;
       }
-
       // Field description
       // 0 CUI1
       // 1 AUI1
@@ -2647,9 +2676,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final AtomRelationship aRel = new AtomRelationshipJpa();
 
         final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+        // These are likely relationships to SRC thing, skip
+        if (fromAtom == null && style == Style.MULTI
+            && fields[3].equals("PAR")) {
+          continue;
+        }
         aRel.setFrom(fromAtom);
 
         final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+        // These are likely relationships to SRC thing, skip
+        if (toAtom == null && style == Style.MULTI && fields[3].equals("CHD")) {
+          continue;
+        }
         aRel.setTo(toAtom);
 
         setRelationshipFields(fields, aRel);
@@ -2765,14 +2803,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         String stype1 = fields[2];
         String stype2 = fields[6];
 
-        // Skip if CUI and not in meta mode
-        if (!style.toString().startsWith("META")
-            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+        // Skip if SINGLE
+        if (style == Style.SINGLE) {
           continue;
         }
 
-        // Skip if SINGLE
-        if (style == Style.SINGLE) {
+        // Skip if CUI and not in meta mode
+        if (!style.toString().startsWith("META")
+            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
           continue;
         }
 
@@ -2806,8 +2844,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype2.equals("AUI")) {
           final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+          // These are likely relationships to SRC thing, skip
+          if (fromAtom == null && style == Style.MULTI
+              && fields[3].equals("PAR")) {
+            continue;
+          }
           from = new ComponentInfoJpa();
-          from.setTerminologyId(fromAtom.getTerminologyId());
+          from.setTerminologyId(fields[5]);
           from.setType(IdType.ATOM);
         }
 
@@ -2838,8 +2881,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype1.equals("AUI")) {
           final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+          // These are likely relationships to SRC thing, skip
+          if (toAtom == null && style == Style.MULTI
+              && fields[3].equals("CHD")) {
+            continue;
+          }
           to = new ComponentInfoJpa();
-          to.setTerminologyId(toAtom.getTerminologyId());
+          to.setTerminologyId(fields[1]);
           to.setType(IdType.ATOM);
 
         }

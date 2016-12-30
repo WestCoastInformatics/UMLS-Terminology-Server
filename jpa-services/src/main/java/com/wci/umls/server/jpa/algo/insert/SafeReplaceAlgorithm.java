@@ -108,7 +108,9 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
         + "WHERE NOT a1.id = a2.id "
         + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
         + "AND a1.terminology=:terminology AND NOT a1.version=:version "
+        + "AND a1.publishable=true "
         + "AND a2.terminology=:terminology AND a2.version=:version "
+        + "AND a2.publishable=true "
         + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
         + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId " : "")
         + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
@@ -309,7 +311,11 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
         AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
 
-    return params;
+    param = new AlgorithmParameterJpa("Terminology", "terminology",
+        "Terminology to run safe replacement on (if left blank, will run on all terminologies referenced in sources.src", "e.g. NCI", 5,
+        AlgorithmParameter.Type.STRING, "");
+    params.add(param);
+    
   }
 
   @Override
