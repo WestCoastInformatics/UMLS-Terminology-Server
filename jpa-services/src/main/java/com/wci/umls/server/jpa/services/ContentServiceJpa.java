@@ -2337,13 +2337,32 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findConcepts(String terminology, String version,
+  public SearchResultList findConceptSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("Content Service - find concept search results " + terminology
+            + "/" + version + "/" + query);
+    final SearchResultList results = findSearchResultsForQueryHelper(
+        terminology, version, branch, query, pfs, ConceptJpa.class);
+    return results;
+  }
+
+  /* see superclass */
+  @Override
+  public ConceptList findConcepts(String terminology, String version,
     String branch, String query, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - find concepts "
         + terminology + "/" + version + "/" + query);
-    final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, ConceptJpa.class);
-    return results;
+    int[] totalCt = new int[1];
+    final List<ConceptJpa> results = findForQueryHelper(terminology, version,
+        branch, query, pfs, totalCt, null, ConceptJpa.class);
+
+    final ConceptList list = new ConceptListJpa();
+    list.setObjects(
+        results.stream().map(c -> (Concept) c).collect(Collectors.toList()));
+    list.setTotalCount(totalCt[0]);
+    return list;
   }
 
   /* see superclass */
@@ -2358,16 +2377,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findDescriptors(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
+  public SearchResultList findDescriptorSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).info("Content Service - find descriptors "
         + terminology + "/" + version + "/" + query);
-    final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, DescriptorJpa.class);
+    final SearchResultList results = findSearchResultsForQueryHelper(
+        terminology, version, branch, query, pfs, DescriptorJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.DESCRIPTOR);
     }
     return results;
+  }
+
+  /* see superclass */
+  @Override
+  public DescriptorList findDescriptors(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - find concepts "
+        + terminology + "/" + version + "/" + query);
+    int[] totalCt = new int[1];
+    final List<DescriptorJpa> results = findForQueryHelper(terminology, version,
+        branch, query, pfs, totalCt, null, DescriptorJpa.class);
+
+    final DescriptorList list = new DescriptorListJpa();
+    list.setObjects(
+        results.stream().map(c -> (Descriptor) c).collect(Collectors.toList()));
+    list.setTotalCount(totalCt[0]);
+    return list;
   }
 
   /* see superclass */
@@ -2382,7 +2419,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /**
-   * Find for query helper.
+   * Find search results for query helper.
    *
    * @param <T> the
    * @param terminology the terminology
@@ -2394,19 +2431,62 @@ public class ContentServiceJpa extends MetadataServiceJpa
    * @return the search result list
    * @throws Exception the exception
    */
-  public <T extends AtomClass> SearchResultList findForQueryHelper(
+  public <T extends AtomClass> SearchResultList findSearchResultsForQueryHelper(
     String terminology, String version, String branch, String query,
     PfsParameter pfs, Class<T> clazz) throws Exception {
     // Prepare results
-    final SearchResultList results = new SearchResultListJpa();
-    int totalCt[] = new int[1];
+    int[] totalCt = new int[1];
+    Map<Long, Float> scoreMap = new HashMap<>();
+    final List<T> results = findForQueryHelper(terminology, version, branch,
+        query, pfs, totalCt, scoreMap, clazz);
+
+    final SearchResultList list = new SearchResultListJpa();
+    list.setTotalCount(totalCt[0]);
+
+    // construct the search results (if any found)
+    if (results != null) {
+      for (final T r : results) {
+        final SearchResult sr = new SearchResultJpa();
+        sr.setId(r.getId());
+        sr.setTerminology(r.getTerminology());
+        sr.setVersion(r.getVersion());
+        sr.setTerminologyId(r.getTerminologyId());
+        sr.setValue(r.getName());
+        sr.setScore(scoreMap.get(r.getId()));
+        sr.setWorkflowStatus(r.getWorkflowStatus());
+        sr.setType(r.getType());
+        list.getObjects().add(sr);
+      }
+    }
+
+    return list;
+  }
+
+  /**
+   * Find for query helper.
+   *
+   * @param <T> the
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @param totalCt the total ct
+   * @param scoreMap the score map
+   * @param clazz the clazz
+   * @return the search result list
+   * @throws Exception the exception
+   */
+  public <T extends AtomClass> List<T> findForQueryHelper(String terminology,
+    String version, String branch, String query, PfsParameter pfs,
+    int[] totalCt, Map<Long, Float> scoreMap, Class<T> clazz) throws Exception {
 
     // construct return lists for lucene and expression results
     List<T> luceneResults = null;
     SearchResultList exprResults = null;
 
     // construct local pfs
-    PfsParameter localPfs =
+    final PfsParameter localPfs =
         pfs == null ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
 
     // declare search handler
@@ -2452,31 +2532,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
     if (exprResults == null || exprResults.size() > 0) {
       luceneResults = searchHandler.getQueryResults(terminology, version,
           branch, query, "atoms.nameSort", clazz, localPfs, totalCt, manager);
-      Logger.getLogger(getClass())
-          .debug("    lucene result count = " + luceneResults.size());
-
-      // set the total count
-      results.setTotalCount(totalCt[0]);
     }
 
-    // construct the search results (if any found)
-    if (luceneResults != null) {
-      final Map<Long, Float> scoreMap = searchHandler.getScoreMap();
-      for (final T r : luceneResults) {
-        final SearchResult sr = new SearchResultJpa();
-        sr.setId(r.getId());
-        sr.setTerminology(r.getTerminology());
-        sr.setVersion(r.getVersion());
-        sr.setTerminologyId(r.getTerminologyId());
-        sr.setValue(r.getName());
-        sr.setScore(scoreMap.get(r.getId()));
-        sr.setWorkflowStatus(r.getWorkflowStatus());
-        sr.setType(r.getType());
-        results.getObjects().add(sr);
-      }
+    if (scoreMap != null) {
+      scoreMap.putAll(searchHandler.getScoreMap());
     }
-
-    return results;
+    return luceneResults;
 
   }
 
@@ -2689,16 +2750,34 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public SearchResultList findCodes(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception {
+  public SearchResultList findCodeSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception {
     Logger.getLogger(getClass()).info("Content Service - find codes "
         + terminology + "/" + version + "/" + query);
-    final SearchResultList results = findForQueryHelper(terminology, version,
-        branch, query, pfs, CodeJpa.class);
+    final SearchResultList results = findSearchResultsForQueryHelper(
+        terminology, version, branch, query, pfs, CodeJpa.class);
     for (final SearchResult result : results.getObjects()) {
       result.setType(IdType.CODE);
     }
     return results;
+  }
+
+  /* see superclass */
+  @Override
+  public CodeList findCodes(String terminology, String version, String branch,
+    String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).info("Content Service - find concepts "
+        + terminology + "/" + version + "/" + query);
+    int[] totalCt = new int[1];
+    final List<CodeJpa> results = findForQueryHelper(terminology, version,
+        branch, query, pfs, totalCt, null, CodeJpa.class);
+
+    final CodeList list = new CodeListJpa();
+    list.setObjects(
+        results.stream().map(c -> (Code) c).collect(Collectors.toList()));
+    list.setTotalCount(totalCt[0]);
+    return list;
   }
 
   /* see superclass */
