@@ -368,9 +368,7 @@ public class RrfUnpublishedLoaderAlgorithm
 
       final Atom atom = getAtom(map.get(aui));
       // Skip concepts
-      if (atom != null) {
-        logInfo("    attach src atom id = " + aui + ", " + src);
-      } else {
+      if (atom == null) {
         continue;
       }
 

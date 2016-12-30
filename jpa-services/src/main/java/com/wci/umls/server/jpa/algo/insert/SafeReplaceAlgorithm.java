@@ -315,6 +315,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
         "Terminology to run safe replacement on (if left blank, will run on all terminologies referenced in sources.src", "e.g. NCI", 5,
         AlgorithmParameter.Type.STRING, "");
     params.add(param);
+    return params;
     
   }
 
