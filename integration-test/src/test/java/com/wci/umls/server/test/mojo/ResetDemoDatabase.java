@@ -137,7 +137,7 @@ public class ResetDemoDatabase {
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("mode", "update");
-    p.setProperty("terminology", "ICD9CM");
+    p.setProperty("terminology", "ICD-9-CM");
     p.setProperty("version", "2016");
     p.setProperty("input.file",
         "../../config/src/main/resources/data/icd9cm-2013.xml");
@@ -158,7 +158,7 @@ public class ResetDemoDatabase {
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("mode", "update");
-    p.setProperty("terminology", "ICD10CM");
+    p.setProperty("terminology", "ICD-10-CM");
     p.setProperty("version", "2015");
     p.setProperty("input.file",
         "../../config/src/main/resources/data/icd10cm.xml");

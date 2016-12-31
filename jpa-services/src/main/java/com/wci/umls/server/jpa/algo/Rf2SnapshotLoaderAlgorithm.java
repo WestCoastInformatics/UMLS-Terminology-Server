@@ -811,8 +811,7 @@ public class Rf2SnapshotLoaderAlgorithm
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' and terminology = :terminology "
-            + "and version = :version "
-            + "order by terminology, conceptId")
+            + "and version = :version " + "order by terminology, conceptId")
         .setParameter("terminology", getTerminology())
         .setParameter("version", getVersion()).setReadOnly(true)
         .setFetchSize(2000).setCacheable(true);
@@ -823,7 +822,6 @@ public class Rf2SnapshotLoaderAlgorithm
     Concept concept = null;
     while (results.next()) {
       final Atom atom = (Atom) results.get()[0];
-      System.out.println("atom=" + atom);
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
@@ -1882,21 +1880,28 @@ public class Rf2SnapshotLoaderAlgorithm
           + (extensionInfo != null && !extensionInfo.isEmpty()
               ? " " + extensionInfo + " Edition" : "");
     }
+
+    // Reuse root terminology if it exists already
     RootTerminology root = new RootTerminologyJpa();
-    root.setFamily(getTerminology());
-    root.setHierarchicalName(rootConcept != null ? rootConcept.getName() : "");
-    root.setLanguage(
-        rootLanguage == null ? "en" : rootLanguage.getAbbreviation());
-    root.setTimestamp(releaseVersionDate);
-    root.setLastModified(releaseVersionDate);
-    root.setLastModifiedBy(loader);
-    root.setPolyhierarchy(true);
-    root.setHierarchyComputable(true);
-    root.setPreferredName(
-        rootPrefName == null ? root.getHierarchicalName() : rootPrefName);
-    root.setRestrictionLevel(0);
-    root.setTerminology(getTerminology());
-    addRootTerminology(root);
+    if (getRootTerminology(getTerminology()) != null) {
+      root = getRootTerminology(getTerminology());
+    } else {
+      root.setFamily(getTerminology());
+      root.setHierarchicalName(
+          rootConcept != null ? rootConcept.getName() : "");
+      root.setLanguage(
+          rootLanguage == null ? "en" : rootLanguage.getAbbreviation());
+      root.setTimestamp(releaseVersionDate);
+      root.setLastModified(releaseVersionDate);
+      root.setLastModifiedBy(loader);
+      root.setPolyhierarchy(true);
+      root.setHierarchyComputable(true);
+      root.setPreferredName(
+          rootPrefName == null ? root.getHierarchicalName() : rootPrefName);
+      root.setRestrictionLevel(0);
+      root.setTerminology(getTerminology());
+      addRootTerminology(root);
+    }
 
     // Terminology
     Terminology term = new TerminologyJpa();

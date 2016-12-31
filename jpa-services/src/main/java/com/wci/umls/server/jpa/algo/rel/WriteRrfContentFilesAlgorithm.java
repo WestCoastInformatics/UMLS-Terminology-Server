@@ -1118,8 +1118,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         sb.append(sab != null ? sab : "").append("|"); // 4 SAB
         sb.append(rela != null ? rela : "").append("|"); // 5 RELA
         String srcRhtName = terminologyToSrcRhtNameMap.get(sab);
-        if (root == null) { // TODO
-          System.out.println("root is null " + sb.toString() + " " + ptr);
+        if (root == null) { 
           sb.append("root is null ");
         } else if (!root.equals(srcRhtName)) {
           sb.append(terminologyToSrcAtomIdMap.get(sab) + ".");
