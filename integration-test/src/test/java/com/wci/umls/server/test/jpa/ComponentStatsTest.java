@@ -55,7 +55,7 @@ public class ComponentStatsTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     Map<String, Integer> umlsStats =
-        service.getComponentStats("UMLS", "latest", Branch.ROOT);
+        service.getComponentStats("MTH", "latest", Branch.ROOT);
 
     Map<String, Integer> cmpStats = new TreeMap<>();
     cmpStats.put("Non-obsolete AtomJpa", 0);

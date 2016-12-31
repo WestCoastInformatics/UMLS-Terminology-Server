@@ -984,10 +984,10 @@ public abstract class AbstractSourceInsertionAlgorithm
    *
    * @param sourceAtomAltId the code id and terminology
    * @param mapSet the map set
-   * @throws Exception 
+   * @throws Exception
    */
-  @SuppressWarnings("static-method")
-  public void putMapSet(String sourceAtomAltId, MapSet mapSet) throws Exception {
+  public void putMapSet(String sourceAtomAltId, MapSet mapSet)
+    throws Exception {
     if (cachedMapSets.isEmpty()) {
       cacheExistingMapSets();
     }

@@ -57,9 +57,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "let");
     assertTrue(results.getObjects().size()>10);
 
-    results = service.autocompleteConcepts("UMLS", "latest", "lett");
+    results = service.autocompleteConcepts("MTH", "latest", "lett");
     assertTrue(results.getObjects().size()>10);
-    results = service.autocompleteConcepts("UMLS", "latest", "let");
+    results = service.autocompleteConcepts("MTH", "latest", "let");
     assertTrue(results.getObjects().size()>10);
   }
 
@@ -101,14 +101,14 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "l");
     assertEquals(2, results.getObjects().size());
 
-    results = service.autocompleteCodes("UMLS", "latest", "lett");
+    results = service.autocompleteCodes("MTH", "latest", "lett");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteCodes("UMLS", "latest", "let");
+    results = service.autocompleteCodes("MTH", "latest", "let");
     assertTrue(results.getObjects().isEmpty());
 
-    results = service.autocompleteCodes("UMLS", "latest", "le");
+    results = service.autocompleteCodes("MTH", "latest", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteCodes("UMLS", "latest", "l");
+    results = service.autocompleteCodes("MTH", "latest", "l");
     assertTrue(results.getObjects().isEmpty());
   }
 
@@ -125,9 +125,9 @@ public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
     assertTrue(results.getObjects().isEmpty());
     results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "l");
     assertEquals(2, results.getObjects().size());
-    results = service.autocompleteConcepts("UMLS", "latest", "le");
+    results = service.autocompleteConcepts("MTH", "latest", "le");
     assertTrue(results.getObjects().size()>10);
-    results = service.autocompleteConcepts("UMLS", "latest", "l");
+    results = service.autocompleteConcepts("MTH", "latest", "l");
     assertTrue(results.getObjects().size()>10);
 
   }

@@ -936,7 +936,7 @@ public interface ContentService extends MetadataService {
     throws Exception;
 
   /**
-   * Find concepts for query.
+   * Find concept search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -946,7 +946,22 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConcepts(String terminology, String version,
+  public SearchResultList findConceptSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find concepts.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the concept list
+   * @throws Exception the exception
+   */
+  public ConceptList findConcepts(String terminology, String version,
     String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
@@ -962,7 +977,7 @@ public interface ContentService extends MetadataService {
     String searchTerm) throws Exception;
 
   /**
-   * Find descriptors for query.
+   * Find descriptor search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -972,7 +987,22 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptors(String terminology, String version,
+  public SearchResultList findDescriptorSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
+  public DescriptorList findDescriptors(String terminology, String version,
     String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
@@ -988,7 +1018,7 @@ public interface ContentService extends MetadataService {
     String searchTerm) throws Exception;
 
   /**
-   * Find codes for query.
+   * Find code search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -998,8 +1028,23 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodes(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception;
+  public SearchResultList findCodeSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the code list
+   * @throws Exception the exception
+   */
+  public CodeList findCodes(String terminology, String version, String branch,
+    String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete codes.

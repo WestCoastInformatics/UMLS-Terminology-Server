@@ -46,7 +46,7 @@ public class ProcessServiceRestNormalUseTest extends ProcessServiceRestTest {
   private static Project project;
 
   /** The umls terminology. */
-  private String umlsTerminology = "UMLS";
+  private String umlsTerminology = "MTH";
 
   /** The umls version. */
   private String umlsVersion = "latest";

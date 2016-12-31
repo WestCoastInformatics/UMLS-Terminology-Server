@@ -78,9 +78,9 @@ public class DT_I3Test extends IntegrationUnitSupport {
 
     // Get two concepts, on with DEMOTION relationships, and one without
     conceptDemotions =
-        contentService.getConcept("C0032460", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0032460", "MTH", "latest", Branch.ROOT);
     conceptNoDemotions =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
   }
 

@@ -72,7 +72,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
   private String mshVersion = "2016_2016_02_26";
 
   /** The umls terminology. */
-  private String umlsTerminology = "UMLS";
+  private String umlsTerminology = "MTH";
 
   /** The umls version. */
   private String umlsVersion = "latest";
@@ -1378,7 +1378,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     // simple deep rels call
     Logger.getLogger(getClass()).info("  Test deep relationships");
     RelationshipList list = contentService.findConceptDeepRelationships(
-        "C0000097", "UMLS", "latest", false, false, false, false, new PfsParameterJpa(), null, authToken);
+        "C0000097", "MTH", "latest", false, false, false, false, new PfsParameterJpa(), null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
     assertEquals(128, list.getTotalCount());
@@ -1391,7 +1391,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Test deep relationships with paging");
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
-    list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
+    list = contentService.findConceptDeepRelationships("C0000097", "MTH",
         "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
@@ -1403,7 +1403,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     Logger.getLogger(getClass()).info("  Test deep relationships with paging");
     pfs = new PfsParameterJpa();
     pfs.setSortField("relationshipType");
-    list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
+    list = contentService.findConceptDeepRelationships("C0000097", "MTH",
         "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
@@ -1417,7 +1417,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     pfs.setSortField("relationshipType");
-    list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
+    list = contentService.findConceptDeepRelationships("C0000097", "MTH",
         "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
@@ -1433,7 +1433,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
     pfs.setStartIndex(10);
     pfs.setMaxResults(10);
     pfs.setSortField("relationshipType");
-    list = contentService.findConceptDeepRelationships("C0000097", "UMLS",
+    list = contentService.findConceptDeepRelationships("C0000097", "MTH",
         "latest", false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass())
         .info("    totalCount = " + list.getTotalCount());
@@ -1995,7 +1995,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
 
     Logger.getLogger(getClass())
         .info("TEST - " + "C0155860, UMLS, latest" + authToken);
-    MappingList c = contentService.findConceptMappings("C0155860", "UMLS",
+    MappingList c = contentService.findConceptMappings("C0155860", "MTH",
         "latest", "", new PfsParameterJpa(), authToken);
 
     // Validate the concept returned

@@ -30,6 +30,12 @@
 
     <dependency>
       <groupId>com.wcinformatics.umls.server</groupId>
+      <artifactId>term-server-rest</artifactId>
+      <classifier>classes</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
 

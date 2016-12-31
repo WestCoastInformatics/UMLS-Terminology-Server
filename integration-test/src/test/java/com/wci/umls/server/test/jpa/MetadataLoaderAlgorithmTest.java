@@ -95,6 +95,10 @@ public class MetadataLoaderAlgorithmTest extends IntegrationUnitSupport {
     // Run the METADATALOADER algorithm
     try {
       
+
+      algo.setTransactionPerOperation(false);
+      algo.beginTransaction();
+      
       //
       // Check prerequisites
       //

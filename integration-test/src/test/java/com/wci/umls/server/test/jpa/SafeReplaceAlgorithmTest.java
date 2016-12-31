@@ -93,15 +93,15 @@ public class SafeReplaceAlgorithmTest extends IntegrationUnitSupport {
   }
 
   /**
-   * Test generated merge normal use.
+   * Test safe replace normal use.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testGeneratedMerge() throws Exception {
+  public void testSafeReplace() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
-    // Run the PRECOMPUTEDMERGE algorithm
+    // Run the SAFEREPLACE algorithm
     try {
 
       algo.setTransactionPerOperation(false);
@@ -116,6 +116,7 @@ public class SafeReplaceAlgorithmTest extends IntegrationUnitSupport {
       algoProperties.put("codeId", "true");
       algoProperties.put("conceptId", "true");
       algoProperties.put("descriptorId", "true");
+      //algoProperties.put("terminology", "NCI");
       algo.setProperties(algoProperties);
 
       //

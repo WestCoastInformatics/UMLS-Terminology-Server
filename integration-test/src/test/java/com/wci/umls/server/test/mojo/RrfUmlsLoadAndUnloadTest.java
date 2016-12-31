@@ -61,9 +61,9 @@ public class RrfUmlsLoadAndUnloadTest {
    *   TEST: verify there is a ConceptJpa index with no contents.
    * Run the RRF-umls mojo against the sample config/src/resources/data/SCTMTH_2014AB" data.
    *   TEST: verify each content table exists with the expected number of entries.
-   * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
+   * Create a "MTH" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    *   TEST: verify there is a project with the expected name
-   * Start an editing cycle for "UMLS"
+   * Start an editing cycle for "MTH"
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
    * Remove SNOMEDCTUS, MSH, SRC, MTH, then UMLS
    *   TEST: verify there is a concepts table with no contents for the respective sources
@@ -110,11 +110,11 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
+        .getAllConcepts("MTH", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
+            + service.getComponentStats("MTH", "latest", Branch.ROOT));
 
     service.close();
     service.closeFactory();
@@ -128,7 +128,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     p.setProperty("input.dir",
         "../../config/src/main/resources/data/SCTMSH_2014AB");
@@ -143,11 +143,11 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(2014,
-        service.getAllConcepts("UMLS", "latest", Branch.ROOT).size());
+        service.getAllConcepts("MTH", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
+            + service.getComponentStats("MTH", "latest", Branch.ROOT));
 
     // Test a non-UMLS terminology too
     Assert.assertEquals(3903,
@@ -165,7 +165,7 @@ public class RrfUmlsLoadAndUnloadTest {
     // Verify release info
     Logger.getLogger(getClass()).info("Verify release info");
     HistoryService historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "latest"));
+    Assert.assertNotNull(historyService.getReleaseInfo("MTH", "latest"));
     // also, release infos should exist for other SABs.
     Assert.assertNotNull(historyService.getReleaseInfo("SNOMEDCT_US",
         "2016_03_01"));
@@ -183,7 +183,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p.setProperty("server", server);
     p.setProperty("name", "Sample project");
     p.setProperty("description", "Sample project.");
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     // scope ignored for now
     p.setProperty("scope.descendants.flag", "true");
@@ -202,7 +202,7 @@ public class RrfUmlsLoadAndUnloadTest {
     for (Project project : projectService.getProjects().getObjects()) {
       if (project.getName().equals("Sample project")
           && project.getDescription().equals("Sample project.")
-          && project.getTerminology().equals("UMLS")) {
+          && project.getTerminology().equals("MTH")) {
         // Scope ignored for now - &&
         // project.getScopeConcepts().iterator().next().equals("138875005")) {
         found = true;
@@ -228,7 +228,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("release.version", "2015AA");
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -240,10 +240,10 @@ public class RrfUmlsLoadAndUnloadTest {
     // Verify release info for 2015AA as "planned"
     Logger.getLogger(getClass()).info("Verify release info");
     historyService = new HistoryServiceJpa();
-    Assert.assertNotNull(historyService.getReleaseInfo("UMLS", "2015AA"));
-    Assert.assertFalse(historyService.getReleaseInfo("UMLS", "2015AA")
+    Assert.assertNotNull(historyService.getReleaseInfo("MTH", "2015AA"));
+    Assert.assertFalse(historyService.getReleaseInfo("MTH", "2015AA")
         .isPublished());
-    Assert.assertTrue(historyService.getReleaseInfo("UMLS", "2015AA")
+    Assert.assertTrue(historyService.getReleaseInfo("MTH", "2015AA")
         .isPlanned());
     historyService.close();
     historyService.closeFactory();
@@ -272,7 +272,7 @@ public class RrfUmlsLoadAndUnloadTest {
     p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
-    p.setProperty("terminology", "UMLS");
+    p.setProperty("terminology", "MTH");
     p.setProperty("version", "latest");
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -285,11 +285,11 @@ public class RrfUmlsLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no UMLS contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
+        .getAllConcepts("MTH", "latest", Branch.ROOT).size());
     // Print component Stats
     Logger.getLogger(getClass()).info(
         "  component stats = "
-            + service.getComponentStats("UMLS", "latest", Branch.ROOT));
+            + service.getComponentStats("MTH", "latest", Branch.ROOT));
     service.close();
     service.closeFactory();
 

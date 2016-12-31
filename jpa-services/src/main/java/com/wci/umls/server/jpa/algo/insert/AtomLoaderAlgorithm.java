@@ -44,6 +44,15 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
+  /** The add count. */
+  private int addCount = 0;
+
+  /** The update count. */
+  private int updateCount = 0;
+
+  /** The mapset add count. */
+  private int mapsetAddCount = 0;
+
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
    *
@@ -94,10 +103,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
-
-    // Count number of added and updated Atoms, for logging
-    int addCount = 0;
-    int updateCount = 0;
 
     try {
 
@@ -307,6 +312,9 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
       logInfo("[AtomLoader] Added " + addCount + " new Atoms.");
       logInfo("[AtomLoader] Updated " + updateCount + " existing Atoms.");
+      if (mapsetAddCount != 0) {
+        logInfo("[AtomLoader] Added " + addCount + " new Mapsets.");
+      }
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -346,12 +354,14 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       mapSet.setPublished(false);
       mapSet.setPublishable(true);
       mapSet.setName("");
-      mapSet.setTerminology(getProcess().getTerminology());
-      mapSet.setFromTerminology(getProcess().getTerminology());
-      mapSet.setVersion(getProcess().getVersion());
+      mapSet.setLastModifiedBy(getLastModifiedBy());
+      mapSet.setTerminology("");
+      mapSet.setFromTerminology("");
+      mapSet.setVersion("");
       mapSet.setTerminologyId("");
 
       mapSet = addMapSet(mapSet);
+      mapsetAddCount++;
 
       // Cache the mapSet, so MappingsLoaderAlgorithm can look it up later
       putMapSet(atom.getAlternateTerminologyIds()
@@ -452,7 +462,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         addConcept(newConcept);
         putComponent(newConcept, newConcept.getTerminologyId());
 
-        // If this atom is associated with a mapSet, update its
+        // If this atom is associated with a mapSet, update it
         if (getCachedMapSet(atom.getAlternateTerminologyIds()
             .get(getProject().getTerminology() + "-SRC")) != null) {
           MapSet mapSet = getCachedMapSet(atom.getAlternateTerminologyIds()

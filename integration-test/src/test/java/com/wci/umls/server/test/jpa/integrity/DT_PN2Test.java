@@ -85,11 +85,11 @@ public class DT_PN2Test extends IntegrationUnitSupport {
 
     // Get three concepts that have MTH atoms
     conceptMultiMTHPN =
-        contentService.getConcept("C0004604", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004604", "MTH", "latest", Branch.ROOT);
     conceptSingleMTHPN =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptNoMTHPN =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
     // Set all MTH atoms in conceptMultiMTHPN to have TermType PN
     for (Atom atom : conceptMultiMTHPN.getAtoms()) {

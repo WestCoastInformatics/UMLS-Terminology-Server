@@ -97,12 +97,12 @@ public class MGV_SDUITest extends IntegrationUnitSupport {
     // Get two UMLS concepts with previously released atoms,
     // and create a new concept
     concept1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     concept2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
     ConceptJpa c = new ConceptJpa(
-        contentService.getConcept("C0000074", "UMLS", "latest", Branch.ROOT),
+        contentService.getConcept("C0000074", "MTH", "latest", Branch.ROOT),
         false);
     c.setId(null);
     c = (ConceptJpa) contentService.addConcept(c);

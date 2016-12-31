@@ -119,11 +119,11 @@ public class MGV_NCIPNTest extends IntegrationUnitSupport {
 
     // Get three UMLS concepts, and add retrieve NCIMTH/PN atoms to two
     conceptNCIPN1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptNCIPN2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
     conceptNoNCIPN =
-        contentService.getConcept("C0000734", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000734", "MTH", "latest", Branch.ROOT);
 
     // Add the atoms to the respective concepts
     conceptNCIPN1.getAtoms().add(atomNCIMTH1);

@@ -79,9 +79,9 @@ public class DT_I2Test extends IntegrationUnitSupport {
 
     // Get two concepts with atoms
     conceptMergedAtom =
-        contentService.getConcept("C0004604", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004604", "MTH", "latest", Branch.ROOT);
     conceptNoMergedAtoms =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
 
     // Set one atom in conceptMergedAtom to appear to have been merged by the
     // merge engine

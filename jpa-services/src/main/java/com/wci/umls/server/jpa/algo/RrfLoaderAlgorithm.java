@@ -139,14 +139,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The prefix. */
   private String prefix = "MR";
 
-  /**
-   * An SAB used in a Metathesaurus that really should belong to
-   * getTerminology().
-   */
-  /** e.g. MTH is really UMLS */
-  // TODO: should be configurable
-  private String proxyTerminology = "MTH";
-
   /** The load style **/
   private Style style = null;
 
@@ -285,15 +277,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   }
 
   /**
-   * Sets the proxy flag.
-   *
-   * @param proxyTerminology the proxy flag
-   */
-  public void setProxyTerminology(String proxyTerminology) {
-    this.proxyTerminology = proxyTerminology;
-  }
-
-  /**
    * Sets the prefix.
    *
    * @param prefix the prefix
@@ -375,9 +358,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     // Load MRDOC data
-    if (style != Style.MULTI) {
-      loadMrdoc();
-    }
+    loadMrdoc();
 
     // Load MRSAB data
     cacheExistingTerminologies();
@@ -392,6 +373,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Load the content
     list = getPrecedenceList(getTerminology(), getVersion());
+    // lazy initialize?
+    list.getPrecedence().getKeyValuePairs().size();
     loadMrconso();
 
     // Definitions
@@ -418,7 +401,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       loadHistory();
     }
 
-    // Mappings - only for non-single mode
+    // Mappings - only for non-single mode (multi?)
     if (style != Style.SINGLE) {
       loadMrmap();
     }
@@ -1030,6 +1013,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     }
 
+    // TODO: If we're in "multi" mode, get rid of the data structures
+    // loaded with the terminology/version
   }
 
   /**
@@ -1110,14 +1095,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // States;20892-4879;kilbourj@mail.nlm.nih.gov|0|1969|278||BN,BPCK,DF,GPCK,IN,MIN,OCD,PIN,PSN,SBD,SBDC,SBDF,SCD,SCDC,SCDF,SCDG,SY,TMSY|AMBIGUITY_FLAG,NDC,ORIG_AMBIGUITY_FLAG,ORIG_CODE,ORIG_SOURCE,ORIG_TTY,ORIG_VSAB,RXAUI,RXCUI,RXN_ACTIVATED,RXN_AVAILABLE_STRENGTH,RXN_BN_CARDINALITY,RXN_HUMAN_DRUG,RXN_OBSOLETED,RXN_QUANTITY,RXN_STRENGTH,RXTERM_FORM|ENG|UTF-8|Y|Y|RXNORM|RxNorm;META2014AA
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
-      // SKIP SABIN=N - may be an issue later for maps.
-      if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
-        // Logger.getLogger(getClass()).info(" Skip terminology " + fields[2]);
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[3].equals("SRC")) {
         continue;
       }
 
+      // DONT do this anymore
+      // // SKIP SABIN=N - may be an issue later for maps.
+      // if (fields[22].equals("N") && !fields[3].equals(proxyTerminology)) {
+      // // Logger.getLogger(getClass()).info(" Skip terminology " + fields[2]);
+      // continue;
+      // }
+
       // Set up sourceMetadataMap for fields[3]
-      if (!fields[22].equals("N") || fields[3].equals(proxyTerminology)) {
+      if (!fields[22].equals("N") || fields[3].equals(getTerminology())) {
         final Map<String, Set<String>> typeAbbrMap = new HashMap<>();
         // NO need to worry about "label sets" or "general entries" here.
         for (final String type : new String[] {
@@ -1432,6 +1423,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && !fields[9].equals("SAB")) {
         continue;
       }
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[9].equals("SRC")) {
+        continue;
+      }
 
       // Skip LT attributes entirely
       // There are issues with the SAB of the atom and the SAB of the LT
@@ -1501,6 +1496,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else if (fields[4].equals("AUI")) {
         // Get the concept for the AUI
         Atom atom = getAtom(atomIdMap.get(fields[3]));
+        // These are likely attributes on SRC thing, skip
+        if (atom == null && style == Style.MULTI) {
+          continue;
+        }
         atom.getAttributes().add(att);
         addAttribute(att, atom);
       }
@@ -1906,7 +1905,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final Mapping mapping = new MappingJpa();
 
       // look up mapSet from MAPSETCUI
-      MapSet mapSet = mapSetMap.get(fields[0]);
+      final MapSet mapSet = mapSetMap.get(fields[0]);
       mapping.setMapSet(mapSet);
       mapping.setGroup(fields[2]);
       mapping.setRank(fields[3]);
@@ -1936,7 +1935,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapping.setPublished(true);
       mapping.setPublishable(true);
       // If really a metathesaurus mapping, use terminology/version
-      if (fields[1].equals(proxyTerminology)) {
+      if (fields[1].equals(getTerminology())) {
         mapping.setTerminology(getTerminology());
         mapping.setVersion(getVersion());
       }
@@ -1947,40 +1946,40 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // Set terminology ids
       mapping.setTerminologyId(fields[5]);
-      if (fields[4] != null && !fields[4].equals("")) {
+      if (!fields[4].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology(), fields[4]);
       }
-      if (fields[6] != null && !fields[6].equals("")) {
+      if (!fields[6].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
-            fields[4]);
+            fields[6]);
       }
-      if (fields[7] != null && !fields[7].equals("")) {
+      if (!fields[7].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
-            fields[4]);
+            fields[7]);
       }
-      if (fields[14] != null && !fields[14].equals("")) {
+      if (!fields[14].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
-            fields[4]);
+            fields[14]);
       }
-      if (fields[15] != null && !fields[15].equals("")) {
+      if (!fields[15].equals("")) {
         mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
-            fields[4]);
+            fields[15]);
       }
 
       // Make mapping attributes
-      if (fields[10] != null && !fields[10].equals("")) {
+      if (!fields[10].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRULE", fields[10]));
       }
-      if (fields[11] != null && !fields[11].equals("")) {
+      if (!fields[11].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "FROMRES", fields[11]));
       }
-      if (fields[18] != null && !fields[18].equals("")) {
+      if (!fields[18].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORULE", fields[18]));
       }
-      if (fields[19] != null && !fields[19].equals("")) {
+      if (!fields[19].equals("")) {
         mapping.getAttributes()
             .add(makeAttribute(mapping, "TORES", fields[19]));
       }
@@ -2034,6 +2033,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void processMapSetAttribute(String[] fields) throws Exception {
     final String cui = fields[0];
+    final String aui = fields[3];
     final String atn = fields[8];
     final String atv = fields[10];
 
@@ -2041,9 +2041,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (!mapSetMap.containsKey(cui)) {
       mapset = new MapSetJpa();
       mapSetMap.put(cui, mapset);
-      // Set map set name to preferred name of the cui
-      mapset.setName(
-          getConcept(conceptIdMap.get(getTerminology() + cui)).getName());
+      // Set map set name to name of the atom (in case no MAPSETNAME attribute)
+      mapset.setName(getAtom(atomIdMap.get(aui)).getName());
     }
     mapset = mapSetMap.get(cui);
     if (atn.equals("MAPSETNAME")) {
@@ -2067,7 +2066,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setFromTerminology(getTerminology());
         mapset.setFromVersion(getVersion());
       } else {
@@ -2080,7 +2079,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
 
     } else if (atn.equals("FROMVSAB")) {
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setFromTerminology(getTerminology());
         mapset.setFromVersion(getVersion());
       } else {
@@ -2099,7 +2098,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // n/a - no need for this anymore - inverters should stop making it
     } else if (atn.equals("MAPSETRSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setTerminology(getTerminology());
         mapset.setVersion(getVersion());
       }
@@ -2119,7 +2118,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapset.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
       // If really a metathesaurus mapping, use terminology/version
-      if (atv.equals(proxyTerminology)) {
+      if (atv.equals(getTerminology())) {
         mapset.setTerminology(getTerminology());
         mapset.setVersion(getVersion());
       }
@@ -2421,8 +2420,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line1, "|", 9, fields);
 
       // Skip non-matching in single mode
-      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
-          && !fields[10].equals("SAB")) {
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())) {
         continue;
       }
 
@@ -2488,8 +2486,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       FieldedStringTokenizer.split(line2, "|", 9, fields);
 
       // Skip non-matching in single mode
-      if (style == Style.SINGLE && !fields[4].equals(getTerminology())
-          && !fields[10].equals("SAB")) {
+      if (style == Style.SINGLE && !fields[4].equals(getTerminology())) {
         continue;
       }
 
@@ -2515,10 +2512,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           ptr += "." + anc;
         }
 
-        final String key = fields[4] + fields[5] + ptr;
-
         // Get atom for the PTR part
         final Atom atom = getAtom(atomIdMap.get(anc));
+
+        // If multi, and top-level atom is null, skip it
+        if (style == Style.MULTI && atom == null && ancPath == null) {
+          continue;
+        }
+
+        // Skip top-level SRC atoms
+        if (atom.getTerminology().equals("SRC") && ancPath == null) {
+          continue;
+        }
+
+        final String key = fields[4] + fields[5] + ptr;
         if (ancPath == null) {
           ancPath = atom.getId().toString();
         } else {
@@ -2559,8 +2566,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       final String key = fields[4] + fields[5] + fields[6]
           + (fields[6].equals("") ? "" : ".") + fields[1];
+
       // Get atom for the PTR part
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
+
+      // If multi, and top-level atom is null, skip it
+      if (style == Style.MULTI && atom == null && ancPath == null) {
+        continue;
+      }
+
+      // Skip top-level SRC atoms
+      if (atom.getTerminology().equals("SRC") && ancPath == null) {
+        continue;
+      }
+
       if (ancPath == null) {
         ancPath = atom.getId().toString();
       } else {
@@ -2618,7 +2637,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && !fields[10].equals("SAB")) {
         continue;
       }
-
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[10].equals("SRC")) {
+        continue;
+      }
       // Field description
       // 0 CUI1
       // 1 AUI1
@@ -2654,9 +2676,18 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final AtomRelationship aRel = new AtomRelationshipJpa();
 
         final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+        // These are likely relationships to SRC thing, skip
+        if (fromAtom == null && style == Style.MULTI
+            && fields[3].equals("PAR")) {
+          continue;
+        }
         aRel.setFrom(fromAtom);
 
         final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+        // These are likely relationships to SRC thing, skip
+        if (toAtom == null && style == Style.MULTI && fields[3].equals("CHD")) {
+          continue;
+        }
         aRel.setTo(toAtom);
 
         setRelationshipFields(fields, aRel);
@@ -2772,14 +2803,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         String stype1 = fields[2];
         String stype2 = fields[6];
 
-        // Skip if CUI and not in meta mode
-        if (!style.toString().startsWith("META")
-            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+        // Skip if SINGLE
+        if (style == Style.SINGLE) {
           continue;
         }
 
-        // Skip if SINGLE
-        if (style == Style.SINGLE) {
+        // Skip if CUI and not in meta mode
+        if (!style.toString().startsWith("META")
+            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
           continue;
         }
 
@@ -2813,8 +2844,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype2.equals("AUI")) {
           final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+          // These are likely relationships to SRC thing, skip
+          if (fromAtom == null && style == Style.MULTI
+              && fields[3].equals("PAR")) {
+            continue;
+          }
           from = new ComponentInfoJpa();
-          from.setTerminologyId(fromAtom.getTerminologyId());
+          from.setTerminologyId(fields[5]);
           from.setType(IdType.ATOM);
         }
 
@@ -2845,8 +2881,13 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         } else if (stype1.equals("AUI")) {
           final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+          // These are likely relationships to SRC thing, skip
+          if (toAtom == null && style == Style.MULTI
+              && fields[3].equals("CHD")) {
+            continue;
+          }
           to = new ComponentInfoJpa();
-          to.setTerminologyId(toAtom.getTerminologyId());
+          to.setTerminologyId(fields[1]);
           to.setType(IdType.ATOM);
 
         }
@@ -3028,6 +3069,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Skip non-matching in single mode
       if (style == Style.SINGLE && !fields[11].equals(getTerminology())) {
+        continue;
+      }
+
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[11].equals("SRC")) {
         continue;
       }
 
@@ -3673,9 +3719,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
     if (p.getProperty("style") != null) {
       style = Style.valueOf(p.getProperty("style"));
-    }
-    if (p.getProperty("proxyTerminology") != null) {
-      proxyTerminology = p.getProperty("proxyTerminology");
     }
     if (p.getProperty("inputDir") != null) {
       setInputPath(p.getProperty("inputDir"));

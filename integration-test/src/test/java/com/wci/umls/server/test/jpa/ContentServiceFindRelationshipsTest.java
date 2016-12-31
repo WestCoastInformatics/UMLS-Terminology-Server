@@ -56,12 +56,12 @@ public class ContentServiceFindRelationshipsTest extends IntegrationUnitSupport 
     // latest 0 0 1 RO 1 PUBLISHED 113624 2801
 
     RelationshipList list =
-        service.findConceptRelationships("C0364349", "UMLS", "latest",
+        service.findConceptRelationships("C0364349", "MTH", "latest",
             Branch.ROOT, null, false, null);
     assertEquals(1, list.size());
 
     list =
-        service.findConceptRelationships("C0364349", "UMLS", "latest",
+        service.findConceptRelationships("C0364349", "MTH", "latest",
             Branch.ROOT, "relationshipType:RO", false, null);
     assertEquals(1, list.size());
   }

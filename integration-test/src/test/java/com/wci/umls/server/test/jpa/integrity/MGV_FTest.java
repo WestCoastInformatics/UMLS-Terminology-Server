@@ -81,11 +81,11 @@ public class MGV_FTest extends IntegrationUnitSupport {
 
     // Get two UMLS concepts connected by MSH relationships, and one that is not
     conceptMSHRelated1 =
-        contentService.getConcept("C0044971", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0044971", "MTH", "latest", Branch.ROOT);
     conceptMSHRelated2 =
-        contentService.getConcept("C0020387", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0020387", "MTH", "latest", Branch.ROOT);
     conceptMSHUnrelated =
-        contentService.getConcept("C0338361", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0338361", "MTH", "latest", Branch.ROOT);
 
   }
 

@@ -57,7 +57,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(sFetchMode.JOIN)
+  // consider this: @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
 

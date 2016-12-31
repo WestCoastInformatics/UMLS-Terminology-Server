@@ -137,13 +137,13 @@ public class MGV_GTest extends IntegrationUnitSupport {
     // Get four UMLS concepts with no MSH/MH atoms, and add retrieve MSH/MH
     // atoms
     conceptMSHCurrent1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptMSHCurrent2 =
-        contentService.getConcept("C0004611", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0004611", "MTH", "latest", Branch.ROOT);
     conceptMSHPrevious3 =
-        contentService.getConcept("C0338361", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0338361", "MTH", "latest", Branch.ROOT);
     conceptNoMSH =
-        contentService.getConcept("C0000734", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000734", "MTH", "latest", Branch.ROOT);
 
     // Add the atoms to the respective concepts
     conceptMSHCurrent1.getAtoms().add(atomMSH1);

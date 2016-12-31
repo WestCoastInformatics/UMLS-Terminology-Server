@@ -79,7 +79,7 @@ public class GetConceptByTerminologyIdTest extends ExampleSupport {
 
     // Identify
     String terminologyId = "C0018787";
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // contentClient is defined and initialized in the superclass

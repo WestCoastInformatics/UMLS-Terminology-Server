@@ -42,7 +42,21 @@
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false" />
         </td>
-        <td ng-show="parameter.type == 'TEXT'">
+        <!-- textarea for a query -->
+        <td
+          ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+          <span ng-show="parameter.name.indexOf('Query') != -1">
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName)">Test</span>
+          </span>
+        </td>
+        <!-- normal textarea -->
+        <td
+          ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') == -1">
           <textarea ng-model="parameter.value" rows="4" class="w100"
             title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"

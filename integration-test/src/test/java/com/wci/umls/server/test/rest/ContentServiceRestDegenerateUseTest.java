@@ -48,7 +48,7 @@ public class ContentServiceRestDegenerateUseTest extends ContentServiceRestTest 
   private String mshVersion = "2016_2016_02_26";
 
   /** The umls terminology. */
-  private String umlsTerminology = "UMLS";
+  private String umlsTerminology = "MTH";
 
   /** The umls version. */
   private String umlsVersion = "latest";

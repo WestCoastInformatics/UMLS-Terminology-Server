@@ -49,10 +49,12 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
@@ -2345,6 +2347,108 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "trying to return a new algorithm config");
       return null;
+    } finally {
+      processService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked", "rawtypes"
+  })
+  @Override
+  @GET
+  @Path("testquery")
+  @Produces("text/plain")
+  @ApiOperation(value = "Test query", notes = "Attempts to run a query and returns whether it works or not.")
+  public Integer testQuery(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Process id, e.g. 12345", required = true) @QueryParam("processId") Long processId,
+    @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryTypeName") String queryTypeName,
+    @ApiParam(value = "Query, e.g. select a.id from AtomJpa a", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Object type name, e.g. AtomJpa", required = false) @QueryParam("objectTypeName") String objectTypeName,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Process): /testquery?projectId=" + projectId
+            + "&processId=" + processId + ", " + query + " for user "
+            + authToken);
+
+    if (projectId == null) {
+      throw new Exception("Error: project id must be set.");
+    }
+    if (processId == null) {
+      throw new Exception("Error: process id must be set.");
+    }
+    if (ConfigUtility.isEmpty(queryTypeName)) {
+      throw new Exception("Error: query type name must be set.");
+    }
+    if (ConfigUtility.isEmpty(query)) {
+      throw new Exception("Error: query must be set.");
+    }
+
+    final ProcessService processService = new ProcessServiceJpa();
+    try {
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken, "testing a query", UserRole.AUTHOR);
+      processService.setLastModifiedBy(userName);
+
+      // If the object type isn't passed in, we can assign it based on the query
+      // type
+      if (ConfigUtility.isEmpty(objectTypeName)) {
+        if (queryTypeName.equals("LUCENE")) {
+          objectTypeName = "ConceptJpa";
+        } else if (queryTypeName.equals("SQL") || queryTypeName.equals("JQL")) {
+          objectTypeName = "AtomJpa";
+        } else {
+          throw new LocalException(
+              "Query Type " + queryTypeName + " is unsupported.");
+        }
+      }
+
+      final ProcessConfig process = processService.getProcessConfig(processId);
+      final String componentPath = AtomJpa.class.getName().substring(0,
+          AtomJpa.class.getName().indexOf("AtomJpa"));
+      Class clazz = Class.forName(componentPath + objectTypeName);
+
+      // Generate parameters to pass into query executions
+      Map<String, String> params = new HashMap<>();
+      params.put("terminology", process.getTerminology());
+      params.put("version", process.getVersion());
+      params.put("projectTerminology",
+          processService.getProject(projectId).getTerminology());
+      params.put("projectVersion",
+          processService.getProject(projectId).getVersion());
+
+      final List<Long[]> componentIds = new ArrayList<>();
+      int exceptionCount = 0;
+
+      try {
+        componentIds.addAll(processService.executeComponentIdPairQuery(query,
+            QueryType.valueOf(queryTypeName), params, clazz));
+      } catch (Exception e) {
+        exceptionCount++;
+      }
+      // Only run single component query if the pairQuery returned an exception
+      if (exceptionCount == 1) {
+        try {
+          componentIds.addAll(processService.executeSingleComponentIdQuery(
+              query, QueryType.valueOf(queryTypeName), params, clazz));
+        } catch (Exception e) {
+          exceptionCount++;
+        }
+      }
+
+      // If both of the queries threw exceptions, this query was malformed.
+      if (exceptionCount == 2) {
+        throw new LocalException("Query malformed: " + query);
+      }
+      // If either of the queries ran successfully, return the number of results
+      else {
+        return componentIds.size();
+      }
     } finally {
       processService.close();
       securityService.close();

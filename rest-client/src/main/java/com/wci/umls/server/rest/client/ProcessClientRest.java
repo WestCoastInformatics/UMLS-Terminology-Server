@@ -170,7 +170,7 @@ public class ProcessClientRest extends RootClientRest
     PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - find processConfigs " + query);
+        .debug("Process Client - find processConfigs " + query);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -231,7 +231,7 @@ public class ProcessClientRest extends RootClientRest
     String query, PfsParameterJpa pfs, String authToken) throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - find processExecutions " + query);
+        .debug("Process Client - find processExecutions " + query);
 
     validateNotEmpty(projectId, "projectId");
 
@@ -264,7 +264,7 @@ public class ProcessClientRest extends RootClientRest
     String authToken) throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - find currently executing processes ");
+        .debug("Process Client - find currently executing processes ");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -628,7 +628,7 @@ public class ProcessClientRest extends RootClientRest
   public Long executeProcess(Long projectId, Long id, Boolean background,
     String authToken) throws Exception {
 
-    Logger.getLogger(getClass()).debug("Project Client - execute process");
+    Logger.getLogger(getClass()).debug("Process Client - execute process");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -657,7 +657,7 @@ public class ProcessClientRest extends RootClientRest
     Boolean background, String authToken) throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - run next step of algo");
+        .debug("Process Client - run next step of algo");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -686,7 +686,7 @@ public class ProcessClientRest extends RootClientRest
     throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Project Client - find progress of currently executing algorithm");
+        "Process Client - find progress of currently executing algorithm");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -757,7 +757,7 @@ public class ProcessClientRest extends RootClientRest
     String authToken) throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - restart a previously canceled process");
+        .debug("Process Client - restart a previously canceled process");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -786,7 +786,7 @@ public class ProcessClientRest extends RootClientRest
     throws Exception {
 
     Logger.getLogger(getClass())
-        .debug("Project Client - find progress of currently executing process");
+        .debug("Process Client - find progress of currently executing process");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -814,7 +814,7 @@ public class ProcessClientRest extends RootClientRest
     throws Exception {
 
     Logger.getLogger(getClass()).debug(
-        "Project Client - find progress of currently executing algorithm");
+        "Process Client - find progress of currently executing algorithm");
 
     validateNotEmpty(projectId, "projectId");
 
@@ -837,18 +837,18 @@ public class ProcessClientRest extends RootClientRest
   }
 
   @Override
-  public String getProcessLog(Long projectId, Long processExecutionId, String query,
-    String authToken) throws Exception {
+  public String getProcessLog(Long projectId, Long processExecutionId,
+    String query, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Project Client - find log entries of specified process execution");
+        "Process Client - find log entries of specified process execution");
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(processExecutionId, "processExecutionId");
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/" + processExecutionId + "/log?projectId=" + projectId+ "&query="
-        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        + "/process/" + processExecutionId + "/log?projectId=" + projectId
+        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
             .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -865,10 +865,10 @@ public class ProcessClientRest extends RootClientRest
   }
 
   @Override
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query,
-    String authToken) throws Exception {
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId,
+    String query, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Project Client - find log entries of specified process execution");
+        "Process Client - find log entries of specified process execution");
 
     validateNotEmpty(projectId, "projectId");
     validateNotEmpty(algorithmExecutionId, "algorithmExecutionId");
@@ -877,7 +877,7 @@ public class ProcessClientRest extends RootClientRest
     final WebTarget target =
         client.target(config.getProperty("base.url") + "/process/algo/"
             + algorithmExecutionId + "/log?projectId=" + projectId + "&query="
-                + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+            + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
@@ -954,6 +954,35 @@ public class ProcessClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
     return in;
+  }
+
+  @Override
+  public Integer testQuery(Long projectId, Long processId, String queryTypeName,
+    String query, String objectTypeName, String authToken) throws Exception {
+
+    Logger.getLogger(getClass()).debug("Process Client - test query execution");
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(processId, "processId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/process/testquery?projectId=" + projectId + "&processId="
+        + processId + "&queryTypeName=" + queryTypeName + "&query="
+        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        + (objectTypeName == null ? "" : "&objectTypeName=" + objectTypeName));
+    final Response response = target.request(MediaType.TEXT_PLAIN)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return Integer.parseInt(resultString);
   }
 
 }

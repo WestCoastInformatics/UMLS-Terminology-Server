@@ -79,7 +79,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
     final SearchResultList unreviewedConcepts =
-        findConcepts(getProject().getTerminology(), getProject().getVersion(),
+        findConceptSearchResults(getProject().getTerminology(), getProject().getVersion(),
             Branch.ROOT, " workflowStatus:NEEDS_REVIEW", pfs);
     if (unreviewedConcepts.size() > 0) {
       result.addError(

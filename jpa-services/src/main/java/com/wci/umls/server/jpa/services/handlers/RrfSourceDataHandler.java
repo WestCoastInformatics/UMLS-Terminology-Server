@@ -277,7 +277,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
       contentService = new ContentServiceJpa();
 
       // concepts must exist with this terminology/version
-      if (contentService.findConcepts(sourceData.getTerminology(),
+      if (contentService.findConceptSearchResults(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() > 0) {
         result.addError("Unexpected lack of concepts for "

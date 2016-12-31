@@ -91,10 +91,10 @@ public class MGV_MTest extends IntegrationUnitSupport {
     // Get two concepts that both contain publishable "NEC" atoms from terminology ICD9CM, and 
     // one with "NEC" atoms from terminology CST  
     conceptICD9CM1 =
-        contentService.getConcept("C0003123", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0003123", "MTH", "latest", Branch.ROOT);
     conceptICD9CM2 =
-        contentService.getConcept("C0029592", "UMLS", "latest", Branch.ROOT);
-    conceptCST = contentService.getConcept("C0549512", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0029592", "MTH", "latest", Branch.ROOT);
+    conceptCST = contentService.getConcept("C0549512", "MTH", "latest", Branch.ROOT);
 
     
   }    

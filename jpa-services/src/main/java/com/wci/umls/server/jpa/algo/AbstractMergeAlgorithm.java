@@ -24,6 +24,7 @@ import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 
 /**
  * Abstract support for merge algorithms.
@@ -137,6 +138,9 @@ public abstract class AbstractMergeAlgorithm
       // If the action failed, log the failure, and make a demotion if
       // makeDemotion=true.
       if (!validationResult.isValid()) {
+        statsMap.put("unsuccessfulMerges",
+            statsMap.get("unsuccessfulMerges") + 1);
+
         addLogEntry(getLastModifiedBy(), getProject().getId(),
             fromConcept.getId(), getActivityId(), getWorkId(),
             "FAIL " + action.getName() + " concept " + fromConcept.getId()
@@ -149,6 +153,22 @@ public abstract class AbstractMergeAlgorithm
                 + validationResult);
 
         if (makeDemotion) {
+          // If from and to concepts have a relationship between them,
+          // do NOT make demotion, and add log entry saying why
+          for (ConceptRelationship rel : fromConcept.getRelationships()) {
+            if (rel.getTo().getId() == toConcept.getId()) {
+              addLogEntry(getLastModifiedBy(), getProject().getId(),
+                  fromConcept.getId(), getActivityId(), getWorkId(),
+                  "Did not create demotion to concept " + toConcept.getId()
+                      + " - relationship between concepts already exist.");
+              addLogEntry(getLastModifiedBy(), getProject().getId(),
+                  toConcept.getId(), getActivityId(), getWorkId(),
+                  "Did not create demotion from concept " + fromConcept.getId()
+                      + " - relationship between concepts already exist.");
+              return;
+            }
+          }
+
           final AddDemotionMolecularAction action2 =
               new AddDemotionMolecularAction();
           action2.setTransactionPerOperation(false);
@@ -169,21 +189,17 @@ public abstract class AbstractMergeAlgorithm
           // If there is already a demotion between these two atoms, it will
           // return a validation error
           if (!demotionValidationResult.isValid()) {
+            statsMap.put("unsuccessfulDemotions",
+                statsMap.get("unsuccessfulDemotions") + 1);
+
             addLogEntry(getLastModifiedBy(), getProject().getId(),
                 fromConcept.getId(), getActivityId(), getWorkId(),
-                "FAIL " + action2.getName() + " to concept "
-                    + fromConcept.getId() + ": " + demotionValidationResult);
+                "FAIL " + action2.getName() + " to concept " + toConcept.getId()
+                    + ": " + demotionValidationResult);
             addLogEntry(getLastModifiedBy(), getProject().getId(),
                 toConcept.getId(), getActivityId(), getWorkId(),
                 "FAIL " + action2.getName() + " from concept "
                     + fromConcept.getId() + ": " + demotionValidationResult);
-
-            addLogEntry(getLastModifiedBy(), getProject().getId(),
-                fromConcept.getId(), getActivityId(), getWorkId(),
-                "" + demotionValidationResult);
-
-            statsMap.put("unsuccessfulDemotions",
-                statsMap.get("unsuccessfulDemotions") + 1);
           }
           // Otherwise, the demotion was successfully added
           else {
@@ -192,9 +208,6 @@ public abstract class AbstractMergeAlgorithm
           }
           action2.close();
         }
-
-        statsMap.put("unsuccessfulMerges",
-            statsMap.get("unsuccessfulMerges") + 1);
         return;
       }
       // Otherwise, it was successful.

@@ -401,4 +401,19 @@ public interface ProcessServiceRest {
   public AlgorithmConfig newAlgorithmConfig(Long projectId, Long processId,
     String key, String authToken) throws Exception;
 
+  /**
+   * Test query.
+   *
+   * @param projectId the project id
+   * @param processId the process id
+   * @param queryTypeName the query type name
+   * @param query the query
+   * @param objectTypeName the object type name
+   * @param authToken the auth token
+   * @return the integer
+   * @throws Exception the exception
+   */
+  public Integer testQuery(Long projectId, Long processId, String queryTypeName,
+    String query, String objectTypeName, String authToken) throws Exception;
+
 }

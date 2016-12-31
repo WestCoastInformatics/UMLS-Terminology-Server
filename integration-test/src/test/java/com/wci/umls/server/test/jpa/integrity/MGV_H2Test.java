@@ -85,13 +85,13 @@ public class MGV_H2Test extends IntegrationUnitSupport {
     // with
     // no D/C "MSH" atoms, and one with no "MSH" atoms at all.
     conceptMSH_DC1 =
-        contentService.getConcept("C0021734", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0021734", "MTH", "latest", Branch.ROOT);
     conceptMSH_DC2 =
-        contentService.getConcept("C0044444", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0044444", "MTH", "latest", Branch.ROOT);
     conceptMSHNoDC =
-        contentService.getConcept("C0002784", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0002784", "MTH", "latest", Branch.ROOT);
     conceptNoMSH =
-        contentService.getConcept("C0000734", "UMLS", "latest", Branch.ROOT);
+        contentService.getConcept("C0000734", "MTH", "latest", Branch.ROOT);
 
 
   }

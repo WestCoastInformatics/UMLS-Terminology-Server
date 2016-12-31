@@ -140,6 +140,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       conceptsToChange.addAll(makeUnpublishable);
       conceptsToChange.addAll(makeReviewed);
       conceptsToChange.addAll(makeNeedsReview);
+      conceptsToChange.addAll(failures);
 
       int prevProgress = 60;
       int statusChangeCt = 0;
@@ -162,14 +163,14 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           publishable = true;
           logInfo("  publishable change  = " + concept.getId());
           publishableChangeCt++;
-          found = false;
+          found = true;
         }
 
         if (makeUnpublishable.contains(conceptId)) {
           publishable = false;
           logInfo("  publishable change  = " + concept.getId());
           publishableChangeCt++;
-          found = false;
+          found = true;
         }
 
         WorkflowStatus status = null;
@@ -177,14 +178,22 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           status = WorkflowStatus.READY_FOR_PUBLICATION;
           logInfo("  status change  = " + concept.getId());
           statusChangeCt++;
-          found = false;
+          found = true;
         }
 
         if (makeNeedsReview.contains(conceptId)) {
           status = WorkflowStatus.NEEDS_REVIEW;
           statusChangeCt++;
           logInfo("  status change  = " + concept.getId());
-          found = false;
+          found = true;
+        }
+
+        if (failures.contains(conceptId)
+            && concept.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
+          status = WorkflowStatus.NEEDS_REVIEW;
+          statusChangeCt++;
+          logInfo("  status change (failure)  = " + concept.getId());
+          found = true;
         }
 
         // If changing concept, change it

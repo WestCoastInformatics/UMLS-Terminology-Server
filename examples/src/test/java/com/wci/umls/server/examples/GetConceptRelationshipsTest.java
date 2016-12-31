@@ -96,7 +96,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Identify
     String terminologyId = "C0000294";
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // contentClient is defined and initialized in the superclass

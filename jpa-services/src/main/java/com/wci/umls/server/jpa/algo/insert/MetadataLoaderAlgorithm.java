@@ -185,6 +185,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       handleAdditionalRelationshipTypes();
       updateProgress();
 
+      commitClearBegin();      
+      
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());
@@ -235,7 +237,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     // Each line of sources.src corresponds to one terminology.
     // Check to make sure the terminology doesn't already exist in the database
-    // If it does, skip it.
+    // If it does, update it.
     // If it does not, add it.
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 20, fields);
@@ -964,7 +966,7 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   @Override
   public String getDescription() {
-    return "Loads and processes MRDOC.RRF into metadata objects.";
+    return "Loads and processes MRDOC.RRF and sources.src into metadata objects.";
   }
 
 }

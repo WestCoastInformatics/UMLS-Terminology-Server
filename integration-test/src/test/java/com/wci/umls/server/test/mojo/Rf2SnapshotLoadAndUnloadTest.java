@@ -61,9 +61,9 @@ public class Rf2SnapshotLoadAndUnloadTest {
    *   TEST: verify there is a ConceptJpa index with no contents.
    * Run the RRF-umls mojo against the sample config/src/resources/data/SCTMTH_2014AB" data.
    *   TEST: verify each content table exists with the expected number of entries.
-   * Create a "UMLS" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
+   * Create a "MTH" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    *   TEST: verify there is a project with the expected name
-   * Start an editing cycle for "UMLS"
+   * Start an editing cycle for "MTH"
    *   TEST: verify there is a release info with the expected name and "planned" flag equal to true.
    * Remove all terminologies
    *   TEST: verify there is a concepts table with no contents.
@@ -109,7 +109,7 @@ public class Rf2SnapshotLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0, service
-        .getAllConcepts("UMLS", "latest", Branch.ROOT).size());
+        .getAllConcepts("MTH", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
