@@ -185,28 +185,28 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // Make sure the atoms in the temporary input file were added.
       SearchResultList list =
-          contentService.findConcepts(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
+          contentService.findConceptSearchResults(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
               "atoms.nameSort:\"National Cancer Institute Thesaurus, 2016_05E\"",
               null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
+      list = contentService.findConceptSearchResults(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
           "atoms.nameSort:\"NCI_2016_05E\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"(H115D)VHL35 Peptide\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"1+ Score, WHO\"", null);
       assertEquals(1, list.size());
       
-      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"Flank\"", null);
       assertEquals(1, list.size());
       
-      list = contentService.findConcepts("NCI", "2016_05E", Branch.ROOT,
+      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
           "atoms.nameSort:\"Sancycline\"", null);
       assertEquals(1, list.size());      
       

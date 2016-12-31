@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -16,7 +16,6 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
 
 /**
@@ -87,13 +86,12 @@ public abstract class AbstractHasLastModified implements HasLastModified {
   /**
    * Returns the last modified in yyyymmdd format.
    *
-   * @return the last modified yyyymmdd
+   * @XmlTransient
+   * @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze =
+   *             Analyze.NO, store = Store.NO) public String
+   *             getLastModifiedYYYYMMDD() { return lastModified == null ? null
+   *             : ConfigUtility.DATE_FORMAT.format(lastModified); }
    */
-  @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  private String getLastModifiedYYYYMMDD() {
-    return lastModified == null ? null
-        : ConfigUtility.DATE_FORMAT.format(lastModified);
-  }
 
   /* see superclass */
   @Override

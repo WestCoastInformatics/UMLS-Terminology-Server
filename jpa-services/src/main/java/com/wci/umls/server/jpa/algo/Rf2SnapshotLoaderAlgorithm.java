@@ -811,9 +811,11 @@ public class Rf2SnapshotLoaderAlgorithm
     org.hibernate.Query hQuery = session
         .createQuery("select a from AtomJpa a " + "where conceptId is not null "
             + "and conceptId != '' and terminology = :terminology "
+            + "and version = :version "
             + "order by terminology, conceptId")
-        .setParameter("terminology", getTerminology()).setReadOnly(true)
-        .setFetchSize(1000);
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion()).setReadOnly(true)
+        .setFetchSize(2000).setCacheable(true);
     ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
     String prevCui = null;
     String prefName = null;
@@ -821,6 +823,7 @@ public class Rf2SnapshotLoaderAlgorithm
     Concept concept = null;
     while (results.next()) {
       final Atom atom = (Atom) results.get()[0];
+      System.out.println("atom=" + atom);
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }

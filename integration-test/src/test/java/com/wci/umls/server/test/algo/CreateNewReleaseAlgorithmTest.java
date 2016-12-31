@@ -92,7 +92,7 @@ public class CreateNewReleaseAlgorithmTest extends AlgoIntegrationTestSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
     final SearchResultList list =
-        getLogService().findConcepts(getProject().getTerminology(),
+        getLogService().findConceptSearchResults(getProject().getTerminology(),
             getProject().getVersion(), Branch.ROOT, null, pfs);
     final Concept concept =
         getLogService().getConcept(list.getObjects().get(0).getId());

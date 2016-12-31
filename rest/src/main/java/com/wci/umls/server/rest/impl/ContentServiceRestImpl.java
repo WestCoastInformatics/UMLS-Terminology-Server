@@ -1388,7 +1388,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findConcepts(terminology,
+      final SearchResultList sr = contentService.findConceptSearchResults(terminology,
           version, Branch.ROOT, queryStr, pfs);
       return sr;
 
@@ -1577,7 +1577,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findDescriptors(terminology,
+      final SearchResultList sr = contentService.findDescriptorSearchResults(terminology,
           version, Branch.ROOT, queryStr, pfs);
       return sr;
 
@@ -1729,7 +1729,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries returns all results
-      final SearchResultList sr = contentService.findCodes(terminology, version,
+      final SearchResultList sr = contentService.findCodeSearchResults(terminology, version,
           Branch.ROOT, queryStr, pfs);
       return sr;
 

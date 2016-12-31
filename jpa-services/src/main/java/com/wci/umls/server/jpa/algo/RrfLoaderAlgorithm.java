@@ -1423,6 +1423,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           && !fields[9].equals("SAB")) {
         continue;
       }
+      // Skip SRC content for "multi" load
+      if (style == Style.MULTI && fields[9].equals("SRC")) {
+        continue;
+      }
 
       // Skip LT attributes entirely
       // There are issues with the SAB of the atom and the SAB of the LT
@@ -1492,6 +1496,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else if (fields[4].equals("AUI")) {
         // Get the concept for the AUI
         Atom atom = getAtom(atomIdMap.get(fields[3]));
+        // These are likely attributes on SRC thing, skip
+        if (atom == null && style == Style.MULTI) {
+          continue;
+        }
         atom.getAttributes().add(att);
         addAttribute(att, atom);
       }
@@ -2558,12 +2566,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       final String key = fields[4] + fields[5] + fields[6]
           + (fields[6].equals("") ? "" : ".") + fields[1];
+
       // Get atom for the PTR part
-      System.out.println("line=" + line2);
-      System.out.println("aui=" + fields[1]);
-      System.out.println("ancPath=" + ancPath);
-      System.out.println("key=" + key);
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
+
+      // If multi, and top-level atom is null, skip it
+      if (style == Style.MULTI && atom == null && ancPath == null) {
+        continue;
+      }
+
+      // Skip top-level SRC atoms
+      if (atom.getTerminology().equals("SRC") && ancPath == null) {
+        continue;
+      }
+
       if (ancPath == null) {
         ancPath = atom.getId().toString();
       } else {

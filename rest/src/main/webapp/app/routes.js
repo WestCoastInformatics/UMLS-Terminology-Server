@@ -11,8 +11,9 @@ tsApp.run([
   'securityService',
   'appConfig',
   'tabService',
+  'utilService',
   function configureRoutes($rootScope, $location, $q, configureService, securityService, appConfig,
-    tabService) {
+    tabService, utilService) {
 
     console.debug('Configuring routes');
 
