@@ -1626,16 +1626,8 @@ public abstract class RootServiceJpa implements RootService {
     return validationHandlersMap;
   }
 
-  /**
-   * Execute query.
-   *
-   * @param query the query
-   * @param queryType the query type
-   * @param params the params
-   * @param clazz the clazz
-   * @return the list
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
   @SuppressWarnings("unchecked")
   public List<Long[]> executeComponentIdPairQuery(String query,
     QueryType queryType, Map<String, String> params,
@@ -1690,6 +1682,9 @@ public abstract class RootServiceJpa implements RootService {
           "Query must be constructed to return ids for specified object type: "
               + objectClassName);
     }
+    if (!query.toUpperCase().matches("SELECT.*ID.*,.*ID.*FROM.*")) {
+      throw new LocalException("Query must be constructed to return two ids");
+    }
 
     // Execute the query
     javax.persistence.Query jpaQuery = null;
@@ -1741,16 +1736,8 @@ public abstract class RootServiceJpa implements RootService {
     return results;
   }
 
-  /**
-   * Execute Single Component Id query.
-   *
-   * @param query the query
-   * @param queryType the query type
-   * @param params the params
-   * @param clazz the clazz
-   * @return the list
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
   @SuppressWarnings({
       "unchecked"
   })
@@ -1835,8 +1822,11 @@ public abstract class RootServiceJpa implements RootService {
     if (!query.toUpperCase()
         .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
       throw new LocalException(
-          "Query must be constructed to return ids for specified object type: "
+          "Query must be constructed to return id for specified object type: "
               + objectClassName);
+    }
+    if (!query.toUpperCase().matches("SELECT.*ID.*FROM.*")) {
+      throw new LocalException("Query must be constructed to return an id");
     }
 
     // Execute the query
@@ -1878,15 +1868,8 @@ public abstract class RootServiceJpa implements RootService {
 
   }
 
-  /**
-   * Execute query.
-   *
-   * @param query the query
-   * @param queryType the query type
-   * @param params the params
-   * @return the list
-   * @throws Exception the exception
-   */
+  /* see superclass */
+  @Override
   @SuppressWarnings("unchecked")
   public List<Long[]> executeClusteredConceptQuery(String query,
     QueryType queryType, Map<String, String> params) throws Exception {

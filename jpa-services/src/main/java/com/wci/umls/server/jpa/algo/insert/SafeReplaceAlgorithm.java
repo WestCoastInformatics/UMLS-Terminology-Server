@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.insert;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -26,6 +28,7 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.meta.TermType;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -48,6 +51,9 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
   /** The descriptor id flag. */
   private Boolean descriptorId = null;
+
+  /** The terminology. */
+  private String terminology = null;
 
   /**
    * Instantiates an empty {@link SafeReplaceAlgorithm}.
@@ -81,7 +87,18 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       throw new Exception(
           "No match-criteria are selected (e.g. code Id, concept Id, etc.).");
     }
+    
+    // Check the input directories
 
+    String srcFullPath =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
+      throw new Exception("Specified input directory does not exist");
+    }    
+    
     return validationResult;
   }
 
@@ -103,29 +120,73 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // other is new
 
     // Generate query string
-    String query = "SELECT DISTINCT a1.id, a2.id "
-        + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
-        + "WHERE NOT a1.id = a2.id "
-        + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
-        + "AND a1.terminology=:terminology AND NOT a1.version=:version "
-        + "AND a1.publishable=true "
-        + "AND a2.terminology=:terminology AND a2.version=:version "
-        + "AND a2.publishable=true "
-        + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
-        + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId " : "")
-        + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
-        + (codeId ? "AND a1.codeId = a2.codeId " : "")
-        + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "");
+    String query =
+        "SELECT DISTINCT a1.id, a2.id "
+            + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
+            + "WHERE NOT a1.id = a2.id "
+            + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
+            + "AND a1.terminology=:terminology AND NOT a1.version=:version "
+            + "AND a1.publishable=true "
+            + "AND a2.terminology=:terminology AND a2.version=:version "
+            + "AND a2.publishable=true "
+            + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
+            + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId "
+                : "")
+            + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
+            + (codeId ? "AND a1.codeId = a2.codeId " : "")
+            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "");
 
-    // Generate parameters to pass into query executions
-    Map<String, String> params = new HashMap<>();
-    params.put("terminology", this.getTerminology());
-    params.put("version", this.getVersion());
-    params.put("projectTerminology", getProject().getTerminology());
-    params.put("projectVersion", getProject().getVersion());
+    // If terminology is not set, run the query for ALL terminologies referenced
+    // in sources.src, and add all results to atomIdPairArray
+    // If terminology is set, run the query once for that terminology.
 
-    final List<Long[]> atomIdPairArray = executeComponentIdPairQuery(query,
-        QueryType.JQL, params, AtomJpa.class);
+    List<Long[]> atomIdPairArray = new ArrayList<>();
+
+    if (ConfigUtility.isEmpty(terminology)) {
+
+      // Open sources.src and pull all terminologies
+      List<Terminology> terminologies = new ArrayList<>();
+
+      List<String> lines =
+          loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+
+      for (final String line : lines) {
+        final String terminologyAndVersion =
+            line.substring(0, line.indexOf('|'));
+        final Terminology terminology =
+            getCachedTerminology(terminologyAndVersion);
+        if (terminology == null) {
+          logWarn("Warning - terminology not found: " + terminologyAndVersion
+              + "." + " Could not process the following line:\n\t" + line);
+        } else {
+          terminologies.add(terminology);
+        }
+      }
+
+      for (Terminology terminology : terminologies) {
+        // Generate parameters to pass into query executions
+        Map<String, String> params = new HashMap<>();
+        params.put("terminology", terminology.getTerminology());
+        params.put("version", terminology.getVersion());
+        params.put("projectTerminology", getProject().getTerminology());
+        params.put("projectVersion", getProject().getVersion());
+
+        atomIdPairArray.addAll(executeComponentIdPairQuery(query, QueryType.JQL,
+            params, AtomJpa.class));
+      }
+    } else {
+
+      Terminology currentTerminology = getCurrentTerminology(terminology);
+      // Generate parameters to pass into query executions
+      Map<String, String> params = new HashMap<>();
+      params.put("terminology", currentTerminology.getTerminology());
+      params.put("version", currentTerminology.getVersion());
+      params.put("projectTerminology", getProject().getTerminology());
+      params.put("projectVersion", getProject().getVersion());
+
+      atomIdPairArray.addAll(executeComponentIdPairQuery(query, QueryType.JQL,
+          params, AtomJpa.class));
+    }
 
     setSteps(atomIdPairArray.size());
 
@@ -147,8 +208,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     Set<Long> safeReplacedAtomIds = new HashSet<>();
 
     for (Pair<Long, Long> atomIdPair : atomIdPairs) {
-      checkCancel();  
-      
+      checkCancel();
+
       final Long oldAtomId = atomIdPair.getLeft();
       final Long newAtomId = atomIdPair.getRight();
 
@@ -279,6 +340,10 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     if (p.getProperty("descriptorId") != null) {
       descriptorId = Boolean.parseBoolean(p.getProperty("descriptorId"));
     }
+    if (p.getProperty("terminology") != null) {
+      terminology = String.valueOf(p.getProperty("terminology"));
+    }
+
   }
 
   /* see superclass */
@@ -312,11 +377,11 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     params.add(param);
 
     param = new AlgorithmParameterJpa("Terminology", "terminology",
-        "Terminology to run safe replacement on (if left blank, will run on all terminologies referenced in sources.src", "e.g. NCI", 5,
-        AlgorithmParameter.Type.STRING, "");
+        "Terminology to run safe replacement on (if left blank, will run on all terminologies referenced in sources.src",
+        "e.g. NCI", 5, AlgorithmParameter.Type.STRING, "");
     params.add(param);
+
     return params;
-    
   }
 
   @Override

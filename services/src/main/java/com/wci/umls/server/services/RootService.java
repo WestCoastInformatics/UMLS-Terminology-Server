@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -11,11 +11,13 @@ import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.services.handlers.SearchHandler;
 import com.wci.umls.server.services.handlers.ValidationCheck;
 
@@ -366,6 +368,46 @@ public interface RootService extends Transactionable {
    */
   public KeyValuePairList getValidationCheckNames() throws Exception;
 
+  /**
+   * Execute component id pair query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @param clazz the clazz
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Long[]> executeComponentIdPairQuery(String query,
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz) throws Exception;
+  
+  /**
+   * Execute single component id query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @param clazz the clazz
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Long[]> executeSingleComponentIdQuery(String query,
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz) throws Exception;  
+  
+  /**
+   * Execute clustered concept query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Long[]> executeClusteredConceptQuery(String query,
+    QueryType queryType, Map<String, String> params) throws Exception;
+  
   /**
    * Returns the validation handlers map.
    *

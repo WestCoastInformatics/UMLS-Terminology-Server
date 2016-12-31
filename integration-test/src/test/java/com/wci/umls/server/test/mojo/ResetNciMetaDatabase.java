@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.mojo;
 
@@ -54,20 +54,25 @@ public class ResetNciMetaDatabase {
    * GenrateNciMetaData
    * </pre>
    * 
+   * .
+   *
    * @throws Exception the exception
    */
   @Test
   public void test() throws Exception {
 
-    // Load the new RF2 full
-    // Run "generate sample data" -
+    // Set up vars
+    InvocationRequest request;
+    Properties p;
+    Invoker invoker;
+    InvocationResult result;
 
     // Load RF2 full
-    InvocationRequest request = new DefaultInvocationRequest();
+    request = new DefaultInvocationRequest();
     request.setPomFile(new File("../admin/loader/pom.xml"));
     request.setProfiles(Arrays.asList("RRF-umls"));
     request.setGoals(Arrays.asList("clean", "install"));
-    Properties p = new Properties();
+    p = new Properties();
     p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("edit.mode", "true");
     p.setProperty("server", server);
@@ -81,8 +86,8 @@ public class ResetNciMetaDatabase {
       p.setProperty("input.dir", System.getProperty("input.dir"));
     }
     request.setProperties(p);
-    Invoker invoker = new DefaultInvoker();
-    InvocationResult result = invoker.execute(request);
+    invoker = new DefaultInvoker();
+    result = invoker.execute(request);
     if (result.getExitCode() != 0) {
       throw result.getExecutionException();
     }
@@ -122,9 +127,12 @@ public class ResetNciMetaDatabase {
     algo.setLastModifiedBy("admin");
     algo.setLastModifiedFlag(true);
     algo.setMolecularActionFlag(false);
+    algo.setTransactionPerOperation(false);
+    algo.beginTransaction();
     algo.setTerminology("NCIMTH");
     algo.setVersion("latest");
     algo.compute();
+    algo.commitClearBegin();
     Logger.getLogger(getClass()).info("Finished unpublished loader algorithm");
 
   }

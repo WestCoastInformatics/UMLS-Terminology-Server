@@ -279,7 +279,6 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("static-access")
   @Override
   public void setProperties(Properties p) throws Exception {
 

@@ -108,8 +108,6 @@ public class RrfUnpublishedLoaderAlgorithm
     // unpublished, and set the name and save
     logInfo("  Load deleted concept names");
     setLastModifiedBy("admin");
-    setTransactionPerOperation(false);
-    beginTransaction();
     setMolecularActionFlag(false);
 
     final List<String> lines =
@@ -138,7 +136,7 @@ public class RrfUnpublishedLoaderAlgorithm
       updateConcept(concept);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-    commit();
+    commitClearBegin();
     logInfo("    count = " + ct);
     logInfo("    done.");
 
@@ -167,8 +165,6 @@ public class RrfUnpublishedLoaderAlgorithm
     // For each line in the file, create a concept note if the CUI exists
     logInfo("  Load concept notes");
     setLastModifiedBy("admin");
-    setTransactionPerOperation(false);
-    beginTransaction();
     setMolecularActionFlag(false);
 
     final List<String> lines = Files.readLines(
@@ -211,7 +207,7 @@ public class RrfUnpublishedLoaderAlgorithm
 
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-    commit();
+    commitClearBegin();
     logInfo("    count = " + ct);
     logInfo("    done.");
 
@@ -230,8 +226,6 @@ public class RrfUnpublishedLoaderAlgorithm
     // For each line in the file, create a concept note if the CUI exists
     logInfo("  Load atom notes");
     setLastModifiedBy("admin");
-    setTransactionPerOperation(false);
-    beginTransaction();
     setMolecularActionFlag(false);
 
     final List<String> lines = Files.readLines(
@@ -288,7 +282,7 @@ public class RrfUnpublishedLoaderAlgorithm
 
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-    commit();
+    commitClearBegin();
     logInfo("    count = " + ct);
     logInfo("    done.");
 
@@ -320,7 +314,7 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadSrcAtomIds() throws Exception {
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
+
     // ==> srcAtomIds.txt <==
     // 255554504|A4222345
     // 255554522|A11234054
@@ -336,8 +330,6 @@ public class RrfUnpublishedLoaderAlgorithm
     // For each line in the file, create a concept note if the CUI exists
     logInfo("  Load src atom ids");
     setLastModifiedBy("admin");
-    setTransactionPerOperation(false);
-    beginTransaction();
     setMolecularActionFlag(false);
 
     final List<String> lines = Files.readLines(
@@ -359,6 +351,7 @@ public class RrfUnpublishedLoaderAlgorithm
       map.put(aui, id);
     }
     results.close();
+    manager.clear();
 
     int ct = 0;
     for (final String line : lines) {
@@ -380,7 +373,7 @@ public class RrfUnpublishedLoaderAlgorithm
 
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-    commit();
+    commitClearBegin();
     logInfo("    count = " + ct);
     logInfo("    done.");
 
@@ -409,8 +402,6 @@ public class RrfUnpublishedLoaderAlgorithm
     // unpublished, and set the name and save
     logInfo("  Load XR relationships");
     setLastModifiedBy("admin");
-    setTransactionPerOperation(false);
-    beginTransaction();
     setMolecularActionFlag(false);
     setLastModifiedFlag(false);
 
@@ -466,7 +457,7 @@ public class RrfUnpublishedLoaderAlgorithm
       addRelationship(xr);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
-    commit();
+    commitClearBegin();
     logInfo("    count = " + ct);
     logInfo("    done.");
   }

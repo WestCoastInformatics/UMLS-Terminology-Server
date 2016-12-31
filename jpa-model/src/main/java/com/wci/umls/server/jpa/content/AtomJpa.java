@@ -581,9 +581,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /* see superclass */
   @Override
   public String toString() {
-    return "AtomJpa [name=" + name + ", conceptTerminologyIds="
-        + conceptTerminologyIds + ", alternateTerminologyIds="
-        + alternateTerminologyIds + ", codeId=" + codeId + ", descriptorId="
+    return "AtomJpa [name=" + name + ", codeId=" + codeId + ", descriptorId="
         + descriptorId + ", conceptId=" + conceptId + ", language=" + language
         + ", lexicalClassId=" + lexicalClassId + ", stringClassId="
         + stringClassId + ", termType=" + termType + ", workflowStatus="

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -382,6 +382,23 @@ public class MetadataServiceJpa extends ProjectServiceJpa
     list.setTotalCount(results.size());
 
     return list;
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public Terminology getCurrentTerminology(String terminologyName)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Metadata service - get current terminology ");
+    final Query query = manager.createQuery(
+        "SELECT t FROM TerminologyJpa t WHERE terminology = :terminology AND current = 1");
+    query.setParameter("terminology", terminologyName);
+
+    final List<Terminology> results = query.getResultList();
+    final Terminology terminology = (Terminology) results.get(0);
+
+    return terminology;
   }
 
   /* see superclass */
