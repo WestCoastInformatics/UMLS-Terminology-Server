@@ -764,5 +764,33 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // test a query
+    this.testQuery = function(projectId, processId, queryType, query, objectType) {
+      console.debug('testQuery', queryType, query, objectType);
+      var deferred = $q.defer();
+
+      console.debug('objectType at the processService.js level is: ' + objectType);
+      
+      // Get projects
+      gpService.increment();
+      $http.get(
+        processUrl + '/testquery?projectId=' + projectId + '&processId=' + processId
+          + '&queryTypeName=' + queryType + '&query=' + utilService.prepQuery(query)
+          + (objectType ? '&objectTypeName=' + objectType : '')).then(
+      // success
+      function(response) {
+        console.debug('  algo = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
     // end
   } ]);

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -131,6 +131,16 @@ public interface MetadataService extends ProjectService {
    */
   public TerminologyList getTerminologies() throws Exception;
 
+  /**
+   * Returns the current terminology.
+   *
+   * @param terminologyName the terminology name
+   * @return the current terminology
+   * @throws Exception the exception
+   */
+  public Terminology getCurrentTerminology(String terminologyName) throws Exception;
+  
+  
   /**
    * Returns the current terminologies.
    *

@@ -18,11 +18,16 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.GeneratedMergeAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
+import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
+import com.wci.umls.server.rest.client.ProcessClientRest;
+import com.wci.umls.server.rest.client.SecurityClientRest;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
@@ -36,6 +41,9 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   GeneratedMergeAlgorithm algo = null;
 
   /** The process execution. */
+  ProcessConfigJpa processConfig = null;
+
+  /** The process execution. */
   ProcessExecution processExecution = null;
 
   /** The process service. */
@@ -44,8 +52,17 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   /** The content service. */
   ContentService contentService = null;
 
+  /** The content service. */
+  SecurityClientRest securityService = null;
+
+  /** The process service rest. */
+  ProcessServiceRest processServiceRest = null;
+
   /** The project. */
   Project project = null;
+
+  /** The auth token. */
+  String authToken = null;
 
   /**
    * Setup class.
@@ -63,13 +80,36 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   @Before
   public void setup() throws Exception {
 
+    // instantiate properties
+    final Properties properties = ConfigUtility.getConfigProperties();
+
+    // instantiate required services
+    processServiceRest = new ProcessClientRest(properties);
+
     processService = new ProcessServiceJpa();
+    processService.setLastModifiedBy("admin");
+    securityService = new SecurityClientRest(properties);
     contentService = new ContentServiceJpa();
+
+    // authentication
+    authToken =
+        securityService.authenticate(properties.getProperty("admin.user"),
+            properties.getProperty("admin.password")).getAuthToken();
 
     // load the project (should be only one)
     ProjectList projects = processService.getProjects();
     assertTrue(projects.size() > 0);
     project = projects.getObjects().get(0);
+
+    // Create and save a process config - this is only needed for TestQuery.
+    processConfig = new ProcessConfigJpa();
+    processConfig.setTerminology("NCI");
+    processConfig.setVersion("2016_05E");
+    processConfig.setType("INSERTION");
+    processConfig.setName("Test GeneratedMergeAlgorithm");
+    processConfig.setDescription("Test GeneratedMergeAlgorithm");
+    processConfig.setProject(project);
+    processService.addProcessConfig(processConfig);
 
     // Create a dummy process execution, to store some information the algorithm
     // needs (specifically input Path)
@@ -79,7 +119,7 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setVersion(project.getVersion());
     processExecution.setInputPath("terminologies/NCI_INSERT/src");
     processExecution.getExecutionInfo().put("maxAtomIdPreInsertion", "374673");
-                    
+
     // Create and configure the algorithm
     algo = new GeneratedMergeAlgorithm();
 
@@ -113,34 +153,29 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       //
       Properties algoProperties = new Properties();
       algoProperties.put("queryType", "JQL");
-      algoProperties.put("query",
-          "select a1.id, a2.id "
-              + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//              + "where c1.terminology = :projectTerminology "
-//              + "and c2.terminology = :projectTerminology "
-//              + "and c1.id != c2.id " 
-//              + "and a1.terminology = :terminology "
-//              + "and a1.version = :version "
-//              + "and a2.terminology = :terminology "
-//              + "and a2.version = :version "
-              + "where a1.id in (100,1) "
-              + "and a2.id in (2,99,5) ");
-//              + "and a1.codeId = a2.codeId "
-//              + "and a1.stringClassId = a2.stringClassId "
-//              + "and a1.termType = a2.termType");
+      algoProperties.put("query", "select a1.id, a2.id "
+          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+          + "where a1.id in (9999999999) " + "and a2.id in (2,99,5) ");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algoProperties.put("newAtomsOnly", "false");
       algoProperties.put("filterQueryType", "LUCENE");
       algoProperties.put("filterQuery", "atoms.id:(1)");
-//      algoProperties.put("filterQueryType", "JQL");
-//      algoProperties.put("filterQuery", "select a1.id, a2.id "
-//          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "             
-//          + "where a1.id in (100,1) "
-//          + "and a2.id in (2,99) ");
       algoProperties.put("makeDemotions", "true");
       algoProperties.put("changeStatus", "true");
       algoProperties.put("mergeSet", "NCI-SY");
       algo.setProperties(algoProperties);
+
+      //
+      // Test the queries
+      //
+      try {
+        Integer result = processServiceRest.testQuery(project.getId(),
+            processConfig.getId(), algoProperties.getProperty("queryType"),
+            algoProperties.getProperty("query"), "ConceptJpa", authToken);
+        assertTrue(result >= 0);
+      } catch (Exception e) {
+        assertTrue(e.getMessage().startsWith("Query malformed:"));
+      }
 
       //
       // Check prerequisites
@@ -175,6 +210,11 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
   @After
   public void teardown() throws Exception {
 
+    if (processConfig != null) {
+      processService.removeProcessConfig(processConfig.getId());
+    }
+    // logout
+    securityService.logout(authToken);
     processService.close();
     contentService.close();
   }

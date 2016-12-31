@@ -94,16 +94,56 @@ tsApp.controller('AlgorithmModalCtrl', [
         });
     };
 
-    $scope.testQuery = function(query) {
+    // Test the query to see if it returns any results
+    $scope.testQuery = function(query, fieldName) {
+      $scope.errors = [];
+      $scope.messages = [];
       // Guess the query type
       var queryType = 'LUCENE';
-      if (query.matches(/select.*from +[^ ]+jpa,/i)) {
+      if (query.match(/select.*from +[^ ]+jpa/i)) {
         queryType = 'JQL';
-      } else      if (query.matches(/select.*/i)) {
+      } else if (query.match(/select.*/i)) {
         queryType = 'SQL';
       }
-      
-    }
+
+      // Get the queryType.
+      // If this is a QueryActionAlgorithm, get the objectType.  Otherwise leave empty, and it will be handled by the server
+      var objectType = null;
+      var queryType = null;
+      for (var i = 0; i < $scope.algorithm.parameters.length; i++) {
+        if ($scope.algorithm.parameters[i].fieldName == fieldName + 'Type') {
+          if ($scope.algorithm.parameters[i].value == '') {
+            utilService.handleDialogError($scope.errors, $scope.algorithm.parameters[i].name
+              + ' needs to be set');
+            return;
+          }
+          queryType = $scope.algorithm.parameters[i].value;
+        }
+        if ($scope.algorithm.parameters[i].fieldName == 'objectType') {
+          if ($scope.algorithm.parameters[i].value == '') {
+            utilService.handleDialogError($scope.errors, $scope.algorithm.parameters[i].name
+              + ' needs to be set');
+            return;
+          }
+          console.debug('objectType at the editAlgorithm.js level is being set to: '
+            + $scope.algorithm.parameters[i].value);
+          objectType = $scope.algorithm.parameters[i].value;
+        }
+      }
+
+      processService
+        .testQuery($scope.project.id, selected.process.id, queryType, query, objectType).then(
+        // Success
+        function(data) {
+          console.debug("This is what is returned in data: " + data);
+          $scope.messages.push('Query is properly formed and returned ' + data + ' results.')
+        },
+        // Error
+        function(data) {
+          console.debug("This is what is returned in data: " + data);
+          utilService.handleDialogError($scope.errors, 'Query is improperly formed.');
+        });
+    };
 
     // end
   } ]);

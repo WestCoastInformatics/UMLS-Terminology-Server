@@ -51,7 +51,7 @@
             ng-change="validated = false"></textarea>
           <span ng-show="parameter.name.indexOf('Query') != -1">
             <span class="btn btn-xs btn-primary"
-              ng-click="testQuery(parameter.value)">Test</span>
+              ng-click="testQuery(parameter.value, parameter.fieldName)">Test</span>
           </span>
         </td>
         <!-- normal textarea -->
