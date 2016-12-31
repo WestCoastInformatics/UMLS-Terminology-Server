@@ -345,7 +345,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // Create and set up a test NCI_2016_05E insertion process and algorithm
     // configuration
-    createNCIInsertionProcess(project1, projectId, authToken);
+    createNciInsertionProcess(project1, projectId, authToken);
 
     // Create and set up a release process and algorithm configuration for
     // testing
@@ -942,7 +942,16 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", authToken);
   }
 
-  private void createNCIInsertionProcess(Project project1, Long projectId,
+  /**
+   * Creates the NCI insertion process.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createNciInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
     ProcessServiceRest process = new ProcessServiceRestImpl();
