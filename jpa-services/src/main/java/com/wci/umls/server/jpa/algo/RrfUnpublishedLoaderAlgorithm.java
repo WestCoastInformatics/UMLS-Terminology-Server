@@ -68,11 +68,11 @@ public class RrfUnpublishedLoaderAlgorithm
     // Turn off action handling
     setMolecularActionFlag(false);
 
-    loadDeletedConceptNames();
-    loadConceptNotes();
-    loadAtomNotes();
-    loadIntegrityData();
-    loadSrcAtomIds();
+//    loadDeletedConceptNames();
+//    loadConceptNotes();
+//    loadAtomNotes();
+//    loadIntegrityData();
+//    loadSrcAtomIds();
     loadXrRelationships();
 
     logInfo("Done ...");
@@ -421,8 +421,8 @@ public class RrfUnpublishedLoaderAlgorithm
       if (concept == null) {
         continue;
       }
-      // Skip publishable concepts
-      if (concept.isPublishable()) {
+      // Skip unpublishable concepts
+      if (!concept.isPublishable()) {
         continue;
       }
       final Concept concept2 =
@@ -431,8 +431,8 @@ public class RrfUnpublishedLoaderAlgorithm
       if (concept2 == null) {
         continue;
       }
-      // Skip publishable concepts
-      if (concept2.isPublishable()) {
+      // Skip unpublishable concepts
+      if (!concept2.isPublishable()) {
         continue;
       }
 
