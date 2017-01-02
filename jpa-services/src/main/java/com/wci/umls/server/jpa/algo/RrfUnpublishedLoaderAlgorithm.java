@@ -91,7 +91,6 @@ public class RrfUnpublishedLoaderAlgorithm
    */
   public void loadDeletedConceptNames() throws Exception {
 
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
     // ==> deletedCuiNames.txt <==
     // C0000266|Parlodel
     // C0000325|20-Methylcholanthrene
@@ -148,7 +147,6 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadConceptNotes() throws Exception {
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
     // C3250443|<>Long_Attribute<>:46350541|E-CFC|22-SEP-11
     // C1996431|<>Long_Attribute<>:63319088|E-GSC|18-DEC-13
     // CL031047|<>Long_Attribute<>:29498031|E-LLW|27-AUG-09
@@ -219,7 +217,6 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadAtomNotes() throws Exception {
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
     // A3250443|<>Long_Attribute<>:46350541|E-CFC|22-SEP-11
     // A1996431|<>Long_Attribute<>:63319088|E-GSC|18-DEC-13
 
@@ -294,7 +291,6 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadIntegrityData() throws Exception {
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
     // ==> icPair.txt <==
     //
     // ==> icSingle.txt <==
@@ -385,7 +381,7 @@ public class RrfUnpublishedLoaderAlgorithm
    * @throws Exception the exception
    */
   public void loadXrRelationships() throws Exception {
-    // TODO: make fault tolerant if data doesn't exist so it works for mini
+
     // ==> xrRelationships.txt <==
     // C0281567|C0520526|E-MNC
     // C4050020|C1439306|E-GSC
@@ -442,6 +438,7 @@ public class RrfUnpublishedLoaderAlgorithm
       xr.setFrom(concept);
       xr.setLastModifiedBy(lastModifiedBy);
       xr.setLastModified(new Date());
+      xr.setTimestamp(new Date());
       xr.setObsolete(false);
       xr.setPublishable(false);
       xr.setPublished(false);
