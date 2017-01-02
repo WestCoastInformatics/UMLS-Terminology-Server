@@ -2397,11 +2397,12 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // If the object type isn't passed in, we can assign it based on the query
       // type
+      String lobjectTypeName = objectTypeName;
       if (ConfigUtility.isEmpty(objectTypeName)) {
         if (queryTypeName.equals("LUCENE")) {
-          objectTypeName = "ConceptJpa";
+          lobjectTypeName = "ConceptJpa";
         } else if (queryTypeName.equals("SQL") || queryTypeName.equals("JQL")) {
-          objectTypeName = "AtomJpa";
+          lobjectTypeName = "AtomJpa";
         } else {
           throw new LocalException(
               "Query Type " + queryTypeName + " is unsupported.");
@@ -2411,7 +2412,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final ProcessConfig process = processService.getProcessConfig(processId);
       final String componentPath = AtomJpa.class.getName().substring(0,
           AtomJpa.class.getName().indexOf("AtomJpa"));
-      Class clazz = Class.forName(componentPath + objectTypeName);
+      Class clazz = Class.forName(componentPath + lobjectTypeName);
 
       // Generate parameters to pass into query executions
       Map<String, String> params = new HashMap<>();

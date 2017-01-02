@@ -396,7 +396,7 @@ public class MetadataServiceJpa extends ProjectServiceJpa
     query.setParameter("terminology", terminologyName);
 
     final List<Terminology> results = query.getResultList();
-    final Terminology terminology = (Terminology) results.get(0);
+    final Terminology terminology = results.get(0);
 
     return terminology;
   }

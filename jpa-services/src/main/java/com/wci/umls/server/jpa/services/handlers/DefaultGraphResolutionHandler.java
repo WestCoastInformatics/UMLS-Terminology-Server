@@ -391,6 +391,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
       boolean nullId = mapping.getId() == null;
       // Attributes
       resolveAttributes(mapping, nullId);
+      mapping.setAlternateTerminologyIds(new HashMap<>(0));
 
     } else if (mapping == null) {
       throw new Exception("Cannot resolve a null mapping.");
