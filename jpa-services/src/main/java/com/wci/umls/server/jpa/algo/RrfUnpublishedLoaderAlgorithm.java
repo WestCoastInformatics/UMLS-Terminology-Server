@@ -68,11 +68,11 @@ public class RrfUnpublishedLoaderAlgorithm
     // Turn off action handling
     setMolecularActionFlag(false);
 
-//    loadDeletedConceptNames();
-//    loadConceptNotes();
-//    loadAtomNotes();
-//    loadIntegrityData();
-//    loadSrcAtomIds();
+    loadDeletedConceptNames();
+    loadConceptNotes();
+    loadAtomNotes();
+    loadIntegrityData();
+    loadSrcAtomIds();
     loadXrRelationships();
 
     logInfo("Done ...");
