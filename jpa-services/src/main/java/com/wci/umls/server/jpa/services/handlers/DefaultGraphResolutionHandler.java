@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -376,6 +376,8 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
       // skip mappings
       mapSet.clearMappings();
+      // clear ids
+      mapSet.setAlternateTerminologyIds(new HashMap<>(0));
 
     } else if (mapSet == null) {
       throw new Exception("Cannot resolve a null mapSet.");
@@ -421,10 +423,11 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    *
    * @param component the component
    * @param nullId the null id
+   * @throws Exception
    */
   @SuppressWarnings("static-method")
   protected void resolveAttributes(ComponentHasAttributes component,
-    boolean nullId) {
+    boolean nullId) throws Exception {
     for (final Attribute att : component.getAttributes()) {
       att.getName();
       // no ATUI
@@ -472,8 +475,10 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    *
    * @param definition the definition
    * @param nullId the null id
+   * @throws Exception the exception
    */
-  protected void resolveDefinition(Definition definition, boolean nullId) {
+  protected void resolveDefinition(Definition definition, boolean nullId)
+    throws Exception {
     definition.getValue();
     // no ATUI
     definition.setAlternateTerminologyIds(new HashMap<>(0));

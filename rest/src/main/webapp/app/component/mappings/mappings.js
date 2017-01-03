@@ -10,49 +10,50 @@ tsApp.directive('mappings', [ function() {
       callbacks : '='
     },
     templateUrl : 'app/component/mappings/mappings.html',
-    controller : [ '$scope', 'utilService', 'contentService',
+    controller : [
+      '$scope',
+      'utilService',
+      'contentService',
       function($scope, utilService, contentService) {
         $scope.showing = true;
-        // Paging vars
-        $scope.pagedData = [];
-        $scope.paging = utilService.getPaging();
-        $scope.pageCallbacks = {
-          getPagedList : getPagedList
-        };
+        $scope.mapSets = {};
 
         // watch the component
         $scope.$watch('component', function() {
           if ($scope.component) {
-            // Clear paging
-            $scope.paging = utilService.getPaging();
-            $scope.pageCallbacks = {
-              getPagedList : getPagedList
-            };
             // Get data
-            getPagedList();
+            getMappings();
           }
         }, true);
 
         // Get paged data
-        function getPagedList() {
-
-          var paging = $scope.paging;
-          var pfs = {
-            startIndex : (paging.page - 1) * paging.pageSize,
-            maxResults : paging.pageSize,
-            sortField : paging.sortField,
-            ascending : paging.sortAscending,
-            queryRestriction : paging.filter
-          };
+        function getMappings() {
 
           // Request from service
-          contentService.findMappings($scope.component, pfs).then(
-          // Success
-          function(data) {
-            console.debug('bacxxx',data);
-            $scope.pagedMappings = data.mappings;
-            $scope.pagedMappings.totalCount = data.totalCount;
-          });
+          contentService.findMappings($scope.component, {}).then(
+            // Success
+            function(data) {
+              $scope.mappings = data.mappings;
+
+              if (data.mappings.length > 0) {
+                // Request map setsfrom service
+                contentService.getMapSets($scope.metadata.terminology.terminology,
+                  $scope.metadata.terminology.version).then(
+                // Success
+                function(data) {
+                  for (var i; i < data.mapSets.length; i++) {
+                    var mapSet = data.mapSets[i];
+                    $scope.mapSets[mapSet.id] = [];
+                    for (var j = 0; j < $scope.mappings.length; j++) {
+                      if (data.mapSets[i].id == $scope.mappings[i].mapSetId) {
+                        $scope.mapSets[mapSet.id].push($scope.mappings[i]);
+                      }
+                    }
+                  }
+                });
+              }
+            });
+
         }
 
         // end controller

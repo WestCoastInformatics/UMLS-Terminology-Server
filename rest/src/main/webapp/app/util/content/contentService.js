@@ -995,6 +995,32 @@ tsApp
           }, projectId);
         };
 
+        // get mapsets
+        this.getMapSets = function(terminology, version) {
+          console.debug('getMapSets', terminology, version);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.get(contentUrl + '/mapset/all/' + terminology + '/' + version).then(
+          // success
+          function(response) {
+            console.debug('  mapsets =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
         // Find mappings
         this.findMappings = function(component, pfs) {
           console.debug('findMappings', component, pfs);

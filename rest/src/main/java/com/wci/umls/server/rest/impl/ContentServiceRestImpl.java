@@ -2985,8 +2985,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Content): /atom/" + atomId + "/" + "/trees/children");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId + "/trees/children");
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find trees for the code",

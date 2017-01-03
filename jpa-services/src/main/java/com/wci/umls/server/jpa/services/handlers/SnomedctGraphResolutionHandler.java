@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -189,10 +189,12 @@ public class SnomedctGraphResolutionHandler
    *
    * @param component the component
    * @param nullId the null id
+   * @throws Exception the exception
    */
   @Override
   protected void resolveAttributes(ComponentHasAttributes component,
-    boolean nullId) {
+    boolean nullId) throws Exception {
+    cacheProperties();
     for (final Attribute att : component.getAttributes()) {
       att.getName();
       att.getAlternateTerminologyIds().keySet();

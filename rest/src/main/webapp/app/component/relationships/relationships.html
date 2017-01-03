@@ -49,7 +49,8 @@
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</span>
           {{item.toName}}
         </span> <span class="visible-xs-inline">
-          <a ng-class="[{'nolink' : !callbacks.getComponent}, {'noul' : callbacks.getComponent!}"
+          <a
+            ng-class="[{'nolink' : !callbacks.getComponent}, {'noul' : !callbacks.getComponent}]"
             ng-click="getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
         </span></li>

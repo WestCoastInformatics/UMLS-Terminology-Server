@@ -22,7 +22,7 @@ public class MapSetListJpa extends AbstractResultList<MapSet> implements
 
   /* see superclass */
   @Override
-  @XmlElement(type = MapSetJpa.class, name = "mapSet")
+  @XmlElement(type = MapSetJpa.class, name = "mapSets")
   public List<MapSet> getObjects() {
     return super.getObjectsTransient();
   }
