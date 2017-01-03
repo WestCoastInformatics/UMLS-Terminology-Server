@@ -35,10 +35,11 @@ import com.wci.umls.server.ProcessExecution;
  * JPA and JAXB enabled implementation of {@link AlgorithmExecution}.
  */
 @Entity
+// TODO: fix this
 @Table(name = "algorithm_execs")
 @Audited
 @Indexed
-@XmlRootElement(name = "algortihmExecution")
+@XmlRootElement(name = "algorithmExecution")
 public class AlgorithmExecutionJpa extends
     AbstractAlgorithmInfo<ProcessExecution> implements AlgorithmExecution {
 
@@ -242,6 +243,18 @@ public class AlgorithmExecutionJpa extends
 
   /* see superclass */
   @Override
+  public Boolean isWarning() {
+    return warning;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWarning(Boolean warning) {
+    this.warning = warning;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -296,26 +309,6 @@ public class AlgorithmExecutionJpa extends
         + finishDate + ", failDate=" + failDate + ", processId="
         + getProcessId() + ", activityId=" + activityId + ", algorithmConfigId="
         + algorithmConfigId + "] " + super.toString();
-  }
-
-  /**
-   * Indicates whether or not warning is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  @Override
-  public Boolean isWarning() {
-    return warning;
-  }
-
-  /**
-   * Sets the warning.
-   *
-   * @param warning the warning
-   */
-  @Override
-  public void setWarning(Boolean warning) {
-    this.warning = warning;
   }
 
 }

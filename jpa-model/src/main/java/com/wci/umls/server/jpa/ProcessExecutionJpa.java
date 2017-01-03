@@ -81,6 +81,10 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Column(nullable = true)
   private String inputPath;
 
+  /** Has the algorithm had a warning fired during its execution. */
+  @Column(nullable = false)
+  private boolean warning = false;
+
   /** The steps . */
   @OneToMany(mappedBy = "process", targetEntity = AlgorithmExecutionJpa.class)
   @OrderColumn
@@ -116,6 +120,7 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
     type = exec.getType();
     inputPath = exec.getInputPath();
     executionInfo = new HashMap<>(exec.getExecutionInfo());
+    warning = exec.isWarning();
   }
 
   /**
@@ -266,6 +271,18 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   @Override
   public void setInputPath(String inputPath) {
     this.inputPath = inputPath;
+  }
+
+  /* see superclass */
+  @Override
+  public Boolean isWarning() {
+    return warning;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWarning(Boolean warning) {
+    this.warning = warning;
   }
 
   /* see superclass */

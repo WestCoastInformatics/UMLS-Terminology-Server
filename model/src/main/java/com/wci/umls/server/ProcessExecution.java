@@ -68,4 +68,18 @@ public interface ProcessExecution
    * @param executionInfo the execution info
    */
   public void setExecutionInfo(Map<String, String> executionInfo);
+
+  /**
+   * Is warning.
+   *
+   * @return the boolean
+   */
+  public Boolean isWarning();
+
+  /**
+   * Sets the warning.
+   *
+   * @param warning the warning
+   */
+  public void setWarning(Boolean warning);
 }

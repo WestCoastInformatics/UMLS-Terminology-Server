@@ -96,7 +96,7 @@ tsApp.run([ 'securityService', function(securityService) {
     'APP_USER' : true
   });
   securityService.addPermission('EditProcessOrStep', {
-    'REVIEWER' : true,
+    'REVIEWER' : false,
     'AUTHOR' : false,
     'EDITOR5' : false,
     'ADMINISTRATOR' : true
