@@ -2347,12 +2347,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       params.put("projectVersion",
           processService.getProject(projectId).getVersion());
 
-      final List<Long[]> componentIds = new ArrayList<>();
+      final List<Long[]> componentIdArrays = new ArrayList<>();
+      final List<Long> componentIds = new ArrayList<>();
       int exceptionCount = 0;
 
       try {
-        componentIds.addAll(processService.executeComponentIdPairQuery(query,
-            QueryType.valueOf(queryTypeName), params, clazz));
+        componentIdArrays.addAll(processService.executeComponentIdPairQuery(
+            query, QueryType.valueOf(queryTypeName), params, clazz));
       } catch (Exception e) {
         exceptionCount++;
       }
@@ -2372,7 +2373,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
       // If either of the queries ran successfully, return the number of results
       else {
-        return componentIds.size();
+        return !componentIdArrays.isEmpty() ? componentIdArrays.size()
+            : componentIds.size();
       }
     } finally {
       processService.close();

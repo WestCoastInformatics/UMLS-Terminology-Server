@@ -114,18 +114,18 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
     params.put("projectVersion", getProject().getVersion());
 
     // Execute query to get component Ids
-    List<Long[]> componentIds = executeSingleComponentIdQuery(query, queryType,
+    List<Long> componentIds = executeSingleComponentIdQuery(query, queryType,
         params, objectTypeClass);
 
     setSteps(componentIds.size());
 
-    for (Long[] componentId : componentIds) {
+    for (Long componentId : componentIds) {
       checkCancel();
 
       // Handle field-change actions
       if (!action.equals("Remove Demotions")) {
         // Load the component
-        Component component = getComponent(componentId[0], objectTypeClass);
+        Component component = getComponent(componentId, objectTypeClass);
         Boolean componentChanged = false;
 
         // Handle Make Publishable
@@ -164,7 +164,7 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
       // Handle the remove-demotion action
       else {
         AtomRelationship atomRelationship =
-            (AtomRelationship) getRelationship(componentId[0], objectTypeClass);
+            (AtomRelationship) getRelationship(componentId, objectTypeClass);
 
         Atom fromAtom = atomRelationship.getFrom();
         Atom toAtom = atomRelationship.getTo();
@@ -279,7 +279,6 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("static-access")
   @Override
   public void setProperties(Properties p) throws Exception {
 
