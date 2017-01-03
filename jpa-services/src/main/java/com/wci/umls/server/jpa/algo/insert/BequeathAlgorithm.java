@@ -114,8 +114,11 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
 
         // Load the to Concept (there can only be one)
         if (toConceptIds.size() != 1) {
-          throw new Exception(
-              "Unexpected number of concepts returned by: " + toConceptQuery);
+          logWarn("Unexpected number of concepts returned by: " + toConceptQuery
+              + " Could not process bequeathals for referenced terminology: "
+              + terminology);
+          updateProgress();
+          continue;
         }
         final Concept toConcept = getConcept(toConceptIds.get(0));
 

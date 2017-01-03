@@ -1113,7 +1113,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    algoProperties.put("addRemove", "add");
+    algoProperties.put("addRemove", "Add");
     algoProperties.put("checkName", "MGV_SCUI");
     algoProperties.put("value1", "NCI");
     algoConfig.setProperties(algoProperties);
