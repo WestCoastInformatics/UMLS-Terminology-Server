@@ -1741,13 +1741,13 @@ public abstract class RootServiceJpa implements RootService {
   @SuppressWarnings({
       "unchecked"
   })
-  public List<Long[]> executeSingleComponentIdQuery(String query,
+  public List<Long> executeSingleComponentIdQuery(String query,
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz) throws Exception {
 
     // If query parameters are not fully filled out, return an empty List.
     if (ConfigUtility.isEmpty(query) || queryType == null) {
-      return new ArrayList<Long[]>();
+      return new ArrayList<Long>();
     }
 
     // Handle the LUCENE case
@@ -1766,19 +1766,12 @@ public abstract class RootServiceJpa implements RootService {
                 + params);
       }
       // Perform search
-      final List<? extends Component> components =
-          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
-              params.get("terminology"), null, Branch.ROOT, null, null, clazz,
-              pfs, new int[1], manager);
+      final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
+          .getIdResults(params.get("terminology"), params.get("version"),
+              Branch.ROOT, null, null, clazz, pfs, new int[1], manager);
 
       // Return the result list as arrays of component ids
-      final List<Long[]> results = new ArrayList<>();
-      for (final Component component : components) {
-        final Long[] result = new Long[1];
-        result[0] = component.getId();
-        results.add(result);
-      }
-      return results;
+      return components;
     }
 
     // Handle PROGRAM queries
@@ -1850,13 +1843,11 @@ public abstract class RootServiceJpa implements RootService {
 
     // Return the result list as a single component id longs.
     final List<Long> list = jpaQuery.getResultList();
-    final List<Long[]> results = new ArrayList<>();
+    final List<Long> results = new ArrayList<>();
     final Set<Long> addedResults = new HashSet<>();
-
     for (final Long componentId1 : list) {
-      final Long[] result = new Long[] {
-          componentId1
-      };
+      final Long result = componentId1;
+
       // Duplicate check
       if (!addedResults.contains(componentId1)) {
         results.add(result);

@@ -350,10 +350,15 @@ tsApp
           };
 
           // Make post call
+          var url = null;
+          if (component.type === 'ATOM') {
+            url = contentUrl + '/atom/' + component.id + '/trees'
+          } else {
+            url = contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminology
+              + '/' + component.version + '/' + component.terminologyId + '/trees'
+          }
           gpService.increment();
-          $http.post(
-            contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminology + '/'
-              + component.version + '/' + component.terminologyId + '/trees', pfs).then(
+          $http.post(url, pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -388,9 +393,14 @@ tsApp
 
           // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
           // path
-          $http.post(
-            contentUrl + '/' + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version
-              + '/' + tree.nodeTerminologyId + '/trees/children', pfs).then(
+          var url = null;
+          if (type === 'ATOM') {
+            url = contentUrl + '/atom/' + tree.nodeId + '/trees/children'
+          } else {
+            url = contentUrl + '/' + type.toLowerCase() + '/' + tree.terminology + '/'
+              + tree.version + '/' + tree.nodeTerminologyId + '/trees/children'
+          }
+          $http.post(url, pfs).then(
           // success
           function(response) {
             gpService.decrement();

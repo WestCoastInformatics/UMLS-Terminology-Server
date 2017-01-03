@@ -595,10 +595,13 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
         "Clustered concepts that failed insertion merges.  Must be either related or merged.");
     definition
         .setQuery("select d.concepts_id conceptId1, e.concepts_id conceptId2 "
-            + "from atom_relationships a, atoms b, atoms c, concepts_atoms d, concepts_atoms e  "
+            + "from atom_relationships a, atoms b, atoms c, "
+            + "concepts_atoms d, concepts_atoms e, concepts f, concepts g "
             + "where a.terminology = :terminology and a.workflowStatus = 'DEMOTION' "
             + "  and a.from_id = b.id and a.to_id = c.id "
-            + "  and b.id = d.atoms_id and c.id = e.atoms_id");
+            + "  and b.id = d.atoms_id and c.id = e.atoms_id "
+            + "  and d.concepts_id = f.id and e.concepts_id = g.id"
+            + "  and f.terminology = :terminology and g.terminology = :terminology");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -613,17 +616,12 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("norelease");
     definition.setDescription("Concepts where all atoms are unreleasable.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology = :terminology and a.id = b.concepts_id "
-        + "and b.atoms_id = c.id and c.publishable = 0 "
-        + "and not exists (select * from concepts_atoms d, atoms e "
-        + " where a.id = d.concepts_id and d.atoms_id = e.id "
-        + " and e.publishable = 1);");
+    definition.setQuery(
+        "published:false AND NOT atoms.published:true");
     definition.setEditable(false);
     definition.setEnabled(true);
     definition.setRequired(false);
-    definition.setQueryType(QueryType.SQL);
+    definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,

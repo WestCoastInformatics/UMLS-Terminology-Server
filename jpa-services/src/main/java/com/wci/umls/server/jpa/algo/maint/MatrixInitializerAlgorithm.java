@@ -103,7 +103,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
       final Set<Long> failures = validateConcepts(getProject(), conceptIds);
       checkCancel();
-      fireProgressEvent(40, "Find concepts with validation failures");
+      fireProgressEvent(40, "Found concepts with validation failures");
       logInfo("  validation failures = " + failures.size());
 
       // Find NEEDS_REVIEW concepts that should be READY_FOR_PUBLICATION

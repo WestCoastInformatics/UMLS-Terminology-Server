@@ -584,30 +584,6 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
-    // update algorithm exec
-    this.updateAlgorithmExec = function(projectId, processId, algo) {
-      console.debug('updateAlgorithmExec', projectId, processId, algo);
-      var deferred = $q.defer();
-
-      // Get projects
-      gpService.increment();
-      $http.post(processUrl + '/execution/algo?projectId=' + projectId + '&processId=' + processId,
-        algo).then(
-      // success
-      function(response) {
-        console.debug('  algo = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
     // validate algorithm config
     this.validateAlgorithmConfig = function(projectId, processId, algo) {
       console.debug('validateAlgorithmConfig', projectId, processId, algo);
@@ -770,7 +746,7 @@ tsApp.service('processService', [
       var deferred = $q.defer();
 
       console.debug('objectType at the processService.js level is: ' + objectType);
-      
+
       // Get projects
       gpService.increment();
       $http.get(

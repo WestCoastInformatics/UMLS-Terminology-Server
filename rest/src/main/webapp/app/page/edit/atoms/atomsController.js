@@ -13,11 +13,11 @@ tsApp
       'utilService',
       'tabService',
       'securityService',
-      'utilService',
+      'contentService',
       'metaEditingService',
       '$uibModal',
       function($scope, $http, $location, $routeParams, $window, gpService, utilService, tabService,
-        securityService, utilService, metaEditingService, $uibModal) {
+        securityService, contentService, metaEditingService, $uibModal) {
 
         console.debug("configure AtomsCtrl");
 
@@ -218,14 +218,20 @@ tsApp
         // Toggle attributes for an atom
         $scope.attributes = {};
         $scope.toggleAttributes = function(atom) {
-          if (attributes[atom.id]) {
-            delete attributes[atom.id];
+          if ($scope.attributes[atom.id]) {
+            delete $scope.attributes[atom.id];
             return;
           }
 
+          $scope.attributes[atom.id] = {};
           // Assemble the attributes for the atom
-          $scope.attributes[atom.id].atom = angular.copy(atom.attributes);
-          $scope.attributes[atom.id].ct = $scope.attributes[atom.id].atom.length;
+          $scope.attributes[atom.id].atom = angular.copy(atom.attributes.sort(utilService
+            .sortBy('name')));
+          if (atom) {
+            $scope.attributes[atom.id].ct = atom.attributes.length;
+          } else {
+            $scope.attributes[atom.id].ct = 0;
+          }
           if (atom.descriptorId) {
             contentService.getComponent({
               type : 'DESCRIPTOR',
@@ -233,13 +239,14 @@ tsApp
               terminology : atom.terminology,
               version : atom.version
             }).then(
-            // Success
-            function(data) {
-              if (data) {
-                $scope.attributes[atom.id].descriptor = data;
-                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].descriptor.length;
-              }
-            });
+              // Success
+              function(data) {
+                if (data && data.attributes.length > 0) {
+                  $scope.attributes[atom.id].descriptor = data.attributes.sort(utilService
+                    .sortBy('name'));
+                  $scope.attributes[atom.id].ct += data.attributes.length;
+                }
+              });
           }
           if (atom.conceptId) {
             contentService.getComponent({
@@ -248,13 +255,14 @@ tsApp
               terminology : atom.terminology,
               version : atom.version
             }).then(
-            // Success
-            function(data) {
-              if (data) {
-                $scope.attributes[atom.id].concept = data;
-                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].concept.length;
-              }
-            });
+              // Success
+              function(data) {
+                if (data && data.attributes.length > 0) {
+                  $scope.attributes[atom.id].concept = data.attributes.sort(utilService
+                    .sortBy('name'));
+                  $scope.attributes[atom.id].ct += data.attributes.length;
+                }
+              });
           }
           if (atom.codeId && atom.codeId != atom.conceptId && atom.codeId != atom.descriptorId) {
             contentService.getComponent({
@@ -265,9 +273,9 @@ tsApp
             }).then(
             // Success
             function(data) {
-              if (data) {
-                $scope.attributes[atom.id].code = data;
-                $scope.attributes[atom.id].ct += $scope.attributes[atom.id].code.length;
+              if (data && data.attributes.length > 0) {
+                $scope.attributes[atom.id].code = data.attributes.sort(utilService.sortBy('name'));
+                $scope.attributes[atom.id].ct += data.attributes.length;
               }
             });
           }

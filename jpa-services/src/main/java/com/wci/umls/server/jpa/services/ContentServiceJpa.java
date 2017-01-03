@@ -45,6 +45,7 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -2818,29 +2819,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings({
-      "unchecked"
-  })
   @Override
   public List<Long> getAllConceptIds(String terminology, String version,
-    String branch) {
+    String branch) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get all concept ids "
         + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a.id from ConceptJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("branch", branch);
-      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return new ArrayList<>();
-    }
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", terminology);
+    params.put("version", version);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
+        ConceptJpa.class);
+
   }
 
   /* see superclass */
@@ -2908,9 +2899,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings({
-      "unchecked"
-  })
+
   @Override
   public List<Long> getAllDescriptorIds(String terminology, String version,
     String branch) throws Exception {
@@ -2919,20 +2908,11 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + version + "/" + branch);
     assert branch != null;
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a.id from DescriptorJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("branch", branch);
-      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
-
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return new ArrayList<>();
-    }
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", terminology);
+    params.put("version", version);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
+        DescriptorJpa.class);
   }
 
   /* see superclass */
@@ -2964,29 +2944,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings({
-      "unchecked"
-  })
   @Override
   public List<Long> getAllCodeIds(String terminology, String version,
-    String branch) {
+    String branch) throws Exception {
     Logger.getLogger(getClass()).debug("Content Service - get all code ids "
         + terminology + "/" + version + "/" + branch);
     assert branch != null;
 
-    try {
-      final javax.persistence.Query query =
-          manager.createQuery("select a.id from CodeJpa a "
-              + "where version = :version " + "and terminology = :terminology "
-              + "and (branch = :branch or branchedTo not like :branchMatch)");
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
-      query.setParameter("branch", branch);
-      query.setParameter("branchMatch", "%" + branch + Branch.SEPARATOR + "%");
-      return query.getResultList();
-    } catch (NoResultException e) {
-      return new ArrayList<>();
-    }
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", terminology);
+    params.put("version", version);
+    return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
+        CodeJpa.class);
+
   }
 
   /* see superclass */
@@ -4158,50 +4128,37 @@ public class ContentServiceJpa extends MetadataServiceJpa
   }
 
   /* see superclass */
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Override
-  public TreePositionList findTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch,
+  public TreePositionList findTreePositionChildren(Long nodeId,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass())
-        .info("Content Service - find children of a concept tree position "
+        .info("Content Service - find children of a tree position "
             + terminologyId + "/" + terminology + "/" + version);
-    return getTreePositionChildrenHelper(terminologyId, terminology, version,
-        branch, pfs, clazz);
-  }
-
-  /**
-   * Returns the tree position children helper.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @param clazz the clazz
-   * @return the tree position children helper
-   * @throws Exception the exception
-   */
-  @SuppressWarnings({
-      "unchecked", "rawtypes"
-  })
-  private TreePositionList getTreePositionChildrenHelper(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs,
-    Class<? extends TreePosition> clazz) throws Exception {
 
     final PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
     childPfs.setMaxResults(1);
     // get a tree position for each child, for child ct
-    TreePositionList tpList = findTreePositionsHelper(terminologyId,
-        terminology, version, branch, "", childPfs, clazz);
-
+    TreePositionList tpList = null;
+    if (nodeId != null) {
+      tpList = findTreePositionsHelper(null, null, null, branch,
+          "nodeId:" + nodeId, childPfs, clazz);
+    } else {
+      tpList = findTreePositionsHelper(terminologyId, terminology, version,
+          branch, "", childPfs, clazz);
+    }
     if (tpList.size() == 0) {
       return new TreePositionListJpa();
     }
     final TreePosition<?> treePosition = tpList.getObjects().get(0);
 
+    // TODO: need to deal with terminologies like MSH that don't have computable
+    // hierarchies
     final Long tpId = treePosition.getNode().getId();
     final String fullAncPath = treePosition.getAncestorPath()
         + (treePosition.getAncestorPath().isEmpty() ? "" : "~") + tpId;
@@ -4212,9 +4169,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     final int[] totalCt = new int[1];
 
     final TreePositionList list = new TreePositionListJpa();
-    list.setObjects(
-        (List) searchHandler.getQueryResults(terminology, version, branch,
-            query, null, ConceptTreePositionJpa.class, pfs, totalCt, manager));
+    list.setObjects((List) searchHandler.getQueryResults(terminology, version,
+        branch, query, null, clazz, pfs, totalCt, manager));
     list.setTotalCount(totalCt[0]);
 
     // If the list has <30 entries and all are roman numerals
@@ -4853,11 +4809,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
   @Override
   public Set<Long> validateConcepts(Project project, Set<Long> conceptIds)
     throws Exception {
+    Logger.getLogger(getClass()).info("  Validate all concepts");
     final Set<Long> failures = new HashSet<>();
     for (final String key : getValidationHandlersMap().keySet()) {
       if (project.getValidationChecks().contains(key)) {
-        failures.addAll(getValidationHandlersMap().get(key).validateConcepts(
-            conceptIds, project.getTerminology(), project.getVersion(), this));
+        final Set<Long> failedCheck =
+            getValidationHandlersMap().get(key).validateConcepts(conceptIds,
+                project.getTerminology(), project.getVersion(), this);
+        Logger.getLogger(getClass())
+            .info("    " + key + " ct = " + failedCheck.size());
+        failures.addAll(failedCheck);
       }
     }
     return failures;

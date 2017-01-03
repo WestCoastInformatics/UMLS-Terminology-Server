@@ -5,7 +5,7 @@
     style="margin-left: 25px;" ng-show="!lists.terminologies">No
     terminology available.</div>
 
-  <div class="col-md-12 col-xs-12">
+  <div class="col-md-6 col-xs-6">
 
     <div class="mt10">
       <h4 style="display: inline;">&nbsp;</h4>
@@ -26,105 +26,122 @@
     <table class="table pointer">
       <thead>
         <tr>
-          <th class="col-md-4 col-xs-4"><span
+          <th class="col-md-6 col-xs-6"><span
               ng-click="setSortField('t','preferredName')">Terminology</span> <span
               ng-bind="getSortIndicator('t','preferredName')"></span></th>
-          <th class="col-md-1 col-xs-1"><span
+          <th class="col-md-2 col-xs-2"><span
               ng-click="setSortField('t','terminology')">Abbr</span> <span
               ng-bind="getSortIndicator('t','terminology')"></span></th>
-          <th class="col-md-1 col-xs-1"><span
+          <th class="col-md-2 col-xs-2"><span
               ng-click="setSortField('t','version')">Version</span> <span
               ng-bind="getSortIndicator('t','version')"></span></th>
           <th class="col-md-2 col-xs-2"><span
               ng-click="setSortField('t','organizingClassType')">Class
               Type</span> <span ng-bind="getSortIndicator('t','organizingClassType')"></span></th>
-          <th class="col-md-4 col-xs-4">Citation</th>
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat-start="terminology in pagedTerminologies" class="pointer"
+        <tr ng-repeat="terminology in pagedTerminologies" class="pointer"
           ng-class="{selected: terminology.id == selected.terminology.id}"
           ng-click="setTerminology(terminology)">
-          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.preferredName}}</td>
-          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.terminology}}</td>
-          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.version}}</td>
-          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{terminology.organizingClassType}}</td>
-          <td ng-class="{bold: terminology.id == selected.terminology.id}">{{getCitationValue(terminology.citation)}}</td>
-
+          <td>{{terminology.preferredName}}</td>
+          <td>{{terminology.terminology}}</td>
+          <td>{{terminology.version}}</td>
+          <td>{{terminology.organizingClassType}}</td>
         </tr>
-        <tr ng-if="terminology.id == selected.terminology.id" ng-repeat-end>
-          <td colspan="5">
-            <table class="ml20 mr20 slim table pointer">
-              <tbody>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>Restriction Level</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">{{selected.rootTerminology.restrictionLevel}}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>Language</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">{{selected.rootTerminology.language}}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>Acquisition Contact</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.acquisitionContact)}}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>Content Contact</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.contentContact)}}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>License Contact</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.licenseContact)}}
-                  </td>
-                </tr>
-                <tr ng-show="terminology.metathesaurus">
-                  <td class="col-md-3 col-xs-3">
-                    <b>Related Terminologies</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">
-                    <span class="noul"
-                      ng-click="getPagedList(item)"
-                      ng-repeat="item in terminology.relatedTerminologies">{{item}}
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="col-md-3 col-xs-3">
-                    <b>Access Data</b>
-                  </td>
-                  <td class="col-md-9 col-xs-9">
-                    <span class="btn btn-xs btn-primary"
-                      ng-click="navigateContent()">Browse Content</span>
-                    &nbsp; &nbsp;
-                    <span class="btn btn-xs btn-primary"
-                      ng-click="navigateMetadata()">View Metadata</span>
-                    &nbsp; &nbsp;
-                    <span class="btn btn-xs btn-primary" ng-click="export()">Export</span>
-
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-md-6 col-xs-6">
+    <!-- Details -->
+    <h4>
+      <br />{{selected.terminology.preferredName}}
+    </h4>
+    <table ng-show="selected.terminology" class="slim table">
+      <tbody>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Terminology</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{selected.terminology.terminology}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Version</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{selected.terminology.version}}</td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Citation</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{getCitationValue(terminology.citation)}}
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Restriction Level</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{selected.rootTerminology.restrictionLevel}}
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Language</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{selected.rootTerminology.language}}
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Acquisition Contact</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.acquisitionContact)}}
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Content Contact</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.contentContact)}}
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>License Contact</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{getContactValue(selected.rootTerminology.licenseContact)}}
+          </td>
+        </tr>
+        <tr ng-show="terminology.metathesaurus">
+          <td class="col-md-3 col-xs-3">
+            <b>Related Terminologies</b>
+          </td>
+          <td class="col-md-9 col-xs-9">
+            <span class="noul" ng-click="getPagedList(item)"
+              ng-repeat="item in terminology.relatedTerminologies">{{item}}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Access Data</b>
+          </td>
+          <td class="col-md-9 col-xs-9">
+            <span class="btn btn-xs btn-primary" ng-click="navigateContent()">Browse
+              Content</span>
+            &nbsp; &nbsp;
+            <span class="btn btn-xs btn-primary" ng-click="navigateMetadata()">View
+              Metadata</span>
+            &nbsp; &nbsp;
+            <span class="btn btn-xs btn-primary" ng-click="export()">Export</span>
 
           </td>
         </tr>
       </tbody>
     </table>
-
+    <span ng-show="!selected.terminology" class="alert alert-warning">Select
+      a terminology to see details</span>
 
   </div>
 </div>

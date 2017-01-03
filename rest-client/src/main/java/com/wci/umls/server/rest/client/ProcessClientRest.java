@@ -30,7 +30,6 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
-import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -390,30 +389,6 @@ public class ProcessClientRest extends RootClientRest
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
         .post(Entity.xml(algorithmConfigString));
-
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // do nothing, successful
-    } else {
-      throw new Exception("Unexpected status - " + response.getStatus());
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public void updateAlgorithmExecution(Long projectId, Long processId,
-    AlgorithmExecutionJpa algorithmExec, String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Process Client - update algorithmExec " + algorithmExec);
-    Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/process/config/algo"
-            + "?projectId=" + projectId + "&processId=" + processId);
-
-    String algorithmExecString = ConfigUtility.getStringForGraph(
-        algorithmExec == null ? new AlgorithmExecutionJpa() : algorithmExec);
-    Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken)
-        .post(Entity.xml(algorithmExecString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // do nothing, successful

@@ -1,13 +1,7 @@
 // Semantic types controller
 
-tsApp.controller('ContextsCtrl', [
-  '$scope',
-  '$window',
-  'utilService',
-  'tabService',
-  'securityService',
-  'utilService',
-  'contentService',
+tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabService',
+  'securityService', 'utilService', 'contentService',
   function($scope, $window, utilService, tabService, securityService, utilService, contentService) {
 
     console.debug("configure ContextsCtrl");
@@ -68,10 +62,11 @@ tsApp.controller('ContextsCtrl', [
       function(data) {
         $scope.pagedEntries = data.treePositions;
         $scope.pagedEntries.totalCount = data.totalCount;
-        $scope.selectEntry(null, data.treePositions[0]);
+        if (data.treePositions.length > 0) {
+          $scope.selectEntry(null, data.treePositions[0]);
+        }
       });
     }
-
 
     // refresh
     $scope.refresh = function() {
@@ -117,9 +112,13 @@ tsApp.controller('ContextsCtrl', [
         version : entry.nodeVersion,
         terminologyId : entry.nodeTerminologyId
       };
-      contentService.getComponent(lcomponent, $scope.selected.project.id).then(function(data) {
-        $scope.component = data;
-      });
+      if (entry.type === 'ATOM') {
+        $scope.component = lcomponent;
+      } else {
+        contentService.getComponent(lcomponent, $scope.selected.project.id).then(function(data) {
+          $scope.component = data;
+        });
+      }
     };
 
     // indicates if a particular row is selected

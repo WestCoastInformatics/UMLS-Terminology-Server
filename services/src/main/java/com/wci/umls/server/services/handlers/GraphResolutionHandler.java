@@ -6,7 +6,6 @@ package com.wci.umls.server.services.handlers;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
@@ -120,8 +119,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param treepos the treepos
    * @throws Exception the exception
    */
-  public void resolve(TreePosition<? extends AtomClass> treepos)
-    throws Exception;
+  public void resolve(TreePosition<?> treepos) throws Exception;
 
   /**
    * Resolve.

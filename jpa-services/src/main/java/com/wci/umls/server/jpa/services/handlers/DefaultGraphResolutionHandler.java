@@ -10,7 +10,6 @@ import java.util.Properties;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
@@ -213,8 +212,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
   /* see superclass */
   @Override
-  public void resolve(TreePosition<? extends AtomClass> treepos)
-    throws Exception {
+  public void resolve(TreePosition<?> treepos) throws Exception {
     if (treepos != null) {
       treepos.getAncestorPath();
 

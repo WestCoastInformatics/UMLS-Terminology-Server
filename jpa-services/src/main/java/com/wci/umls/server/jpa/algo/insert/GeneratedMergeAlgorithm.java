@@ -231,13 +231,13 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // If LUCENE filter query, returns concept id
     if (filterQueryType == QueryType.LUCENE) {
-      final List<Long[]> filterConceptIds = executeSingleComponentIdQuery(
+      final List<Long> filterConceptIds = executeSingleComponentIdQuery(
           filterQuery, filterQueryType, params, ConceptJpa.class);
 
       // For each returned concept, filter for all of its atoms' ids
       filterAtomIds = new HashSet<>();
-      for (Long[] conceptId : filterConceptIds) {
-        Concept c = getConcept(conceptId[0]);
+      for (Long conceptId : filterConceptIds) {
+        Concept c = getConcept(conceptId);
         for (Atom a : c.getAtoms()) {
           filterAtomIds.add(a.getId());
         }

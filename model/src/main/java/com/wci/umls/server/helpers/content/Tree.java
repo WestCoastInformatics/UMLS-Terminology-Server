@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers.content;
 
@@ -112,6 +112,20 @@ public interface Tree extends HasLabelSets {
    * @param nodeTerminologyId the node terminology id
    */
   public void setNodeTerminologyId(String nodeTerminologyId);
+
+  /**
+   * Returns the node id.
+   *
+   * @return the node id
+   */
+  public Long getNodeId();
+
+  /**
+   * Sets the node id.
+   *
+   * @param nodeId the node id
+   */
+  public void setNodeId(Long nodeId);
 
   /**
    * Returns the node name.

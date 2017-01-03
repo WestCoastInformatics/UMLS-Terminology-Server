@@ -1562,6 +1562,7 @@ public interface ContentService extends MetadataService {
   /**
    * Find concept tree position children.
    *
+   * @param nodeId the node id
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
@@ -1572,8 +1573,8 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   @SuppressWarnings("rawtypes")
-  public TreePositionList findTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch,
+  public TreePositionList findTreePositionChildren(Long nodeId,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception;
 
   /**

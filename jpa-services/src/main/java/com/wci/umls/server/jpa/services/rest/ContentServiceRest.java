@@ -573,6 +573,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Find atom trees.
+   *
+   * @param atomId the atom id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  public TreeList findAtomTrees(Long atomId, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
    * Find concept trees.
    *
    * @param terminologyId the terminology id
@@ -710,6 +722,18 @@ public interface ContentServiceRest {
    */
   public SubsetMemberList findConceptSubsetMembers(String subsetId,
     String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Find atom tree children.
+   *
+   * @param atomId the atom id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  public TreeList findAtomTreeChildren(Long atomId, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
   /**

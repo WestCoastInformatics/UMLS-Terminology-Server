@@ -67,6 +67,7 @@ import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomNoteJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
@@ -119,6 +120,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 import io.swagger.annotations.Api;
@@ -1388,8 +1390,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findConceptSearchResults(terminology,
-          version, Branch.ROOT, queryStr, pfs);
+      final SearchResultList sr = contentService.findConceptSearchResults(
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1577,8 +1579,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findDescriptorSearchResults(terminology,
-          version, Branch.ROOT, queryStr, pfs);
+      final SearchResultList sr = contentService.findDescriptorSearchResults(
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1729,8 +1731,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries returns all results
-      final SearchResultList sr = contentService.findCodeSearchResults(terminology, version,
-          Branch.ROOT, queryStr, pfs);
+      final SearchResultList sr = contentService.findCodeSearchResults(
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -2571,7 +2573,47 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/{atomId}/trees")
+  @ApiOperation(value = "Get trees with this atom Id", notes = "Get the trees with the specified atom id", response = TreeListJpa.class)
+  public TreeList findAtomTrees(
+    @ApiParam(value = "Atom id, e.g. 275105", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
 
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId + "/trees");
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
+
+      final TreePositionList list =
+          contentService.findTreePositions(null, null, null, Branch.ROOT,
+              "nodeId:" + atomId, AtomTreePositionJpa.class, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree = contentService.getTreeForTreePosition(treepos);
+        treeList.getObjects().add(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve trees for an atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees")
@@ -2735,6 +2777,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2810,6 +2853,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2885,6 +2929,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2930,11 +2975,54 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+  @Override
+  @POST
+  @Path("/atom/{atomId}/trees/children")
+  @ApiOperation(value = "Find children trees for an atom", notes = "Returns paged children trees for n atom. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
+  public TreeList findAtomTreeChildren(
+    @ApiParam(value = "Atom id, e.g. 483123", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /atom/" + atomId + "/" + "/trees/children");
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // the TreeList to return
+      final TreeList childTrees = new TreeListJpa();
+
+      // instantiate child tree positions array, used to construct trees
+      final TreePositionList childTreePositions =
+          contentService.findTreePositionChildren(atomId, null, null, null,
+              Branch.ROOT, ConceptTreePositionJpa.class, pfs);
+
+      // for each tree position, construct a tree
+      for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+          .getObjects()) {
+        final Tree childTree = new TreeJpa(childTreePosition);
+        childTrees.getObjects().add(childTree);
+      }
+
+      childTrees.setTotalCount(childTreePositions.getTotalCount());
+      return childTrees;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find tree children");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a concept", notes = "Returns paged children trees for a concept. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a concept", notes = "Returns paged children trees for a concept. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findConceptTreeChildren(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2955,9 +3043,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findTreePositionChildren(terminologyId, terminology,
-              version, Branch.ROOT, ConceptTreePositionJpa.class, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2983,7 +3071,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a code", notes = "Returns paged children trees for a code. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a code", notes = "Returns paged children trees for a code. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findCodeTreeChildren(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3004,9 +3092,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findTreePositionChildren(terminologyId, terminology,
-              version, Branch.ROOT, CodeTreePositionJpa.class, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3032,7 +3120,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findDescriptorTreeChildren(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -3053,9 +3141,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findTreePositionChildren(terminologyId, terminology,
-              version, Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -3113,7 +3201,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
         // get the children tree positions
         final TreePositionList childTreePositions =
-            contentService.findTreePositionChildren(
+            contentService.findTreePositionChildren(null,
                 rootTree.getNodeTerminologyId(), terminology, version,
                 Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
@@ -3190,7 +3278,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
         // get the children tree positions
         final TreePositionList childTreePositions =
-            contentService.findTreePositionChildren(
+            contentService.findTreePositionChildren(null,
                 rootTree.getNodeTerminologyId(), terminology, version,
                 Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
@@ -3268,7 +3356,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
         // get the children tree positions
         final TreePositionList childTreePositions =
-            contentService.findTreePositionChildren(
+            contentService.findTreePositionChildren(null,
                 rootTree.getNodeTerminologyId(), terminology, version,
                 Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
@@ -4204,9 +4292,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve deep tree positionsfor the concept", UserRole.VIEWER);
 
-      return contentService.findConceptDeepTreePositions(terminologyId,
-          terminology, version, Branch.ROOT, query, pfs);
-
+      final TreePositionList results =
+          contentService.findConceptDeepTreePositions(terminologyId,
+              terminology, version, Branch.ROOT, query, pfs);
+      final GraphResolutionHandler handler =
+          contentService.getGraphResolutionHandler(terminology);
+      for (final TreePosition<?> treePos : results.getObjects()) {
+        handler.resolve(treePos);
+      }
+      return results;
     } catch (Exception e) {
       handleException(e,
           "trying to retrieve deep tree positions for a concept");

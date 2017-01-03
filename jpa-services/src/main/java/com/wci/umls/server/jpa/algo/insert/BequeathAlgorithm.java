@@ -93,7 +93,7 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
       params.put("version", getProject().getVersion());
 
       for (Pair<String, String> terminology : terminologies) {
-        checkCancel();        
+        checkCancel();
 
         final String fromConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:VAB AND atoms.codeId:V-"
@@ -101,7 +101,7 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
                 + terminology.getLeft() + "_" + terminology.getRight();
 
         // Execute query to get from concept Ids
-        final List<Long[]> fromConceptIds = executeSingleComponentIdQuery(
+        final List<Long> fromConceptIds = executeSingleComponentIdQuery(
             fromConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
 
         final String toConceptQuery =
@@ -109,7 +109,7 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
                 + terminology.getLeft();
 
         // Execute query to get to concept Ids
-        final List<Long[]> toConceptIds = executeSingleComponentIdQuery(
+        final List<Long> toConceptIds = executeSingleComponentIdQuery(
             toConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
 
         // Load the to Concept (there can only be one)
@@ -117,12 +117,12 @@ public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
           throw new Exception(
               "Unexpected number of concepts returned by: " + toConceptQuery);
         }
-        final Concept toConcept = getConcept(toConceptIds.get(0)[0]);
+        final Concept toConcept = getConcept(toConceptIds.get(0));
 
         // Load all from concepts, and create "BRO" relationships from each one
         // to the to concept
-        for (Long[] fromConceptId : fromConceptIds) {
-          final Concept fromConcept = getConcept(fromConceptId[0]);
+        for (Long fromConceptId : fromConceptIds) {
+          final Concept fromConcept = getConcept(fromConceptId);
 
           // If "BRO" relationship already exists between these concepts, don't
           // add a new one.

@@ -13,6 +13,8 @@ INSERT INTO users (id, applicationRole, editorLevel, email, name, userName) valu
 create index x_concepts_1 on concepts(terminology);
 create index x_concepts_2 on concepts(workflowStatus);
 create index x_atoms_1 on atoms(workflowStatus);
+create index x_atom_rels_1 on atom_relationships(workflowStatus);
+create index x_concept_rels_1 on concept_relationships(workflowStatus);
 
 -- Create ancestorPath index for tree positions (not needed bcause of lucene)
 --create index x_ctr_ancestor_path on concept_tree_positions (ancestorPath(255));

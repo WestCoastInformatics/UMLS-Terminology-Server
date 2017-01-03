@@ -1,7 +1,8 @@
 <!-- NOTE: Two types of trees consolidated to take advantage of common tree functions -->
 <!-- Hierarchical Tree -->
 <div ng-if="treeCount > 0">
-  <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
+  <i ng-show="callbacks" style="float: left" class="noul glyphicon"
+    ng-click="showing = !showing"
     ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
   <h5 class="ml10">
     {{metadata.hierarchiesLabel}}
@@ -15,7 +16,7 @@
       )
     </span>
   </h5>
-  <div ng-show="showing" ui-tree>
+  <div class="ml10" ng-show="showing" ui-tree>
     <ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
       data-nodrop-enabled="true">
       <li ng-repeat="tree in componentTree" ui-tree-node data-nodrag

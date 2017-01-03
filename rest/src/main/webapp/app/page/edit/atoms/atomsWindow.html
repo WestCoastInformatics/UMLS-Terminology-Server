@@ -2,7 +2,7 @@
   class="alert alert-danger">Editing is disabled.</span>
 <h4>
   <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.atomsLabel}}
-    ({{selected.component.atoms.length}})</b>
+    ({{pagedAtoms.totalCount}})</b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">
     {{selected.component.name}} {{selected.component.id}} </span>
 </h4>
@@ -52,7 +52,12 @@
       ng-class="{selected: isRowSelected(atom)}">
       <td ng-click="toggleSelection(atom)">
         <input type="checkbox" value="{{atom.name}}"
-          ng-checked="isRowSelected(atom)">&nbsp;{{atom.name}}
+          ng-checked="isRowSelected(atom)">&nbsp;
+        <!-- Chevron -->
+        <i class="noul glyphicon" ng-click="toggleAttributes(atom)"
+          ng-class="[{'glyphicon-chevron-down' : attributes[atom.id]}, {'glyphicon-chevron-right' : !attributes[atom.id]}]"
+          title="{{attributes[atom.id] ? 'Hide' : 'Show'}} attributes"></i>
+        &nbsp; {{atom.name}}
       </td>
       <td ng-click="toggleSelection(atom)">{{atom.terminology}}/{{atom.termType}}</td>
       <td ng-click="toggleSelection(atom)">{{atom.codeId}}</td>
@@ -72,54 +77,63 @@
           ng-click="removeAtomFromConcept(atom); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
-        <button ng-disabled="!attributes[atom.id]"
-          class="btn btn-xs btn-primary"
-          title="{{attributes[atom.id] ? 'Hide' : 'Show'}} attribures"
-          ng-click="toggleAttributes(atom)">
-          A
-          </span>
       </td>
     </tr>
-    <tr ng-if="attributes[atom.id].ct > 0" ng-repeat-end>
+    <tr ng-show="attributes[atom.id].ct != null" ng-repeat-end>
       <td colspan="7">
-        <table class="slim table" ng-show="attributes[atom.id].atom.length>0">
-          <tr ng-repeat="att in attributes[atom.id].atom">
-            <td>{{att.name}}</td>
-            <td>{{att.value}}</td>
-          </tr>
-        </table>
-        <div ng-if="attributes[atom.id].code.length">
-          <h5>Code: {{atom.terminology}} {{atom.codeId}}</h5>
-          <table class="slim table" ng-show="attributes[atom.id].code.length>0">
-            <tr ng-repeat="att in attributes[atom.id].code">
-              <td>{{att.name}}</td>
-              <td>{{att.value}}</td>
-            </tr>
-          </table>
-        </div>
-        <div ng-if="attributes[atom.id].concept.length">
-          <h5>Concept: {{atom.terminology}} {{atom.conceptId}}</h5>
-          <table class="slim table"
-            ng-show="attributes[atom.id].concept.length>0">
-            <tr ng-repeat="att in attributes[atom.id].concept">
-              <td>{{att.name}}</td>
-              <td>{{att.value}}</td>
-            </tr>
-          </table>
-        </div>
-        <div ng-if="attributes[atom.id].descriptor.length">
-          <h5>Descriptor: {{atom.terminology}} {{atom.descriptorId}}</h5>
-          <table class="slim table"
-            ng-show="attributes[atom.id].descriptor.length>0">
-            <tr ng-repeat="att in attributes[atom.id].descriptor">
-              <td>{{att.name}}</td>
-              <td>{{att.value}}</td>
-            </tr>
-          </table>
-        </div>
+        <div class="row">
+          <div class="col-md-12 col-xs-12">
+            <table class="slim table"
+              ng-show="attributes[atom.id].atom.length>0">
+              <tr ng-repeat="att in attributes[atom.id].atom">
+                <td class="col-md-2 col-xs-2">ATOM</td>
+                <td class="col-md-3 col-xs-3">{{att.name}}</td>
+                <td class="col-md-7 col-xs-7">{{att.value}}</td>
+              </tr>
+            </table>
+            <span ng-show="attributes[atom.id].atom.length==0">
+              class="alert alert-warning"> No atom attributes </span>
+            <div ng-show="attributes[atom.id].code">
+              <table class="slim table"
+                ng-show="attributes[atom.id].code.length>0">
+                <tr ng-repeat="att in attributes[atom.id].code">
+                  <td class="col-md-2 col-xs-7">CODE</td>
+                  <td class="col-md-3 col-xs-3">{{att.name}}</td>
+                  <td class="col-md-6 col-xs-6">{{att.value}}</td>
+                </tr>
+              </table>
+              <span ng-show="attributes[atom.id].code.length==0">
+                class="alert alert-warning"> No code attributes </span>
+            </div>
+            <div ng-show="attributes[atom.id].concept">
+              <table class="slim table"
+                ng-show="attributes[atom.id].concept.length>0">
+                <tr ng-repeat="att in attributes[atom.id].concept">
+                  <td class="col-md-2 col-xs-2">CONCEPT</td>
+                  <td class="col-md-3 col-xs-3">{{att.name}}</td>
+                  <td class="col-md-7 col-xs-7">{{att.value}}</td>
+                </tr>
+              </table>
+              <span ng-show="attributes[atom.id].concept.length==0">
+                class="alert alert-warning"> No concept attributes </span>
+            </div>
+            <div ng-show="attributes[atom.id].descriptor">
+              <table class="slim table"
+                ng-show="attributes[atom.id].descriptor.length>0">
+                <tr ng-repeat="att in attributes[atom.id].descriptor">
+                  <td class="col-md-2 col-xs-2">DESCRIPTOR</td>
+                  <td class="col-md-3 col-xs-3">{{att.name}}</td>
+                  <td class="col-md-7 col-xs-7">{{att.value}}</td>
+                </tr>
+              </table>
+              <span ng-show="attributes[atom.id].descriptor.length==0">
+                class="alert alert-warning"> No descriptor attributes </span>
+            </div>
 
-        <span ng-show="attributes[atom.id].ct == 0" class="alert alert-warning">
-          No attributes</span>
+            <span ng-show="attributes[atom.id].ct == 0"
+              class="alert alert-warning"> No attributes </span>
+          </div>
+        </div>
       </td>
     </tr>
   </tbody>

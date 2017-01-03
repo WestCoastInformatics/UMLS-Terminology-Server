@@ -624,18 +624,14 @@ public class ReportServiceJpa extends HistoryServiceJpa
         childPfs.setMaxResults(10);
 
         if (treePos.getChildCt() > 0) {
-          children =
-              findTreePositionChildren(treePos.getNode().getTerminologyId(),
-                  treePos.getNode().getTerminology(),
-                  treePos.getNode().getVersion(), Branch.ROOT,
-                  treePos.getClass(), childPfs);
+          children = findTreePositionChildren(treePos.getNode().getId(), null,
+              null, null, Branch.ROOT, treePos.getClass(), childPfs);
         } else {
           children = new TreePositionListJpa();
         }
 
-        siblings = findTreePositionChildren(parent.getNodeTerminologyId(),
-            parent.getTerminology(), parent.getVersion(), Branch.ROOT,
-            treePos.getClass(), new PfsParameterJpa());
+        siblings = findTreePositionChildren(parent.getNodeId(), null, null,
+            null, Branch.ROOT, treePos.getClass(), new PfsParameterJpa());
 
         // siblings & self node
         indent = indent.substring(0, indent.length() - 2);

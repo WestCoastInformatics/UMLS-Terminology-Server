@@ -14,7 +14,6 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
-import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 
@@ -181,18 +180,6 @@ public interface ProcessServiceRest {
    */
   public void updateAlgorithmConfig(Long projectId, Long processId,
     AlgorithmConfigJpa algorithmConfig, String authToken) throws Exception;
-
-  /**
-   * Update algorithm execution.
-   *
-   * @param projectId the project id
-   * @param processId the process id
-   * @param algorithmConfig the algorithm config
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
-  public void updateAlgorithmExecution(Long projectId, Long processId,
-    AlgorithmExecutionJpa algorithmConfig, String authToken) throws Exception;
 
   /**
    * Validate algorithm config.

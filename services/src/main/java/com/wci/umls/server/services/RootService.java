@@ -392,7 +392,7 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<Long[]> executeSingleComponentIdQuery(String query,
+  public List<Long> executeSingleComponentIdQuery(String query,
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz) throws Exception;  
   

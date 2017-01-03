@@ -46,6 +46,9 @@ public class TreeJpa implements Tree {
   /** The terminology id. */
   String nodeTerminologyId = null;
 
+  /** The node id */
+  Long nodeId = null;
+
   /** The name. */
   String nodeName = null;
 
@@ -81,6 +84,7 @@ public class TreeJpa implements Tree {
     terminology = tree.getTerminology();
     version = tree.getVersion();
     nodeTerminologyId = tree.getNodeTerminologyId();
+    nodeId = tree.getNodeId();
     nodeName = tree.getNodeName();
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
@@ -108,6 +112,7 @@ public class TreeJpa implements Tree {
     this.terminology = treePosition.getNode().getTerminology();
     this.version = treePosition.getNode().getVersion();
     this.nodeTerminologyId = treePosition.getNode().getTerminologyId();
+    this.nodeId = treePosition.getNode().getId();
     this.nodeName = treePosition.getNode().getName();
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
@@ -196,6 +201,18 @@ public class TreeJpa implements Tree {
   @Override
   public void setNodeTerminologyId(String terminologyId) {
     this.nodeTerminologyId = terminologyId;
+  }
+
+  /* see superclass */
+  @Override
+  public Long getNodeId() {
+    return nodeId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setNodeId(Long nodeId) {
+    this.nodeId = nodeId;
   }
 
   /* see superclass */

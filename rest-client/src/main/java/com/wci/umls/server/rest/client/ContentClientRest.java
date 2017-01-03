@@ -1473,6 +1473,33 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public TreeList findAtomTrees(Long atomId, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Content Client - get tree positions for atom " + atomId + ", " + pfs);
+    validateNotEmpty(atomId, "atomId");
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/ATOM/" + atomId + "/trees");
+    final String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, TreeListJpa.class);
+
+  }
+
+  /* see superclass */
+  @Override
   public TreeList findConceptTrees(String terminologyId, String terminology,
     String version, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())

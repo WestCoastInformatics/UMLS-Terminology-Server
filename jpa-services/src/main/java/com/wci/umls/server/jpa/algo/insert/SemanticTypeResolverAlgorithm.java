@@ -127,15 +127,15 @@ public class SemanticTypeResolverAlgorithm
       params.put("projectTerminology", getProject().getTerminology());
       params.put("projectVersion", getProject().getVersion());
 
-      List<Long[]> conceptIdArray = executeSingleComponentIdQuery(query,
+      List<Long> conceptIdArray = executeSingleComponentIdQuery(query,
           QueryType.JQL, params, ConceptJpa.class);
 
       setSteps(conceptIdArray.size());
 
-      for (Long[] conceptId : conceptIdArray) {
-        checkCancel();    
-        
-        Concept concept = getConcept(conceptId[0]);
+      for (Long conceptId : conceptIdArray) {
+        checkCancel();
+
+        Concept concept = getConcept(conceptId);
         for (SemanticTypeComponent sty : new ArrayList<>(
             concept.getSemanticTypes())) {
           // If new semantic types set to "win", remove all old semantic types

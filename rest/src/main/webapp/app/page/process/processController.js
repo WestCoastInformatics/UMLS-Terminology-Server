@@ -158,7 +158,8 @@ tsApp
 
         // Select a process
         $scope.selectProcess = function(process, processProgress, algorithmProgress) {
-          console.debug('selectProcess executed.  processProgres: ' + processProgress + ', algorithProgress: ' + algorithmProgress);
+          console.debug('selectProcess executed.  processProgres: ' + processProgress
+            + ', algorithProgress: ' + algorithmProgress);
           // Read the process
           processService['getProcess' + $scope.selected.mode]($scope.selected.project.id,
             process.id).then(

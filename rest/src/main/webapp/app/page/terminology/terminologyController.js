@@ -39,7 +39,7 @@ tsApp.controller('TerminologyCtrl', [
     $scope.paging['t'] = utilService.getPaging();
     $scope.paging['t'].sortAsending = true;
     $scope.paging['t'].sortField = 'terminology';
-    $scope.paging['t'].pageSize = 50;
+    $scope.paging['t'].pageSize = 10;
     $scope.paging['t'].callbacks = {
       getPagedList : getPagedList
     };
@@ -58,7 +58,7 @@ tsApp.controller('TerminologyCtrl', [
         var terminologies = $scope.pagedTerminologies.filter(function(item) {
           return terminology == item.terminology
         });
-        if (terminologies.length>0) {
+        if (terminologies.length > 0) {
           $scope.setTerminology(terminologies[0]);
         }
       }
