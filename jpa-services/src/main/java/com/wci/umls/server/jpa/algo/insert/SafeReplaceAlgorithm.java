@@ -144,30 +144,17 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
     if (ConfigUtility.isEmpty(terminology)) {
 
-      // Open sources.src and pull all terminologies
-      List<Terminology> terminologies = new ArrayList<>();
+      // Get all terminologies referenced in the sources.src file
+      // terminologies.left = Terminology
+      // terminolgoies.right = Version
+      Set<Pair<String, String>> terminologies = new HashSet<>();
+      terminologies = getReferencedTerminologies();
 
-      List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
-
-      for (final String line : lines) {
-        final String terminologyAndVersion =
-            line.substring(0, line.indexOf('|'));
-        final Terminology terminology =
-            getCachedTerminology(terminologyAndVersion);
-        if (terminology == null) {
-          logWarn("Warning - terminology not found: " + terminologyAndVersion
-              + "." + " Could not process the following line:\n\t" + line);
-        } else {
-          terminologies.add(terminology);
-        }
-      }
-
-      for (Terminology terminology : terminologies) {
+      for (Pair<String, String> terminology : terminologies) {
         // Generate parameters to pass into query executions
         Map<String, String> params = new HashMap<>();
-        params.put("terminology", terminology.getTerminology());
-        params.put("version", terminology.getVersion());
+        params.put("terminology", terminology.getLeft());
+        params.put("version", terminology.getRight());
         params.put("projectTerminology", getProject().getTerminology());
         params.put("projectVersion", getProject().getVersion());
 
