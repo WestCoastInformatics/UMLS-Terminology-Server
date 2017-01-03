@@ -82,7 +82,7 @@ public class TerminologyJpa extends AbstractHasLastModified
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
-  /** The synonymous names. */
+  /** The related terminologies. */
   @ElementCollection
   private List<String> relatedTerminologies = new ArrayList<>();
 

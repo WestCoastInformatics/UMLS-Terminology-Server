@@ -17,6 +17,7 @@ tsApp.directive('mappings', [ function() {
       function($scope, utilService, contentService) {
         $scope.showing = true;
         $scope.mapSets = {};
+        $scope.showing = true;
 
         // watch the component
         $scope.$watch('component', function() {
@@ -34,19 +35,21 @@ tsApp.directive('mappings', [ function() {
             // Success
             function(data) {
               $scope.mappings = data.mappings;
-
               if (data.mappings.length > 0) {
                 // Request map setsfrom service
                 contentService.getMapSets($scope.metadata.terminology.terminology,
                   $scope.metadata.terminology.version).then(
                 // Success
                 function(data) {
-                  for (var i; i < data.mapSets.length; i++) {
+                  for (var i = 0; i < data.mapSets.length; i++) {
                     var mapSet = data.mapSets[i];
-                    $scope.mapSets[mapSet.id] = [];
+                    $scope.mapSets[mapSet.id] = {
+                      mapSet : mapSet,
+                      mappings : []
+                    };
                     for (var j = 0; j < $scope.mappings.length; j++) {
-                      if (data.mapSets[i].id == $scope.mappings[i].mapSetId) {
-                        $scope.mapSets[mapSet.id].push($scope.mappings[i]);
+                      if (mapSet.id == $scope.mappings[j].mapSetId) {
+                        $scope.mapSets[mapSet.id].mappings.push($scope.mappings[j]);
                       }
                     }
                   }
