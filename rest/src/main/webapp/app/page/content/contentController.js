@@ -56,7 +56,6 @@ tsApp
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
         $scope.callbacks = contentService.getCallbacks();
-        console.debug('callbacks', $scope.callbacks);
         // Scope vars
         $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
         $scope.selected = {
@@ -475,8 +474,6 @@ tsApp
 
           // slice the components
           var components = $scope.history.components.slice(fromIndex, toIndex);
-          
-          console.debug('setHistoryPage', hps, ct, index, fromIndex, toIndex, components);
 
           // assign indices for retrieval convenience
           for (var i = 0; i < components.length; i++) {

@@ -65,7 +65,6 @@ tsApp.directive('treeComponent', [ function() {
         // scope-indifferent)
         // displayed
         $scope.getTree = function(startIndex) {
-          console.debug('getting tree', startIndex);
           // Call content service to retrieve the tree
           contentService.getTree($scope.component, startIndex).then(function(data) {
 
