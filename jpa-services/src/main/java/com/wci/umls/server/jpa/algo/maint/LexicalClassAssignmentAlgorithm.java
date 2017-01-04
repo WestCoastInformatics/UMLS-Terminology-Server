@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo.maint;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,14 +17,15 @@ import org.hibernate.Session;
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.services.UmlsIdentityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.RrfComputePreferredNameHandler;
 import com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
@@ -81,12 +81,10 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       final UmlsIdentityService service = new UmlsIdentityServiceJpa();
 
       // Track changes
-      final Map<Long, String> postLuiLexicalClassMap = new HashMap<>(20000);
       final Map<String, Long> postLexicalClassLuiMap = new HashMap<>(20000);
 
       // Algorithm
       // 0. Cache all lexical class/normal form in memory
-      final Map<Long, String> preLuiLexicalClassMap = new HashMap<>(20000);
       final Map<String, Long> preLexicalClassLuiMap = new HashMap<>(20000);
 
       Session session = manager.unwrap(Session.class);
@@ -98,48 +96,50 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       while (results.next()) {
         final LexicalClassIdentity lui =
             (LexicalClassIdentity) results.get()[0];
-        preLuiLexicalClassMap.put(lui.getId(), lui.getNormalizedName());
         preLexicalClassLuiMap.put(lui.getNormalizedName(), lui.getId());
         if (++ct % 1000 == 0) {
           checkCancel();
         }
       }
       results.close();
-      fireProgressEvent(10, "Look up and rank atoms");
+      session.clear();
+      fireProgressEvent(10, "Collect atoms");
 
       // 1. Rank all atoms in (project) precedence order and iterate through
       final Map<Long, String> atomRankMap = new HashMap<>(20000);
-      session = manager.unwrap(Session.class);
-      hQuery = session.createQuery(
-          "select distinct c from ConceptJpa c join c.atoms a where c.terminology = :terminology "
-              + "  and c.version = :version");
-      hQuery.setParameter("terminology", getTerminology());
-      hQuery.setParameter("version", getVersion());
-      hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-      results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", getTerminology());
+      params.put("version", getVersion());
+      // Normalization is only for English
+      final List<Long> atomIds = executeSingleComponentIdQuery(
+          "select a.id from ConceptJpa c join c.atoms a where c.terminology = :terminology "
+              + "  and c.version = :version and a.language='ENG'",
+          QueryType.JQL, params, AtomJpa.class);
+      commitClearBegin();
+
+      fireProgressEvent(11, "Get and rank atoms");
       // NOTE: this assumes RRF preferred name handler
       final RrfComputePreferredNameHandler prefHandler =
           new RrfComputePreferredNameHandler();
       final PrecedenceList list = getProject().getPrecedenceList();
       prefHandler.cacheList(list);
       ct = 0;
-      while (results.next()) {
-        final Concept concept = (Concept) results.get()[0];
-        for (final Atom atom : concept.getAtoms()) {
-          final String rank = prefHandler.getRank(atom, list);
-          atomRankMap.put(atom.getId(), rank);
-        }
-        if (++ct % 1000 == 0) {
-          checkCancel();
-        }
+      for (final Long atomId : atomIds) {
+        final Atom atom = getAtom(atomId);
+        final String rank = new String(prefHandler.getRank(atom, list));
+        Long id = new Long(atom.getId());
+        atomRankMap.put(id, rank);
+        logAndCommit(++ct, RootService.logCt, RootService.commitCt);
       }
-      results.close();
+
       fireProgressEvent(20, "Assign LUIs");
 
-      // Sort all atoms -?? no idea how long this takes for full set
-      final List<Long> atomIds = new ArrayList<>(atomRankMap.keySet());
+      // Sort all atoms
       Collections.sort(atomIds,
           (a1, a2) -> atomRankMap.get(a1).compareTo(atomRankMap.get(a2)));
+
+      // Clear memory.
+      atomRankMap.clear();
 
       // Iterate through sorted atom ids
       int updatedLuis = 0;
@@ -166,9 +166,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
             updatedLuis++;
           }
           postLexicalClassLuiMap.put(normalForm, lui);
-          postLuiLexicalClassMap.put(lui, normalForm);
           preLexicalClassLuiMap.remove(normalForm);
-          preLuiLexicalClassMap.remove(lui);
 
         }
 
@@ -198,10 +196,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
           atom.setLexicalClassId(handler.convertId(lui, "LUI"));
           updateAtom(atom);
           postLexicalClassLuiMap.put(normalForm, lui);
-          postLuiLexicalClassMap.put(lui, normalForm);
         }
-
-        // TODO: cancel, reset, logging, progress events
 
         // Log, commit, progress, cancel
         int progress = (int) (startProgress + (80.0 * objectCt / totalCt));
@@ -221,7 +216,9 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       logInfo("  new LUIs ct = " + newLuis);
       logInfo("Finished lexical class assignment");
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       e.printStackTrace();
       logError("Unexpected problem - " + e.getMessage());
       throw e;
