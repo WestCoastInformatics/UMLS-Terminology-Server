@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo.rel;
+package com.wci.umls.server.jpa.algo.release;
 
 import java.io.File;
 import java.util.Date;
@@ -42,7 +42,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   private int stepCt = 0;
 
   /** The bypass validation checks. */
-  private boolean bypassValidationChecks = false;
+  private boolean warnValidationChecks = false;
 
   /**
    * Instantiates an empty {@link CreateNewReleaseAlgorithm}.
@@ -69,21 +69,22 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
           + dir.getPath());
     }
 
-    // remaining checks are bypassable
-    if (bypassValidationChecks) {
-      return result;
-    }
-
     // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
-    final SearchResultList unreviewedConcepts =
-        findConceptSearchResults(getProject().getTerminology(), getProject().getVersion(),
-            Branch.ROOT, " workflowStatus:NEEDS_REVIEW", pfs);
+    final SearchResultList unreviewedConcepts = findConceptSearchResults(
+        getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
+        " workflowStatus:NEEDS_REVIEW", pfs);
     if (unreviewedConcepts.size() > 0) {
-      result.addError(
-          "Release requires no concepts have NEEDS_REVIEW workflow status");
+      final String msg =
+          "Release requires no concepts have NEEDS_REVIEW workflow status";
+      if (warnValidationChecks) {
+        fireWarningEvent(msg);
+        logWarn(msg);
+      } else {
+        result.addError(msg);
+      }
     }
 
     // Verify that all worklists in the epoch for the project are
@@ -91,8 +92,15 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     final WorklistList notReadyWorklists = findWorklists(getProject(),
         " NOT workflowStatus:READY_FOR_PUBLICATION", pfs);
     if (notReadyWorklists.size() > 0) {
-      result.addError(
-          "Release requires all worklists in epoch to be READY_FOR_PUBLICATION");
+      final String msg =
+          "Release requires all worklists in epoch to be READY_FOR_PUBLICATION";
+      if (warnValidationChecks) {
+        fireWarningEvent(msg);
+        logWarn(msg);
+      } else {
+        result.addError(msg);
+      }
+
     }
 
     // Verify that all “required” bins have zero counts
@@ -101,17 +109,20 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
           config.getType())) {
         if (bin.isRequired()) {
           if (bin.getStats().size() != 0) {
-            result.addError(
+            final String msg =
                 "Release requires that all required bins have a count of 0 "
-                    + bin.getName());
+                    + bin.getName();
+            if (warnValidationChecks) {
+              fireWarningEvent(msg);
+              logWarn(msg);
+            } else {
+              result.addError(msg);
+            }
           }
         }
       }
     }
 
-    //
-    // +
-    //
     return result;
 
   }
@@ -119,8 +130,8 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-
-    logInfo("Starting Create new release");
+    logInfo("Starting create new release");
+    fireProgressEvent(0, "Starting");
 
     steps = 2;
     previousProgress = 0;
@@ -130,35 +141,26 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     File releaseDir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion());
     if (!releaseDir.exists()) {
+      logInfo("  Make release directories = " + releaseDir);
       releaseDir.mkdirs();
     }
-    logInfo("  releaseDir = " + releaseDir.getPath());
 
-    // Create “META”, “METASUBSET”, “log”, “QA” sub-directories.
-    logInfo("  Create “META”, “METASUBSET”, “log”, “QA” sub-directories.");
-    File metaDir = new File(releaseDir, "META");
-    if (!metaDir.exists()) {
-      metaDir.mkdir();
-    }
-    File metasubsetDir = new File(releaseDir, "METASUBSET");
-    if (!metasubsetDir.exists()) {
-      metasubsetDir.mkdir();
-    }
-    File logDir = new File(releaseDir, "log");
-    if (!logDir.exists()) {
-      logDir.mkdir();
-    }
-    File qaDir = new File(releaseDir, "QA");
-    if (!qaDir.exists()) {
-      qaDir.mkdir();
+    // Create directories
+    final String[] dirs = new String[] {
+        "META", "METASUBSET", "log", "QA", "FEEDBACK"
+    };
+    for (final String dir : dirs) {
+      File lDir = new File(releaseDir, dir);
+      if (!lDir.exists()) {
+        logInfo("    " + dir);
+        lDir.mkdir();
+      }
     }
 
     updateProgress();
 
     // Add a release info for the current release
-    logInfo("  Add release info for the current release = "
-        + getProject().getVersion());
-    ReleaseInfo releaseInfo = new ReleaseInfoJpa();
+    final ReleaseInfo releaseInfo = new ReleaseInfoJpa();
     releaseInfo.setTerminology(getProject().getTerminology());
     releaseInfo.setVersion(getProcess().getVersion());
     releaseInfo.setName(getProcess().getVersion());
@@ -167,27 +169,32 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setPublished(false);
     releaseInfo.setReleaseBeginDate(new Date());
     releaseInfo.setTimestamp(new Date());
+    logInfo("  Add release info = " + releaseInfo);
     addReleaseInfo(releaseInfo);
 
-    logInfo("Finished Create new release");
     updateProgress();
+    fireProgressEvent(100, "Finished");
+    logInfo("Finished Create new release");
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("Starting reset of Create new release");
+    logInfo("Reset create new release");
 
-    ReleaseInfo releaseInfo =
+    final ReleaseInfo releaseInfo =
         this.getCurrentReleaseInfo(getProject().getTerminology());
+    // IF matches this version, remove it
     if (releaseInfo.getName().equals(getProject().getVersion())) {
+      logInfo("  Remove release info = " + releaseInfo);
       removeReleaseInfo(releaseInfo.getId());
     }
 
+    // Cleanup all directories
     File releaseDir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion());
+    logInfo("  Remove directories = " + releaseDir.getPath());
     FileUtils.deleteDirectory(releaseDir);
-
     logInfo("Finished reset of Create new release");
 
   }
@@ -196,15 +203,15 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   @Override
   public void checkProperties(Properties p) throws Exception {
     checkRequiredProperties(new String[] {
-        "bypassValidationChecks"
+        "warnValidationChecks"
     }, p);
   }
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    bypassValidationChecks =
-        Boolean.valueOf(p.getProperty("bypassValidationChecks"));
+    warnValidationChecks =
+        Boolean.valueOf(p.getProperty("warnValidationChecks"));
   }
 
   /* see superclass */
@@ -213,9 +220,9 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa(
-        "Bypass validation checks", "bypassValidationChecks",
-        "Indicates whether or not to skip validation checks.", "e.g. false", 0,
-        AlgorithmParameter.Type.BOOLEAN, "");
+        "Warn validation checks", "warnValidationChecks",
+        "Indicates whether or not to produce warnings for validation checks.",
+        "e.g. false", 0, AlgorithmParameter.Type.BOOLEAN, "");
     params.add(param);
 
     return params;

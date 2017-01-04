@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo.rel;
+package com.wci.umls.server.jpa.algo.release;
 
 import java.util.Properties;
 import java.util.UUID;

@@ -59,7 +59,6 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("unused")
   @Override
   public void compute() throws Exception {
     logInfo("Starting lexical class assignment");

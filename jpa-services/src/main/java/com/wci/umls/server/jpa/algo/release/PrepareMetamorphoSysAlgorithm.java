@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo.rel;
+package com.wci.umls.server.jpa.algo.release;
 
 import java.util.Properties;
 
@@ -10,16 +10,16 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
- * Algorithm for packaging RRF relaese into a .zip file.
+ * Algorithm to prepare MetamorphoSys.
  */
-public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
+public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
 
   /**
-   * Instantiates an empty {@link PackageRrfReleaseAlgorithm}.
+   * Instantiates an empty {@link PrepareMetamorphoSysAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public PackageRrfReleaseAlgorithm() throws Exception {
+  public PrepareMetamorphoSysAlgorithm() throws Exception {
     // TODO Auto-generated constructor stub
   }
 
