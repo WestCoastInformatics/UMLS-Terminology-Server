@@ -27,6 +27,7 @@ import com.wci.umls.server.jpa.services.handlers.UmlsIdentifierAssignmentHandler
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.UmlsIdentityService;
 
 /**
@@ -50,7 +51,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   public ValidationResult checkPreconditions() throws Exception {
 
     if (getProject() == null) {
-      throw new Exception("Stamping requires a project to be set");
+      throw new Exception("LUI assignment requires a project to be set");
     }
 
     // n/a - NO preconditions
@@ -67,9 +68,12 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     logInfo("  activityId = " + getActivityId());
     logInfo("  user  = " + getLastModifiedBy());
 
-    // TODO: log/commit, progress/cancel
+    setMolecularActionFlag(false);
+    setTransactionPerOperation(false);
+    beginTransaction();
 
     try {
+      fireProgressEvent(0, "Starting, look up LUI assignments");
       // Assume this is configured to be a umls identifier handler properly
       // configured
       final UmlsIdentifierAssignmentHandler handler =
@@ -97,8 +101,12 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
             (LexicalClassIdentity) results.get()[0];
         preLuiLexicalClassMap.put(lui.getId(), lui.getNormalizedName());
         preLexicalClassLuiMap.put(lui.getNormalizedName(), lui.getId());
+        if (++ct % 1000 == 0) {
+          checkCancel();
+        }
       }
       results.close();
+      fireProgressEvent(10, "Look up and rank atoms");
 
       // 1. Rank all atoms in (project) precedence order and iterate through
       final Map<Long, String> atomRankMap = new HashMap<>(20000);
@@ -114,13 +122,20 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       final RrfComputePreferredNameHandler prefHandler =
           new RrfComputePreferredNameHandler();
       final PrecedenceList list = getProject().getPrecedenceList();
+      prefHandler.cacheList(list);
+      ct = 0;
       while (results.next()) {
         final Concept concept = (Concept) results.get()[0];
         for (final Atom atom : concept.getAtoms()) {
-          atomRankMap.put(atom.getId(), prefHandler.getRank(atom, list));
+          final String rank = prefHandler.getRank(atom, list);
+          atomRankMap.put(atom.getId(), rank);
+        }
+        if (++ct % 1000 == 0) {
+          checkCancel();
         }
       }
       results.close();
+      fireProgressEvent(20, "Assign LUIs");
 
       // Sort all atoms -?? no idea how long this takes for full set
       final List<Long> atomIds = new ArrayList<>(atomRankMap.keySet());
@@ -130,6 +145,10 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       // Iterate through sorted atom ids
       int updatedLuis = 0;
       int newLuis = 0;
+      int objectCt = 0;
+      int startProgress = 20;
+      int prevProgress = 0;
+      int totalCt = atomIds.size();
       for (final Long id : atomIds) {
         final Atom atom = getAtom(id);
 
@@ -152,7 +171,11 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
           preLexicalClassLuiMap.remove(normalForm);
           preLuiLexicalClassMap.remove(lui);
 
-        } else if (postLexicalClassLuiMap.containsKey(normalForm)) {
+        }
+
+        // 4. Check if this normal form has been assigned a LUI already, reuse
+        // it
+        else if (postLexicalClassLuiMap.containsKey(normalForm)) {
           final Long lui = postLexicalClassLuiMap.get(normalForm);
           final String lexicalClassId = handler.convertId(lui, "LUI");
           // Change LUI if needed
@@ -166,21 +189,41 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
         // 3b. create a new LUI and record it
         else {
           final Long lui = service.getNextLexicalClassId();
-          final LexicalClassIdentity lci = new LexicalClassIdentityJpa();
-          lci.setId(lui);
-          lci.setLanguage(atom.getLanguage());
-          lci.setNormalizedName(normalForm);
-          service.addLexicalClassIdentity(lci);
+          final LexicalClassIdentity lexicalClassId =
+              new LexicalClassIdentityJpa();
+          lexicalClassId.setId(lui);
+          lexicalClassId.setLanguage(atom.getLanguage());
+          lexicalClassId.setNormalizedName(normalForm);
+          service.addLexicalClassIdentity(lexicalClassId);
+          newLuis++;
           atom.setLexicalClassId(handler.convertId(lui, "LUI"));
           updateAtom(atom);
           postLexicalClassLuiMap.put(normalForm, lui);
           postLuiLexicalClassMap.put(lui, normalForm);
         }
-      }
 
+        // TODO: cancel, reset, logging, progress events
+
+        // Log, commit, progress, cancel
+        int progress = (int) (startProgress + (80.0 * objectCt / totalCt));
+        if (progress != prevProgress) {
+          checkCancel();
+          prevProgress = progress;
+          fireProgressEvent(progress, "Continuing to assign LUIs.");
+        }
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      }
+      // commit when finished
+      commitClearBegin();
+
+      fireProgressEvent(100, "Finished");
+
+      logInfo("  updated LUIs ct = " + updatedLuis);
+      logInfo("  new LUIs ct = " + newLuis);
       logInfo("Finished lexical class assignment");
 
     } catch (Exception e) {
+      e.printStackTrace();
       logError("Unexpected problem - " + e.getMessage());
       throw e;
     }
