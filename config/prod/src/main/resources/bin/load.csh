@@ -37,7 +37,7 @@ endif
 
 echo "    Load UMLS ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
-mvn install -PRRF-umls -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=UMLS -Dversion=latest -Dinput.dir=$UMLS_DATA/SCTMSH_2014AB >&! mvn.log
+mvn install -PRRF-umls -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER -Dterminology=MTH -Dversion=latest -Dinput.dir=$UMLS_DATA/SCTMSH_2014AB >&! mvn.log
 if ($status != 0) then
     echo "ERROR loading UMLS"
     cat mvn.log
@@ -48,7 +48,7 @@ echo "    Add UMLS project ...`/bin/date`"
 cd $UMLS_CODE/admin/loader
 mvn install -PProject -Drun.config.umls=$UMLS_CONFIG -Dserver=$SERVER \
   -Dname="Sample Project" -Ddescription="Sample project." \
-  -Dterminology=UMLS -Dversion=latest \
+  -Dterminology=MTH -Dversion=latest \
   -Dscope.concepts=138875005 -Dscope.descendants.flag=true \
   -Dadmin.user=admin >&! mvn.log
 if ($status != 0) then
@@ -61,7 +61,7 @@ endif
 echo "    Start UMLS editing ...`/bin/date`"
 cd $UMLS_CODE/admin/release
 mvn install -PStartEditingCycle -Drun.config.umls=$UMLS_CONFIG \
-  -Dserver=$SERVER -Drelease.version=2015AA -Dterminology=UMLS \
+  -Dserver=$SERVER -Drelease.version=2015AA -Dterminology=MTH \
   -Dversion=latest >&! mvn.log
 if ($status != 0) then
     echo "ERROR starting editing for UMLS"

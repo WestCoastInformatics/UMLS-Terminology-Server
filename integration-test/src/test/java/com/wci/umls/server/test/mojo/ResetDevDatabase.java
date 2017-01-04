@@ -49,7 +49,7 @@ public class ResetDevDatabase {
    * 
    * <pre>
    * Run the RRF-umls mojo against the sample config/src/resources/data/SAMPLE_2014AB" data.  This will create db and reindex.
-   * Create a "MTH" project (name="Sample Project" description="Sample project." terminology=UMLS version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
+   * Create a "MTH" project (name="Sample Project" description="Sample project." terminology=MTH version=latest scope.concepts=? scope.descendants.flag=true admin.user=admin)
    * Start an editing cycle for "MTH"
    * stop here and the db is ready to use
    * </pre>

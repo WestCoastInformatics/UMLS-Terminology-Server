@@ -1840,7 +1840,15 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (restart) {
             final List<AlgorithmExecution> previouslyStartedAlgorithms =
                 processExecution.getSteps();
+            processExecution.setWarning(false);
+            int warningCt = 0;
             for (final AlgorithmExecution ae : previouslyStartedAlgorithms) {
+              // Set warning
+              if (ae.isWarning()) {
+                warningCt++;
+                processExecution.setWarning(true);
+              }
+
               // If the algorithm finished, save the algorithm configId (so it
               // can be skipped later)
               if (ae.getFinishDate() != null && ae.getFailDate() == null) {
@@ -1865,6 +1873,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   .remove(lastCompletedAlgorithm.getAlgorithmConfigId());
               algorithmToRestart = lastCompletedAlgorithm;
               firstRestartedAlgorithm = true;
+              // If there was only one warning, and it was the step being undone
+              // set warning back to false;
+              if (lastCompletedAlgorithm.isWarning() && warningCt == 1) {
+                processExecution.setWarning(false);
+              }
             }
 
             // Update the processExecution progress and step-count
@@ -1959,8 +1972,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               @Override
               public void updateProgress(ProgressEvent processEvent) {
                 if (processEvent.isWarning()) {
-                  // TODO: also set a flag on the process execution.
                   finalAlgorithmExecution.setWarning(true);
+                  processExecution.setWarning(true);
                   return;
                 }
                 lookupAeProgressMap.put(aeId, processEvent.getPercent());

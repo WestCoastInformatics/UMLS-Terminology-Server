@@ -74,24 +74,28 @@ public class QaDatabase extends AbstractMojo {
         getLog().info("  " + property);
         getLog().info("    " + queryStr);
 
-        // Get and execute query (truncate any trailing semi-colon)
-        final Query query = manager.createNativeQuery(queryStr);
-        query.setMaxResults(10);
-        final List<Object[]> objects = query.getResultList();
+        try {
+          // Get and execute query (truncate any trailing semi-colon)
+          final Query query = manager.createNativeQuery(queryStr);
+          query.setMaxResults(10);
+          final List<Object[]> objects = query.getResultList();
 
-        // Expect zero count, any results are failures
-        if (objects.size() > 0) {
-          final List<String> results = new ArrayList<>();
-          for (final Object[] array : objects) {
-            StringBuilder sb = new StringBuilder();
-            for (final Object o : array) {
-              sb.append((o != null ? o.toString() : "null")).append(",");
+          // Expect zero count, any results are failures
+          if (objects.size() > 0) {
+            final List<String> results = new ArrayList<>();
+            for (final Object[] array : objects) {
+              StringBuilder sb = new StringBuilder();
+              for (final Object o : array) {
+                sb.append((o != null ? o.toString() : "null")).append(",");
+              }
+              results.add(sb.toString().replace(",$", ""));
             }
-            results.add(sb.toString().replace(",$", ""));
+            errors.put(property.toString(), results);
           }
-          errors.put(property.toString(), results);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // If the query failed, just go to the next one
         }
-
       }
 
       // Check for errors and report the
