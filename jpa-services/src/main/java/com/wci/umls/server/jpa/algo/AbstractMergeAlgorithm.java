@@ -101,7 +101,7 @@ public abstract class AbstractMergeAlgorithm
     if (fromConcept.getId().equals(toConcept.getId())) {
       addLogEntry(getLastModifiedBy(), getProject().getId(),
           fromConcept.getId(), getActivityId(), getWorkId(),
-          "Failure merging atom " + atomId + " with atom " + atomId
+          "Failure merging atom " + atomId + " with atom " + atomId2
               + " - atoms are both already in the same concept "
               + toConcept.getId());
 
@@ -223,9 +223,11 @@ public abstract class AbstractMergeAlgorithm
       } catch (Exception e2) {
         // do nothing
       }
+      
       statsMap.put("unsuccessfulMerges",
           statsMap.get("unsuccessfulMerges") + 1);
-      return;
+
+      throw e;
     } finally {
       // NEED to commit here to make sure that any changes made to the database
       // by MergeMolecularAction or AddDemotionMolecularAction are viewable by

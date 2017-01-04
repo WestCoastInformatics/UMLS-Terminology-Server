@@ -257,7 +257,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           // Update "alternateTerminologyIds"
           final Map<String, String> altTermIds =
               oldAtom.getAlternateTerminologyIds();
-          if (!altTermIds.containsKey(getProject().getTerminology() + "-SRC")) {
+          if (altTermIds
+              .get(getProject().getTerminology() + "-SRC") != fields[0]) {
             oldAtom.getAlternateTerminologyIds()
                 .put(getProject().getTerminology() + "-SRC", fields[0]);
             oldAtomChanged = true;
