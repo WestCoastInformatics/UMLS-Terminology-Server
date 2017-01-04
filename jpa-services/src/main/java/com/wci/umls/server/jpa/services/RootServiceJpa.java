@@ -1677,7 +1677,7 @@ public abstract class RootServiceJpa implements RootService {
 
     // if a SQL query, ensure the result ids have been aliased
     // Otherwise it will throw a Hibernate NonUniqueDiscoveredSqlAliasException
-    if (!query.toUpperCase()
+    if (queryType == QueryType.SQL && !query.toUpperCase()
         .matches("SELECT.*ID[ ]+[^ ]+.*,.*ID[ ]+[^ ]+.*FROM.*")) {
       throw new LocalException("Query must be constructed to return two ids");
     }
