@@ -177,6 +177,7 @@ public class ProcessExecutionJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("processConfigId");
     tester.include("type");
+    tester.include("warning");
 
     assertTrue(tester.testNotNullFields());
   }
