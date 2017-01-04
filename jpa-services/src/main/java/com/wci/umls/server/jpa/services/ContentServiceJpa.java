@@ -4122,7 +4122,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass())
         .info("Content Service - find concept tree positions " + terminologyId
-            + "/" + terminology + "/" + version + "/" + query);
+            + "/" + terminology + "/" + version + ", " + query);
     return findTreePositionsHelper(terminologyId, terminology, version, branch,
         query, pfs, clazz);
   }
