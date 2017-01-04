@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo.rel;
+package com.wci.umls.server.jpa.algo.release;
 
 import java.util.Properties;
 
@@ -10,16 +10,16 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
- * Algorithm to write the special NCI-META files.
+ * Algorithm for creating NCI-PDQ map.
  */
-public class WriteNciMetaFilesAlgorithm extends AbstractAlgorithm {
+public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
   /**
-   * Instantiates an empty {@link WriteNciMetaFilesAlgorithm}.
+   * Instantiates an empty {@link CreateNciPdqMapAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public WriteNciMetaFilesAlgorithm() throws Exception {
+  public CreateNciPdqMapAlgorithm() throws Exception {
     // TODO Auto-generated constructor stub
   }
 

@@ -22,8 +22,8 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.rel.ComputePreferredNamesAlgorithm;
-import com.wci.umls.server.jpa.algo.rel.CreateNewReleaseAlgorithm;
+import com.wci.umls.server.jpa.algo.release.ComputePreferredNamesAlgorithm;
+import com.wci.umls.server.jpa.algo.release.CreateNewReleaseAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Concept;
 

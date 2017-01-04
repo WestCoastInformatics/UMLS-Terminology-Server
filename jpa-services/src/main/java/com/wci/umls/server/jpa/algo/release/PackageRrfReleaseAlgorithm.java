@@ -1,7 +1,7 @@
 /*
  *    Copyright 2015 West Coast Informatics, LLC
  */
-package com.wci.umls.server.jpa.algo.rel;
+package com.wci.umls.server.jpa.algo.release;
 
 import java.util.Properties;
 
@@ -10,16 +10,16 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
- * Algorithm for creating NCI-PDQ map.
+ * Algorithm for packaging RRF relaese into a .zip file.
  */
-public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
+public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
 
   /**
-   * Instantiates an empty {@link CreateNciPdqMapAlgorithm}.
+   * Instantiates an empty {@link PackageRrfReleaseAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public CreateNciPdqMapAlgorithm() throws Exception {
+  public PackageRrfReleaseAlgorithm() throws Exception {
     // TODO Auto-generated constructor stub
   }
 

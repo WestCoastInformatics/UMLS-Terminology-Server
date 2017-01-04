@@ -25,6 +25,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
 
 import org.apache.log4j.Logger;
@@ -1665,25 +1666,75 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for proper format for insertion into reports
-
     if (query.toUpperCase().indexOf("FROM") == -1) {
       throw new LocalException("Query must contain the term FROM");
     }
 
-    // check for query matching specified return class type
-    String objectClassName = clazz.getSimpleName().toUpperCase();
-    if (objectClassName.endsWith("JPA")) {
-      objectClassName =
-          objectClassName.substring(0, objectClassName.length() - 3);
-    }
-    if (!query.toUpperCase()
-        .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
-      throw new LocalException(
-          "Query must be constructed to return ids for specified object type: "
-              + objectClassName);
-    }
+    // check for correct number and type of returned objects
     if (!query.toUpperCase().matches("SELECT.*ID.*,.*ID.*FROM.*")) {
       throw new LocalException("Query must be constructed to return two ids");
+    }
+
+    // if a SQL query, ensure the result ids have been aliased
+    // Otherwise it will throw a Hibernate NonUniqueDiscoveredSqlAliasException
+    if (queryType == QueryType.SQL && !query.toUpperCase()
+        .matches("SELECT.*ID[ ]+[^ ]+.*,.*ID[ ]+[^ ]+.*FROM.*")) {
+      throw new LocalException("Query must be constructed to return two ids");
+    }
+
+    // check to ensure the query returns objects of the correct passed-in class
+    // For SQL, grab the class' Table-name annotation, and make sure query
+    // contains it
+    if (queryType == QueryType.SQL) {
+      Table table = clazz.getAnnotation(Table.class);
+      String tableName = table.name();
+      if (!query.contains(tableName)) {
+        throw new LocalException(
+            "Query must be constructed to return ids for specified object type: "
+                + clazz.getSimpleName());
+      }
+    }
+
+    // For JQL, make a testQuery, removing all instances of .id before "FROM",
+    // so it returns the object, and confirm that object matches the passed-in
+    // class
+    if (queryType == QueryType.JQL) {
+      final int fromIndex = query.toUpperCase().indexOf("FROM");
+      final String testQuery =
+          query.substring(0, fromIndex).replaceAll("\\.id", "")
+              + query.substring(fromIndex);
+
+      javax.persistence.Query jpaTestQuery =
+          getEntityManager().createQuery(testQuery);
+      jpaTestQuery.setMaxResults(1);
+
+      // Handle special query key-words
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          if (testQuery.contains(":" + key)) {
+            jpaTestQuery.setParameter(key, params.get(key));
+          }
+        }
+      }
+
+      // check the test query to ensure its returned objects are of the
+      // specified
+      // return class type
+      final List<Object[]> testList = jpaTestQuery.getResultList();
+      if (!testList.isEmpty() && testList.get(0) != null) {
+        final Object returnedObject = testList.get(0)[0];
+        if (returnedObject != null && !(clazz.isInstance(returnedObject))) {
+          throw new LocalException(
+              "Query must be constructed to return ids for specified object type: "
+                  + clazz.getSimpleName());
+        }
+        final Object returnedObject2 = testList.get(0)[1];
+        if (returnedObject2 != null && !(clazz.isInstance(returnedObject2))) {
+          throw new LocalException(
+              "Query must be constructed to return ids for specified object type: "
+                  + clazz.getSimpleName());
+        }
+      }
     }
 
     // Execute the query
@@ -1709,20 +1760,22 @@ public abstract class RootServiceJpa implements RootService {
     final List<Object[]> list = jpaQuery.getResultList();
     final List<Long[]> results = new ArrayList<>();
     final Set<String> addedResults = new HashSet<>();
-
     for (final Object[] entry : list) {
+
       Long componentId1 = null;
       if (entry[0] instanceof BigInteger) {
         componentId1 = ((BigInteger) entry[0]).longValue();
       } else if (entry[0] instanceof Long) {
         componentId1 = (Long) entry[0];
       }
+
       Long componentId2 = null;
       if (entry[1] instanceof BigInteger) {
         componentId2 = ((BigInteger) entry[1]).longValue();
       } else if (entry[1] instanceof Long) {
         componentId2 = (Long) entry[1];
       }
+
       final Long[] result = new Long[] {
           componentId1, componentId2
       };
@@ -1731,6 +1784,7 @@ public abstract class RootServiceJpa implements RootService {
         results.add(result);
         addedResults.add(componentId1 + "|" + componentId2);
       }
+
     }
 
     return results;
@@ -1806,20 +1860,60 @@ public abstract class RootServiceJpa implements RootService {
       throw new LocalException("Query must contain the term FROM");
     }
 
-    // check for query matching specified return class type
-    String objectClassName = clazz.getSimpleName().toUpperCase();
-    if (objectClassName.endsWith("JPA")) {
-      objectClassName =
-          objectClassName.substring(0, objectClassName.length() - 3);
-    }
-    if (!query.toUpperCase()
-        .matches("SELECT.*FROM.*" + objectClassName + ".*")) {
+    // check for correct number and type of returned objects
+    if (!query.toUpperCase().matches("SELECT.*ID.*FROM.*")
+        || query.toUpperCase().matches("SELECT.*ID.*ID.*FROM.*")) {
       throw new LocalException(
-          "Query must be constructed to return id for specified object type: "
-              + objectClassName);
+          "Query must be constructed to return a single id");
     }
-    if (!query.toUpperCase().matches("SELECT.*ID.*FROM.*")) {
-      throw new LocalException("Query must be constructed to return an id");
+
+    // check to ensure the query returns objects of the correct passed-in class
+    // For SQL, grab the class' Table-name annotation, and make sure query
+    // contains it
+    if (queryType == QueryType.SQL) {
+      Table table = clazz.getAnnotation(Table.class);
+      String tableName = table.name();
+      if (!query.contains(tableName)) {
+        throw new LocalException(
+            "Query must be constructed to return ids for specified object type: "
+                + clazz.getSimpleName());
+      }
+    }
+
+    // For JQL, make a testQuery, removing all instances of .id before "FROM",
+    // so it returns the object, and confirm that object matches the passed-in
+    // class
+    if (queryType == QueryType.JQL) {
+      final int fromIndex = query.toUpperCase().indexOf("FROM");
+      final String testQuery =
+          query.substring(0, fromIndex).replaceAll("\\.id", "")
+              + query.substring(fromIndex);
+
+      javax.persistence.Query jpaTestQuery =
+          getEntityManager().createQuery(testQuery);
+      jpaTestQuery.setMaxResults(1);
+
+      // Handle special query key-words
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          if (testQuery.contains(":" + key)) {
+            jpaTestQuery.setParameter(key, params.get(key));
+          }
+        }
+      }
+
+      // check the test query to ensure its returned objects are of the
+      // specified
+      // return class type
+      final List<Object[]> testList = jpaTestQuery.getResultList();
+      if (!testList.isEmpty()) {
+        final Object returnedObject = testList.get(0);
+        if (returnedObject != null && !(clazz.isInstance(returnedObject))) {
+          throw new LocalException(
+              "Query must be constructed to return ids for specified object type: "
+                  + clazz.getSimpleName());
+        }
+      }
     }
 
     // Execute the query
@@ -1842,15 +1936,22 @@ public abstract class RootServiceJpa implements RootService {
     Logger.getLogger(getClass()).info("  query = " + query);
 
     // Return the result list as a single component id longs.
-    final List<Long> list = jpaQuery.getResultList();
+    final List<Object> list = jpaQuery.getResultList();
     final List<Long> results = new ArrayList<>();
     final Set<Long> addedResults = new HashSet<>();
-    for (final Long componentId1 : list) {
-      final Long result = componentId1;
+
+    for (final Object entry : list) {
+      Long componentId1 = null;
+
+      if (entry instanceof BigInteger) {
+        componentId1 = ((BigInteger) entry).longValue();
+      } else if (entry instanceof Long) {
+        componentId1 = (Long) entry;
+      }
 
       // Duplicate check
       if (!addedResults.contains(componentId1)) {
-        results.add(result);
+        results.add(componentId1);
         addedResults.add(componentId1);
       }
     }

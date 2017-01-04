@@ -313,7 +313,7 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       logInfo("[AtomLoader] Added " + addCount + " new Atoms.");
       logInfo("[AtomLoader] Updated " + updateCount + " existing Atoms.");
       if (mapsetAddCount != 0) {
-        logInfo("[AtomLoader] Added " + addCount + " new Mapsets.");
+        logInfo("[AtomLoader] Added " + mapsetAddCount + " new Mapsets.");
       }
 
       logInfo("  project = " + getProject().getId());
