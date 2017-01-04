@@ -155,15 +155,6 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           continue;
         }
 
-        // Load the terminology that will be used to look up the containing
-        // object
-        Terminology lookupTerminology = getCachedTerminology(fields[11]);
-        if (lookupTerminology == null) {
-          logWarnAndUpdate(line,
-              "Warning - terminology not found: " + fields[11] + ".");
-          continue;
-        }
-
         // If it's a DEFITION, process the line as a definition instead of an
         // attribute
         if (fields[3].equals("DEFINITION")) {
@@ -287,7 +278,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
           // Load the containing object
           ComponentHasAttributes containerComponent =
               (ComponentHasAttributes) getComponent(fields[10], fields[1],
-                  getCachedTerminology(fields[11]).getTerminology(), null);
+                  getCachedTerminologyName(fields[11]), null);
           if (containerComponent == null) {
             logWarnAndUpdate(line,
                 "Warning - could not find Component for type: " + fields[10]

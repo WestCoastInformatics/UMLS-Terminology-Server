@@ -112,6 +112,8 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
         "32|C93028|S|DEFINITION|The region on either side of the body that extends from the last rib to the hip.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e5ad416a6556a0dcb279c124a6acc83a|");
     out.println(
         "34|C98033|S|FDA_UNII_Code|ODN00F2SJG|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||634eb9dd2339a0f372a5f0b3c7b58fed|");
+    out.println(
+        "13340556|381548367|S|MAPSETSID|447562003|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||c1bb150020d064227a154e6a6fceaeea|");
     out.close();
 
     // Create and configure the algorithm
