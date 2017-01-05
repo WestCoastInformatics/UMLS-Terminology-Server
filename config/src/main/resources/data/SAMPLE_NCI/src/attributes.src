@@ -37,6 +37,7 @@
 7654|C105904|S|DEFINITION|A classification scheme in which gastric adenocarcinomas are separated into diffuse adenocarcinoma, intestinal type adenocarcinoma, mixed adenocarcinoma, or indeterminate type adenocarcinoma.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||750b3ecb03b94310772093024cae55b0|
 7985|C16048|S|DEFINITION|Sources of information such as libraries, databases, and websites.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||5114fb043d4d55524591a8d5411ee46b|
 7986|C16048|C|SEMANTIC_TYPE|Intellectual Product|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||3d9e88091cf4ebbab774e90c8f6d4052|
+8726|C47834|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 10071|C24383|S|DEFINITION|This gene is involved in coagulation and proteolytic cleavage regulation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||6a3f34802370e87620542efc656d55f9|
 10072|C24383|S|OMIM_Number|187930|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||04ac88db7ca41f114e7d4078e7aebca5|
 10073|C24383|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
@@ -156,6 +157,7 @@
 35670|C62423|S|DEFINITION|A classification system for the endoscopic assessment of reflux esophagitis based on the number and extent of mucosal breaks and their relationships to the mucosal folds and esophageal circumference.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7ca273892aa5baf39d23fcd06e2dba67|
 36007|C43784|C|SEMANTIC_TYPE|Conceptual Entity|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e398d0876941a4c1d8b263b841f639b7|
 36008|C43784|S|DEFINITION|A role used to assert a relationship between a gene and its general location, specified by chromosomal band position (infrequently by chromosome number or chromosome arm). The domain and range for this role are 'Gene' and 'Anatomic Structure, System, or Substance', respectively.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||600ebc6b320069ea123b8a6093252b19|
+36553|C36843|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 37517|C45454|S|DEFINITION|A specializing role which may be used to override Gene_Has_Abnormality that has been asserted for the gene class. This role is used to establish a link between a specific allele and genetic or molecular abnormalities that have been observed in human cells and tissues associated with cancer or another disease of interest. The domain and range for this role are 'Gene' and 'Molecular Abnormality', respectively.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||5ffe278e53e98cafabce87adbd9603ad|
 37518|C45454|C|SEMANTIC_TYPE|Conceptual Entity|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e398d0876941a4c1d8b263b841f639b7|
 37735|C76733|C|SEMANTIC_TYPE|Pharmacologic Substance|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||f2d6dd6b0e78d83a64d168510c54ee04|
@@ -211,6 +213,7 @@
 47890|C17082|S|DEFINITION|Any type of DNA sequence rearrangement involving possible exchange and frequent loss of segments of DNA by either homologous recombination or non-homologous end-joining of broken DNA strands. Recombination is involved in assorting genes during reproduction, in repairing broken DNA, and in maintaining cell viability at the expense of long-term genomic stability.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7e3170127e82ab064bf983bc86479c90|
 48354|C45458|S|DEFINITION|A role used for an allele whose location has changed from the wild-type gene chromosomal location. This role is used to negate an inherited role relationship that is asserted between the parent gene class and a chromosomal location when an allele has moved (e.g., translocation, inversion, etc.). The domain and range for this role are 'Gene' and 'Anatomic Structure, System, or Substance', respectively.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||8fde5bea92d2a613a14a271a88ca2c86|
 48355|C45458|C|SEMANTIC_TYPE|Conceptual Entity|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e398d0876941a4c1d8b263b841f639b7|
+49634|C53405|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 50711|C97378|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 50712|C97378|S|OMIM_Number|609173|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||2d59999b665af68b73bc4239841b8af2|
 50713|C97378|S|DEFINITION|This gene plays a role in mitotic signaling.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||ef11f4d42937f504c9d72fe6f425bb10|
@@ -745,6 +748,7 @@
 181951|C18261|S|DEFINITION|This gene is involved in transcriptional repression and protein degradation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||8f28e034f894c16d05c33792416bcc77|
 181952|C18261|S|OMIM_Number|608537|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||71bbb35375a8ad6da18b9f28847d6c8d|
 181953|C18261|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
+182762|C53305|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 183645|C105964|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 183646|C105964|S|DEFINITION|This gene plays a role in sumoylation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||15f04ebc834682270bbf04bbfe6467ad|
 184888|C27351|C|SEMANTIC_TYPE|Disease or Syndrome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a9af6d60c17b70a7ae1b63514b5ae88|
@@ -854,6 +858,7 @@
 210289|C29938|S|Gene_Encodes_Product|Enzyme Inhibitor Protein|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||95ba428b2baadfe42c8d45d1ac02b71a|
 210290|C29938|S|DEFINITION|Enzyme Inhibitor Genes encode Enzyme Inhibitor Proteins, biological molecules that block or suppress the catalytic activity of enzymes. (NCI)|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||06420f10757a8e4b6d21ac7695c878e0|
 210291|C29938|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
+211003|C37088|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 211316|C24328|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 211317|C24328|S|OMIM_Number|124010|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||87c069beae473463a44393905bea6aa3|
 211318|C24328|S|DEFINITION|This gene plays an role in the metabolism of numerous clinically-relevant drugs. It is also involved in the oxidation of both endogenous substrates and xenobiotics.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||ef5f9737363a3ae4ab6e2ef96ad9793f|
@@ -864,6 +869,7 @@
 212323|C105007|S|DEFINITION|This gene is involved in protein degradation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||9afcf6156ba9879825b4aa3bf484def0|
 212324|C105007|S|OMIM_Number|602329|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||2d0c8050d795037d228b06268263a58e|
 212325|C105007|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
+213447|C37089|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 214699|C15639|S|DEFINITION|A formal ranking system of the strength of evidence linked to a reported result.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||593c8129fb60c70adfcabe35078c2f5c|
 214700|C15639|C|SEMANTIC_TYPE|Classification|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||5c9335b28e6277ddbe0137f04e5e58a7|
 214701|C15639|S|DEFINITION|A ranking system used to describe the strength of the results measured in a clinical trial or research study. The design of the study (such as a case report for an individual patient or a randomized double-blinded controlled clinical trial) and the endpoints measured (such as survival or quality of life) affect the strength of the evidence.|NCI-GLOSS_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||aef9ab0630d95a52258c22d78e336e7f|
@@ -977,6 +983,7 @@
 244783|C26592|S|OMIM_Number|126430|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||00e86c44202a3f01a5d3e3543dcc8d55|
 244784|C26592|S|DEFINITION|This gene plays a role in DNA replication, chromosome recombination and the regulation of DNA topology during transcription.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||8c1062bc42337c40888301ec2652b5f4|
 244785|C26592|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
+245522|C37086|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 245950|C61738|C|SEMANTIC_TYPE|Pharmacologic Substance|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||f2d6dd6b0e78d83a64d168510c54ee04|
 245951|C61738|S|Contributing_Source|FDA|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||274c68ab4977fafeda9d04c1646554f4|
 245952|C61738|S|CAS_Registry|469-21-6|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||0314c04a8e3df97fc9bd997078ca525b|
@@ -984,9 +991,12 @@
 245954|C61738|S|CHEBI_ID|CHEBI:51380|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||6bf9a35f15c0e5e827803bef279b28e8|
 245955|C61738|S|DEFINITION|A first generation ethanolamine with antiinflammatory, sedative and antihistamine properties. Doxylamine competitively inhibits the histamine 1 (H1) receptor, thereby preventing the action of endogenous histamine as well as the subsequent release of pro-inflammatory mediators from basophils and mast cells. This agent acts as an inverse agonist that combines with, and stabilizes the inactive form of the H1-receptor, shifting the H1 receptor equilibrium toward the inactive state. This results in downregulation of nuclear factor-kappaB (NF-kappaB) and NF-kappaB dependent antigen presentation, chemotaxis, as well as expression of cell-adhesion molecules and pro-inflammatory cytokines.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||c01b485dbcc064365507daf8a71af613|
 245956|C61738|S|Chemical_Formula|C17H22N2O|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||729d955e6d9ab1759e7f40460cb3faaf|
+246970|C12913|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
+246971|C12913|S|DEFINITION|An abnormal human cell type which can occur in either disease states or disease models.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||a66433d4f3538b13dfe20eac15e0c5cd|
 247932|C97375|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 247933|C97375|S|DEFINITION|This gene plays a role in both nucleotide hydrolysis and signal transduction.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||ccdf25bd8008c75a80bf40e197ad7fd2|
 247934|C97375|S|OMIM_Number|613165|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||8297ce8b7d5683d90a2d759bc7ff68fa|
+248014|C37087|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 250977|C16792|S|DEFINITION|The principles, practice, or study of library administration.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||038b47daa8befd571434107f1a495209|
 250978|C16792|C|SEMANTIC_TYPE|Occupation or Discipline|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||856118919315e7420b3e7b7900fac932|
 251370|C17270|C|SEMANTIC_TYPE|Enzyme|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||d6ed799db7d7773b5db5b239976b449c|
@@ -1267,6 +1277,7 @@
 311632|C89330|S|DEFINITION|A disorder diagnosed in childhood that is marked by either physical or mental impairment or both, which in turn affects the child from achieving age related developmental milestones.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||20082e1dd73b6da1c0896f66910cc180|
 311633|C89330|C|SEMANTIC_TYPE|Disease or Syndrome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a9af6d60c17b70a7ae1b63514b5ae88|
 311634|C89330|S|NICHD_Hierarchy_Term|Developmental Disorder|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||c7632728da5bd088c188f05c088ce9e8|
+311657|C37092|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 312225|C86550|S|DEFINITION|Human FANCD2 wild-type allele is located in the vicinity of 3p26 and is approximately 76 kb in length. This allele, which encodes Fanconi anemia group D2 protein, plays a role in the mediation of homolog pairing in meiosis, cell cycle checkpoint regulation and the modulation of DNA repair. Mutation of the gene is associated with Fanconi anemia.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7864df183d112142cdc578d30260b5a6|
 312226|C86550|S|GenBank_Accession_Number|AF340183|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||73aa38cf7df2a5a8e7135bc99f4c23b2|
 312227|C86550|S|HGNC_ID|HGNC:3585|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7b980a91a3372f5b449741cf0d8ef222|
@@ -1279,6 +1290,7 @@
 313738|C61672|S|CAS_Registry|132-22-9|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||b66e1e4e3513b60e1da4c5e2bacc1c36|
 313739|C61672|C|SEMANTIC_TYPE|Pharmacologic Substance|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||f2d6dd6b0e78d83a64d168510c54ee04|
 313740|C61672|S|Contributing_Source|FDA|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||274c68ab4977fafeda9d04c1646554f4|
+313946|C37093|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 313983|C111973|S|DEFINITION|This gene may play a role in transcriptional regulation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||e1b3a2648c1b39292b0789f6de9ed597|
 313984|C111973|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 314657|C106058|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
@@ -1449,6 +1461,7 @@
 349388|C28567|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 349389|C28567|S|OMIM_Number|123890|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||c3a15103c85994aa5025b7939b3e6b9d|
 349390|C28567|S|DEFINITION|This gene is involved in T-cell mediation and receptor signal transduction.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||aa45b58fa213bce1ba4cef24171a82ee|
+349654|C37091|C|SEMANTIC_TYPE|Cell|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||1a66ab62bfc858b7bcf9e01aa9cd1841|
 349921|C28470|C|SEMANTIC_TYPE|Gene or Genome|E-NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||7aa1cb9e6089827c730821b7639580ef|
 349922|C28470|S|OMIM_Number|300841|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||4816b1a836bf603c9d9ff7dfa38a40d2|
 349923|C28470|S|DEFINITION|This gene plays an important role in blood coagulation.|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||b7caf7df98025841e18687a1a27ff47d|
