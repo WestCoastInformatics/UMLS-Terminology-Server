@@ -70,7 +70,8 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting Write RRF History");
+    logInfo("Starting write RRF History");
+    fireProgressEvent(0, "Starting");
 
     openWriters();
 
@@ -82,10 +83,13 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
     writeMrcui();
     closeWriters();
-    logInfo("Finishing Write RRF Indexes");
 
     // TODO: write CHAGNE/* files
     // only MERGEDCUI/DELETEDCUI, make other ones blank.
+
+    fireProgressEvent(100, "Finished");
+    logInfo("Finished write RRF Indexes");
+
   }
 
   /**
@@ -95,6 +99,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
    */
   @SuppressWarnings("unchecked")
   private void writeMrcui() throws Exception {
+
     // 0 CUI1 Unique identifier for first concept - Retired CUI - was present in
     // some prior release, but is currently missing
     // 1 VER The last release version in which CUI1 was a valid CUI
@@ -113,10 +118,10 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     // C0000703|1993AA|SY|||C0002691|Y|
     // Algorithm
 
-    Set<String> currentCuis = new HashSet<>();
+    final Set<String> currentCuis = new HashSet<>();
     String queryStr = null;
     javax.persistence.Query query = null;
-    queryStr = "select c.terminologyId " + "from ConceptJpa c "
+    queryStr = "select c.terminologyId from ConceptJpa c "
         + "where c.terminology = :terminology and c.version = :version "
         + "and c.publishable = true";
     query = manager.createQuery(queryStr);
@@ -125,7 +130,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     currentCuis.addAll(query.getResultList());
 
     // atoms in different concept than previous release:
-    Map<String, Set<String>> atomsMoved = new HashMap<>();
+    final Map<String, Set<String>> atomsMoved = new HashMap<>();
     queryStr = "select distinct value(cid), c.terminologyId  "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "where c.terminology = :terminology and c.version = :version "
@@ -135,9 +140,9 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
-    for (Object[] objArray : results) {
-      String lastReleaseCui = objArray[0].toString();
-      String cui = objArray[1].toString();
+    for (final Object[] objArray : results) {
+      final String lastReleaseCui = objArray[0].toString();
+      final String cui = objArray[1].toString();
       if (!atomsMoved.containsKey(lastReleaseCui)) {
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
@@ -146,17 +151,17 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
     // Determine "merge" cases - all keys from atomsMoved where the value is
     // size()==1 and the key is not in currentCuis.
-    Map<String, String> syCui1Cui2Pairs = new HashMap<>();
-    for (Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
-      String lastReleaseCui = entry.getKey();
+    final Map<String, String> syCui1Cui2Pairs = new HashMap<>();
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
+      final String lastReleaseCui = entry.getKey();
       if (entry.getValue().size() == 1
           && !currentCuis.contains(lastReleaseCui)) {
-        String cui2 = (String) entry.getValue().toArray()[0];
+        final String cui2 = (String) entry.getValue().toArray()[0];
         // write an SY row where CUI1 is the last release CUI, and CUI2 is the
         // single cui in the value.
         // save these CUI1->CUI2 pairs for later.
         syCui1Cui2Pairs.put(lastReleaseCui, cui2);
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(getProcess().getVersion()).append("|"); // 1 VER
         sb.append("SY").append("|"); // 2 REL
@@ -173,13 +178,13 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     // write RO rows for both "value" CUIs.
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
-    for (Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
-      String lastReleaseCui = entry.getKey();
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
+      final String lastReleaseCui = entry.getKey();
       if (entry.getValue().size() > 1
           && !currentCuis.contains(lastReleaseCui)) {
         // write RO rows for both "value" CUIs.
-        List<String> values = new ArrayList<>(entry.getValue());
-        StringBuilder sb = new StringBuilder();
+        final List<String> values = new ArrayList<>(entry.getValue());
+        final StringBuilder sb = new StringBuilder();
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(getProcess().getVersion()).append("|"); // 1 VER
         sb.append("RO").append("|"); // 2 REL
@@ -202,52 +207,54 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
     updateProgress();
 
-    // process one concept at a time - only looking at unpublishable concepts
+    // Unpublishable concepts get DEL/bequeathal
+    // because unpublishable/unpublished concepts have been removed.
     final Session session = manager.unwrap(Session.class);
     org.hibernate.Query hQuery = session.createQuery(
-        "select a from ConceptJpa a WHERE a.publishable = false and terminology = :terminology order by a.terminologyId");
+        "select distinct c from ConceptJpa c where c.publishable = false "
+            + "and c.terminology = :terminology order by c.terminologyId");
 
     hQuery.setParameter("terminology", getProject().getTerminology());
-    hQuery.setReadOnly(true).setFetchSize(1000);
+    hQuery.setReadOnly(true).setFetchSize(2000);
     ScrollableResults scrollableResults =
         hQuery.scroll(ScrollMode.FORWARD_ONLY);
     while (scrollableResults.next()) {
       final Concept c = (Concept) scrollableResults.get()[0];
 
-      // TODO test look in Sample MRCUI for SY case
-      // lookup cui2 and merge that concept into a cui3
+      // Skip any concept that doesn't have a real CUI
+      if (c.getId().toString().equals(c.getTerminologyId())) {
+        continue;
+      }
 
       // IF does not have a component history (e.g. newly dead)
       if (c.getComponentHistory() == null
           || c.getComponentHistory().isEmpty()) {
         // If no bequeathal rel, -> write out a "DEL" entry to MRCUI
-        List<ConceptRelationship> bequeathalRels = getBequeathalRels(c);
+        final List<ConceptRelationship> bequeathalRels = getBequeathalRels(c);
         if (bequeathalRels.size() == 0) {
-          StringBuilder sb = new StringBuilder();
-          sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
-          sb.append(getProcess().getVersion()).append("|"); // 1 VER
-          sb.append("DEL").append("|"); // 2 REL
-          sb.append("|"); // 3 RELA
-          sb.append("|");// 4 MAPREASON
-          sb.append("|"); // 5 CUI2
-          sb.append("|");// 6 MAPIN blank if CUI2 is blank
+          final StringBuilder sb = new StringBuilder();
+          sb.append(c.getTerminologyId()).append("|");
+          sb.append(getProcess().getVersion()).append("|");
+          sb.append("DEL").append("|");
+          sb.append("|");
+          sb.append("|");
+          sb.append("|");
+          sb.append("|");
           sb.append("\n");
           writerMap.get("MRCUI.RRF").print(sb.toString());
         }
         // If bequeathal rel -> write out bequeathal entry for each rel
         else {
-          for (ConceptRelationship bequeathalRel : bequeathalRels) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(c.getTerminologyId()).append("|"); // 0 CUI1
-            sb.append(getProcess().getVersion()).append("|"); // 1 VER
+          for (final ConceptRelationship bequeathalRel : bequeathalRels) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(c.getTerminologyId()).append("|");
+            sb.append(getProcess().getVersion()).append("|");
             sb.append(bequeathalRel.getRelationshipType().substring(1))
-                .append("|"); // 2 REL
-            sb.append("|"); // 3 RELA
-            sb.append("|"); // 4 MAPREASON
-            sb.append(bequeathalRel.getTo().getTerminologyId()).append("|"); // 5
-                                                                             // CUI2
-                                                                             // getTo.getTId
-            sb.append("Y").append("|"); // 6 MAPIN
+                .append("|");
+            sb.append("|");
+            sb.append("|");
+            sb.append(bequeathalRel.getTo().getTerminologyId()).append("|");
+            sb.append("Y").append("|");
             sb.append("\n");
             writerMap.get("MRCUI.RRF").print(sb.toString());
           }
@@ -359,12 +366,10 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
    * @param c the c
    * @return the bequeathal rels
    */
-  // this means concept.getRelationships() has 1 or more relationships with BRO,
-  // BRN, BRB as relationshiptype (write out without the leading B)
   @SuppressWarnings("static-method")
   private List<ConceptRelationship> getBequeathalRels(Concept c) {
-    List<ConceptRelationship> bequeathalRels = new ArrayList<>();
-    for (ConceptRelationship rel : c.getRelationships()) {
+    final List<ConceptRelationship> bequeathalRels = new ArrayList<>();
+    for (final ConceptRelationship rel : c.getRelationships()) {
       if (rel.getRelationshipType().equals("BRO")
           || rel.getRelationshipType().equals("BRN")
           || rel.getRelationshipType().equals("BRB")) {
@@ -410,7 +415,6 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     final List<Object[]> results = new ArrayList<>();
 
     String queryStr = null;
-    javax.persistence.Query query = null;
     queryStr = "select value(aid), value(cid), c.terminologyId  "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "join a.alternateTerminologyIds aid "
@@ -418,7 +422,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
         + "and c.publishable = true " + "and a.publishable = true "
         + "and key(aid) = :terminology " + "and key(cid) = :terminology "
         + "and value(cid) != c.terminologyId";
-    query = manager.createQuery(queryStr);
+    final javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     results.addAll(query.getResultList());
@@ -429,15 +433,15 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
       // Write an entry for each row.
       StringBuilder sb = new StringBuilder();
-      sb.append(aui).append("|"); // 0 AUI1
-      sb.append(lastReleaseCui).append("|"); // 1 CUI1 last release cui
-      sb.append(getProcess().getVersion()).append("|"); // 2 VER
-      sb.append("|"); // 3 REL
-      sb.append("|");// 4 RELA
-      sb.append("move").append("|"); // 5 MAPREASON
-      sb.append(aui).append("|"); // 6 AUI2 same as aui1
-      sb.append(cui).append("|"); // 7 CUI2 current cui
-      sb.append("Y").append("|"); // 8 MAPIN always Y
+      sb.append(aui).append("|");
+      sb.append(lastReleaseCui).append("|");
+      sb.append(getProcess().getVersion()).append("|");
+      sb.append("|");
+      sb.append("|");
+      sb.append("move").append("|");
+      sb.append(aui).append("|");
+      sb.append(cui).append("|");
+      sb.append("Y").append("|");
       sb.append("\n");
       writerMap.get("MRAUI.RRF").print(sb.toString());
     }

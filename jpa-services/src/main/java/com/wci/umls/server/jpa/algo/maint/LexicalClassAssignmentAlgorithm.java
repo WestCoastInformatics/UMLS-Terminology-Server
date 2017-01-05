@@ -68,8 +68,6 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
     logInfo("  user  = " + getLastModifiedBy());
 
     setMolecularActionFlag(false);
-    setTransactionPerOperation(false);
-    beginTransaction();
 
     try {
       fireProgressEvent(0, "Starting, look up LUI assignments");
@@ -108,8 +106,8 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       // 1. Rank all atoms in (project) precedence order and iterate through
       final Map<Long, String> atomRankMap = new HashMap<>(20000);
       final Map<String, String> params = new HashMap<>();
-      params.put("terminology", getTerminology());
-      params.put("version", getVersion());
+      params.put("terminology", getProject().getTerminology());
+      params.put("version", getProject().getVersion());
       // Normalization is only for English
       final List<Long> atomIds = executeSingleComponentIdQuery(
           "select a.id from ConceptJpa c join c.atoms a where c.terminology = :terminology "

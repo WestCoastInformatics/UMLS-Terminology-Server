@@ -70,7 +70,8 @@ public class LexicalClassAssignmentAlgorithmTest
     algo.setProject(algo.getProjects().getObjects().get(0));
     algo.setTerminology("NCIMTH");
     algo.setVersion("latest");
-    
+    algo.setTransactionPerOperation(false);
+    algo.beginTransaction();    
     // Send the whole project through the initializer
     try {
 
@@ -90,7 +91,7 @@ public class LexicalClassAssignmentAlgorithmTest
       // Perform the algorithm
       //
       algo.compute();
-
+      algo.commit();
     } catch (Exception e) {
       algo.rollback();
     } finally {

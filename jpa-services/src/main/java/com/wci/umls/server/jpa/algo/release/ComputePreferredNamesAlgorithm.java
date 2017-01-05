@@ -3,17 +3,18 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.RootService;
@@ -66,41 +67,35 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
         getComputePreferredNameHandler(getProject().getTerminology());
     setMolecularActionFlag(false);
 
-    // get progress monitor max (all project concepts)
-    final javax.persistence.Query query =
-        manager.createQuery("select count(*) from ConceptJpa c "
-            + "where terminology = :terminology");
-    query.setParameter("terminology", getProject().getTerminology());
-    int progressMax = Integer.parseInt(query.getSingleResult().toString());
-
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
-        "select distinct c from ConceptJpa c join c.atoms a where c.terminology = :terminology order by c");
-    hQuery.setParameter("terminology", getProject().getTerminology());
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    final ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    // 1. Collect all atoms from project concepts
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", getProject().getTerminology());
+    params.put("version", getProject().getVersion());
+    // Normalization is only for English
+    final List<Long> conceptIds = executeSingleComponentIdQuery(
+        "select a.id from ConceptJpa c " + "where c.terminology = :terminology "
+            + "  and c.version = :version and publishable = true",
+        QueryType.JQL, params, ConceptJpa.class);
+    commitClearBegin();
 
     // Iterate through each concept
     int objectCt = 0;
-    int ct = 0;
+    int updatedCt = 0;
     int prevProgress = 0;
-    final int progressCheck = (int) (progressMax / 100.0) + 1;
-    while (results.next()) {
-      final Concept concept = (Concept) results.get()[0];
-      ct++;
+    int totalCt = conceptIds.size();
+    final int progressCheck = (int) (totalCt / 200.0) + 1;
+    for (final Long id : conceptIds) {
+      final Concept concept = getConcept(id);
 
       // if something changed, update the concept
       if (isChanged(concept, handler)) {
-        logInfo("    concept = " + concept.getId() + ", "
-            + concept.isPublishable() + ", " + concept.getName());
         updateConcept(concept);
-        // log/commit
-        logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+        updatedCt++;
       }
 
       // progress/cancel
-      if (ct % progressCheck == 0) {
-        int currentProgress = (int) ((100.0 * ct / progressMax));
+      if (objectCt % progressCheck == 0) {
+        int currentProgress = (int) ((100.0 * objectCt / totalCt));
         if (currentProgress > prevProgress) {
           fireProgressEvent(currentProgress,
               "Progress: " + currentProgress + "%");
@@ -109,13 +104,15 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
         checkCancel();
       }
 
+      // log/commit
+      logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+
     }
-    results.close();
     commitClearBegin();
 
     fireProgressEvent(100, "Finished - 100%");
-    logInfo("  concept count = " + progressMax);
-    logInfo("  concepts updated = " + objectCt);
+    logInfo("  concept count = " + objectCt);
+    logInfo("  concepts updated = " + updatedCt);
     logInfo("Finished compute preferred names");
 
   }

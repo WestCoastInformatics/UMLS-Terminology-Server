@@ -15,20 +15,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
-import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
@@ -73,14 +70,16 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting Write RRF metadata files");
+    logInfo("Starting write RRF metadata files");
+    fireProgressEvent(0, "Starting");
 
     writeMrdoc();
     writeMrsab();
     writeMrrank();
     writeMrcolsMrfiles();
 
-    logInfo("Finished Write RRF metadata files");
+    fireProgressEvent(100, "Finished");
+    logInfo("Finished write RRF metadata files");
 
   }
 
@@ -95,29 +94,27 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
     final File outputFile = new File(dir, "MRRANK.RRF");
-
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    PrecedenceList precList = getPrecedenceList(getProject().getTerminology(),
-        getProject().getVersion());
-    int index = precList.getPrecedence().getKeyValuePairs().size();
-    for (KeyValuePair pair : precList.getPrecedence().getKeyValuePairs()) {
-      StringBuilder sb = new StringBuilder();
-      sb.append(String.format("%04d", index--)).append("|");
-      sb.append(pair.getKey()).append("|");
-      sb.append(pair.getValue()).append("|");
-      TermType tty = this.getTermType(pair.getValue(),
+    try {
+      final PrecedenceList precList = getPrecedenceList(
           getProject().getTerminology(), getProject().getVersion());
-      String suppress = "";
-      if (tty.isSuppressible()) {
-        suppress = "Y";
-      } else {
-        suppress = "N";
+      int index = precList.getPrecedence().getKeyValuePairs().size();
+      for (final KeyValuePair pair : precList.getPrecedence()
+          .getKeyValuePairs()) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%04d", index--)).append("|");
+        sb.append(pair.getKey()).append("|");
+        sb.append(pair.getValue()).append("|");
+        final TermType tty = this.getTermType(pair.getValue(),
+            getProject().getTerminology(), getProject().getVersion());
+        sb.append(tty.isSuppressible() ? "Y" : "N").append("|");
+        out.print(sb.toString() + "\n");
       }
-      sb.append(suppress).append("|");
-      out.print(sb.toString() + "\n");
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      out.close();
     }
-
-    out.close();
   }
 
   /**
@@ -127,12 +124,14 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
    */
   private void writeMrcolsMrfiles() throws Exception {
     logInfo("  Write MRCOLS/MRFILES data");
+    // This just copies template MRCOLS/MRFILES files because
+    // MetamorphoSys will ultimately compute the correct
+    // files anyway.
     Path source = Paths.get(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/META/MRFILES.RRF");
     Path destination = Paths.get(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/META/MRFILES.RRF");
-
     Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
 
     source = Paths.get(config.getProperty("source.data.dir") + "/"
@@ -140,7 +139,6 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     destination = Paths.get(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/META/MRCOLS.RRF");
-
     Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
   }
 
@@ -155,13 +153,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
     final File outputFile = new File(dir, "MRSAB.RRF");
-
-    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    final List<String> outputLines = new ArrayList<>();
 
     // progress monitoring
     steps = getCurrentTerminologies().getObjects().size();
 
-    for (Terminology term : getCurrentTerminologies().getObjects()) {
+    for (final Terminology term : getCurrentTerminologies().getObjects()) {
 
       // Field Description
       // 0 VCUI
@@ -205,84 +202,134 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       StringBuilder sb = new StringBuilder();
       String vcui = "";
       String rcui = "";
-      PfsParameter pfs = new PfsParameterJpa();
-      SearchResultList results = findConceptSearchResults(getProject().getTerminology(),
-          getProject().getVersion(), getProject().getBranch(),
-          " atoms.codeId:V-" + term.getTerminology()
+      SearchResultList results = findConceptSearchResults(
+          getProject().getTerminology(), getProject().getVersion(),
+          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
               + " AND atoms.terminology:SRC AND atoms.termType:RPT",
-          pfs);
+          null);
       Concept rootTerminologyConcept = null;
-      if (results.getTotalCount() > 0) {
+      if (results.size() > 0) {
         rootTerminologyConcept =
             getConcept(results.getObjects().get(0).getId());
         rcui = rootTerminologyConcept.getTerminologyId();
-        // TODO VCUIs still not showing up
-        for (Relationship<?, ?> rel : this
-            .findConceptDeepRelationships(
-                rootTerminologyConcept.getTerminologyId(),
-                getProject().getTerminology(), getProject().getVersion(),
-                Branch.ROOT, "", false, false, false, false, pfs)
-            .getObjects()) {
-          for (Atom atom : ((Concept) rel.getTo()).getAtoms()) {
-            if (atom.getTerminology().equals("SRC")
-                && atom.getTermType().equals("VPT")) {
-              vcui = rel.getTo().getTerminologyId();
-            }
-          }
-        }
-      } /*
-         * // TODO fails on CCS_10 else { throw new
-         * Exception("Unable to find root terminology - " +
-         * term.getTerminology()); }
-         */
 
-      sb.append(vcui).append("|"); // 0
-      sb.append(rcui).append("|"); // 1
-      sb.append(term.getTerminology()).append("|"); // 2
-      sb.append(term.getRootTerminology().getTerminology()).append("|"); // 3
-      sb.append(term.getPreferredName()).append("|"); // 4
-      sb.append(term.getRootTerminology().getFamily()).append("|"); // 5
-      sb.append(term.getVersion()).append("|"); // 6
+        // Look up versioned concept
+        results = findConceptSearchResults(getProject().getTerminology(),
+            getProject().getVersion(), getProject().getBranch(),
+            " atoms.codeId:\"V-" + term.getTerminology() + "_"
+                + term.getVersion() + "\""
+                + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+            null);
+        if (results.size() > 0) {
+          vcui = getConcept(results.getObjects().get(0).getId())
+              .getTerminologyId();
+        }
+        // not everything has a VCUI (e.g. "SRC" and "MTH").
+      } else {
+        // everything should have an RCUI
+        throw new Exception(
+            "Unexpected missing RCUI concept " + term.getTerminology());
+      }
+
+      // 0 VCUI
+      sb.append(vcui).append("|");
+      // 1 RCUI
+      sb.append(rcui).append("|");
+      // 2 VSAB
+      sb.append(term.getTerminology()).append("|");
+      // 3 RSAB
+      sb.append(term.getRootTerminology().getTerminology()).append("|");
+      // 4 SON
+      sb.append(term.getPreferredName()).append("|");
+      // 5 SF
+      sb.append(term.getRootTerminology().getFamily()).append("|");
+      // 6 VER
+      sb.append(term.getVersion()).append("|");
+      // 7 SDATE
       sb.append(term.getStartDate() != null ? term.getStartDate() : "")
           .append("|"); // 7
-      sb.append(term.getEndDate() != null ? term.getEndDate() : "").append("|"); // 8
-      // 9 IMETA // TODO Version of the Metathesaurus that a source was added
-      // getFirstReleases(getProject().getTERm) do null checks
-      // 10 RMETA // Version of the Metathesaurus where a version is removed
-      // getLastReleases()
-      sb.append("||"); // for IMETA/RMETA
-      sb.append(term.getRootTerminology().getLicenseContact()).append("|"); // 11
-      sb.append(term.getRootTerminology().getContentContact()).append("|"); // 12
-      sb.append(term.getRootTerminology().getRestrictionLevel()).append("|"); // 13
-      sb.append(getTfr(term.getRootTerminology().getTerminology())).append("|"); // 14
-                                                                                 // TFR
-      sb.append(getCfr(term.getRootTerminology().getTerminology())).append("|"); // 15
-                                                                                 // CFR
-      sb.append(term.getRootTerminology().isPolyhierarchy()).append("|"); // 16
-                                                                          // CXTY
-      sb.append(getTtyl(term.getRootTerminology().getTerminology()))
-          .append("|");// 17 TTYL
-      sb.append(getAtnl(term.getRootTerminology().getTerminology()))
-          .append("|"); // 18 ATNL
-      sb.append(term.getRootTerminology().getLanguage() != null
-          ? term.getRootTerminology().getLanguage() : "").append("|"); // 19 LAT
-      sb.append("UTF-8").append("|"); // 20 CENC
-      sb.append("Y").append("|"); // 21
-      sb.append(term.isCurrent()).append("|"); // 22 SABIN
+      // 8 EDATE
+      sb.append(term.getEndDate() != null ? term.getEndDate() : "").append("|");
 
-      if (rootTerminologyConcept != null) { // TODO remove
-        for (Atom atom : rootTerminologyConcept.getAtoms()) {// 23 SSN
-          if (atom.getTermType().equals("SSN") && atom.isPublishable()) {
-            sb.append(atom.getName()).append("|");
-          }
+      final String imeta =
+          term.getFirstReleases().get(getProject().getTerminology());
+      final String rmeta =
+          term.getLastReleases().get(getProject().getTerminology());
+      // 9 IMETA
+      sb.append(imeta == null ? "" : imeta).append("|");
+      // 10 RMETA
+      sb.append(rmeta == null ? "" : rmeta).append("|");
+
+      // 11 SLC
+      sb.append(term.getRootTerminology().getLicenseContact()).append("|");
+      // 12 SCC
+      sb.append(term.getRootTerminology().getContentContact()).append("|");
+      // 13 SRL
+      sb.append(term.getRootTerminology().getRestrictionLevel()).append("|");
+      // 14 TFR
+      sb.append(getTfr(term.getRootTerminology().getTerminology())).append("|");
+      // 15 CFR
+      sb.append(getCfr(term.getRootTerminology().getTerminology())).append("|");
+      // 16 CXTY FULL, NOSIB, IGNORE-RELA, MULTIPLE
+      if (rootTerminologyConcept.getAtoms().stream()
+          .filter(a -> a.isPublishable() && a.getTermType().equals("RHT"))
+          .collect(Collectors.toList()).size() > 0) {
+        sb.append("FULL");
+        if (!term.isIncludeSiblings()) {
+          sb.append("-NOSIB");
+        }
+        if (term.getRootTerminology().isPolyhierarchy()) {
+          sb.append("-MULTIPLE");
+        }
+        if (!term.getRootTerminology().isHierarchyComputable()) {
+          sb.append("-IGNORE-RELA");
         }
       }
-      sb.append(term.getCitation()).append("|"); // 24 SCIT
+      sb.append("|");
 
-      out.print(sb.toString() + "\n");
+      // 17 TTYL
+      sb.append(getTtyl(term.getRootTerminology().getTerminology()))
+          .append("|");
+      // 18 ATNL
+      sb.append(getAtnl(term.getRootTerminology().getTerminology()))
+          .append("|");
+      // 19 LAT
+      sb.append(term.getRootTerminology().getLanguage() != null
+          ? term.getRootTerminology().getLanguage() : "").append("|");
+      // 20 CENC
+      sb.append("UTF-8").append("|");
+      // 21 CURVER
+      sb.append(term.isCurrent() ? "Y" : "N").append("|");
+      // 22 SABIN
+      sb.append("Y").append("|");
+
+      // 23 SSN
+      for (final Atom atom : rootTerminologyConcept.getAtoms()) {
+        if (atom.getTermType().equals("SSN") && atom.isPublishable()) {
+          sb.append(atom.getName());
+          break;
+        }
+      }
+      sb.append("|");
+      // 24 SCIT
+      sb.append(term.getCitation()).append("|");
+
+      outputLines.add(sb.toString());
       updateProgress();
     }
-    out.close();
+
+    // sort and write to file
+    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+    try {
+      Collections.sort(outputLines);
+      for (final String line : outputLines) {
+        out.print(line + "\n");
+      }
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      out.close();
+    }
   }
 
   /**
@@ -331,7 +378,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     List<String> list = query.getResultList();
     Collections.sort(list);
     StringBuilder sb = new StringBuilder();
-    for (String tty : list) {
+    for (final String tty : list) {
       sb.append(tty).append(",");
     }
     if (sb.toString().endsWith(",")) {
@@ -356,7 +403,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     List<String> list = query.getResultList();
     Collections.sort(list);
     StringBuilder sb = new StringBuilder();
-    for (String atn : list) {
+    for (final String atn : list) {
       sb.append(atn).append(",");
     }
     if (sb.toString().endsWith(",")) {
@@ -373,13 +420,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   private void writeMrdoc() throws Exception {
     logInfo("  Write MRDOC ");
 
+    // Set up the file
     final File dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
     final File outputFile = new File(dir, "MRDOC.RRF");
-
-    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
-    List<String> outputLines = new ArrayList<>();
+    final List<String> outputLines = new ArrayList<>();
 
     // Field Description DOCKEY,VALUE,TYPE,EXPL
     // 0 DOCKEY
@@ -388,10 +434,10 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     // 3 EXPL
 
     // Handle AttributeNames
-    // e.g.
-    // ATN|ACCEPTABILITYID|expanded_form|Acceptability Id|
-    for (AttributeName atn : getAttributeNames(getProject().getTerminology(),
-        getProject().getVersion()).getObjects()) {
+    // e.g. ATN|ACCEPTABILITYID|expanded_form|Acceptability Id|
+    for (final AttributeName atn : getAttributeNames(
+        getProject().getTerminology(), getProject().getVersion())
+            .getObjects()) {
       StringBuilder sb = new StringBuilder();
       sb.append("ATN").append("|");
       sb.append(atn.getAbbreviation()).append("|");
@@ -401,7 +447,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
 
     // Handle Languages
-    for (Language lat : getLanguages(getProject().getTerminology(),
+    for (final Language lat : getLanguages(getProject().getTerminology(),
         getProject().getVersion()).getObjects()) {
       StringBuilder sb = new StringBuilder();
       sb.append("LAT").append("|");
@@ -412,7 +458,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
 
     // Handle AdditionalRelationshipLabel
-    for (AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
+    for (final AdditionalRelationshipType rela : getAdditionalRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion())
             .getObjects()) {
       StringBuilder sb = new StringBuilder();
@@ -430,7 +476,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
 
     // Handle RelationshipLabel
-    for (RelationshipType rela : getRelationshipTypes(
+    for (final RelationshipType rela : getRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion())
             .getObjects()) {
       StringBuilder sb = new StringBuilder();
@@ -447,7 +493,8 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       outputLines.add(sb.toString());
     }
 
-    for (TermType tty : getTermTypes(getProject().getTerminology(),
+    // Handle term types
+    for (final TermType tty : getTermTypes(getProject().getTerminology(),
         getProject().getVersion()).getObjects()) {
       StringBuilder sb = new StringBuilder();
       sb.append("TTY").append("|");
@@ -538,7 +585,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
 
     // General metadata entries (skip MAPATN)
-    for (GeneralMetadataEntry entry : getGeneralMetadataEntries(
+    for (final GeneralMetadataEntry entry : getGeneralMetadataEntries(
         getProject().getTerminology(), getProject().getVersion())
             .getObjects()) {
       StringBuilder sb = new StringBuilder();
@@ -550,8 +597,9 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     }
 
     // sort and write to file
+    final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     Collections.sort(outputLines);
-    for (String line : outputLines) {
+    for (final String line : outputLines) {
       out.print(line + "\n");
     }
     out.close();

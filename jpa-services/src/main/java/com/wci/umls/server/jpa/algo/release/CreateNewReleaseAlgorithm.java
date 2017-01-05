@@ -24,6 +24,7 @@ import com.wci.umls.server.jpa.ReleaseInfoJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
 
@@ -33,7 +34,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
 public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
   /** The steps. */
-  private int steps = 2;
+  private int steps = 3;
 
   /** The previous progress. */
   private int previousProgress = 0;
@@ -67,6 +68,14 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     if (!dir.exists()) {
       result.addError("Release requires a 'NET' directory at the input path "
           + dir.getPath());
+    }
+
+    // Verify that there is a "NET" directory at input path
+    final File metadir = new File(path, "META");
+    if (!metadir.exists()) {
+      result.addError(
+          "Release requires a 'META' directory at the input path with template MRCOLS.RRF and MRFILES.RRF files in it "
+              + dir.getPath());
     }
 
     // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
@@ -171,6 +180,32 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setTimestamp(new Date());
     logInfo("  Add release info = " + releaseInfo);
     addReleaseInfo(releaseInfo);
+
+    updateProgress();
+
+    // Set first/last release based on release info
+    final ReleaseInfo prevReleaseInfo =
+        getPreviousReleaseInfo(getProject().getTerminology());
+    for (final Terminology terminology : getTerminologies().getObjects()) {
+      // Mark unpublished current terminologies with "first" release as this
+      // release
+      if (terminology.isCurrent() && terminology.getFirstReleases()
+          .get(releaseInfo.getTerminology()) == null) {
+        terminology.getFirstReleases().put(releaseInfo.getTerminology(),
+            releaseInfo.getVersion());
+      }
+
+      // Mark non-current terminologies, previously published, with "last"
+      // release as previous release
+      else if (!terminology.isCurrent()
+          && terminology.getFirstReleases()
+              .get(releaseInfo.getTerminology()) != null
+          && terminology.getLastReleases()
+              .get(releaseInfo.getTerminology()) == null) {
+        terminology.getLastReleases().put(releaseInfo.getTerminology(),
+            prevReleaseInfo.getVersion());
+      }
+    }
 
     updateProgress();
     fireProgressEvent(100, "Finished");

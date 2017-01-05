@@ -4,16 +4,12 @@
 package com.wci.umls.server.jpa.algo.release;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
-
-import javax.persistence.NoResultException;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -34,6 +30,7 @@ import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -43,15 +40,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /** The siblings threshold. */
   private int siblingsThreshold;
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
 
   /**
    * Instantiates an empty {@link ComputeContextTypeAlgorithm}.
@@ -67,6 +55,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
+    // no preconditions
     return new ValidationResultJpa();
   }
 
@@ -74,182 +63,159 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
-    boolean includeSiblings = false;
-    boolean polyhierarchy = false;
+    logInfo("Starting compute context type");
+    fireProgressEvent(0, "Starting");
 
-    logInfo("Starting Create new release");
-
-    previousProgress = 0;
-    stepsCompleted = 0;
-
-    IdentifierAssignmentHandler handler =
+    // Get id handler
+    final IdentifierAssignmentHandler handler =
         getIdentifierAssignmentHandler(getProject().getTerminology());
 
-    // First create map of rel and rela inverses
-    RelationshipTypeList relTypeList = getRelationshipTypes(
+    // Collect metadata
+    final RelationshipTypeList relTypeList = getRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion());
-    AdditionalRelationshipTypeList addRelTypeList =
+    final AdditionalRelationshipTypeList addRelTypeList =
         getAdditionalRelationshipTypes(getProject().getTerminology(),
             getProject().getVersion());
-    Map<String, String> relToInverseMap = new HashMap<>();
-    for (RelationshipType relType : relTypeList.getObjects()) {
+    final Map<String, String> relToInverseMap = new HashMap<>();
+    for (final RelationshipType relType : relTypeList.getObjects()) {
       relToInverseMap.put(relType.getAbbreviation(),
           relType.getInverse().getAbbreviation());
     }
-    for (AdditionalRelationshipType relType : addRelTypeList.getObjects()) {
+    for (final AdditionalRelationshipType relType : addRelTypeList
+        .getObjects()) {
       relToInverseMap.put(relType.getAbbreviation(),
           relType.getInverse().getAbbreviation());
     }
 
-    for (Terminology term : getCurrentTerminologies().getObjects()) {
-      IdType organizingClassType = term.getOrganizingClassType();
+    // Build a map of tree position poly-hierarchies
+    final String[] types = new String[] {
+        "Atom", "Code", "Concept", "Descriptor"
+    };
+    checkCancel();
 
-      // compute the "includeSiblings" flag for the terminology
-      String queryStr = "";
-      if (organizingClassType == IdType.ATOM) {
-        queryStr = "select count(*) from AtomTreePositionJpa where "
-            + "terminology = :terminology and version = :version group by ancestorPath order by 1 desc ";
-      } else if (organizingClassType == IdType.CONCEPT) {
-        queryStr = "select count(*) from ConceptTreePositionJpa where "
-            + "terminology = :terminology and version = :version group by ancestorPath order by 1 desc ";
-      } else if (organizingClassType == IdType.CODE) {
-        queryStr = "select count(*) from CodeTreePositionJpa where "
-            + "terminology = :terminology and version = :version group by ancestorPath order by 1 desc ";
-      } else if (organizingClassType == IdType.DESCRIPTOR) {
-        queryStr = "select count(*) from DescriptorTreePositionJpa where "
-            + "terminology = :terminology and version = :version group by ancestorPath order by 1 desc ";
+    fireProgressEvent(1, "Compute polyhierarchy flags");
+    final Set<String> polyHierarchyTerminology = new HashSet<>();
+    for (final String type : types) {
+      final javax.persistence.Query query = manager
+          .createQuery("select distinct terminology, version from " + type
+              + "TreePositionJpa " + "group by terminology, version, node_id "
+              + "having count(*)>1");
+      final List<Object[]> results = query.getResultList();
+      checkCancel();
+      for (final Object[] result : results) {
+        polyHierarchyTerminology.add(result[0].toString());
       }
-      javax.persistence.Query query = manager.createQuery(queryStr);
-      query.setParameter("terminology", term.getTerminology());
-      query.setParameter("version", term.getVersion());
-      query.setMaxResults(1);
-      String result = null;
-      try {
-        result = query.getSingleResult().toString();
-      } catch (NoResultException nre) {
-        // ignore
-      }
-      if (result != null) {
-        int ct = new Integer(result).intValue();
-        if (ct > siblingsThreshold) {
-          includeSiblings = true;
-        } else {
-          includeSiblings = false;
-        }
-        // update field in terminology
-        term.setIncludeSiblings(includeSiblings);
-        updateTerminology(term);
-      }
+    }
 
-      if (organizingClassType == IdType.ATOM) {
-        queryStr = "select count(*) from AtomTreePositionJpa" + " where "
-            + "terminology = :terminology and version = :version group by node having count(*)>1 order by 1 desc ";
-      } else if (organizingClassType == IdType.CONCEPT) {
-        queryStr = "select count(*) from ConceptTreePositionJpa" + " where "
-            + "terminology = :terminology and version = :version group by node having count(*)>1 order by 1 desc ";
-      } else if (organizingClassType == IdType.CODE) {
-        queryStr = "select count(*) from CodeTreePositionJpa" + " where "
-            + "terminology = :terminology and version = :version group by node having count(*)>1 order by 1 desc ";
-      } else if (organizingClassType == IdType.DESCRIPTOR) {
-        queryStr = "select count(*) from DescriptorTreePositionJpa" + " where "
-            + "terminology = :terminology and version = :version group by node having count(*)>1 order by 1 desc ";
+    fireProgressEvent(10, "Compute include sibling flags");
+    final Map<String, String> siblingTypeMap = new HashMap<>();
+    for (final String type : types) {
+      final javax.persistence.Query query =
+          manager.createQuery("select distinct terminology, version from "
+              + type + "TreePositionJpa "
+              + "group by terminology, version, ancestorPath "
+              + "having count(*) < :threshold");
+      query.setParameter("threshold", siblingsThreshold);
+      final List<Object[]> results = query.getResultList();
+      checkCancel();
+
+      final javax.persistence.Query query2 =
+          manager.createQuery("select distinct terminology, version from "
+              + type + "TreePositionJpa "
+              + "group by terminology, version, ancestorPath "
+              + "having count(*) > :threshold");
+      query.setParameter("threshold", siblingsThreshold);
+      final List<Object[]> results2 = query2.getResultList();
+      checkCancel();
+
+      // Add things with < :threshold siblings
+      for (final Object[] result : results) {
+        siblingTypeMap.put(result[0].toString(), type);
       }
-      query = manager.createQuery(queryStr);
-      query.setParameter("terminology", term.getTerminology());
-      query.setParameter("version", term.getVersion());
-      query.setMaxResults(1);
-      result = null;
-      try {
-        result = query.getSingleResult().toString();
-      } catch (NoResultException nre) {
-        // ignore
+      // Remove things with > :threshold siblings
+      for (final Object[] result : results2) {
+        siblingTypeMap.remove(result[0].toString());
       }
-      if (result != null) {
-        int ct = new Integer(result).intValue();
-        if (ct > 0) {
-          polyhierarchy = true;
-        } else {
-          polyhierarchy = false;
-        }
+    }
+
+    // Iterate through terminologies to determine context type
+    fireProgressEvent(20, "Compute siblings");
+    int prevProgress = 0;
+    int startProgress = 20;
+    int totalCt = getCurrentTerminologies().size();
+    int objectCt = 0;
+    int termCt = 0;
+    for (final Terminology term : getCurrentTerminologies().getObjects()) {
+      checkCancel();
+
+      // Set polyhierarchy and include siblings flags
+      if (polyHierarchyTerminology.contains(term.getTerminology())) {
         // set flag on rootTerminology and update
-        term.getRootTerminology().setPolyhierarchy(polyhierarchy);
-        updateRootTerminology(term.getRootTerminology());
+        term.getRootTerminology().setPolyhierarchy(true);
+      } else {
+        term.getRootTerminology().setPolyhierarchy(false);
       }
+      updateRootTerminology(term.getRootTerminology());
+
+      final boolean includeSiblings =
+          siblingTypeMap.containsKey(term.getTerminology());
+      if (includeSiblings) {
+        // set flag on rootTerminology and update
+        term.setIncludeSiblings(true);
+      } else {
+        term.setIncludeSiblings(false);
+      }
+      updateTerminology(term);
 
       // Compute RUIs for SIB relationships
       if (includeSiblings) {
         setMolecularActionFlag(false);
+        final String type = siblingTypeMap.get(term.getTerminology());
+        final IdType idType = IdType.valueOf(type.toUpperCase());
 
-        // compute sibling pairs
-        final Session session = manager.unwrap(Session.class);
-        org.hibernate.Query hQuery = null;
+        final javax.persistence.Query query = manager.createQuery(
+            "select a.node.id, b.node.id, a.additionalRelationshipType from "
+                + type + "TreePositionJpa a, " + type + "TreePositionJpa b "
+                + "where a.ancestorPath = b.ancestorPath "
+                + "  and a.additionalRelationshipType = b.additionalRelationshipType "
+                + "  and a.node.id < b.node.id"
+                + "  and a.terminology = :terminology and b.terminology = :terminology "
+                + "  and a.version = :terminology and b.version= :terminology ");
+        query.setParameter("terminology", term.getTerminology());
+        query.setParameter("version", term.getVersion());
+        final List<Object[]> results = query.getResultList();
+        checkCancel();
 
-        if (organizingClassType == IdType.ATOM) {
-          javax.persistence.Query qry = manager.createQuery(
-              "select count(*) from AtomTreePositionJpa a, AtomTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-          steps = Integer.parseInt(qry.getSingleResult().toString());
+        for (final Object[] result : results) {
+          final Long fromId = Long.valueOf(result[0].toString());
+          final Long toId = Long.valueOf(result[1].toString());
+          final String addRelType = result[2].toString();
 
-          hQuery = session.createQuery(
-              "select a.node, b.node, a.additionalRelationshipType from AtomTreePositionJpa a, AtomTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-        } else if (organizingClassType == IdType.CONCEPT) {
-          javax.persistence.Query qry = manager.createQuery(
-              "select count(*) from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-          steps = Integer.parseInt(qry.getSingleResult().toString());
-
-          hQuery = session.createQuery(
-              "select a.node, b.node, a.additionalRelationshipType from ConceptTreePositionJpa a, ConceptTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-        } else if (organizingClassType == IdType.CODE) {
-          javax.persistence.Query qry = manager.createQuery(
-              "select count(*) from CodeTreePositionJpa a, CodeTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-          steps = Integer.parseInt(qry.getSingleResult().toString());
-
-          hQuery = session.createQuery(
-              "select a.node, b.node, a.additionalRelationshipType from CodeTreePositionJpa a, CodeTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-        } else if (organizingClassType == IdType.DESCRIPTOR) {
-          javax.persistence.Query qry = manager.createQuery(
-              "select count(*) from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-          steps = Integer.parseInt(qry.getSingleResult().toString());
-
-          hQuery = session.createQuery(
-              "select a.node, b.node, a.additionalRelationshipType from DescriptorTreePositionJpa a, DescriptorTreePositionJpa b "
-                  + " where a.ancestorPath = b.ancestorPath and a.additionalRelationshipType = b.additionalRelationshipType "
-                  + " and a.node.id < b.node.id");
-        }
-
-        hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-        ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-        while (results.next()) {
-          final Component from = (Component) results.get()[0];
-          final Component to = (Component) results.get()[1];
-          final String addRelType = results.get()[2].toString();
+          Component from = null;
+          Component to = null;
           @SuppressWarnings("rawtypes")
           Relationship newRel = null;
-          if (organizingClassType == IdType.ATOM) {
+          if (idType == IdType.ATOM) {
             newRel = new AtomRelationshipJpa();
-          } else if (organizingClassType == IdType.CONCEPT) {
+            from = getAtom(fromId);
+            to = getAtom(toId);
+          } else if (idType == IdType.CONCEPT) {
             newRel = new ConceptRelationshipJpa();
-          } else if (organizingClassType == IdType.CODE) {
+            from = getConcept(fromId);
+            to = getConcept(toId);
+          } else if (idType == IdType.CODE) {
             newRel = new CodeRelationshipJpa();
-          } else if (organizingClassType == IdType.DESCRIPTOR) {
+            from = getCode(fromId);
+            to = getCode(toId);
+          } else if (idType == IdType.DESCRIPTOR) {
             newRel = new DescriptorRelationshipJpa();
+            from = getDescriptor(fromId);
+            to = getDescriptor(toId);
           }
+
           newRel.setTo(from);
           newRel.setTo(to);
-          newRel.setAdditionalRelationshipType(addRelType);
+          newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
           newRel.setTerminology(term.getTerminology());
           newRel.setVersion(term.getVersion());
           newRel.setRelationshipType("SIB");
@@ -257,7 +223,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           newRel.setObsolete(false);
           newRel.setSuppressible(false);
           newRel.setGroup(null);
-
           newRel.setPublished(true);
           newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
           newRel.setHierarchical(false);
@@ -266,17 +231,33 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           newRel.setStated(true);
           newRel.setTerminologyId("");
 
-          String rui = handler.getTerminologyId(newRel, "SIB",
+          // This is just to assign identifiers
+          final String rui = handler.getTerminologyId(newRel, "SIB",
               relToInverseMap.get(addRelType));
           newRel.setTerminologyId(rui);
 
-          addRelationship(newRel);
-          updateProgress();
+          // check cancel
+          if (objectCt % RootService.logCt == 0) {
+            checkCancel();
+          }
+
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
-        commit();
+        commitClearBegin();
+
+        // update progress
+        int progress = (int) ((100.0 - startProgress) * ++termCt / totalCt)
+            + startProgress;
+        if (progress > prevProgress) {
+          fireProgressEvent(progress, "Assigning SIB RUIs");
+          prevProgress = progress;
+        }
       }
     }
+    commitClearBegin();
 
+    fireProgressEvent(100, "Finished");
+    logInfo("Finished compute context type");
   }
 
   /* see superclass */
@@ -313,22 +294,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     params.add(param);
 
     return params;
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      checkCancel();
-      fireProgressEvent(currentProgress,
-          "CONTEXT TYPE progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */
