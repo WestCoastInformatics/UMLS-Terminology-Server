@@ -26,10 +26,12 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.MapSet;
@@ -181,11 +183,24 @@ public abstract class AbstractSourceInsertionAlgorithm
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
 
   /**
-   * The cached MapSets. Key = code+terminology of the XM atom in the concept
-   * whose terminologyId is the mapset alternate terminology id Value = MapSet
-   * object
+   * The cached MapSets. Key = project terminology + "-SRC" alternate
+   * terminology Id of the XM atom in the concept whose terminologyId is the
+   * mapset alternate terminology id .Value = MapSet object
    */
   private static Map<String, MapSet> cachedMapSets = new HashMap<>();
+
+  /**
+   * The cached AtomSubsets. Key = codeId+,+terminology of the SB atom. Value =
+   * AtomSubset object
+   */
+  private static Map<String, AtomSubset> cachedAtomSubsets = new HashMap<>();
+
+  /**
+   * The cached ConceptSubsets. Key = codeId+,+terminology of the SB atom. Value
+   * = ConceptSubset object
+   */
+  private static Map<String, ConceptSubset> cachedConceptSubsets =
+      new HashMap<>();
 
   /**
    * Load file into string list.
@@ -473,6 +488,64 @@ public abstract class AbstractSourceInsertionAlgorithm
           .get(getProject().toString() + "-SRC");
       if (sourceAtomAltId != null) {
         cachedMapSets.put(sourceAtomAltId, mapSet);
+      }
+    }
+  }
+
+  /**
+   * Cache existing atom subsets.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheExistingAtomSubsets() throws Exception {
+
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("SELECT m, a FROM "
+            + "AtomSubsetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
+            + "WHERE key(alt) = :terminology "
+            + "AND value(alt) = c.terminologyId "
+            + "AND a.termType = :termType ");
+    jpaQuery.setParameter("terminology", getProject().getTerminology());
+    jpaQuery.setParameter("termType", "SB");
+
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final AtomSubset subset = (AtomSubset) entry[0];
+      final Atom atom = (Atom) entry[1];
+      // Only add the mapSet if the atom has an codeId
+      final String atomCodeId = atom.getCodeId();
+      if (atomCodeId != null) {
+        cachedAtomSubsets.put(atomCodeId, subset);
+      }
+    }
+  }
+
+  /**
+   * Cache existing atom subsets.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheExistingConceptSubsets() throws Exception {
+
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery("SELECT m, a FROM "
+            + "ConceptSubsetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
+            + "WHERE key(alt) = :terminology "
+            + "AND value(alt) = c.terminologyId "
+            + "AND a.termType = :termType ");
+    jpaQuery.setParameter("terminology", getProject().getTerminology());
+    jpaQuery.setParameter("termType", "SB");
+
+    final List<Object[]> list = jpaQuery.getResultList();
+    for (final Object[] entry : list) {
+      final ConceptSubset subset = (ConceptSubset) entry[0];
+      final Atom atom = (Atom) entry[1];
+      // Only add the mapSet if the atom has an codeId
+      final String atomCodeId = atom.getCodeId();
+      if (atomCodeId != null) {
+        cachedConceptSubsets.put(atomCodeId, subset);
       }
     }
   }
@@ -984,7 +1057,7 @@ public abstract class AbstractSourceInsertionAlgorithm
    *
    * @param sourceAtomAltId the code id and terminology
    * @param mapSet the map set
-   * @throws Exception
+   * @throws Exception the exception
    */
   public void putMapSet(String sourceAtomAltId, MapSet mapSet)
     throws Exception {
@@ -995,6 +1068,101 @@ public abstract class AbstractSourceInsertionAlgorithm
     cachedMapSets.put(sourceAtomAltId, mapSet);
   }
 
+  /**
+   * Returns the cached atom subsets.
+   *
+   * @return the cached atom subsets
+   * @throws Exception the exception
+   */
+  public Map<String, AtomSubset> getCachedAtomSubsets() throws Exception {
+    if (cachedAtomSubsets.isEmpty()) {
+      cacheExistingAtomSubsets();
+    }
+
+    return cachedAtomSubsets;
+  }
+
+  /**
+   * Returns the cached map set.
+   *
+   * @param codeIdAndTerminology the code id and terminology
+   * @return the cached map set
+   * @throws Exception the exception
+   */
+  public AtomSubset getCachedAtomSubset(String codeIdAndTerminology)
+    throws Exception {
+
+    if (cachedAtomSubsets.isEmpty()) {
+      cacheExistingAtomSubsets();
+    }
+
+    return cachedAtomSubsets.get(codeIdAndTerminology);
+  }
+
+  /**
+   * Put map set into the cache.
+   *
+   * @param codeIdAndTerminology the code id and terminology
+   * @param atomSubset the atom subset
+   * @throws Exception the exception
+   */
+  public void putAtomSubset(String codeIdAndTerminology, AtomSubset atomSubset)
+    throws Exception {
+    if (cachedAtomSubsets.isEmpty()) {
+      cacheExistingAtomSubsets();
+    }
+
+    cachedAtomSubsets.put(codeIdAndTerminology, atomSubset);
+  }
+
+
+  /**
+   * Returns the cached atom subsets.
+   *
+   * @return the cached atom subsets
+   * @throws Exception the exception
+   */
+  public Map<String, ConceptSubset> getCachedConceptSubsets() throws Exception {
+    if (cachedConceptSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    return cachedConceptSubsets;
+  }
+
+  /**
+   * Returns the cached map set.
+   *
+   * @param codeIdAndTerminology the code id and terminology
+   * @return the cached map set
+   * @throws Exception the exception
+   */
+  public ConceptSubset getCachedConceptSubset(String codeIdAndTerminology)
+    throws Exception {
+
+    if (cachedConceptSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    return cachedConceptSubsets.get(codeIdAndTerminology);
+  }
+
+  /**
+   * Put map set into the cache.
+   *
+   * @param codeIdAndTerminology the code id and terminology
+   * @param atomSubset the atom subset
+   * @throws Exception the exception
+   */
+  public void putConceptSubset(String codeIdAndTerminology, ConceptSubset atomSubset)
+    throws Exception {
+    if (cachedConceptSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    cachedConceptSubsets.put(codeIdAndTerminology, atomSubset);
+  }
+  
   /**
    * Returns the id.
    *

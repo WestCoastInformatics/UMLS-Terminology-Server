@@ -376,7 +376,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     } else if (atn.equals("MAPSETSID")) {
       mapset.setTerminologyId(atv);
       // Set the srcAtomAltId as an alternate terminology id
-      mapset.getAlternateTerminologyIds().put(getTerminology(), srcAtomAltId);
+      mapset.getAlternateTerminologyIds().put(getProject().getTerminology(), srcAtomAltId);
     }
   }
 
@@ -472,19 +472,19 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     // Set terminology ids
     mapping.setTerminologyId(xmapFields[10]);
     if (xmapFromFields[0] != null && !xmapFromFields[0].equals("")) {
-      mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
+      mapping.getAlternateTerminologyIds().put(getProject().getTerminology() + "-FROMID",
           xmapFromFields[0]);
     }
     if (xmapFromFields[1] != null && !xmapFromFields[1].equals("")) {
-      mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMSID",
+      mapping.getAlternateTerminologyIds().put(getProject().getTerminology() + "-FROMSID",
           xmapFromFields[1]);
     }
     if (xmapToFields[0] != null && !xmapToFields[0].equals("")) {
-      mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
+      mapping.getAlternateTerminologyIds().put(getProject().getTerminology() + "-TOID",
           xmapToFields[0]);
     }
     if (xmapToFields[1] != null && !xmapToFields[1].equals("")) {
-      mapping.getAlternateTerminologyIds().put(getTerminology() + "-TOSID",
+      mapping.getAlternateTerminologyIds().put(getProject().getTerminology() + "-TOSID",
           xmapToFields[1]);
     }
 
