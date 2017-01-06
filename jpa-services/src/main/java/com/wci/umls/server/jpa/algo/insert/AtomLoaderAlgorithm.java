@@ -17,22 +17,27 @@ import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomSubset;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -52,6 +57,9 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   /** The mapset add count. */
   private int mapsetAddCount = 0;
+
+  /** The subset add count. */
+  private int subsetAddCount = 0;
 
   /**
    * Instantiates an empty {@link AtomLoaderAlgorithm}.
@@ -245,6 +253,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
           // Reconcile mapSet
           reconcileMapSet(newAtom);
+          // Reconcile subset
+          reconcileSubset(newAtom);
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom);
 
@@ -316,6 +326,9 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       if (mapsetAddCount != 0) {
         logInfo("[AtomLoader] Added " + mapsetAddCount + " new Mapsets.");
       }
+      if (subsetAddCount != 0) {
+        logInfo("[AtomLoader] Added " + subsetAddCount + " new Subsets.");
+      }
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -367,6 +380,70 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       // Cache the mapSet, so MappingsLoaderAlgorithm can look it up later
       putMapSet(atom.getAlternateTerminologyIds()
           .get(getProject().getTerminology() + "-SRC"), mapSet);
+    }
+
+  }
+
+  /**
+   * Reconcile subset.
+   *
+   * @param atom the atom
+   * @throws Exception the exception
+   */
+  private void reconcileSubset(Atom atom) throws Exception {
+
+    // Only XM atoms get a mapSet
+    if (!atom.getTermType().equals("SB")) {
+      return;
+    }
+
+    // create new placeholder atom and concept subsets, if they doesn't already
+    // exist
+    // NOTE: some of these fields will be altered by SubsetMemberLoaderAlgorithm
+    // later
+    if (getCachedAtomSubset(
+        atom.getCodeId() + "," + atom.getTerminology()) == null) {
+
+      Subset subset = new AtomSubsetJpa();
+      subset.setObsolete(false);
+      subset.setSuppressible(false);
+      subset.setPublished(false);
+      subset.setPublishable(true);
+      subset.setName("");
+      subset.setDescription("");
+      subset.setLastModifiedBy(getLastModifiedBy());
+      subset.setTerminology("");
+      subset.setVersion("");
+      subset.setTerminologyId("");
+
+      subset = addSubset(subset);
+      subsetAddCount++;
+
+      // Cache the subset, so SubsetMemberLoaderAlgorithm can look it up later
+      putAtomSubset(atom.getCodeId() + "," + atom.getTerminology(),
+          (AtomSubset) subset);
+    }
+    if (getCachedConceptSubset(
+        atom.getCodeId() + "," + atom.getTerminology()) == null) {
+
+      Subset subset = new ConceptSubsetJpa();
+      subset.setObsolete(false);
+      subset.setSuppressible(false);
+      subset.setPublished(false);
+      subset.setPublishable(true);
+      subset.setName("");
+      subset.setDescription("");
+      subset.setLastModifiedBy(getLastModifiedBy());
+      subset.setTerminology("");
+      subset.setVersion("");
+      subset.setTerminologyId("");
+
+      subset = addSubset(subset);
+      subsetAddCount++;
+
+      // Cache the subset, so SubsetMemberLoaderAlgorithm can look it up later
+      putConceptSubset(atom.getCodeId() + "," + atom.getTerminology(),
+          (ConceptSubset) subset);
     }
 
   }
@@ -427,16 +504,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         existingConcept.setVersion(atom.getVersion());
         updateConcept(existingConcept);
 
-        // If this atom is associated with a mapSet, update it
-        if (getCachedMapSet(atom.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-SRC")) != null) {
-          MapSet mapSet = getCachedMapSet(atom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology() + "-SRC"));
-          mapSet.setName(existingConcept.getName());
-          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-              existingConcept.getTerminologyId());
-        }
-
         // Read concept relationships and updateRelationship on each one
         // (to update the indexes with the new concept information)
         for (ConceptRelationship conceptRelationship : existingConcept
@@ -462,16 +529,6 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         newConcept.getAtoms().add(atom);
         addConcept(newConcept);
         putComponent(newConcept, newConcept.getTerminologyId());
-
-        // If this atom is associated with a mapSet, update it
-        if (getCachedMapSet(atom.getAlternateTerminologyIds()
-            .get(getProject().getTerminology() + "-SRC")) != null) {
-          MapSet mapSet = getCachedMapSet(atom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology() + "-SRC"));
-          mapSet.setName(newConcept.getName());
-          mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
-              newConcept.getTerminologyId());
-        }
       }
     }
     // Check map to see if descriptor already exists
