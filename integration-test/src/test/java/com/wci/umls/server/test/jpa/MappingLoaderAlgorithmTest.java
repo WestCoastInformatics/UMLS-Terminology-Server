@@ -5,6 +5,7 @@ package com.wci.umls.server.test.jpa;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.FileUtils;
@@ -224,8 +226,7 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // Get the mapSets that exist prior to the ATOMLOADER run.
       final MapSetList existingMapSets =
-          contentService.getMapSets("",
-              "", Branch.ROOT);
+          contentService.getMapSets("", "", Branch.ROOT);
 
       atomAlgo.setTransactionPerOperation(false);
       atomAlgo.beginTransaction();
@@ -248,11 +249,11 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // Make sure the atom in the temporary input file were added.
       contentService = new ContentServiceJpa();
-      SearchResultList list =
-          contentService.findConceptSearchResults(processExecution.getTerminology(),
-              processExecution.getVersion(), Branch.ROOT,
-              "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
-              null);
+      SearchResultList list = contentService.findConceptSearchResults(
+          processExecution.getTerminology(), processExecution.getVersion(),
+          Branch.ROOT,
+          "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
+          null);
       assertEquals(1, list.size());
 
       addedConcept =
@@ -268,7 +269,8 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       // atomAlgo will create two concepts - one for project terminology, and
       // the other for the atom's terminology. Load the other one as well.
-      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
+      list = contentService.findConceptSearchResults("NCI", "2016_05E",
+          Branch.ROOT,
           "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
           null);
       assertEquals(1, list.size());
@@ -276,8 +278,7 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
           contentService.getConcept(list.getObjects().get(0).getId());
 
       // Make sure a new mapSet was added.
-      MapSetList mapSetList = contentService.getMapSets("",
-              "", Branch.ROOT);
+      MapSetList mapSetList = contentService.getMapSets("", "", Branch.ROOT);
 
       for (MapSet mapSet : mapSetList.getObjects()) {
         if (!existingMapSets.contains(mapSet)) {
@@ -327,7 +328,19 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
       assertEquals(IdType.CONCEPT, mapping.getFromIdType());
       assertEquals("F41.9", mapping.getToTerminologyId());
       assertEquals(IdType.DESCRIPTOR, mapping.getToIdType());
-      
+
+      // Check the mapping's alternate terminonlogy Ids
+      final Map<String, String> mappingAltIds =
+          mapping.getAlternateTerminologyIds();
+      assertNotNull(mappingAltIds.get(project.getTerminology()));
+      assertTrue(mappingAltIds.get(project.getTerminology()).startsWith("AT"));
+      assertEquals("109006",
+          mappingAltIds.get(project.getTerminology() + "-FROMID"));
+      assertNull(mappingAltIds.get(project.getTerminology() + "-FROMSID"));
+      assertEquals("F41.9",
+          mappingAltIds.get(project.getTerminology() + "-TOID"));
+      assertNull(mappingAltIds.get(project.getTerminology() + "-TOSID"));
+
       // Make sure the mapping attributes were set
       final List<Attribute> mappingAttributes = mapping.getAttributes();
       assertEquals(4, mappingAttributes.size());
@@ -344,7 +357,7 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
         if (attribute.getName().equals("TORES")) {
           assertEquals("Test To Res", attribute.getValue());
         }
-      }      
+      }
 
       // Make sure the mapset was updated
       addedMapSet = contentService.getMapSet(addedMapSet.getId());
@@ -403,12 +416,12 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
       contentService.removeAtom(addedAtom.getId());
     }
-    
+
     if (addedMapSet != null) {
       List<Mapping> mappings = addedMapSet.getMappings();
-      for(Mapping mapping : mappings){
+      for (Mapping mapping : mappings) {
         contentService.removeMapping(mapping.getId());
-      }      
+      }
       addedMapSet.clearMappings();
       contentService.updateMapSet(addedMapSet);
       contentService.removeMapSet(addedMapSet.getId());
