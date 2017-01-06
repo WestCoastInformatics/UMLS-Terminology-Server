@@ -1534,7 +1534,7 @@ public class WorkflowClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, String authToken) throws Exception {
+    String activityId, Boolean updaterFlag, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - recompute concept status " + ", " + authToken);
 
@@ -1543,7 +1543,9 @@ public class WorkflowClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/status/compute?projectId=" + projectId
-        + (activityId == null ? "" : "&activityId=" + activityId));
+        + (activityId == null ? "" : "&activityId=" + activityId)
+        + (updaterFlag == null ? "" : "&update=" + updaterFlag));
+
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));

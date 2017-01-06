@@ -13,13 +13,17 @@
       {{tree.nodeTerminologyId}}</a>
     : {{tree.nodeName}}
     <span ng-show="!callbacks.getComponentFromTree">
-      {{tree.nodeTerminologyId}}
-    : {{tree.nodeName}}</span>
+      {{tree.nodeTerminologyId}} : {{tree.nodeName}}</span>
   </span>
   <!-- if the component displayed, render in bold without hyperlink -->
-  <span ng-show="tree.nodeTerminologyId === component.terminologyId">
+  <span
+    ng-show="tree.nodeTerminologyId && tree.nodeTerminologyId === component.terminologyId">
     <span class="highlighted">{{tree.nodeTerminologyId}}:
       {{tree.nodeName}}</span>
+  </span>
+  <!-- For "atom" trees, just the names -->
+  <span ng-show="!tree.nodeTerminologyId">
+    <span> {{tree.nodeName}}</span>
   </span>
   <!-- recursive display of next level of tree -->
   <ol ui-tree-nodes="" ng-model="tree.children" ng-class="{hidden: collapsed}">

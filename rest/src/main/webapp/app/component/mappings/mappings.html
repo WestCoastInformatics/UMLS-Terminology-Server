@@ -1,9 +1,9 @@
 
 <!-- Mappings -->
-<div ng-show="mapSets">
+<div ng-show="mapSetCt > 0">
   <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
     ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
-  <h5 class="ml10">{{metadata.mappingsLabel}}</h5>
+  <h5 class="ml10">{{metadata.mappingsLabel}} ({{mapSetCt}})</h5>
   <div ng-show="showing">
     <ul>
       <li class="cr-list" ng-repeat="(key,value) in mapSets">{{mapSets[key].mapSet.name}}

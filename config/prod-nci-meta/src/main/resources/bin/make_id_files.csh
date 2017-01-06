@@ -34,19 +34,37 @@ endif
 # C0000005|L6215648|S7133916|A11385078|AUI|D012711|AT88546662||TERMUI|MSHFRE|fre0069916|N||
 #
 echo "  Compute attribute identity for MRSAT"
-# skip SUBSET_MEMBER -> deal with those separately
-grep -v SUBSET_MEMBER MRSAT.RRF | lib/mrsat.pl >> attributeIdentity.txt
+lib/mrsat.pl MRSAT.RRF >> attributeIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRSAT.RRF"
 	exit 1
 endif
 
-
+# add in "XMAP" entries for mappings
+# MAPSETCUI,MAPSETSAB,MAPSUBSETID,MAPRANK,MAPID,MAPSID,FROMID,FROMSID,FROMEXPR,FROMTYPE,FROMRULE,FROMRES,REL,RELA,TOID,TOSID,TOEXPR,TOTYPE,TORULE,TORES,MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
 echo "  Compute attribute identity for MRMAP"
-# TODO: do for later - opportunity to change this... can have MappingIdentity...
+/bin/rm -f xmCuiAui.txt
+ grep '|XM|' MRCONSO.RRF  | cut -d\| -f 1,8 > xmCuiAui.txt
 
-echo "  Compute attribute identity for SUBSET_MEMBER in MRSAT"
-# TODO: do for later - opportunity to change this... can have SubsetMemberIdentity...
+perl -ne '@_ = split/\|//; print "\n";' MRMAP.RRF | lib/mrsat.pl >> attributeIdentity.txt
+    
+    $_[0]|L|S|REPL|AUI
+    
+    MAPSUBSETID: Map sub set identifier
+    MAPRANK: Order in which mappings in a subset should be applied
+    FROMID: Identifier mapped from
+    REL: Relationship
+    RELA: Relationship attribute
+    TOID: Identifier mapped to
+    MAPRULE: Machine processable rule for when to apply mapping
+    MAPTYPE: Type of mapping
+    MAPATN: Row level attribute name associated with this mapping
+    MAPATV: Row level attribute value associated with this mapping
+    MAPSID: Source asserted Mapping ID
+    MAPRES: Human readable restriction use of mapping
+
+
+# TODO: do for later - opportunity to change this... can have MappingIdentity...
 
 #
 # Semantic Type Component Identity

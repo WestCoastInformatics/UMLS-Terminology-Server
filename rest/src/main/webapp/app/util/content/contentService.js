@@ -699,7 +699,10 @@ tsApp
           var deferred = $q.defer();
 
           if (component.type.toLowerCase() !== 'concept') {
-            defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
+            utilService.handleError({
+              data : 'Deep relationships cannot be retrieved for type ' + component.type
+            });
+            deferred.reject();
           }
 
           var sortField = paging.sortField;
@@ -781,7 +784,10 @@ tsApp
           var deferred = $q.defer();
 
           if (component.type.toLowerCase() !== 'concept') {
-            defer.reject('Deep tree positions cannot be retrieved for type prefix ' + prefix);
+            utilService.handleError({
+              data : 'Deep tree positions cannot be retrieved for type ' + component.type
+            });
+            deferred.reject();
           }
 
           if (paging) {

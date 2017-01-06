@@ -377,6 +377,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     list.getPrecedence().getKeyValuePairs().size();
     loadMrconso();
 
+    // Loadable hierarchies, NOTE: only terminologies that cannot be
+    // computed via transitive closure should appear here.
+    loadMrhier();
+
     // Definitions
     loadMrdef();
 
@@ -387,10 +391,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Relationships
     loadMrrel();
-
-    // Loadable hierarchies, NOTE: only terminologies that cannot be
-    // computed via transitive closure should appear here.
-    loadMrhier();
 
     // Attributes
     loadMrsat();
@@ -1192,20 +1192,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       Terminology term = null;
       if (loadedTerminologies.containsKey(getTerminology())) {
         term = loadedTerminologies.get(getTerminology());
-        term.setMetathesaurus(true);
       } else {
         term = new TerminologyJpa();
-        term.setAssertsRelDirection(false);
-        term.setCurrent(true);
-        term.setOrganizingClassType(IdType.CONCEPT);
-        term.setPreferredName(getTerminology());
-        term.setTimestamp(releaseVersionDate);
-        term.setLastModified(releaseVersionDate);
-        term.setLastModifiedBy(loader);
-        term.setTerminology(getTerminology());
-        term.setVersion(getVersion());
-        term.setDescriptionLogicTerminology(false);
-        term.setMetathesaurus(true);
+
         RootTerminology root = loadedRootTerminologies.get(getTerminology());
         if (!loadedRootTerminologies.containsKey(getTerminology())) {
           root = new RootTerminologyJpa();
@@ -1224,9 +1213,20 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           loadedRootTerminologies.put(root.getTerminology(), root);
         }
         term.setRootTerminology(root);
-        addTerminology(term);
         loadedTerminologies.put(term.getTerminology(), term);
       }
+
+      term.setAssertsRelDirection(false);
+      term.setCurrent(true);
+      term.setOrganizingClassType(IdType.CONCEPT);
+      term.setPreferredName(getTerminology());
+      term.setTimestamp(releaseVersionDate);
+      term.setLastModified(releaseVersionDate);
+      term.setLastModifiedBy(loader);
+      term.setTerminology(getTerminology());
+      term.setVersion(getVersion());
+      term.setDescriptionLogicTerminology(false);
+      term.setMetathesaurus(true);
 
       // Connect loaded terminologies to the metathesaurus
       final Set<String> relatedTerminologies = new HashSet<>();
@@ -2143,8 +2143,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       mapset.setToComplexity(atv);
     } else if (atn.equals("MAPSETSID")) {
       mapset.setTerminologyId(atv);
+
+      // No need to do this - we can discover the connection
       // Set the CUI as an alternate terminology id
-      mapset.getAlternateTerminologyIds().put(getTerminology(), cui);
+      // mapset.getAlternateTerminologyIds().put(getTerminology(), cui);
     }
   }
 
@@ -2436,21 +2438,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       terminologies.add(fields[4]);
 
       // every line is an additional child for the PTR
-      final String key = fields[4] + fields[5] + fields[6];
-      if (!childCt.containsKey(key)) {
-        childCt.put(key, 1);
+      final String ptrKey = fields[4] + fields[5] + fields[6];
+      if (!childCt.containsKey(ptrKey)) {
+        childCt.put(ptrKey, 1);
       } else {
-        int i = childCt.get(key);
-        childCt.put(key, ++i);
+        int i = childCt.get(ptrKey);
+        childCt.put(ptrKey, ++i);
       }
 
       // Save HCD - include the AUI part here
+      final String treeposKey = fields[4] + fields[5] + fields[6]
+          + (fields[6].equals("") ? "" : ".") + fields[1];
       if (!fields[7].equals("")) {
-        if (!fields[6].equals("")) {
-          hcdMap.put(key + "." + fields[1], fields[7]);
-        } else {
-          hcdMap.put(key + fields[1], fields[7]);
-        }
+        hcdMap.put(treeposKey, fields[7]);
       }
 
       // every line is an additional descendant for each part of the ptr
@@ -2462,7 +2462,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           ptr += "." + anc;
         }
         final String key2 = fields[4] + fields[5] + ptr;
-        if (!descCt.containsKey(key)) {
+        if (!descCt.containsKey(key2)) {
           descCt.put(key2, 1);
         } else {
           int i = descCt.get(key2);
@@ -2503,8 +2503,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // For each line of MRHIER, create and cache atom tree positions all the
       // way down the PTR eventually for the thing itself.
       // Convert "AUIs" to atom ids
+      String ancPath = "";
       String ptr = null;
-      String ancPath = null;
       for (final String anc : FieldedStringTokenizer.split(fields[6], ".")) {
         if (ptr == null) {
           ptr = anc;
@@ -2516,74 +2516,79 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         final Atom atom = getAtom(atomIdMap.get(anc));
 
         // If multi, and top-level atom is null, skip it
-        if (style == Style.MULTI && atom == null && ancPath == null) {
+        if (style == Style.MULTI && atom == null
+            && ConfigUtility.isEmpty(ancPath)) {
           continue;
         }
 
         // Skip top-level SRC atoms
-        if (atom.getTerminology().equals("SRC") && ancPath == null) {
+        if (atom.getTerminology().equals("SRC")
+            && ConfigUtility.isEmpty(ancPath)) {
           continue;
         }
 
-        final String key = fields[4] + fields[5] + ptr;
-        if (ancPath == null) {
+        // Keys for lookups
+        final String ptrKey = fields[4] + fields[5] + ptr;
+        final String treeposKey =
+            fields[4] + fields[5] + ancPath + "~" + atom.getId();
+
+        // Skip if we've seen this tree position already
+        if (!seen.contains(treeposKey)) {
+
+          // Create atom tree pos
+          final AtomTreePosition tp = new AtomTreePositionJpa();
+          tp.setAdditionalRelationshipType(fields[5]);
+          tp.setAncestorPath(ancPath);
+          tp.setChildCt(childCt.get(ptrKey));
+          tp.setDescendantCt(descCt.get(ptrKey));
+          tp.setLastModified(releaseVersionDate);
+          tp.setLastModifiedBy(loader);
+          tp.setNode(atom);
+          tp.setObsolete(false);
+          tp.setPublishable(true);
+          tp.setPublished(true);
+          tp.setSuppressible(false);
+          tp.setTerminologyId("");
+          if (hcdMap.containsKey(ptrKey)) {
+            tp.setTerminologyId(hcdMap.get(ptrKey));
+          }
+          // Technically this should be the SAB, but in practice always the same
+          tp.setTerminology(atom.getTerminology());
+          tp.setVersion(atom.getVersion());
+          tp.setTimestamp(releaseVersionDate);
+
+          // Load atom treepos
+          addTreePosition(tp);
+          seen.add(treeposKey);
+        }
+
+        // Add the "anc" atom to the ancestor path for the next round
+        if (ancPath.equals("")) {
           ancPath = atom.getId().toString();
         } else {
           ancPath += "~" + atom.getId();
         }
 
-        // Skip if we've seen this part already
-        if (seen.contains(key)) {
-          continue;
-        }
-
-        // Create atom tree pos
-        final AtomTreePosition tp = new AtomTreePositionJpa();
-        tp.setAdditionalRelationshipType(fields[5]);
-        tp.setAncestorPath(ancPath);
-        tp.setChildCt(childCt.get(key));
-        tp.setDescendantCt(descCt.get(key));
-        tp.setLastModified(releaseVersionDate);
-        tp.setLastModifiedBy(loader);
-        tp.setNode(atom);
-        tp.setObsolete(false);
-        tp.setPublishable(true);
-        tp.setPublished(true);
-        tp.setSuppressible(false);
-        tp.setTerminologyId("");
-        if (hcdMap.containsKey(key)) {
-          tp.setTerminology(hcdMap.get(key));
-        }
-        // Technically this should be the SAB, but in practice always the same
-        tp.setTerminology(atom.getTerminology());
-        tp.setVersion(atom.getVersion());
-        tp.setTimestamp(releaseVersionDate);
-
-        // Load atom treepos
-        addTreePosition(tp);
-        seen.add(key);
       }
-
-      final String key = fields[4] + fields[5] + fields[6]
-          + (fields[6].equals("") ? "" : ".") + fields[1];
 
       // Get atom for the PTR part
       final Atom atom = getAtom(atomIdMap.get(fields[1]));
 
-      // If multi, and top-level atom is null, skip it
-      if (style == Style.MULTI && atom == null && ancPath == null) {
+      // Keys for lookups
+      final String ptrKey =
+          fields[4] + fields[5] + (ptr == null ? "" : ".") + fields[1];
+      final String treeposKey =
+          fields[4] + fields[5] + ancPath + "~" + atom.getId();
+
+      // Skip if we've seen this part already
+      if (seen.contains(treeposKey)) {
         continue;
       }
 
       // Skip top-level SRC atoms
-      if (atom.getTerminology().equals("SRC") && ancPath == null) {
+      if (atom.getTerminology().equals("SRC")
+          && ConfigUtility.isEmpty(ancPath)) {
         continue;
-      }
-
-      if (ancPath == null) {
-        ancPath = atom.getId().toString();
-      } else {
-        ancPath += "~" + atom.getId();
       }
 
       // At this point the PTR is set up properly for THIS context, create it
@@ -2591,8 +2596,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       final AtomTreePosition tp = new AtomTreePositionJpa();
       tp.setAdditionalRelationshipType(fields[5]);
       tp.setAncestorPath(ancPath);
-      tp.setChildCt(childCt.containsKey(key) ? childCt.get(key) : 0);
-      tp.setDescendantCt(childCt.containsKey(key) ? descCt.get(key) : 0);
+      tp.setChildCt(childCt.containsKey(ptrKey) ? childCt.get(ptrKey) : 0);
+      tp.setDescendantCt(childCt.containsKey(ptrKey) ? descCt.get(ptrKey) : 0);
       tp.setLastModified(releaseVersionDate);
       tp.setLastModifiedBy(loader);
       tp.setNode(atom);
@@ -2608,7 +2613,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Load atom treepos
       addTreePosition(tp);
-      seen.add(key);
+      seen.add(treeposKey);
       // log and commit periodically
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
@@ -3606,8 +3611,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // already vetted by atom
     subset.setVersion(loadedTerminologies.get(fields[11]).getVersion());
     subset.setTerminologyId(fields[13]);
-    // Set the CUI as the alternate terminology id
-    subset.getAlternateTerminologyIds().put(getTerminology(), fields[0]);
+    // Set the CUI as the alternate terminology id - this doesn't matter
+    // subset.getAlternateTerminologyIds().put(getTerminology(), fields[0]);
   }
 
   /**

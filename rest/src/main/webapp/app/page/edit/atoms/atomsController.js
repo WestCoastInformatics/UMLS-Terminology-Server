@@ -52,6 +52,7 @@ tsApp
           getPagedList : getPagedAtoms
         };
 
+        // Watch for component changes
         $scope.$watch('selected.component', function() {
           $scope.getPagedAtoms();
 
@@ -63,6 +64,12 @@ tsApp
           }
 
         });
+
+        // Scope method for accessing permissions
+        $scope.editingDisabled = function() {
+          return !$scope.selected.project.editingEnabled
+            && !securityService.hasPermissions('OverrideEditDisabled');
+        }
 
         // Get paging filter list
         $scope.getPagingFilterList = function() {
@@ -125,6 +132,11 @@ tsApp
         $window.onbeforeunload = function(evt) {
           $scope.parentWindowScope.removeWindow('atom');
         }
+        $scope.$on('$destroy', function() {
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('atom');
+          }
+        });
 
         // on window resize, save dimensions and screen location to user
         // preferences

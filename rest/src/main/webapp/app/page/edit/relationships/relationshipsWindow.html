@@ -43,7 +43,7 @@
         <span ng-bind="getSortIndicator('relationships','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openInsertModal()" title="Add relationship"
-            ng-disabled="!selected.project.editingEnabled"
+            ng-disabled="editingDisabled()"
             class="btn btn-xs btn-primary">Add Rel</button>
         </span></th>
     </tr>
@@ -80,14 +80,14 @@
 
     <span style="float: right;">
       <input type="checkbox" ng-model="preferredOnly"
-        ng-disabled="!selected.project.editingEnabled"
+        ng-disabled="editingDisabled()"
         ng-click="getPagedRelationships()" title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
-        ng-disabled="!selected.relationship || !selected.project.editingEnabled"
+        ng-disabled="!selected.relationship || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="!selected.relationship || !selected.project.editingEnabled"
+        ng-disabled="!selected.relationship || editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>

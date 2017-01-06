@@ -49,11 +49,17 @@ tsApp
           getPagedList : getPagedRelationships
         };
 
+        // Watch for component changes
         $scope.$watch('selected.component', function() {
-          console.debug('in watch');
           $scope.selected.relationship = null;
           $scope.getPagedRelationships();
         });
+
+        // Scope method for accessing permissions
+        $scope.editingDisabled = function() {
+          return !$scope.selected.project.editingEnabled
+            && !securityService.hasPermissions('OverrideEditDisabled');
+        }
 
         // add relationship
         $scope.addRelationshipToConcept = function(relationship) {
@@ -103,6 +109,11 @@ tsApp
         $window.onbeforeunload = function(evt) {
           $scope.parentWindowScope.removeWindow('relationship');
         }
+        $scope.$on('$destroy', function() {
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('relationshp');
+          }
+        });
 
         // on window resize, save dimensions and screen location to user
         // preferences

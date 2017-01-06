@@ -18,7 +18,7 @@
       <td class="{{semanticType.workflowStatus}}">{{semanticType.semanticType}}</td>
       <td>
         <i ng-click="removeSemanticTypeFromConcept(semanticType); "
-          ng-disabled="!selected.project.editingEnabled"
+          ng-disabled="editingDisabled()"
           title="Remove Semantic Type" class="noul glyphicon glyphicon-trash"></i>
       </td>
     </tr>
@@ -27,13 +27,13 @@
 
 <span style="float: right;">
   <button ng-click="approveConcept()" title="Approve"
-    ng-disabled="!selected.project.editingEnabled"
+    ng-disabled="editingDisabled()"
     class="btn btn-xs btn-primary">Approve</button>
   <button ng-click="next()" title="Next"
-    ng-disabled="!selected.project.editingEnabled"
+    ng-disabled="editingDisabled()"
     class="btn btn-xs btn-primary">Next</button>
   <button ng-click="approveNext()" title="Approve/Next"
-    ng-disabled="!selected.project.editingEnabled"
+    ng-disabled="editingDisabled()"
     class="btn btn-xs btn-primary">Approve/Next</button>
 </span>
 <br>
@@ -77,7 +77,7 @@
       <td>{{semanticType.expandedForm}}</td>
       <td>
         <button ng-click="addSemanticTypeToConcept(semanticType.expandedForm); "
-          ng-disabled="!selected.project.editingEnabled"
+          ng-disabled="editingDisabled()"
           title="Add Semantic Type" class="btn btn-xs btn-primary">Add</button>
       </td>
     </tr>

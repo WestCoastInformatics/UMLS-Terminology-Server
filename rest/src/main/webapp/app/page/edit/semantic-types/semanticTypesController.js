@@ -46,23 +46,27 @@ tsApp
           getPagedList : getPagedStys
         };
 
+        // Watch for component changes
         $scope.$watch('selected.component', function() {
-          console.debug('in watch');
           $scope.getPagedStys();
         });
+
+        // Scope method for accessing permissions
+        $scope.editingDisabled = function() {
+          return !$scope.selected.project.editingEnabled
+            && !securityService.hasPermissions('OverrideEditDisabled');
+        }
 
         // add semantic type
         $scope.addSemanticTypeToConcept = function(semanticType) {
           metaEditingService.addSemanticType($scope.selected.project.id,
-            $scope.selected.activityId,
-            $scope.selected.component, semanticType);
+            $scope.selected.activityId, $scope.selected.component, semanticType);
         }
 
         // remove semantic type
         $scope.removeSemanticTypeFromConcept = function(semanticType) {
           metaEditingService.removeSemanticType($scope.selected.project.id,
-            $scope.selected.activityId,
-            $scope.selected.component, semanticType.id, true);
+            $scope.selected.activityId, $scope.selected.component, semanticType.id, true);
         }
 
         // Get paged stys (assume all are loaded)
@@ -116,9 +120,14 @@ tsApp
             $scope.parentWindowScope.removeWindow('semanticType');
           }
         }
+        $scope.$on('$destroy', function() {
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('semanticType');
+          }
+        });
 
         // on window resize, save dimensions and screen location to user
-        // preferences
+        // preferencesD
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
           window.resizedFinished = setTimeout(function() {

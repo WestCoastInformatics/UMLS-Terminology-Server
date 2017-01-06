@@ -77,6 +77,11 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
     $window.onbeforeunload = function(evt) {
       $scope.parentWindowScope.removeWindow('context');
     }
+    $scope.$on('$destroy', function() {
+      if (!parentClosing) {
+        $scope.parentWindowScope.removeWindow('context');
+      }
+    });
 
     // on window resize, save dimensions and screen location to user preferences
     $window.onresize = function(evt) {

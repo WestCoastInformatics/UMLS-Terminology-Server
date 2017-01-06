@@ -43,7 +43,7 @@
         {{item.additionalRelationshipType}} <!-- Mobile friendly switch --> <span
           class="hidden-xs">
           <a class="noul" ng-show="callbacks.getComponent"
-            ng-click="getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</a>
           <span ng-show="!callbacks.getComponent"
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toTerminologyId}}</span>
@@ -51,7 +51,7 @@
         </span> <span class="visible-xs-inline">
           <a
             ng-class="[{'nolink' : !callbacks.getComponent}, {'noul' : !callbacks.getComponent}]"
-            ng-click="getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
+            ng-click="callbacks.getComponent(metadata.terminology.organizingClassType, item.toTerminologyId, component.terminology, component.version)"
             uib-tooltip="{{item.terminology}} {{metadata.terminology.organizingClassType | lowercase}}">{{item.toName}}</a>
         </span></li>
     </ul>

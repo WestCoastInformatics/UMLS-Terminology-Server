@@ -471,6 +471,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     // Set terminology ids
     mapping.setTerminologyId(xmapFields[10]);
+
     if (xmapFromFields[0] != null && !xmapFromFields[0].equals("")) {
       mapping.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
           xmapFromFields[0]);

@@ -145,7 +145,6 @@ tsApp
 
           }
         });
-
         $scope.$on('termServer::worklistChange', function(event, data) {
           if (data.id == $scope.selected.project.id) {
             // Worklists changed, refresh worklists if not checklists tab
@@ -259,6 +258,12 @@ tsApp
               break;
             }
           }
+        }
+
+        // Scope method for accessing permissions
+        $scope.editingDisabled = function() {
+          return !$scope.selected.project.editingEnabled
+            && !securityService.hasPermissions('OverrideEditDisabled');
         }
 
         // Set worklist mode
@@ -606,14 +611,15 @@ tsApp
           if ($scope.windows.hasOwnProperty(windowName)) {
             delete $scope.windows[windowName];
           }
-          securityService.saveProperty($scope.user.userPreferences, windowName, false);
+          // Retain last settings.
+          // securityService.saveProperty($scope.user.userPreferences,
+          // windowName, false);
         }
 
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
-            delete $scope.windows[win];
-            securityService.saveProperty($scope.user.userPreferences, win, false);
+            $scope.removeWindow(win);
           }
         }
 
@@ -667,10 +673,11 @@ tsApp
           }
         }
 
+        // Scope method for accessing permissions
         $scope.hasPermissions = function(action) {
           return securityService.hasPermissions(action);
         }
-        
+
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
 
@@ -993,7 +1000,7 @@ tsApp
             + ', height=' + height + ', scrollbars=yes');
           $scope.windows['semanticType'].document.title = 'Semantic Type Editor';
           $scope.windows['semanticType'].focus();
-          if ($scope.user.userPreferences.properties['semanticTypeX']) {
+          if ($scope.user.userPreferences.properties.hasOwnProperty('semanticTypeX')) {
             $scope.windows['semanticType'].moveTo(
               $scope.user.userPreferences.properties['semanticTypeX'],
               $scope.user.userPreferences.properties['semanticTypeY']);
@@ -1020,7 +1027,7 @@ tsApp
             + ', height=' + height + ', scrollbars=yes');
           $scope.windows['atom'].document.title = 'Atoms Editor';
           $scope.windows['atom'].focus();
-          if ($scope.user.userPreferences.properties['atomX']) {
+          if ($scope.user.userPreferences.properties.hasOwnProperty('atomX')) {
             $scope.windows['atom'].moveTo($scope.user.userPreferences.properties['atomX'],
               $scope.user.userPreferences.properties['atomY']);
           }
@@ -1045,7 +1052,7 @@ tsApp
             + width + ', height=' + height + ', scrollbars=yes');
           $scope.windows['relationship'].document.title = 'Relationships Editor';
           $scope.windows['relationship'].focus();
-          if ($scope.user.userPreferences.properties['relationshipX']) {
+          if ($scope.user.userPreferences.properties.hasOwnProperty('relationshipX')) {
             $scope.windows['relationship'].moveTo(
               $scope.user.userPreferences.properties['relationshipX'],
               $scope.user.userPreferences.properties['relationshipY']);
@@ -1071,7 +1078,7 @@ tsApp
             + ', height=' + height + ', scrollbars=yes');
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
-          if ($scope.user.userPreferences.properties['contextX']) {
+          if ($scope.user.userPreferences.propertieshasOwnProperty('contextX')) {
             $scope.windows['context'].moveTo($scope.user.userPreferences.properties['contextX'],
               $scope.user.userPreferences.properties['contextY']);
           }
