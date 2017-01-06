@@ -936,7 +936,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // Matrix initializer
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", authToken);
+    workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
+        authToken);
   }
 
   /**
