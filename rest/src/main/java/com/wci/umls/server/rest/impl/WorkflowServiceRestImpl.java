@@ -3234,21 +3234,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         if (list.size() > 0) {
           final Date lastMatrixinit = list.get(0).getLastModified();
           // find project concepts touched since then\
-          final Set<Long> conceptIds =
-              algorithm
-                  .findConcepts(project.getTerminology(), project.getVersion(),
-                      project.getBranch(),
-                      "lastModified:[" + ConfigUtility.DATE_YYYYMMDDHHMMSS
-                          .format(lastMatrixinit) + " TO *]",
-                      null)
-                  .getObjects().stream().map(c -> c.getId())
-                  .collect(Collectors.toSet());
+          final javax.persistence.Query query = algorithm.getEntityManager()
+              .createQuery("select c.id from ConceptJpa c "
+                  + "where terminology = :terminology "
+                  + "  and version = :version and lastModified > :date");
+          query.setParameter("terminology", project.getTerminology());
+          query.setParameter("version", project.getVersion());
+          query.setParameter("date", lastMatrixinit);
+          final List<?> results = query.getResultList();
+          final Set<Long> conceptIds = results.stream()
+              .map(o -> Long.valueOf(o.toString())).collect(Collectors.toSet());
           if (conceptIds.size() == 0) {
             // bail, no algorithm
             ValidationResult result = new ValidationResultJpa();
             result.addWarning(
                 "Update mode used and no concepts have changed since last run");
-
+            return result;
           }
           algorithm.setConceptIds(conceptIds);
         }
@@ -3263,7 +3264,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       return result;
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       try {
         algorithm.rollback();
       } catch (Exception e2) {
