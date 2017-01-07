@@ -52,7 +52,10 @@ tsApp.directive('reportAction', [
           function findMolecularActions(component) {
 
             projectService.findMolecularActions(component.id, $scope.selected.project.terminology,
-              $scope.selected.project.version, null, {sortField: 'timestamp', ascending: false}).then(
+              $scope.selected.project.version, null, {
+                sortField : 'timestamp',
+                ascending : false
+              }).then(
             // Success
             function(data) {
               $scope.molecularActions = data.actions;
@@ -137,20 +140,18 @@ tsApp.directive('reportAction', [
           $scope.toDate = function(lastModified) {
             return utilService.toDate(lastModified);
           };
-          
+
           $scope.hasPermissions = function(action) {
             return securityService.hasPermissions(action);
           }
-          
+
           $scope.selfResolved = function(action) {
             var user = securityService.getUser();
             if (user.userPreferences.lastProjectRole != 'AUTHOR') {
               return true;
-            }
-            else if (user.userPreferences.lastProjectRole == 'AUTHOR' && 
-              user.editorLevel == 5 && 
-              action.lastModifiedBy.indexOf(user.userName) > 0) {
-                return true;
+            } else if (user.userPreferences.lastProjectRole == 'AUTHOR' && user.editorLevel == 5
+              && action.lastModifiedBy.indexOf(user.userName) > 0) {
+              return true;
             }
             return false;
           }

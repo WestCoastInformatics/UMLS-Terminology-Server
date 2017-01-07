@@ -14,7 +14,7 @@
     <option value="100">100</option>
   </select>
 </span>
-<div pager paging="paging['entries']" count="entries.length"
+<div pager paging="paging['entries']" count="pagedEntries.totalCount"
   callbacks="paging['entries'].callbacks"></div>
 
 
@@ -49,8 +49,7 @@
   style="display: block;" class="alert alert-warning">No contexts</span>
 <hr>
 
-<div tree-component component="component" metadata="selected.metadata"
-  callbacks="callbacks"></div>
+<div tree-component component="component" metadata="selected.metadata"></div>
 
 <div ng-if="treeCount == 0">
   <span style="display: block;" class="alert alert-warning">No

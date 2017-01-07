@@ -51,6 +51,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
       getPagedEntries();
     }
     function getPagedEntries() {
+
       $scope.entries = [];
       contentService.findDeepTreePositions({
         terminology : $scope.selected.project.terminology,
@@ -135,7 +136,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
     //
     $scope.initialize = function() {
-      $scope.getPagedEntries();
+      // n/a
     }
 
     // Call initialize
