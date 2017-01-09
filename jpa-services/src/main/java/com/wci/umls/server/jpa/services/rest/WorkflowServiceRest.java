@@ -697,11 +697,12 @@ public interface WorkflowServiceRest {
    *
    * @param projectId the project id
    * @param activityId the activity id
+   * @param updaterFlag the updater flag
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
   public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, String authToken) throws Exception;
+    String activityId, Boolean updaterFlag, String authToken) throws Exception;
 
 }

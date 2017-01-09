@@ -159,11 +159,11 @@ tsApp.controller('WorkflowCtrl', [
     $scope.getProjects = function() {
 
       projectService.getProjectsForUser($scope.user).then(
-        // Success
-        function(data) {
-          $scope.lists.projects = data.projects;
-          $scope.setProject(data.project);
-        });
+      // Success
+      function(data) {
+        $scope.lists.projects = data.projects;
+        $scope.setProject(data.project);
+      });
 
     };
 
@@ -246,9 +246,8 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Recompute concept status
-    $scope.recomputeConceptStatus = function() {
-      workflowService.recomputeConceptStatus($scope.selected.project.id,
-        $scope.selected.config.type).then(
+    $scope.recomputeConceptStatus = function(updateFlag) {
+      workflowService.recomputeConceptStatus($scope.selected.project.id, updateFlag).then(
       // Success
       function(response) {
         $scope.getBins($scope.selected.project.id, $scope.selected.config);

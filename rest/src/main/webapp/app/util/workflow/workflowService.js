@@ -1198,17 +1198,14 @@ tsApp.service('workflowService', [
     };
 
     // recompute concept status
-    this.recomputeConceptStatus = function(projectId, overrideWarnings) {
-      console.debug('recompute concept status');
+    this.recomputeConceptStatus = function(projectId, updateFlag) {
+      console.debug('recompute concept status', updateFlag);
       var deferred = $q.defer();
 
       gpService.increment('Recomputing concept status...');
       $http.post(
-        workflowUrl
-          + '/status/compute?projectId='
-          + projectId
-          + (overrideWarnings != null && overrideWarnings != '' ? '&overrideWarnings='
-            + overrideWarnings : ''), null).then(
+        workflowUrl + '/status/compute?projectId=' + projectId
+          + (updateFlag ? '&update=' + updateFlag : ''), null).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);

@@ -616,8 +616,7 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("norelease");
     definition.setDescription("Concepts where all atoms are unreleasable.");
-    definition.setQuery(
-        "published:false AND NOT atoms.published:true");
+    definition.setQuery("published:false AND NOT atoms.published:true");
     definition.setEditable(false);
     definition.setEnabled(true);
     definition.setRequired(false);
@@ -965,7 +964,8 @@ public class GenerateSampleDataMojo extends AbstractLoaderMojo {
 
     // Matrix initializer
     workflowService = new WorkflowServiceRestImpl();
-    workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", authToken);
+    workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
+        authToken);
   }
 
   /**

@@ -42,7 +42,7 @@
           ng-bind="getSortIndicator('atoms','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openAddAtomModal(luser)" title="Add atom"
-            ng-disabled="!selected.project.editingEnabled"
+            ng-disabled="editingDisabled()"
             class="btn btn-xs btn-primary">Add Atom</button>
         </span></th>
     </tr>
@@ -91,8 +91,6 @@
                 <td class="col-md-7 col-xs-7">{{att.value}}</td>
               </tr>
             </table>
-            <span ng-show="attributes[atom.id].atom.length==0">
-              class="alert alert-warning"> No atom attributes </span>
             <div ng-show="attributes[atom.id].code">
               <table class="slim table"
                 ng-show="attributes[atom.id].code.length>0">
@@ -102,8 +100,6 @@
                   <td class="col-md-6 col-xs-6">{{att.value}}</td>
                 </tr>
               </table>
-              <span ng-show="attributes[atom.id].code.length==0">
-                class="alert alert-warning"> No code attributes </span>
             </div>
             <div ng-show="attributes[atom.id].concept">
               <table class="slim table"
@@ -114,8 +110,6 @@
                   <td class="col-md-7 col-xs-7">{{att.value}}</td>
                 </tr>
               </table>
-              <span ng-show="attributes[atom.id].concept.length==0">
-                class="alert alert-warning"> No concept attributes </span>
             </div>
             <div ng-show="attributes[atom.id].descriptor">
               <table class="slim table"
@@ -126,8 +120,6 @@
                   <td class="col-md-7 col-xs-7">{{att.value}}</td>
                 </tr>
               </table>
-              <span ng-show="attributes[atom.id].descriptor.length==0">
-                class="alert alert-warning"> No descriptor attributes </span>
             </div>
 
             <span ng-show="attributes[atom.id].ct == 0"
@@ -150,22 +142,22 @@
     </span>
     <span style="float: right;">
       <button ng-click="approveConcept()" title="Approve"
-        ng-disabled="!selected.project.editingEnabled"
+        ng-disabled="editingDisabled()"
         class="btn btn-xs btn-primary">Approve</button>
       <button ng-click="next()" title="Next"
-        ng-disabled="!selected.project.editingEnabled"
+        ng-disabled="editingDisabled()"
         class="btn btn-xs btn-primary">Next</button>
       <button ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="!selected.project.editingEnabled"
+        ng-disabled="editingDisabled()"
         class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
         title="Move" class="btn btn-xs btn-primary">Move</button>
       <button ng-click="openSplitModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || !selected.project.editingEnabled"
+        ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
         title="Split" class="btn btn-xs btn-primary">Split</button>
     </span>
   </div>

@@ -17,6 +17,7 @@ tsApp.directive('mappings', [ function() {
       function($scope, utilService, contentService) {
         $scope.showing = true;
         $scope.mapSets = {};
+        $scope.mapSetCt = 0;
         $scope.showing = true;
 
         // watch the component
@@ -41,8 +42,10 @@ tsApp.directive('mappings', [ function() {
                   $scope.metadata.terminology.version).then(
                 // Success
                 function(data) {
+                  $scope.mapSetCt = 0;
                   for (var i = 0; i < data.mapSets.length; i++) {
                     var mapSet = data.mapSets[i];
+                    $scope.mapSetCt++;
                     $scope.mapSets[mapSet.id] = {
                       mapSet : mapSet,
                       mappings : []

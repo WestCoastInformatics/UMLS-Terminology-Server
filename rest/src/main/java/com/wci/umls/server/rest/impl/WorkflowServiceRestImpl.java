@@ -3198,6 +3198,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   public ValidationResult recomputeConceptStatus(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Activity id, e.g. MATRIXINIT", required = true) @QueryParam("activityId") String activityId,
+    @ApiParam(value = "Update flag, e.g. false", required = false) @QueryParam("update") Boolean updateFlag,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -3222,6 +3223,38 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       algorithm.setTerminology(project.getTerminology());
       algorithm.setVersion(project.getVersion());
 
+      if (updateFlag != null && updateFlag) {
+        final PfsParameter pfs = new PfsParameterJpa();
+        pfs.setSortField("lastModified");
+        pfs.setAscending(false);
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+        final List<LogEntry> list =
+            algorithm.findLogEntries("message:\"Finished MATRIXINIT\"", pfs);
+        if (list.size() > 0) {
+          final Date lastMatrixinit = list.get(0).getLastModified();
+          // find project concepts touched since then\
+          final javax.persistence.Query query = algorithm.getEntityManager()
+              .createQuery("select c.id from ConceptJpa c "
+                  + "where terminology = :terminology "
+                  + "  and version = :version and lastModified > :date");
+          query.setParameter("terminology", project.getTerminology());
+          query.setParameter("version", project.getVersion());
+          query.setParameter("date", lastMatrixinit);
+          final List<?> results = query.getResultList();
+          final Set<Long> conceptIds = results.stream()
+              .map(o -> Long.valueOf(o.toString())).collect(Collectors.toSet());
+          if (conceptIds.size() == 0) {
+            // bail, no algorithm
+            ValidationResult result = new ValidationResultJpa();
+            result.addWarning(
+                "Update mode used and no concepts have changed since last run");
+            return result;
+          }
+          algorithm.setConceptIds(conceptIds);
+        }
+      }
+
       final ValidationResult result = algorithm.checkPreconditions();
       if (!result.isValid()) {
         return result;
@@ -3231,7 +3264,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       return result;
 
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       try {
         algorithm.rollback();
       } catch (Exception e2) {

@@ -216,7 +216,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
       project1.setValidationChecks(validationChecks);
 
       // Handle precedence list (if exists)
-      MetadataServiceRest metadataService = new MetadataServiceRestImpl();      
+      MetadataServiceRest metadataService = new MetadataServiceRestImpl();
       PrecedenceList origList = metadataService.getDefaultPrecedenceList(
           project1.getTerminology(), "latest", authToken);
 
@@ -398,7 +398,7 @@ public class GenerateDemoDataMojo extends AbstractLoaderMojo {
 
       // Matrix initializer
       workflowService = new WorkflowServiceRestImpl();
-      workflowService.recomputeConceptStatus(projectId, "MATRIXINIT",
+      workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
           authToken);
 
     }

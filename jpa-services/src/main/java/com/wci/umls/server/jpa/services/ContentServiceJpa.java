@@ -4137,8 +4137,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception {
 
     Logger.getLogger(getClass())
-        .info("Content Service - find children of a tree position "
-            + terminologyId + "/" + terminology + "/" + version);
+        .info("Content Service - find children of a tree position " + nodeId
+            + ", " + terminologyId + "/" + terminology + "/" + version);
 
     final PfsParameter childPfs = new PfsParameterJpa();
     childPfs.setStartIndex(0);
@@ -4685,12 +4685,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
         Branch.ROOT, ConfigUtility.composeQuery("OR", clauses),
         AtomTreePositionJpa.class, pfs);
     final Set<Long> nodesSeen = new HashSet<>();
+    final Set<String> terminologiesSeen = new HashSet<>();
     for (final TreePosition tp : atomTrees.getObjects()) {
       // keep the first one encountered
       if (!nodesSeen.contains(tp.getNode().getId())) {
         treePositionList.add(tp);
       }
-      nodesSeen.add(tp.getNode().getId());
+      terminologiesSeen.add(tp.getNode().getTerminology());
     }
 
     final Set<String> seen = new HashSet<>();
@@ -4699,7 +4700,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     for (final Atom atom : concept.getAtoms()) {
 
       // Skip things already processed for having atom trees
-      if (nodesSeen.contains(atom.getId())) {
+      if (terminologiesSeen.contains(atom.getTerminology())) {
         continue;
       }
 

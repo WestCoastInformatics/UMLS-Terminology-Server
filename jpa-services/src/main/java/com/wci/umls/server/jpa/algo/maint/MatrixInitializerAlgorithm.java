@@ -29,6 +29,9 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  */
 public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
+  /** The concept ids. */
+  public Set<Long> conceptIds = null;
+
   /**
    * Instantiates an empty {@link MatrixInitializerAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -55,6 +58,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting MATRIXINIT");
+    if (conceptIds != null) {
+      logInfo("  update mode = " + conceptIds.size());
+    }
+
     fireProgressEvent(0, "Starting...find publishable atoms");
     try {
 
@@ -146,6 +153,11 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
       for (final Long conceptId : conceptsToChange) {
+        // If in "updater" mode, skip concepts not accounted for.
+        if (conceptIds != null && !conceptIds.contains(conceptId)) {
+          continue;
+        }
+
         final Concept concept = getConcept(conceptId);
 
         // determine status change
@@ -280,5 +292,14 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
   @Override
   public String getDescription() {
     return "Recompute concept status";
+  }
+
+  /**
+   * Sets the concept ids.
+   *
+   * @param conceptIds the concept ids
+   */
+  public void setConceptIds(Set<Long> conceptIds) {
+    this.conceptIds = conceptIds;
   }
 }

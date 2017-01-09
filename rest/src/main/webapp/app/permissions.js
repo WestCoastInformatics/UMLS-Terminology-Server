@@ -101,5 +101,11 @@ tsApp.run([ 'securityService', function(securityService) {
     'EDITOR5' : false,
     'ADMINISTRATOR' : true
   });
+  securityService.addPermission('OverrideEditDisabled', {
+    'REVIEWER' : true,
+    'AUTHOR' : false,
+    'EDITOR5' : true,
+    'ADMINISTRATOR' : true
+  });
 
 } ]);
