@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
@@ -189,6 +187,8 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       }
 
       commitClearBegin();
+      handler.commitClearBegin();
+      handler.close();
 
       // Finally, update all xmapSets
       for (MapSet mapSet : getCachedMapSets().values()) {
@@ -445,11 +445,16 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     FieldedStringTokenizer.split(xmapToEntry, "~", 6, xmapToFields);
 
     //
-    // Create and populate the new mappingF
+    // Create and populate the new mapping
     //
     final Mapping mapping = new MappingJpa();
     // look up mapSet for this srcAtomId
     MapSet mapSet = getCachedMapSet(fields[1]);
+    if (mapSet == null) {
+      logWarn("Warning - mapSet not found: " + fields[1] + "."
+          + " Could not process the following line:\n\t" + xmapEntry);
+      return;
+    }
     mapping.setMapSet(mapSet);
     mapping.setLastModifiedBy(getLastModifiedBy());
 
@@ -489,7 +494,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     mapping.setTerminologyId(xmapFields[10]);
 
     // Calculate an identity for the xmap entry line as if it were an attribute
-    // Note: do NOT persist the attribute - just use the identity
+    // Note: do NOT persist the attribute - just use returned ATUI
 
     // Load the terminology that will be assigned to the new attribute
     Terminology setTerminology = getCachedTerminology(fields[5]);
@@ -499,19 +504,12 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       return;
     }
 
-    // Create the attribute
+    // Create the fake attribute
     Attribute newAttribute = new AttributeJpa();
-    newAttribute.setBranch(Branch.ROOT);
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
-    newAttribute.setTerminologyId(fields[12]);
     newAttribute.setTerminology(setTerminology.getTerminology());
-    newAttribute.setVersion(setTerminology.getVersion());
-    newAttribute.setTimestamp(new Date());
-    newAttribute.setSuppressible(fields[9].toUpperCase().equals("Y"));
-    newAttribute.setPublished(fields[6].toUpperCase().equals("Y"));
-    newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
-    newAttribute.setObsolete(false);
+    newAttribute.setTerminologyId("");
 
     // Load the containing object
     ComponentHasAttributes containerComponent =
