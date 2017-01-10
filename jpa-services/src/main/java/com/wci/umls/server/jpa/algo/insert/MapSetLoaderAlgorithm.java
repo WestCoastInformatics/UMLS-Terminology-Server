@@ -49,6 +49,9 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   /** The xmap entries. */
   private Set<String> xmapEntries = new HashSet<>();
 
+  /** The added mapsets. */
+  private Map<String, MapSet> addedMapSets = new HashMap<>();
+
   /** The mapping add count. */
   private int mappingAddCount = 0;
 
@@ -120,84 +123,46 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
               "(.*)(MAPSETNAME|MAPSETVERSION|TOVSAB|TORSAB|FROMRSAB|FROMVSAB|MAPSETGRAMMAR|MAPSETRSAB|MAPSETTYPE|MAPSETVSAB|MTH_MAPFROMEXHAUSTIVE|MTH_MAPTOEXHAUSTIVE|MTH_MAPSETCOMPLEXITY|MTH_MAPFROMCOMPLEXITY|MTH_MAPTOCOMPLEXITY|MAPSETXRTARGETID|MAPSETSID|XMAP|XMAPTO|XMAPFROM)(.*)",
               null);
 
-      // Set the number of steps to the number of lines to be processed
-      setSteps(lines.size());
+      // Set the number of steps to twice the number of lines to be processed
+      // (we'll be looping through everything twice)
+      setSteps(2 * lines.size());
 
-      String fields[] = new String[14];
-
+      // Scan through and find all MapSets that need to be created
       for (String line : lines) {
-
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
         }
-
-        FieldedStringTokenizer.split(line, "|", 14, fields);
-
-        // Fields:
-        // 0 source_attribute_id
-        // 1 sg_id
-        // 2 attribute_level
-        // 3 attribute_name
-        // 4 attribute_value
-        // 5 source
-        // 6 status
-        // 7 tobereleased
-        // 8 released
-        // 9 suppressible
-        // 10 sg_type_1
-        // 11 sg_qualifier_1
-        // 12 source_atui
-        // 13 hashcode
-
-        // e.g.
-        // 13370181|381548367|S|XMAP|1~1~9074007~RT~mapped_to~H55~TRUE~447637006~ACTIVE~1~db8b21b9-849e-53de-82ba-8fd4956b8e64~ALWAYS
-        // H55|
-        // SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4cd197e2870636a62fcd3c706261471f|
-        //
-
-        // MAPPING attributes. Handle them within the loop.
-        if (isMapSetAttribute(fields[3])) {
-          processMapSetAttribute(line, fields);
-
-          // Update the progress
-          updateProgress();
-        }
-
-        // XMAP attributes. Save their information to maps
-        else if (isXmapAttribute(fields[3])) {
-          populateXmapMaps(line, fields);
-
-          // Don't updateProgress for XMAP lines - they need to be process
-          // outside of the loop
-          if (!fields[3].equals("XMAP")) {
-            // Update the progress
-            updateProgress();
-          }
-        }
+        
+        createMapSets(line);
+        updateProgress();
       }
 
-      // Once all of the XmapMaps are populated, go through and process them
-      for (final String xmapEntry : xmapEntries) {
-        processXmapEntry(xmapEntry, handler);
-        // Update the progress
+      // Scan through the lines again, and find all mappings that need to be
+      // created
+      for (String line : lines) {
+        // Check for a cancelled call once every 100 lines
+        if (getStepsCompleted() % 100 == 0) {
+          checkCancel();
+        }        
+        
+        createMappings(line, handler);
         updateProgress();
         handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
             RootService.commitCt);
+      }
+
+      // Finally, update all xmapSets
+      for (MapSet mapSet : addedMapSets.values()) {
+        updateMapSet(mapSet);
+        mapsetUpdateCount++;
       }
 
       commitClearBegin();
       handler.commitClearBegin();
       handler.close();
 
-      // Finally, update all xmapSets
-      for (MapSet mapSet : getCachedMapSets().values()) {
-        updateMapSet(mapSet);
-        mapsetUpdateCount++;
-      }
-
-      commitClearBegin();
-
+      
       // If any mapTo or MapFrom entries were unused, log them
       final Set<String> xmapFromUnusuedSet = xmapFromMap.keySet();
       xmapFromUnusuedSet.removeAll(xmapFromUsedSet);
@@ -228,6 +193,112 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
 
   }
+
+  private void createMappings(String line,
+    IdentifierAssignmentHandler handler) throws Exception {
+
+    String fields[] = new String[14];
+
+    FieldedStringTokenizer.split(line, "|", 14, fields);
+
+    // Fields:
+    // 0 source_attribute_id
+    // 1 sg_id
+    // 2 attribute_level
+    // 3 attribute_name
+    // 4 attribute_value
+    // 5 source
+    // 6 status
+    // 7 tobereleased
+    // 8 released
+    // 9 suppressible
+    // 10 sg_type_1
+    // 11 sg_qualifier_1
+    // 12 source_atui
+    // 13 hashcode
+
+    // e.g.
+    // 13370181|381548367|S|XMAP|1~1~9074007~RT~mapped_to~H55~TRUE~447637006~ACTIVE~1~db8b21b9-849e-53de-82ba-8fd4956b8e64~ALWAYS
+    // H55|
+    // SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4cd197e2870636a62fcd3c706261471f|
+    //
+
+    // MAPPING attributes. Handle them within the loop.
+    if (isMapSetAttribute(fields[3])) {
+      processMapSetAttribute(line, fields);
+
+      // Update the progress
+      updateProgress();
+    }
+
+    // XMAP attributes. Save their information to maps
+    else if (isXmapAttribute(fields[3])) {
+      populateXmapMaps(line, fields);
+
+      // Don't updateProgress for XMAP lines - they need to be process
+      // outside of the loop
+      if (!fields[3].equals("XMAP")) {
+        // Update the progress
+        updateProgress();
+      }
+    }
+  }
+
+  private void createMapSets(String line) throws Exception {
+
+    String fields[] = new String[14];
+
+      FieldedStringTokenizer.split(line, "|", 14, fields);
+
+      // Fields:
+      // 0 source_attribute_id
+      // 1 sg_id
+      // 2 attribute_level
+      // 3 attribute_name
+      // 4 attribute_value
+      // 5 source
+      // 6 status
+      // 7 tobereleased
+      // 8 released
+      // 9 suppressible
+      // 10 sg_type_1
+      // 11 sg_qualifier_1
+      // 12 source_atui
+      // 13 hashcode
+
+      // e.g.
+      // 13370181|381548367|S|XMAP|1~1~9074007~RT~mapped_to~H55~TRUE~447637006~ACTIVE~1~db8b21b9-849e-53de-82ba-8fd4956b8e64~ALWAYS
+      // H55|
+      // SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4cd197e2870636a62fcd3c706261471f|
+      //
+
+      // Only handle XMAP lines
+      if (!fields[3].equals("XMAP")) {
+        return;
+      }
+      
+      
+      
+      // MAPPING attributes. Handle them within the loop.
+      if (isMapSetAttribute(fields[3])) {
+        processMapSetAttribute(line, fields);
+
+        // Update the progress
+        updateProgress();
+      }
+
+      // XMAP attributes. Save their information to maps
+      else if (isXmapAttribute(fields[3])) {
+        populateXmapMaps(line, fields);
+
+        // Don't updateProgress for XMAP lines - they need to be process
+        // outside of the loop
+        if (!fields[3].equals("XMAP")) {
+          // Update the progress
+          updateProgress();
+        }
+      }
+    }    
 
   /**
    * Populate xmap maps.
@@ -307,7 +378,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     final String atn = fields[3];
     final String atv = fields[4];
 
-    final MapSet mapset = getCachedMapSet(srcAtomAltId);
+    final MapSet mapset = addedMapSets.get(srcAtomAltId);
     if (mapset == null) {
       logWarn(
           "Warning - mapSet not found with alt terminology id: " + srcAtomAltId
@@ -462,7 +533,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     //
     final Mapping mapping = new MappingJpa();
     // look up mapSet for this srcAtomId
-    MapSet mapSet = getCachedMapSet(fields[1]);
+    MapSet mapSet = addedMapSets.get(fields[1]);
     if (mapSet == null) {
       logWarn("Warning - mapSet not found: " + fields[1] + "."
           + " Could not process the following line:\n\t" + xmapEntry);
