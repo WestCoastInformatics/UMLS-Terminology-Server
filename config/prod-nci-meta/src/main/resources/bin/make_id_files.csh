@@ -9,6 +9,7 @@
 set terminology = $1
 if ("x$terminology" == "x") then
   echo "Usage: $0 <terminology>"
+  exit 1
 endif
 echo "------------------------------------------"
 echo "Starting `/bin/date`"
@@ -45,10 +46,8 @@ endif
 # TOEXPR,TOTYPE,TORULE,TORES,MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
 echo "  Compute attribute identity for MRMAP"
 /bin/rm -f xmCuiAui.txt
- grep '|XM|' MRCONSO.RRF  | cut -d\| -f 1,8 > xmCuiAui.txt
-
-perl -ne 'BEGIN {open(X,"xmCuiAui.txt"); while (<X>) { chop; @_=split/\|/; $map{$_[0]}=$_[1]; }; close(X); } @_ = split/\|/;  print "$_[0]|L|S|$map{$_[0]}|AUI|$_[5]|$_[4]||XMAP|$_[1]|$_[2]~$_[3]~$_[6]~$_[12]~$_[13]~$_[14]~$_[20]~$_[22]~$_[23]~$_[24]~$_[5]~$_[21]|N||\n" ' MRMAP.RRF | lib/mrsat.pl >> attributeIdentity.txt
-    
+grep '|XM|' MRCONSO.RRF  | cut -d\| -f 1,8 > xmCuiAui.txt
+  
 #    2 MAPSUBSETID: Map sub set identifier
 #    3 MAPRANK: Order in which mappings in a subset should be applied
 #    6 FROMID: Identifier mapped from
@@ -61,6 +60,7 @@ perl -ne 'BEGIN {open(X,"xmCuiAui.txt"); while (<X>) { chop; @_=split/\|/; $map{
 #    24 MAPATV: Row level attribute value associated with this mapping   
 #    5 MAPSID: Source asserted Mapping ID
 #    21 MAPRES: Human readable restriction use of mapping
+perl -ne 'BEGIN {open(X,"xmCuiAui.txt"); while (<X>) { chop; @_=split/\|/; $map{$_[0]}=$_[1]; }; close(X); } @_ = split/\|/;  print "$_[0]|L|S|$map{$_[0]}|AUI|$_[5]|$_[4]||XMAP|$_[1]|$_[2]~$_[3]~$_[6]~$_[12]~$_[13]~$_[14]~$_[20]~$_[22]~$_[23]~$_[24]~$_[5]~$_[21]|N||\n" ' MRMAP.RRF | lib/mrsat.pl >> attributeIdentity.txt
 /bin/rm -f xmCuiAui.txt
 
 #
@@ -122,7 +122,7 @@ endif
 # verify that we don't have the same norm string for 2 different LUIs - e.g. norm string should be unique in the file
 cut -d\| -f 3 lexicalClassIdentity.txt | sort | uniq -d | sed 's/$/\\\|\$/; s/^/\\\|/;' >! x.$$
 egrep -f x.$$ lexicalClassIdentity.txt | sort -n | perl -ne 'chop; @_=split/\|/; if ($map{$_[2]}) { $_[2] = "$_[2]$map{$_[2]}";} $map{$_[2]}++; print join "|", @_; print "|\n";' >! y.$$
-egrep -v -f x.$$ lexicalClassIdentity.txt | grep -v '289447|carinu pneumocystis|' >> y.$$
+egrep -v -f x.$$ lexicalClassIdentity.txt | grep -v '289447|ENG|carinu pneumocystis|' >> y.$$
 /bin/mv -f y.$$ lexicalClassIdentity.txt
 /bin/rm -f x.$$
 if (`cut -d\| -f 3 lexicalClassIdentity.txt | sort | uniq -d | wc -l` > 0) then
@@ -145,6 +145,7 @@ endif
 # Relationship Identity
 #  id|terminology|terminologyId|type|additionalType|fromId|fromType|fromTerminology|toId|toType|toTerminology|inverseId
 #
+echo "  Compute relationship identity for MRREL"
 
 # make inverseRui.txt
 /bin/rm -f relationshipIdentity.txt inverseRui.txt mrrel.txt rel.txt rela.txt
@@ -163,7 +164,6 @@ join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/;
 
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 #
-echo "  Compute relationship identity for MRREL"
 cat MRREL.RRF | lib/mrrel.pl $terminology > relationshipIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRREL.RRF"
