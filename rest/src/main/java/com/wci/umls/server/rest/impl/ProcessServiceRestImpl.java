@@ -1953,11 +1953,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // track currently running algorithm
             processAlgorithmMap.put(processExecution.getId(), algorithm);
 
-            // Check preconditions
-            final ValidationResult result = algorithm.checkPreconditions();
-            if (!result.isValid()) {
-              throw new LocalException("Algorithm " + algorithmExecution.getId()
-                  + " failed preconditions: " + result.getErrors());
+            // Check preconditions (if this is not an unstep)
+            if (!(step != null && step < 0)) {
+              final ValidationResult result = algorithm.checkPreconditions();
+              if (!result.isValid()) {
+                throw new LocalException(
+                    "Algorithm " + algorithmExecution.getId()
+                        + " failed preconditions: " + result.getErrors());
+              }
             }
 
             final Long aeId = algorithmExecution.getId();
