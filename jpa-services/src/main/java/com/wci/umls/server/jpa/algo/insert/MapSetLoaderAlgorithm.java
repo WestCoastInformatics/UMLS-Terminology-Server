@@ -14,11 +14,13 @@ import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -133,24 +135,37 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
         }
-        
+
         createMapSets(line);
         updateProgress();
       }
 
-      // Scan through the lines again, and find all mappings that need to be
-      // created
+      // Scan through the lines again
       for (String line : lines) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
-        }        
-        
-        createMappings(line, handler);
+        }
+
+        processAttributesAndPopulateXmapMaps(line, handler);
+        // NOTE: Don't update the progress - it's handled within
+        // processAttributes
+        handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
+            RootService.commitCt);
+      }
+
+      // Once all of the XmapMaps are populated, go through and process them
+      for (final String xmapEntry : xmapEntries) {
+        processXmapEntry(xmapEntry, handler);
+        // Update the progress
         updateProgress();
         handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
             RootService.commitCt);
       }
+
+      commitClearBegin();
+      handler.commitClearBegin();
+      handler.close();
 
       // Finally, update all xmapSets
       for (MapSet mapSet : addedMapSets.values()) {
@@ -159,10 +174,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       }
 
       commitClearBegin();
-      handler.commitClearBegin();
-      handler.close();
 
-      
       // If any mapTo or MapFrom entries were unused, log them
       final Set<String> xmapFromUnusuedSet = xmapFromMap.keySet();
       xmapFromUnusuedSet.removeAll(xmapFromUsedSet);
@@ -194,9 +206,76 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
-  private void createMappings(String line,
-    IdentifierAssignmentHandler handler) throws Exception {
+  /**
+   * Creates the map sets.
+   *
+   * @param line the line
+   * @throws Exception the exception
+   */
+  private void createMapSets(String line) throws Exception {
+    String fields[] = new String[14];
 
+    FieldedStringTokenizer.split(line, "|", 14, fields);
+
+    // Fields:
+    // 0 source_attribute_id
+    // 1 sg_id
+    // 2 attribute_level
+    // 3 attribute_name
+    // 4 attribute_value
+    // 5 source
+    // 6 status
+    // 7 tobereleased
+    // 8 released
+    // 9 suppressible
+    // 10 sg_type_1
+    // 11 sg_qualifier_1
+    // 12 source_atui
+    // 13 hashcode
+
+    // e.g.
+    // 13370181|381548367|S|XMAP|1~1~9074007~RT~mapped_to~H55~TRUE~447637006~ACTIVE~1~db8b21b9-849e-53de-82ba-8fd4956b8e64~ALWAYS
+    // H55|
+    // SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4cd197e2870636a62fcd3c706261471f|
+    //
+
+    // Only process XMAP lines
+    if (!fields[3].equals("XMAP")) {
+      return;
+    }
+
+    // Only continue if this mapSet hasn't already been added
+    if (addedMapSets.get(fields[1]) != null) {
+      return;
+    }
+
+    // Create a new MapSet
+    // This is just a shell - fields will be filled in by Xmap attributes later
+    MapSet mapSet = new MapSetJpa();
+    mapSet.setBranch(Branch.ROOT);
+    mapSet.setName("");
+    mapSet.setObsolete(false);
+    mapSet.setPublishable(true);
+    mapSet.setPublished(false);
+    mapSet.setSuppressible(false);
+    mapSet.setTerminology("");
+    mapSet.setTerminologyId("");
+    mapSet.setVersion("");
+
+    mapSet = addMapSet(mapSet);
+    addedMapSets.put(fields[1], mapSet);
+
+  }
+
+  /**
+   * Process attributes.
+   *
+   * @param line the line
+   * @param handler the handler
+   * @throws Exception the exception
+   */
+  private void processAttributesAndPopulateXmapMaps(String line,
+    IdentifierAssignmentHandler handler) throws Exception {
     String fields[] = new String[14];
 
     FieldedStringTokenizer.split(line, "|", 14, fields);
@@ -235,7 +314,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     else if (isXmapAttribute(fields[3])) {
       populateXmapMaps(line, fields);
 
-      // Don't updateProgress for XMAP lines - they need to be process
+      // Don't updateProgress for XMAP lines - they need to be processed
       // outside of the loop
       if (!fields[3].equals("XMAP")) {
         // Update the progress
@@ -243,62 +322,6 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       }
     }
   }
-
-  private void createMapSets(String line) throws Exception {
-
-    String fields[] = new String[14];
-
-      FieldedStringTokenizer.split(line, "|", 14, fields);
-
-      // Fields:
-      // 0 source_attribute_id
-      // 1 sg_id
-      // 2 attribute_level
-      // 3 attribute_name
-      // 4 attribute_value
-      // 5 source
-      // 6 status
-      // 7 tobereleased
-      // 8 released
-      // 9 suppressible
-      // 10 sg_type_1
-      // 11 sg_qualifier_1
-      // 12 source_atui
-      // 13 hashcode
-
-      // e.g.
-      // 13370181|381548367|S|XMAP|1~1~9074007~RT~mapped_to~H55~TRUE~447637006~ACTIVE~1~db8b21b9-849e-53de-82ba-8fd4956b8e64~ALWAYS
-      // H55|
-      // SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4cd197e2870636a62fcd3c706261471f|
-      //
-
-      // Only handle XMAP lines
-      if (!fields[3].equals("XMAP")) {
-        return;
-      }
-      
-      
-      
-      // MAPPING attributes. Handle them within the loop.
-      if (isMapSetAttribute(fields[3])) {
-        processMapSetAttribute(line, fields);
-
-        // Update the progress
-        updateProgress();
-      }
-
-      // XMAP attributes. Save their information to maps
-      else if (isXmapAttribute(fields[3])) {
-        populateXmapMaps(line, fields);
-
-        // Don't updateProgress for XMAP lines - they need to be process
-        // outside of the loop
-        if (!fields[3].equals("XMAP")) {
-          // Update the progress
-          updateProgress();
-        }
-      }
-    }    
 
   /**
    * Populate xmap maps.
@@ -378,47 +401,47 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     final String atn = fields[3];
     final String atv = fields[4];
 
-    final MapSet mapset = addedMapSets.get(srcAtomAltId);
-    if (mapset == null) {
+    final MapSet mapSet = addedMapSets.get(srcAtomAltId);
+    if (mapSet == null) {
       logWarn(
           "Warning - mapSet not found with alt terminology id: " + srcAtomAltId
               + "." + " Could not process the following line:\n\t" + line);
       return;
     }
     if (atn.equals("MAPSETNAME")) {
-      mapset.setName(atv);
+      mapSet.setName(atv);
     } else if (atn.equals("MAPSETVERSION")) {
       // n/a - version is picked up from the SAB
       // mapSet.setMapVersion(atv);
     } else if (atn.equals("TOVSAB")) {
-      if (!ConfigUtility.isEmpty(mapset.getToTerminology())) {
-        String version = atv.substring(mapset.getToTerminology().length());
-        mapset.setToVersion(
+      if (!ConfigUtility.isEmpty(mapSet.getToTerminology())) {
+        String version = atv.substring(mapSet.getToTerminology().length());
+        mapSet.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
       } else {
-        mapset.setToVersion(atv);
+        mapSet.setToVersion(atv);
       }
     } else if (atn.equals("TORSAB")) {
-      mapset.setToTerminology(atv);
-      if (!ConfigUtility.isEmpty(mapset.getToVersion())) {
-        String version = mapset.getToVersion().substring(atv.length());
-        mapset.setToVersion(
+      mapSet.setToTerminology(atv);
+      if (!ConfigUtility.isEmpty(mapSet.getToVersion())) {
+        String version = mapSet.getToVersion().substring(atv.length());
+        mapSet.setToVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMRSAB")) {
-      mapset.setFromTerminology(atv);
-      if (!ConfigUtility.isEmpty(mapset.getFromVersion())) {
-        String version = mapset.getFromVersion().substring(atv.length());
-        mapset.setFromVersion(
+      mapSet.setFromTerminology(atv);
+      if (!ConfigUtility.isEmpty(mapSet.getFromVersion())) {
+        String version = mapSet.getFromVersion().substring(atv.length());
+        mapSet.setFromVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("FROMVSAB")) {
-      if (!ConfigUtility.isEmpty(mapset.getFromTerminology())) {
-        String version = atv.substring(mapset.getFromTerminology().length());
-        mapset.setFromVersion(
+      if (!ConfigUtility.isEmpty(mapSet.getFromTerminology())) {
+        String version = atv.substring(mapSet.getFromTerminology().length());
+        mapSet.setFromVersion(
             version.startsWith("_") ? version.substring(1) : version);
       } else {
-        mapset.setFromVersion(atv);
+        mapSet.setFromVersion(atv);
       }
     } else if (atn.equals("MAPSETGRAMMAR")) {
       // n/a - leave this as an attribute of the XR atom and don't render in map
@@ -426,42 +449,42 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     } else if (atn.equals("MAPSETXRTARGETID")) {
       // n/a - no need for this anymore - inverters should stop making it
     } else if (atn.equals("MAPSETRSAB")) {
-      mapset.setTerminology(atv);
+      mapSet.setTerminology(atv);
       // In case MAPSETVSAB was set first, strip off the RSAB part and use the
       // rest as the version
-      if (!ConfigUtility.isEmpty(mapset.getVersion())) {
-        final String version = mapset.getVersion().substring(atv.length());
-        mapset.setVersion(
+      if (!ConfigUtility.isEmpty(mapSet.getVersion())) {
+        final String version = mapSet.getVersion().substring(atv.length());
+        mapSet.setVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
     } else if (atn.equals("MAPSETTYPE")) {
-      mapset.setMapType(atv);
+      mapSet.setMapType(atv);
     } else if (atn.equals("MAPSETVSAB")) {
-      mapset.setVersion(atv);
+      mapSet.setVersion(atv);
       // In case MAPSETRSAB was set first, strip off the RSAB part and use the
       // rest as the version
 
-      if (!ConfigUtility.isEmpty(mapset.getTerminology())) {
+      if (!ConfigUtility.isEmpty(mapSet.getTerminology())) {
         final String version =
-            mapset.getVersion().substring(mapset.getTerminology().length());
-        mapset.setVersion(
+            mapSet.getVersion().substring(mapSet.getTerminology().length());
+        mapSet.setVersion(
             version.startsWith("_") ? version.substring(1) : version);
       }
 
     } else if (atn.equals("MTH_MAPFROMEXHAUSTIVE")) {
-      mapset.setFromExhaustive(atv);
+      mapSet.setFromExhaustive(atv);
     } else if (atn.equals("MTH_MAPTOEXHAUSTIVE")) {
-      mapset.setToExhaustive(atv);
+      mapSet.setToExhaustive(atv);
     } else if (atn.equals("MTH_MAPSETCOMPLEXITY")) {
-      mapset.setComplexity(atv);
+      mapSet.setComplexity(atv);
     } else if (atn.equals("MTH_MAPFROMCOMPLEXITY")) {
-      mapset.setFromComplexity(atv);
+      mapSet.setFromComplexity(atv);
     } else if (atn.equals("MTH_MAPTOCOMPLEXITY")) {
-      mapset.setToComplexity(atv);
+      mapSet.setToComplexity(atv);
     } else if (atn.equals("MAPSETSID")) {
-      mapset.setTerminologyId(atv);
+      mapSet.setTerminologyId(atv);
       // Set the srcAtomAltId as an alternate terminology id
-      mapset.getAlternateTerminologyIds().put(getProject().getTerminology(),
+      mapSet.getAlternateTerminologyIds().put(getProject().getTerminology(),
           srcAtomAltId);
     }
   }
@@ -470,6 +493,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * Process xmap entry.
    *
    * @param xmapEntry the xmap entry
+   * @param handler the handler
    * @throws Exception the exception
    */
   private void processXmapEntry(String xmapEntry,
@@ -657,6 +681,12 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
   }
 
+  /**
+   * Update rel type.
+   *
+   * @param string the string
+   * @return the string
+   */
   private String updateRelType(String string) {
 
     return null;
