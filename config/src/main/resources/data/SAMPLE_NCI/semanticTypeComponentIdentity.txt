@@ -1,2380 +1,2380 @@
-16526842|C0000005||Amino Acid, Peptide, or Protein|
-16627324|C0000005||Pharmacologic Substance|
-16524168|C0000005||Indicator, Reagent, or Diagnostic Aid|
-122900113|C0000039||Organic Chemical|
-16627326|C0000039||Pharmacologic Substance|
-16526880|C0000084||Amino Acid, Peptide, or Protein|
-16653193|C0000084||Biologically Active Substance|
-84817177|C0000097||Organic Chemical|
-84694596|C0000097||Hazardous or Poisonous Substance|
-16581086|C0000098||Organic Chemical|
-16556050|C0000098||Hazardous or Poisonous Substance|
-84640382|C0000102||Organic Chemical|
-84667568|C0000102||Hazardous or Poisonous Substance|
-16581307|C0000194||Organic Chemical|
-16524233|C0000194||Indicator, Reagent, or Diagnostic Aid|
-84846514|C0000294||Organic Chemical|
-84724214|C0000294||Pharmacologic Substance|
-122917008|C0000343||Organic Chemical|
-84640383|C0000343||Vitamin|
-16581884|C0000424||Organic Chemical|
-16628108|C0000424||Pharmacologic Substance|
-73036527|C0000618||Organic Chemical|
-84778613|C0000618||Pharmacologic Substance|
-84722063|C0000726||Body Location or Region|
-84722064|C0000737||Sign or Symptom|
-20500359|C0000769||Functional Concept|
-16603873|C0000985||Organic Chemical|
-120781996|C0001047||Amino Acid, Peptide, or Protein|
-120714081|C0001047||Pharmacologic Substance|
-59680833|C0001555||Quantitative Concept|
-21408727|C0001565||Functional Concept|
-20500363|C0001688||Functional Concept|
-21408731|C0002072||Organic Chemical|
-18499721|C0002072||Pharmacologic Substance|
-84735839|C0002085||Gene or Genome|
-16581311|C0002585||Organic Chemical|
-59621008|C0002776||Chemical Viewed Structurally|
-20757905|C0002809||Qualitative Concept|
-59622381|C0003139||Chemical Viewed Functionally|
-84844448|C0003295||Pharmacologic Substance|
-84763167|C0004057||Organic Chemical|
-84830949|C0004057||Pharmacologic Substance|
-84749664|C0004793||Nucleotide Sequence|
-84830973|C0005301||Organic Chemical|
-84640481|C0005301||Pharmacologic Substance|
-59601563|C0005572||Functional Concept|
-20539053|C0005768||Body Substance|
-16499484|C0005839||Body Part, Organ, or Organ Component|
-16601589|C0007007||Organic Chemical|
-20499279|C0007807||Functional Concept|
-84722252|C0007965||Disease or Syndrome|
-60871263|C0007987||Natural Phenomenon or Process|
-59600862|C0007994||Pathologic Function|
-84654131|C0008073||Mental or Behavioral Dysfunction|
-84694757|C0008281||Organic Chemical|
-84694758|C0008281||Pharmacologic Substance|
-16518998|C0008300||Individual Behavior|
-16523687|C0008630||Laboratory Procedure|
-16614890|C0008630||Molecular Biology Research Technique|
-84708527|C0008633||Cell Component|
-16558055|C0008844||Gene or Genome|
-84667730|C0008902||Classification|
-65333181|C0008903||Classification|
-84681358|C0009028||Organic Chemical|
-84844572|C0009028||Pharmacologic Substance|
-84776694|C0009447||Disease or Syndrome|
-84844581|C0009452||Social Behavior|
-16520441|C0009458||Intellectual Product|
-16520445|C0009627||Intellectual Product|
-59642683|C0009678||Qualitative Concept|
-16520100|C0009992||Machine Activity|
-84844606|C0010654||Amino Acid, Peptide, or Protein|
-84763306|C0010654||Biologically Active Substance|
-84776715|C0010692||Disease or Syndrome|
-20758574|C0010820||Qualitative Concept|
-16523177|C0010995||Research Activity|
-16520102|C0010996||Machine Activity|
-16520499|C0010996||Intellectual Product|
-20499281|C0012160||Functional Concept|
-84817414|C0012315||Organic Chemical|
-84776755|C0012315||Pharmacologic Substance|
-84655856|C0012383||Organic Chemical|
-84669364|C0012383||Pharmacologic Substance|
-84640620|C0012384||Organic Chemical|
-84817416|C0012384||Pharmacologic Substance|
-84817417|C0012384||Indicator, Reagent, or Diagnostic Aid|
-84722344|C0012390||Organic Chemical|
-84831105|C0012390||Pharmacologic Substance|
-122881660|C0012456||Organic Chemical|
-73494626|C0012456||Biomedical or Dental Material|
-84803994|C0012634||Disease or Syndrome|
-16551030|C0012674||Classification|
-84667805|C0012702||Organic Chemical|
-84694841|C0012702||Pharmacologic Substance|
-84749818|C0012854||Nucleic Acid, Nucleoside, or Nucleotide|
-84736079|C0012854||Biologically Active Substance|
-16614629|C0012972||Occupational Activity|
-84738221|C0013030||Organic Chemical|
-84765420|C0013030||Pharmacologic Substance|
-122795919|C0013030||Biologically Active Substance|
-16652575|C0013036||Pharmacologic Substance|
-84694845|C0013092||Organic Chemical|
-84776767|C0013092||Pharmacologic Substance|
-84803999|C0013182||Disease or Syndrome|
-120783709|C0013217||Therapeutic or Preventive Procedure|
-84681434|C0013221||Injury or Poisoning|
-84804000|C0013227||Pharmacologic Substance|
-20500366|C0013557||Functional Concept|
-20723935|C0013622||Classification|
-20500368|C0013943||Functional Concept|
-20500370|C0014445||Functional Concept|
-20500372|C0014508||Functional Concept|
-16613066|C0014713||Organic Chemical|
-16659308|C0014713||Biologically Active Substance|
-20757918|C0015033||Qualitative Concept|
-20499284|C0015127||Functional Concept|
-84694880|C0015295||Nucleic Acid, Nucleoside, or Nucleotide|
-84708821|C0015295||Biologically Active Substance|
-84763376|C0015314||Pharmacologic Substance|
-84817484|C0015773||Disease or Syndrome|
-21411765|C0016094||Occupational Activity|
-16578037|C0017263||Genetic Function|
-84831200|C0017296||Therapeutic or Preventive Procedure|
-84694921|C0017337||Gene or Genome|
-84817518|C0017339||Gene or Genome|
-16558081|C0017340||Gene or Genome|
-84640698|C0017342||Gene or Genome|
-84708872|C0017345||Gene or Genome|
-84694922|C0017350||Gene or Genome|
-84763417|C0017354||Gene or Genome|
-84654296|C0017359||Gene or Genome|
-84804078|C0017361||Gene or Genome|
-84667893|C0017362||Gene or Genome|
-16558103|C0017363||Gene or Genome|
-16558105|C0017366||Gene or Genome|
-16558106|C0017367||Gene or Genome|
-16558107|C0017368||Gene or Genome|
-16558109|C0017370||Gene or Genome|
-84654297|C0017372||Gene or Genome|
-16558113|C0017374||Gene or Genome|
-84708873|C0017376||Gene or Genome|
-84640700|C0017380||Molecular Sequence|
-16513371|C0017398||Biomedical Occupation or Discipline|
-104562517|C0017399||Functional Concept|
-84654298|C0017428||Gene or Genome|
-84749900|C0017429||Gene or Genome|
-18503465|C0017430||Nucleic Acid, Nucleoside, or Nucleotide|
-84667907|C0017837||Amino Acid, Peptide, or Protein|
-84831213|C0017837||Enzyme|
-84722470|C0017922||Disease or Syndrome|
-84844766|C0018546||Organic Chemical|
-84817541|C0018546||Pharmacologic Substance|
-84817558|C0018939||Disease or Syndrome|
-16505263|C0018981||Disease or Syndrome|
-80193231|C0019080||Pathologic Function|
-84831251|C0019247||Disease or Syndrome|
-16551077|C0019266||Molecular Function|
-20581519|C0019665||Intellectual Product|
-84710882|C0021051||Disease or Syndrome|
-120663646|C0021053||Disease or Syndrome|
-16614401|C0021200||Occupational Activity|
-16581213|C0021243||Organic Chemical|
-16576945|C0021415||Manufactured Object|
-16617156|C0021415||Organization|
-21409892|C0021417||Social Behavior|
-16563256|C0021423||Occupation or Discipline|
-16614405|C0021425||Occupational Activity|
-16614406|C0021427||Occupational Activity|
-21406900|C0021427||Machine Activity|
-16563257|C0021429||Occupation or Discipline|
-56530498|C0021632||Qualitative Concept|
-84817608|C0021920||Nucleic Acid, Nucleoside, or Nucleotide|
-84722554|C0021920||Biologically Active Substance|
-20598023|C0022189||Laboratory Procedure|
-20593576|C0022189||Research Activity|
-16581288|C0022212||Organic Chemical|
-20496759|C0023242||Regulation or Law|
-84736304|C0023510||Disease or Syndrome|
-16563266|C0023630||Occupation or Discipline|
-84654456|C0024518||Gene or Genome|
-20500376|C0024752||Functional Concept|
-84844896|C0024813||Hazardous or Poisonous Substance|
-84668072|C0025402||Organic Chemical|
-16581507|C0025403||Organic Chemical|
-84750102|C0025517||Disease or Syndrome|
-20499289|C0025520||Functional Concept|
-73499198|C0025521||Congenital Abnormality|
-84763579|C0025521||Disease or Syndrome|
-16581528|C0025619||Organic Chemical|
-84790440|C0025644||Organic Chemical|
-84722626|C0025644||Pharmacologic Substance|
-70744105|C0025664||Functional Concept|
-84668085|C0025876||Organic Chemical|
-84804253|C0025876||Pharmacologic Substance|
-84640872|C0025876||Hormone|
-16524263|C0025876||Indicator, Reagent, or Diagnostic Aid|
-20581544|C0025953||Intellectual Product|
-84844934|C0026382||Intellectual Product|
-84722643|C0026499||Congenital Abnormality|
-21251841|C0026566||Quantitative Concept|
-84750132|C0026882||Genetic Function|
-16581676|C0027391||Organic Chemical|
-16627933|C0027391||Pharmacologic Substance|
-16514271|C0027672||Neoplastic Process|
-84722679|C0027934||Hazardous or Poisonous Substance|
-84709096|C0028040||Organic Chemical|
-84668122|C0028040||Pharmacologic Substance|
-84668123|C0028040||Hazardous or Poisonous Substance|
-16581715|C0028049||Organic Chemical|
-79984179|C0028049||Pharmacologic Substance|
-16563108|C0028049||Vitamin|
-84722683|C0028053||Organic Chemical|
-84831426|C0028053||Pharmacologic Substance|
-84804299|C0028609||Cell Component|
-20980060|C0028678||Therapeutic or Preventive Procedure|
-84750166|C0029016||Gene or Genome|
-16557927|C0029073||Gene or Genome|
-21175930|C0029236||Occupational Activity|
-16615491|C0029592||Finding|
-16581892|C0030336||Organic Chemical|
-16653554|C0030336||Biologically Active Substance|
-84681776|C0030493||Organic Chemical|
-84709141|C0030493||Hazardous or Poisonous Substance|
-20757937|C0030657||Qualitative Concept|
-16506339|C0031306||Disease or Syndrome|
-20500379|C0031328||Functional Concept|
-84736445|C0031408||Organic Chemical|
-84695182|C0031408||Pharmacologic Substance|
-122839509|C0031617||Organic Chemical|
-84681801|C0031617||Pharmacologic Substance|
-84722750|C0031617||Biologically Active Substance|
-16518646|C0031797||Idea or Concept|
-21358166|C0031843||Physiologic Function|
-50197762|C0031847||Functional Concept|
-21411757|C0031884||Organic Chemical|
-50115268|C0031884||Pharmacologic Substance|
-16582040|C0031885||Organic Chemical|
-84709172|C0031959||Organic Chemical|
-84845044|C0032136||Nucleic Acid, Nucleoside, or Nucleotide|
-84750234|C0032136||Biologically Active Substance|
-84817836|C0032197||Disease or Syndrome|
-20499290|C0032344||Functional Concept|
-16582143|C0032626||Organic Chemical|
-16628343|C0032626||Pharmacologic Substance|
-104634328|C0033107||Functional Concept|
-16519136|C0033613||Chemical Viewed Functionally|
-84763743|C0033613||Pharmacologic Substance|
-84695229|C0033713||Gene or Genome|
-84777166|C0033799||Gene or Genome|
-16614466|C0034037||Occupational Activity|
-16582270|C0034255||Organic Chemical|
-16582271|C0034256||Organic Chemical|
-16582274|C0034260||Organic Chemical|
-84804410|C0034261||Organic Chemical|
-84695238|C0034261||Pharmacologic Substance|
-16582291|C0034295||Organic Chemical|
-16628477|C0034295||Pharmacologic Substance|
-16582321|C0034425||Organic Chemical|
-16653708|C0034425||Biologically Active Substance|
-20584163|C0034526||Intellectual Product|
-20500381|C0034571||Functional Concept|
-20581572|C0034607||Intellectual Product|
-73032136|C0034619||Therapeutic or Preventive Procedure|
-16557934|C0034678||Gene or Genome|
-84750293|C0034865||Genetic Function|
-73034310|C0034987||Nucleotide Sequence|
-84654647|C0034987||Biologically Active Substance|
-20499292|C0034992||Functional Concept|
-84763777|C0035142||Nucleic Acid, Nucleoside, or Nucleotide|
-84736547|C0035142||Biologically Active Substance|
-84695261|C0035696||Nucleic Acid, Nucleoside, or Nucleotide|
-84831580|C0035696||Biologically Active Substance|
-16557937|C0035899||Gene or Genome|
-21406766|C0036536||Biologic Function|
-16528021|C0036775||Amino Acid, Peptide, or Protein|
-16524345|C0036775||Indicator, Reagent, or Diagnostic Aid|
-84722858|C0037088||Sign or Symptom|
-122867241|C0037506||Organic Chemical|
-84681919|C0037506||Pharmacologic Substance|
-84641093|C0037506||Biomedical or Dental Material|
-20584172|C0038137||Intellectual Product|
-59680835|C0038209||Quantitative Concept|
-84736610|C0038734||Organic Chemical|
-59622317|C0038849||Idea or Concept|
-79598690|C0038895||Therapeutic or Preventive Procedure|
-84641139|C0039082||Disease or Syndrome|
-16614489|C0039152||Occupational Activity|
-16516297|C0039290||Nucleic Acid, Nucleoside, or Nucleotide|
-16653884|C0039290||Biologically Active Substance|
-84641146|C0039350||Amino Acid, Peptide, or Protein|
-84777285|C0039350||Pharmacologic Substance|
-84709316|C0039350||Biologically Active Substance|
-16520071|C0039449||Machine Activity|
-20980161|C0039795||Therapeutic or Preventive Procedure|
-20499294|C0039798||Functional Concept|
-16582678|C0039883||Organic Chemical|
-16524384|C0039883||Indicator, Reagent, or Diagnostic Aid|
-84668375|C0039899||Organic Chemical|
-16582684|C0039914||Organic Chemical|
-16582729|C0040382||Organic Chemical|
-16628912|C0040382||Pharmacologic Substance|
-74701561|C0040539||Qualitative Concept|
-20566094|C0040722||Idea or Concept|
-16505168|C0040733||Functional Concept|
-50199699|C0040833||Temporal Concept|
-84831688|C0041098||Organic Chemical|
-84654764|C0041098||Pharmacologic Substance|
-84750431|C0041107||Disease or Syndrome|
-84752087|C0041190||Organic Chemical|
-84792425|C0041190||Pharmacologic Substance|
-73499396|C0041190||Indicator, Reagent, or Diagnostic Aid|
-20564661|C0041623||Idea or Concept|
-20499295|C0042037||Functional Concept|
-52347830|C0042153||Functional Concept|
-84831711|C0042333||Natural Phenomenon or Process|
-20758611|C0042614||Qualitative Concept|
-84804602|C0042720||Gene or Genome|
-122879838|C0043950||Organic Chemical|
-16583449|C0044444||Organic Chemical|
-16629351|C0044444||Pharmacologic Substance|
-84641246|C0044602||Amino Acid, Peptide, or Protein|
-84723004|C0044602||Enzyme|
-16583673|C0045260||Organic Chemical|
-16585541|C0048671||Organic Chemical|
-84695514|C0054951||Amino Acid, Peptide, or Protein|
-84845381|C0054951||Immunologic Factor|
-84695513|C0054951||Receptor|
-16569601|C0065541||Therapeutic or Preventive Procedure|
-16533121|C0065661||Amino Acid, Peptide, or Protein|
-16655303|C0065661||Biologically Active Substance|
-16592504|C0066238||Organic Chemical|
-16595342|C0072953||Organic Chemical|
-16637297|C0072953||Pharmacologic Substance|
-20723801|C0079107||Classification|
-20757963|C0079164||Qualitative Concept|
-16557975|C0079419||Gene or Genome|
-84804991|C0079427||Gene or Genome|
-16614519|C0079623||Occupational Activity|
-16520077|C0079623||Machine Activity|
-16550939|C0079941||Nucleotide Sequence|
-84655226|C0080024||Disease or Syndrome|
-16597652|C0080138||Organic Chemical|
-16639223|C0080138||Pharmacologic Substance|
-16550941|C0080145||Nucleotide Sequence|
-16597690|C0080495||Organic Chemical|
-16597691|C0080500||Organic Chemical|
-16597789|C0081018||Organic Chemical|
-16614522|C0085097||Occupational Activity|
-16558017|C0085114||Gene or Genome|
-16598528|C0085196||Organic Chemical|
-16639938|C0085196||Pharmacologic Substance|
-16558018|C0085218||Gene or Genome|
-84668803|C0085238||Gene or Genome|
-84695821|C0085239||Gene or Genome|
-50019900|C0085567||Research Activity|
-43092701|C0085567||Intellectual Product|
-18315980|C0086022||Nucleic Acid, Nucleoside, or Nucleotide|
-84764369|C0086344||Gene or Genome|
-16513283|C0086345||Biomedical Occupation or Discipline|
-84764371|C0086438||Disease or Syndrome|
-16517694|C0086860||Nucleic Acid, Nucleoside, or Nucleotide|
-16656454|C0086860||Biologically Active Substance|
-122843498|C0087006||Organic Chemical|
-16640143|C0087006||Pharmacologic Substance|
-16563350|C0087066||Occupation or Discipline|
-84805047|C0087162||Organic Chemical|
-84723444|C0087162||Pharmacologic Substance|
-84764379|C0087162||Vitamin|
-16599101|C0089511||Organic Chemical|
-16600073|C0096775||Organic Chemical|
-84722108|C0108747||Amino Acid, Peptide, or Protein|
-84763124|C0108747||Immunologic Factor|
-84803772|C0108747||Receptor|
-16601688|C0109252||Organic Chemical|
-18445433|C0122269||Amino Acid, Peptide, or Protein|
-21414111|C0122269||Biologically Active Substance|
-16569933|C0128528||Therapeutic or Preventive Procedure|
-84723483|C0132326||Nucleic Acid, Nucleoside, or Nucleotide|
-84641735|C0132326||Pharmacologic Substance|
-16605234|C0139706||Organic Chemical|
-122909189|C0139706||Biologically Active Substance|
-16605557|C0141313||Organic Chemical|
-16646177|C0141313||Pharmacologic Substance|
-16657247|C0141313||Biologically Active Substance|
-16558038|C0162572||Gene or Genome|
-16558039|C0162667||Gene or Genome|
-84655363|C0162728||Gene or Genome|
-16558043|C0162729||Gene or Genome|
-18480859|C0162832||Gene or Genome|
-16607403|C0165279||Organic Chemical|
-16647782|C0165279||Pharmacologic Substance|
-16549127|C0175676||Diagnostic Procedure|
-16511467|C0178237||Disease or Syndrome|
-16503547|C0178259||Pathologic Function|
-84751057|C0178657||Gene or Genome|
-16608392|C0178705||Organic Chemical|
-16648613|C0178705||Pharmacologic Substance|
-16657834|C0178705||Biologically Active Substance|
-16558049|C0178868||Gene or Genome|
-43668541|C0205159||Qualitative Concept|
-84696839|C0205466||Functional Concept|
-20499356|C0205469||Functional Concept|
-16608485|C0206008||Organic Chemical|
-16657880|C0206008||Biologically Active Substance|
-16558051|C0206256||Gene or Genome|
-16558052|C0206414||Gene or Genome|
-16558054|C0206522||Gene or Genome|
-16567969|C0206665||Research Device|
-16573741|C0208852||Therapeutic or Preventive Procedure|
-16573742|C0208853||Therapeutic or Preventive Procedure|
-16609320|C0213585||Organic Chemical|
-122878355|C0216971||Organic Chemical|
-84751171|C0216971||Pharmacologic Substance|
-16544854|C0218504||Amino Acid, Peptide, or Protein|
-16552790|C0218504||Immunologic Factor|
-16609890|C0220821||Organic Chemical|
-16649913|C0220821||Pharmacologic Substance|
-20499413|C0220922||Functional Concept|
-16520436|C0220961||Intellectual Product|
-16520437|C0220965||Intellectual Product|
-16649921|C0221788||Pharmacologic Substance|
-43267102|C0231170||Finding|
-16511987|C0235604||Disease or Syndrome|
-43267797|C0242354||Congenital Abnormality|
-84655488|C0242354||Disease or Syndrome|
-16520478|C0242356||Intellectual Product|
-18481082|C0242476||Intellectual Product|
-16523150|C0242481||Research Activity|
-16650005|C0242702||Pharmacologic Substance|
-122846511|C0242702||Biologically Active Substance|
-16558059|C0242957||Gene or Genome|
-84818742|C0242965||Gene or Genome|
-16558072|C0243037||Gene or Genome|
-59681673|C0243192||Pharmacologic Substance|
-16610805|C0249738||Organic Chemical|
-84641975|C0270730||Injury or Poisoning|
-17186075|C0272183||Disease or Syndrome|
-18011428|C0272186||Cell or Molecular Dysfunction|
-17186105|C0272229||Disease or Syndrome|
-17325938|C0282503||Intellectual Product|
-17279788|C0282523||Nucleic Acid, Nucleoside, or Nucleotide|
-18036865|C0282523||Biologically Active Substance|
-17325940|C0282574||Intellectual Product|
-17508249|C0282641||Gene or Genome|
-17797529|C0289949||Organic Chemical|
-17983610|C0289949||Pharmacologic Substance|
-17707744|C0295719||Therapeutic or Preventive Procedure|
-17799419|C0299234||Organic Chemical|
-17985015|C0299234||Pharmacologic Substance|
-17799735|C0301224||Organic Chemical|
-17486173|C0301224||Hazardous or Poisonous Substance|
-84737509|C0304176||Amino Acid, Peptide, or Protein|
-84764673|C0304176||Biologically Active Substance|
-84818835|C0304176||Hazardous or Poisonous Substance|
-17633297|C0306782||Clinical Drug|
-17156020|C0314603||Functional Concept|
-17508227|C0314604||Gene or Genome|
-17508228|C0314605||Gene or Genome|
-17508229|C0314606||Gene or Genome|
-17508230|C0314607||Gene or Genome|
-17508231|C0314608||Gene or Genome|
-17508233|C0314610||Gene or Genome|
-17508235|C0314612||Gene or Genome|
-63452272|C0314614||Gene or Genome|
-17508242|C0314620||Gene or Genome|
-17508243|C0314621||Gene or Genome|
-17508244|C0314622||Gene or Genome|
-50204407|C0332157||Clinical Attribute|
-65341193|C0338297||Therapeutic or Preventive Procedure|
-21007518|C0338361||Therapeutic or Preventive Procedure|
-17197321|C0342105||Disease or Syndrome|
-17307712|C0364349||Clinical Attribute|
-17325956|C0376554||Intellectual Product|
-17508253|C0376571||Gene or Genome|
-17508255|C0376623||Gene or Genome|
-84642841|C0376637||Organic Chemical|
-84669909|C0376637||Pharmacologic Substance|
-17506279|C0380093||Gene or Genome|
-122954215|C0381030||Organic Chemical|
-17708014|C0384398||Therapeutic or Preventive Procedure|
-17708015|C0385502||Therapeutic or Preventive Procedure|
-17801748|C0385683||Organic Chemical|
-17987110|C0385683||Pharmacologic Substance|
-17801749|C0385685||Organic Chemical|
-17987111|C0385685||Pharmacologic Substance|
-17708025|C0386586||Therapeutic or Preventive Procedure|
-17802221|C0387729||Organic Chemical|
-16520522|C0391807||Intellectual Product|
-17198569|C0392207||Disease or Syndrome|
-65330986|C0393009||Research Activity|
-65341314|C0393025||Therapeutic or Preventive Procedure|
-20986198|C0393040||Therapeutic or Preventive Procedure|
-65341327|C0393047||Therapeutic or Preventive Procedure|
-65341328|C0393048||Therapeutic or Preventive Procedure|
-65341332|C0393055||Therapeutic or Preventive Procedure|
-65341333|C0393056||Therapeutic or Preventive Procedure|
-17191221|C0398572||Disease or Syndrome|
-17191235|C0398591||Disease or Syndrome|
-17191260|C0398627||Disease or Syndrome|
-17181943|C0398686||Disease or Syndrome|
-17191330|C0398730||Disease or Syndrome|
-17191332|C0398732||Disease or Syndrome|
-17191344|C0398748||Disease or Syndrome|
-17344769|C0402497||Professional or Occupational Group|
-84791721|C0440471||Gene or Genome|
-17325683|C0449394||Intellectual Product|
-17326029|C0456387||Intellectual Product|
-20456804|C0489477||Organism Attribute|
-17636773|C0499134||Clinical Drug|
-17200821|C0522274||Disease or Syndrome|
-17508260|C0524889||Gene or Genome|
-17508268|C0525037||Gene or Genome|
-17803883|C0529636||Organic Chemical|
-17506537|C0537026||Gene or Genome|
-17637079|C0543371||Clinical Drug|
-17637080|C0543372||Clinical Drug|
-84790205|C0549567||Disease or Syndrome|
-18086908|C0559758||Disease or Syndrome|
-18175316|C0569874||Finding|
-18087713|C0571184||Disease or Syndrome|
-18161846|C0576798||Organic Chemical|
-17507483|C0596123||Gene or Genome|
-17326137|C0596239||Intellectual Product|
-17326144|C0596463||Intellectual Product|
-17742799|C0596611||Genetic Function|
-17508274|C0596707||Gene or Genome|
-17326152|C0596785||Intellectual Product|
-17326163|C0597132||Intellectual Product|
-17486367|C0597147||Hazardous or Poisonous Substance|
-17807323|C0597330||Organic Chemical|
-17508275|C0597336||Gene or Genome|
-17202429|C0597554||Biomedical Occupation or Discipline|
-17508276|C0598034||Gene or Genome|
-17280593|C0598279||Nucleic Acid, Nucleoside, or Nucleotide|
-17508279|C0598492||Gene or Genome|
-17508291|C0599770||Gene or Genome|
-17653009|C0599807||Occupation or Discipline|
-17326209|C0599833||Intellectual Product|
-17410668|C0600251||Amino Acid, Peptide, or Protein|
-18445876|C0600251||Immunologic Factor|
-17429042|C0600415||Nucleotide Sequence|
-17508304|C0600449||Gene or Genome|
-17280628|C0600455||Nucleic Acid, Nucleoside, or Nucleotide|
-18040232|C0600455||Biologically Active Substance|
-17508305|C0600497||Gene or Genome|
-17280635|C0600510||Nucleic Acid, Nucleoside, or Nucleotide|
-17351581|C0600510||Indicator, Reagent, or Diagnostic Aid|
-17812343|C0611467||Organic Chemical|
-17812882|C0613195||Organic Chemical|
-17412004|C0613195||Amino Acid, Peptide, or Protein|
-122837277|C0615231||Organic Chemical|
-17815476|C0621533||Organic Chemical|
-17996317|C0621533||Pharmacologic Substance|
-17815535|C0621704||Organic Chemical|
-17816845|C0626122||Organic Chemical|
-17817523|C0628346||Organic Chemical|
-17817524|C0628348||Organic Chemical|
-17817626|C0628684||Organic Chemical|
-17818671|C0632085||Organic Chemical|
-17818972|C0633123||Organic Chemical|
-17818973|C0633125||Organic Chemical|
-17819019|C0633271||Organic Chemical|
-17820837|C0639186||Organic Chemical|
-17999671|C0639186||Pharmacologic Substance|
-17823602|C0648633||Organic Chemical|
-17709962|C0652008||Therapeutic or Preventive Procedure|
-17825449|C0655672||Organic Chemical|
-17825451|C0655676||Organic Chemical|
-17826294|C0658895||Organic Chemical|
-17710053|C0669632||Therapeutic or Preventive Procedure|
-17710074|C0673828||Therapeutic or Preventive Procedure|
-65341363|C0677749||Therapeutic or Preventive Procedure|
-84777431|C0678143||Organic Chemical|
-84790861|C0678143||Antibiotic|
-17742843|C0678919||Genetic Function|
-17048394|C0678920||Organism Attribute|
-17742844|C0678926||Genetic Function|
-17508308|C0678928||Gene or Genome|
-17508309|C0678929||Gene or Genome|
-17508310|C0678933||Gene or Genome|
-17508311|C0678941||Gene or Genome|
-17742855|C0678945||Genetic Function|
-21244834|C0679215||Natural Phenomenon or Process|
-17326290|C0679216||Intellectual Product|
-17201468|C0679381||Disease or Syndrome|
-65318136|C0683313||Mental Process|
-17910806|C0683314||Finding|
-17326678|C0683326||Intellectual Product|
-56568663|C0684336||Finding|
-17508318|C0694873||Gene or Genome|
-65334596|C0694887||Gene or Genome|
-17508325|C0694889||Gene or Genome|
-17508330|C0694897||Gene or Genome|
-84683016|C0700119||Intellectual Product|
-43086017|C0704829||Clinical Drug|
-17648808|C0713917||Clinical Drug|
-17649542|C0715252||Clinical Drug|
-20499963|C0728866||Functional Concept|
-17752365|C0733873||Organic Chemical|
-17952433|C0733873||Pharmacologic Substance|
-17681634|C0756317||Therapeutic or Preventive Procedure|
-17753107|C0756999||Organic Chemical|
-17353701|C0756999||Amino Acid, Peptide, or Protein|
-17754823|C0765514||Organic Chemical|
-17653421|C0779896||Drug Delivery Device|
-17529023|C0783263||Clinical Drug|
-17534113|C0791957||Clinical Drug|
-17534114|C0791958||Clinical Drug|
-17536851|C0795505||Clinical Drug|
-65334597|C0796304||Gene or Genome|
-17486934|C0796355||Gene or Genome|
-65334603|C0796371||Gene or Genome|
-17506311|C0796520||Gene or Genome|
-17291857|C0804641||Clinical Attribute|
-17506339|C0812228||Gene or Genome|
-17487045|C0812246||Gene or Genome|
-17487064|C0812273||Gene or Genome|
-65334613|C0812325||Gene or Genome|
-17487112|C0814035||Gene or Genome|
-17836307|C0814038||Molecular Biology Research Technique|
-17324633|C0870733||Intellectual Product|
-17487121|C0879290||Gene or Genome|
-17506432|C0879389||Gene or Genome|
-17487123|C0879390||Gene or Genome|
-17487124|C0879391||Gene or Genome|
-17506075|C0879392||Gene or Genome|
-17505762|C0879393||Gene or Genome|
-17487127|C0879468||Gene or Genome|
-65334616|C0879609||Gene or Genome|
-17278115|C0887856||Nucleic Acid, Nucleoside, or Nucleotide|
-18012937|C0887856||Biologically Active Substance|
-17278118|C0887859||Nucleic Acid, Nucleoside, or Nucleotide|
-18012940|C0887859||Biologically Active Substance|
-17729546|C0887871||Cell Component|
-17278120|C0887889||Nucleic Acid, Nucleoside, or Nucleotide|
-17682823|C0906409||Therapeutic or Preventive Procedure|
-17682833|C0909619||Therapeutic or Preventive Procedure|
-17682855|C0911798||Therapeutic or Preventive Procedure|
-17960845|C0912225||Pharmacologic Substance|
-17682860|C0912478||Therapeutic or Preventive Procedure|
-17324677|C0918012||Intellectual Product|
-17278425|C0919262||Nucleic Acid, Nucleoside, or Nucleotide|
-18014218|C0919262||Biologically Active Substance|
-65334617|C0919336||Gene or Genome|
-17487135|C0919427||Gene or Genome|
-20764093|C0919437||Gene or Genome|
-18207876|C0919524||Gene or Genome|
-17487162|C0919528||Gene or Genome|
-17324678|C0920316||Intellectual Product|
-65334630|C0935996||Gene or Genome|
-17487179|C0949635||Gene or Genome|
-73032834|C0949780||Nucleic Acid, Nucleoside, or Nucleotide|
-17324865|C0950133||Intellectual Product|
-17541653|C0974670||Clinical Drug|
-84819428|C0977727||Drug Delivery Device|
-69643308|C0977728||Drug Delivery Device|
-84846617|C0977729||Drug Delivery Device|
-17547451|C0983950||Clinical Drug|
-17548251|C0987640||Clinical Drug|
-17329267|C0993159||Biomedical or Dental Material|
-16520140|C0995203||Intellectual Product|
-17551590|C1125277||Clinical Drug|
-17552433|C1126451||Clinical Drug|
-17555686|C1130657||Clinical Drug|
-17555687|C1130658||Clinical Drug|
-17555688|C1130659||Clinical Drug|
-17487186|C1134446||Gene or Genome|
-65334632|C1134711||Gene or Genome|
-17487187|C1135159||Gene or Genome|
-20767627|C1135166||Gene or Genome|
-16520177|C1135584||Intellectual Product|
-17278980|C1135894||Nucleic Acid, Nucleoside, or Nucleotide|
-18017704|C1135894||Biologically Active Substance|
-17278988|C1136185||Nucleic Acid, Nucleoside, or Nucleotide|
-18017769|C1136185||Biologically Active Substance|
-17278989|C1136190||Nucleic Acid, Nucleoside, or Nucleotide|
-18017770|C1136190||Biologically Active Substance|
-17324909|C1136257||Intellectual Product|
-16520178|C1136323||Intellectual Product|
-17487189|C1136365||Gene or Genome|
-17487190|C1136366||Gene or Genome|
-16520180|C1137112||Intellectual Product|
-16520181|C1138628||Intellectual Product|
-16520182|C1138831||Intellectual Product|
-16520184|C1140093||Intellectual Product|
-60868380|C1140097||Intellectual Product|
-20585863|C1140098||Intellectual Product|
-20585864|C1140099||Intellectual Product|
-65330496|C1140100||Intellectual Product|
-17324923|C1140107||Intellectual Product|
-59629003|C1140108||Intellectual Product|
-16520190|C1140145||Intellectual Product|
-17324927|C1140146||Intellectual Product|
-16520191|C1140148||Intellectual Product|
-17324928|C1140152||Intellectual Product|
-16520192|C1140153||Intellectual Product|
-16520193|C1140162||Intellectual Product|
-17324930|C1140163||Intellectual Product|
-16520483|C1140168||Intellectual Product|
-59629010|C1140228||Intellectual Product|
-16520201|C1140233||Intellectual Product|
-17324935|C1140244||Intellectual Product|
-18207831|C1140245||Intellectual Product|
-16520206|C1140284||Intellectual Product|
-20585901|C1140288||Intellectual Product|
-17324937|C1140291||Intellectual Product|
-16520207|C1140292||Intellectual Product|
-16520208|C1140299||Intellectual Product|
-17324938|C1140300||Intellectual Product|
-17202012|C1140694||Biomedical Occupation or Discipline|
-17566693|C1169827||Clinical Drug|
-59660490|C1170010||Organic Chemical|
-59681748|C1170010||Pharmacologic Substance|
-73035107|C1171258||Qualitative Concept|
-17487195|C1176140||Gene or Genome|
-84738049|C1176383||Organic Chemical|
-84669733|C1176383||Pharmacologic Substance|
-17324945|C1178804||Intellectual Product|
-17730467|C1178965||Cell Component|
-17730471|C1178971||Cell Component|
-17730587|C1179844||Cell Component|
-17730599|C1179897||Cell Component|
-17730617|C1179921||Cell Component|
-17730619|C1179923||Cell Component|
-17730742|C1180292||Cell Component|
-17730774|C1180336||Cell Component|
-17730777|C1180342||Cell Component|
-17575786|C1242567||Clinical Drug|
-17579989|C1246849||Clinical Drug|
-17579990|C1246850||Clinical Drug|
-17581723|C1248609||Clinical Drug|
-17584437|C1251469||Clinical Drug|
-17586647|C1253866||Clinical Drug|
-65333186|C1254372||Classification|
-17325006|C1256739||Intellectual Product|
-17325008|C1256741||Intellectual Product|
-17429115|C1256749||Classification|
-17325012|C1262315||Intellectual Product|
-18089377|C1264033||Disease or Syndrome|
-43073566|C1268903||Pharmacologic Substance|
-18090746|C1285159||Disease or Syndrome|
-18090768|C1285301||Disease or Syndrome|
-18090769|C1285302||Disease or Syndrome|
-18091210|C1290853||Disease or Syndrome|
-18085096|C1290906||Functional Concept|
-43085740|C1298907||Conceptual Entity|
-71602002|C1298908||Idea or Concept|
-18110866|C1301142||Intellectual Product|
-109572571|C1305923||Amino Acid, Peptide, or Protein|
-122879172|C1310941||Organic Chemical|
-18446076|C1318505||Disease or Syndrome|
-17447025|C1320237||Immunologic Factor|
-17654437|C1327690||Drug Delivery Device|
-65334633|C1327768||Gene or Genome|
-59643390|C1327771||Gene or Genome|
-65334634|C1327772||Gene or Genome|
-65334635|C1327773||Gene or Genome|
-65334636|C1327780||Gene or Genome|
-65334637|C1327784||Gene or Genome|
-17487206|C1328027||Gene or Genome|
-65334641|C1328030||Gene or Genome|
-17487207|C1328053||Gene or Genome|
-17325186|C1328808||Intellectual Product|
-17790329|C1330402||Organic Chemical|
-17975547|C1330402||Pharmacologic Substance|
-65334647|C1332324||Gene or Genome|
-17487353|C1332678||Gene or Genome|
-17487462|C1332802||Gene or Genome|
-65334659|C1332924||Gene or Genome|
-65334665|C1333135||Gene or Genome|
-65320991|C1333144||Disease or Syndrome|
-65334673|C1333196||Gene or Genome|
-65334675|C1333199||Gene or Genome|
-65334677|C1333237||Gene or Genome|
-20537719|C1333305||Disease or Syndrome|
-65334682|C1333402||Gene or Genome|
-65334683|C1333403||Gene or Genome|
-17487710|C1334085||Gene or Genome|
-17487713|C1334088||Gene or Genome|
-17487719|C1334094||Gene or Genome|
-65321023|C1334156||Disease or Syndrome|
-65334702|C1334163||Gene or Genome|
-65334703|C1334166||Gene or Genome|
-65334712|C1334396||Gene or Genome|
-65334716|C1334545||Gene or Genome|
-65334719|C1334693||Gene or Genome|
-65334724|C1334960||Gene or Genome|
-65334725|C1334981||Gene or Genome|
-65334734|C1335375||Gene or Genome|
-65334740|C1335531||Gene or Genome|
-65334753|C1335755||Gene or Genome|
-17488087|C1335859||Gene or Genome|
-20768588|C1335960||Gene or Genome|
-17488125|C1336578||Gene or Genome|
-17488153|C1336637||Gene or Genome|
-17488171|C1336657||Gene or Genome|
-17507352|C1336679||Gene or Genome|
-65334776|C1336700||Gene or Genome|
-65334784|C1336806||Gene or Genome|
-17488237|C1337112||Gene or Genome|
-17488255|C1366370||Gene or Genome|
-17488260|C1366449||Gene or Genome|
-18127720|C1366500||Gene or Genome|
-17507520|C1366529||Gene or Genome|
-17488298|C1366530||Gene or Genome|
-17506764|C1366649||Gene or Genome|
-17488334|C1366824||Gene or Genome|
-17488360|C1367455||Gene or Genome|
-17488378|C1367578||Gene or Genome|
-17488389|C1367701||Gene or Genome|
-17488393|C1367721||Gene or Genome|
-20764312|C1370600||Gene or Genome|
-16520250|C1371271||Intellectual Product|
-17679508|C1372554||Organ or Tissue Function|
-17926179|C1373233||Natural Phenomenon or Process|
-17488483|C1412108||Gene or Genome|
-17488553|C1412178||Gene or Genome|
-17488608|C1412233||Gene or Genome|
-17488639|C1412264||Gene or Genome|
-17488640|C1412265||Gene or Genome|
-17488645|C1412270||Gene or Genome|
-17488646|C1412271||Gene or Genome|
-17488665|C1412290||Gene or Genome|
-17488672|C1412297||Gene or Genome|
-17488862|C1412487||Gene or Genome|
-17489231|C1412856||Gene or Genome|
-17489490|C1413115||Gene or Genome|
-17489565|C1413190||Gene or Genome|
-17489917|C1413542||Gene or Genome|
-17489922|C1413547||Gene or Genome|
-18275490|C1413882||Gene or Genome|
-17490398|C1414023||Gene or Genome|
-17490438|C1414063||Gene or Genome|
-17490444|C1414069||Gene or Genome|
-17490460|C1414085||Gene or Genome|
-17490531|C1414156||Gene or Genome|
-17490533|C1414158||Gene or Genome|
-17490592|C1414217||Gene or Genome|
-17490597|C1414222||Gene or Genome|
-17490648|C1414273||Gene or Genome|
-17490671|C1414296||Gene or Genome|
-16558062|C1414313||Gene or Genome|
-17490701|C1414326||Gene or Genome|
-17490762|C1414387||Gene or Genome|
-17490767|C1414392||Gene or Genome|
-17490770|C1414395||Gene or Genome|
-17490771|C1414396||Gene or Genome|
-17490773|C1414398||Gene or Genome|
-17490782|C1414407||Gene or Genome|
-17490785|C1414410||Gene or Genome|
-17490787|C1414412||Gene or Genome|
-17490788|C1414413||Gene or Genome|
-17490790|C1414415||Gene or Genome|
-17490792|C1414417||Gene or Genome|
-17490808|C1414433||Gene or Genome|
-17490814|C1414439||Gene or Genome|
-17490816|C1414441||Gene or Genome|
-17490817|C1414442||Gene or Genome|
-17490820|C1414445||Gene or Genome|
-17490832|C1414457||Gene or Genome|
-17490833|C1414458||Gene or Genome|
-60869423|C1414461||Gene or Genome|
-17490846|C1414471||Gene or Genome|
-43120033|C1414472||Gene or Genome|
-17490851|C1414476||Gene or Genome|
-17490853|C1414478||Gene or Genome|
-17490863|C1414488||Gene or Genome|
-17490869|C1414494||Gene or Genome|
-17490892|C1414517||Gene or Genome|
-43117311|C1414525||Gene or Genome|
-17490909|C1414534||Gene or Genome|
-17490921|C1414546||Gene or Genome|
-17490922|C1414547||Gene or Genome|
-17490923|C1414548||Gene or Genome|
-17490924|C1414549||Gene or Genome|
-17490925|C1414550||Gene or Genome|
-17490926|C1414551||Gene or Genome|
-17490927|C1414552||Gene or Genome|
-17490932|C1414557||Gene or Genome|
-17490935|C1414560||Gene or Genome|
-17490938|C1414563||Gene or Genome|
-17490939|C1414564||Gene or Genome|
-17490950|C1414575||Gene or Genome|
-17490951|C1414576||Gene or Genome|
-17490952|C1414577||Gene or Genome|
-17490954|C1414579||Gene or Genome|
-17490967|C1414592||Gene or Genome|
-17490968|C1414593||Gene or Genome|
-17490982|C1414607||Gene or Genome|
-17490993|C1414618||Gene or Genome|
-17490994|C1414619||Gene or Genome|
-17490999|C1414624||Gene or Genome|
-17491006|C1414631||Gene or Genome|
-43117561|C1414668||Gene or Genome|
-17491068|C1414693||Gene or Genome|
-17491076|C1414701||Gene or Genome|
-17491096|C1414721||Gene or Genome|
-17491111|C1414736||Gene or Genome|
-17491128|C1414753||Gene or Genome|
-17491136|C1414761||Gene or Genome|
-17491187|C1414812||Gene or Genome|
-17491236|C1414861||Gene or Genome|
-17491279|C1414904||Gene or Genome|
-17491283|C1414908||Gene or Genome|
-17491324|C1414949||Gene or Genome|
-17491418|C1415043||Gene or Genome|
-17491441|C1415066||Gene or Genome|
-17491442|C1415067||Gene or Genome|
-17491459|C1415084||Gene or Genome|
-17491659|C1415284||Gene or Genome|
-17491697|C1415322||Gene or Genome|
-17491698|C1415323||Gene or Genome|
-17491728|C1415353||Gene or Genome|
-17491767|C1415392||Gene or Genome|
-17491768|C1415393||Gene or Genome|
-17491769|C1415394||Gene or Genome|
-17491770|C1415395||Gene or Genome|
-17491771|C1415396||Gene or Genome|
-17491772|C1415397||Gene or Genome|
-17491773|C1415398||Gene or Genome|
-17491774|C1415399||Gene or Genome|
-17491775|C1415400||Gene or Genome|
-17491776|C1415401||Gene or Genome|
-17491777|C1415402||Gene or Genome|
-17491779|C1415404||Gene or Genome|
-17491780|C1415405||Gene or Genome|
-17491785|C1415410||Gene or Genome|
-17491786|C1415411||Gene or Genome|
-17491788|C1415413||Gene or Genome|
-17491789|C1415414||Gene or Genome|
-17491790|C1415415||Gene or Genome|
-17491791|C1415416||Gene or Genome|
-17491792|C1415417||Gene or Genome|
-17491793|C1415418||Gene or Genome|
-17491794|C1415419||Gene or Genome|
-17491795|C1415420||Gene or Genome|
-17491796|C1415421||Gene or Genome|
-17491797|C1415422||Gene or Genome|
-17491801|C1415426||Gene or Genome|
-17491835|C1415460||Gene or Genome|
-17491866|C1415491||Gene or Genome|
-17491871|C1415496||Gene or Genome|
-17491912|C1415537||Gene or Genome|
-17492072|C1415697||Gene or Genome|
-17492170|C1415795||Gene or Genome|
-17492172|C1415797||Gene or Genome|
-17492179|C1415804||Gene or Genome|
-126321856|C1415817||Disease or Syndrome|
-17492207|C1415832||Gene or Genome|
-17492209|C1415834||Gene or Genome|
-17492227|C1415852||Gene or Genome|
-17492351|C1415976||Gene or Genome|
-17492352|C1415977||Gene or Genome|
-17492536|C1416161||Gene or Genome|
-17492538|C1416163||Gene or Genome|
-17492671|C1416296||Gene or Genome|
-17492672|C1416297||Gene or Genome|
-17492751|C1416376||Gene or Genome|
-17492765|C1416390||Gene or Genome|
-17492809|C1416434||Gene or Genome|
-17492810|C1416435||Gene or Genome|
-17492866|C1416491||Gene or Genome|
-17492890|C1416515||Gene or Genome|
-17492897|C1416522||Gene or Genome|
-17492902|C1416527||Gene or Genome|
-17492905|C1416530||Gene or Genome|
-17493015|C1416641||Gene or Genome|
-17493029|C1416655||Gene or Genome|
-17493063|C1416689||Gene or Genome|
-17493319|C1416945||Gene or Genome|
-17493327|C1416953||Gene or Genome|
-17493363|C1416989||Gene or Genome|
-17493364|C1416990||Gene or Genome|
-17493479|C1417105||Gene or Genome|
-17493495|C1417121||Gene or Genome|
-17493522|C1417148||Gene or Genome|
-17493529|C1417155||Gene or Genome|
-17493534|C1417160||Gene or Genome|
-17493572|C1417198||Gene or Genome|
-17493609|C1417235||Gene or Genome|
-17493611|C1417237||Gene or Genome|
-17493699|C1417325||Gene or Genome|
-17493703|C1417329||Gene or Genome|
-17493706|C1417332||Gene or Genome|
-17493778|C1417404||Gene or Genome|
-17493784|C1417410||Gene or Genome|
-17493798|C1417424||Gene or Genome|
-17493799|C1417425||Gene or Genome|
-17493807|C1417433||Gene or Genome|
-17493824|C1417450||Gene or Genome|
-17493825|C1417451||Gene or Genome|
-17493831|C1417457||Gene or Genome|
-17494092|C1417718||Gene or Genome|
-17494108|C1417734||Gene or Genome|
-17494113|C1417739||Gene or Genome|
-17494123|C1417749||Gene or Genome|
-17494218|C1417845||Gene or Genome|
-17494290|C1417917||Gene or Genome|
-17494611|C1418238||Gene or Genome|
-17494612|C1418239||Gene or Genome|
-17494668|C1418295||Gene or Genome|
-17494676|C1418303||Gene or Genome|
-17494677|C1418304||Gene or Genome|
-17495084|C1418711||Gene or Genome|
-17495085|C1418712||Gene or Genome|
-17495124|C1418751||Gene or Genome|
-17495191|C1418818||Gene or Genome|
-17495237|C1418864||Gene or Genome|
-17495261|C1418888||Gene or Genome|
-17495324|C1418951||Gene or Genome|
-17495336|C1418963||Gene or Genome|
-17495337|C1418964||Gene or Genome|
-17495434|C1419061||Gene or Genome|
-17495452|C1419079||Gene or Genome|
-17495460|C1419087||Gene or Genome|
-17495555|C1419182||Gene or Genome|
-17495582|C1419209||Gene or Genome|
-17495644|C1419271||Gene or Genome|
-17495697|C1419324||Gene or Genome|
-17495759|C1419386||Gene or Genome|
-17495768|C1419395||Gene or Genome|
-17495801|C1419428||Gene or Genome|
-17496109|C1419736||Gene or Genome|
-17496128|C1419755||Gene or Genome|
-17496140|C1419767||Gene or Genome|
-17496165|C1419792||Gene or Genome|
-17496198|C1419825||Gene or Genome|
-17496255|C1419882||Gene or Genome|
-17496256|C1419883||Gene or Genome|
-17496257|C1419884||Gene or Genome|
-17496258|C1419885||Gene or Genome|
-17496259|C1419886||Gene or Genome|
-17496260|C1419887||Gene or Genome|
-17496261|C1419888||Gene or Genome|
-17496262|C1419889||Gene or Genome|
-17496292|C1419919||Gene or Genome|
-17496299|C1419926||Gene or Genome|
-17496312|C1419939||Gene or Genome|
-17496320|C1419947||Gene or Genome|
-17496335|C1419962||Gene or Genome|
-17496364|C1419991||Gene or Genome|
-17496376|C1420003||Gene or Genome|
-17496438|C1420065||Gene or Genome|
-17496465|C1420092||Gene or Genome|
-17496619|C1420246||Gene or Genome|
-17496658|C1420285||Gene or Genome|
-17496659|C1420286||Gene or Genome|
-17496715|C1420342||Gene or Genome|
-17496772|C1420399||Gene or Genome|
-17496816|C1420443||Gene or Genome|
-17496825|C1420452||Gene or Genome|
-17496959|C1420586||Gene or Genome|
-17496961|C1420588||Gene or Genome|
-17496968|C1420595||Gene or Genome|
-17496970|C1420597||Gene or Genome|
-17496975|C1420602||Gene or Genome|
-17497013|C1420640||Gene or Genome|
-17497014|C1420641||Gene or Genome|
-17497040|C1420667||Gene or Genome|
-17497050|C1420677||Gene or Genome|
-17497063|C1420690||Gene or Genome|
-17497092|C1420719||Gene or Genome|
-17497110|C1420737||Gene or Genome|
-17497122|C1420749||Gene or Genome|
-17497127|C1420754||Gene or Genome|
-17497142|C1420769||Gene or Genome|
-17497148|C1420775||Gene or Genome|
-17497259|C1420886||Gene or Genome|
-17497518|C1421145||Gene or Genome|
-17497707|C1421334||Gene or Genome|
-17497720|C1421347||Gene or Genome|
-17497744|C1421371||Gene or Genome|
-17497802|C1421429||Gene or Genome|
-17497803|C1421430||Gene or Genome|
-17497804|C1421431||Gene or Genome|
-17497805|C1421432||Gene or Genome|
-17497818|C1421445||Gene or Genome|
-17497826|C1421453||Gene or Genome|
-17497827|C1421454||Gene or Genome|
-17497844|C1421471||Gene or Genome|
-17497989|C1421616||Gene or Genome|
-17498295|C1421922||Gene or Genome|
-17498296|C1421923||Gene or Genome|
-17498409|C1422036||Gene or Genome|
-17498411|C1422038||Gene or Genome|
-17498412|C1422039||Gene or Genome|
-17498417|C1422044||Gene or Genome|
-17498418|C1422045||Gene or Genome|
-17498419|C1422046||Gene or Genome|
-17498448|C1422075||Gene or Genome|
-17498501|C1422128||Gene or Genome|
-17498511|C1422138||Gene or Genome|
-17498554|C1422181||Gene or Genome|
-17498671|C1422298||Gene or Genome|
-17498713|C1422340||Gene or Genome|
-17498731|C1422358||Gene or Genome|
-17498761|C1422388||Gene or Genome|
-17498770|C1422397||Gene or Genome|
-17498775|C1422402||Gene or Genome|
-17498782|C1422409||Gene or Genome|
-17498787|C1422414||Gene or Genome|
-17498791|C1422418||Gene or Genome|
-17498792|C1422419||Gene or Genome|
-17498793|C1422420||Gene or Genome|
-17498799|C1422426||Gene or Genome|
-17498800|C1422427||Gene or Genome|
-17498801|C1422428||Gene or Genome|
-17498808|C1422435||Gene or Genome|
-17498809|C1422436||Gene or Genome|
-17498819|C1422446||Gene or Genome|
-17498825|C1422452||Gene or Genome|
-17498836|C1422463||Gene or Genome|
-17498839|C1422466||Gene or Genome|
-17498860|C1422487||Gene or Genome|
-17498872|C1422499||Gene or Genome|
-17498881|C1422508||Gene or Genome|
-17498887|C1422514||Gene or Genome|
-17498891|C1422518||Gene or Genome|
-17498900|C1422527||Gene or Genome|
-17498906|C1422533||Gene or Genome|
-17498918|C1422545||Gene or Genome|
-17498922|C1422549||Gene or Genome|
-17498925|C1422552||Gene or Genome|
-17498927|C1422554||Gene or Genome|
-17498937|C1422564||Gene or Genome|
-17498938|C1422565||Gene or Genome|
-17498939|C1422566||Gene or Genome|
-17498940|C1422567||Gene or Genome|
-17498941|C1422568||Gene or Genome|
-17498943|C1422570||Gene or Genome|
-17498947|C1422574||Gene or Genome|
-17498948|C1422575||Gene or Genome|
-17498949|C1422576||Gene or Genome|
-17498952|C1422579||Gene or Genome|
-17498953|C1422580||Gene or Genome|
-17498954|C1422581||Gene or Genome|
-17498955|C1422582||Gene or Genome|
-17498960|C1422587||Gene or Genome|
-17498969|C1422596||Gene or Genome|
-17498993|C1422620||Gene or Genome|
-17499007|C1422634||Gene or Genome|
-17499009|C1422636||Gene or Genome|
-17499019|C1422646||Gene or Genome|
-17499035|C1422662||Gene or Genome|
-17499395|C1423022||Gene or Genome|
-17499434|C1423061||Gene or Genome|
-17499976|C1423603||Gene or Genome|
-17499987|C1423614||Gene or Genome|
-17500018|C1423645||Gene or Genome|
-17500112|C1423739||Gene or Genome|
-17500124|C1423751||Gene or Genome|
-17500156|C1423783||Gene or Genome|
-17500309|C1423936||Gene or Genome|
-17500323|C1423950||Gene or Genome|
-17500328|C1423955||Gene or Genome|
-17500405|C1424032||Gene or Genome|
-17500407|C1424034||Gene or Genome|
-17500487|C1424114||Gene or Genome|
-17500490|C1424117||Gene or Genome|
-17500500|C1424127||Gene or Genome|
-17500503|C1424130||Gene or Genome|
-17500504|C1424131||Gene or Genome|
-17500516|C1424143||Gene or Genome|
-17500713|C1424340||Gene or Genome|
-17501195|C1424822||Gene or Genome|
-17501289|C1424916||Gene or Genome|
-17501331|C1424958||Gene or Genome|
-17501332|C1424959||Gene or Genome|
-17501342|C1424969||Gene or Genome|
-17501350|C1424977||Gene or Genome|
-17501352|C1424979||Gene or Genome|
-17501369|C1424996||Gene or Genome|
-17501370|C1424997||Gene or Genome|
-17501377|C1425004||Gene or Genome|
-17501408|C1425035||Gene or Genome|
-17501411|C1425038||Gene or Genome|
-17501477|C1425105||Gene or Genome|
-17501480|C1425108||Gene or Genome|
-17501562|C1425190||Gene or Genome|
-17501569|C1425197||Gene or Genome|
-17501575|C1425203||Gene or Genome|
-17501593|C1425221||Gene or Genome|
-17501603|C1425231||Gene or Genome|
-17501618|C1425246||Gene or Genome|
-17501656|C1425284||Gene or Genome|
-17501761|C1425389||Gene or Genome|
-17501804|C1425432||Gene or Genome|
-17501973|C1425601||Gene or Genome|
-17501983|C1425611||Gene or Genome|
-17501993|C1425621||Gene or Genome|
-17502007|C1425635||Gene or Genome|
-17502029|C1425657||Gene or Genome|
-17502036|C1425664||Gene or Genome|
-17502104|C1425732||Gene or Genome|
-17502347|C1425975||Gene or Genome|
-17502372|C1426000||Gene or Genome|
-17502419|C1426047||Gene or Genome|
-17502447|C1426075||Gene or Genome|
-17502499|C1426127||Gene or Genome|
-17502545|C1426173||Gene or Genome|
-17502834|C1426462||Gene or Genome|
-17502858|C1426486||Gene or Genome|
-17502863|C1426491||Gene or Genome|
-17502881|C1426509||Gene or Genome|
-17502900|C1426528||Gene or Genome|
-17502924|C1426552||Gene or Genome|
-17502964|C1426592||Gene or Genome|
-17503104|C1426732||Gene or Genome|
-17503120|C1426748||Gene or Genome|
-17503121|C1426749||Gene or Genome|
-17503213|C1426841||Gene or Genome|
-17503226|C1426854||Gene or Genome|
-17503227|C1426855||Gene or Genome|
-17503231|C1426859||Gene or Genome|
-17503232|C1426860||Gene or Genome|
-17503286|C1426914||Gene or Genome|
-17503460|C1427088||Gene or Genome|
-17503490|C1427118||Gene or Genome|
-17503548|C1427176||Gene or Genome|
-17503603|C1427231||Gene or Genome|
-17503609|C1427237||Gene or Genome|
-17503620|C1427248||Gene or Genome|
-17503629|C1427257||Gene or Genome|
-17503631|C1427259||Gene or Genome|
-17503645|C1427273||Gene or Genome|
-17503655|C1427283||Gene or Genome|
-17503665|C1427293||Gene or Genome|
-17503669|C1427297||Gene or Genome|
-17503754|C1427382||Gene or Genome|
-17503755|C1427383||Gene or Genome|
-17503756|C1427384||Gene or Genome|
-17503764|C1427392||Gene or Genome|
-17503776|C1427404||Gene or Genome|
-17503792|C1427420||Gene or Genome|
-17503816|C1427444||Gene or Genome|
-17503853|C1427481||Gene or Genome|
-17503880|C1427508||Gene or Genome|
-17503903|C1427531||Gene or Genome|
-17503910|C1427538||Gene or Genome|
-17503938|C1427566||Gene or Genome|
-17503942|C1427570||Gene or Genome|
-17503945|C1427573||Gene or Genome|
-17503946|C1427574||Gene or Genome|
-17503948|C1427576||Gene or Genome|
-17503949|C1427577||Gene or Genome|
-17503968|C1427596||Gene or Genome|
-17503998|C1427626||Gene or Genome|
-17503999|C1427627||Gene or Genome|
-17504014|C1427642||Gene or Genome|
-17504017|C1427645||Gene or Genome|
-17504037|C1427665||Gene or Genome|
-17504069|C1427697||Gene or Genome|
-17504114|C1427742||Gene or Genome|
-17504128|C1427756||Gene or Genome|
-17504176|C1427804||Gene or Genome|
-17504177|C1427805||Gene or Genome|
-17504179|C1427807||Gene or Genome|
-17504180|C1427808||Gene or Genome|
-17504223|C1427851||Gene or Genome|
-17504240|C1427868||Gene or Genome|
-17504268|C1427896||Gene or Genome|
-17504311|C1427939||Gene or Genome|
-17504368|C1427996||Gene or Genome|
-17504596|C1428224||Gene or Genome|
-17504639|C1428267||Gene or Genome|
-17504653|C1428281||Gene or Genome|
-17504942|C1428570||Gene or Genome|
-17504951|C1428579||Gene or Genome|
-17505050|C1428678||Gene or Genome|
-17505327|C1428955||Gene or Genome|
-17505331|C1428959||Gene or Genome|
-17505383|C1429011||Gene or Genome|
-17505384|C1429012||Gene or Genome|
-17505386|C1429014||Gene or Genome|
-17505387|C1429015||Gene or Genome|
-17505391|C1429019||Gene or Genome|
-17505393|C1429021||Gene or Genome|
-17505409|C1429037||Gene or Genome|
-17505412|C1429040||Gene or Genome|
-17505420|C1429048||Gene or Genome|
-17505424|C1429052||Gene or Genome|
-17505426|C1429054||Gene or Genome|
-17505427|C1429055||Gene or Genome|
-17505429|C1429057||Gene or Genome|
-17505430|C1429058||Gene or Genome|
-17505432|C1429060||Gene or Genome|
-17505449|C1429077||Gene or Genome|
-17505452|C1429080||Gene or Genome|
-17505453|C1429081||Gene or Genome|
-17505514|C1429142||Gene or Genome|
-17505515|C1429143||Gene or Genome|
-17505523|C1429151||Gene or Genome|
-17505527|C1429155||Gene or Genome|
-17505531|C1429159||Gene or Genome|
-17505532|C1429160||Gene or Genome|
-17505547|C1429175||Gene or Genome|
-17505556|C1429184||Gene or Genome|
-17505558|C1429186||Gene or Genome|
-17505563|C1429191||Gene or Genome|
-17505575|C1429203||Gene or Genome|
-17505580|C1429208||Gene or Genome|
-84738091|C1436328||Organic Chemical|
-84724364|C1436328||Pharmacologic Substance|
-17505583|C1439272||Gene or Genome|
-20764394|C1444140||Gene or Genome|
-20764395|C1445865||Gene or Genome|
-18315114|C1448473||Mental Process|
-122822582|C1450373||Organic Chemical|
-16520289|C1456590||Intellectual Product|
-79766205|C1457898||Physiologic Function|
-20972184|C1510467||Injury or Poisoning|
-65342693|C1511713||Therapeutic or Preventive Procedure|
-65349554|C1511887||Sign or Symptom|
-65350183|C1511989||Conceptual Entity|
-60970355|C1512759||Intellectual Product|
-65333222|C1513819||Classification|
-20496674|C1513882||Health Care Related Organization|
-65350280|C1514495||Conceptual Entity|
-65333236|C1515976||Classification|
-65330578|C1516645||Intellectual Product|
-65330579|C1516646||Intellectual Product|
-20586000|C1516728||Intellectual Product|
-65333246|C1517008||Classification|
-65333247|C1517009||Classification|
-65330034|C1519837||Chemical Viewed Functionally|
-65352611|C1519837||Pharmacologic Substance|
-20759221|C1522005||Qualitative Concept|
-84724455|C1522484||Functional Concept|
-20500935|C1524024||Functional Concept|
-20500938|C1524059||Functional Concept|
-20500939|C1524060||Functional Concept|
-20566297|C1527243||Idea or Concept|
-20538092|C1532237||Disease or Syndrome|
-20538093|C1532238||Disease or Syndrome|
-20538148|C1533009||Disease or Syndrome|
-20538150|C1533011||Disease or Syndrome|
-20538168|C1533163||Disease or Syndrome|
-17506071|C1533585||Gene or Genome|
-62789164|C1535926||Mental or Behavioral Dysfunction|
-20764401|C1537074||Gene or Genome|
-20764421|C1537394||Gene or Genome|
-20764422|C1537395||Gene or Genome|
-20764426|C1537399||Gene or Genome|
-20764429|C1537402||Gene or Genome|
-20764435|C1537408||Gene or Genome|
-20764436|C1537409||Gene or Genome|
-20764439|C1537412||Gene or Genome|
-20764441|C1537414||Gene or Genome|
-20764443|C1537416||Gene or Genome|
-20764444|C1537417||Gene or Genome|
-20764447|C1537420||Gene or Genome|
-20764448|C1537421||Gene or Genome|
-20764451|C1537424||Gene or Genome|
-20764457|C1537430||Gene or Genome|
-20764463|C1537436||Gene or Genome|
-20764468|C1537441||Gene or Genome|
-20764472|C1537445||Gene or Genome|
-20764474|C1537447||Gene or Genome|
-20764476|C1537449||Gene or Genome|
-20764491|C1537464||Gene or Genome|
-20764493|C1537466||Gene or Genome|
-20764496|C1537469||Gene or Genome|
-20764497|C1537470||Gene or Genome|
-20764498|C1537471||Gene or Genome|
-20764499|C1537472||Gene or Genome|
-20764502|C1537475||Gene or Genome|
-20764506|C1537479||Gene or Genome|
-20764507|C1537480||Gene or Genome|
-20764518|C1537491||Gene or Genome|
-20764541|C1537514||Gene or Genome|
-20764542|C1537515||Gene or Genome|
-20764551|C1537524||Gene or Genome|
-20764558|C1537531||Gene or Genome|
-20764566|C1537539||Gene or Genome|
-20764567|C1537540||Gene or Genome|
-20764571|C1537544||Gene or Genome|
-20764573|C1537546||Gene or Genome|
-20764584|C1537557||Gene or Genome|
-20764589|C1537562||Gene or Genome|
-20764600|C1537573||Gene or Genome|
-20764603|C1537576||Gene or Genome|
-20764604|C1537577||Gene or Genome|
-20764605|C1537578||Gene or Genome|
-20764608|C1537581||Gene or Genome|
-20764609|C1537582||Gene or Genome|
-20764614|C1537587||Gene or Genome|
-20764624|C1537597||Gene or Genome|
-20764625|C1537598||Gene or Genome|
-20764626|C1537599||Gene or Genome|
-20764632|C1537605||Gene or Genome|
-20764635|C1537608||Gene or Genome|
-20764636|C1537609||Gene or Genome|
-20764641|C1537614||Gene or Genome|
-20764642|C1537615||Gene or Genome|
-20764643|C1537616||Gene or Genome|
-20764644|C1537617||Gene or Genome|
-20764646|C1537619||Gene or Genome|
-20764653|C1537626||Gene or Genome|
-20764655|C1537628||Gene or Genome|
-20764656|C1537629||Gene or Genome|
-20764659|C1537632||Gene or Genome|
-20764671|C1537644||Gene or Genome|
-20764675|C1537648||Gene or Genome|
-20764676|C1537649||Gene or Genome|
-20764684|C1537657||Gene or Genome|
-20764688|C1537661||Gene or Genome|
-20764689|C1537662||Gene or Genome|
-20764692|C1537665||Gene or Genome|
-20764693|C1537666||Gene or Genome|
-20764695|C1537668||Gene or Genome|
-20764713|C1537686||Gene or Genome|
-20764717|C1537690||Gene or Genome|
-20764718|C1537691||Gene or Genome|
-20764719|C1537692||Gene or Genome|
-20764720|C1537693||Gene or Genome|
-20764723|C1537696||Gene or Genome|
-20764724|C1537697||Gene or Genome|
-20764782|C1537755||Gene or Genome|
-20764948|C1537921||Gene or Genome|
-20764954|C1537927||Gene or Genome|
-20764961|C1537934||Gene or Genome|
-20764964|C1537937||Gene or Genome|
-20764965|C1537938||Gene or Genome|
-20765006|C1537979||Gene or Genome|
-20765011|C1537984||Gene or Genome|
-20765059|C1538032||Gene or Genome|
-20765061|C1538034||Gene or Genome|
-20765071|C1538044||Gene or Genome|
-20765072|C1538045||Gene or Genome|
-20765078|C1538051||Gene or Genome|
-20765081|C1538054||Gene or Genome|
-20765084|C1538057||Gene or Genome|
-20765092|C1538065||Gene or Genome|
-20765093|C1538066||Gene or Genome|
-20765096|C1538069||Gene or Genome|
-20765097|C1538070||Gene or Genome|
-20765099|C1538072||Gene or Genome|
-20765105|C1538078||Gene or Genome|
-20765109|C1538082||Gene or Genome|
-20765111|C1538084||Gene or Genome|
-20765113|C1538086||Gene or Genome|
-20765115|C1538088||Gene or Genome|
-20765116|C1538089||Gene or Genome|
-20765122|C1538095||Gene or Genome|
-20765123|C1538096||Gene or Genome|
-20765125|C1538098||Gene or Genome|
-20765138|C1538111||Gene or Genome|
-20765150|C1538123||Gene or Genome|
-20765152|C1538125||Gene or Genome|
-20765154|C1538127||Gene or Genome|
-20765158|C1538131||Gene or Genome|
-20765163|C1538136||Gene or Genome|
-20765165|C1538138||Gene or Genome|
-20765169|C1538142||Gene or Genome|
-20765170|C1538143||Gene or Genome|
-20765171|C1538144||Gene or Genome|
-20765174|C1538147||Gene or Genome|
-20765176|C1538149||Gene or Genome|
-20765179|C1538152||Gene or Genome|
-20765184|C1538157||Gene or Genome|
-20765186|C1538159||Gene or Genome|
-20765187|C1538160||Gene or Genome|
-20765193|C1538166||Gene or Genome|
-20765197|C1538170||Gene or Genome|
-20765200|C1538173||Gene or Genome|
-20765201|C1538174||Gene or Genome|
-20765202|C1538175||Gene or Genome|
-20765275|C1538248||Gene or Genome|
-20765294|C1538267||Gene or Genome|
-20765300|C1538273||Gene or Genome|
-20765301|C1538274||Gene or Genome|
-20765305|C1538278||Gene or Genome|
-20765311|C1538284||Gene or Genome|
-20765312|C1538285||Gene or Genome|
-18316817|C1538287||Gene or Genome|
-20765315|C1538288||Gene or Genome|
-20765317|C1538290||Gene or Genome|
-20765320|C1538293||Gene or Genome|
-20765321|C1538294||Gene or Genome|
-20765322|C1538295||Gene or Genome|
-20765323|C1538296||Gene or Genome|
-20765332|C1538305||Gene or Genome|
-20765336|C1538309||Gene or Genome|
-20765338|C1538311||Gene or Genome|
-20765339|C1538312||Gene or Genome|
-20765341|C1538314||Gene or Genome|
-20765342|C1538315||Gene or Genome|
-20765345|C1538318||Gene or Genome|
-20765347|C1538320||Gene or Genome|
-20765348|C1538321||Gene or Genome|
-20765353|C1538326||Gene or Genome|
-20765364|C1538337||Gene or Genome|
-20765369|C1538342||Gene or Genome|
-20765373|C1538346||Gene or Genome|
-20765380|C1538353||Gene or Genome|
-20765387|C1538360||Gene or Genome|
-20765394|C1538367||Gene or Genome|
-20765419|C1538392||Gene or Genome|
-20765420|C1538393||Gene or Genome|
-20765421|C1538394||Gene or Genome|
-20765423|C1538396||Gene or Genome|
-20765427|C1538400||Gene or Genome|
-20765435|C1538408||Gene or Genome|
-20765438|C1538411||Gene or Genome|
-20765439|C1538412||Gene or Genome|
-20765446|C1538419||Gene or Genome|
-20765449|C1538422||Gene or Genome|
-20765453|C1538426||Gene or Genome|
-20765460|C1538433||Gene or Genome|
-20765461|C1538434||Gene or Genome|
-20765462|C1538435||Gene or Genome|
-20765465|C1538438||Gene or Genome|
-20765476|C1538449||Gene or Genome|
-20765477|C1538450||Gene or Genome|
-20765478|C1538451||Gene or Genome|
-20765481|C1538454||Gene or Genome|
-20765482|C1538455||Gene or Genome|
-20765484|C1538457||Gene or Genome|
-20765489|C1538462||Gene or Genome|
-20765490|C1538463||Gene or Genome|
-20765491|C1538464||Gene or Genome|
-20765492|C1538465||Gene or Genome|
-20765495|C1538468||Gene or Genome|
-20765499|C1538472||Gene or Genome|
-20765504|C1538477||Gene or Genome|
-20765505|C1538478||Gene or Genome|
-20765506|C1538479||Gene or Genome|
-20765508|C1538481||Gene or Genome|
-20765509|C1538482||Gene or Genome|
-20765512|C1538485||Gene or Genome|
-20765513|C1538486||Gene or Genome|
-20765515|C1538488||Gene or Genome|
-20765516|C1538489||Gene or Genome|
-20765517|C1538490||Gene or Genome|
-20765518|C1538491||Gene or Genome|
-20765519|C1538492||Gene or Genome|
-20765520|C1538493||Gene or Genome|
-20765522|C1538495||Gene or Genome|
-20765523|C1538496||Gene or Genome|
-20765525|C1538498||Gene or Genome|
-20765526|C1538499||Gene or Genome|
-20765527|C1538500||Gene or Genome|
-20765528|C1538501||Gene or Genome|
-20765532|C1538505||Gene or Genome|
-20765534|C1538507||Gene or Genome|
-20765537|C1538510||Gene or Genome|
-20765557|C1538530||Gene or Genome|
-20765581|C1538554||Gene or Genome|
-20765585|C1538558||Gene or Genome|
-20765586|C1538559||Gene or Genome|
-20765589|C1538562||Gene or Genome|
-20765593|C1538566||Gene or Genome|
-20765598|C1538571||Gene or Genome|
-20765600|C1538573||Gene or Genome|
-20765609|C1538582||Gene or Genome|
-20765611|C1538584||Gene or Genome|
-20765616|C1538589||Gene or Genome|
-20765619|C1538592||Gene or Genome|
-20765621|C1538594||Gene or Genome|
-20765625|C1538598||Gene or Genome|
-20765626|C1538599||Gene or Genome|
-20765640|C1538613||Gene or Genome|
-20765648|C1538621||Gene or Genome|
-20765653|C1538626||Gene or Genome|
-20765654|C1538627||Gene or Genome|
-20765655|C1538628||Gene or Genome|
-20765656|C1538629||Gene or Genome|
-20765657|C1538630||Gene or Genome|
-20765660|C1538633||Gene or Genome|
-20765661|C1538634||Gene or Genome|
-20765663|C1538636||Gene or Genome|
-20765664|C1538637||Gene or Genome|
-20765665|C1538638||Gene or Genome|
-20765666|C1538639||Gene or Genome|
-20765674|C1538647||Gene or Genome|
-20765689|C1538662||Gene or Genome|
-20765695|C1538668||Gene or Genome|
-20765698|C1538671||Gene or Genome|
-20765700|C1538673||Gene or Genome|
-20765702|C1538675||Gene or Genome|
-20765707|C1538680||Gene or Genome|
-20765708|C1538681||Gene or Genome|
-20765709|C1538682||Gene or Genome|
-20765710|C1538683||Gene or Genome|
-20765720|C1538693||Gene or Genome|
-20765734|C1538707||Gene or Genome|
-20765740|C1538713||Gene or Genome|
-20765741|C1538714||Gene or Genome|
-20765752|C1538725||Gene or Genome|
-20765760|C1538733||Gene or Genome|
-20765762|C1538735||Gene or Genome|
-20765770|C1538743||Gene or Genome|
-20765772|C1538745||Gene or Genome|
-20765776|C1538749||Gene or Genome|
-20765782|C1538755||Gene or Genome|
-20765783|C1538756||Gene or Genome|
-20765784|C1538757||Gene or Genome|
-20765787|C1538760||Gene or Genome|
-20765800|C1538773||Gene or Genome|
-20765807|C1538780||Gene or Genome|
-20765808|C1538781||Gene or Genome|
-20765810|C1538783||Gene or Genome|
-20765811|C1538784||Gene or Genome|
-20765812|C1538785||Gene or Genome|
-20765816|C1538789||Gene or Genome|
-20765817|C1538790||Gene or Genome|
-20765818|C1538791||Gene or Genome|
-20765819|C1538792||Gene or Genome|
-20765823|C1538796||Gene or Genome|
-20765825|C1538798||Gene or Genome|
-20765826|C1538799||Gene or Genome|
-20765827|C1538800||Gene or Genome|
-20765848|C1538821||Gene or Genome|
-20765860|C1538833||Gene or Genome|
-20765866|C1538839||Gene or Genome|
-20765867|C1538840||Gene or Genome|
-20765868|C1538841||Gene or Genome|
-20765871|C1538844||Gene or Genome|
-20765872|C1538845||Gene or Genome|
-20765876|C1538849||Gene or Genome|
-20765884|C1538857||Gene or Genome|
-20765892|C1538865||Gene or Genome|
-20765896|C1538869||Gene or Genome|
-20765898|C1538871||Gene or Genome|
-20765918|C1538892||Gene or Genome|
-20765921|C1538895||Gene or Genome|
-20765922|C1538896||Gene or Genome|
-20765927|C1538901||Gene or Genome|
-20765944|C1538918||Gene or Genome|
-20765945|C1538919||Gene or Genome|
-20765948|C1538922||Gene or Genome|
-20765953|C1538927||Gene or Genome|
-20765962|C1538936||Gene or Genome|
-20765970|C1538944||Gene or Genome|
-20765973|C1538947||Gene or Genome|
-20765974|C1538948||Gene or Genome|
-20765991|C1538965||Gene or Genome|
-20766077|C1539051||Gene or Genome|
-20766081|C1539055||Gene or Genome|
-20766089|C1539063||Gene or Genome|
-20766093|C1539067||Gene or Genome|
-20766098|C1539072||Gene or Genome|
-20766099|C1539073||Gene or Genome|
-20766100|C1539074||Gene or Genome|
-20766101|C1539075||Gene or Genome|
-20766108|C1539082||Gene or Genome|
-20766113|C1539087||Gene or Genome|
-20766118|C1539092||Gene or Genome|
-20766131|C1539105||Gene or Genome|
-20766133|C1539107||Gene or Genome|
-20766135|C1539109||Gene or Genome|
-20766138|C1539112||Gene or Genome|
-20766139|C1539113||Gene or Genome|
-20766142|C1539116||Gene or Genome|
-20766149|C1539123||Gene or Genome|
-20766174|C1539148||Gene or Genome|
-20766175|C1539149||Gene or Genome|
-20766180|C1539154||Gene or Genome|
-20766183|C1539157||Gene or Genome|
-20766194|C1539168||Gene or Genome|
-20766195|C1539169||Gene or Genome|
-20766224|C1539198||Gene or Genome|
-20766243|C1539217||Gene or Genome|
-20766244|C1539218||Gene or Genome|
-20766247|C1539221||Gene or Genome|
-20766255|C1539229||Gene or Genome|
-20766258|C1539232||Gene or Genome|
-20766260|C1539234||Gene or Genome|
-20766285|C1539259||Gene or Genome|
-20766295|C1539269||Gene or Genome|
-20766296|C1539270||Gene or Genome|
-20766299|C1539273||Gene or Genome|
-20766323|C1539297||Gene or Genome|
-20766343|C1539317||Gene or Genome|
-20766345|C1539319||Gene or Genome|
-20766346|C1539320||Gene or Genome|
-20766347|C1539321||Gene or Genome|
-20766350|C1539324||Gene or Genome|
-20766358|C1539332||Gene or Genome|
-20766359|C1539333||Gene or Genome|
-20766360|C1539334||Gene or Genome|
-20766361|C1539335||Gene or Genome|
-20766366|C1539340||Gene or Genome|
-20766367|C1539341||Gene or Genome|
-20766380|C1539354||Gene or Genome|
-20766381|C1539355||Gene or Genome|
-20766386|C1539360||Gene or Genome|
-20766387|C1539361||Gene or Genome|
-20766389|C1539363||Gene or Genome|
-20766392|C1539366||Gene or Genome|
-20766401|C1539375||Gene or Genome|
-20766409|C1539383||Gene or Genome|
-20766413|C1539387||Gene or Genome|
-20766420|C1539394||Gene or Genome|
-20766421|C1539395||Gene or Genome|
-20766424|C1539398||Gene or Genome|
-20766429|C1539403||Gene or Genome|
-20766433|C1539407||Gene or Genome|
-20766434|C1539408||Gene or Genome|
-20766436|C1539410||Gene or Genome|
-20766438|C1539412||Gene or Genome|
-20766442|C1539416||Gene or Genome|
-20766443|C1539417||Gene or Genome|
-20766448|C1539422||Gene or Genome|
-20766451|C1539425||Gene or Genome|
-20766454|C1539428||Gene or Genome|
-20766457|C1539431||Gene or Genome|
-20766461|C1539435||Gene or Genome|
-20766462|C1539436||Gene or Genome|
-20766467|C1539441||Gene or Genome|
-20766469|C1539443||Gene or Genome|
-20766470|C1539444||Gene or Genome|
-20766471|C1539445||Gene or Genome|
-20766486|C1539460||Gene or Genome|
-20766488|C1539462||Gene or Genome|
-20766491|C1539465||Gene or Genome|
-20766497|C1539471||Gene or Genome|
-20766498|C1539472||Gene or Genome|
-20766499|C1539473||Gene or Genome|
-20766500|C1539474||Gene or Genome|
-20766501|C1539475||Gene or Genome|
-20766503|C1539477||Gene or Genome|
-20766507|C1539481||Gene or Genome|
-20766509|C1539483||Gene or Genome|
-20766516|C1539490||Gene or Genome|
-20766520|C1539494||Gene or Genome|
-20766524|C1539498||Gene or Genome|
-20766528|C1539502||Gene or Genome|
-20766531|C1539505||Gene or Genome|
-20766544|C1539518||Gene or Genome|
-20766554|C1539528||Gene or Genome|
-20766559|C1539533||Gene or Genome|
-20766561|C1539535||Gene or Genome|
-20766565|C1539539||Gene or Genome|
-20766568|C1539542||Gene or Genome|
-20766569|C1539543||Gene or Genome|
-20766570|C1539544||Gene or Genome|
-20766571|C1539545||Gene or Genome|
-20766572|C1539546||Gene or Genome|
-20766576|C1539550||Gene or Genome|
-20766580|C1539554||Gene or Genome|
-20766581|C1539555||Gene or Genome|
-20766596|C1539570||Gene or Genome|
-20766597|C1539571||Gene or Genome|
-20766598|C1539572||Gene or Genome|
-20766601|C1539575||Gene or Genome|
-20766605|C1539579||Gene or Genome|
-20766611|C1539585||Gene or Genome|
-20766617|C1539591||Gene or Genome|
-20766618|C1539592||Gene or Genome|
-20766621|C1539595||Gene or Genome|
-20766622|C1539596||Gene or Genome|
-20766626|C1539600||Gene or Genome|
-20766627|C1539601||Gene or Genome|
-20766629|C1539603||Gene or Genome|
-20766635|C1539609||Gene or Genome|
-20766636|C1539610||Gene or Genome|
-20766639|C1539613||Gene or Genome|
-20766640|C1539614||Gene or Genome|
-20766643|C1539617||Gene or Genome|
-20766646|C1539620||Gene or Genome|
-20766654|C1539628||Gene or Genome|
-20766656|C1539630||Gene or Genome|
-20766664|C1539638||Gene or Genome|
-20766665|C1539639||Gene or Genome|
-20766669|C1539643||Gene or Genome|
-20766670|C1539644||Gene or Genome|
-20766676|C1539650||Gene or Genome|
-20766681|C1539655||Gene or Genome|
-20766682|C1539656||Gene or Genome|
-20766684|C1539658||Gene or Genome|
-20766685|C1539659||Gene or Genome|
-20766686|C1539660||Gene or Genome|
-20766687|C1539661||Gene or Genome|
-20766688|C1539662||Gene or Genome|
-20766689|C1539663||Gene or Genome|
-20766693|C1539667||Gene or Genome|
-20766694|C1539668||Gene or Genome|
-20766695|C1539669||Gene or Genome|
-20766696|C1539670||Gene or Genome|
-20766699|C1539673||Gene or Genome|
-20766700|C1539674||Gene or Genome|
-20766701|C1539675||Gene or Genome|
-20766705|C1539679||Gene or Genome|
-20766711|C1539685||Gene or Genome|
-20766715|C1539689||Gene or Genome|
-20766723|C1539697||Gene or Genome|
-20766724|C1539698||Gene or Genome|
-20766725|C1539699||Gene or Genome|
-20766726|C1539700||Gene or Genome|
-20766731|C1539705||Gene or Genome|
-20766732|C1539706||Gene or Genome|
-20766735|C1539709||Gene or Genome|
-20766737|C1539711||Gene or Genome|
-20766738|C1539712||Gene or Genome|
-20766741|C1539715||Gene or Genome|
-20766746|C1539720||Gene or Genome|
-20766747|C1539721||Gene or Genome|
-20766749|C1539723||Gene or Genome|
-20766754|C1539728||Gene or Genome|
-20766756|C1539730||Gene or Genome|
-20766758|C1539732||Gene or Genome|
-20766762|C1539736||Gene or Genome|
-20766770|C1539744||Gene or Genome|
-20766778|C1539752||Gene or Genome|
-20766781|C1539755||Gene or Genome|
-20766784|C1539758||Gene or Genome|
-20766785|C1539759||Gene or Genome|
-20766788|C1539762||Gene or Genome|
-20766789|C1539763||Gene or Genome|
-20766790|C1539764||Gene or Genome|
-20766791|C1539765||Gene or Genome|
-20766794|C1539768||Gene or Genome|
-20766796|C1539770||Gene or Genome|
-20766800|C1539774||Gene or Genome|
-20766804|C1539778||Gene or Genome|
-20766806|C1539780||Gene or Genome|
-20766810|C1539784||Gene or Genome|
-20766811|C1539785||Gene or Genome|
-20766812|C1539786||Gene or Genome|
-20766815|C1539789||Gene or Genome|
-20766818|C1539792||Gene or Genome|
-20766819|C1539793||Gene or Genome|
-20766821|C1539795||Gene or Genome|
-20766824|C1539798||Gene or Genome|
-20766825|C1539799||Gene or Genome|
-20766830|C1539804||Gene or Genome|
-20766833|C1539807||Gene or Genome|
-20766839|C1539813||Gene or Genome|
-20766840|C1539814||Gene or Genome|
-20766841|C1539815||Gene or Genome|
-20766842|C1539816||Gene or Genome|
-20766845|C1539819||Gene or Genome|
-20766861|C1539835||Gene or Genome|
-20766862|C1539836||Gene or Genome|
-20766863|C1539837||Gene or Genome|
-20766864|C1539838||Gene or Genome|
-20766865|C1539839||Gene or Genome|
-20766866|C1539840||Gene or Genome|
-20766870|C1539844||Gene or Genome|
-20766872|C1539846||Gene or Genome|
-20766879|C1539853||Gene or Genome|
-20766882|C1539856||Gene or Genome|
-20766885|C1539859||Gene or Genome|
-20766896|C1539870||Gene or Genome|
-20766897|C1539871||Gene or Genome|
-20766900|C1539874||Gene or Genome|
-20766905|C1539879||Gene or Genome|
-20766906|C1539880||Gene or Genome|
-20766910|C1539884||Gene or Genome|
-20766912|C1539886||Gene or Genome|
-20766916|C1539890||Gene or Genome|
-20766917|C1539891||Gene or Genome|
-20766918|C1539892||Gene or Genome|
-20766924|C1539898||Gene or Genome|
-20766925|C1539899||Gene or Genome|
-20766926|C1539900||Gene or Genome|
-20766927|C1539901||Gene or Genome|
-20766929|C1539903||Gene or Genome|
-20766932|C1539906||Gene or Genome|
-20766933|C1539907||Gene or Genome|
-20766935|C1539909||Gene or Genome|
-20766936|C1539910||Gene or Genome|
-20766939|C1539913||Gene or Genome|
-20766941|C1539915||Gene or Genome|
-20766942|C1539916||Gene or Genome|
-20766947|C1539921||Gene or Genome|
-20766950|C1539924||Gene or Genome|
-20766954|C1539928||Gene or Genome|
-20766955|C1539929||Gene or Genome|
-20766956|C1539930||Gene or Genome|
-20766958|C1539932||Gene or Genome|
-20766959|C1539933||Gene or Genome|
-20766960|C1539934||Gene or Genome|
-20766961|C1539935||Gene or Genome|
-20766962|C1539936||Gene or Genome|
-20766963|C1539937||Gene or Genome|
-20766964|C1539938||Gene or Genome|
-20766965|C1539939||Gene or Genome|
-20766970|C1539944||Gene or Genome|
-20766972|C1539946||Gene or Genome|
-20766974|C1539948||Gene or Genome|
-20766976|C1539950||Gene or Genome|
-20766980|C1539954||Gene or Genome|
-20766981|C1539955||Gene or Genome|
-20766985|C1539959||Gene or Genome|
-20766987|C1539961||Gene or Genome|
-20766988|C1539962||Gene or Genome|
-20766989|C1539963||Gene or Genome|
-20766993|C1539967||Gene or Genome|
-20766994|C1539968||Gene or Genome|
-20766996|C1539970||Gene or Genome|
-20767001|C1539975||Gene or Genome|
-20767002|C1539976||Gene or Genome|
-20767010|C1539984||Gene or Genome|
-20767012|C1539986||Gene or Genome|
-20767013|C1539987||Gene or Genome|
-20767015|C1539989||Gene or Genome|
-20767016|C1539990||Gene or Genome|
-20767017|C1539991||Gene or Genome|
-20767018|C1539992||Gene or Genome|
-20767021|C1539995||Gene or Genome|
-20767023|C1539997||Gene or Genome|
-20767024|C1539998||Gene or Genome|
-20767026|C1540000||Gene or Genome|
-20767027|C1540001||Gene or Genome|
-20767030|C1540004||Gene or Genome|
-20767031|C1540005||Gene or Genome|
-20767033|C1540007||Gene or Genome|
-20767037|C1540011||Gene or Genome|
-20767039|C1540013||Gene or Genome|
-20767043|C1540017||Gene or Genome|
-20767044|C1540018||Gene or Genome|
-20767046|C1540020||Gene or Genome|
-20767050|C1540024||Gene or Genome|
-20767051|C1540025||Gene or Genome|
-20767052|C1540026||Gene or Genome|
-20767053|C1540027||Gene or Genome|
-20767055|C1540029||Gene or Genome|
-20767057|C1540031||Gene or Genome|
-20767061|C1540035||Gene or Genome|
-20767064|C1540038||Gene or Genome|
-43119281|C1540039||Gene or Genome|
-20767067|C1540041||Gene or Genome|
-20767070|C1540044||Gene or Genome|
-20767077|C1540051||Gene or Genome|
-20767078|C1540052||Gene or Genome|
-20767086|C1540060||Gene or Genome|
-20767090|C1540064||Gene or Genome|
-20767091|C1540065||Gene or Genome|
-20767101|C1540075||Gene or Genome|
-20767106|C1540080||Gene or Genome|
-20767110|C1540084||Gene or Genome|
-20767115|C1540089||Gene or Genome|
-20767119|C1540093||Gene or Genome|
-20767120|C1540094||Gene or Genome|
-20767121|C1540095||Gene or Genome|
-20767122|C1540096||Gene or Genome|
-20767125|C1540099||Gene or Genome|
-20767137|C1540111||Gene or Genome|
-20767138|C1540112||Gene or Genome|
-20767140|C1540114||Gene or Genome|
-20767143|C1540117||Gene or Genome|
-20767146|C1540120||Gene or Genome|
-20767147|C1540121||Gene or Genome|
-20767148|C1540122||Gene or Genome|
-20767149|C1540123||Gene or Genome|
-20767150|C1540124||Gene or Genome|
-20767152|C1540126||Gene or Genome|
-20767153|C1540127||Gene or Genome|
-20767156|C1540130||Gene or Genome|
-20767157|C1540131||Gene or Genome|
-20767158|C1540132||Gene or Genome|
-20767160|C1540134||Gene or Genome|
-20767161|C1540135||Gene or Genome|
-20767163|C1540137||Gene or Genome|
-20767167|C1540141||Gene or Genome|
-20767168|C1540142||Gene or Genome|
-20767169|C1540143||Gene or Genome|
-20767170|C1540144||Gene or Genome|
-20767173|C1540147||Gene or Genome|
-20767175|C1540149||Gene or Genome|
-20767176|C1540150||Gene or Genome|
-20767177|C1540151||Gene or Genome|
-20767178|C1540152||Gene or Genome|
-20767181|C1540155||Gene or Genome|
-20767184|C1540158||Gene or Genome|
-20767186|C1540160||Gene or Genome|
-20767189|C1540163||Gene or Genome|
-20767190|C1540164||Gene or Genome|
-20767199|C1540173||Gene or Genome|
-20767200|C1540174||Gene or Genome|
-20767202|C1540176||Gene or Genome|
-20767203|C1540177||Gene or Genome|
-20767205|C1540179||Gene or Genome|
-20767206|C1540180||Gene or Genome|
-20767207|C1540181||Gene or Genome|
-20767208|C1540182||Gene or Genome|
-20767209|C1540183||Gene or Genome|
-20767210|C1540184||Gene or Genome|
-20767211|C1540185||Gene or Genome|
-20767213|C1540187||Gene or Genome|
-20767218|C1540192||Gene or Genome|
-20767219|C1540193||Gene or Genome|
-20767220|C1540194||Gene or Genome|
-20767222|C1540196||Gene or Genome|
-20767225|C1540199||Gene or Genome|
-20767226|C1540200||Gene or Genome|
-20767227|C1540201||Gene or Genome|
-20767232|C1540206||Gene or Genome|
-20767235|C1540209||Gene or Genome|
-20767240|C1540214||Gene or Genome|
-20767241|C1540215||Gene or Genome|
-20767243|C1540217||Gene or Genome|
-20767244|C1540218||Gene or Genome|
-20767248|C1540222||Gene or Genome|
-20767251|C1540225||Gene or Genome|
-20767252|C1540226||Gene or Genome|
-20767254|C1540228||Gene or Genome|
-20767259|C1540233||Gene or Genome|
-20767260|C1540234||Gene or Genome|
-20767262|C1540236||Gene or Genome|
-20767264|C1540238||Gene or Genome|
-20767272|C1540246||Gene or Genome|
-20767273|C1540247||Gene or Genome|
-20767278|C1540252||Gene or Genome|
-20767279|C1540253||Gene or Genome|
-20767280|C1540254||Gene or Genome|
-20767281|C1540255||Gene or Genome|
-20767286|C1540260||Gene or Genome|
-20767293|C1540267||Gene or Genome|
-20767300|C1540274||Gene or Genome|
-20767304|C1540278||Gene or Genome|
-20767313|C1540287||Gene or Genome|
-20767317|C1540291||Gene or Genome|
-20767318|C1540292||Gene or Genome|
-20767319|C1540293||Gene or Genome|
-20767320|C1540294||Gene or Genome|
-20767321|C1540295||Gene or Genome|
-20767322|C1540296||Gene or Genome|
-20767323|C1540297||Gene or Genome|
-20767324|C1540298||Gene or Genome|
-20767326|C1540300||Gene or Genome|
-20767327|C1540301||Gene or Genome|
-20767328|C1540302||Gene or Genome|
-20767329|C1540303||Gene or Genome|
-20767330|C1540304||Gene or Genome|
-20767333|C1540307||Gene or Genome|
-20767334|C1540308||Gene or Genome|
-65335729|C1541208||Gene or Genome|
-65335730|C1541209||Gene or Genome|
-65335731|C1541580||Gene or Genome|
-20583118|C1541964||Intellectual Product|
-20583716|C1553931||Intellectual Product|
-109333175|C1554065||Intellectual Product|
-20767364|C1563761||Gene or Genome|
-21107720|C1563835||Organic Chemical|
-21311797|C1563835||Pharmacologic Substance|
-20767369|C1567848||Gene or Genome|
-20584045|C1579327||Intellectual Product|
-20923664|C1593635||Clinical Drug|
-20926448|C1596442||Clinical Drug|
-126257404|C1609432||Finding|
-122886919|C1611431||Organic Chemical|
-43668551|C1619351||Qualitative Concept|
-50199828|C1623416||Qualitative Concept|
-18445411|C1623497||Intellectual Product|
-51193781|C1655034||Intellectual Product|
-51195899|C1659424||Classification|
-65335732|C1704222||Gene or Genome|
-56530456|C1704338||Qualitative Concept|
-57393617|C1704485||Intellectual Product|
-57393618|C1704486||Intellectual Product|
-56450729|C1704873||Gene or Genome|
-65330656|C1705943||Intellectual Product|
-55496730|C1706062||Molecular Function|
-65333275|C1706737||Classification|
-65350636|C1706767||Conceptual Entity|
-65350638|C1706770||Conceptual Entity|
-65350639|C1706771||Conceptual Entity|
-65350640|C1706772||Conceptual Entity|
-65350644|C1706776||Conceptual Entity|
-65350645|C1706777||Conceptual Entity|
-65335748|C1706821||Gene or Genome|
-65350760|C1708202||Conceptual Entity|
-65350762|C1708204||Conceptual Entity|
-65350763|C1708205||Conceptual Entity|
-65350764|C1708206||Conceptual Entity|
-65350765|C1708207||Conceptual Entity|
-65350766|C1708209||Conceptual Entity|
-65350767|C1708210||Conceptual Entity|
-65350780|C1708226||Conceptual Entity|
-65350781|C1708227||Conceptual Entity|
-65335983|C1708477||Gene or Genome|
-65318595|C1710021||Regulation or Law|
-65333319|C1710306||Classification|
-65336114|C1710463||Gene or Genome|
-65350953|C1711392||Conceptual Entity|
-55493651|C1721069||Organic Chemical|
-55495339|C1721069||Pharmacologic Substance|
-59628644|C1812643||Intellectual Product|
-59643595|C1822705||Gene or Genome|
-59643600|C1822710||Gene or Genome|
-59643994|C1823104||Gene or Genome|
-59644154|C1823264||Gene or Genome|
-59645431|C1824541||Gene or Genome|
-59645650|C1824760||Gene or Genome|
-59645784|C1824894||Gene or Genome|
-59645913|C1825023||Gene or Genome|
-59646049|C1825159||Gene or Genome|
-59646176|C1825286||Gene or Genome|
-59646193|C1825303||Gene or Genome|
-59646241|C1825351||Gene or Genome|
-59646253|C1825363||Gene or Genome|
-59646254|C1825364||Gene or Genome|
-59646255|C1825365||Gene or Genome|
-59646417|C1825528||Gene or Genome|
-59646443|C1825554||Gene or Genome|
-59646700|C1825811||Gene or Genome|
-59646740|C1825851||Gene or Genome|
-59646743|C1825854||Gene or Genome|
-59646894|C1826005||Gene or Genome|
-59647192|C1826303||Gene or Genome|
-59647222|C1826333||Gene or Genome|
-59647223|C1826334||Gene or Genome|
-59647316|C1826427||Gene or Genome|
-59647328|C1826439||Gene or Genome|
-59647335|C1826446||Gene or Genome|
-59647339|C1826450||Gene or Genome|
-59647363|C1826474||Gene or Genome|
-59647401|C1826512||Gene or Genome|
-59647402|C1826513||Gene or Genome|
-59647403|C1826514||Gene or Genome|
-59647478|C1826589||Gene or Genome|
-59647534|C1826645||Gene or Genome|
-59647597|C1826708||Gene or Genome|
-59647627|C1826738||Gene or Genome|
-59647710|C1826821||Gene or Genome|
-59647722|C1826833||Gene or Genome|
-59647735|C1826846||Gene or Genome|
-59647737|C1826848||Gene or Genome|
-109354921|C1832070||Classification|
-59648528|C1834173||Gene or Genome|
-59648555|C1835237||Gene or Genome|
-59648632|C1836205||Gene or Genome|
-59648790|C1842089||Gene or Genome|
-59647970|C1848212||Gene or Genome|
-65110325|C1878682||Drug Delivery Device|
-65343354|C1879509||Therapeutic or Preventive Procedure|
-65343372|C1879911||Therapeutic or Preventive Procedure|
-65343384|C1879969||Therapeutic or Preventive Procedure|
-65349149|C1880421||Substance|
-65320806|C1880653||Functional Concept|
-65333359|C1881447||Classification|
-65343580|C1882524||Therapeutic or Preventive Procedure|
-65333381|C1883163||Classification|
-65343623|C1883527||Therapeutic or Preventive Procedure|
-65333383|C1883687||Classification|
-122881334|C1959616||Organic Chemical|
-84642859|C1959616||Pharmacologic Substance|
-84846863|C1959616||Biologically Active Substance|
-65100601|C1963674||Disease or Syndrome|
-65105399|C1968835||Gene or Genome|
-78930927|C1970995||Gene or Genome|
-109335772|C1999262||Biomedical or Dental Material|
-66449964|C2239174||Qualitative Concept|
-69462960|C2239927||Gene or Genome|
-69463140|C2240107||Gene or Genome|
-69463295|C2240263||Gene or Genome|
-69463409|C2242767||Gene or Genome|
-69388516|C2266866||Molecular Function|
-69356257|C2267095||Classification|
-69322443|C2332774||Intellectual Product|
-73032833|C2347818||Intellectual Product|
-101313182|C2348045||Intellectual Product|
-70696934|C2348066||Organic Chemical|
-70699058|C2348066||Pharmacologic Substance|
-70695305|C2348631||Classification|
-70694772|C2348748||Intellectual Product|
-120650801|C2362498||Group Attribute|
-72599944|C2499019||Intellectual Product|
-77006710|C2681663||Gene or Genome|
-78318911|C2681844||Gene or Genome|
-77006738|C2681849||Gene or Genome|
-77991288|C2681903||Gene or Genome|
-76684898|C2720507||Intellectual Product|
-77340127|C2740581||Clinical Drug|
-78323667|C2741045||Drug Delivery Device|
-84859333|C2825314||Gene or Genome|
-84860222|C2826776||Classification|
-84859682|C2827639||Classification|
-84861614|C2828026||Gene or Genome|
-84862247|C2828054||Gene or Genome|
-84793110|C2828567||Gene or Genome|
-84766165|C2828701||Gene or Genome|
-84766208|C2829391||Gene or Genome|
-84752872|C2829393||Gene or Genome|
-84667218|C2916796||Disease or Syndrome|
-84749370|C2921005||Intellectual Product|
-79811296|C2936588||Organic Chemical|
-87511395|C2936588||Pharmacologic Substance|
-79727725|C2936915||Disease or Syndrome|
-87506495|C2952849||Intellectual Product|
-87503445|C2954745||Clinical Drug|
-120674932|C2983595||Classification|
-101209633|C3178895||Gene or Genome|
-101366150|C3179066||Gene or Genome|
-109354102|C3210723||Clinical Drug|
-109450844|C3215348||Clinical Drug|
-109369604|C3215349||Clinical Drug|
-109323944|C3215350||Clinical Drug|
-109417712|C3215351||Clinical Drug|
-109303608|C3215352||Clinical Drug|
-109303499|C3238825||Clinical Drug|
-109486959|C3238826||Clinical Drug|
-109269671|C3238827||Clinical Drug|
-109353996|C3243737||Intellectual Product|
-122864590|C3253442||Organic Chemical|
-109476103|C3253442||Amino Acid, Peptide, or Protein|
-109269329|C3253442||Biologically Active Substance|
-109493829|C3273053||Conceptual Entity|
-109461467|C3273056||Conceptual Entity|
-109449319|C3273057||Conceptual Entity|
-109467455|C3273359||Manufactured Object|
-109519316|C3274879||Intellectual Product|
-109462441|C3470396||Intellectual Product|
-109366948|C3495651||Drug Delivery Device|
-109292171|C3496096||Intellectual Product|
-109504747|C3496097||Intellectual Product|
-120755942|C3539934||Intellectual Product|
-120745443|C3539983||Intellectual Product|
-120659449|C3640816||Intellectual Product|
-120795503|C3641144||Intellectual Product|
-120736254|C3645550||Intellectual Product|
-120780633|C3645553||Intellectual Product|
-120705753|C3645554||Intellectual Product|
-120742713|C3645556||Intellectual Product|
-120784688|C3645557||Intellectual Product|
-120679215|C3645558||Intellectual Product|
-120799733|C3645559||Intellectual Product|
-120767553|C3645560||Intellectual Product|
-120711661|C3645561||Intellectual Product|
-120701462|C3645570||Intellectual Product|
-120772312|C3645571||Intellectual Product|
-120648652|C3645580||Intellectual Product|
-120742712|C3645581||Intellectual Product|
-120648651|C3645587||Intellectual Product|
-120695818|C3645588||Intellectual Product|
-120666927|C3645609||Intellectual Product|
-120738829|C3645687||Intellectual Product|
-120795706|C3645688||Intellectual Product|
-120674876|C3645703||Intellectual Product|
-120706764|C3645705||Intellectual Product|
-120745062|C3658343||Gene or Genome|
-120790460|C3665477||Therapeutic or Preventive Procedure|
-126347769|C3714478||Manufactured Object|
-126327071|C3714514||Disease or Syndrome|
-122922125|C3816963||Intellectual Product|
-122905756|C3816964||Intellectual Product|
-126331268|C3827752||Intellectual Product|
-126322547|C3828873||Intellectual Product|
-126351064|C3829311||Intellectual Product|
-126334754|C3830170||Intellectual Product|
-126307317|C3831077||Intellectual Product|
-126411762|C3839127||Gene or Genome|
-122842413|C3850146||Occupational Activity|
-122912073|C3850146||Machine Activity|
-126318148|C3853348||Intellectual Product|
-126288204|C3858370||Intellectual Product|
-126378988|C3858944||Intellectual Product|
-126372105|C3858945||Intellectual Product|
-126248063|C3858950||Intellectual Product|
-126396711|C3858951||Intellectual Product|
-126277277|C3860207||Intellectual Product|
-126297249|C3860212||Intellectual Product|
-126315587|C3871216||Intellectual Product|
-126269773|C3871218||Intellectual Product|
-126361788|C3885037||Organic Chemical|
-126310579|C3892056||Intellectual Product|
-126298949|C3893231||Intellectual Product|
-126259150|C3897818||Intellectual Product|
-126391139|C3899741||Functional Concept|
-126432778|C3899744||Functional Concept|
-126434134|C3900218||Intellectual Product|
-126260061|C4011374||Intellectual Product|
-126358318|C4020558||Intellectual Product|
-126344035|C4020635||Intellectual Product|
-126336484|C4020636||Intellectual Product|
-126264759|C4034189||Intellectual Product|
-126366471|C4038520||Intellectual Product|
-126384697|C4038521||Intellectual Product|
-126344683|C4038522||Intellectual Product|
-126341834|C4041552||Intellectual Product|
-126353243|C4046109||Intellectual Product|
-126420939|C4046110||Intellectual Product|
-126428478|C4046111||Intellectual Product|
-126428527|C4046113||Intellectual Product|
-126253528|C4046115||Intellectual Product|
-126329423|C4046116||Intellectual Product|
-17325732|CL105989||Intellectual Product|
-17325733|CL106499||Intellectual Product|
-18110991|CL324348||Intellectual Product|
-18207837|CL337060||Intellectual Product|
-18290001|CL337097||Intellectual Product|
-18290005|CL337101||Intellectual Product|
-18290007|CL337103||Intellectual Product|
-18290009|CL337105||Intellectual Product|
-18290011|CL337107||Intellectual Product|
-18446195|CL337482||Intellectual Product|
-18483724|CL338216||Conceptual Entity|
-18475473|CL340379||Intellectual Product|
-18484057|CL342698||Intellectual Product|
-18484059|CL342699||Intellectual Product|
-18503706|CL343444||Intellectual Product|
-18511811|CL353098||Intellectual Product|
-20456258|CL356830||Intellectual Product|
-43125964|CL360522||Intellectual Product|
-52065100|CL369490||Intellectual Product|
-52073066|CL369520||Cell or Molecular Dysfunction|
-52072889|CL369534||Intellectual Product|
-52072811|CL369564||Qualitative Concept|
-52072898|CL369565||Qualitative Concept|
-52072857|CL369586||Cell or Molecular Dysfunction|
-52065173|CL369712||Amino Acid, Peptide, or Protein|
-52065174|CL369713||Amino Acid, Peptide, or Protein|
-52065175|CL369714||Amino Acid, Peptide, or Protein|
-52073168|CL369753||Gene or Genome|
-52077183|CL369754||Gene or Genome|
-52073047|CL369769||Intellectual Product|
-52072902|CL369789||Intellectual Product|
-52072928|CL369838||Nucleic Acid, Nucleoside, or Nucleotide|
-52073008|CL369920||Functional Concept|
-52073186|CL369933||Quantitative Concept|
-52077251|CL370027||Quantitative Concept|
-52072885|CL370029||Laboratory Procedure|
-52073020|CL370045||Nucleic Acid, Nucleoside, or Nucleotide|
-52073140|CL370051||Quantitative Concept|
-52073001|CL370057||Quantitative Concept|
-52065101|CL370086||Intellectual Product|
-52072987|CL370097||Organism Function|
-56537737|CL371976||Intellectual Product|
-56537739|CL371978||Intellectual Product|
-56537741|CL371980||Intellectual Product|
-60868487|CL378800||Intellectual Product|
-63357417|CL386149||Intellectual Product|
-63379343|CL388550||Intellectual Product|
-73494886|CL415855||Intellectual Product|
-73500661|CL416212||Disease or Syndrome|
-73499512|CL416216||Pharmacologic Substance|
-73494428|CL421683||Conceptual Entity|
-73501345|CL421694||Intellectual Product|
-73500139|CL421696||Intellectual Product|
-73494502|CL422181||Intellectual Product|
-79511764|CL423721||Intellectual Product|
-79600896|CL424900||Intellectual Product|
-84860488|CL428550||Intellectual Product|
-97496203|CL433994||Intellectual Product|
-97496153|CL433999||Intellectual Product|
-101209367|CL437397||Intellectual Product|
-104633448|CL448201||Gene or Genome|
-116208862|CL448235||Cell or Molecular Dysfunction|
-116209081|CL448410||Gene or Genome|
-116207755|CL448703||Intellectual Product|
-116205053|CL448842||Classification|
-122916335|CL448888||Classification|
-116513765|CL465180||Finding|
-116529414|CL471834||Intellectual Product|
-122885315|CL474080||Intellectual Product|
-122928987|CL494726||Intellectual Product|
-122821895|CL494727||Intellectual Product|
-126361651|CL498550||Intellectual Product|
-126250219|CL502616||Intellectual Product|
-126298059|CL503148||Intellectual Product|
-126426281|CL503673||Intellectual Product|
-126435391|CL503733||Intellectual Product|
-126313145|CL503734||Intellectual Product|
-126403991|CL503735||Intellectual Product|
-126419405|CL503736||Intellectual Product|
-126293375|CL503737||Intellectual Product|
-126294787|CL503738||Intellectual Product|
-126379342|CL503739||Intellectual Product|
-126387350|CL503740||Intellectual Product|
-126383383|CL503741||Intellectual Product|
-126328731|CL503742||Intellectual Product|
-126331559|CL503743||Intellectual Product|
-126303503|CL503744||Intellectual Product|
-126355413|CL503745||Intellectual Product|
-126333458|CL503746||Intellectual Product|
-126391688|CL503747||Intellectual Product|
-126427826|CL503748||Intellectual Product|
-126316551|CL503749||Intellectual Product|
-126383384|CL503750||Intellectual Product|
-126436116|CL503751||Intellectual Product|
-126251370|CL503752||Intellectual Product|
-126326529|CL503753||Intellectual Product|
-126311696|CL503754||Intellectual Product|
-126344999|CL503755||Intellectual Product|
-126418677|CL503756||Intellectual Product|
-126265148|CL503757||Intellectual Product|
-126395600|CL505176||Intellectual Product|
+16526842|C0000005|NCIMTH|Amino Acid, Peptide, or Protein|
+16627324|C0000005|NCIMTH|Pharmacologic Substance|
+16524168|C0000005|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+122900113|C0000039|NCIMTH|Organic Chemical|
+16627326|C0000039|NCIMTH|Pharmacologic Substance|
+16526880|C0000084|NCIMTH|Amino Acid, Peptide, or Protein|
+16653193|C0000084|NCIMTH|Biologically Active Substance|
+84817177|C0000097|NCIMTH|Organic Chemical|
+84694596|C0000097|NCIMTH|Hazardous or Poisonous Substance|
+16581086|C0000098|NCIMTH|Organic Chemical|
+16556050|C0000098|NCIMTH|Hazardous or Poisonous Substance|
+84640382|C0000102|NCIMTH|Organic Chemical|
+84667568|C0000102|NCIMTH|Hazardous or Poisonous Substance|
+16581307|C0000194|NCIMTH|Organic Chemical|
+16524233|C0000194|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+84846514|C0000294|NCIMTH|Organic Chemical|
+84724214|C0000294|NCIMTH|Pharmacologic Substance|
+122917008|C0000343|NCIMTH|Organic Chemical|
+84640383|C0000343|NCIMTH|Vitamin|
+16581884|C0000424|NCIMTH|Organic Chemical|
+16628108|C0000424|NCIMTH|Pharmacologic Substance|
+73036527|C0000618|NCIMTH|Organic Chemical|
+84778613|C0000618|NCIMTH|Pharmacologic Substance|
+84722063|C0000726|NCIMTH|Body Location or Region|
+84722064|C0000737|NCIMTH|Sign or Symptom|
+20500359|C0000769|NCIMTH|Functional Concept|
+16603873|C0000985|NCIMTH|Organic Chemical|
+120781996|C0001047|NCIMTH|Amino Acid, Peptide, or Protein|
+120714081|C0001047|NCIMTH|Pharmacologic Substance|
+59680833|C0001555|NCIMTH|Quantitative Concept|
+21408727|C0001565|NCIMTH|Functional Concept|
+20500363|C0001688|NCIMTH|Functional Concept|
+21408731|C0002072|NCIMTH|Organic Chemical|
+18499721|C0002072|NCIMTH|Pharmacologic Substance|
+84735839|C0002085|NCIMTH|Gene or Genome|
+16581311|C0002585|NCIMTH|Organic Chemical|
+59621008|C0002776|NCIMTH|Chemical Viewed Structurally|
+20757905|C0002809|NCIMTH|Qualitative Concept|
+59622381|C0003139|NCIMTH|Chemical Viewed Functionally|
+84844448|C0003295|NCIMTH|Pharmacologic Substance|
+84763167|C0004057|NCIMTH|Organic Chemical|
+84830949|C0004057|NCIMTH|Pharmacologic Substance|
+84749664|C0004793|NCIMTH|Nucleotide Sequence|
+84830973|C0005301|NCIMTH|Organic Chemical|
+84640481|C0005301|NCIMTH|Pharmacologic Substance|
+59601563|C0005572|NCIMTH|Functional Concept|
+20539053|C0005768|NCIMTH|Body Substance|
+16499484|C0005839|NCIMTH|Body Part, Organ, or Organ Component|
+16601589|C0007007|NCIMTH|Organic Chemical|
+20499279|C0007807|NCIMTH|Functional Concept|
+84722252|C0007965|NCIMTH|Disease or Syndrome|
+60871263|C0007987|NCIMTH|Natural Phenomenon or Process|
+59600862|C0007994|NCIMTH|Pathologic Function|
+84654131|C0008073|NCIMTH|Mental or Behavioral Dysfunction|
+84694757|C0008281|NCIMTH|Organic Chemical|
+84694758|C0008281|NCIMTH|Pharmacologic Substance|
+16518998|C0008300|NCIMTH|Individual Behavior|
+16523687|C0008630|NCIMTH|Laboratory Procedure|
+16614890|C0008630|NCIMTH|Molecular Biology Research Technique|
+84708527|C0008633|NCIMTH|Cell Component|
+16558055|C0008844|NCIMTH|Gene or Genome|
+84667730|C0008902|NCIMTH|Classification|
+65333181|C0008903|NCIMTH|Classification|
+84681358|C0009028|NCIMTH|Organic Chemical|
+84844572|C0009028|NCIMTH|Pharmacologic Substance|
+84776694|C0009447|NCIMTH|Disease or Syndrome|
+84844581|C0009452|NCIMTH|Social Behavior|
+16520441|C0009458|NCIMTH|Intellectual Product|
+16520445|C0009627|NCIMTH|Intellectual Product|
+59642683|C0009678|NCIMTH|Qualitative Concept|
+16520100|C0009992|NCIMTH|Machine Activity|
+84844606|C0010654|NCIMTH|Amino Acid, Peptide, or Protein|
+84763306|C0010654|NCIMTH|Biologically Active Substance|
+84776715|C0010692|NCIMTH|Disease or Syndrome|
+20758574|C0010820|NCIMTH|Qualitative Concept|
+16523177|C0010995|NCIMTH|Research Activity|
+16520102|C0010996|NCIMTH|Machine Activity|
+16520499|C0010996|NCIMTH|Intellectual Product|
+20499281|C0012160|NCIMTH|Functional Concept|
+84817414|C0012315|NCIMTH|Organic Chemical|
+84776755|C0012315|NCIMTH|Pharmacologic Substance|
+84655856|C0012383|NCIMTH|Organic Chemical|
+84669364|C0012383|NCIMTH|Pharmacologic Substance|
+84640620|C0012384|NCIMTH|Organic Chemical|
+84817416|C0012384|NCIMTH|Pharmacologic Substance|
+84817417|C0012384|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+84722344|C0012390|NCIMTH|Organic Chemical|
+84831105|C0012390|NCIMTH|Pharmacologic Substance|
+122881660|C0012456|NCIMTH|Organic Chemical|
+73494626|C0012456|NCIMTH|Biomedical or Dental Material|
+84803994|C0012634|NCIMTH|Disease or Syndrome|
+16551030|C0012674|NCIMTH|Classification|
+84667805|C0012702|NCIMTH|Organic Chemical|
+84694841|C0012702|NCIMTH|Pharmacologic Substance|
+84749818|C0012854|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84736079|C0012854|NCIMTH|Biologically Active Substance|
+16614629|C0012972|NCIMTH|Occupational Activity|
+84738221|C0013030|NCIMTH|Organic Chemical|
+84765420|C0013030|NCIMTH|Pharmacologic Substance|
+122795919|C0013030|NCIMTH|Biologically Active Substance|
+16652575|C0013036|NCIMTH|Pharmacologic Substance|
+84694845|C0013092|NCIMTH|Organic Chemical|
+84776767|C0013092|NCIMTH|Pharmacologic Substance|
+84803999|C0013182|NCIMTH|Disease or Syndrome|
+120783709|C0013217|NCIMTH|Therapeutic or Preventive Procedure|
+84681434|C0013221|NCIMTH|Injury or Poisoning|
+84804000|C0013227|NCIMTH|Pharmacologic Substance|
+20500366|C0013557|NCIMTH|Functional Concept|
+20723935|C0013622|NCIMTH|Classification|
+20500368|C0013943|NCIMTH|Functional Concept|
+20500370|C0014445|NCIMTH|Functional Concept|
+20500372|C0014508|NCIMTH|Functional Concept|
+16613066|C0014713|NCIMTH|Organic Chemical|
+16659308|C0014713|NCIMTH|Biologically Active Substance|
+20757918|C0015033|NCIMTH|Qualitative Concept|
+20499284|C0015127|NCIMTH|Functional Concept|
+84694880|C0015295|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84708821|C0015295|NCIMTH|Biologically Active Substance|
+84763376|C0015314|NCIMTH|Pharmacologic Substance|
+84817484|C0015773|NCIMTH|Disease or Syndrome|
+21411765|C0016094|NCIMTH|Occupational Activity|
+16578037|C0017263|NCIMTH|Genetic Function|
+84831200|C0017296|NCIMTH|Therapeutic or Preventive Procedure|
+84694921|C0017337|NCIMTH|Gene or Genome|
+84817518|C0017339|NCIMTH|Gene or Genome|
+16558081|C0017340|NCIMTH|Gene or Genome|
+84640698|C0017342|NCIMTH|Gene or Genome|
+84708872|C0017345|NCIMTH|Gene or Genome|
+84694922|C0017350|NCIMTH|Gene or Genome|
+84763417|C0017354|NCIMTH|Gene or Genome|
+84654296|C0017359|NCIMTH|Gene or Genome|
+84804078|C0017361|NCIMTH|Gene or Genome|
+84667893|C0017362|NCIMTH|Gene or Genome|
+16558103|C0017363|NCIMTH|Gene or Genome|
+16558105|C0017366|NCIMTH|Gene or Genome|
+16558106|C0017367|NCIMTH|Gene or Genome|
+16558107|C0017368|NCIMTH|Gene or Genome|
+16558109|C0017370|NCIMTH|Gene or Genome|
+84654297|C0017372|NCIMTH|Gene or Genome|
+16558113|C0017374|NCIMTH|Gene or Genome|
+84708873|C0017376|NCIMTH|Gene or Genome|
+84640700|C0017380|NCIMTH|Molecular Sequence|
+16513371|C0017398|NCIMTH|Biomedical Occupation or Discipline|
+104562517|C0017399|NCIMTH|Functional Concept|
+84654298|C0017428|NCIMTH|Gene or Genome|
+84749900|C0017429|NCIMTH|Gene or Genome|
+18503465|C0017430|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84667907|C0017837|NCIMTH|Amino Acid, Peptide, or Protein|
+84831213|C0017837|NCIMTH|Enzyme|
+84722470|C0017922|NCIMTH|Disease or Syndrome|
+84844766|C0018546|NCIMTH|Organic Chemical|
+84817541|C0018546|NCIMTH|Pharmacologic Substance|
+84817558|C0018939|NCIMTH|Disease or Syndrome|
+16505263|C0018981|NCIMTH|Disease or Syndrome|
+80193231|C0019080|NCIMTH|Pathologic Function|
+84831251|C0019247|NCIMTH|Disease or Syndrome|
+16551077|C0019266|NCIMTH|Molecular Function|
+20581519|C0019665|NCIMTH|Intellectual Product|
+84710882|C0021051|NCIMTH|Disease or Syndrome|
+120663646|C0021053|NCIMTH|Disease or Syndrome|
+16614401|C0021200|NCIMTH|Occupational Activity|
+16581213|C0021243|NCIMTH|Organic Chemical|
+16576945|C0021415|NCIMTH|Manufactured Object|
+16617156|C0021415|NCIMTH|Organization|
+21409892|C0021417|NCIMTH|Social Behavior|
+16563256|C0021423|NCIMTH|Occupation or Discipline|
+16614405|C0021425|NCIMTH|Occupational Activity|
+16614406|C0021427|NCIMTH|Occupational Activity|
+21406900|C0021427|NCIMTH|Machine Activity|
+16563257|C0021429|NCIMTH|Occupation or Discipline|
+56530498|C0021632|NCIMTH|Qualitative Concept|
+84817608|C0021920|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84722554|C0021920|NCIMTH|Biologically Active Substance|
+20598023|C0022189|NCIMTH|Laboratory Procedure|
+20593576|C0022189|NCIMTH|Research Activity|
+16581288|C0022212|NCIMTH|Organic Chemical|
+20496759|C0023242|NCIMTH|Regulation or Law|
+84736304|C0023510|NCIMTH|Disease or Syndrome|
+16563266|C0023630|NCIMTH|Occupation or Discipline|
+84654456|C0024518|NCIMTH|Gene or Genome|
+20500376|C0024752|NCIMTH|Functional Concept|
+84844896|C0024813|NCIMTH|Hazardous or Poisonous Substance|
+84668072|C0025402|NCIMTH|Organic Chemical|
+16581507|C0025403|NCIMTH|Organic Chemical|
+84750102|C0025517|NCIMTH|Disease or Syndrome|
+20499289|C0025520|NCIMTH|Functional Concept|
+73499198|C0025521|NCIMTH|Congenital Abnormality|
+84763579|C0025521|NCIMTH|Disease or Syndrome|
+16581528|C0025619|NCIMTH|Organic Chemical|
+84790440|C0025644|NCIMTH|Organic Chemical|
+84722626|C0025644|NCIMTH|Pharmacologic Substance|
+70744105|C0025664|NCIMTH|Functional Concept|
+84668085|C0025876|NCIMTH|Organic Chemical|
+84804253|C0025876|NCIMTH|Pharmacologic Substance|
+84640872|C0025876|NCIMTH|Hormone|
+16524263|C0025876|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+20581544|C0025953|NCIMTH|Intellectual Product|
+84844934|C0026382|NCIMTH|Intellectual Product|
+84722643|C0026499|NCIMTH|Congenital Abnormality|
+21251841|C0026566|NCIMTH|Quantitative Concept|
+84750132|C0026882|NCIMTH|Genetic Function|
+16581676|C0027391|NCIMTH|Organic Chemical|
+16627933|C0027391|NCIMTH|Pharmacologic Substance|
+16514271|C0027672|NCIMTH|Neoplastic Process|
+84722679|C0027934|NCIMTH|Hazardous or Poisonous Substance|
+84709096|C0028040|NCIMTH|Organic Chemical|
+84668122|C0028040|NCIMTH|Pharmacologic Substance|
+84668123|C0028040|NCIMTH|Hazardous or Poisonous Substance|
+16581715|C0028049|NCIMTH|Organic Chemical|
+79984179|C0028049|NCIMTH|Pharmacologic Substance|
+16563108|C0028049|NCIMTH|Vitamin|
+84722683|C0028053|NCIMTH|Organic Chemical|
+84831426|C0028053|NCIMTH|Pharmacologic Substance|
+84804299|C0028609|NCIMTH|Cell Component|
+20980060|C0028678|NCIMTH|Therapeutic or Preventive Procedure|
+84750166|C0029016|NCIMTH|Gene or Genome|
+16557927|C0029073|NCIMTH|Gene or Genome|
+21175930|C0029236|NCIMTH|Occupational Activity|
+16615491|C0029592|NCIMTH|Finding|
+16581892|C0030336|NCIMTH|Organic Chemical|
+16653554|C0030336|NCIMTH|Biologically Active Substance|
+84681776|C0030493|NCIMTH|Organic Chemical|
+84709141|C0030493|NCIMTH|Hazardous or Poisonous Substance|
+20757937|C0030657|NCIMTH|Qualitative Concept|
+16506339|C0031306|NCIMTH|Disease or Syndrome|
+20500379|C0031328|NCIMTH|Functional Concept|
+84736445|C0031408|NCIMTH|Organic Chemical|
+84695182|C0031408|NCIMTH|Pharmacologic Substance|
+122839509|C0031617|NCIMTH|Organic Chemical|
+84681801|C0031617|NCIMTH|Pharmacologic Substance|
+84722750|C0031617|NCIMTH|Biologically Active Substance|
+16518646|C0031797|NCIMTH|Idea or Concept|
+21358166|C0031843|NCIMTH|Physiologic Function|
+50197762|C0031847|NCIMTH|Functional Concept|
+21411757|C0031884|NCIMTH|Organic Chemical|
+50115268|C0031884|NCIMTH|Pharmacologic Substance|
+16582040|C0031885|NCIMTH|Organic Chemical|
+84709172|C0031959|NCIMTH|Organic Chemical|
+84845044|C0032136|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84750234|C0032136|NCIMTH|Biologically Active Substance|
+84817836|C0032197|NCIMTH|Disease or Syndrome|
+20499290|C0032344|NCIMTH|Functional Concept|
+16582143|C0032626|NCIMTH|Organic Chemical|
+16628343|C0032626|NCIMTH|Pharmacologic Substance|
+104634328|C0033107|NCIMTH|Functional Concept|
+16519136|C0033613|NCIMTH|Chemical Viewed Functionally|
+84763743|C0033613|NCIMTH|Pharmacologic Substance|
+84695229|C0033713|NCIMTH|Gene or Genome|
+84777166|C0033799|NCIMTH|Gene or Genome|
+16614466|C0034037|NCIMTH|Occupational Activity|
+16582270|C0034255|NCIMTH|Organic Chemical|
+16582271|C0034256|NCIMTH|Organic Chemical|
+16582274|C0034260|NCIMTH|Organic Chemical|
+84804410|C0034261|NCIMTH|Organic Chemical|
+84695238|C0034261|NCIMTH|Pharmacologic Substance|
+16582291|C0034295|NCIMTH|Organic Chemical|
+16628477|C0034295|NCIMTH|Pharmacologic Substance|
+16582321|C0034425|NCIMTH|Organic Chemical|
+16653708|C0034425|NCIMTH|Biologically Active Substance|
+20584163|C0034526|NCIMTH|Intellectual Product|
+20500381|C0034571|NCIMTH|Functional Concept|
+20581572|C0034607|NCIMTH|Intellectual Product|
+73032136|C0034619|NCIMTH|Therapeutic or Preventive Procedure|
+16557934|C0034678|NCIMTH|Gene or Genome|
+84750293|C0034865|NCIMTH|Genetic Function|
+73034310|C0034987|NCIMTH|Nucleotide Sequence|
+84654647|C0034987|NCIMTH|Biologically Active Substance|
+20499292|C0034992|NCIMTH|Functional Concept|
+84763777|C0035142|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84736547|C0035142|NCIMTH|Biologically Active Substance|
+84695261|C0035696|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84831580|C0035696|NCIMTH|Biologically Active Substance|
+16557937|C0035899|NCIMTH|Gene or Genome|
+21406766|C0036536|NCIMTH|Biologic Function|
+16528021|C0036775|NCIMTH|Amino Acid, Peptide, or Protein|
+16524345|C0036775|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+84722858|C0037088|NCIMTH|Sign or Symptom|
+122867241|C0037506|NCIMTH|Organic Chemical|
+84681919|C0037506|NCIMTH|Pharmacologic Substance|
+84641093|C0037506|NCIMTH|Biomedical or Dental Material|
+20584172|C0038137|NCIMTH|Intellectual Product|
+59680835|C0038209|NCIMTH|Quantitative Concept|
+84736610|C0038734|NCIMTH|Organic Chemical|
+59622317|C0038849|NCIMTH|Idea or Concept|
+79598690|C0038895|NCIMTH|Therapeutic or Preventive Procedure|
+84641139|C0039082|NCIMTH|Disease or Syndrome|
+16614489|C0039152|NCIMTH|Occupational Activity|
+16516297|C0039290|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+16653884|C0039290|NCIMTH|Biologically Active Substance|
+84641146|C0039350|NCIMTH|Amino Acid, Peptide, or Protein|
+84777285|C0039350|NCIMTH|Pharmacologic Substance|
+84709316|C0039350|NCIMTH|Biologically Active Substance|
+16520071|C0039449|NCIMTH|Machine Activity|
+20980161|C0039795|NCIMTH|Therapeutic or Preventive Procedure|
+20499294|C0039798|NCIMTH|Functional Concept|
+16582678|C0039883|NCIMTH|Organic Chemical|
+16524384|C0039883|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+84668375|C0039899|NCIMTH|Organic Chemical|
+16582684|C0039914|NCIMTH|Organic Chemical|
+16582729|C0040382|NCIMTH|Organic Chemical|
+16628912|C0040382|NCIMTH|Pharmacologic Substance|
+74701561|C0040539|NCIMTH|Qualitative Concept|
+20566094|C0040722|NCIMTH|Idea or Concept|
+16505168|C0040733|NCIMTH|Functional Concept|
+50199699|C0040833|NCIMTH|Temporal Concept|
+84831688|C0041098|NCIMTH|Organic Chemical|
+84654764|C0041098|NCIMTH|Pharmacologic Substance|
+84750431|C0041107|NCIMTH|Disease or Syndrome|
+84752087|C0041190|NCIMTH|Organic Chemical|
+84792425|C0041190|NCIMTH|Pharmacologic Substance|
+73499396|C0041190|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+20564661|C0041623|NCIMTH|Idea or Concept|
+20499295|C0042037|NCIMTH|Functional Concept|
+52347830|C0042153|NCIMTH|Functional Concept|
+84831711|C0042333|NCIMTH|Natural Phenomenon or Process|
+20758611|C0042614|NCIMTH|Qualitative Concept|
+84804602|C0042720|NCIMTH|Gene or Genome|
+122879838|C0043950|NCIMTH|Organic Chemical|
+16583449|C0044444|NCIMTH|Organic Chemical|
+16629351|C0044444|NCIMTH|Pharmacologic Substance|
+84641246|C0044602|NCIMTH|Amino Acid, Peptide, or Protein|
+84723004|C0044602|NCIMTH|Enzyme|
+16583673|C0045260|NCIMTH|Organic Chemical|
+16585541|C0048671|NCIMTH|Organic Chemical|
+84695514|C0054951|NCIMTH|Amino Acid, Peptide, or Protein|
+84845381|C0054951|NCIMTH|Immunologic Factor|
+84695513|C0054951|NCIMTH|Receptor|
+16569601|C0065541|NCIMTH|Therapeutic or Preventive Procedure|
+16533121|C0065661|NCIMTH|Amino Acid, Peptide, or Protein|
+16655303|C0065661|NCIMTH|Biologically Active Substance|
+16592504|C0066238|NCIMTH|Organic Chemical|
+16595342|C0072953|NCIMTH|Organic Chemical|
+16637297|C0072953|NCIMTH|Pharmacologic Substance|
+20723801|C0079107|NCIMTH|Classification|
+20757963|C0079164|NCIMTH|Qualitative Concept|
+16557975|C0079419|NCIMTH|Gene or Genome|
+84804991|C0079427|NCIMTH|Gene or Genome|
+16614519|C0079623|NCIMTH|Occupational Activity|
+16520077|C0079623|NCIMTH|Machine Activity|
+16550939|C0079941|NCIMTH|Nucleotide Sequence|
+84655226|C0080024|NCIMTH|Disease or Syndrome|
+16597652|C0080138|NCIMTH|Organic Chemical|
+16639223|C0080138|NCIMTH|Pharmacologic Substance|
+16550941|C0080145|NCIMTH|Nucleotide Sequence|
+16597690|C0080495|NCIMTH|Organic Chemical|
+16597691|C0080500|NCIMTH|Organic Chemical|
+16597789|C0081018|NCIMTH|Organic Chemical|
+16614522|C0085097|NCIMTH|Occupational Activity|
+16558017|C0085114|NCIMTH|Gene or Genome|
+16598528|C0085196|NCIMTH|Organic Chemical|
+16639938|C0085196|NCIMTH|Pharmacologic Substance|
+16558018|C0085218|NCIMTH|Gene or Genome|
+84668803|C0085238|NCIMTH|Gene or Genome|
+84695821|C0085239|NCIMTH|Gene or Genome|
+50019900|C0085567|NCIMTH|Research Activity|
+43092701|C0085567|NCIMTH|Intellectual Product|
+18315980|C0086022|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84764369|C0086344|NCIMTH|Gene or Genome|
+16513283|C0086345|NCIMTH|Biomedical Occupation or Discipline|
+84764371|C0086438|NCIMTH|Disease or Syndrome|
+16517694|C0086860|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+16656454|C0086860|NCIMTH|Biologically Active Substance|
+122843498|C0087006|NCIMTH|Organic Chemical|
+16640143|C0087006|NCIMTH|Pharmacologic Substance|
+16563350|C0087066|NCIMTH|Occupation or Discipline|
+84805047|C0087162|NCIMTH|Organic Chemical|
+84723444|C0087162|NCIMTH|Pharmacologic Substance|
+84764379|C0087162|NCIMTH|Vitamin|
+16599101|C0089511|NCIMTH|Organic Chemical|
+16600073|C0096775|NCIMTH|Organic Chemical|
+84722108|C0108747|NCIMTH|Amino Acid, Peptide, or Protein|
+84763124|C0108747|NCIMTH|Immunologic Factor|
+84803772|C0108747|NCIMTH|Receptor|
+16601688|C0109252|NCIMTH|Organic Chemical|
+18445433|C0122269|NCIMTH|Amino Acid, Peptide, or Protein|
+21414111|C0122269|NCIMTH|Biologically Active Substance|
+16569933|C0128528|NCIMTH|Therapeutic or Preventive Procedure|
+84723483|C0132326|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+84641735|C0132326|NCIMTH|Pharmacologic Substance|
+16605234|C0139706|NCIMTH|Organic Chemical|
+122909189|C0139706|NCIMTH|Biologically Active Substance|
+16605557|C0141313|NCIMTH|Organic Chemical|
+16646177|C0141313|NCIMTH|Pharmacologic Substance|
+16657247|C0141313|NCIMTH|Biologically Active Substance|
+16558038|C0162572|NCIMTH|Gene or Genome|
+16558039|C0162667|NCIMTH|Gene or Genome|
+84655363|C0162728|NCIMTH|Gene or Genome|
+16558043|C0162729|NCIMTH|Gene or Genome|
+18480859|C0162832|NCIMTH|Gene or Genome|
+16607403|C0165279|NCIMTH|Organic Chemical|
+16647782|C0165279|NCIMTH|Pharmacologic Substance|
+16549127|C0175676|NCIMTH|Diagnostic Procedure|
+16511467|C0178237|NCIMTH|Disease or Syndrome|
+16503547|C0178259|NCIMTH|Pathologic Function|
+84751057|C0178657|NCIMTH|Gene or Genome|
+16608392|C0178705|NCIMTH|Organic Chemical|
+16648613|C0178705|NCIMTH|Pharmacologic Substance|
+16657834|C0178705|NCIMTH|Biologically Active Substance|
+16558049|C0178868|NCIMTH|Gene or Genome|
+43668541|C0205159|NCIMTH|Qualitative Concept|
+84696839|C0205466|NCIMTH|Functional Concept|
+20499356|C0205469|NCIMTH|Functional Concept|
+16608485|C0206008|NCIMTH|Organic Chemical|
+16657880|C0206008|NCIMTH|Biologically Active Substance|
+16558051|C0206256|NCIMTH|Gene or Genome|
+16558052|C0206414|NCIMTH|Gene or Genome|
+16558054|C0206522|NCIMTH|Gene or Genome|
+16567969|C0206665|NCIMTH|Research Device|
+16573741|C0208852|NCIMTH|Therapeutic or Preventive Procedure|
+16573742|C0208853|NCIMTH|Therapeutic or Preventive Procedure|
+16609320|C0213585|NCIMTH|Organic Chemical|
+122878355|C0216971|NCIMTH|Organic Chemical|
+84751171|C0216971|NCIMTH|Pharmacologic Substance|
+16544854|C0218504|NCIMTH|Amino Acid, Peptide, or Protein|
+16552790|C0218504|NCIMTH|Immunologic Factor|
+16609890|C0220821|NCIMTH|Organic Chemical|
+16649913|C0220821|NCIMTH|Pharmacologic Substance|
+20499413|C0220922|NCIMTH|Functional Concept|
+16520436|C0220961|NCIMTH|Intellectual Product|
+16520437|C0220965|NCIMTH|Intellectual Product|
+16649921|C0221788|NCIMTH|Pharmacologic Substance|
+43267102|C0231170|NCIMTH|Finding|
+16511987|C0235604|NCIMTH|Disease or Syndrome|
+43267797|C0242354|NCIMTH|Congenital Abnormality|
+84655488|C0242354|NCIMTH|Disease or Syndrome|
+16520478|C0242356|NCIMTH|Intellectual Product|
+18481082|C0242476|NCIMTH|Intellectual Product|
+16523150|C0242481|NCIMTH|Research Activity|
+16650005|C0242702|NCIMTH|Pharmacologic Substance|
+122846511|C0242702|NCIMTH|Biologically Active Substance|
+16558059|C0242957|NCIMTH|Gene or Genome|
+84818742|C0242965|NCIMTH|Gene or Genome|
+16558072|C0243037|NCIMTH|Gene or Genome|
+59681673|C0243192|NCIMTH|Pharmacologic Substance|
+16610805|C0249738|NCIMTH|Organic Chemical|
+84641975|C0270730|NCIMTH|Injury or Poisoning|
+17186075|C0272183|NCIMTH|Disease or Syndrome|
+18011428|C0272186|NCIMTH|Cell or Molecular Dysfunction|
+17186105|C0272229|NCIMTH|Disease or Syndrome|
+17325938|C0282503|NCIMTH|Intellectual Product|
+17279788|C0282523|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18036865|C0282523|NCIMTH|Biologically Active Substance|
+17325940|C0282574|NCIMTH|Intellectual Product|
+17508249|C0282641|NCIMTH|Gene or Genome|
+17797529|C0289949|NCIMTH|Organic Chemical|
+17983610|C0289949|NCIMTH|Pharmacologic Substance|
+17707744|C0295719|NCIMTH|Therapeutic or Preventive Procedure|
+17799419|C0299234|NCIMTH|Organic Chemical|
+17985015|C0299234|NCIMTH|Pharmacologic Substance|
+17799735|C0301224|NCIMTH|Organic Chemical|
+17486173|C0301224|NCIMTH|Hazardous or Poisonous Substance|
+84737509|C0304176|NCIMTH|Amino Acid, Peptide, or Protein|
+84764673|C0304176|NCIMTH|Biologically Active Substance|
+84818835|C0304176|NCIMTH|Hazardous or Poisonous Substance|
+17633297|C0306782|NCIMTH|Clinical Drug|
+17156020|C0314603|NCIMTH|Functional Concept|
+17508227|C0314604|NCIMTH|Gene or Genome|
+17508228|C0314605|NCIMTH|Gene or Genome|
+17508229|C0314606|NCIMTH|Gene or Genome|
+17508230|C0314607|NCIMTH|Gene or Genome|
+17508231|C0314608|NCIMTH|Gene or Genome|
+17508233|C0314610|NCIMTH|Gene or Genome|
+17508235|C0314612|NCIMTH|Gene or Genome|
+63452272|C0314614|NCIMTH|Gene or Genome|
+17508242|C0314620|NCIMTH|Gene or Genome|
+17508243|C0314621|NCIMTH|Gene or Genome|
+17508244|C0314622|NCIMTH|Gene or Genome|
+50204407|C0332157|NCIMTH|Clinical Attribute|
+65341193|C0338297|NCIMTH|Therapeutic or Preventive Procedure|
+21007518|C0338361|NCIMTH|Therapeutic or Preventive Procedure|
+17197321|C0342105|NCIMTH|Disease or Syndrome|
+17307712|C0364349|NCIMTH|Clinical Attribute|
+17325956|C0376554|NCIMTH|Intellectual Product|
+17508253|C0376571|NCIMTH|Gene or Genome|
+17508255|C0376623|NCIMTH|Gene or Genome|
+84642841|C0376637|NCIMTH|Organic Chemical|
+84669909|C0376637|NCIMTH|Pharmacologic Substance|
+17506279|C0380093|NCIMTH|Gene or Genome|
+122954215|C0381030|NCIMTH|Organic Chemical|
+17708014|C0384398|NCIMTH|Therapeutic or Preventive Procedure|
+17708015|C0385502|NCIMTH|Therapeutic or Preventive Procedure|
+17801748|C0385683|NCIMTH|Organic Chemical|
+17987110|C0385683|NCIMTH|Pharmacologic Substance|
+17801749|C0385685|NCIMTH|Organic Chemical|
+17987111|C0385685|NCIMTH|Pharmacologic Substance|
+17708025|C0386586|NCIMTH|Therapeutic or Preventive Procedure|
+17802221|C0387729|NCIMTH|Organic Chemical|
+16520522|C0391807|NCIMTH|Intellectual Product|
+17198569|C0392207|NCIMTH|Disease or Syndrome|
+65330986|C0393009|NCIMTH|Research Activity|
+65341314|C0393025|NCIMTH|Therapeutic or Preventive Procedure|
+20986198|C0393040|NCIMTH|Therapeutic or Preventive Procedure|
+65341327|C0393047|NCIMTH|Therapeutic or Preventive Procedure|
+65341328|C0393048|NCIMTH|Therapeutic or Preventive Procedure|
+65341332|C0393055|NCIMTH|Therapeutic or Preventive Procedure|
+65341333|C0393056|NCIMTH|Therapeutic or Preventive Procedure|
+17191221|C0398572|NCIMTH|Disease or Syndrome|
+17191235|C0398591|NCIMTH|Disease or Syndrome|
+17191260|C0398627|NCIMTH|Disease or Syndrome|
+17181943|C0398686|NCIMTH|Disease or Syndrome|
+17191330|C0398730|NCIMTH|Disease or Syndrome|
+17191332|C0398732|NCIMTH|Disease or Syndrome|
+17191344|C0398748|NCIMTH|Disease or Syndrome|
+17344769|C0402497|NCIMTH|Professional or Occupational Group|
+84791721|C0440471|NCIMTH|Gene or Genome|
+17325683|C0449394|NCIMTH|Intellectual Product|
+17326029|C0456387|NCIMTH|Intellectual Product|
+20456804|C0489477|NCIMTH|Organism Attribute|
+17636773|C0499134|NCIMTH|Clinical Drug|
+17200821|C0522274|NCIMTH|Disease or Syndrome|
+17508260|C0524889|NCIMTH|Gene or Genome|
+17508268|C0525037|NCIMTH|Gene or Genome|
+17803883|C0529636|NCIMTH|Organic Chemical|
+17506537|C0537026|NCIMTH|Gene or Genome|
+17637079|C0543371|NCIMTH|Clinical Drug|
+17637080|C0543372|NCIMTH|Clinical Drug|
+84790205|C0549567|NCIMTH|Disease or Syndrome|
+18086908|C0559758|NCIMTH|Disease or Syndrome|
+18175316|C0569874|NCIMTH|Finding|
+18087713|C0571184|NCIMTH|Disease or Syndrome|
+18161846|C0576798|NCIMTH|Organic Chemical|
+17507483|C0596123|NCIMTH|Gene or Genome|
+17326137|C0596239|NCIMTH|Intellectual Product|
+17326144|C0596463|NCIMTH|Intellectual Product|
+17742799|C0596611|NCIMTH|Genetic Function|
+17508274|C0596707|NCIMTH|Gene or Genome|
+17326152|C0596785|NCIMTH|Intellectual Product|
+17326163|C0597132|NCIMTH|Intellectual Product|
+17486367|C0597147|NCIMTH|Hazardous or Poisonous Substance|
+17807323|C0597330|NCIMTH|Organic Chemical|
+17508275|C0597336|NCIMTH|Gene or Genome|
+17202429|C0597554|NCIMTH|Biomedical Occupation or Discipline|
+17508276|C0598034|NCIMTH|Gene or Genome|
+17280593|C0598279|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+17508279|C0598492|NCIMTH|Gene or Genome|
+17508291|C0599770|NCIMTH|Gene or Genome|
+17653009|C0599807|NCIMTH|Occupation or Discipline|
+17326209|C0599833|NCIMTH|Intellectual Product|
+17410668|C0600251|NCIMTH|Amino Acid, Peptide, or Protein|
+18445876|C0600251|NCIMTH|Immunologic Factor|
+17429042|C0600415|NCIMTH|Nucleotide Sequence|
+17508304|C0600449|NCIMTH|Gene or Genome|
+17280628|C0600455|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18040232|C0600455|NCIMTH|Biologically Active Substance|
+17508305|C0600497|NCIMTH|Gene or Genome|
+17280635|C0600510|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+17351581|C0600510|NCIMTH|Indicator, Reagent, or Diagnostic Aid|
+17812343|C0611467|NCIMTH|Organic Chemical|
+17812882|C0613195|NCIMTH|Organic Chemical|
+17412004|C0613195|NCIMTH|Amino Acid, Peptide, or Protein|
+122837277|C0615231|NCIMTH|Organic Chemical|
+17815476|C0621533|NCIMTH|Organic Chemical|
+17996317|C0621533|NCIMTH|Pharmacologic Substance|
+17815535|C0621704|NCIMTH|Organic Chemical|
+17816845|C0626122|NCIMTH|Organic Chemical|
+17817523|C0628346|NCIMTH|Organic Chemical|
+17817524|C0628348|NCIMTH|Organic Chemical|
+17817626|C0628684|NCIMTH|Organic Chemical|
+17818671|C0632085|NCIMTH|Organic Chemical|
+17818972|C0633123|NCIMTH|Organic Chemical|
+17818973|C0633125|NCIMTH|Organic Chemical|
+17819019|C0633271|NCIMTH|Organic Chemical|
+17820837|C0639186|NCIMTH|Organic Chemical|
+17999671|C0639186|NCIMTH|Pharmacologic Substance|
+17823602|C0648633|NCIMTH|Organic Chemical|
+17709962|C0652008|NCIMTH|Therapeutic or Preventive Procedure|
+17825449|C0655672|NCIMTH|Organic Chemical|
+17825451|C0655676|NCIMTH|Organic Chemical|
+17826294|C0658895|NCIMTH|Organic Chemical|
+17710053|C0669632|NCIMTH|Therapeutic or Preventive Procedure|
+17710074|C0673828|NCIMTH|Therapeutic or Preventive Procedure|
+65341363|C0677749|NCIMTH|Therapeutic or Preventive Procedure|
+84777431|C0678143|NCIMTH|Organic Chemical|
+84790861|C0678143|NCIMTH|Antibiotic|
+17742843|C0678919|NCIMTH|Genetic Function|
+17048394|C0678920|NCIMTH|Organism Attribute|
+17742844|C0678926|NCIMTH|Genetic Function|
+17508308|C0678928|NCIMTH|Gene or Genome|
+17508309|C0678929|NCIMTH|Gene or Genome|
+17508310|C0678933|NCIMTH|Gene or Genome|
+17508311|C0678941|NCIMTH|Gene or Genome|
+17742855|C0678945|NCIMTH|Genetic Function|
+21244834|C0679215|NCIMTH|Natural Phenomenon or Process|
+17326290|C0679216|NCIMTH|Intellectual Product|
+17201468|C0679381|NCIMTH|Disease or Syndrome|
+65318136|C0683313|NCIMTH|Mental Process|
+17910806|C0683314|NCIMTH|Finding|
+17326678|C0683326|NCIMTH|Intellectual Product|
+56568663|C0684336|NCIMTH|Finding|
+17508318|C0694873|NCIMTH|Gene or Genome|
+65334596|C0694887|NCIMTH|Gene or Genome|
+17508325|C0694889|NCIMTH|Gene or Genome|
+17508330|C0694897|NCIMTH|Gene or Genome|
+84683016|C0700119|NCIMTH|Intellectual Product|
+43086017|C0704829|NCIMTH|Clinical Drug|
+17648808|C0713917|NCIMTH|Clinical Drug|
+17649542|C0715252|NCIMTH|Clinical Drug|
+20499963|C0728866|NCIMTH|Functional Concept|
+17752365|C0733873|NCIMTH|Organic Chemical|
+17952433|C0733873|NCIMTH|Pharmacologic Substance|
+17681634|C0756317|NCIMTH|Therapeutic or Preventive Procedure|
+17753107|C0756999|NCIMTH|Organic Chemical|
+17353701|C0756999|NCIMTH|Amino Acid, Peptide, or Protein|
+17754823|C0765514|NCIMTH|Organic Chemical|
+17653421|C0779896|NCIMTH|Drug Delivery Device|
+17529023|C0783263|NCIMTH|Clinical Drug|
+17534113|C0791957|NCIMTH|Clinical Drug|
+17534114|C0791958|NCIMTH|Clinical Drug|
+17536851|C0795505|NCIMTH|Clinical Drug|
+65334597|C0796304|NCIMTH|Gene or Genome|
+17486934|C0796355|NCIMTH|Gene or Genome|
+65334603|C0796371|NCIMTH|Gene or Genome|
+17506311|C0796520|NCIMTH|Gene or Genome|
+17291857|C0804641|NCIMTH|Clinical Attribute|
+17506339|C0812228|NCIMTH|Gene or Genome|
+17487045|C0812246|NCIMTH|Gene or Genome|
+17487064|C0812273|NCIMTH|Gene or Genome|
+65334613|C0812325|NCIMTH|Gene or Genome|
+17487112|C0814035|NCIMTH|Gene or Genome|
+17836307|C0814038|NCIMTH|Molecular Biology Research Technique|
+17324633|C0870733|NCIMTH|Intellectual Product|
+17487121|C0879290|NCIMTH|Gene or Genome|
+17506432|C0879389|NCIMTH|Gene or Genome|
+17487123|C0879390|NCIMTH|Gene or Genome|
+17487124|C0879391|NCIMTH|Gene or Genome|
+17506075|C0879392|NCIMTH|Gene or Genome|
+17505762|C0879393|NCIMTH|Gene or Genome|
+17487127|C0879468|NCIMTH|Gene or Genome|
+65334616|C0879609|NCIMTH|Gene or Genome|
+17278115|C0887856|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18012937|C0887856|NCIMTH|Biologically Active Substance|
+17278118|C0887859|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18012940|C0887859|NCIMTH|Biologically Active Substance|
+17729546|C0887871|NCIMTH|Cell Component|
+17278120|C0887889|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+17682823|C0906409|NCIMTH|Therapeutic or Preventive Procedure|
+17682833|C0909619|NCIMTH|Therapeutic or Preventive Procedure|
+17682855|C0911798|NCIMTH|Therapeutic or Preventive Procedure|
+17960845|C0912225|NCIMTH|Pharmacologic Substance|
+17682860|C0912478|NCIMTH|Therapeutic or Preventive Procedure|
+17324677|C0918012|NCIMTH|Intellectual Product|
+17278425|C0919262|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18014218|C0919262|NCIMTH|Biologically Active Substance|
+65334617|C0919336|NCIMTH|Gene or Genome|
+17487135|C0919427|NCIMTH|Gene or Genome|
+20764093|C0919437|NCIMTH|Gene or Genome|
+18207876|C0919524|NCIMTH|Gene or Genome|
+17487162|C0919528|NCIMTH|Gene or Genome|
+17324678|C0920316|NCIMTH|Intellectual Product|
+65334630|C0935996|NCIMTH|Gene or Genome|
+17487179|C0949635|NCIMTH|Gene or Genome|
+73032834|C0949780|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+17324865|C0950133|NCIMTH|Intellectual Product|
+17541653|C0974670|NCIMTH|Clinical Drug|
+84819428|C0977727|NCIMTH|Drug Delivery Device|
+69643308|C0977728|NCIMTH|Drug Delivery Device|
+84846617|C0977729|NCIMTH|Drug Delivery Device|
+17547451|C0983950|NCIMTH|Clinical Drug|
+17548251|C0987640|NCIMTH|Clinical Drug|
+17329267|C0993159|NCIMTH|Biomedical or Dental Material|
+16520140|C0995203|NCIMTH|Intellectual Product|
+17551590|C1125277|NCIMTH|Clinical Drug|
+17552433|C1126451|NCIMTH|Clinical Drug|
+17555686|C1130657|NCIMTH|Clinical Drug|
+17555687|C1130658|NCIMTH|Clinical Drug|
+17555688|C1130659|NCIMTH|Clinical Drug|
+17487186|C1134446|NCIMTH|Gene or Genome|
+65334632|C1134711|NCIMTH|Gene or Genome|
+17487187|C1135159|NCIMTH|Gene or Genome|
+20767627|C1135166|NCIMTH|Gene or Genome|
+16520177|C1135584|NCIMTH|Intellectual Product|
+17278980|C1135894|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18017704|C1135894|NCIMTH|Biologically Active Substance|
+17278988|C1136185|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18017769|C1136185|NCIMTH|Biologically Active Substance|
+17278989|C1136190|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+18017770|C1136190|NCIMTH|Biologically Active Substance|
+17324909|C1136257|NCIMTH|Intellectual Product|
+16520178|C1136323|NCIMTH|Intellectual Product|
+17487189|C1136365|NCIMTH|Gene or Genome|
+17487190|C1136366|NCIMTH|Gene or Genome|
+16520180|C1137112|NCIMTH|Intellectual Product|
+16520181|C1138628|NCIMTH|Intellectual Product|
+16520182|C1138831|NCIMTH|Intellectual Product|
+16520184|C1140093|NCIMTH|Intellectual Product|
+60868380|C1140097|NCIMTH|Intellectual Product|
+20585863|C1140098|NCIMTH|Intellectual Product|
+20585864|C1140099|NCIMTH|Intellectual Product|
+65330496|C1140100|NCIMTH|Intellectual Product|
+17324923|C1140107|NCIMTH|Intellectual Product|
+59629003|C1140108|NCIMTH|Intellectual Product|
+16520190|C1140145|NCIMTH|Intellectual Product|
+17324927|C1140146|NCIMTH|Intellectual Product|
+16520191|C1140148|NCIMTH|Intellectual Product|
+17324928|C1140152|NCIMTH|Intellectual Product|
+16520192|C1140153|NCIMTH|Intellectual Product|
+16520193|C1140162|NCIMTH|Intellectual Product|
+17324930|C1140163|NCIMTH|Intellectual Product|
+16520483|C1140168|NCIMTH|Intellectual Product|
+59629010|C1140228|NCIMTH|Intellectual Product|
+16520201|C1140233|NCIMTH|Intellectual Product|
+17324935|C1140244|NCIMTH|Intellectual Product|
+18207831|C1140245|NCIMTH|Intellectual Product|
+16520206|C1140284|NCIMTH|Intellectual Product|
+20585901|C1140288|NCIMTH|Intellectual Product|
+17324937|C1140291|NCIMTH|Intellectual Product|
+16520207|C1140292|NCIMTH|Intellectual Product|
+16520208|C1140299|NCIMTH|Intellectual Product|
+17324938|C1140300|NCIMTH|Intellectual Product|
+17202012|C1140694|NCIMTH|Biomedical Occupation or Discipline|
+17566693|C1169827|NCIMTH|Clinical Drug|
+59660490|C1170010|NCIMTH|Organic Chemical|
+59681748|C1170010|NCIMTH|Pharmacologic Substance|
+73035107|C1171258|NCIMTH|Qualitative Concept|
+17487195|C1176140|NCIMTH|Gene or Genome|
+84738049|C1176383|NCIMTH|Organic Chemical|
+84669733|C1176383|NCIMTH|Pharmacologic Substance|
+17324945|C1178804|NCIMTH|Intellectual Product|
+17730467|C1178965|NCIMTH|Cell Component|
+17730471|C1178971|NCIMTH|Cell Component|
+17730587|C1179844|NCIMTH|Cell Component|
+17730599|C1179897|NCIMTH|Cell Component|
+17730617|C1179921|NCIMTH|Cell Component|
+17730619|C1179923|NCIMTH|Cell Component|
+17730742|C1180292|NCIMTH|Cell Component|
+17730774|C1180336|NCIMTH|Cell Component|
+17730777|C1180342|NCIMTH|Cell Component|
+17575786|C1242567|NCIMTH|Clinical Drug|
+17579989|C1246849|NCIMTH|Clinical Drug|
+17579990|C1246850|NCIMTH|Clinical Drug|
+17581723|C1248609|NCIMTH|Clinical Drug|
+17584437|C1251469|NCIMTH|Clinical Drug|
+17586647|C1253866|NCIMTH|Clinical Drug|
+65333186|C1254372|NCIMTH|Classification|
+17325006|C1256739|NCIMTH|Intellectual Product|
+17325008|C1256741|NCIMTH|Intellectual Product|
+17429115|C1256749|NCIMTH|Classification|
+17325012|C1262315|NCIMTH|Intellectual Product|
+18089377|C1264033|NCIMTH|Disease or Syndrome|
+43073566|C1268903|NCIMTH|Pharmacologic Substance|
+18090746|C1285159|NCIMTH|Disease or Syndrome|
+18090768|C1285301|NCIMTH|Disease or Syndrome|
+18090769|C1285302|NCIMTH|Disease or Syndrome|
+18091210|C1290853|NCIMTH|Disease or Syndrome|
+18085096|C1290906|NCIMTH|Functional Concept|
+43085740|C1298907|NCIMTH|Conceptual Entity|
+71602002|C1298908|NCIMTH|Idea or Concept|
+18110866|C1301142|NCIMTH|Intellectual Product|
+109572571|C1305923|NCIMTH|Amino Acid, Peptide, or Protein|
+122879172|C1310941|NCIMTH|Organic Chemical|
+18446076|C1318505|NCIMTH|Disease or Syndrome|
+17447025|C1320237|NCIMTH|Immunologic Factor|
+17654437|C1327690|NCIMTH|Drug Delivery Device|
+65334633|C1327768|NCIMTH|Gene or Genome|
+59643390|C1327771|NCIMTH|Gene or Genome|
+65334634|C1327772|NCIMTH|Gene or Genome|
+65334635|C1327773|NCIMTH|Gene or Genome|
+65334636|C1327780|NCIMTH|Gene or Genome|
+65334637|C1327784|NCIMTH|Gene or Genome|
+17487206|C1328027|NCIMTH|Gene or Genome|
+65334641|C1328030|NCIMTH|Gene or Genome|
+17487207|C1328053|NCIMTH|Gene or Genome|
+17325186|C1328808|NCIMTH|Intellectual Product|
+17790329|C1330402|NCIMTH|Organic Chemical|
+17975547|C1330402|NCIMTH|Pharmacologic Substance|
+65334647|C1332324|NCIMTH|Gene or Genome|
+17487353|C1332678|NCIMTH|Gene or Genome|
+17487462|C1332802|NCIMTH|Gene or Genome|
+65334659|C1332924|NCIMTH|Gene or Genome|
+65334665|C1333135|NCIMTH|Gene or Genome|
+65320991|C1333144|NCIMTH|Disease or Syndrome|
+65334673|C1333196|NCIMTH|Gene or Genome|
+65334675|C1333199|NCIMTH|Gene or Genome|
+65334677|C1333237|NCIMTH|Gene or Genome|
+20537719|C1333305|NCIMTH|Disease or Syndrome|
+65334682|C1333402|NCIMTH|Gene or Genome|
+65334683|C1333403|NCIMTH|Gene or Genome|
+17487710|C1334085|NCIMTH|Gene or Genome|
+17487713|C1334088|NCIMTH|Gene or Genome|
+17487719|C1334094|NCIMTH|Gene or Genome|
+65321023|C1334156|NCIMTH|Disease or Syndrome|
+65334702|C1334163|NCIMTH|Gene or Genome|
+65334703|C1334166|NCIMTH|Gene or Genome|
+65334712|C1334396|NCIMTH|Gene or Genome|
+65334716|C1334545|NCIMTH|Gene or Genome|
+65334719|C1334693|NCIMTH|Gene or Genome|
+65334724|C1334960|NCIMTH|Gene or Genome|
+65334725|C1334981|NCIMTH|Gene or Genome|
+65334734|C1335375|NCIMTH|Gene or Genome|
+65334740|C1335531|NCIMTH|Gene or Genome|
+65334753|C1335755|NCIMTH|Gene or Genome|
+17488087|C1335859|NCIMTH|Gene or Genome|
+20768588|C1335960|NCIMTH|Gene or Genome|
+17488125|C1336578|NCIMTH|Gene or Genome|
+17488153|C1336637|NCIMTH|Gene or Genome|
+17488171|C1336657|NCIMTH|Gene or Genome|
+17507352|C1336679|NCIMTH|Gene or Genome|
+65334776|C1336700|NCIMTH|Gene or Genome|
+65334784|C1336806|NCIMTH|Gene or Genome|
+17488237|C1337112|NCIMTH|Gene or Genome|
+17488255|C1366370|NCIMTH|Gene or Genome|
+17488260|C1366449|NCIMTH|Gene or Genome|
+18127720|C1366500|NCIMTH|Gene or Genome|
+17507520|C1366529|NCIMTH|Gene or Genome|
+17488298|C1366530|NCIMTH|Gene or Genome|
+17506764|C1366649|NCIMTH|Gene or Genome|
+17488334|C1366824|NCIMTH|Gene or Genome|
+17488360|C1367455|NCIMTH|Gene or Genome|
+17488378|C1367578|NCIMTH|Gene or Genome|
+17488389|C1367701|NCIMTH|Gene or Genome|
+17488393|C1367721|NCIMTH|Gene or Genome|
+20764312|C1370600|NCIMTH|Gene or Genome|
+16520250|C1371271|NCIMTH|Intellectual Product|
+17679508|C1372554|NCIMTH|Organ or Tissue Function|
+17926179|C1373233|NCIMTH|Natural Phenomenon or Process|
+17488483|C1412108|NCIMTH|Gene or Genome|
+17488553|C1412178|NCIMTH|Gene or Genome|
+17488608|C1412233|NCIMTH|Gene or Genome|
+17488639|C1412264|NCIMTH|Gene or Genome|
+17488640|C1412265|NCIMTH|Gene or Genome|
+17488645|C1412270|NCIMTH|Gene or Genome|
+17488646|C1412271|NCIMTH|Gene or Genome|
+17488665|C1412290|NCIMTH|Gene or Genome|
+17488672|C1412297|NCIMTH|Gene or Genome|
+17488862|C1412487|NCIMTH|Gene or Genome|
+17489231|C1412856|NCIMTH|Gene or Genome|
+17489490|C1413115|NCIMTH|Gene or Genome|
+17489565|C1413190|NCIMTH|Gene or Genome|
+17489917|C1413542|NCIMTH|Gene or Genome|
+17489922|C1413547|NCIMTH|Gene or Genome|
+18275490|C1413882|NCIMTH|Gene or Genome|
+17490398|C1414023|NCIMTH|Gene or Genome|
+17490438|C1414063|NCIMTH|Gene or Genome|
+17490444|C1414069|NCIMTH|Gene or Genome|
+17490460|C1414085|NCIMTH|Gene or Genome|
+17490531|C1414156|NCIMTH|Gene or Genome|
+17490533|C1414158|NCIMTH|Gene or Genome|
+17490592|C1414217|NCIMTH|Gene or Genome|
+17490597|C1414222|NCIMTH|Gene or Genome|
+17490648|C1414273|NCIMTH|Gene or Genome|
+17490671|C1414296|NCIMTH|Gene or Genome|
+16558062|C1414313|NCIMTH|Gene or Genome|
+17490701|C1414326|NCIMTH|Gene or Genome|
+17490762|C1414387|NCIMTH|Gene or Genome|
+17490767|C1414392|NCIMTH|Gene or Genome|
+17490770|C1414395|NCIMTH|Gene or Genome|
+17490771|C1414396|NCIMTH|Gene or Genome|
+17490773|C1414398|NCIMTH|Gene or Genome|
+17490782|C1414407|NCIMTH|Gene or Genome|
+17490785|C1414410|NCIMTH|Gene or Genome|
+17490787|C1414412|NCIMTH|Gene or Genome|
+17490788|C1414413|NCIMTH|Gene or Genome|
+17490790|C1414415|NCIMTH|Gene or Genome|
+17490792|C1414417|NCIMTH|Gene or Genome|
+17490808|C1414433|NCIMTH|Gene or Genome|
+17490814|C1414439|NCIMTH|Gene or Genome|
+17490816|C1414441|NCIMTH|Gene or Genome|
+17490817|C1414442|NCIMTH|Gene or Genome|
+17490820|C1414445|NCIMTH|Gene or Genome|
+17490832|C1414457|NCIMTH|Gene or Genome|
+17490833|C1414458|NCIMTH|Gene or Genome|
+60869423|C1414461|NCIMTH|Gene or Genome|
+17490846|C1414471|NCIMTH|Gene or Genome|
+43120033|C1414472|NCIMTH|Gene or Genome|
+17490851|C1414476|NCIMTH|Gene or Genome|
+17490853|C1414478|NCIMTH|Gene or Genome|
+17490863|C1414488|NCIMTH|Gene or Genome|
+17490869|C1414494|NCIMTH|Gene or Genome|
+17490892|C1414517|NCIMTH|Gene or Genome|
+43117311|C1414525|NCIMTH|Gene or Genome|
+17490909|C1414534|NCIMTH|Gene or Genome|
+17490921|C1414546|NCIMTH|Gene or Genome|
+17490922|C1414547|NCIMTH|Gene or Genome|
+17490923|C1414548|NCIMTH|Gene or Genome|
+17490924|C1414549|NCIMTH|Gene or Genome|
+17490925|C1414550|NCIMTH|Gene or Genome|
+17490926|C1414551|NCIMTH|Gene or Genome|
+17490927|C1414552|NCIMTH|Gene or Genome|
+17490932|C1414557|NCIMTH|Gene or Genome|
+17490935|C1414560|NCIMTH|Gene or Genome|
+17490938|C1414563|NCIMTH|Gene or Genome|
+17490939|C1414564|NCIMTH|Gene or Genome|
+17490950|C1414575|NCIMTH|Gene or Genome|
+17490951|C1414576|NCIMTH|Gene or Genome|
+17490952|C1414577|NCIMTH|Gene or Genome|
+17490954|C1414579|NCIMTH|Gene or Genome|
+17490967|C1414592|NCIMTH|Gene or Genome|
+17490968|C1414593|NCIMTH|Gene or Genome|
+17490982|C1414607|NCIMTH|Gene or Genome|
+17490993|C1414618|NCIMTH|Gene or Genome|
+17490994|C1414619|NCIMTH|Gene or Genome|
+17490999|C1414624|NCIMTH|Gene or Genome|
+17491006|C1414631|NCIMTH|Gene or Genome|
+43117561|C1414668|NCIMTH|Gene or Genome|
+17491068|C1414693|NCIMTH|Gene or Genome|
+17491076|C1414701|NCIMTH|Gene or Genome|
+17491096|C1414721|NCIMTH|Gene or Genome|
+17491111|C1414736|NCIMTH|Gene or Genome|
+17491128|C1414753|NCIMTH|Gene or Genome|
+17491136|C1414761|NCIMTH|Gene or Genome|
+17491187|C1414812|NCIMTH|Gene or Genome|
+17491236|C1414861|NCIMTH|Gene or Genome|
+17491279|C1414904|NCIMTH|Gene or Genome|
+17491283|C1414908|NCIMTH|Gene or Genome|
+17491324|C1414949|NCIMTH|Gene or Genome|
+17491418|C1415043|NCIMTH|Gene or Genome|
+17491441|C1415066|NCIMTH|Gene or Genome|
+17491442|C1415067|NCIMTH|Gene or Genome|
+17491459|C1415084|NCIMTH|Gene or Genome|
+17491659|C1415284|NCIMTH|Gene or Genome|
+17491697|C1415322|NCIMTH|Gene or Genome|
+17491698|C1415323|NCIMTH|Gene or Genome|
+17491728|C1415353|NCIMTH|Gene or Genome|
+17491767|C1415392|NCIMTH|Gene or Genome|
+17491768|C1415393|NCIMTH|Gene or Genome|
+17491769|C1415394|NCIMTH|Gene or Genome|
+17491770|C1415395|NCIMTH|Gene or Genome|
+17491771|C1415396|NCIMTH|Gene or Genome|
+17491772|C1415397|NCIMTH|Gene or Genome|
+17491773|C1415398|NCIMTH|Gene or Genome|
+17491774|C1415399|NCIMTH|Gene or Genome|
+17491775|C1415400|NCIMTH|Gene or Genome|
+17491776|C1415401|NCIMTH|Gene or Genome|
+17491777|C1415402|NCIMTH|Gene or Genome|
+17491779|C1415404|NCIMTH|Gene or Genome|
+17491780|C1415405|NCIMTH|Gene or Genome|
+17491785|C1415410|NCIMTH|Gene or Genome|
+17491786|C1415411|NCIMTH|Gene or Genome|
+17491788|C1415413|NCIMTH|Gene or Genome|
+17491789|C1415414|NCIMTH|Gene or Genome|
+17491790|C1415415|NCIMTH|Gene or Genome|
+17491791|C1415416|NCIMTH|Gene or Genome|
+17491792|C1415417|NCIMTH|Gene or Genome|
+17491793|C1415418|NCIMTH|Gene or Genome|
+17491794|C1415419|NCIMTH|Gene or Genome|
+17491795|C1415420|NCIMTH|Gene or Genome|
+17491796|C1415421|NCIMTH|Gene or Genome|
+17491797|C1415422|NCIMTH|Gene or Genome|
+17491801|C1415426|NCIMTH|Gene or Genome|
+17491835|C1415460|NCIMTH|Gene or Genome|
+17491866|C1415491|NCIMTH|Gene or Genome|
+17491871|C1415496|NCIMTH|Gene or Genome|
+17491912|C1415537|NCIMTH|Gene or Genome|
+17492072|C1415697|NCIMTH|Gene or Genome|
+17492170|C1415795|NCIMTH|Gene or Genome|
+17492172|C1415797|NCIMTH|Gene or Genome|
+17492179|C1415804|NCIMTH|Gene or Genome|
+126321856|C1415817|NCIMTH|Disease or Syndrome|
+17492207|C1415832|NCIMTH|Gene or Genome|
+17492209|C1415834|NCIMTH|Gene or Genome|
+17492227|C1415852|NCIMTH|Gene or Genome|
+17492351|C1415976|NCIMTH|Gene or Genome|
+17492352|C1415977|NCIMTH|Gene or Genome|
+17492536|C1416161|NCIMTH|Gene or Genome|
+17492538|C1416163|NCIMTH|Gene or Genome|
+17492671|C1416296|NCIMTH|Gene or Genome|
+17492672|C1416297|NCIMTH|Gene or Genome|
+17492751|C1416376|NCIMTH|Gene or Genome|
+17492765|C1416390|NCIMTH|Gene or Genome|
+17492809|C1416434|NCIMTH|Gene or Genome|
+17492810|C1416435|NCIMTH|Gene or Genome|
+17492866|C1416491|NCIMTH|Gene or Genome|
+17492890|C1416515|NCIMTH|Gene or Genome|
+17492897|C1416522|NCIMTH|Gene or Genome|
+17492902|C1416527|NCIMTH|Gene or Genome|
+17492905|C1416530|NCIMTH|Gene or Genome|
+17493015|C1416641|NCIMTH|Gene or Genome|
+17493029|C1416655|NCIMTH|Gene or Genome|
+17493063|C1416689|NCIMTH|Gene or Genome|
+17493319|C1416945|NCIMTH|Gene or Genome|
+17493327|C1416953|NCIMTH|Gene or Genome|
+17493363|C1416989|NCIMTH|Gene or Genome|
+17493364|C1416990|NCIMTH|Gene or Genome|
+17493479|C1417105|NCIMTH|Gene or Genome|
+17493495|C1417121|NCIMTH|Gene or Genome|
+17493522|C1417148|NCIMTH|Gene or Genome|
+17493529|C1417155|NCIMTH|Gene or Genome|
+17493534|C1417160|NCIMTH|Gene or Genome|
+17493572|C1417198|NCIMTH|Gene or Genome|
+17493609|C1417235|NCIMTH|Gene or Genome|
+17493611|C1417237|NCIMTH|Gene or Genome|
+17493699|C1417325|NCIMTH|Gene or Genome|
+17493703|C1417329|NCIMTH|Gene or Genome|
+17493706|C1417332|NCIMTH|Gene or Genome|
+17493778|C1417404|NCIMTH|Gene or Genome|
+17493784|C1417410|NCIMTH|Gene or Genome|
+17493798|C1417424|NCIMTH|Gene or Genome|
+17493799|C1417425|NCIMTH|Gene or Genome|
+17493807|C1417433|NCIMTH|Gene or Genome|
+17493824|C1417450|NCIMTH|Gene or Genome|
+17493825|C1417451|NCIMTH|Gene or Genome|
+17493831|C1417457|NCIMTH|Gene or Genome|
+17494092|C1417718|NCIMTH|Gene or Genome|
+17494108|C1417734|NCIMTH|Gene or Genome|
+17494113|C1417739|NCIMTH|Gene or Genome|
+17494123|C1417749|NCIMTH|Gene or Genome|
+17494218|C1417845|NCIMTH|Gene or Genome|
+17494290|C1417917|NCIMTH|Gene or Genome|
+17494611|C1418238|NCIMTH|Gene or Genome|
+17494612|C1418239|NCIMTH|Gene or Genome|
+17494668|C1418295|NCIMTH|Gene or Genome|
+17494676|C1418303|NCIMTH|Gene or Genome|
+17494677|C1418304|NCIMTH|Gene or Genome|
+17495084|C1418711|NCIMTH|Gene or Genome|
+17495085|C1418712|NCIMTH|Gene or Genome|
+17495124|C1418751|NCIMTH|Gene or Genome|
+17495191|C1418818|NCIMTH|Gene or Genome|
+17495237|C1418864|NCIMTH|Gene or Genome|
+17495261|C1418888|NCIMTH|Gene or Genome|
+17495324|C1418951|NCIMTH|Gene or Genome|
+17495336|C1418963|NCIMTH|Gene or Genome|
+17495337|C1418964|NCIMTH|Gene or Genome|
+17495434|C1419061|NCIMTH|Gene or Genome|
+17495452|C1419079|NCIMTH|Gene or Genome|
+17495460|C1419087|NCIMTH|Gene or Genome|
+17495555|C1419182|NCIMTH|Gene or Genome|
+17495582|C1419209|NCIMTH|Gene or Genome|
+17495644|C1419271|NCIMTH|Gene or Genome|
+17495697|C1419324|NCIMTH|Gene or Genome|
+17495759|C1419386|NCIMTH|Gene or Genome|
+17495768|C1419395|NCIMTH|Gene or Genome|
+17495801|C1419428|NCIMTH|Gene or Genome|
+17496109|C1419736|NCIMTH|Gene or Genome|
+17496128|C1419755|NCIMTH|Gene or Genome|
+17496140|C1419767|NCIMTH|Gene or Genome|
+17496165|C1419792|NCIMTH|Gene or Genome|
+17496198|C1419825|NCIMTH|Gene or Genome|
+17496255|C1419882|NCIMTH|Gene or Genome|
+17496256|C1419883|NCIMTH|Gene or Genome|
+17496257|C1419884|NCIMTH|Gene or Genome|
+17496258|C1419885|NCIMTH|Gene or Genome|
+17496259|C1419886|NCIMTH|Gene or Genome|
+17496260|C1419887|NCIMTH|Gene or Genome|
+17496261|C1419888|NCIMTH|Gene or Genome|
+17496262|C1419889|NCIMTH|Gene or Genome|
+17496292|C1419919|NCIMTH|Gene or Genome|
+17496299|C1419926|NCIMTH|Gene or Genome|
+17496312|C1419939|NCIMTH|Gene or Genome|
+17496320|C1419947|NCIMTH|Gene or Genome|
+17496335|C1419962|NCIMTH|Gene or Genome|
+17496364|C1419991|NCIMTH|Gene or Genome|
+17496376|C1420003|NCIMTH|Gene or Genome|
+17496438|C1420065|NCIMTH|Gene or Genome|
+17496465|C1420092|NCIMTH|Gene or Genome|
+17496619|C1420246|NCIMTH|Gene or Genome|
+17496658|C1420285|NCIMTH|Gene or Genome|
+17496659|C1420286|NCIMTH|Gene or Genome|
+17496715|C1420342|NCIMTH|Gene or Genome|
+17496772|C1420399|NCIMTH|Gene or Genome|
+17496816|C1420443|NCIMTH|Gene or Genome|
+17496825|C1420452|NCIMTH|Gene or Genome|
+17496959|C1420586|NCIMTH|Gene or Genome|
+17496961|C1420588|NCIMTH|Gene or Genome|
+17496968|C1420595|NCIMTH|Gene or Genome|
+17496970|C1420597|NCIMTH|Gene or Genome|
+17496975|C1420602|NCIMTH|Gene or Genome|
+17497013|C1420640|NCIMTH|Gene or Genome|
+17497014|C1420641|NCIMTH|Gene or Genome|
+17497040|C1420667|NCIMTH|Gene or Genome|
+17497050|C1420677|NCIMTH|Gene or Genome|
+17497063|C1420690|NCIMTH|Gene or Genome|
+17497092|C1420719|NCIMTH|Gene or Genome|
+17497110|C1420737|NCIMTH|Gene or Genome|
+17497122|C1420749|NCIMTH|Gene or Genome|
+17497127|C1420754|NCIMTH|Gene or Genome|
+17497142|C1420769|NCIMTH|Gene or Genome|
+17497148|C1420775|NCIMTH|Gene or Genome|
+17497259|C1420886|NCIMTH|Gene or Genome|
+17497518|C1421145|NCIMTH|Gene or Genome|
+17497707|C1421334|NCIMTH|Gene or Genome|
+17497720|C1421347|NCIMTH|Gene or Genome|
+17497744|C1421371|NCIMTH|Gene or Genome|
+17497802|C1421429|NCIMTH|Gene or Genome|
+17497803|C1421430|NCIMTH|Gene or Genome|
+17497804|C1421431|NCIMTH|Gene or Genome|
+17497805|C1421432|NCIMTH|Gene or Genome|
+17497818|C1421445|NCIMTH|Gene or Genome|
+17497826|C1421453|NCIMTH|Gene or Genome|
+17497827|C1421454|NCIMTH|Gene or Genome|
+17497844|C1421471|NCIMTH|Gene or Genome|
+17497989|C1421616|NCIMTH|Gene or Genome|
+17498295|C1421922|NCIMTH|Gene or Genome|
+17498296|C1421923|NCIMTH|Gene or Genome|
+17498409|C1422036|NCIMTH|Gene or Genome|
+17498411|C1422038|NCIMTH|Gene or Genome|
+17498412|C1422039|NCIMTH|Gene or Genome|
+17498417|C1422044|NCIMTH|Gene or Genome|
+17498418|C1422045|NCIMTH|Gene or Genome|
+17498419|C1422046|NCIMTH|Gene or Genome|
+17498448|C1422075|NCIMTH|Gene or Genome|
+17498501|C1422128|NCIMTH|Gene or Genome|
+17498511|C1422138|NCIMTH|Gene or Genome|
+17498554|C1422181|NCIMTH|Gene or Genome|
+17498671|C1422298|NCIMTH|Gene or Genome|
+17498713|C1422340|NCIMTH|Gene or Genome|
+17498731|C1422358|NCIMTH|Gene or Genome|
+17498761|C1422388|NCIMTH|Gene or Genome|
+17498770|C1422397|NCIMTH|Gene or Genome|
+17498775|C1422402|NCIMTH|Gene or Genome|
+17498782|C1422409|NCIMTH|Gene or Genome|
+17498787|C1422414|NCIMTH|Gene or Genome|
+17498791|C1422418|NCIMTH|Gene or Genome|
+17498792|C1422419|NCIMTH|Gene or Genome|
+17498793|C1422420|NCIMTH|Gene or Genome|
+17498799|C1422426|NCIMTH|Gene or Genome|
+17498800|C1422427|NCIMTH|Gene or Genome|
+17498801|C1422428|NCIMTH|Gene or Genome|
+17498808|C1422435|NCIMTH|Gene or Genome|
+17498809|C1422436|NCIMTH|Gene or Genome|
+17498819|C1422446|NCIMTH|Gene or Genome|
+17498825|C1422452|NCIMTH|Gene or Genome|
+17498836|C1422463|NCIMTH|Gene or Genome|
+17498839|C1422466|NCIMTH|Gene or Genome|
+17498860|C1422487|NCIMTH|Gene or Genome|
+17498872|C1422499|NCIMTH|Gene or Genome|
+17498881|C1422508|NCIMTH|Gene or Genome|
+17498887|C1422514|NCIMTH|Gene or Genome|
+17498891|C1422518|NCIMTH|Gene or Genome|
+17498900|C1422527|NCIMTH|Gene or Genome|
+17498906|C1422533|NCIMTH|Gene or Genome|
+17498918|C1422545|NCIMTH|Gene or Genome|
+17498922|C1422549|NCIMTH|Gene or Genome|
+17498925|C1422552|NCIMTH|Gene or Genome|
+17498927|C1422554|NCIMTH|Gene or Genome|
+17498937|C1422564|NCIMTH|Gene or Genome|
+17498938|C1422565|NCIMTH|Gene or Genome|
+17498939|C1422566|NCIMTH|Gene or Genome|
+17498940|C1422567|NCIMTH|Gene or Genome|
+17498941|C1422568|NCIMTH|Gene or Genome|
+17498943|C1422570|NCIMTH|Gene or Genome|
+17498947|C1422574|NCIMTH|Gene or Genome|
+17498948|C1422575|NCIMTH|Gene or Genome|
+17498949|C1422576|NCIMTH|Gene or Genome|
+17498952|C1422579|NCIMTH|Gene or Genome|
+17498953|C1422580|NCIMTH|Gene or Genome|
+17498954|C1422581|NCIMTH|Gene or Genome|
+17498955|C1422582|NCIMTH|Gene or Genome|
+17498960|C1422587|NCIMTH|Gene or Genome|
+17498969|C1422596|NCIMTH|Gene or Genome|
+17498993|C1422620|NCIMTH|Gene or Genome|
+17499007|C1422634|NCIMTH|Gene or Genome|
+17499009|C1422636|NCIMTH|Gene or Genome|
+17499019|C1422646|NCIMTH|Gene or Genome|
+17499035|C1422662|NCIMTH|Gene or Genome|
+17499395|C1423022|NCIMTH|Gene or Genome|
+17499434|C1423061|NCIMTH|Gene or Genome|
+17499976|C1423603|NCIMTH|Gene or Genome|
+17499987|C1423614|NCIMTH|Gene or Genome|
+17500018|C1423645|NCIMTH|Gene or Genome|
+17500112|C1423739|NCIMTH|Gene or Genome|
+17500124|C1423751|NCIMTH|Gene or Genome|
+17500156|C1423783|NCIMTH|Gene or Genome|
+17500309|C1423936|NCIMTH|Gene or Genome|
+17500323|C1423950|NCIMTH|Gene or Genome|
+17500328|C1423955|NCIMTH|Gene or Genome|
+17500405|C1424032|NCIMTH|Gene or Genome|
+17500407|C1424034|NCIMTH|Gene or Genome|
+17500487|C1424114|NCIMTH|Gene or Genome|
+17500490|C1424117|NCIMTH|Gene or Genome|
+17500500|C1424127|NCIMTH|Gene or Genome|
+17500503|C1424130|NCIMTH|Gene or Genome|
+17500504|C1424131|NCIMTH|Gene or Genome|
+17500516|C1424143|NCIMTH|Gene or Genome|
+17500713|C1424340|NCIMTH|Gene or Genome|
+17501195|C1424822|NCIMTH|Gene or Genome|
+17501289|C1424916|NCIMTH|Gene or Genome|
+17501331|C1424958|NCIMTH|Gene or Genome|
+17501332|C1424959|NCIMTH|Gene or Genome|
+17501342|C1424969|NCIMTH|Gene or Genome|
+17501350|C1424977|NCIMTH|Gene or Genome|
+17501352|C1424979|NCIMTH|Gene or Genome|
+17501369|C1424996|NCIMTH|Gene or Genome|
+17501370|C1424997|NCIMTH|Gene or Genome|
+17501377|C1425004|NCIMTH|Gene or Genome|
+17501408|C1425035|NCIMTH|Gene or Genome|
+17501411|C1425038|NCIMTH|Gene or Genome|
+17501477|C1425105|NCIMTH|Gene or Genome|
+17501480|C1425108|NCIMTH|Gene or Genome|
+17501562|C1425190|NCIMTH|Gene or Genome|
+17501569|C1425197|NCIMTH|Gene or Genome|
+17501575|C1425203|NCIMTH|Gene or Genome|
+17501593|C1425221|NCIMTH|Gene or Genome|
+17501603|C1425231|NCIMTH|Gene or Genome|
+17501618|C1425246|NCIMTH|Gene or Genome|
+17501656|C1425284|NCIMTH|Gene or Genome|
+17501761|C1425389|NCIMTH|Gene or Genome|
+17501804|C1425432|NCIMTH|Gene or Genome|
+17501973|C1425601|NCIMTH|Gene or Genome|
+17501983|C1425611|NCIMTH|Gene or Genome|
+17501993|C1425621|NCIMTH|Gene or Genome|
+17502007|C1425635|NCIMTH|Gene or Genome|
+17502029|C1425657|NCIMTH|Gene or Genome|
+17502036|C1425664|NCIMTH|Gene or Genome|
+17502104|C1425732|NCIMTH|Gene or Genome|
+17502347|C1425975|NCIMTH|Gene or Genome|
+17502372|C1426000|NCIMTH|Gene or Genome|
+17502419|C1426047|NCIMTH|Gene or Genome|
+17502447|C1426075|NCIMTH|Gene or Genome|
+17502499|C1426127|NCIMTH|Gene or Genome|
+17502545|C1426173|NCIMTH|Gene or Genome|
+17502834|C1426462|NCIMTH|Gene or Genome|
+17502858|C1426486|NCIMTH|Gene or Genome|
+17502863|C1426491|NCIMTH|Gene or Genome|
+17502881|C1426509|NCIMTH|Gene or Genome|
+17502900|C1426528|NCIMTH|Gene or Genome|
+17502924|C1426552|NCIMTH|Gene or Genome|
+17502964|C1426592|NCIMTH|Gene or Genome|
+17503104|C1426732|NCIMTH|Gene or Genome|
+17503120|C1426748|NCIMTH|Gene or Genome|
+17503121|C1426749|NCIMTH|Gene or Genome|
+17503213|C1426841|NCIMTH|Gene or Genome|
+17503226|C1426854|NCIMTH|Gene or Genome|
+17503227|C1426855|NCIMTH|Gene or Genome|
+17503231|C1426859|NCIMTH|Gene or Genome|
+17503232|C1426860|NCIMTH|Gene or Genome|
+17503286|C1426914|NCIMTH|Gene or Genome|
+17503460|C1427088|NCIMTH|Gene or Genome|
+17503490|C1427118|NCIMTH|Gene or Genome|
+17503548|C1427176|NCIMTH|Gene or Genome|
+17503603|C1427231|NCIMTH|Gene or Genome|
+17503609|C1427237|NCIMTH|Gene or Genome|
+17503620|C1427248|NCIMTH|Gene or Genome|
+17503629|C1427257|NCIMTH|Gene or Genome|
+17503631|C1427259|NCIMTH|Gene or Genome|
+17503645|C1427273|NCIMTH|Gene or Genome|
+17503655|C1427283|NCIMTH|Gene or Genome|
+17503665|C1427293|NCIMTH|Gene or Genome|
+17503669|C1427297|NCIMTH|Gene or Genome|
+17503754|C1427382|NCIMTH|Gene or Genome|
+17503755|C1427383|NCIMTH|Gene or Genome|
+17503756|C1427384|NCIMTH|Gene or Genome|
+17503764|C1427392|NCIMTH|Gene or Genome|
+17503776|C1427404|NCIMTH|Gene or Genome|
+17503792|C1427420|NCIMTH|Gene or Genome|
+17503816|C1427444|NCIMTH|Gene or Genome|
+17503853|C1427481|NCIMTH|Gene or Genome|
+17503880|C1427508|NCIMTH|Gene or Genome|
+17503903|C1427531|NCIMTH|Gene or Genome|
+17503910|C1427538|NCIMTH|Gene or Genome|
+17503938|C1427566|NCIMTH|Gene or Genome|
+17503942|C1427570|NCIMTH|Gene or Genome|
+17503945|C1427573|NCIMTH|Gene or Genome|
+17503946|C1427574|NCIMTH|Gene or Genome|
+17503948|C1427576|NCIMTH|Gene or Genome|
+17503949|C1427577|NCIMTH|Gene or Genome|
+17503968|C1427596|NCIMTH|Gene or Genome|
+17503998|C1427626|NCIMTH|Gene or Genome|
+17503999|C1427627|NCIMTH|Gene or Genome|
+17504014|C1427642|NCIMTH|Gene or Genome|
+17504017|C1427645|NCIMTH|Gene or Genome|
+17504037|C1427665|NCIMTH|Gene or Genome|
+17504069|C1427697|NCIMTH|Gene or Genome|
+17504114|C1427742|NCIMTH|Gene or Genome|
+17504128|C1427756|NCIMTH|Gene or Genome|
+17504176|C1427804|NCIMTH|Gene or Genome|
+17504177|C1427805|NCIMTH|Gene or Genome|
+17504179|C1427807|NCIMTH|Gene or Genome|
+17504180|C1427808|NCIMTH|Gene or Genome|
+17504223|C1427851|NCIMTH|Gene or Genome|
+17504240|C1427868|NCIMTH|Gene or Genome|
+17504268|C1427896|NCIMTH|Gene or Genome|
+17504311|C1427939|NCIMTH|Gene or Genome|
+17504368|C1427996|NCIMTH|Gene or Genome|
+17504596|C1428224|NCIMTH|Gene or Genome|
+17504639|C1428267|NCIMTH|Gene or Genome|
+17504653|C1428281|NCIMTH|Gene or Genome|
+17504942|C1428570|NCIMTH|Gene or Genome|
+17504951|C1428579|NCIMTH|Gene or Genome|
+17505050|C1428678|NCIMTH|Gene or Genome|
+17505327|C1428955|NCIMTH|Gene or Genome|
+17505331|C1428959|NCIMTH|Gene or Genome|
+17505383|C1429011|NCIMTH|Gene or Genome|
+17505384|C1429012|NCIMTH|Gene or Genome|
+17505386|C1429014|NCIMTH|Gene or Genome|
+17505387|C1429015|NCIMTH|Gene or Genome|
+17505391|C1429019|NCIMTH|Gene or Genome|
+17505393|C1429021|NCIMTH|Gene or Genome|
+17505409|C1429037|NCIMTH|Gene or Genome|
+17505412|C1429040|NCIMTH|Gene or Genome|
+17505420|C1429048|NCIMTH|Gene or Genome|
+17505424|C1429052|NCIMTH|Gene or Genome|
+17505426|C1429054|NCIMTH|Gene or Genome|
+17505427|C1429055|NCIMTH|Gene or Genome|
+17505429|C1429057|NCIMTH|Gene or Genome|
+17505430|C1429058|NCIMTH|Gene or Genome|
+17505432|C1429060|NCIMTH|Gene or Genome|
+17505449|C1429077|NCIMTH|Gene or Genome|
+17505452|C1429080|NCIMTH|Gene or Genome|
+17505453|C1429081|NCIMTH|Gene or Genome|
+17505514|C1429142|NCIMTH|Gene or Genome|
+17505515|C1429143|NCIMTH|Gene or Genome|
+17505523|C1429151|NCIMTH|Gene or Genome|
+17505527|C1429155|NCIMTH|Gene or Genome|
+17505531|C1429159|NCIMTH|Gene or Genome|
+17505532|C1429160|NCIMTH|Gene or Genome|
+17505547|C1429175|NCIMTH|Gene or Genome|
+17505556|C1429184|NCIMTH|Gene or Genome|
+17505558|C1429186|NCIMTH|Gene or Genome|
+17505563|C1429191|NCIMTH|Gene or Genome|
+17505575|C1429203|NCIMTH|Gene or Genome|
+17505580|C1429208|NCIMTH|Gene or Genome|
+84738091|C1436328|NCIMTH|Organic Chemical|
+84724364|C1436328|NCIMTH|Pharmacologic Substance|
+17505583|C1439272|NCIMTH|Gene or Genome|
+20764394|C1444140|NCIMTH|Gene or Genome|
+20764395|C1445865|NCIMTH|Gene or Genome|
+18315114|C1448473|NCIMTH|Mental Process|
+122822582|C1450373|NCIMTH|Organic Chemical|
+16520289|C1456590|NCIMTH|Intellectual Product|
+79766205|C1457898|NCIMTH|Physiologic Function|
+20972184|C1510467|NCIMTH|Injury or Poisoning|
+65342693|C1511713|NCIMTH|Therapeutic or Preventive Procedure|
+65349554|C1511887|NCIMTH|Sign or Symptom|
+65350183|C1511989|NCIMTH|Conceptual Entity|
+60970355|C1512759|NCIMTH|Intellectual Product|
+65333222|C1513819|NCIMTH|Classification|
+20496674|C1513882|NCIMTH|Health Care Related Organization|
+65350280|C1514495|NCIMTH|Conceptual Entity|
+65333236|C1515976|NCIMTH|Classification|
+65330578|C1516645|NCIMTH|Intellectual Product|
+65330579|C1516646|NCIMTH|Intellectual Product|
+20586000|C1516728|NCIMTH|Intellectual Product|
+65333246|C1517008|NCIMTH|Classification|
+65333247|C1517009|NCIMTH|Classification|
+65330034|C1519837|NCIMTH|Chemical Viewed Functionally|
+65352611|C1519837|NCIMTH|Pharmacologic Substance|
+20759221|C1522005|NCIMTH|Qualitative Concept|
+84724455|C1522484|NCIMTH|Functional Concept|
+20500935|C1524024|NCIMTH|Functional Concept|
+20500938|C1524059|NCIMTH|Functional Concept|
+20500939|C1524060|NCIMTH|Functional Concept|
+20566297|C1527243|NCIMTH|Idea or Concept|
+20538092|C1532237|NCIMTH|Disease or Syndrome|
+20538093|C1532238|NCIMTH|Disease or Syndrome|
+20538148|C1533009|NCIMTH|Disease or Syndrome|
+20538150|C1533011|NCIMTH|Disease or Syndrome|
+20538168|C1533163|NCIMTH|Disease or Syndrome|
+17506071|C1533585|NCIMTH|Gene or Genome|
+62789164|C1535926|NCIMTH|Mental or Behavioral Dysfunction|
+20764401|C1537074|NCIMTH|Gene or Genome|
+20764421|C1537394|NCIMTH|Gene or Genome|
+20764422|C1537395|NCIMTH|Gene or Genome|
+20764426|C1537399|NCIMTH|Gene or Genome|
+20764429|C1537402|NCIMTH|Gene or Genome|
+20764435|C1537408|NCIMTH|Gene or Genome|
+20764436|C1537409|NCIMTH|Gene or Genome|
+20764439|C1537412|NCIMTH|Gene or Genome|
+20764441|C1537414|NCIMTH|Gene or Genome|
+20764443|C1537416|NCIMTH|Gene or Genome|
+20764444|C1537417|NCIMTH|Gene or Genome|
+20764447|C1537420|NCIMTH|Gene or Genome|
+20764448|C1537421|NCIMTH|Gene or Genome|
+20764451|C1537424|NCIMTH|Gene or Genome|
+20764457|C1537430|NCIMTH|Gene or Genome|
+20764463|C1537436|NCIMTH|Gene or Genome|
+20764468|C1537441|NCIMTH|Gene or Genome|
+20764472|C1537445|NCIMTH|Gene or Genome|
+20764474|C1537447|NCIMTH|Gene or Genome|
+20764476|C1537449|NCIMTH|Gene or Genome|
+20764491|C1537464|NCIMTH|Gene or Genome|
+20764493|C1537466|NCIMTH|Gene or Genome|
+20764496|C1537469|NCIMTH|Gene or Genome|
+20764497|C1537470|NCIMTH|Gene or Genome|
+20764498|C1537471|NCIMTH|Gene or Genome|
+20764499|C1537472|NCIMTH|Gene or Genome|
+20764502|C1537475|NCIMTH|Gene or Genome|
+20764506|C1537479|NCIMTH|Gene or Genome|
+20764507|C1537480|NCIMTH|Gene or Genome|
+20764518|C1537491|NCIMTH|Gene or Genome|
+20764541|C1537514|NCIMTH|Gene or Genome|
+20764542|C1537515|NCIMTH|Gene or Genome|
+20764551|C1537524|NCIMTH|Gene or Genome|
+20764558|C1537531|NCIMTH|Gene or Genome|
+20764566|C1537539|NCIMTH|Gene or Genome|
+20764567|C1537540|NCIMTH|Gene or Genome|
+20764571|C1537544|NCIMTH|Gene or Genome|
+20764573|C1537546|NCIMTH|Gene or Genome|
+20764584|C1537557|NCIMTH|Gene or Genome|
+20764589|C1537562|NCIMTH|Gene or Genome|
+20764600|C1537573|NCIMTH|Gene or Genome|
+20764603|C1537576|NCIMTH|Gene or Genome|
+20764604|C1537577|NCIMTH|Gene or Genome|
+20764605|C1537578|NCIMTH|Gene or Genome|
+20764608|C1537581|NCIMTH|Gene or Genome|
+20764609|C1537582|NCIMTH|Gene or Genome|
+20764614|C1537587|NCIMTH|Gene or Genome|
+20764624|C1537597|NCIMTH|Gene or Genome|
+20764625|C1537598|NCIMTH|Gene or Genome|
+20764626|C1537599|NCIMTH|Gene or Genome|
+20764632|C1537605|NCIMTH|Gene or Genome|
+20764635|C1537608|NCIMTH|Gene or Genome|
+20764636|C1537609|NCIMTH|Gene or Genome|
+20764641|C1537614|NCIMTH|Gene or Genome|
+20764642|C1537615|NCIMTH|Gene or Genome|
+20764643|C1537616|NCIMTH|Gene or Genome|
+20764644|C1537617|NCIMTH|Gene or Genome|
+20764646|C1537619|NCIMTH|Gene or Genome|
+20764653|C1537626|NCIMTH|Gene or Genome|
+20764655|C1537628|NCIMTH|Gene or Genome|
+20764656|C1537629|NCIMTH|Gene or Genome|
+20764659|C1537632|NCIMTH|Gene or Genome|
+20764671|C1537644|NCIMTH|Gene or Genome|
+20764675|C1537648|NCIMTH|Gene or Genome|
+20764676|C1537649|NCIMTH|Gene or Genome|
+20764684|C1537657|NCIMTH|Gene or Genome|
+20764688|C1537661|NCIMTH|Gene or Genome|
+20764689|C1537662|NCIMTH|Gene or Genome|
+20764692|C1537665|NCIMTH|Gene or Genome|
+20764693|C1537666|NCIMTH|Gene or Genome|
+20764695|C1537668|NCIMTH|Gene or Genome|
+20764713|C1537686|NCIMTH|Gene or Genome|
+20764717|C1537690|NCIMTH|Gene or Genome|
+20764718|C1537691|NCIMTH|Gene or Genome|
+20764719|C1537692|NCIMTH|Gene or Genome|
+20764720|C1537693|NCIMTH|Gene or Genome|
+20764723|C1537696|NCIMTH|Gene or Genome|
+20764724|C1537697|NCIMTH|Gene or Genome|
+20764782|C1537755|NCIMTH|Gene or Genome|
+20764948|C1537921|NCIMTH|Gene or Genome|
+20764954|C1537927|NCIMTH|Gene or Genome|
+20764961|C1537934|NCIMTH|Gene or Genome|
+20764964|C1537937|NCIMTH|Gene or Genome|
+20764965|C1537938|NCIMTH|Gene or Genome|
+20765006|C1537979|NCIMTH|Gene or Genome|
+20765011|C1537984|NCIMTH|Gene or Genome|
+20765059|C1538032|NCIMTH|Gene or Genome|
+20765061|C1538034|NCIMTH|Gene or Genome|
+20765071|C1538044|NCIMTH|Gene or Genome|
+20765072|C1538045|NCIMTH|Gene or Genome|
+20765078|C1538051|NCIMTH|Gene or Genome|
+20765081|C1538054|NCIMTH|Gene or Genome|
+20765084|C1538057|NCIMTH|Gene or Genome|
+20765092|C1538065|NCIMTH|Gene or Genome|
+20765093|C1538066|NCIMTH|Gene or Genome|
+20765096|C1538069|NCIMTH|Gene or Genome|
+20765097|C1538070|NCIMTH|Gene or Genome|
+20765099|C1538072|NCIMTH|Gene or Genome|
+20765105|C1538078|NCIMTH|Gene or Genome|
+20765109|C1538082|NCIMTH|Gene or Genome|
+20765111|C1538084|NCIMTH|Gene or Genome|
+20765113|C1538086|NCIMTH|Gene or Genome|
+20765115|C1538088|NCIMTH|Gene or Genome|
+20765116|C1538089|NCIMTH|Gene or Genome|
+20765122|C1538095|NCIMTH|Gene or Genome|
+20765123|C1538096|NCIMTH|Gene or Genome|
+20765125|C1538098|NCIMTH|Gene or Genome|
+20765138|C1538111|NCIMTH|Gene or Genome|
+20765150|C1538123|NCIMTH|Gene or Genome|
+20765152|C1538125|NCIMTH|Gene or Genome|
+20765154|C1538127|NCIMTH|Gene or Genome|
+20765158|C1538131|NCIMTH|Gene or Genome|
+20765163|C1538136|NCIMTH|Gene or Genome|
+20765165|C1538138|NCIMTH|Gene or Genome|
+20765169|C1538142|NCIMTH|Gene or Genome|
+20765170|C1538143|NCIMTH|Gene or Genome|
+20765171|C1538144|NCIMTH|Gene or Genome|
+20765174|C1538147|NCIMTH|Gene or Genome|
+20765176|C1538149|NCIMTH|Gene or Genome|
+20765179|C1538152|NCIMTH|Gene or Genome|
+20765184|C1538157|NCIMTH|Gene or Genome|
+20765186|C1538159|NCIMTH|Gene or Genome|
+20765187|C1538160|NCIMTH|Gene or Genome|
+20765193|C1538166|NCIMTH|Gene or Genome|
+20765197|C1538170|NCIMTH|Gene or Genome|
+20765200|C1538173|NCIMTH|Gene or Genome|
+20765201|C1538174|NCIMTH|Gene or Genome|
+20765202|C1538175|NCIMTH|Gene or Genome|
+20765275|C1538248|NCIMTH|Gene or Genome|
+20765294|C1538267|NCIMTH|Gene or Genome|
+20765300|C1538273|NCIMTH|Gene or Genome|
+20765301|C1538274|NCIMTH|Gene or Genome|
+20765305|C1538278|NCIMTH|Gene or Genome|
+20765311|C1538284|NCIMTH|Gene or Genome|
+20765312|C1538285|NCIMTH|Gene or Genome|
+18316817|C1538287|NCIMTH|Gene or Genome|
+20765315|C1538288|NCIMTH|Gene or Genome|
+20765317|C1538290|NCIMTH|Gene or Genome|
+20765320|C1538293|NCIMTH|Gene or Genome|
+20765321|C1538294|NCIMTH|Gene or Genome|
+20765322|C1538295|NCIMTH|Gene or Genome|
+20765323|C1538296|NCIMTH|Gene or Genome|
+20765332|C1538305|NCIMTH|Gene or Genome|
+20765336|C1538309|NCIMTH|Gene or Genome|
+20765338|C1538311|NCIMTH|Gene or Genome|
+20765339|C1538312|NCIMTH|Gene or Genome|
+20765341|C1538314|NCIMTH|Gene or Genome|
+20765342|C1538315|NCIMTH|Gene or Genome|
+20765345|C1538318|NCIMTH|Gene or Genome|
+20765347|C1538320|NCIMTH|Gene or Genome|
+20765348|C1538321|NCIMTH|Gene or Genome|
+20765353|C1538326|NCIMTH|Gene or Genome|
+20765364|C1538337|NCIMTH|Gene or Genome|
+20765369|C1538342|NCIMTH|Gene or Genome|
+20765373|C1538346|NCIMTH|Gene or Genome|
+20765380|C1538353|NCIMTH|Gene or Genome|
+20765387|C1538360|NCIMTH|Gene or Genome|
+20765394|C1538367|NCIMTH|Gene or Genome|
+20765419|C1538392|NCIMTH|Gene or Genome|
+20765420|C1538393|NCIMTH|Gene or Genome|
+20765421|C1538394|NCIMTH|Gene or Genome|
+20765423|C1538396|NCIMTH|Gene or Genome|
+20765427|C1538400|NCIMTH|Gene or Genome|
+20765435|C1538408|NCIMTH|Gene or Genome|
+20765438|C1538411|NCIMTH|Gene or Genome|
+20765439|C1538412|NCIMTH|Gene or Genome|
+20765446|C1538419|NCIMTH|Gene or Genome|
+20765449|C1538422|NCIMTH|Gene or Genome|
+20765453|C1538426|NCIMTH|Gene or Genome|
+20765460|C1538433|NCIMTH|Gene or Genome|
+20765461|C1538434|NCIMTH|Gene or Genome|
+20765462|C1538435|NCIMTH|Gene or Genome|
+20765465|C1538438|NCIMTH|Gene or Genome|
+20765476|C1538449|NCIMTH|Gene or Genome|
+20765477|C1538450|NCIMTH|Gene or Genome|
+20765478|C1538451|NCIMTH|Gene or Genome|
+20765481|C1538454|NCIMTH|Gene or Genome|
+20765482|C1538455|NCIMTH|Gene or Genome|
+20765484|C1538457|NCIMTH|Gene or Genome|
+20765489|C1538462|NCIMTH|Gene or Genome|
+20765490|C1538463|NCIMTH|Gene or Genome|
+20765491|C1538464|NCIMTH|Gene or Genome|
+20765492|C1538465|NCIMTH|Gene or Genome|
+20765495|C1538468|NCIMTH|Gene or Genome|
+20765499|C1538472|NCIMTH|Gene or Genome|
+20765504|C1538477|NCIMTH|Gene or Genome|
+20765505|C1538478|NCIMTH|Gene or Genome|
+20765506|C1538479|NCIMTH|Gene or Genome|
+20765508|C1538481|NCIMTH|Gene or Genome|
+20765509|C1538482|NCIMTH|Gene or Genome|
+20765512|C1538485|NCIMTH|Gene or Genome|
+20765513|C1538486|NCIMTH|Gene or Genome|
+20765515|C1538488|NCIMTH|Gene or Genome|
+20765516|C1538489|NCIMTH|Gene or Genome|
+20765517|C1538490|NCIMTH|Gene or Genome|
+20765518|C1538491|NCIMTH|Gene or Genome|
+20765519|C1538492|NCIMTH|Gene or Genome|
+20765520|C1538493|NCIMTH|Gene or Genome|
+20765522|C1538495|NCIMTH|Gene or Genome|
+20765523|C1538496|NCIMTH|Gene or Genome|
+20765525|C1538498|NCIMTH|Gene or Genome|
+20765526|C1538499|NCIMTH|Gene or Genome|
+20765527|C1538500|NCIMTH|Gene or Genome|
+20765528|C1538501|NCIMTH|Gene or Genome|
+20765532|C1538505|NCIMTH|Gene or Genome|
+20765534|C1538507|NCIMTH|Gene or Genome|
+20765537|C1538510|NCIMTH|Gene or Genome|
+20765557|C1538530|NCIMTH|Gene or Genome|
+20765581|C1538554|NCIMTH|Gene or Genome|
+20765585|C1538558|NCIMTH|Gene or Genome|
+20765586|C1538559|NCIMTH|Gene or Genome|
+20765589|C1538562|NCIMTH|Gene or Genome|
+20765593|C1538566|NCIMTH|Gene or Genome|
+20765598|C1538571|NCIMTH|Gene or Genome|
+20765600|C1538573|NCIMTH|Gene or Genome|
+20765609|C1538582|NCIMTH|Gene or Genome|
+20765611|C1538584|NCIMTH|Gene or Genome|
+20765616|C1538589|NCIMTH|Gene or Genome|
+20765619|C1538592|NCIMTH|Gene or Genome|
+20765621|C1538594|NCIMTH|Gene or Genome|
+20765625|C1538598|NCIMTH|Gene or Genome|
+20765626|C1538599|NCIMTH|Gene or Genome|
+20765640|C1538613|NCIMTH|Gene or Genome|
+20765648|C1538621|NCIMTH|Gene or Genome|
+20765653|C1538626|NCIMTH|Gene or Genome|
+20765654|C1538627|NCIMTH|Gene or Genome|
+20765655|C1538628|NCIMTH|Gene or Genome|
+20765656|C1538629|NCIMTH|Gene or Genome|
+20765657|C1538630|NCIMTH|Gene or Genome|
+20765660|C1538633|NCIMTH|Gene or Genome|
+20765661|C1538634|NCIMTH|Gene or Genome|
+20765663|C1538636|NCIMTH|Gene or Genome|
+20765664|C1538637|NCIMTH|Gene or Genome|
+20765665|C1538638|NCIMTH|Gene or Genome|
+20765666|C1538639|NCIMTH|Gene or Genome|
+20765674|C1538647|NCIMTH|Gene or Genome|
+20765689|C1538662|NCIMTH|Gene or Genome|
+20765695|C1538668|NCIMTH|Gene or Genome|
+20765698|C1538671|NCIMTH|Gene or Genome|
+20765700|C1538673|NCIMTH|Gene or Genome|
+20765702|C1538675|NCIMTH|Gene or Genome|
+20765707|C1538680|NCIMTH|Gene or Genome|
+20765708|C1538681|NCIMTH|Gene or Genome|
+20765709|C1538682|NCIMTH|Gene or Genome|
+20765710|C1538683|NCIMTH|Gene or Genome|
+20765720|C1538693|NCIMTH|Gene or Genome|
+20765734|C1538707|NCIMTH|Gene or Genome|
+20765740|C1538713|NCIMTH|Gene or Genome|
+20765741|C1538714|NCIMTH|Gene or Genome|
+20765752|C1538725|NCIMTH|Gene or Genome|
+20765760|C1538733|NCIMTH|Gene or Genome|
+20765762|C1538735|NCIMTH|Gene or Genome|
+20765770|C1538743|NCIMTH|Gene or Genome|
+20765772|C1538745|NCIMTH|Gene or Genome|
+20765776|C1538749|NCIMTH|Gene or Genome|
+20765782|C1538755|NCIMTH|Gene or Genome|
+20765783|C1538756|NCIMTH|Gene or Genome|
+20765784|C1538757|NCIMTH|Gene or Genome|
+20765787|C1538760|NCIMTH|Gene or Genome|
+20765800|C1538773|NCIMTH|Gene or Genome|
+20765807|C1538780|NCIMTH|Gene or Genome|
+20765808|C1538781|NCIMTH|Gene or Genome|
+20765810|C1538783|NCIMTH|Gene or Genome|
+20765811|C1538784|NCIMTH|Gene or Genome|
+20765812|C1538785|NCIMTH|Gene or Genome|
+20765816|C1538789|NCIMTH|Gene or Genome|
+20765817|C1538790|NCIMTH|Gene or Genome|
+20765818|C1538791|NCIMTH|Gene or Genome|
+20765819|C1538792|NCIMTH|Gene or Genome|
+20765823|C1538796|NCIMTH|Gene or Genome|
+20765825|C1538798|NCIMTH|Gene or Genome|
+20765826|C1538799|NCIMTH|Gene or Genome|
+20765827|C1538800|NCIMTH|Gene or Genome|
+20765848|C1538821|NCIMTH|Gene or Genome|
+20765860|C1538833|NCIMTH|Gene or Genome|
+20765866|C1538839|NCIMTH|Gene or Genome|
+20765867|C1538840|NCIMTH|Gene or Genome|
+20765868|C1538841|NCIMTH|Gene or Genome|
+20765871|C1538844|NCIMTH|Gene or Genome|
+20765872|C1538845|NCIMTH|Gene or Genome|
+20765876|C1538849|NCIMTH|Gene or Genome|
+20765884|C1538857|NCIMTH|Gene or Genome|
+20765892|C1538865|NCIMTH|Gene or Genome|
+20765896|C1538869|NCIMTH|Gene or Genome|
+20765898|C1538871|NCIMTH|Gene or Genome|
+20765918|C1538892|NCIMTH|Gene or Genome|
+20765921|C1538895|NCIMTH|Gene or Genome|
+20765922|C1538896|NCIMTH|Gene or Genome|
+20765927|C1538901|NCIMTH|Gene or Genome|
+20765944|C1538918|NCIMTH|Gene or Genome|
+20765945|C1538919|NCIMTH|Gene or Genome|
+20765948|C1538922|NCIMTH|Gene or Genome|
+20765953|C1538927|NCIMTH|Gene or Genome|
+20765962|C1538936|NCIMTH|Gene or Genome|
+20765970|C1538944|NCIMTH|Gene or Genome|
+20765973|C1538947|NCIMTH|Gene or Genome|
+20765974|C1538948|NCIMTH|Gene or Genome|
+20765991|C1538965|NCIMTH|Gene or Genome|
+20766077|C1539051|NCIMTH|Gene or Genome|
+20766081|C1539055|NCIMTH|Gene or Genome|
+20766089|C1539063|NCIMTH|Gene or Genome|
+20766093|C1539067|NCIMTH|Gene or Genome|
+20766098|C1539072|NCIMTH|Gene or Genome|
+20766099|C1539073|NCIMTH|Gene or Genome|
+20766100|C1539074|NCIMTH|Gene or Genome|
+20766101|C1539075|NCIMTH|Gene or Genome|
+20766108|C1539082|NCIMTH|Gene or Genome|
+20766113|C1539087|NCIMTH|Gene or Genome|
+20766118|C1539092|NCIMTH|Gene or Genome|
+20766131|C1539105|NCIMTH|Gene or Genome|
+20766133|C1539107|NCIMTH|Gene or Genome|
+20766135|C1539109|NCIMTH|Gene or Genome|
+20766138|C1539112|NCIMTH|Gene or Genome|
+20766139|C1539113|NCIMTH|Gene or Genome|
+20766142|C1539116|NCIMTH|Gene or Genome|
+20766149|C1539123|NCIMTH|Gene or Genome|
+20766174|C1539148|NCIMTH|Gene or Genome|
+20766175|C1539149|NCIMTH|Gene or Genome|
+20766180|C1539154|NCIMTH|Gene or Genome|
+20766183|C1539157|NCIMTH|Gene or Genome|
+20766194|C1539168|NCIMTH|Gene or Genome|
+20766195|C1539169|NCIMTH|Gene or Genome|
+20766224|C1539198|NCIMTH|Gene or Genome|
+20766243|C1539217|NCIMTH|Gene or Genome|
+20766244|C1539218|NCIMTH|Gene or Genome|
+20766247|C1539221|NCIMTH|Gene or Genome|
+20766255|C1539229|NCIMTH|Gene or Genome|
+20766258|C1539232|NCIMTH|Gene or Genome|
+20766260|C1539234|NCIMTH|Gene or Genome|
+20766285|C1539259|NCIMTH|Gene or Genome|
+20766295|C1539269|NCIMTH|Gene or Genome|
+20766296|C1539270|NCIMTH|Gene or Genome|
+20766299|C1539273|NCIMTH|Gene or Genome|
+20766323|C1539297|NCIMTH|Gene or Genome|
+20766343|C1539317|NCIMTH|Gene or Genome|
+20766345|C1539319|NCIMTH|Gene or Genome|
+20766346|C1539320|NCIMTH|Gene or Genome|
+20766347|C1539321|NCIMTH|Gene or Genome|
+20766350|C1539324|NCIMTH|Gene or Genome|
+20766358|C1539332|NCIMTH|Gene or Genome|
+20766359|C1539333|NCIMTH|Gene or Genome|
+20766360|C1539334|NCIMTH|Gene or Genome|
+20766361|C1539335|NCIMTH|Gene or Genome|
+20766366|C1539340|NCIMTH|Gene or Genome|
+20766367|C1539341|NCIMTH|Gene or Genome|
+20766380|C1539354|NCIMTH|Gene or Genome|
+20766381|C1539355|NCIMTH|Gene or Genome|
+20766386|C1539360|NCIMTH|Gene or Genome|
+20766387|C1539361|NCIMTH|Gene or Genome|
+20766389|C1539363|NCIMTH|Gene or Genome|
+20766392|C1539366|NCIMTH|Gene or Genome|
+20766401|C1539375|NCIMTH|Gene or Genome|
+20766409|C1539383|NCIMTH|Gene or Genome|
+20766413|C1539387|NCIMTH|Gene or Genome|
+20766420|C1539394|NCIMTH|Gene or Genome|
+20766421|C1539395|NCIMTH|Gene or Genome|
+20766424|C1539398|NCIMTH|Gene or Genome|
+20766429|C1539403|NCIMTH|Gene or Genome|
+20766433|C1539407|NCIMTH|Gene or Genome|
+20766434|C1539408|NCIMTH|Gene or Genome|
+20766436|C1539410|NCIMTH|Gene or Genome|
+20766438|C1539412|NCIMTH|Gene or Genome|
+20766442|C1539416|NCIMTH|Gene or Genome|
+20766443|C1539417|NCIMTH|Gene or Genome|
+20766448|C1539422|NCIMTH|Gene or Genome|
+20766451|C1539425|NCIMTH|Gene or Genome|
+20766454|C1539428|NCIMTH|Gene or Genome|
+20766457|C1539431|NCIMTH|Gene or Genome|
+20766461|C1539435|NCIMTH|Gene or Genome|
+20766462|C1539436|NCIMTH|Gene or Genome|
+20766467|C1539441|NCIMTH|Gene or Genome|
+20766469|C1539443|NCIMTH|Gene or Genome|
+20766470|C1539444|NCIMTH|Gene or Genome|
+20766471|C1539445|NCIMTH|Gene or Genome|
+20766486|C1539460|NCIMTH|Gene or Genome|
+20766488|C1539462|NCIMTH|Gene or Genome|
+20766491|C1539465|NCIMTH|Gene or Genome|
+20766497|C1539471|NCIMTH|Gene or Genome|
+20766498|C1539472|NCIMTH|Gene or Genome|
+20766499|C1539473|NCIMTH|Gene or Genome|
+20766500|C1539474|NCIMTH|Gene or Genome|
+20766501|C1539475|NCIMTH|Gene or Genome|
+20766503|C1539477|NCIMTH|Gene or Genome|
+20766507|C1539481|NCIMTH|Gene or Genome|
+20766509|C1539483|NCIMTH|Gene or Genome|
+20766516|C1539490|NCIMTH|Gene or Genome|
+20766520|C1539494|NCIMTH|Gene or Genome|
+20766524|C1539498|NCIMTH|Gene or Genome|
+20766528|C1539502|NCIMTH|Gene or Genome|
+20766531|C1539505|NCIMTH|Gene or Genome|
+20766544|C1539518|NCIMTH|Gene or Genome|
+20766554|C1539528|NCIMTH|Gene or Genome|
+20766559|C1539533|NCIMTH|Gene or Genome|
+20766561|C1539535|NCIMTH|Gene or Genome|
+20766565|C1539539|NCIMTH|Gene or Genome|
+20766568|C1539542|NCIMTH|Gene or Genome|
+20766569|C1539543|NCIMTH|Gene or Genome|
+20766570|C1539544|NCIMTH|Gene or Genome|
+20766571|C1539545|NCIMTH|Gene or Genome|
+20766572|C1539546|NCIMTH|Gene or Genome|
+20766576|C1539550|NCIMTH|Gene or Genome|
+20766580|C1539554|NCIMTH|Gene or Genome|
+20766581|C1539555|NCIMTH|Gene or Genome|
+20766596|C1539570|NCIMTH|Gene or Genome|
+20766597|C1539571|NCIMTH|Gene or Genome|
+20766598|C1539572|NCIMTH|Gene or Genome|
+20766601|C1539575|NCIMTH|Gene or Genome|
+20766605|C1539579|NCIMTH|Gene or Genome|
+20766611|C1539585|NCIMTH|Gene or Genome|
+20766617|C1539591|NCIMTH|Gene or Genome|
+20766618|C1539592|NCIMTH|Gene or Genome|
+20766621|C1539595|NCIMTH|Gene or Genome|
+20766622|C1539596|NCIMTH|Gene or Genome|
+20766626|C1539600|NCIMTH|Gene or Genome|
+20766627|C1539601|NCIMTH|Gene or Genome|
+20766629|C1539603|NCIMTH|Gene or Genome|
+20766635|C1539609|NCIMTH|Gene or Genome|
+20766636|C1539610|NCIMTH|Gene or Genome|
+20766639|C1539613|NCIMTH|Gene or Genome|
+20766640|C1539614|NCIMTH|Gene or Genome|
+20766643|C1539617|NCIMTH|Gene or Genome|
+20766646|C1539620|NCIMTH|Gene or Genome|
+20766654|C1539628|NCIMTH|Gene or Genome|
+20766656|C1539630|NCIMTH|Gene or Genome|
+20766664|C1539638|NCIMTH|Gene or Genome|
+20766665|C1539639|NCIMTH|Gene or Genome|
+20766669|C1539643|NCIMTH|Gene or Genome|
+20766670|C1539644|NCIMTH|Gene or Genome|
+20766676|C1539650|NCIMTH|Gene or Genome|
+20766681|C1539655|NCIMTH|Gene or Genome|
+20766682|C1539656|NCIMTH|Gene or Genome|
+20766684|C1539658|NCIMTH|Gene or Genome|
+20766685|C1539659|NCIMTH|Gene or Genome|
+20766686|C1539660|NCIMTH|Gene or Genome|
+20766687|C1539661|NCIMTH|Gene or Genome|
+20766688|C1539662|NCIMTH|Gene or Genome|
+20766689|C1539663|NCIMTH|Gene or Genome|
+20766693|C1539667|NCIMTH|Gene or Genome|
+20766694|C1539668|NCIMTH|Gene or Genome|
+20766695|C1539669|NCIMTH|Gene or Genome|
+20766696|C1539670|NCIMTH|Gene or Genome|
+20766699|C1539673|NCIMTH|Gene or Genome|
+20766700|C1539674|NCIMTH|Gene or Genome|
+20766701|C1539675|NCIMTH|Gene or Genome|
+20766705|C1539679|NCIMTH|Gene or Genome|
+20766711|C1539685|NCIMTH|Gene or Genome|
+20766715|C1539689|NCIMTH|Gene or Genome|
+20766723|C1539697|NCIMTH|Gene or Genome|
+20766724|C1539698|NCIMTH|Gene or Genome|
+20766725|C1539699|NCIMTH|Gene or Genome|
+20766726|C1539700|NCIMTH|Gene or Genome|
+20766731|C1539705|NCIMTH|Gene or Genome|
+20766732|C1539706|NCIMTH|Gene or Genome|
+20766735|C1539709|NCIMTH|Gene or Genome|
+20766737|C1539711|NCIMTH|Gene or Genome|
+20766738|C1539712|NCIMTH|Gene or Genome|
+20766741|C1539715|NCIMTH|Gene or Genome|
+20766746|C1539720|NCIMTH|Gene or Genome|
+20766747|C1539721|NCIMTH|Gene or Genome|
+20766749|C1539723|NCIMTH|Gene or Genome|
+20766754|C1539728|NCIMTH|Gene or Genome|
+20766756|C1539730|NCIMTH|Gene or Genome|
+20766758|C1539732|NCIMTH|Gene or Genome|
+20766762|C1539736|NCIMTH|Gene or Genome|
+20766770|C1539744|NCIMTH|Gene or Genome|
+20766778|C1539752|NCIMTH|Gene or Genome|
+20766781|C1539755|NCIMTH|Gene or Genome|
+20766784|C1539758|NCIMTH|Gene or Genome|
+20766785|C1539759|NCIMTH|Gene or Genome|
+20766788|C1539762|NCIMTH|Gene or Genome|
+20766789|C1539763|NCIMTH|Gene or Genome|
+20766790|C1539764|NCIMTH|Gene or Genome|
+20766791|C1539765|NCIMTH|Gene or Genome|
+20766794|C1539768|NCIMTH|Gene or Genome|
+20766796|C1539770|NCIMTH|Gene or Genome|
+20766800|C1539774|NCIMTH|Gene or Genome|
+20766804|C1539778|NCIMTH|Gene or Genome|
+20766806|C1539780|NCIMTH|Gene or Genome|
+20766810|C1539784|NCIMTH|Gene or Genome|
+20766811|C1539785|NCIMTH|Gene or Genome|
+20766812|C1539786|NCIMTH|Gene or Genome|
+20766815|C1539789|NCIMTH|Gene or Genome|
+20766818|C1539792|NCIMTH|Gene or Genome|
+20766819|C1539793|NCIMTH|Gene or Genome|
+20766821|C1539795|NCIMTH|Gene or Genome|
+20766824|C1539798|NCIMTH|Gene or Genome|
+20766825|C1539799|NCIMTH|Gene or Genome|
+20766830|C1539804|NCIMTH|Gene or Genome|
+20766833|C1539807|NCIMTH|Gene or Genome|
+20766839|C1539813|NCIMTH|Gene or Genome|
+20766840|C1539814|NCIMTH|Gene or Genome|
+20766841|C1539815|NCIMTH|Gene or Genome|
+20766842|C1539816|NCIMTH|Gene or Genome|
+20766845|C1539819|NCIMTH|Gene or Genome|
+20766861|C1539835|NCIMTH|Gene or Genome|
+20766862|C1539836|NCIMTH|Gene or Genome|
+20766863|C1539837|NCIMTH|Gene or Genome|
+20766864|C1539838|NCIMTH|Gene or Genome|
+20766865|C1539839|NCIMTH|Gene or Genome|
+20766866|C1539840|NCIMTH|Gene or Genome|
+20766870|C1539844|NCIMTH|Gene or Genome|
+20766872|C1539846|NCIMTH|Gene or Genome|
+20766879|C1539853|NCIMTH|Gene or Genome|
+20766882|C1539856|NCIMTH|Gene or Genome|
+20766885|C1539859|NCIMTH|Gene or Genome|
+20766896|C1539870|NCIMTH|Gene or Genome|
+20766897|C1539871|NCIMTH|Gene or Genome|
+20766900|C1539874|NCIMTH|Gene or Genome|
+20766905|C1539879|NCIMTH|Gene or Genome|
+20766906|C1539880|NCIMTH|Gene or Genome|
+20766910|C1539884|NCIMTH|Gene or Genome|
+20766912|C1539886|NCIMTH|Gene or Genome|
+20766916|C1539890|NCIMTH|Gene or Genome|
+20766917|C1539891|NCIMTH|Gene or Genome|
+20766918|C1539892|NCIMTH|Gene or Genome|
+20766924|C1539898|NCIMTH|Gene or Genome|
+20766925|C1539899|NCIMTH|Gene or Genome|
+20766926|C1539900|NCIMTH|Gene or Genome|
+20766927|C1539901|NCIMTH|Gene or Genome|
+20766929|C1539903|NCIMTH|Gene or Genome|
+20766932|C1539906|NCIMTH|Gene or Genome|
+20766933|C1539907|NCIMTH|Gene or Genome|
+20766935|C1539909|NCIMTH|Gene or Genome|
+20766936|C1539910|NCIMTH|Gene or Genome|
+20766939|C1539913|NCIMTH|Gene or Genome|
+20766941|C1539915|NCIMTH|Gene or Genome|
+20766942|C1539916|NCIMTH|Gene or Genome|
+20766947|C1539921|NCIMTH|Gene or Genome|
+20766950|C1539924|NCIMTH|Gene or Genome|
+20766954|C1539928|NCIMTH|Gene or Genome|
+20766955|C1539929|NCIMTH|Gene or Genome|
+20766956|C1539930|NCIMTH|Gene or Genome|
+20766958|C1539932|NCIMTH|Gene or Genome|
+20766959|C1539933|NCIMTH|Gene or Genome|
+20766960|C1539934|NCIMTH|Gene or Genome|
+20766961|C1539935|NCIMTH|Gene or Genome|
+20766962|C1539936|NCIMTH|Gene or Genome|
+20766963|C1539937|NCIMTH|Gene or Genome|
+20766964|C1539938|NCIMTH|Gene or Genome|
+20766965|C1539939|NCIMTH|Gene or Genome|
+20766970|C1539944|NCIMTH|Gene or Genome|
+20766972|C1539946|NCIMTH|Gene or Genome|
+20766974|C1539948|NCIMTH|Gene or Genome|
+20766976|C1539950|NCIMTH|Gene or Genome|
+20766980|C1539954|NCIMTH|Gene or Genome|
+20766981|C1539955|NCIMTH|Gene or Genome|
+20766985|C1539959|NCIMTH|Gene or Genome|
+20766987|C1539961|NCIMTH|Gene or Genome|
+20766988|C1539962|NCIMTH|Gene or Genome|
+20766989|C1539963|NCIMTH|Gene or Genome|
+20766993|C1539967|NCIMTH|Gene or Genome|
+20766994|C1539968|NCIMTH|Gene or Genome|
+20766996|C1539970|NCIMTH|Gene or Genome|
+20767001|C1539975|NCIMTH|Gene or Genome|
+20767002|C1539976|NCIMTH|Gene or Genome|
+20767010|C1539984|NCIMTH|Gene or Genome|
+20767012|C1539986|NCIMTH|Gene or Genome|
+20767013|C1539987|NCIMTH|Gene or Genome|
+20767015|C1539989|NCIMTH|Gene or Genome|
+20767016|C1539990|NCIMTH|Gene or Genome|
+20767017|C1539991|NCIMTH|Gene or Genome|
+20767018|C1539992|NCIMTH|Gene or Genome|
+20767021|C1539995|NCIMTH|Gene or Genome|
+20767023|C1539997|NCIMTH|Gene or Genome|
+20767024|C1539998|NCIMTH|Gene or Genome|
+20767026|C1540000|NCIMTH|Gene or Genome|
+20767027|C1540001|NCIMTH|Gene or Genome|
+20767030|C1540004|NCIMTH|Gene or Genome|
+20767031|C1540005|NCIMTH|Gene or Genome|
+20767033|C1540007|NCIMTH|Gene or Genome|
+20767037|C1540011|NCIMTH|Gene or Genome|
+20767039|C1540013|NCIMTH|Gene or Genome|
+20767043|C1540017|NCIMTH|Gene or Genome|
+20767044|C1540018|NCIMTH|Gene or Genome|
+20767046|C1540020|NCIMTH|Gene or Genome|
+20767050|C1540024|NCIMTH|Gene or Genome|
+20767051|C1540025|NCIMTH|Gene or Genome|
+20767052|C1540026|NCIMTH|Gene or Genome|
+20767053|C1540027|NCIMTH|Gene or Genome|
+20767055|C1540029|NCIMTH|Gene or Genome|
+20767057|C1540031|NCIMTH|Gene or Genome|
+20767061|C1540035|NCIMTH|Gene or Genome|
+20767064|C1540038|NCIMTH|Gene or Genome|
+43119281|C1540039|NCIMTH|Gene or Genome|
+20767067|C1540041|NCIMTH|Gene or Genome|
+20767070|C1540044|NCIMTH|Gene or Genome|
+20767077|C1540051|NCIMTH|Gene or Genome|
+20767078|C1540052|NCIMTH|Gene or Genome|
+20767086|C1540060|NCIMTH|Gene or Genome|
+20767090|C1540064|NCIMTH|Gene or Genome|
+20767091|C1540065|NCIMTH|Gene or Genome|
+20767101|C1540075|NCIMTH|Gene or Genome|
+20767106|C1540080|NCIMTH|Gene or Genome|
+20767110|C1540084|NCIMTH|Gene or Genome|
+20767115|C1540089|NCIMTH|Gene or Genome|
+20767119|C1540093|NCIMTH|Gene or Genome|
+20767120|C1540094|NCIMTH|Gene or Genome|
+20767121|C1540095|NCIMTH|Gene or Genome|
+20767122|C1540096|NCIMTH|Gene or Genome|
+20767125|C1540099|NCIMTH|Gene or Genome|
+20767137|C1540111|NCIMTH|Gene or Genome|
+20767138|C1540112|NCIMTH|Gene or Genome|
+20767140|C1540114|NCIMTH|Gene or Genome|
+20767143|C1540117|NCIMTH|Gene or Genome|
+20767146|C1540120|NCIMTH|Gene or Genome|
+20767147|C1540121|NCIMTH|Gene or Genome|
+20767148|C1540122|NCIMTH|Gene or Genome|
+20767149|C1540123|NCIMTH|Gene or Genome|
+20767150|C1540124|NCIMTH|Gene or Genome|
+20767152|C1540126|NCIMTH|Gene or Genome|
+20767153|C1540127|NCIMTH|Gene or Genome|
+20767156|C1540130|NCIMTH|Gene or Genome|
+20767157|C1540131|NCIMTH|Gene or Genome|
+20767158|C1540132|NCIMTH|Gene or Genome|
+20767160|C1540134|NCIMTH|Gene or Genome|
+20767161|C1540135|NCIMTH|Gene or Genome|
+20767163|C1540137|NCIMTH|Gene or Genome|
+20767167|C1540141|NCIMTH|Gene or Genome|
+20767168|C1540142|NCIMTH|Gene or Genome|
+20767169|C1540143|NCIMTH|Gene or Genome|
+20767170|C1540144|NCIMTH|Gene or Genome|
+20767173|C1540147|NCIMTH|Gene or Genome|
+20767175|C1540149|NCIMTH|Gene or Genome|
+20767176|C1540150|NCIMTH|Gene or Genome|
+20767177|C1540151|NCIMTH|Gene or Genome|
+20767178|C1540152|NCIMTH|Gene or Genome|
+20767181|C1540155|NCIMTH|Gene or Genome|
+20767184|C1540158|NCIMTH|Gene or Genome|
+20767186|C1540160|NCIMTH|Gene or Genome|
+20767189|C1540163|NCIMTH|Gene or Genome|
+20767190|C1540164|NCIMTH|Gene or Genome|
+20767199|C1540173|NCIMTH|Gene or Genome|
+20767200|C1540174|NCIMTH|Gene or Genome|
+20767202|C1540176|NCIMTH|Gene or Genome|
+20767203|C1540177|NCIMTH|Gene or Genome|
+20767205|C1540179|NCIMTH|Gene or Genome|
+20767206|C1540180|NCIMTH|Gene or Genome|
+20767207|C1540181|NCIMTH|Gene or Genome|
+20767208|C1540182|NCIMTH|Gene or Genome|
+20767209|C1540183|NCIMTH|Gene or Genome|
+20767210|C1540184|NCIMTH|Gene or Genome|
+20767211|C1540185|NCIMTH|Gene or Genome|
+20767213|C1540187|NCIMTH|Gene or Genome|
+20767218|C1540192|NCIMTH|Gene or Genome|
+20767219|C1540193|NCIMTH|Gene or Genome|
+20767220|C1540194|NCIMTH|Gene or Genome|
+20767222|C1540196|NCIMTH|Gene or Genome|
+20767225|C1540199|NCIMTH|Gene or Genome|
+20767226|C1540200|NCIMTH|Gene or Genome|
+20767227|C1540201|NCIMTH|Gene or Genome|
+20767232|C1540206|NCIMTH|Gene or Genome|
+20767235|C1540209|NCIMTH|Gene or Genome|
+20767240|C1540214|NCIMTH|Gene or Genome|
+20767241|C1540215|NCIMTH|Gene or Genome|
+20767243|C1540217|NCIMTH|Gene or Genome|
+20767244|C1540218|NCIMTH|Gene or Genome|
+20767248|C1540222|NCIMTH|Gene or Genome|
+20767251|C1540225|NCIMTH|Gene or Genome|
+20767252|C1540226|NCIMTH|Gene or Genome|
+20767254|C1540228|NCIMTH|Gene or Genome|
+20767259|C1540233|NCIMTH|Gene or Genome|
+20767260|C1540234|NCIMTH|Gene or Genome|
+20767262|C1540236|NCIMTH|Gene or Genome|
+20767264|C1540238|NCIMTH|Gene or Genome|
+20767272|C1540246|NCIMTH|Gene or Genome|
+20767273|C1540247|NCIMTH|Gene or Genome|
+20767278|C1540252|NCIMTH|Gene or Genome|
+20767279|C1540253|NCIMTH|Gene or Genome|
+20767280|C1540254|NCIMTH|Gene or Genome|
+20767281|C1540255|NCIMTH|Gene or Genome|
+20767286|C1540260|NCIMTH|Gene or Genome|
+20767293|C1540267|NCIMTH|Gene or Genome|
+20767300|C1540274|NCIMTH|Gene or Genome|
+20767304|C1540278|NCIMTH|Gene or Genome|
+20767313|C1540287|NCIMTH|Gene or Genome|
+20767317|C1540291|NCIMTH|Gene or Genome|
+20767318|C1540292|NCIMTH|Gene or Genome|
+20767319|C1540293|NCIMTH|Gene or Genome|
+20767320|C1540294|NCIMTH|Gene or Genome|
+20767321|C1540295|NCIMTH|Gene or Genome|
+20767322|C1540296|NCIMTH|Gene or Genome|
+20767323|C1540297|NCIMTH|Gene or Genome|
+20767324|C1540298|NCIMTH|Gene or Genome|
+20767326|C1540300|NCIMTH|Gene or Genome|
+20767327|C1540301|NCIMTH|Gene or Genome|
+20767328|C1540302|NCIMTH|Gene or Genome|
+20767329|C1540303|NCIMTH|Gene or Genome|
+20767330|C1540304|NCIMTH|Gene or Genome|
+20767333|C1540307|NCIMTH|Gene or Genome|
+20767334|C1540308|NCIMTH|Gene or Genome|
+65335729|C1541208|NCIMTH|Gene or Genome|
+65335730|C1541209|NCIMTH|Gene or Genome|
+65335731|C1541580|NCIMTH|Gene or Genome|
+20583118|C1541964|NCIMTH|Intellectual Product|
+20583716|C1553931|NCIMTH|Intellectual Product|
+109333175|C1554065|NCIMTH|Intellectual Product|
+20767364|C1563761|NCIMTH|Gene or Genome|
+21107720|C1563835|NCIMTH|Organic Chemical|
+21311797|C1563835|NCIMTH|Pharmacologic Substance|
+20767369|C1567848|NCIMTH|Gene or Genome|
+20584045|C1579327|NCIMTH|Intellectual Product|
+20923664|C1593635|NCIMTH|Clinical Drug|
+20926448|C1596442|NCIMTH|Clinical Drug|
+126257404|C1609432|NCIMTH|Finding|
+122886919|C1611431|NCIMTH|Organic Chemical|
+43668551|C1619351|NCIMTH|Qualitative Concept|
+50199828|C1623416|NCIMTH|Qualitative Concept|
+18445411|C1623497|NCIMTH|Intellectual Product|
+51193781|C1655034|NCIMTH|Intellectual Product|
+51195899|C1659424|NCIMTH|Classification|
+65335732|C1704222|NCIMTH|Gene or Genome|
+56530456|C1704338|NCIMTH|Qualitative Concept|
+57393617|C1704485|NCIMTH|Intellectual Product|
+57393618|C1704486|NCIMTH|Intellectual Product|
+56450729|C1704873|NCIMTH|Gene or Genome|
+65330656|C1705943|NCIMTH|Intellectual Product|
+55496730|C1706062|NCIMTH|Molecular Function|
+65333275|C1706737|NCIMTH|Classification|
+65350636|C1706767|NCIMTH|Conceptual Entity|
+65350638|C1706770|NCIMTH|Conceptual Entity|
+65350639|C1706771|NCIMTH|Conceptual Entity|
+65350640|C1706772|NCIMTH|Conceptual Entity|
+65350644|C1706776|NCIMTH|Conceptual Entity|
+65350645|C1706777|NCIMTH|Conceptual Entity|
+65335748|C1706821|NCIMTH|Gene or Genome|
+65350760|C1708202|NCIMTH|Conceptual Entity|
+65350762|C1708204|NCIMTH|Conceptual Entity|
+65350763|C1708205|NCIMTH|Conceptual Entity|
+65350764|C1708206|NCIMTH|Conceptual Entity|
+65350765|C1708207|NCIMTH|Conceptual Entity|
+65350766|C1708209|NCIMTH|Conceptual Entity|
+65350767|C1708210|NCIMTH|Conceptual Entity|
+65350780|C1708226|NCIMTH|Conceptual Entity|
+65350781|C1708227|NCIMTH|Conceptual Entity|
+65335983|C1708477|NCIMTH|Gene or Genome|
+65318595|C1710021|NCIMTH|Regulation or Law|
+65333319|C1710306|NCIMTH|Classification|
+65336114|C1710463|NCIMTH|Gene or Genome|
+65350953|C1711392|NCIMTH|Conceptual Entity|
+55493651|C1721069|NCIMTH|Organic Chemical|
+55495339|C1721069|NCIMTH|Pharmacologic Substance|
+59628644|C1812643|NCIMTH|Intellectual Product|
+59643595|C1822705|NCIMTH|Gene or Genome|
+59643600|C1822710|NCIMTH|Gene or Genome|
+59643994|C1823104|NCIMTH|Gene or Genome|
+59644154|C1823264|NCIMTH|Gene or Genome|
+59645431|C1824541|NCIMTH|Gene or Genome|
+59645650|C1824760|NCIMTH|Gene or Genome|
+59645784|C1824894|NCIMTH|Gene or Genome|
+59645913|C1825023|NCIMTH|Gene or Genome|
+59646049|C1825159|NCIMTH|Gene or Genome|
+59646176|C1825286|NCIMTH|Gene or Genome|
+59646193|C1825303|NCIMTH|Gene or Genome|
+59646241|C1825351|NCIMTH|Gene or Genome|
+59646253|C1825363|NCIMTH|Gene or Genome|
+59646254|C1825364|NCIMTH|Gene or Genome|
+59646255|C1825365|NCIMTH|Gene or Genome|
+59646417|C1825528|NCIMTH|Gene or Genome|
+59646443|C1825554|NCIMTH|Gene or Genome|
+59646700|C1825811|NCIMTH|Gene or Genome|
+59646740|C1825851|NCIMTH|Gene or Genome|
+59646743|C1825854|NCIMTH|Gene or Genome|
+59646894|C1826005|NCIMTH|Gene or Genome|
+59647192|C1826303|NCIMTH|Gene or Genome|
+59647222|C1826333|NCIMTH|Gene or Genome|
+59647223|C1826334|NCIMTH|Gene or Genome|
+59647316|C1826427|NCIMTH|Gene or Genome|
+59647328|C1826439|NCIMTH|Gene or Genome|
+59647335|C1826446|NCIMTH|Gene or Genome|
+59647339|C1826450|NCIMTH|Gene or Genome|
+59647363|C1826474|NCIMTH|Gene or Genome|
+59647401|C1826512|NCIMTH|Gene or Genome|
+59647402|C1826513|NCIMTH|Gene or Genome|
+59647403|C1826514|NCIMTH|Gene or Genome|
+59647478|C1826589|NCIMTH|Gene or Genome|
+59647534|C1826645|NCIMTH|Gene or Genome|
+59647597|C1826708|NCIMTH|Gene or Genome|
+59647627|C1826738|NCIMTH|Gene or Genome|
+59647710|C1826821|NCIMTH|Gene or Genome|
+59647722|C1826833|NCIMTH|Gene or Genome|
+59647735|C1826846|NCIMTH|Gene or Genome|
+59647737|C1826848|NCIMTH|Gene or Genome|
+109354921|C1832070|NCIMTH|Classification|
+59648528|C1834173|NCIMTH|Gene or Genome|
+59648555|C1835237|NCIMTH|Gene or Genome|
+59648632|C1836205|NCIMTH|Gene or Genome|
+59648790|C1842089|NCIMTH|Gene or Genome|
+59647970|C1848212|NCIMTH|Gene or Genome|
+65110325|C1878682|NCIMTH|Drug Delivery Device|
+65343354|C1879509|NCIMTH|Therapeutic or Preventive Procedure|
+65343372|C1879911|NCIMTH|Therapeutic or Preventive Procedure|
+65343384|C1879969|NCIMTH|Therapeutic or Preventive Procedure|
+65349149|C1880421|NCIMTH|Substance|
+65320806|C1880653|NCIMTH|Functional Concept|
+65333359|C1881447|NCIMTH|Classification|
+65343580|C1882524|NCIMTH|Therapeutic or Preventive Procedure|
+65333381|C1883163|NCIMTH|Classification|
+65343623|C1883527|NCIMTH|Therapeutic or Preventive Procedure|
+65333383|C1883687|NCIMTH|Classification|
+122881334|C1959616|NCIMTH|Organic Chemical|
+84642859|C1959616|NCIMTH|Pharmacologic Substance|
+84846863|C1959616|NCIMTH|Biologically Active Substance|
+65100601|C1963674|NCIMTH|Disease or Syndrome|
+65105399|C1968835|NCIMTH|Gene or Genome|
+78930927|C1970995|NCIMTH|Gene or Genome|
+109335772|C1999262|NCIMTH|Biomedical or Dental Material|
+66449964|C2239174|NCIMTH|Qualitative Concept|
+69462960|C2239927|NCIMTH|Gene or Genome|
+69463140|C2240107|NCIMTH|Gene or Genome|
+69463295|C2240263|NCIMTH|Gene or Genome|
+69463409|C2242767|NCIMTH|Gene or Genome|
+69388516|C2266866|NCIMTH|Molecular Function|
+69356257|C2267095|NCIMTH|Classification|
+69322443|C2332774|NCIMTH|Intellectual Product|
+73032833|C2347818|NCIMTH|Intellectual Product|
+101313182|C2348045|NCIMTH|Intellectual Product|
+70696934|C2348066|NCIMTH|Organic Chemical|
+70699058|C2348066|NCIMTH|Pharmacologic Substance|
+70695305|C2348631|NCIMTH|Classification|
+70694772|C2348748|NCIMTH|Intellectual Product|
+120650801|C2362498|NCIMTH|Group Attribute|
+72599944|C2499019|NCIMTH|Intellectual Product|
+77006710|C2681663|NCIMTH|Gene or Genome|
+78318911|C2681844|NCIMTH|Gene or Genome|
+77006738|C2681849|NCIMTH|Gene or Genome|
+77991288|C2681903|NCIMTH|Gene or Genome|
+76684898|C2720507|NCIMTH|Intellectual Product|
+77340127|C2740581|NCIMTH|Clinical Drug|
+78323667|C2741045|NCIMTH|Drug Delivery Device|
+84859333|C2825314|NCIMTH|Gene or Genome|
+84860222|C2826776|NCIMTH|Classification|
+84859682|C2827639|NCIMTH|Classification|
+84861614|C2828026|NCIMTH|Gene or Genome|
+84862247|C2828054|NCIMTH|Gene or Genome|
+84793110|C2828567|NCIMTH|Gene or Genome|
+84766165|C2828701|NCIMTH|Gene or Genome|
+84766208|C2829391|NCIMTH|Gene or Genome|
+84752872|C2829393|NCIMTH|Gene or Genome|
+84667218|C2916796|NCIMTH|Disease or Syndrome|
+84749370|C2921005|NCIMTH|Intellectual Product|
+79811296|C2936588|NCIMTH|Organic Chemical|
+87511395|C2936588|NCIMTH|Pharmacologic Substance|
+79727725|C2936915|NCIMTH|Disease or Syndrome|
+87506495|C2952849|NCIMTH|Intellectual Product|
+87503445|C2954745|NCIMTH|Clinical Drug|
+120674932|C2983595|NCIMTH|Classification|
+101209633|C3178895|NCIMTH|Gene or Genome|
+101366150|C3179066|NCIMTH|Gene or Genome|
+109354102|C3210723|NCIMTH|Clinical Drug|
+109450844|C3215348|NCIMTH|Clinical Drug|
+109369604|C3215349|NCIMTH|Clinical Drug|
+109323944|C3215350|NCIMTH|Clinical Drug|
+109417712|C3215351|NCIMTH|Clinical Drug|
+109303608|C3215352|NCIMTH|Clinical Drug|
+109303499|C3238825|NCIMTH|Clinical Drug|
+109486959|C3238826|NCIMTH|Clinical Drug|
+109269671|C3238827|NCIMTH|Clinical Drug|
+109353996|C3243737|NCIMTH|Intellectual Product|
+122864590|C3253442|NCIMTH|Organic Chemical|
+109476103|C3253442|NCIMTH|Amino Acid, Peptide, or Protein|
+109269329|C3253442|NCIMTH|Biologically Active Substance|
+109493829|C3273053|NCIMTH|Conceptual Entity|
+109461467|C3273056|NCIMTH|Conceptual Entity|
+109449319|C3273057|NCIMTH|Conceptual Entity|
+109467455|C3273359|NCIMTH|Manufactured Object|
+109519316|C3274879|NCIMTH|Intellectual Product|
+109462441|C3470396|NCIMTH|Intellectual Product|
+109366948|C3495651|NCIMTH|Drug Delivery Device|
+109292171|C3496096|NCIMTH|Intellectual Product|
+109504747|C3496097|NCIMTH|Intellectual Product|
+120755942|C3539934|NCIMTH|Intellectual Product|
+120745443|C3539983|NCIMTH|Intellectual Product|
+120659449|C3640816|NCIMTH|Intellectual Product|
+120795503|C3641144|NCIMTH|Intellectual Product|
+120736254|C3645550|NCIMTH|Intellectual Product|
+120780633|C3645553|NCIMTH|Intellectual Product|
+120705753|C3645554|NCIMTH|Intellectual Product|
+120742713|C3645556|NCIMTH|Intellectual Product|
+120784688|C3645557|NCIMTH|Intellectual Product|
+120679215|C3645558|NCIMTH|Intellectual Product|
+120799733|C3645559|NCIMTH|Intellectual Product|
+120767553|C3645560|NCIMTH|Intellectual Product|
+120711661|C3645561|NCIMTH|Intellectual Product|
+120701462|C3645570|NCIMTH|Intellectual Product|
+120772312|C3645571|NCIMTH|Intellectual Product|
+120648652|C3645580|NCIMTH|Intellectual Product|
+120742712|C3645581|NCIMTH|Intellectual Product|
+120648651|C3645587|NCIMTH|Intellectual Product|
+120695818|C3645588|NCIMTH|Intellectual Product|
+120666927|C3645609|NCIMTH|Intellectual Product|
+120738829|C3645687|NCIMTH|Intellectual Product|
+120795706|C3645688|NCIMTH|Intellectual Product|
+120674876|C3645703|NCIMTH|Intellectual Product|
+120706764|C3645705|NCIMTH|Intellectual Product|
+120745062|C3658343|NCIMTH|Gene or Genome|
+120790460|C3665477|NCIMTH|Therapeutic or Preventive Procedure|
+126347769|C3714478|NCIMTH|Manufactured Object|
+126327071|C3714514|NCIMTH|Disease or Syndrome|
+122922125|C3816963|NCIMTH|Intellectual Product|
+122905756|C3816964|NCIMTH|Intellectual Product|
+126331268|C3827752|NCIMTH|Intellectual Product|
+126322547|C3828873|NCIMTH|Intellectual Product|
+126351064|C3829311|NCIMTH|Intellectual Product|
+126334754|C3830170|NCIMTH|Intellectual Product|
+126307317|C3831077|NCIMTH|Intellectual Product|
+126411762|C3839127|NCIMTH|Gene or Genome|
+122842413|C3850146|NCIMTH|Occupational Activity|
+122912073|C3850146|NCIMTH|Machine Activity|
+126318148|C3853348|NCIMTH|Intellectual Product|
+126288204|C3858370|NCIMTH|Intellectual Product|
+126378988|C3858944|NCIMTH|Intellectual Product|
+126372105|C3858945|NCIMTH|Intellectual Product|
+126248063|C3858950|NCIMTH|Intellectual Product|
+126396711|C3858951|NCIMTH|Intellectual Product|
+126277277|C3860207|NCIMTH|Intellectual Product|
+126297249|C3860212|NCIMTH|Intellectual Product|
+126315587|C3871216|NCIMTH|Intellectual Product|
+126269773|C3871218|NCIMTH|Intellectual Product|
+126361788|C3885037|NCIMTH|Organic Chemical|
+126310579|C3892056|NCIMTH|Intellectual Product|
+126298949|C3893231|NCIMTH|Intellectual Product|
+126259150|C3897818|NCIMTH|Intellectual Product|
+126391139|C3899741|NCIMTH|Functional Concept|
+126432778|C3899744|NCIMTH|Functional Concept|
+126434134|C3900218|NCIMTH|Intellectual Product|
+126260061|C4011374|NCIMTH|Intellectual Product|
+126358318|C4020558|NCIMTH|Intellectual Product|
+126344035|C4020635|NCIMTH|Intellectual Product|
+126336484|C4020636|NCIMTH|Intellectual Product|
+126264759|C4034189|NCIMTH|Intellectual Product|
+126366471|C4038520|NCIMTH|Intellectual Product|
+126384697|C4038521|NCIMTH|Intellectual Product|
+126344683|C4038522|NCIMTH|Intellectual Product|
+126341834|C4041552|NCIMTH|Intellectual Product|
+126353243|C4046109|NCIMTH|Intellectual Product|
+126420939|C4046110|NCIMTH|Intellectual Product|
+126428478|C4046111|NCIMTH|Intellectual Product|
+126428527|C4046113|NCIMTH|Intellectual Product|
+126253528|C4046115|NCIMTH|Intellectual Product|
+126329423|C4046116|NCIMTH|Intellectual Product|
+17325732|CL105989|NCIMTH|Intellectual Product|
+17325733|CL106499|NCIMTH|Intellectual Product|
+18110991|CL324348|NCIMTH|Intellectual Product|
+18207837|CL337060|NCIMTH|Intellectual Product|
+18290001|CL337097|NCIMTH|Intellectual Product|
+18290005|CL337101|NCIMTH|Intellectual Product|
+18290007|CL337103|NCIMTH|Intellectual Product|
+18290009|CL337105|NCIMTH|Intellectual Product|
+18290011|CL337107|NCIMTH|Intellectual Product|
+18446195|CL337482|NCIMTH|Intellectual Product|
+18483724|CL338216|NCIMTH|Conceptual Entity|
+18475473|CL340379|NCIMTH|Intellectual Product|
+18484057|CL342698|NCIMTH|Intellectual Product|
+18484059|CL342699|NCIMTH|Intellectual Product|
+18503706|CL343444|NCIMTH|Intellectual Product|
+18511811|CL353098|NCIMTH|Intellectual Product|
+20456258|CL356830|NCIMTH|Intellectual Product|
+43125964|CL360522|NCIMTH|Intellectual Product|
+52065100|CL369490|NCIMTH|Intellectual Product|
+52073066|CL369520|NCIMTH|Cell or Molecular Dysfunction|
+52072889|CL369534|NCIMTH|Intellectual Product|
+52072811|CL369564|NCIMTH|Qualitative Concept|
+52072898|CL369565|NCIMTH|Qualitative Concept|
+52072857|CL369586|NCIMTH|Cell or Molecular Dysfunction|
+52065173|CL369712|NCIMTH|Amino Acid, Peptide, or Protein|
+52065174|CL369713|NCIMTH|Amino Acid, Peptide, or Protein|
+52065175|CL369714|NCIMTH|Amino Acid, Peptide, or Protein|
+52073168|CL369753|NCIMTH|Gene or Genome|
+52077183|CL369754|NCIMTH|Gene or Genome|
+52073047|CL369769|NCIMTH|Intellectual Product|
+52072902|CL369789|NCIMTH|Intellectual Product|
+52072928|CL369838|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+52073008|CL369920|NCIMTH|Functional Concept|
+52073186|CL369933|NCIMTH|Quantitative Concept|
+52077251|CL370027|NCIMTH|Quantitative Concept|
+52072885|CL370029|NCIMTH|Laboratory Procedure|
+52073020|CL370045|NCIMTH|Nucleic Acid, Nucleoside, or Nucleotide|
+52073140|CL370051|NCIMTH|Quantitative Concept|
+52073001|CL370057|NCIMTH|Quantitative Concept|
+52065101|CL370086|NCIMTH|Intellectual Product|
+52072987|CL370097|NCIMTH|Organism Function|
+56537737|CL371976|NCIMTH|Intellectual Product|
+56537739|CL371978|NCIMTH|Intellectual Product|
+56537741|CL371980|NCIMTH|Intellectual Product|
+60868487|CL378800|NCIMTH|Intellectual Product|
+63357417|CL386149|NCIMTH|Intellectual Product|
+63379343|CL388550|NCIMTH|Intellectual Product|
+73494886|CL415855|NCIMTH|Intellectual Product|
+73500661|CL416212|NCIMTH|Disease or Syndrome|
+73499512|CL416216|NCIMTH|Pharmacologic Substance|
+73494428|CL421683|NCIMTH|Conceptual Entity|
+73501345|CL421694|NCIMTH|Intellectual Product|
+73500139|CL421696|NCIMTH|Intellectual Product|
+73494502|CL422181|NCIMTH|Intellectual Product|
+79511764|CL423721|NCIMTH|Intellectual Product|
+79600896|CL424900|NCIMTH|Intellectual Product|
+84860488|CL428550|NCIMTH|Intellectual Product|
+97496203|CL433994|NCIMTH|Intellectual Product|
+97496153|CL433999|NCIMTH|Intellectual Product|
+101209367|CL437397|NCIMTH|Intellectual Product|
+104633448|CL448201|NCIMTH|Gene or Genome|
+116208862|CL448235|NCIMTH|Cell or Molecular Dysfunction|
+116209081|CL448410|NCIMTH|Gene or Genome|
+116207755|CL448703|NCIMTH|Intellectual Product|
+116205053|CL448842|NCIMTH|Classification|
+122916335|CL448888|NCIMTH|Classification|
+116513765|CL465180|NCIMTH|Finding|
+116529414|CL471834|NCIMTH|Intellectual Product|
+122885315|CL474080|NCIMTH|Intellectual Product|
+122928987|CL494726|NCIMTH|Intellectual Product|
+122821895|CL494727|NCIMTH|Intellectual Product|
+126361651|CL498550|NCIMTH|Intellectual Product|
+126250219|CL502616|NCIMTH|Intellectual Product|
+126298059|CL503148|NCIMTH|Intellectual Product|
+126426281|CL503673|NCIMTH|Intellectual Product|
+126435391|CL503733|NCIMTH|Intellectual Product|
+126313145|CL503734|NCIMTH|Intellectual Product|
+126403991|CL503735|NCIMTH|Intellectual Product|
+126419405|CL503736|NCIMTH|Intellectual Product|
+126293375|CL503737|NCIMTH|Intellectual Product|
+126294787|CL503738|NCIMTH|Intellectual Product|
+126379342|CL503739|NCIMTH|Intellectual Product|
+126387350|CL503740|NCIMTH|Intellectual Product|
+126383383|CL503741|NCIMTH|Intellectual Product|
+126328731|CL503742|NCIMTH|Intellectual Product|
+126331559|CL503743|NCIMTH|Intellectual Product|
+126303503|CL503744|NCIMTH|Intellectual Product|
+126355413|CL503745|NCIMTH|Intellectual Product|
+126333458|CL503746|NCIMTH|Intellectual Product|
+126391688|CL503747|NCIMTH|Intellectual Product|
+126427826|CL503748|NCIMTH|Intellectual Product|
+126316551|CL503749|NCIMTH|Intellectual Product|
+126383384|CL503750|NCIMTH|Intellectual Product|
+126436116|CL503751|NCIMTH|Intellectual Product|
+126251370|CL503752|NCIMTH|Intellectual Product|
+126326529|CL503753|NCIMTH|Intellectual Product|
+126311696|CL503754|NCIMTH|Intellectual Product|
+126344999|CL503755|NCIMTH|Intellectual Product|
+126418677|CL503756|NCIMTH|Intellectual Product|
+126265148|CL503757|NCIMTH|Intellectual Product|
+126395600|CL505176|NCIMTH|Intellectual Product|
