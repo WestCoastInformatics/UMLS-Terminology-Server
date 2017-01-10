@@ -105,12 +105,12 @@ public class ReportServiceJpa extends HistoryServiceJpa
       sb.append(new Date());
       if (validationResult.getWarnings().size() > 0
           || validationResult.getErrors().size() > 0) {
-        sb.append(", this entry has the following problems/issues: ");
+        sb.append(", this entry has the following problems/issues: \n");
         for (String warning : validationResult.getWarnings()) {
-          sb.append(warning);
+          sb.append(warning).append("\n");
         }
         for (String error : validationResult.getErrors()) {
-          sb.append(error);
+          sb.append(error).append("\n");
         }
       } else {
         sb.append(", this entry had no problems/issues.");

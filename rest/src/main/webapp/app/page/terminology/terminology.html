@@ -13,12 +13,8 @@
 
     <span ng-show="lists.terminologies.length > 1" style="float: right;">
       Page size: <select ng-model="paging['t'].pageSize" title="Page Size"
-        ng-change="paging['t'].callbacks.getPagedList()">
-        <option value="10">10</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-        <option value="200">200</option>
-        <option value="1000000">All</option>
+        ng-change="paging['t'].callbacks.getPagedList()"
+        ng-options="item.value as item.name for item in pageSizes">
       </select>
     </span>
     <div pager paging="paging['t']" count="lists.terminologies.length"

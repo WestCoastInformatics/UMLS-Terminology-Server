@@ -23,7 +23,7 @@ close(IN);
 
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 # CUI1,AUI1,STYPE1,REL,CUI2,AUI2,STYPE2,RELA,RUI,SRUI,SAB,SL,RG,DIR,SUPPRESS,CVF
-while(<>) {
+while(<STDIN>) {
   chop;
   ($toCui, $toAui, $toType, $type, $fromCui, $fromAui, $fromType, $additionalType, $id, $terminologyId, $terminology, $d, $group, $dir, $d) = split /\|/;
 
