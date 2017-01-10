@@ -41,30 +41,27 @@ if ($status != 0) then
 endif
 
 # add in "XMAP" entries for mappings
-# MAPSETCUI,MAPSETSAB,MAPSUBSETID,MAPRANK,MAPID,MAPSID,FROMID,FROMSID,FROMEXPR,FROMTYPE,FROMRULE,FROMRES,REL,RELA,TOID,TOSID,TOEXPR,TOTYPE,TORULE,TORES,MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
+# MAPSETCUI,MAPSETSAB,MAPSUBSETID,MAPRANK,MAPID,MAPSID,FROMID,FROMSID,FROMEXPR,FROMTYPE,FROMRULE,FROMRES,REL,RELA,TOID,TOSID,\
+# TOEXPR,TOTYPE,TORULE,TORES,MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
 echo "  Compute attribute identity for MRMAP"
 /bin/rm -f xmCuiAui.txt
  grep '|XM|' MRCONSO.RRF  | cut -d\| -f 1,8 > xmCuiAui.txt
 
-perl -ne '@_ = split/\|//; print "\n";' MRMAP.RRF | lib/mrsat.pl >> attributeIdentity.txt
+perl -ne 'BEGIN {open(X,"xmCuiAui.txt"); while (<X>) { chop; @_=split/\|/; $map{$_[0]}=$_[1]; }; close(X); } @_ = split/\|/;  print "$_[0]|L|S|$map{$_[0]}|AUI|$_[5]|$_[4]||XMAP|$_[1]|$_[2]~$_[3]~$_[6]~$_[12]~$_[13]~$_[14]~$_[20]~$_[22]~$_[23]~$_[24]~$_[5]~$_[21]|N||\n" ' MRMAP.RRF | lib/mrsat.pl >> attributeIdentity.txt
     
-    $_[0]|L|S|REPL|AUI
-    
-    MAPSUBSETID: Map sub set identifier
-    MAPRANK: Order in which mappings in a subset should be applied
-    FROMID: Identifier mapped from
-    REL: Relationship
-    RELA: Relationship attribute
-    TOID: Identifier mapped to
-    MAPRULE: Machine processable rule for when to apply mapping
-    MAPTYPE: Type of mapping
-    MAPATN: Row level attribute name associated with this mapping
-    MAPATV: Row level attribute value associated with this mapping
-    MAPSID: Source asserted Mapping ID
-    MAPRES: Human readable restriction use of mapping
-
-
-# TODO: do for later - opportunity to change this... can have MappingIdentity...
+#    2 MAPSUBSETID: Map sub set identifier
+#    3 MAPRANK: Order in which mappings in a subset should be applied
+#    6 FROMID: Identifier mapped from
+#    12 REL: Relationship
+#    13 RELA: Relationship attribute
+#    14 TOID: Identifier mapped to
+#    20 MAPRULE: Machine processable rule for when to apply mapping
+#    22 MAPTYPE: Type of mapping
+#    23 MAPATN: Row level attribute name associated with this mapping
+#    24 MAPATV: Row level attribute value associated with this mapping   
+#    5 MAPSID: Source asserted Mapping ID
+#    21 MAPRES: Human readable restriction use of mapping
+/bin/rm -f xmCuiAui.txt
 
 #
 # Semantic Type Component Identity
