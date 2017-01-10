@@ -513,10 +513,20 @@ public abstract class AbstractSourceInsertionAlgorithm
     for (final Object[] entry : list) {
       final AtomSubset subset = (AtomSubset) entry[0];
       final Atom atom = (Atom) entry[1];
+      final String terminology = atom.getTerminology();
+      final String version = atom.getVersion();
+      String terminologyAndVersion = null;
+
+      if (version.equals("latest")) {
+        terminologyAndVersion = terminology;
+      } else {
+        terminologyAndVersion = terminology + "_" + version;
+      }
+
       // Only add the mapSet if the atom has an codeId
       final String atomCodeId = atom.getCodeId();
       if (atomCodeId != null) {
-        cachedAtomSubsets.put(atomCodeId, subset);
+        cachedAtomSubsets.put(atomCodeId + terminologyAndVersion, subset);
       }
     }
   }
@@ -544,8 +554,18 @@ public abstract class AbstractSourceInsertionAlgorithm
       final Atom atom = (Atom) entry[1];
       // Only add the mapSet if the atom has an codeId
       final String atomCodeId = atom.getCodeId();
+      final String terminology = atom.getTerminology();
+      final String version = atom.getVersion();
+      String terminologyAndVersion = null;
+
+      if (version.equals("latest")) {
+        terminologyAndVersion = terminology;
+      } else {
+        terminologyAndVersion = terminology + "_" + version;
+      }
+
       if (atomCodeId != null) {
-        cachedConceptSubsets.put(atomCodeId, subset);
+        cachedConceptSubsets.put(atomCodeId + terminologyAndVersion, subset);
       }
     }
   }
@@ -770,7 +790,7 @@ public abstract class AbstractSourceInsertionAlgorithm
       return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
     }
 
-    else if (type.equals("SRC_ATOM_ID")) {
+    else if (type.equals("SRC_ATOM_ID") || type.equals("SOURCE_AUI")) {
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
         cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
       }
@@ -1085,36 +1105,81 @@ public abstract class AbstractSourceInsertionAlgorithm
   /**
    * Returns the cached map set.
    *
-   * @param codeIdAndTerminology the code id and terminology
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
    * @return the cached map set
    * @throws Exception the exception
    */
-  public AtomSubset getCachedAtomSubset(String codeIdAndTerminology)
-    throws Exception {
+  public AtomSubset getCachedAtomSubset(String codeId, String terminology,
+    String version) throws Exception {
 
     if (cachedAtomSubsets.isEmpty()) {
       cacheExistingAtomSubsets();
     }
+    if (version.equals("latest")) {
+      return cachedAtomSubsets.get(codeId + terminology);
+    } else {
+      return cachedAtomSubsets.get(codeId + terminology + "_" + version);
+    }
+  }
 
-    return cachedAtomSubsets.get(codeIdAndTerminology);
+  /**
+   * Returns the cached atom subset.
+   *
+   * @param codeId the code id
+   * @param terminologyAndversion the terminology andversion
+   * @return the cached atom subset
+   * @throws Exception the exception
+   */
+  public AtomSubset getCachedAtomSubset(String codeId,
+    String terminologyAndversion) throws Exception {
+
+    if (cachedAtomSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    return cachedAtomSubsets.get(codeId + terminologyAndversion);
   }
 
   /**
    * Put map set into the cache.
    *
-   * @param codeIdAndTerminology the code id and terminology
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
    * @param atomSubset the atom subset
    * @throws Exception the exception
    */
-  public void putAtomSubset(String codeIdAndTerminology, AtomSubset atomSubset)
-    throws Exception {
+  public void putAtomSubset(String codeId, String terminology, String version,
+    AtomSubset atomSubset) throws Exception {
     if (cachedAtomSubsets.isEmpty()) {
       cacheExistingAtomSubsets();
     }
 
-    cachedAtomSubsets.put(codeIdAndTerminology, atomSubset);
+    if (version.equals("latest")) {
+      cachedAtomSubsets.put(codeId + terminology, atomSubset);
+    } else {
+      cachedAtomSubsets.put(codeId + terminology + "_" + version, atomSubset);
+    }
   }
 
+  /**
+   * Put atom subset.
+   *
+   * @param codeId the code id
+   * @param terminologyAndVersion the terminology and version
+   * @param atomSubset the atom subset
+   * @throws Exception the exception
+   */
+  public void putAtomSubset(String codeId, String terminologyAndVersion,
+    AtomSubset atomSubset) throws Exception {
+    if (cachedAtomSubsets.isEmpty()) {
+      cacheExistingAtomSubsets();
+    }
+
+    cachedAtomSubsets.put(codeId + terminologyAndVersion, atomSubset);
+  }
 
   /**
    * Returns the cached atom subsets.
@@ -1133,36 +1198,84 @@ public abstract class AbstractSourceInsertionAlgorithm
   /**
    * Returns the cached map set.
    *
-   * @param codeIdAndTerminology the code id and terminology
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
    * @return the cached map set
    * @throws Exception the exception
    */
-  public ConceptSubset getCachedConceptSubset(String codeIdAndTerminology)
-    throws Exception {
+  public ConceptSubset getCachedConceptSubset(String codeId, String terminology,
+    String version) throws Exception {
 
     if (cachedConceptSubsets.isEmpty()) {
       cacheExistingConceptSubsets();
     }
 
-    return cachedConceptSubsets.get(codeIdAndTerminology);
+    if (version.equals("latest")) {
+      return cachedConceptSubsets.get(codeId + terminology);
+    } else {
+      return cachedConceptSubsets.get(codeId + terminology + "_" + version);
+    }
+  }
+
+  /**
+   * Returns the cached concept subset.
+   *
+   * @param codeId the code id
+   * @param terminologyAndversion the terminology andversion
+   * @return the cached concept subset
+   * @throws Exception the exception
+   */
+  public ConceptSubset getCachedConceptSubset(String codeId,
+    String terminologyAndversion) throws Exception {
+
+    if (cachedConceptSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    return cachedConceptSubsets.get(codeId + terminologyAndversion);
   }
 
   /**
    * Put map set into the cache.
    *
-   * @param codeIdAndTerminology the code id and terminology
-   * @param atomSubset the atom subset
+   * @param codeId the code id
+   * @param terminology the terminology
+   * @param version the version
+   * @param conceptSubset the atom subset
    * @throws Exception the exception
    */
-  public void putConceptSubset(String codeIdAndTerminology, ConceptSubset atomSubset)
-    throws Exception {
+  public void putConceptSubset(String codeId, String terminology,
+    String version, ConceptSubset conceptSubset) throws Exception {
     if (cachedConceptSubsets.isEmpty()) {
       cacheExistingConceptSubsets();
     }
 
-    cachedConceptSubsets.put(codeIdAndTerminology, atomSubset);
+    if (version.equals("latest")) {
+      cachedConceptSubsets.put(codeId + terminology, conceptSubset);
+    } else {
+      cachedConceptSubsets.put(codeId + terminology + "_" + version,
+          conceptSubset);
+    }
   }
-  
+
+  /**
+   * Put concept subset.
+   *
+   * @param codeId the code id
+   * @param terminologyAndVersion the terminology and version
+   * @param conceptSubset the concept subset
+   * @throws Exception the exception
+   */
+  public void putConceptSubset(String codeId, String terminologyAndVersion,
+    ConceptSubset conceptSubset) throws Exception {
+    if (cachedConceptSubsets.isEmpty()) {
+      cacheExistingConceptSubsets();
+    }
+
+    cachedConceptSubsets.put(codeId + terminologyAndVersion, conceptSubset);
+  }
+
   /**
    * Returns the id.
    *

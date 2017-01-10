@@ -26,22 +26,15 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.helpers.SearchResultList;
-import com.wci.umls.server.helpers.content.MapSetList;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.AtomLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.insert.MappingLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
-import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
@@ -75,15 +68,6 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The temporary attributes.src file. */
   private File attributesOutputFile = null;
-
-  /** The added atom. */
-  private Atom addedAtom = null;
-
-  /** The added concept. */
-  private Concept addedConcept = null;
-
-  /** The added concept 2. */
-  private Concept addedConcept2 = null;
 
   /** The added map set. */
   private MapSet addedMapSet = null;
@@ -145,48 +129,48 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     PrintWriter out = new PrintWriter(new FileWriter(atomOutputFile));
     out.println(
-        "381548367|NCI_2016_05E|NCI_2016_05E/XM|447562003|N|Y|N|SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings|N||447562003||ENG|381548367|");
+        "381548367|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01/XM|447562003|N|Y|N|SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings|N||447562003||ENG|381548367|");
     out.close();
 
     attributesOutputFile = new File(tempSrcDir, "attributes.src");
 
     out = new PrintWriter(new FileWriter(attributesOutputFile));
     out.println(
-        "13340556|381548367|S|MAPSETSID|447562003|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||c1bb150020d064227a154e6a6fceaeea|");
+        "13340556|381548367|S|MAPSETSID|447562003|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||c1bb150020d064227a154e6a6fceaeea|");
     out.println(
-        "13340557|381548367|S|MAPSETNAME|ICD-10 complex map reference set|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||f8c0f246705f3b3267c2aa75455c1223|");
+        "13340557|381548367|S|MAPSETNAME|ICD-10 complex map reference set|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||f8c0f246705f3b3267c2aa75455c1223|");
     out.println(
-        "13340558|381548367|S|MAPSETVERSION|20160901|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||1c7dbfbc9a039cdb9da1ab565cb177de|");
+        "13340558|381548367|S|MAPSETVERSION|20160901|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||1c7dbfbc9a039cdb9da1ab565cb177de|");
     out.println(
-        "13340559|381548367|S|MAPSETXRTARGETID|100051|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||3898b7be8009532088697f0b7fb2990f|");
+        "13340559|381548367|S|MAPSETXRTARGETID|100051|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||3898b7be8009532088697f0b7fb2990f|");
     out.println(
-        "13340560|381548367|S|MAPSETRSAB|NCI|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
+        "13340560|381548367|S|MAPSETRSAB|NCI|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
     out.println(
-        "13340561|381548367|S|MAPSETVSAB|NCI_2016_05E|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4e149dcf5076232e888b08c64a8fa8d4|");
+        "13340561|381548367|S|MAPSETVSAB|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4e149dcf5076232e888b08c64a8fa8d4|");
     out.println(
-        "13340562|381548367|S|FROMRSAB|SNOMEDCT_US|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
+        "13340562|381548367|S|FROMRSAB|SNOMEDCT_US|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
     out.println(
         "13340563|381548367|S|FROMVSAB|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4e149dcf5076232e888b08c64a8fa8d4|");
     out.println(
-        "13340564|381548367|S|TORSAB|ICD10|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||40cdcac3a2c1865ee15aeb762ff7aebb|");
+        "13340564|381548367|S|TORSAB|ICD10|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||40cdcac3a2c1865ee15aeb762ff7aebb|");
     out.println(
-        "13340565|381548367|S|TOVSAB|ICD10_2010|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||e7f011a514b6d05aeeaa12e928501572|");
+        "13340565|381548367|S|TOVSAB|ICD10_2010|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||e7f011a514b6d05aeeaa12e928501572|");
     out.println(
-        "13340567|381548367|S|MTH_MAPSETCOMPLEXITY|N_TO_N|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||7c33c2eebe9172af97a34f119bb4b3b1|");
+        "13340567|381548367|S|MTH_MAPSETCOMPLEXITY|N_TO_N|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||7c33c2eebe9172af97a34f119bb4b3b1|");
     out.println(
-        "13340568|381548367|S|MTH_MAPFROMCOMPLEXITY|SINGLE SCUI|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||2c9947e02d6b6c19ec71a812323431ea|");
+        "13340568|381548367|S|MTH_MAPFROMCOMPLEXITY|SINGLE SCUI|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||2c9947e02d6b6c19ec71a812323431ea|");
     out.println(
-        "13340569|381548367|S|MTH_MAPTOCOMPLEXITY|SINGLE SDUI, MULTIPLE SDUI|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||019b9ce93dff919f115fd8474dd02d17|");
+        "13340569|381548367|S|MTH_MAPTOCOMPLEXITY|SINGLE SDUI, MULTIPLE SDUI|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||019b9ce93dff919f115fd8474dd02d17|");
     out.println(
-        "13340570|381548367|S|MTH_MAPFROMEXHAUSTIVE|N|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||8d9c307cb7f3c4a32822a51922d1ceaa|");
+        "13340570|381548367|S|MTH_MAPFROMEXHAUSTIVE|N|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||8d9c307cb7f3c4a32822a51922d1ceaa|");
     out.println(
-        "13340571|381548367|S|MTH_MAPTOEXHAUSTIVE|N|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||8d9c307cb7f3c4a32822a51922d1ceaa|");
+        "13340571|381548367|S|MTH_MAPTOEXHAUSTIVE|N|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||8d9c307cb7f3c4a32822a51922d1ceaa|");
     out.println(
-        "13340579|381548367|S|XMAP|1~1~109006~RT~mapped_to~F41.9~TRUE~447637006~ACTIVE~1~9e7d5fa1-c489-5ba4-a1df-b153527c5423~ALWAYS F41.9|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||d1f221fa60439d18734b8a534e0534a1|");
+        "13340579|381548367|S|XMAP|1~1~109006~RT~mapped_to~F41.9~TRUE~447637006~ACTIVE~1~9e7d5fa1-c489-5ba4-a1df-b153527c5423~ALWAYS F41.9|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||d1f221fa60439d18734b8a534e0534a1|");
     out.println(
-        "13340580|381548367|S|XMAPFROM|109006~~109006~SCUI~Test From Rule~Test From Res|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||3e766148ef891e9a500c5367851c5a9d|");
+        "13340580|381548367|S|XMAPFROM|109006~~109006~SCUI~Test From Rule~Test From Res|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||3e766148ef891e9a500c5367851c5a9d|");
     out.println(
-        "13340581|381548367|S|XMAPTO|F41.9~~F41.9~SDUI~Test To Rule~Test To Res|NCI_2016_05E|R|Y|N|N|SRC_ATOM_ID|||c5343982680e1c8f21b40f04b35a6bde|");
+        "13340581|381548367|S|XMAPTO|F41.9~~F41.9~SDUI~Test To Rule~Test To Res|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||c5343982680e1c8f21b40f04b35a6bde|");
     out.close();
 
     // Create and configure the atom algorithm
@@ -220,80 +204,6 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
   @Test
   public void testMappingLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
-
-    // Run the ATOMLOADER algorithm
-    try {
-
-      // Get the mapSets that exist prior to the ATOMLOADER run.
-      final MapSetList existingMapSets =
-          contentService.getMapSets("", "", Branch.ROOT);
-
-      atomAlgo.setTransactionPerOperation(false);
-      atomAlgo.beginTransaction();
-      //
-      // Check prerequisites
-      //
-      ValidationResult validationResult = atomAlgo.checkPreconditions();
-      // if prerequisites fail, return validation result
-      if (!validationResult.getErrors().isEmpty()
-          || (!validationResult.getWarnings().isEmpty())) {
-        // rollback -- unlocks the concept and closes transaction
-        atomAlgo.rollback();
-      }
-      assertTrue(validationResult.getErrors().isEmpty());
-
-      //
-      // Perform the algorithm
-      //
-      atomAlgo.compute();
-
-      // Make sure the atom in the temporary input file were added.
-      contentService = new ContentServiceJpa();
-      SearchResultList list = contentService.findConceptSearchResults(
-          processExecution.getTerminology(), processExecution.getVersion(),
-          Branch.ROOT,
-          "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
-          null);
-      assertEquals(1, list.size());
-
-      addedConcept =
-          contentService.getConcept(list.getObjects().get(0).getId());
-      for (Atom atom : addedConcept.getAtoms()) {
-        if (atom.getName()
-            .equals("SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings")) {
-          addedAtom = atom;
-          break;
-        }
-      }
-      assertNotNull(addedAtom);
-
-      // atomAlgo will create two concepts - one for project terminology, and
-      // the other for the atom's terminology. Load the other one as well.
-      list = contentService.findConceptSearchResults("NCI", "2016_05E",
-          Branch.ROOT,
-          "atoms.nameSort:\"SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings\"",
-          null);
-      assertEquals(1, list.size());
-      addedConcept2 =
-          contentService.getConcept(list.getObjects().get(0).getId());
-
-      // Make sure a new mapSet was added.
-      MapSetList mapSetList = contentService.getMapSets("", "", Branch.ROOT);
-
-      for (MapSet mapSet : mapSetList.getObjects()) {
-        if (!existingMapSets.contains(mapSet)) {
-          addedMapSet = mapSet;
-          break;
-        }
-      }
-      assertNotNull(addedMapSet);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("Unexpected exception thrown - please review stack trace.");
-    } finally {
-      atomAlgo.close();
-    }
 
     // Run the MAPPINGLOADER algorithm
     try {
@@ -388,34 +298,6 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
     contentService = new ContentServiceJpa();
     contentService.setMolecularActionFlag(false);
     contentService.setLastModifiedBy("admin");
-
-    if (addedAtom != null) {
-      Code code = contentService.getCode(addedAtom.getCodeId(),
-          addedAtom.getTerminology(), addedAtom.getVersion(), Branch.ROOT);
-      if (code != null) {
-        code.getAtoms().remove(addedAtom);
-        contentService.updateCode(code);
-      }
-      Descriptor descriptor =
-          contentService.getDescriptor(addedAtom.getDescriptorId(),
-              addedAtom.getTerminology(), addedAtom.getVersion(), Branch.ROOT);
-      if (descriptor != null) {
-        descriptor.getAtoms().remove(addedAtom);
-        contentService.updateCode(code);
-      }
-      if (addedConcept != null) {
-        addedConcept.getAtoms().remove(addedAtom);
-        contentService.updateConcept(addedConcept);
-        contentService.removeConcept(addedConcept.getId());
-      }
-      if (addedConcept2 != null) {
-        addedConcept2.getAtoms().remove(addedAtom);
-        contentService.updateConcept(addedConcept2);
-        contentService.removeConcept(addedConcept2.getId());
-      }
-
-      contentService.removeAtom(addedAtom.getId());
-    }
 
     if (addedMapSet != null) {
       List<Mapping> mappings = addedMapSet.getMappings();
