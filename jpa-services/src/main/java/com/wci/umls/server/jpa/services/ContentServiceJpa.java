@@ -4659,7 +4659,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @SuppressWarnings({
-      "rawtypes"
+      "rawtypes", "unchecked"
   })
   @Override
   public TreePositionList findConceptDeepTreePositions(String terminologyId,
@@ -4683,14 +4683,16 @@ public class ContentServiceJpa extends MetadataServiceJpa
         .map(a -> "nodeId:" + a.getId()).collect(Collectors.toList());
     final TreePositionList atomTrees = findTreePositions(null, null, null,
         Branch.ROOT, ConfigUtility.composeQuery("OR", clauses),
-        AtomTreePositionJpa.class, pfs);
+        AtomTreePositionJpa.class, null);
     final Set<Long> nodesSeen = new HashSet<>();
     final Set<String> terminologiesSeen = new HashSet<>();
     for (final TreePosition tp : atomTrees.getObjects()) {
       // keep the first one encountered
       if (!nodesSeen.contains(tp.getNode().getId())) {
+        System.out.println("  add tp = " + tp);
         treePositionList.add(tp);
       }
+      nodesSeen.add(tp.getNode().getId());
       terminologiesSeen.add(tp.getNode().getTerminology());
     }
 
@@ -4739,6 +4741,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         if (treePos != null) {
           // handle lazy init
           treePos.setAttributes(new ArrayList<>(0));
+          System.out.println("  add tp = " + treePos);
           treePositionList.add(treePos);
         }
       }
@@ -4757,10 +4760,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // need to copy list again
     final TreePositionList list = new TreePositionListJpa();
     list.setTotalCount(totalCt[0]);
-    // Transform to "TreePosition<?>"
-    for (final TreePosition<?> tp : treePositionList) {
-      list.getObjects().add(tp);
-    }
+    list.getObjects().addAll((List) treePositionList);
+    System.out.println("  count = " + totalCt[0]);
 
     return list;
 

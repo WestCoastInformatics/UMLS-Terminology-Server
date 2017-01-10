@@ -1078,7 +1078,7 @@ tsApp
             + ', height=' + height + ', scrollbars=yes');
           $scope.windows['context'].document.title = 'Contexts';
           $scope.windows['context'].focus();
-          if ($scope.user.userPreferences.propertieshasOwnProperty('contextX')) {
+          if ($scope.user.userPreferences.properties.hasOwnProperty('contextX')) {
             $scope.windows['context'].moveTo($scope.user.userPreferences.properties['contextX'],
               $scope.user.userPreferences.properties['contextY']);
           }

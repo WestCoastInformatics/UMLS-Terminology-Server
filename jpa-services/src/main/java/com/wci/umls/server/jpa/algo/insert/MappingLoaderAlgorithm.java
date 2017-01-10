@@ -399,6 +399,7 @@ public class MappingLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
    * Process xmap entry.
    *
    * @param xmapEntry the xmap entry
+   * @param handler the handler
    * @throws Exception the exception
    */
   private void processXmapEntry(String xmapEntry,

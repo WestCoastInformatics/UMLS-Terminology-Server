@@ -367,6 +367,25 @@ tsApp
           };
         };
 
+        // Get page sizes
+        this.getPageSizes = function() {
+          return [ {
+            name : 10,
+            value : 10
+          }, {
+            name : 20,
+            value : 30
+          }, {
+            name : 40,
+            value : 50
+          }, {
+            name : 100,
+            value : 100
+          }, {
+            name : 'All',
+            value : 100000
+          } ];
+        }
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
         // use when all data is already loaded

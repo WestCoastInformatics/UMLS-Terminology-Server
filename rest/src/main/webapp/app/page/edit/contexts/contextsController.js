@@ -34,6 +34,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
 
     // Watch for component change
     $scope.$watch('selected.component', function() {
+      console.debug('xxx1');
       $scope.getPagedEntries();
     });
 
@@ -48,10 +49,11 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
 
     // Get paged entries (assume all are loaded)
     $scope.getPagedEntries = function() {
+      console.debug('yyy');
       getPagedEntries();
     }
     function getPagedEntries() {
-
+      console.debug('zzz');
       $scope.entries = [];
       contentService.findDeepTreePositions({
         terminology : $scope.selected.project.terminology,
@@ -63,6 +65,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
       function(data) {
         $scope.pagedEntries = data.treePositions;
         $scope.pagedEntries.totalCount = data.totalCount;
+
         if (data.treePositions.length > 0) {
           $scope.selectEntry(null, data.treePositions[0]);
         }
@@ -71,6 +74,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
 
     // refresh
     $scope.refresh = function() {
+      console.debug('xxx2');
       $scope.$apply();
     }
 

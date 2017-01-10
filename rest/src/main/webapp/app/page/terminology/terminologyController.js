@@ -43,6 +43,8 @@ tsApp.controller('TerminologyCtrl', [
     $scope.paging['t'].callbacks = {
       getPagedList : getPagedList
     };
+    $scope.pageSizes = utilService.getPageSizes();
+    
 
     // Paging function
     $scope.getPagedList = function(terminology) {
