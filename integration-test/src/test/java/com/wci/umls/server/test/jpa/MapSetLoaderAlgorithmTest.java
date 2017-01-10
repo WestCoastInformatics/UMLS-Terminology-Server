@@ -30,8 +30,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.AtomLoaderAlgorithm;
-import com.wci.umls.server.jpa.algo.insert.MappingLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.insert.MapSetLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.model.content.Attribute;
@@ -43,13 +42,10 @@ import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 /**
  * Sample test to get auto complete working.
  */
-public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
-
-  /** The atom algorithm. */
-  AtomLoaderAlgorithm atomAlgo = null;
+public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The mapping algorithm. */
-  MappingLoaderAlgorithm mappingAlgo = null;
+  MapSetLoaderAlgorithm mappingAlgo = null;
 
   /** The process execution. */
   ProcessExecution processExecution = null;
@@ -122,19 +118,12 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setInputPath(
         processExecution.getInputPath() + File.separator + "temp");
 
-    // Create and populate classes_atoms.src and attributes.src documents in the
-    // /temp
-    // temporary subfolder
-    atomOutputFile = new File(tempSrcDir, "classes_atoms.src");
-
-    PrintWriter out = new PrintWriter(new FileWriter(atomOutputFile));
-    out.println(
-        "381548367|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01/XM|447562003|N|Y|N|SNOMEDCT_US_2016_09_01 to ICD10_2010 Mappings|N||447562003||ENG|381548367|");
-    out.close();
+    // Create and populate attributes.src documents in the
+    // /temp temporary subfolder
 
     attributesOutputFile = new File(tempSrcDir, "attributes.src");
 
-    out = new PrintWriter(new FileWriter(attributesOutputFile));
+    PrintWriter out = new PrintWriter(new FileWriter(attributesOutputFile));
     out.println(
         "13340556|381548367|S|MAPSETSID|447562003|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||c1bb150020d064227a154e6a6fceaeea|");
     out.println(
@@ -173,19 +162,8 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
         "13340581|381548367|S|XMAPTO|F41.9~~F41.9~SDUI~Test To Rule~Test To Res|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||c5343982680e1c8f21b40f04b35a6bde|");
     out.close();
 
-    // Create and configure the atom algorithm
-    atomAlgo = new AtomLoaderAlgorithm();
-
-    // Configure the algorithm (need to do either way)
-    atomAlgo.setLastModifiedBy("admin");
-    atomAlgo.setLastModifiedFlag(true);
-    atomAlgo.setProcess(processExecution);
-    atomAlgo.setProject(processExecution.getProject());
-    atomAlgo.setTerminology(processExecution.getTerminology());
-    atomAlgo.setVersion(processExecution.getVersion());
-
     // Create and configure the mapping algorithm
-    mappingAlgo = new MappingLoaderAlgorithm();
+    mappingAlgo = new MapSetLoaderAlgorithm();
 
     // Configure the algorithm (need to do either way)
     mappingAlgo.setLastModifiedBy("admin");
@@ -272,8 +250,8 @@ public class MappingLoaderAlgorithmTest extends IntegrationUnitSupport {
       // Make sure the mapset was updated
       addedMapSet = contentService.getMapSet(addedMapSet.getId());
       assertEquals("ICD-10 complex map reference set", addedMapSet.getName());
-      assertEquals("NCI", addedMapSet.getTerminology());
-      assertEquals("2016_05E", addedMapSet.getVersion());
+      assertEquals("SNOMEDCT_US", addedMapSet.getTerminology());
+      assertEquals("2016_09_01", addedMapSet.getVersion());
       assertEquals("SNOMEDCT_US", addedMapSet.getFromTerminology());
       assertEquals("2016_09_01", addedMapSet.getFromVersion());
       assertEquals("ICD10", addedMapSet.getToTerminology());

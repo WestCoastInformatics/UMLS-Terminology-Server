@@ -185,8 +185,8 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       handleAdditionalRelationshipTypes();
       updateProgress();
 
-      commitClearBegin();      
-      
+      commitClearBegin();
+
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
       logInfo("  activityId = " + getActivityId());
@@ -366,13 +366,13 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         }
         term.setUrl(fields[14]);
         if (!fields[19].isEmpty()) {
-          if (Integer.parseInt(fields[19]) == 1) {
+          if (fields[19].equals("Y")) {
             term.setAssertsRelDirection(true);
-          } else if (Integer.parseInt(fields[19]) == 0) {
+          } else if (fields[19].equals("N")) {
             term.setAssertsRelDirection(false);
           } else {
             throw new Exception("Error: Unexpected value " + fields[19]
-                + " for field REL_DIRECTIONALITY_FLAG.  Value can only be 0 or 1.");
+                + " for field REL_DIRECTIONALITY_FLAG.  Value can only be Y or N.");
           }
         }
         term.setRootTerminology(getCachedRootTerminology(fields[4]));
