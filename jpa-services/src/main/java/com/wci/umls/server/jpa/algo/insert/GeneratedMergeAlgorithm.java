@@ -7,15 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -27,11 +24,8 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
-import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * Implementation of an algorithm to import attributes.
@@ -150,7 +144,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
-          applyFilters(atomIdPairs, params, statsMap);
+          applyFilters(atomIdPairs, params, filterQueryType, filterQuery, newAtomsOnly, statsMap);
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
 
@@ -209,116 +203,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     }
   }
 
-  /**
-   * Apply filters.
-   *
-   * @param atomIdPairs the atom id pairs
-   * @param params the params
-   * @param statsMap the stats map
-   * @return the list
-   * @throws Exception the exception
-   */
-  private List<Pair<Long, Long>> applyFilters(List<Long[]> atomIdPairs,
-    Map<String, String> params, Map<String, Integer> statsMap)
-    throws Exception {
-    final List<Pair<Long, Long>> filteredAtomIdsPairs = new ArrayList<>();
 
-    // Run the filters, and save the unique atomIds/atomIdPairs to sets
-    // SQL/JQL queries will populate filterAtomIdPairs set
-    // LUCENE queries will populate the filterAtomIds set
-    Set<Pair<Long, Long>> filterAtomIdPairs = null;
-    Set<Long> filterAtomIds = null;
-
-    // If LUCENE filter query, returns concept id
-    if (filterQueryType == QueryType.LUCENE) {
-      final List<Long> filterConceptIds = executeSingleComponentIdQuery(
-          filterQuery, filterQueryType, params, ConceptJpa.class);
-
-      // For each returned concept, filter for all of its atoms' ids
-      filterAtomIds = new HashSet<>();
-      for (Long conceptId : filterConceptIds) {
-        Concept c = getConcept(conceptId);
-        for (Atom a : c.getAtoms()) {
-          filterAtomIds.add(a.getId());
-        }
-      }
-    }
-
-    // PROGRAM filter queries not supported yet
-    else if (queryType == QueryType.PROGRAM) {
-      throw new Exception("PROGRAM queries not yet supported");
-    }
-
-    // If JQL/SQL filter query, returns atom1,atom2 Id pairs
-    else if (filterQueryType == QueryType.SQL
-        || filterQueryType == QueryType.JQL) {
-      final List<Long[]> filterAtomIdPairArray = executeComponentIdPairQuery(
-          filterQuery, filterQueryType, params, AtomJpa.class);
-
-      // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
-      filterAtomIdPairs = new HashSet<>();
-      for (Long[] filterAtomIdPair : filterAtomIdPairArray) {
-        final Pair<Long, Long> atomOneTwoPair =
-            new ImmutablePair<>(filterAtomIdPair[0], filterAtomIdPair[1]);
-        final Pair<Long, Long> atomTwoOnePair =
-            new ImmutablePair<>(filterAtomIdPair[1], filterAtomIdPair[0]);
-        filterAtomIdPairs.add(atomOneTwoPair);
-        filterAtomIdPairs.add(atomTwoOnePair);
-      }
-    }
-
-    // Go through each atom pair. If it makes it past all of the filters, add
-    // it to the filtered list
-    for (Long[] atomIdArrayPair : atomIdPairs) {
-      // Recast the array as a Pair, for easier comparison
-      final Pair<Long, Long> atomIdPair =
-          new ImmutablePair<Long, Long>(atomIdArrayPair[0], atomIdArrayPair[1]);
-
-      // New Atoms Only Filter
-      if (newAtomsOnly) {
-        Long maxAtomIdPreInsertion = null;
-        if (getProcess().getExecutionInfo()
-            .containsKey("maxAtomIdPreInsertion")) {
-          maxAtomIdPreInsertion = Long.parseLong(
-              getProcess().getExecutionInfo().get("maxAtomIdPreInsertion"));
-        }
-        if (maxAtomIdPreInsertion != null) {
-          if (atomIdPair.getLeft() <= maxAtomIdPreInsertion
-              || atomIdPair.getRight() <= maxAtomIdPreInsertion) {
-            statsMap.put("atomPairsRemovedByFilters",
-                statsMap.get("atomPairsRemovedByFilters") + 1);
-            continue;
-          }
-        }
-      }
-
-      // Check SQL/JQL filter atom id pairs, if any
-      if (filterAtomIdPairs != null) {
-        if (filterAtomIdPairs.contains(atomIdPair)) {
-          statsMap.put("atomPairsRemovedByFilters",
-              statsMap.get("atomPairsRemovedByFilters") + 1);
-          continue;
-        }
-      }
-
-      // Check LUCENE filter atom ids, if any
-      // If atomId is one of the Atoms contained in the
-      // filter atoms, don't keep pair
-      if (filterAtomIds != null) {
-        if (filterAtomIds.contains(atomIdPair.getLeft())
-            || filterAtomIds.contains(atomIdPair.getRight())) {
-          statsMap.put("atomPairsRemovedByFilters",
-              statsMap.get("atomPairsRemovedByFilters") + 1);
-          continue;
-        }
-      }
-
-      // This pair has made it past all of the filters!
-      filteredAtomIdsPairs.add(atomIdPair);
-    }
-
-    return filteredAtomIdsPairs;
-  }
 
   /**
    * Reset.
@@ -446,7 +331,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
-    param.getPossibleValues().remove("");
     params.add(param);
 
     // filter query
