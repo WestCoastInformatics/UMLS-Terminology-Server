@@ -171,7 +171,6 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // If this lines mergeSet doesn't match the specified mergeSet, skip.
         if (!fields[7].equals(mergeSet)) {
-          updateProgress();
           continue;
         }
 
@@ -189,8 +188,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         Component component = getComponent(fields[8], fields[0],
             getCachedTerminologyName(fields[9]), null);
         if (component == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[8] + ", terminologyId: " + fields[0]);
+          logWarn("Warning - could not find Component for type: " + fields[8]
+              + ", terminologyId: " + fields[0]
+              + ". Could not process the following line:\n\t" + line);
           continue;
         }
         Atom atom = null;
@@ -203,16 +203,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
-          logWarnAndUpdate(line, "Warning - " + component.getClass().getName()
-              + " is an unhandled type.");
+          logWarn("Warning - " + component.getClass().getName()
+              + " is an unhandled type. Could not process the following line:\n\t"
+              + line);
           continue;
         }
 
         Component component2 = getComponent(fields[10], fields[2],
             getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[10] + ", terminologyId: " + fields[2]);
+          logWarn("Warning - could not find Component for type: " + fields[10]
+              + ", terminologyId: " + fields[2]
+              + ". Could not process the following line:\n\t" + line);
           continue;
         }
         Atom atom2 = null;
@@ -225,8 +227,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom2 = atoms.get(0);
         } else {
-          logWarnAndUpdate(line, "Warning - " + component2.getClass().getName()
-              + " is an unhandled type.");
+          logWarn("Warning - " + component2.getClass().getName()
+              + " is an unhandled type. Could not process the following line:\n\t"
+              + line);
           continue;
         }
 
@@ -234,9 +237,6 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         atomIdPairs.add(new Long[] {
             atom.getId(), atom2.getId()
         });
-
-        // Update the progress
-        updateProgress();
 
       }
 

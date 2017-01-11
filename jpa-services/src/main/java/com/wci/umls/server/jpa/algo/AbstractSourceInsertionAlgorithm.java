@@ -1108,6 +1108,21 @@ public abstract class AbstractSourceInsertionAlgorithm
     String relationshipType = null;
 
     switch (string) {
+      case "AQ":
+      case "BRB":
+      case "BRN":
+      case "BRO":
+      case "QB":
+      case "RB":
+      case "RN":
+      case "RO":
+      case "RQ":
+      case "SY":
+      case "PAR":
+      case "CHD":
+      case "XR":
+        relationshipType = string;
+        break;
       case "RT":
         relationshipType = "RO";
         break;
@@ -1120,20 +1135,8 @@ public abstract class AbstractSourceInsertionAlgorithm
       case "RT?":
         relationshipType = "RQ";
         break;
-      case "SY":
-        relationshipType = "SY";
-        break;
       case "SFO/LFO":
         relationshipType = "SY";
-        break;
-      case "PAR":
-        relationshipType = "PAR";
-        break;
-      case "CHD":
-        relationshipType = "CHD";
-        break;
-      case "XR":
-        relationshipType = "XR";
         break;
       default:
         throw new Exception("Invalid relationship type: " + string);

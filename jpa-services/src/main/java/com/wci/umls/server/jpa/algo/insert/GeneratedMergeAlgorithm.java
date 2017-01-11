@@ -264,7 +264,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     if (p.getProperty("newAtomsOnly") != null) {
       newAtomsOnly = Boolean.parseBoolean(p.getProperty("newAtomsOnly"));
     }
-    // Need query type can come back as "", which is invalid.
+    // Filter Query Type can come back as "", which is invalid.
     if (!ConfigUtility.isEmpty(p.getProperty("filterQueryType"))) {
       filterQueryType = Enum.valueOf(QueryType.class,
           String.valueOf(p.getProperty("filterQueryType")));
