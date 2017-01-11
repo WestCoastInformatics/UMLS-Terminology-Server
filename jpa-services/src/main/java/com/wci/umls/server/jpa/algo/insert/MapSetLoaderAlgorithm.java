@@ -60,8 +60,8 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
   /** The mapping attribute add count. */
   private int mappingAttributeAddCount = 0;
 
-  /** The mapset update count. */
-  private int mapsetUpdateCount = 0;
+  /** The mapset add count. */
+  private int mapsetAddCount = 0;
 
   /**
    * Instantiates an empty {@link MapSetLoaderAlgorithm}.
@@ -170,7 +170,6 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
       // Finally, update all xmapSets
       for (MapSet mapSet : addedMapSets.values()) {
         updateMapSet(mapSet);
-        mapsetUpdateCount++;
       }
 
       commitClearBegin();
@@ -188,10 +187,10 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         logWarn("Warning - XMAPTO line never used: " + xmapToUnusued);
       }
 
+      logInfo("[MapSetLoader] Added " + mapsetAddCount + " new MapSets.");
       logInfo("[MapSetLoader] Added " + mappingAddCount + " new Mappings.");
       logInfo("[MapSetLoader] Added " + mappingAttributeAddCount
           + " new Mapping Attributes.");
-      logInfo("[MapSetLoader] " + mapsetUpdateCount + " MapSets updated.");
 
       logInfo("  project = " + getProject().getId());
       logInfo("  workId = " + getWorkId());
@@ -258,11 +257,13 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     mapSet.setPublishable(true);
     mapSet.setPublished(false);
     mapSet.setSuppressible(false);
+    mapSet.setFromTerminology("");
     mapSet.setTerminology("");
     mapSet.setTerminologyId("");
     mapSet.setVersion("");
 
     mapSet = addMapSet(mapSet);
+    mapsetAddCount++;
     addedMapSets.put(fields[1], mapSet);
 
   }
@@ -615,7 +616,7 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     // Create the fake attribute
     Attribute newAttribute = new AttributeJpa();
     newAttribute.setName(fields[3]);
-    newAttribute.setValue(updateRelType(fields[4]));
+    newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(setTerminology.getTerminology());
     newAttribute.setTerminologyId("");
 
@@ -679,17 +680,6 @@ public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     mapSet.getMappings().add(mapping);
 
-  }
-
-  /**
-   * Update rel type.
-   *
-   * @param string the string
-   * @return the string
-   */
-  private String updateRelType(String string) {
-
-    return null;
   }
 
   /**

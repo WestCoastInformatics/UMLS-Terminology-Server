@@ -6,17 +6,22 @@ package com.wci.umls.server.jpa.algo.insert;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
@@ -38,6 +43,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
   /** The check names. */
   private List<String> checkNames;
+
+  /** The filter query type. */
+  private QueryType filterQueryType = null;
+
+  /** The filter query. */
+  private String filterQuery = null;
+
+  /** The change status. */
+  private Boolean changeStatus = null;
+
+  /** The make demotions. */
+  private Boolean makeDemotions = null;
 
   /**
    * Instantiates an empty {@link PrecomputedMergeAlgorithm}.
@@ -99,6 +116,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // Set up a stats map to be passed into the merge function later
     final Map<String, Integer> statsMap = new HashMap<>();
+    statsMap.put("atomPairsLoadedFromMergefacts", 0);
+    statsMap.put("atomPairsRemovedByFilters", 0);
+    statsMap.put("atomPairsRemainingAfterFilters", 0);
     statsMap.put("successfulMerges", 0);
     statsMap.put("unsuccessfulMerges", 0);
     statsMap.put("successfulDemotions", 0);
@@ -117,6 +137,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
+
+      // Store all of the atom Id pairs in the file in a list
+      List<Long[]> atomIdPairs = new ArrayList<>();
 
       String fields[] = new String[12];
 
@@ -148,8 +171,16 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // If this lines mergeSet doesn't match the specified mergeSet, skip.
         if (!fields[7].equals(mergeSet)) {
-          updateProgress();
           continue;
+        }
+
+        // Use the first line encountered to set changeStatus and makeDemotions
+        // (they will be the same for the entire merge set)
+        if (changeStatus == null) {
+          changeStatus = fields[6].toUpperCase().equals("Y");
+        }
+        if (makeDemotions == null) {
+          makeDemotions = fields[5].toUpperCase().equals("Y");
         }
 
         // Load the two atoms specified by the mergefacts line, or the preferred
@@ -157,8 +188,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         Component component = getComponent(fields[8], fields[0],
             getCachedTerminologyName(fields[9]), null);
         if (component == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[8] + ", terminologyId: " + fields[0]);
+          logWarn("Warning - could not find Component for type: " + fields[8]
+              + ", terminologyId: " + fields[0]
+              + ". Could not process the following line:\n\t" + line);
           continue;
         }
         Atom atom = null;
@@ -171,16 +203,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
         } else {
-          logWarnAndUpdate(line, "Warning - " + component.getClass().getName()
-              + " is an unhandled type.");
+          logWarn("Warning - " + component.getClass().getName()
+              + " is an unhandled type. Could not process the following line:\n\t"
+              + line);
           continue;
         }
 
         Component component2 = getComponent(fields[10], fields[2],
             getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
-          logWarnAndUpdate(line, "Warning - could not find Component for type: "
-              + fields[10] + ", terminologyId: " + fields[2]);
+          logWarn("Warning - could not find Component for type: " + fields[10]
+              + ", terminologyId: " + fields[2]
+              + ". Could not process the following line:\n\t" + line);
           continue;
         }
         Atom atom2 = null;
@@ -193,25 +227,61 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
                   getProject().getTerminology(), getProject().getVersion()));
           atom2 = atoms.get(0);
         } else {
-          logWarnAndUpdate(line, "Warning - " + component2.getClass().getName()
-              + " is an unhandled type.");
+          logWarn("Warning - " + component2.getClass().getName()
+              + " is an unhandled type. Could not process the following line:\n\t"
+              + line);
           continue;
         }
 
-        // Attempt to perform the merge
-        merge(atom.getId(), atom2.getId(), checkNames,
-            fields[5].toUpperCase().equals("Y"),
-            fields[6].toUpperCase().equals("Y"), getProject(), statsMap);
+        // Add the pair of atom ids to the list
+        atomIdPairs.add(new Long[] {
+            atom.getId(), atom2.getId()
+        });
+
+      }
+
+      statsMap.put("atomPairsLoadedFromMergefacts", atomIdPairs.size());
+
+      // Generate parameters to pass into query executions
+      Map<String, String> params = new HashMap<>();
+      params.put("terminology", this.getTerminology());
+      params.put("version", this.getVersion());
+      params.put("projectTerminology", getProject().getTerminology());
+      params.put("projectVersion", getProject().getVersion());
+
+      // Remove all atom pairs caught by the filters
+      // If no filters specified, it will return all of the atom pairs.
+      final List<Pair<Long, Long>> filteredAtomIdPairs = applyFilters(
+          atomIdPairs, params, filterQueryType, filterQuery, false, statsMap);
+
+      statsMap.put("atomPairsRemainingAfterFilters",
+          filteredAtomIdPairs.size());
+
+      // Set the steps count to the number of atomPairs merges will be
+      // attempted for
+      setSteps(filteredAtomIdPairs.size());
+
+      // Attempt to perform the merges given the integrity checks
+      for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
+        checkCancel();
+
+        merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,
+            makeDemotions, changeStatus, getProject(), statsMap);
 
         // Update the progress
         updateProgress();
-
       }
 
       commitClearBegin();
 
-      logInfo("[PrecomputedMerge] " + getSteps()
-          + " mergefacts.src lines processed.");
+      logInfo(
+          "[PrecomputedMerge] " + statsMap.get("atomPairsLoadedFromMergefacts")
+              + " atom pairs were loaded from mergefacts.src.");
+      logInfo("[PrecomputedMerge] " + statsMap.get("atomPairsRemovedByFilters")
+          + " atom pairs were removed by filters.");
+      logInfo(
+          "[PrecomputedMerge] " + statsMap.get("atomPairsRemainingAfterFilters")
+              + " atom pair merges attempted.");
       logInfo("[PrecomputedMerge] " + statsMap.get("successfulMerges")
           + " merges successfully performed.");
       logInfo("[PrecomputedMerge] " + statsMap.get("unsuccessfulMerges")
@@ -289,6 +359,13 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       checkNames =
           Arrays.asList(String.valueOf(p.getProperty("checkNames")).split(";"));
     }
+    if (p.getProperty("filterQueryType") != null) {
+      filterQueryType = Enum.valueOf(QueryType.class,
+          String.valueOf(p.getProperty("filterQueryType")));
+    }
+    if (p.getProperty("filterQuery") != null) {
+      filterQuery = String.valueOf(p.getProperty("filterQuery"));
+    }
 
   }
 
@@ -341,9 +418,25 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     param.setPossibleValues(validationChecks);
     params.add(param);
 
+    // filter query type
+    param = new AlgorithmParameterJpa("Filter Query Type", "filterQueryType",
+        "The language the filter query is written in", "e.g. JQL", 200,
+        AlgorithmParameter.Type.ENUM, "");
+    param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
+        .map(e -> e.toString()).collect(Collectors.toList()));
+    params.add(param);
+
+    // filter query
+    param = new AlgorithmParameterJpa("Filter Query", "filterQuery",
+        "A filter query to further restrict the objects to run the merge on",
+        "e.g. query in format of the query type", 4000,
+        AlgorithmParameter.Type.TEXT, "");
+    params.add(param);
+
     return params;
   }
 
+  /* see superclass */
   @Override
   public String getDescription() {
     return "Loads and performs merges based on mergefacts.src.";
