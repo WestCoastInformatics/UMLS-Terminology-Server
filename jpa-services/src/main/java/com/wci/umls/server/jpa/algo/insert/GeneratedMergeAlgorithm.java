@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
@@ -144,7 +145,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Remove all atom pairs caught by the filters
       final List<Pair<Long, Long>> filteredAtomIdPairs =
-          applyFilters(atomIdPairs, params, filterQueryType, filterQuery, newAtomsOnly, statsMap);
+          applyFilters(atomIdPairs, params, filterQueryType, filterQuery,
+              newAtomsOnly, statsMap);
       statsMap.put("atomPairsRemainingAfterFilters",
           filteredAtomIdPairs.size());
 
@@ -202,8 +204,6 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       throw e;
     }
   }
-
-
 
   /**
    * Reset.
@@ -264,7 +264,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     if (p.getProperty("newAtomsOnly") != null) {
       newAtomsOnly = Boolean.parseBoolean(p.getProperty("newAtomsOnly"));
     }
-    if (p.getProperty("filterQueryType") != null) {
+    // Need query type can come back as "", which is invalid.
+    if (!ConfigUtility.isEmpty(p.getProperty("filterQueryType"))) {
       filterQueryType = Enum.valueOf(QueryType.class,
           String.valueOf(p.getProperty("filterQueryType")));
     }

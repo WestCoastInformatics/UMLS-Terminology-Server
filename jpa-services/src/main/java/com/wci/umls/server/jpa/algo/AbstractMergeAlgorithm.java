@@ -375,7 +375,7 @@ public abstract class AbstractMergeAlgorithm
     final List<Pair<Long, Long>> atomIdPairs = new ArrayList<>();
     final List<Pair<Long, Long>> filteredAtomIdPairs = new ArrayList<>();
 
-    // Recast the array as a Pair, for easier comparison
+    // Recast the arrays as Pairs, for easier comparison
     for (final Long[] atomIdArray : atomIdArrays) {
       final Pair<Long, Long> atomIdPair =
           new ImmutablePair<Long, Long>(atomIdArray[0], atomIdArray[1]);

@@ -404,13 +404,13 @@ public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
         }
         existingTerm.setUrl(fields[14]);
         if (!fields[19].isEmpty()) {
-          if (Integer.parseInt(fields[19]) == 1) {
+          if (fields[19].equals("Y")) {
             existingTerm.setAssertsRelDirection(true);
-          } else if (Integer.parseInt(fields[19]) == 0) {
+          } else if (fields[19].equals("N")) {
             existingTerm.setAssertsRelDirection(false);
           } else {
             throw new Exception("Error: Unexpected value " + fields[19]
-                + " for field REL_DIRECTIONALITY_FLAG.  Value can only be 0 or 1.");
+                + " for field REL_DIRECTIONALITY_FLAG.  Value can only be Y or N.");
           }
         }
         existingTerm.setRootTerminology(getCachedRootTerminology(fields[4]));

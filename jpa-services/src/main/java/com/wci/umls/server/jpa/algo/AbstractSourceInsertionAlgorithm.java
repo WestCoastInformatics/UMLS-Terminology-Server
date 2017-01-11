@@ -1132,8 +1132,11 @@ public abstract class AbstractSourceInsertionAlgorithm
       case "CHD":
         relationshipType = "CHD";
         break;
+      case "XR":
+        relationshipType = "XR";
+        break;
       default:
-        throw new Exception("Invalid relationship type: " + relationshipType);
+        throw new Exception("Invalid relationship type: " + string);
     }
 
     return relationshipType;
