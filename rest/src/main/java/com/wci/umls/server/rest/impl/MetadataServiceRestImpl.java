@@ -372,7 +372,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/precedence")
   @ApiOperation(value = "Add a precedence list", notes = "Add a precedence list", response = PrecedenceListJpa.class)
   public PrecedenceList addPrecedenceList(
@@ -401,15 +401,15 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
-  @Path("/precedence/update")
+  @POST
+  @Path("/precedence")
   @ApiOperation(value = "Update a precedence list", notes = "Update a precedence list", response = PrecedenceListJpa.class)
   public void updatePrecedenceList(
     @ApiParam(value = "Precedence list to update", required = true) PrecedenceListJpa precedenceList,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Metadata): /precedence/update");
+        .info("RESTful call (Metadata): /precedence");
 
     final MetadataService metadataService = new MetadataServiceJpa();
     try {
@@ -770,7 +770,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/termType")
   @ApiOperation(value = "Update a term type", notes = "Update a term type", response = TermTypeJpa.class)
   public void updateTermType(
@@ -797,7 +797,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/attributeName")
   @ApiOperation(value = "Update an attribute name", notes = "Update an attribute name", response = AttributeNameJpa.class)
   public void updateAttributeName(
@@ -825,7 +825,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/relationshipType")
   @ApiOperation(value = "Update a relationship type", notes = "Update a relationship type", response = RelationshipTypeJpa.class)
   public void updateRelationshipType(
@@ -853,7 +853,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/rootTerminology")
   @ApiOperation(value = "Update a root terminology", notes = "Update a root terminology", response = RootTerminologyJpa.class)
   public void updateRootTerminology(
@@ -881,7 +881,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/terminology")
   @ApiOperation(value = "Update a terminology", notes = "Update a terminology", response = TerminologyJpa.class)
   public void updateTerminology(
@@ -908,7 +908,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/additionalRelationshipType")
   @ApiOperation(value = "Update a relationship type", notes = "Update a relationship type", response = AdditionalRelationshipTypeJpa.class)
   public void updateAdditionalRelationshipType(
@@ -935,7 +935,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/termType")
   @ApiOperation(value = "Add a term type", notes = "Add a term type", response = TermTypeJpa.class)
   public TermType addTermType(
@@ -964,7 +964,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/attributeName")
   @ApiOperation(value = "Add an attribute name", notes = "Add an attribute name", response = AttributeNameJpa.class)
   public AttributeName addAttributeName(
@@ -994,7 +994,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/relationshipType")
   @ApiOperation(value = "Add a relationship type (and its inverse)", notes = "Add a relationship type and its inverse", response = RelationshipTypeJpa.class)
   public RelationshipType addRelationshipType(
@@ -1040,7 +1040,7 @@ public class MetadataServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/additionalRelationshipType")
   @ApiOperation(value = "Add an additional relationship type and its inverse", notes = "Add an additional relationship type and its inverse", response = AdditionalRelationshipTypeJpa.class)
   public AdditionalRelationshipType addAdditionalRelationshipType(

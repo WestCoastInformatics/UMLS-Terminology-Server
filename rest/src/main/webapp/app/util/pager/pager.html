@@ -12,7 +12,7 @@
   <!--  TODO Add generalization note to Wiki -->
   <input ng-show="!paging.disableFilter && (paging.filter || count > 5)"
     placeholder="Enter filter text" type="text" ng-model="paging.filter"
-    ng-model-options="{ debounce: 500 }" ng-change="callbacks.getPagedList()"
+    ng-model-options="{ debounce: 500 }" ng-change="paging.page = 1; callbacks.getPagedList()"
     list="filter-list">
   <datalist ng-if="paging.filterList" id="filter-list">
     <option ng-repeat="filter in paging.filterList" value="{{filter}}" />
