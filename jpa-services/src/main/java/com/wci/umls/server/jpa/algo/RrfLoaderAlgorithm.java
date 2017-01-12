@@ -1179,8 +1179,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addTerminology(term);
 
         // cache terminology by RSAB and VSAB
+        // ONLY load the current version of the terminology here.
         loadedTerminologies.put(term.getTerminology(), term);
-        if (!fields[2].equals("")) {
+        if (!fields[2].equals("") && term.isCurrent()) {
           loadedTerminologies.put(fields[2], term);
         }
       }
