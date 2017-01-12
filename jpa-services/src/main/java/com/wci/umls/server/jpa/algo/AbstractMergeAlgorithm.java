@@ -13,14 +13,17 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
 import com.wci.umls.server.jpa.algo.action.MergeMolecularAction;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
@@ -223,7 +226,7 @@ public abstract class AbstractMergeAlgorithm
       } catch (Exception e2) {
         // do nothing
       }
-      
+
       statsMap.put("unsuccessfulMerges",
           statsMap.get("unsuccessfulMerges") + 1);
 
@@ -351,6 +354,132 @@ public abstract class AbstractMergeAlgorithm
         return c;
       }
     });
+  }
+
+  /**
+   * Apply filters.
+   *
+   * @param atomIdArrays the atom id pairs
+   * @param params the params
+   * @param filterQueryType the filter query type
+   * @param filterQuery the filter query
+   * @param newAtomsOnly the new atoms only
+   * @param statsMap the stats map
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Pair<Long, Long>> applyFilters(List<Long[]> atomIdArrays,
+    Map<String, String> params, QueryType filterQueryType, String filterQuery,
+    Boolean newAtomsOnly, Map<String, Integer> statsMap) throws Exception {
+
+    final List<Pair<Long, Long>> atomIdPairs = new ArrayList<>();
+    final List<Pair<Long, Long>> filteredAtomIdPairs = new ArrayList<>();
+
+    // Recast the arrays as Pairs, for easier comparison
+    for (final Long[] atomIdArray : atomIdArrays) {
+      final Pair<Long, Long> atomIdPair =
+          new ImmutablePair<Long, Long>(atomIdArray[0], atomIdArray[1]);
+      atomIdPairs.add(atomIdPair);
+    }
+
+    // If no filtering is set, just return the atomIdPairs as-is
+    if (filterQueryType == null && filterQuery == null
+        && newAtomsOnly == false) {
+      return atomIdPairs;
+    }
+
+    // Run the filters, and save the unique atomIds/atomIdPairs to sets
+    // SQL/JQL queries will populate filterAtomIdPairs set
+    // LUCENE queries will populate the filterAtomIds set
+    Set<Pair<Long, Long>> filterAtomIdPairs = null;
+    Set<Long> filterAtomIds = null;
+
+    // If LUCENE filter query, returns concept id
+    if (filterQueryType == QueryType.LUCENE) {
+      final List<Long> filterConceptIds = executeSingleComponentIdQuery(
+          filterQuery, filterQueryType, params, ConceptJpa.class);
+
+      // For each returned concept, filter for all of its atoms' ids
+      filterAtomIds = new HashSet<>();
+      for (Long conceptId : filterConceptIds) {
+        Concept c = getConcept(conceptId);
+        for (Atom a : c.getAtoms()) {
+          filterAtomIds.add(a.getId());
+        }
+      }
+    }
+
+    // PROGRAM filter queries not supported yet
+    else if (filterQueryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // If JQL/SQL filter query, returns atom1,atom2 Id pairs
+    else if (filterQueryType == QueryType.SQL
+        || filterQueryType == QueryType.JQL) {
+      final List<Long[]> filterAtomIdPairArray = executeComponentIdPairQuery(
+          filterQuery, filterQueryType, params, AtomJpa.class);
+
+      // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
+      filterAtomIdPairs = new HashSet<>();
+      for (Long[] filterAtomIdPair : filterAtomIdPairArray) {
+        final Pair<Long, Long> atomOneTwoPair =
+            new ImmutablePair<>(filterAtomIdPair[0], filterAtomIdPair[1]);
+        final Pair<Long, Long> atomTwoOnePair =
+            new ImmutablePair<>(filterAtomIdPair[1], filterAtomIdPair[0]);
+        filterAtomIdPairs.add(atomOneTwoPair);
+        filterAtomIdPairs.add(atomTwoOnePair);
+      }
+    }
+
+    // Go through each atom pair. If it makes it past all of the filters, add
+    // it to the filtered list
+    for (final Pair<Long, Long> atomIdPair : atomIdPairs) {
+
+      // New Atoms Only Filter
+      if (newAtomsOnly) {
+        Long maxAtomIdPreInsertion = null;
+        if (getProcess().getExecutionInfo()
+            .containsKey("maxAtomIdPreInsertion")) {
+          maxAtomIdPreInsertion = Long.parseLong(
+              getProcess().getExecutionInfo().get("maxAtomIdPreInsertion"));
+        }
+        if (maxAtomIdPreInsertion != null) {
+          if (atomIdPair.getLeft() <= maxAtomIdPreInsertion
+              || atomIdPair.getRight() <= maxAtomIdPreInsertion) {
+            statsMap.put("atomPairsRemovedByFilters",
+                statsMap.get("atomPairsRemovedByFilters") + 1);
+            continue;
+          }
+        }
+      }
+
+      // Check SQL/JQL filter atom id pairs, if any
+      if (filterAtomIdPairs != null) {
+        if (filterAtomIdPairs.contains(atomIdPair)) {
+          statsMap.put("atomPairsRemovedByFilters",
+              statsMap.get("atomPairsRemovedByFilters") + 1);
+          continue;
+        }
+      }
+
+      // Check LUCENE filter atom ids, if any
+      // If atomId is one of the Atoms contained in the
+      // filter atoms, don't keep pair
+      if (filterAtomIds != null) {
+        if (filterAtomIds.contains(atomIdPair.getLeft())
+            || filterAtomIds.contains(atomIdPair.getRight())) {
+          statsMap.put("atomPairsRemovedByFilters",
+              statsMap.get("atomPairsRemovedByFilters") + 1);
+          continue;
+        }
+      }
+
+      // This pair has made it past all of the filters!
+      filteredAtomIdPairs.add(atomIdPair);
+    }
+
+    return filteredAtomIdPairs;
   }
 
 }

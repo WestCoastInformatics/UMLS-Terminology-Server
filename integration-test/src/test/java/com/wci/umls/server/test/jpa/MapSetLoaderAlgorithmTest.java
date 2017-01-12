@@ -26,8 +26,10 @@ import org.junit.Test;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.content.MapSetList;
 import com.wci.umls.server.helpers.content.MappingList;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.MapSetLoaderAlgorithm;
@@ -58,9 +60,6 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
 
   /** The project. */
   Project project = null;
-
-  /** The temporary classes_atoms.src file. */
-  private File atomOutputFile = null;
 
   /** The temporary attributes.src file. */
   private File attributesOutputFile = null;
@@ -101,8 +100,10 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT/src");// <- Set this
-                                                                  // to
+    processExecution.setInputPath("terminologies/SAMPLE_SNOMEDCT_US/src");// <-
+                                                                          // Set
+                                                                          // this
+    // to
     // the standard
     // folder
     // location
@@ -133,7 +134,7 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
     out.println(
         "13340559|381548367|S|MAPSETXRTARGETID|100051|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||3898b7be8009532088697f0b7fb2990f|");
     out.println(
-        "13340560|381548367|S|MAPSETRSAB|NCI|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
+        "13340560|381548367|S|MAPSETRSAB|SNOMEDCT_US|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||884109cc354de5898f20a682dc37ad20|");
     out.println(
         "13340561|381548367|S|MAPSETVSAB|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01|R|Y|N|N|SRC_ATOM_ID|||4e149dcf5076232e888b08c64a8fa8d4|");
     out.println(
@@ -183,6 +184,9 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
   public void testMappingLoader() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
+    MapSetList preAlgoMapSets =
+        contentService.getMapSets("SNOMEDCT_US", "2016_09_01", Branch.ROOT);
+
     // Run the MAPPINGLOADER algorithm
     try {
 
@@ -205,8 +209,20 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       mappingAlgo.compute();
 
-      // Make sure the mapping in the temporary input file was added.
       contentService = new ContentServiceJpa();
+
+      // Identify the added mapSet
+      MapSetList postAlgoMapSets =
+          contentService.getMapSets("SNOMEDCT_US", "2016_09_01", Branch.ROOT);
+
+      for (MapSet mapSet : postAlgoMapSets.getObjects()) {
+        if (!preAlgoMapSets.contains(mapSet)) {
+          addedMapSet = mapSet;
+          break;
+        }
+      }
+
+      // Make sure the mapping in the temporary input file was added.
       addedMappings =
           contentService.findMappings(addedMapSet.getId(), null, null);
       assertEquals(1, addedMappings.size());
@@ -287,7 +303,6 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
       contentService.removeMapSet(addedMapSet.getId());
     }
 
-    FileUtils.forceDelete(atomOutputFile);
     FileUtils.forceDelete(attributesOutputFile);
 
     File testDirectory = new File(

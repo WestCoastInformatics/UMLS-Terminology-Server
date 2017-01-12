@@ -1,0 +1,236 @@
+ATN|TYPE_ID|expanded_form|Type ID|
+RELA|has_specimen|expanded_form|Has specimen|
+RELA|has_specimen|rela_inverse|specimen_of|
+RELA|has_direct_morphology|expanded_form|Has direct morphology|
+RELA|has_direct_morphology|rela_inverse|direct_morphology_of|
+RELA|has_specimen_substance|expanded_form|Has specimen substance|
+RELA|has_specimen_substance|rela_inverse|specimen_substance_of|
+TTY|PT|expanded_form|Designated preferred name|
+TTY|PT|tty_class|preferred|
+ATN|ICD-O-3_CODE|expanded_form|ICD-O-3 Code|
+RELA|has_associated_procedure|expanded_form|Has associated procedure|
+RELA|has_associated_procedure|rela_inverse|associated_procedure_of|
+TTY|PTGB|expanded_form|British preferred term|
+TTY|PTGB|tty_class|preferred|
+ATN|MODIFIER_ID|expanded_form|Modifier ID|
+RELA|mth_has_xml_form|expanded_form|Has XML form, Metathesaurus-asserted|
+RELA|mth_has_xml_form|rela_inverse|mth_xml_form_of|
+RELA|has_revision_status|expanded_form|Has revision status|
+RELA|has_revision_status|rela_inverse|revision_status_of|
+RELA|uses_device|expanded_form|Uses device|
+RELA|uses_device|rela_inverse|device_used_by|
+TTY|OF|expanded_form|Obsolete fully specified name|
+TTY|OF|tty_class|obsolete|
+RELA|has_associated_morphology|expanded_form|Has associated morphology|
+RELA|has_associated_morphology|rela_inverse|associated_morphology_of|
+ATN|CASE_SIGNIFICANCE_ID|expanded_form|Case significance ID|
+RELA|has_causative_agent|expanded_form|Has causative agent|
+RELA|has_causative_agent|rela_inverse|causative_agent_of|
+RELA|has_direct_device|expanded_form|Has direct device|
+RELA|has_direct_device|rela_inverse|direct_device_of|
+RELA|has_access|expanded_form|Has access|
+RELA|has_access|rela_inverse|access_of|
+RELA|has_finding_method|expanded_form|Has finding method|
+RELA|has_finding_method|rela_inverse|finding_method_of|
+ATN|MTH_MAPSETCOMPLEXITY|expanded_form|Indicates the overall complexity of a map set|
+RELA|has_specimen_source_identity|expanded_form|Has specimen source identity|
+RELA|has_specimen_source_identity|rela_inverse|specimen_source_identity_of|
+ATN|FROMVSAB|expanded_form|Versioned source abbreviation for the "from" identifiers of a map set|
+TTY|OAS|expanded_form|Obsolete active synonym|
+TTY|OAS|tty_class|obsolete|
+TTY|OAS|tty_class|synonym|
+ATN|SOURCE_EFFECTIVE_TIME|expanded_form|Source effective time|
+ATN|MAPGROUP|expanded_form|Map Group|
+ATN|INACTIVATION_INDICATOR|expanded_form|Inactivation indicator|
+RELA|has_direct_substance|expanded_form|Has direct substance|
+RELA|has_direct_substance|rela_inverse|direct_substance_of|
+ATN|CTV3ID|expanded_form|The Read Code for a SNOMED CT concept taken from the United Kingdom?s Clinical Terms Version 3 terminology.|
+ATN|DEFAULT_MODULE_ID|expanded_form|Default module ID|
+RELA|mth_has_plain_text_form|expanded_form|Has plain text form, Metathesaurus-asserted|
+RELA|mth_has_plain_text_form|rela_inverse|mth_plain_text_form_of|
+ATN|MAPSETVSAB|expanded_form|Versioned source abbreviation for a map set|
+ATN|MTH_MAPFROMCOMPLEXITY|expanded_form|Indicates the complexity of "from" expressions used in a map set|
+ATN|DESCRIPTION_FORMAT|expanded_form|Description format|
+ATN|MAPSETRSAB|expanded_form|Root source abbreviation for a map set|
+ATN|TOVSAB|expanded_form|Versioned source abbreviation for the "to" identifiers of a map set|
+TTY|SYGB|expanded_form|British synonym|
+TTY|SYGB|tty_class|synonym|
+ATN|ACCEPTABILITYID|expanded_form|Acceptability Id|
+RELA|has_temporal_context|expanded_form|Has temporal context|
+RELA|has_temporal_context|rela_inverse|temporal_context_of|
+ATN|MAPSETVERSION|expanded_form|Version of the map set|
+ATN|MODULE_NAME|expanded_form|Module Name|
+RELA|has_interpretation|expanded_form|Has interpretation|
+RELA|has_interpretation|rela_inverse|interpretation_of|
+ATN|MTH_MAPTOEXHAUSTIVE|expanded_form|Indicates whether or not the "to" source is completely mapped|
+ATN|UMLSREL|expanded_form|The UMLS Metathesaurus REL relationship (SY, CHD, RN, RB, RO) assigned to SNOMED CT relationship identifiers.|
+ATN|DEFINITION_STATUS_ID|expanded_form|Definition status ID|
+RELA|has_indirect_procedure_site|expanded_form|Has indirect procedure site|
+RELA|has_indirect_procedure_site|rela_inverse|indirect_procedure_site_of|
+ATN|MAPSETXRTARGETID|expanded_form|Map set target identifier used for XR mappings.|
+ATN|SOURCEEFFECTIVETIME|expanded_form|Source Effective Time|
+RELA|has_scale_type|expanded_form|Has scale type|
+RELA|has_scale_type|rela_inverse|scale_type_of|
+ATN|DESCRIPTION_LENGTH|expanded_form|Description length|
+RELA|due_to|expanded_form|Due to|
+RELA|due_to|rela_inverse|cause_of|
+RELA|uses_access_device|expanded_form|Uses access device|
+RELA|uses_access_device|rela_inverse|access_device_used_by|
+RELA|has_intent|expanded_form|Has intent|
+RELA|has_intent|rela_inverse|intent_of|
+RELA|has_focus|expanded_form|Has focus|
+RELA|has_focus|rela_inverse|focus_of|
+ATN|MAPTARGET|expanded_form|Map Target|
+ATN|ATTRIBUTETYPE|expanded_form|Attribute Type|
+ATN|DESCRIPTIONFORMAT|expanded_form|Description Format|
+RELA|has_finding_informer|expanded_form|Has finding informer|
+RELA|has_finding_informer|rela_inverse|finding_informer_of|
+TTY|IS|expanded_form|Obsolete Synonym|
+TTY|IS|tty_class|obsolete|
+TTY|IS|tty_class|synonym|
+RELA|uses_energy|expanded_form|Uses energy|
+RELA|uses_energy|rela_inverse|energy_used_by|
+TTY|MTH_OP|expanded_form|Metathesaurus obsolete preferred term|
+TTY|MTH_OP|tty_class|obsolete|
+TTY|MTH_OP|tty_class|preferred|
+ATN|UMLSRELA|expanded_form|UMLS relationship attribute|
+RELA|has_procedure_device|expanded_form|Has procedure device|
+RELA|has_procedure_device|rela_inverse|procedure_device_of|
+TTY|OP|expanded_form|Obsolete preferred name|
+TTY|OP|tty_class|obsolete|
+TTY|OP|tty_class|preferred|
+RELA|uses_substance|expanded_form|Uses substance|
+RELA|uses_substance|rela_inverse|substance_used_by|
+RELA|occurs_in|expanded_form|Occurs in|
+RELA|occurs_in|rela_inverse|has_occurrence|
+RELA|has_associated_finding|expanded_form|Has associated finding|
+RELA|has_associated_finding|rela_inverse|associated_finding_of|
+RELA|has_route_of_administration|expanded_form|Has route of administration|
+RELA|has_route_of_administration|rela_inverse|route_of_administration_of|
+ATN|ATTRIBUTEORDER|expanded_form|Attribute Order|
+ATN|MAPSETNAME|expanded_form|Official name of a map set|
+RELA|occurs_after|expanded_form|Occurs after|
+RELA|occurs_after|rela_inverse|occurs_before|
+RELA|part_of|expanded_form|Part of|
+RELA|part_of|rela_inverse|has_part|
+ATN|MTH_MAPTOCOMPLEXITY|expanded_form|Indicates the complexity of "to" expressions in a map set|
+RELA|has_procedure_site|expanded_form|Has procedure site|
+RELA|has_procedure_site|rela_inverse|procedure_site_of|
+ATN|SUBSET_MEMBER|expanded_form|Subset member|
+RELA|has_method|expanded_form|Has method|
+RELA|has_method|rela_inverse|method_of|
+ATN|SNOMEDID|expanded_form|SNOMED RT identifier for a SNOMED CT concept|
+TTY|SB|expanded_form|Named subset of a source|
+TTY|SB|tty_class|other|
+TTY|MTH_SYGB|expanded_form|Metathesaurus-supplied form of British synonym|
+TTY|MTH_SYGB|tty_class|synonym|
+RELA|has_version|expanded_form|Has version|
+RELA|has_version|rela_inverse|version_of|
+RELA|has_direct_procedure_site|expanded_form|Has direct procedure site|
+RELA|has_direct_procedure_site|rela_inverse|direct_procedure_site_of|
+RELA|has_specimen_source_topography|expanded_form|Has specimen source topography|
+RELA|has_specimen_source_topography|rela_inverse|specimen_source_topography_of|
+ATN|VALUEID|expanded_form|Value Id|
+ATN|FROMRSAB|expanded_form|Root source abbreviation for the "from" identifiers of a map set|
+ATN|MAPPRIORITY|expanded_form|Map Priority|
+TTY|OAF|expanded_form|Obsolete active fully specified name|
+TTY|OAF|tty_class|obsolete|
+ATN|MAPSETSID|expanded_form|Source asserted identifier for a map set|
+TTY|MTH_OAP|expanded_form|Metathesaurus-supplied form of obsolete active preferred term|
+TTY|MTH_OAP|tty_class|obsolete|
+TTY|MTH_OAP|tty_class|preferred|
+TTY|MTH_PTGB|expanded_form|Metathesaurus-supplied form of British preferred term|
+TTY|MTH_PTGB|tty_class|preferred|
+ATN|SOS|expanded_form|Scope Statement|
+RELA|has_priority|expanded_form|Has priority|
+RELA|has_priority|rela_inverse|priority_of|
+RELA|associated_with|expanded_form|Associated with|
+RELA|associated_with|rela_inverse|associated_with|
+ATN|DEFAULT_LANGUAGECODE|expanded_form|Default language code value|
+ATN|EFFECTIVE_TIME|expanded_form|Effective time|
+ATN|TARGETEFFECTIVETIME|expanded_form|Target Effective Time|
+ATN|DESCRIPTIONLENGTH|expanded_form|Description Length|
+RELA|has_severity|expanded_form|Has severity|
+RELA|has_severity|rela_inverse|severity_of|
+RELA|has_specimen_source_morphology|expanded_form|Has specimen source morphology|
+RELA|has_specimen_source_morphology|rela_inverse|specimen_source_morphology_of|
+RELA|has_measurement_method|expanded_form|Has measurement method|
+RELA|has_measurement_method|rela_inverse|measurement_method_of|
+ATN|CHARACTERISTIC_TYPE_ID|expanded_form|Characteristic type ID|
+RELA|has_indirect_device|expanded_form|Has indirect device|
+RELA|has_indirect_device|rela_inverse|indirect_device_of|
+TTY|MTH_OAF|expanded_form|Metathesaurus-supplied form of obsolete active fully specified name|
+TTY|MTH_OAF|tty_class|obsolete|
+ATN|ACTIVE|expanded_form|Active|
+RELA|has_pathological_process|expanded_form|Has pathological process|
+RELA|has_pathological_process|rela_inverse|pathological_process_of|
+RELA|has_dependent|expanded_form|Has dependent|
+RELA|has_dependent|rela_inverse|dependent_of|
+RELA|has_surgical_approach|expanded_form|has surgical approach|
+RELA|has_surgical_approach|rela_inverse|surgical_approach_of|
+TTY|XM|expanded_form|Cross mapping set|
+TTY|XM|tty_class|other|
+ATN|TARGET_EFFECTIVE_TIME|expanded_form|Target effective time|
+RELA|has_specimen_procedure|expanded_form|Has specimen procedure|
+RELA|has_specimen_procedure|rela_inverse|specimen_procedure_of|
+RELA|has_indirect_morphology|expanded_form|Has indirect morphology|
+RELA|has_indirect_morphology|rela_inverse|indirect_morphology_of|
+TTY|SY|expanded_form|Designated synonym|
+TTY|SY|tty_class|synonym|
+TTY|MTH_SY|expanded_form|MTH Designated synonym|
+TTY|MTH_SY|tty_class|synonym|
+RELA|interprets|expanded_form|Interprets|
+RELA|interprets|rela_inverse|is_interpreted_by|
+ATN|ATTRIBUTEDESCRIPTION|expanded_form|Attribute Description|
+RELA|has_property|expanded_form|Has property|
+RELA|has_property|rela_inverse|property_of|
+RELA|has_finding_site|expanded_form|Has finding_site|
+RELA|has_finding_site|rela_inverse|finding_site_of|
+ATN|REFSET_PATTERN|expanded_form|Refset pattern|
+ATN|CORRELATIONID|expanded_form|Correlation Id|
+RELA|has_subject_relationship_context|expanded_form|Has subject relationship context|
+RELA|has_subject_relationship_context|rela_inverse|subject_relationship_context_of|
+TTY|MTH_FN|expanded_form|MTH Full form of descriptor|
+TTY|MTH_FN|tty_class|preferred|
+RELA|has_laterality|expanded_form|Has laterality|
+RELA|has_laterality|rela_inverse|laterality_of|
+ATN|TORSAB|expanded_form|Root source abbreviation for the "to" identifiers of a map set|
+RELA|has_component|expanded_form|Has component|
+RELA|has_component|rela_inverse|component_of|
+TTY|MTH_PT|expanded_form|Metathesaurus preferred term|
+TTY|MTH_PT|tty_class|expanded|
+TTY|MTH_PT|tty_class|preferred|
+ATN|MAPRULE|expanded_form|Map Rule|
+TTY|MTH_OF|expanded_form|Metathesaurus-supplied form of obsolete fully specified name|
+TTY|MTH_OF|tty_class|obsolete|
+RELA|has_dose_form|expanded_form|Has dose form|
+RELA|has_dose_form|rela_inverse|dose_form_of|
+ATN|MTH_MAPFROMEXHAUSTIVE|expanded_form|Indicates whether or not the "from" source of a map set is completely mapped|
+RELA|has_procedure_context|expanded_form|Has procedure context|
+RELA|has_procedure_context|rela_inverse|procedure_context_of|
+ATN|MAPCATEGORYID|expanded_form|Map Category Id|
+TTY|OAP|expanded_form|Obsolete active preferred term|
+TTY|OAP|tty_class|obsolete|
+TTY|OAP|tty_class|preferred|
+TTY|FN|expanded_form|Full form of descriptor|
+TTY|FN|tty_class|preferred|
+ATN|MAPADVICE|expanded_form|Map Advice|
+TTY|MTH_OAS|expanded_form|Metathesaurus-supplied form of obsolete active synonym|
+TTY|MTH_OAS|tty_class|obsolete|
+TTY|MTH_OAS|tty_class|synonym|
+TTY|MTH_IS|expanded_form|Metathesaurus-supplied form of obsolete synonym|
+TTY|MTH_IS|tty_class|obsolete|
+TTY|MTH_IS|tty_class|synonym|
+RELA|has_procedure_morphology|expanded_form|Has procedure morphology|
+RELA|has_procedure_morphology|rela_inverse|procedure_morphology_of|
+ATN|MODULE_ID|expanded_form|Module ID|
+RELA|has_definitional_manifestation|expanded_form|Has definitional manifestation|
+RELA|has_definitional_manifestation|rela_inverse|definitional_manifestation_of|
+RELA|has_active_ingredient|expanded_form|Has active ingredient|
+RELA|has_active_ingredient|rela_inverse|active_ingredient_of|
+RELA|has_finding_context|expanded_form|Has finding context|
+RELA|has_finding_context|rela_inverse|finding_context_of|
+RELA|has_clinical_course|expanded_form|Has clinical course|
+RELA|has_clinical_course|rela_inverse|clinical_course_of|
+RELA|has_recipient_category|expanded_form|Has recipient category|
+RELA|has_recipient_category|rela_inverse|recipient_category_of|

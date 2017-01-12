@@ -20,27 +20,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.AtomJpa;
-import com.wci.umls.server.jpa.content.AtomSubsetJpa;
-import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
-import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomSubset;
-import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
-import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
@@ -187,40 +178,6 @@ public abstract class AbstractSourceInsertionAlgorithm
    * Terminology, if Version = "latest") Value = Terminology object
    */
   private static Map<String, Terminology> cachedTerminologies = new HashMap<>();
-
-  /**
-   * The cached MapSets. Key = project terminology + "-SRC" alternate
-   * terminology Id of the XM atom in the concept whose terminologyId is the
-   * mapset alternate terminology id .Value = MapSet object
-   */
-  private static Map<String, MapSet> cachedMapSets = new HashMap<>();
-
-  /**
-   * The cached AtomSubsets. Key = terminologyId+terminology of the subset.
-   * Value = AtomSubset object
-   */
-  private static Map<String, AtomSubset> cachedAtomSubsets = new HashMap<>();
-
-  /**
-   * The cached ConceptSubsets. Key = terminologyId+terminology of the subset.
-   * Value = ConceptSubset object
-   */
-  private static Map<String, ConceptSubset> cachedConceptSubsets =
-      new HashMap<>();
-
-  /**
-   * The cached AtomSubsetMembers. Key = terminologyId+terminology of the
-   * subset. Value = AtomSubsetMember object
-   */
-  private static Map<String, AtomSubsetMember> cachedAtomSubsetMembers =
-      new HashMap<>();
-
-  /**
-   * The cached ConceptSubsetMembers. Key = terminologyId+terminology of the
-   * subset. Value = ConceptSubsetMember object
-   */
-  private static Map<String, ConceptSubsetMember> cachedConceptSubsetMembers =
-      new HashMap<>();
 
   /**
    * Load file into string list.
@@ -490,116 +447,6 @@ public abstract class AbstractSourceInsertionAlgorithm
         cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
             term);
       }
-    }
-  }
-
-  /**
-   * Cache existing mapSets. Key = alternate terminology Id of the XM atom in
-   * the concept whose terminologyId is the mapset alternate terminology id
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingMapSets() throws Exception {
-
-    final javax.persistence.Query jpaQuery =
-        getEntityManager().createQuery("SELECT m, a FROM "
-            + "MapSetJpa m JOIN m.alternateTerminologyIds alt, ConceptJpa c JOIN c.atoms a "
-            + "WHERE key(alt) = :terminology "
-            + "AND value(alt) = c.terminologyId "
-            + "AND a.termType = :termType ");
-    jpaQuery.setParameter("terminology", getProject().getTerminology());
-    jpaQuery.setParameter("termType", "XM");
-
-    final List<Object[]> list = jpaQuery.getResultList();
-    for (final Object[] entry : list) {
-      final MapSet mapSet = (MapSet) entry[0];
-      final Atom atom = (Atom) entry[1];
-      // Only add the mapSet if the atom has an alternate Terminology Id where
-      // key is Project + '-SRC'
-      final String sourceAtomAltId = atom.getAlternateTerminologyIds()
-          .get(getProject().toString() + "-SRC");
-      if (sourceAtomAltId != null) {
-        cachedMapSets.put(sourceAtomAltId, mapSet);
-      }
-    }
-  }
-
-  /**
-   * Cache existing atom subsets.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingAtomSubsets() throws Exception {
-
-    final javax.persistence.Query jpaQuery =
-        getEntityManager().createQuery("SELECT m FROM AtomSubsetJpa m");
-
-    final List<Object> list = jpaQuery.getResultList();
-    for (final Object entry : list) {
-      final AtomSubset subset = (AtomSubsetJpa) entry;
-      cachedAtomSubsets.put(subset.getTerminologyId() + subset.getTerminology(),
-          subset);
-    }
-  }
-
-  /**
-   * Cache existing concept subsets.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingConceptSubsets() throws Exception {
-
-    final javax.persistence.Query jpaQuery =
-        getEntityManager().createQuery("SELECT m FROM ConceptSubsetJpa m");
-
-    final List<Object> list = jpaQuery.getResultList();
-    for (final Object entry : list) {
-      final ConceptSubset subset = (ConceptSubsetJpa) entry;
-      cachedConceptSubsets
-          .put(subset.getTerminologyId() + subset.getTerminology(), subset);
-    }
-  }
-
-  /**
-   * Cache existing atom subset members.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingAtomSubsetMembers() throws Exception {
-
-    final javax.persistence.Query jpaQuery =
-        getEntityManager().createQuery("SELECT m FROM AtomSubsetMemberJpa m");
-
-    final List<Object> list = jpaQuery.getResultList();
-    for (final Object entry : list) {
-      final AtomSubsetMember subsetmember = (AtomSubsetMemberJpa) entry;
-      cachedAtomSubsetMembers.put(
-          subsetmember.getTerminologyId() + subsetmember.getTerminology(),
-          subsetmember);
-    }
-  }
-
-  /**
-   * Cache existing concept subset members.
-   *
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("unchecked")
-  private void cacheExistingConceptSubsetMembers() throws Exception {
-
-    final javax.persistence.Query jpaQuery = getEntityManager()
-        .createQuery("SELECT m FROM ConceptSubsetMemberJpa m");
-
-    final List<Object> list = jpaQuery.getResultList();
-    for (final Object entry : list) {
-      final ConceptSubsetMember subsetmember = (ConceptSubsetMemberJpa) entry;
-      cachedConceptSubsetMembers.put(
-          subsetmember.getTerminologyId() + subsetmember.getTerminology(),
-          subsetmember);
     }
   }
 
@@ -1083,251 +930,6 @@ public abstract class AbstractSourceInsertionAlgorithm
   }
 
   /**
-   * Returns the cached map sets.
-   *
-   * @return the cached map sets
-   * @throws Exception the exception
-   */
-  public Map<String, MapSet> getCachedMapSets() throws Exception {
-    if (cachedMapSets.isEmpty()) {
-      cacheExistingMapSets();
-    }
-
-    return cachedMapSets;
-  }
-
-  /**
-   * Returns the cached map set.
-   *
-   * @param sourceAtomAltId the source atom alt id
-   * @return the cached map set
-   * @throws Exception the exception
-   */
-  public MapSet getCachedMapSet(String sourceAtomAltId) throws Exception {
-
-    if (cachedMapSets.isEmpty()) {
-      cacheExistingMapSets();
-    }
-
-    return cachedMapSets.get(sourceAtomAltId);
-  }
-
-  /**
-   * Put map set into the cache.
-   *
-   * @param sourceAtomAltId the code id and terminology
-   * @param mapSet the map set
-   * @throws Exception the exception
-   */
-  public void putMapSet(String sourceAtomAltId, MapSet mapSet)
-    throws Exception {
-    if (cachedMapSets.isEmpty()) {
-      cacheExistingMapSets();
-    }
-
-    cachedMapSets.put(sourceAtomAltId, mapSet);
-  }
-
-  /**
-   * Returns the cached atom subsets.
-   *
-   * @return the cached atom subsets
-   * @throws Exception the exception
-   */
-  public Map<String, AtomSubset> getCachedAtomSubsets() throws Exception {
-    if (cachedAtomSubsets.isEmpty()) {
-      cacheExistingAtomSubsets();
-    }
-
-    return cachedAtomSubsets;
-  }
-
-  /**
-   * Returns the cached atom subset.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @return the cached atom subset
-   * @throws Exception the exception
-   */
-  public AtomSubset getCachedAtomSubset(String terminologyId,
-    String terminology) throws Exception {
-
-    if (cachedAtomSubsets.isEmpty()) {
-      cacheExistingConceptSubsets();
-    }
-
-    return cachedAtomSubsets.get(terminologyId + terminology);
-  }
-
-  /**
-   * Put atom subset.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @param atomSubset the atom subset
-   * @throws Exception the exception
-   */
-  public void putAtomSubset(String terminologyId, String terminology,
-    AtomSubset atomSubset) throws Exception {
-    if (cachedAtomSubsets.isEmpty()) {
-      cacheExistingAtomSubsets();
-    }
-
-    cachedAtomSubsets.put(terminologyId + terminology, atomSubset);
-  }
-
-  /**
-   * Returns the cached concept subsets.
-   *
-   * @return the cached concept subsets
-   * @throws Exception the exception
-   */
-  public Map<String, ConceptSubset> getCachedConceptSubsets() throws Exception {
-    if (cachedConceptSubsets.isEmpty()) {
-      cacheExistingConceptSubsets();
-    }
-
-    return cachedConceptSubsets;
-  }
-
-  /**
-   * Returns the cached concept subset.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @return the cached concept subset
-   * @throws Exception the exception
-   */
-  public ConceptSubset getCachedConceptSubset(String terminologyId,
-    String terminology) throws Exception {
-
-    if (cachedConceptSubsets.isEmpty()) {
-      cacheExistingConceptSubsets();
-    }
-
-    return cachedConceptSubsets.get(terminologyId + terminology);
-  }
-
-  /**
-   * Put concept subset.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @param atomSubset the atom subset
-   * @throws Exception the exception
-   */
-  public void putConceptSubset(String terminologyId, String terminology,
-    ConceptSubset atomSubset) throws Exception {
-    if (cachedConceptSubsets.isEmpty()) {
-      cacheExistingConceptSubsets();
-    }
-
-    cachedConceptSubsets.put(terminologyId + terminology, atomSubset);
-  }
-
-  /**
-   * Returns the cached atom subsetMembers.
-   *
-   * @return the cached atom subsetMembers
-   * @throws Exception the exception
-   */
-  public Map<String, AtomSubsetMember> getCachedAtomSubsetMembers()
-    throws Exception {
-    if (cachedAtomSubsetMembers.isEmpty()) {
-      cacheExistingAtomSubsetMembers();
-    }
-
-    return cachedAtomSubsetMembers;
-  }
-
-  /**
-   * Returns the cached atom subsetMember.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @return the cached atom subsetMember
-   * @throws Exception the exception
-   */
-  public AtomSubsetMember getCachedAtomSubsetMember(String terminologyId,
-    String terminology) throws Exception {
-
-    if (cachedAtomSubsetMembers.isEmpty()) {
-      cacheExistingConceptSubsetMembers();
-    }
-
-    return cachedAtomSubsetMembers.get(terminologyId + terminology);
-  }
-
-  /**
-   * Put atom subsetMember.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @param atomSubsetMember the atom subsetMember
-   * @throws Exception the exception
-   */
-  public void putAtomSubsetMember(String terminologyId, String terminology,
-    AtomSubsetMember atomSubsetMember) throws Exception {
-    if (cachedAtomSubsetMembers.isEmpty()) {
-      cacheExistingAtomSubsetMembers();
-    }
-
-    cachedAtomSubsetMembers.put(terminologyId + terminology, atomSubsetMember);
-  }
-
-  /**
-   * Returns the cached concept subsetMembers.
-   *
-   * @return the cached concept subsetMembers
-   * @throws Exception the exception
-   */
-  public Map<String, ConceptSubsetMember> getCachedConceptSubsetMembers()
-    throws Exception {
-    if (cachedConceptSubsetMembers.isEmpty()) {
-      cacheExistingConceptSubsetMembers();
-    }
-
-    return cachedConceptSubsetMembers;
-  }
-
-  /**
-   * Returns the cached concept subsetMember.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @return the cached concept subsetMember
-   * @throws Exception the exception
-   */
-  public ConceptSubsetMember getCachedConceptSubsetMember(String terminologyId,
-    String terminology) throws Exception {
-
-    if (cachedConceptSubsetMembers.isEmpty()) {
-      cacheExistingConceptSubsetMembers();
-    }
-
-    return cachedConceptSubsetMembers.get(terminologyId + terminology);
-  }
-
-  /**
-   * Put concept subsetMember.
-   *
-   * @param terminologyId the code id
-   * @param terminology the terminology
-   * @param atomSubsetMember the concept subsetMember
-   * @throws Exception the exception
-   */
-  public void putConceptSubsetMember(String terminologyId, String terminology,
-    ConceptSubsetMember atomSubsetMember) throws Exception {
-    if (cachedConceptSubsetMembers.isEmpty()) {
-      cacheExistingConceptSubsetMembers();
-    }
-
-    cachedConceptSubsetMembers.put(terminologyId + terminology,
-        atomSubsetMember);
-  }
-
-  /**
    * Returns the id.
    *
    * @param abbreviation the abbreviation
@@ -1506,6 +1108,21 @@ public abstract class AbstractSourceInsertionAlgorithm
     String relationshipType = null;
 
     switch (string) {
+      case "AQ":
+      case "BRB":
+      case "BRN":
+      case "BRO":
+      case "QB":
+      case "RB":
+      case "RN":
+      case "RO":
+      case "RQ":
+      case "SY":
+      case "PAR":
+      case "CHD":
+      case "XR":
+        relationshipType = string;
+        break;
       case "RT":
         relationshipType = "RO";
         break;
@@ -1518,20 +1135,11 @@ public abstract class AbstractSourceInsertionAlgorithm
       case "RT?":
         relationshipType = "RQ";
         break;
-      case "SY":
-        relationshipType = "SY";
-        break;
       case "SFO/LFO":
         relationshipType = "SY";
         break;
-      case "PAR":
-        relationshipType = "PAR";
-        break;
-      case "CHD":
-        relationshipType = "CHD";
-        break;
       default:
-        throw new Exception("Invalid relationship type: " + relationshipType);
+        throw new Exception("Invalid relationship type: " + string);
     }
 
     return relationshipType;
@@ -1626,7 +1234,6 @@ public abstract class AbstractSourceInsertionAlgorithm
     attributeIdCache.clear();
     cachedAdditionalRelationshipTypes.clear();
     cachedAttributeNames.clear();
-    cachedMapSets.clear();
     cachedRootTerminologies.clear();
     cachedTerminologies.clear();
     cachedTermTypes.clear();
