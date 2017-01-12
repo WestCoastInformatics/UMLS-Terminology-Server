@@ -8,8 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -88,7 +90,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/sty/add")
   @ApiOperation(value = "Add semantic type to concept", notes = "Add semantic type to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addSemanticType(
@@ -184,7 +186,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @DELETE
   @Path("/sty/remove/{id}")
   @ApiOperation(value = "Remove semantic type from concept", notes = "Remove semantic type from concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult removeSemanticType(
@@ -266,7 +268,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/attribute/add")
   @ApiOperation(value = "Add attribute to concept", notes = "Add attribute to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addAttribute(
@@ -354,7 +356,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @DELETE
   @Path("/attribute/remove/{id}")
   @ApiOperation(value = "Remove attribute from concept", notes = "Remove attribute from concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult removeAttribute(
@@ -435,7 +437,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/atom/add")
   @ApiOperation(value = "Add atom to concept", notes = "Add atom to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addAtom(
@@ -521,7 +523,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @DELETE
   @Path("/atom/remove/{id}")
   @ApiOperation(value = "Remove atom from concept", notes = "Remove atom from concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult removeAtom(
@@ -683,7 +685,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/relationship/add")
   @ApiOperation(value = "Add relationship to concept", notes = "Add relationship to concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addRelationship(
@@ -772,7 +774,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
   
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/demotion/add")
   @ApiOperation(value = "Add demotion between atoms", notes = "Add demotion between atoms on a project branch", response = ValidationResultJpa.class)
   public ValidationResult addDemotion(
@@ -856,7 +858,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @DELETE
   @Path("/relationship/remove/{id}")
   @ApiOperation(value = "Remove relationship from concept", notes = "Remove relationship from concept on a project branch", response = ValidationResultJpa.class)
   public ValidationResult removeRelationship(

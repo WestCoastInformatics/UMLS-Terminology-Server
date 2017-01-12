@@ -19,7 +19,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http.put(
             metaEditingUrl
               + '/atom/add?projectId='
               + projectId
@@ -123,7 +123,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http.put(
             metaEditingUrl
               + '/attribute/add?projectId='
               + projectId
@@ -160,7 +160,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http.put(
             metaEditingUrl
               + '/relationship/add?projectId='
               + projectId
@@ -214,7 +214,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http.put(
             metaEditingUrl
               + '/sty/add?projectId='
               + projectId
@@ -432,7 +432,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http['delete'](
             metaEditingUrl
               + '/atom/remove/'
               + atomId
@@ -487,7 +487,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http['delete'](
             metaEditingUrl
               + '/attribute/remove/'
               + attributeId
@@ -527,7 +527,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http['delete'](
             metaEditingUrl
               + '/relationship/remove/'
               + relationshipId
@@ -584,7 +584,7 @@ tsApp
           var deferred = $q.defer();
 
           gpService.increment();
-          $http.post(
+          $http['delete'](
             metaEditingUrl
               + '/sty/remove/'
               + semanticTypeId

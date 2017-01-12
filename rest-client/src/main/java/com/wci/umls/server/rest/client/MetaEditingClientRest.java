@@ -64,7 +64,7 @@ public class MetaEditingClientRest extends RootClientRest
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).put(Entity.xml(""));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -100,7 +100,7 @@ public class MetaEditingClientRest extends RootClientRest
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).delete();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -139,7 +139,7 @@ public class MetaEditingClientRest extends RootClientRest
         .getJsonForGraph(attribute == null ? new AttributeJpa() : attribute);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(attributeString));
+        .header("Authorization", authToken).put(Entity.json(attributeString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -176,7 +176,7 @@ public class MetaEditingClientRest extends RootClientRest
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).delete();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -214,7 +214,7 @@ public class MetaEditingClientRest extends RootClientRest
         ConfigUtility.getJsonForGraph(atom == null ? new AtomJpa() : atom);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(atomString));
+        .header("Authorization", authToken).put(Entity.json(atomString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -250,7 +250,7 @@ public class MetaEditingClientRest extends RootClientRest
             + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).delete();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -326,7 +326,7 @@ public class MetaEditingClientRest extends RootClientRest
         relationship == null ? new ConceptRelationshipJpa() : relationship);
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(relString));
+        .header("Authorization", authToken).put(Entity.json(relString));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -362,7 +362,7 @@ public class MetaEditingClientRest extends RootClientRest
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).delete();
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -401,7 +401,7 @@ public class MetaEditingClientRest extends RootClientRest
         + (overrideWarnings ? "&overrideWarnings=true" : ""));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(null);
+        .header("Authorization", authToken).put(Entity.xml(null));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
