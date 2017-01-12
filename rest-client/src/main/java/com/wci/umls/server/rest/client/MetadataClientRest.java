@@ -227,7 +227,7 @@ public class MetadataClientRest extends RootClientRest
     final String precString = ConfigUtility.getStringForGraph(
         precedenceList == null ? new PrecedenceListJpa() : precedenceList);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(precString));
+        .header("Authorization", authToken).put(Entity.xml(precString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -254,7 +254,7 @@ public class MetadataClientRest extends RootClientRest
         precedenceList == null ? new PrecedenceListJpa() : precedenceList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .put(Entity.xml(precedenceListString));
+        .post(Entity.xml(precedenceListString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -274,7 +274,7 @@ public class MetadataClientRest extends RootClientRest
     final String termTypeString = ConfigUtility
         .getStringForGraph(termType == null ? new TermTypeJpa() : termType);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.xml(termTypeString));
+        .header("Authorization", authToken).post(Entity.xml(termTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -296,7 +296,7 @@ public class MetadataClientRest extends RootClientRest
         attributeName == null ? new AttributeNameJpa() : attributeName);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .put(Entity.xml(attributeNameString));
+        .post(Entity.xml(attributeNameString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -319,7 +319,7 @@ public class MetadataClientRest extends RootClientRest
             ? new RelationshipTypeJpa() : relationshipType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .put(Entity.xml(relationshipTypeString));
+        .post(Entity.xml(relationshipTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -341,7 +341,7 @@ public class MetadataClientRest extends RootClientRest
         rootTerminology == null ? new RootTerminologyJpa() : rootTerminology);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .put(Entity.xml(rootTerminologyString));
+        .post(Entity.xml(rootTerminologyString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -361,7 +361,7 @@ public class MetadataClientRest extends RootClientRest
     final String terminologyString = ConfigUtility.getStringForGraph(
         terminology == null ? new TerminologyJpa() : terminology);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.xml(terminologyString));
+        .header("Authorization", authToken).post(Entity.xml(terminologyString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -378,14 +378,14 @@ public class MetadataClientRest extends RootClientRest
         .debug("Metadata Client - update add relationship type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/metadata/additionalRelationshipType");
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/additionalRelationshipType");
     final String additionalRelationshipTypeString =
         ConfigUtility.getStringForGraph(additionalRelationshipType == null
             ? new AdditionalRelationshipTypeJpa() : additionalRelationshipType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .put(Entity.xml(additionalRelationshipTypeString));
+        .post(Entity.xml(additionalRelationshipTypeString));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -506,8 +506,9 @@ public class MetadataClientRest extends RootClientRest
     Logger.getLogger(getClass()).debug("Metadata Client - get add rel type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/additionalRelationshipType/" + type + "/" + terminology + "/" + version);
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/metadata/additionalRelationshipType/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 
@@ -570,8 +571,9 @@ public class MetadataClientRest extends RootClientRest
         .debug("Metadata Client - remove add rel type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/metadata/additionalRelationshipType/" + type + "/" + terminology + "/" + version);
+    WebTarget target = client.target(
+        config.getProperty("base.url") + "/metadata/additionalRelationshipType/"
+            + type + "/" + terminology + "/" + version);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).delete();
 
@@ -594,7 +596,7 @@ public class MetadataClientRest extends RootClientRest
     final String termTypeString = ConfigUtility
         .getStringForGraph(termType == null ? new TermTypeJpa() : termType);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(termTypeString));
+        .header("Authorization", authToken).put(Entity.xml(termTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -619,7 +621,7 @@ public class MetadataClientRest extends RootClientRest
     final String termTypeString = ConfigUtility.getStringForGraph(
         attributeName == null ? new AttributeNameJpa() : attributeName);
     Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.xml(termTypeString));
+        .header("Authorization", authToken).put(Entity.xml(termTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -648,7 +650,7 @@ public class MetadataClientRest extends RootClientRest
             ? new RelationshipTypeListJpa() : relationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(relationshipTypeString));
+        .put(Entity.xml(relationshipTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -670,15 +672,15 @@ public class MetadataClientRest extends RootClientRest
         .debug("Metadata Client - add additionalRelationship type ");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/metadata/additionalRelationshipType");
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/metadata/additionalRelationshipType");
     final String additionalRelationshipTypeString =
         ConfigUtility.getStringForGraph(additionalRelationshipTypeList == null
             ? new AdditionalRelationshipTypeListJpa()
             : additionalRelationshipTypeList);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken)
-        .post(Entity.xml(additionalRelationshipTypeString));
+        .put(Entity.xml(additionalRelationshipTypeString));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
