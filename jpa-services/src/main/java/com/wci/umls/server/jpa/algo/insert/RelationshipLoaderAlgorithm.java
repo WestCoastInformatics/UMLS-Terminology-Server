@@ -459,12 +459,6 @@ public class RelationshipLoaderAlgorithm
     Relationship newInverseRelationship =
         newRelationship.createInverseRelationship(newRelationship,
             inverseRelType, inverseAdditionalRelType);
-
-    // TESTTEST
-    if(toTermId.equals("C3235") && fromTermId.equals("C34816")){
-      System.out.println("TESTTEST");
-    }
-    // END TESTTEST
     
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
