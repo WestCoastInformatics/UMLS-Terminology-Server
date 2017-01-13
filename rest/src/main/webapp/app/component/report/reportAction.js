@@ -27,6 +27,7 @@ tsApp.directive('reportAction', [
 
           // Paging variables
           $scope.pagedActions = [];
+          $scope.pageSizes = utilService.getPageSizes();
           $scope.paging = utilService.getPaging();
           $scope.paging.sortField = 'timestamp';
           $scope.paging.pageSize = 10;

@@ -79,7 +79,7 @@
               <button class="btn btn-xs btn-warning"
                 ng-click="cancelSourceDataModifications()"
                 ng-show="isSourceDataModified">Cancel</button>
-              <button class="btn btn-success btn-sm"
+              <button class="btn btn-success btn-xs"
                 ng-click="loadFromSourceData(currentSourceData)"
                 ng-show="!isSourceDataModified && currentSourceData.status === 'NEW' && currentSourceData.sourceDataFiles.length > 0">
                 <span class="glyphicon glyphicon-play"></span>
@@ -175,7 +175,7 @@
                     <i class="glyphicon glyphicon-ban-circle"></i>
                   </span>
                   <span ng-show="item.isError">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="noul glyphicon glyphicon-remove"></i>
                   </span>
                 </td>
                 <td nowrap>

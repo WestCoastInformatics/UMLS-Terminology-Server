@@ -31,6 +31,7 @@ tsApp
         $scope.preferredOnly = true;
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['relationships'] = utilService.getPaging();
         $scope.paging['relationships'].sortField = 'lastModified';

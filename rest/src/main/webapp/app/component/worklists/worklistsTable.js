@@ -40,6 +40,7 @@ tsApp
               $scope.worklists = [];
 
               // Paging variables
+              $scope.pageSizes = utilService.getPageSizes();
               $scope.paging = {};
               $scope.paging['worklists'] = utilService.getPaging();
               $scope.paging['worklists'].sortField = 'lastModified';

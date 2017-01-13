@@ -20,6 +20,7 @@ tsApp.directive('relationshipsDeep', [ function() {
 
         // instantiate paging and paging callbacks function
         $scope.pagedData = [];
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = utilService.getPaging();
         $scope.pageCallbacks = {
           getPagedList : getPagedList

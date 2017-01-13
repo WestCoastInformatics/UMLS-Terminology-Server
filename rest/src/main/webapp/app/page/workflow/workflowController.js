@@ -25,6 +25,8 @@ tsApp.controller('WorkflowCtrl', [
     projectService.getUserHasAnyRole();
     tabService.setSelectedTabByLabel('Workflow');
 
+    $scope.pageSizes = utilService.getPageSizes();
+
     // Selected variables
     $scope.selected = {
       project : null,

@@ -386,6 +386,7 @@ tsApp
             value : 100000
           } ];
         }
+        
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
         // use when all data is already loaded

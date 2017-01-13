@@ -34,6 +34,7 @@ tsApp
         $scope.selected.atoms = {};
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['atoms'] = utilService.getPaging();
         $scope.paging['atoms'].sortField = null;

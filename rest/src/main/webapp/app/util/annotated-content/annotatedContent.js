@@ -23,6 +23,7 @@ tsApp.directive('annotatedContent', [
 
         // instantiate paging and paging callbacks function
         scope.pagedData = [];
+        $scope.pageSizes = utilService.getPageSizes();
         scope.paging = utilService.getPaging();
         console.debug(scope.paging);
         scope.pageCallbacks = {

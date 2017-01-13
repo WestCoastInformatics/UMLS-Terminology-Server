@@ -33,6 +33,7 @@ tsApp
         $scope.stysForDisplay = [];
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['stys'] = utilService.getPaging();
         $scope.paging['stys'].sortField = 'typeId';

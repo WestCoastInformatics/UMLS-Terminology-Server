@@ -20,6 +20,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
     $scope.selected.entry = null;
 
     // Paging variables
+    $scope.pageSizes = utilService.getPageSizes();
     $scope.paging = {};
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';

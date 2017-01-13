@@ -94,6 +94,7 @@ tsApp
         } ];
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['worklists'] = utilService.getPaging();
         $scope.paging['worklists'].sortField = 'lastModified';
@@ -919,9 +920,9 @@ tsApp
             // Success
             function(data) {
               $scope.getRecords();
+              $scope.selectNextRecord($scope.selected.record);
             });
           }
-          $scope.selectNextRecord($scope.selected.record);
         }
 
         // Moves to next record without approving selected record
