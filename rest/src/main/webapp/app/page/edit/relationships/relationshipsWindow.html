@@ -64,7 +64,7 @@
 
         <i
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
-          ng-show="relationship.level != 'S' && selected.project.editingEnabled"
+          ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 

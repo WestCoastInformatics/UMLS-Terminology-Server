@@ -39,11 +39,16 @@ import com.wci.umls.server.model.content.Relationship;
  * JPA and JAXB enabled implementation of {@link ConceptRelationship}.
  */
 @Entity
-@Table(name = "concept_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "concept_relationships", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "from_id", "to_id"
+    })
+})
 @Audited
 @Indexed
+
 @XmlRootElement(name = "conceptRelationship")
 public class ConceptRelationshipJpa extends
     AbstractRelationship<Concept, Concept> implements ConceptRelationship {
@@ -361,7 +366,6 @@ public class ConceptRelationshipJpa extends
     Map<String, String> alternateTerminologyIds) {
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
-
 
   /* see superclass */
   @Override

@@ -309,12 +309,12 @@ tsApp.service('metadataService', [
     };
 
     // update add rel type
-    this.updateAdditionalRelationshipType = function(addRelType) {
-      console.debug('update addRelType');
+    this.updateAdditionalRelationshipType = function(additionalRelationshipTypeList) {
+      console.debug('update additionalRelationshipTypeList');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(metadataUrl + '/addRelType', addRelType).then(
+      $http.post(metadataUrl + '/additionalRelationshipType', additionalRelationshipTypeList).then(
       // success
       function(response) {
         gpService.decrement();

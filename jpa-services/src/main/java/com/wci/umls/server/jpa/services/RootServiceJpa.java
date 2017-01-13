@@ -1118,6 +1118,9 @@ public abstract class RootServiceJpa implements RootService {
    */
   protected <T extends HasLastModified> T getHasLastModified(final Long id,
     final Class<T> clazz) throws Exception {
+    if (id == null) {
+      return null;
+    }
     // Get transaction and object
     tx = manager.getTransaction();
     final T component = manager.find(clazz, id);
