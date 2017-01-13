@@ -65,6 +65,7 @@ public class SubsetLoaderAlgorithmTest extends IntegrationUnitSupport {
   /** The temporary attributes.src file. */
   private File attributesOutputFile = null;
 
+  /** The added subsets. */
   private List<Subset> addedSubsets = new ArrayList<>();
 
   /**
@@ -250,7 +251,9 @@ public class SubsetLoaderAlgorithmTest extends IntegrationUnitSupport {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @After
   public void teardown() throws Exception {
 
@@ -263,7 +266,7 @@ public class SubsetLoaderAlgorithmTest extends IntegrationUnitSupport {
         for (SubsetMember subsetMember : ((AtomSubsetJpa) addedSubset)
             .getMembers()) {
           subsetMember.getAttributes().clear();
-          contentService.updateSubsetMember((AtomSubsetMemberJpa) subsetMember);
+          contentService.updateSubsetMember(subsetMember);
           for (Attribute attribute : subsetMember.getAttributes()) {
             contentService.removeAttribute(attribute.getId());
           }
@@ -278,7 +281,7 @@ public class SubsetLoaderAlgorithmTest extends IntegrationUnitSupport {
             .getMembers()) {
           subsetMember.getAttributes().clear();
           contentService
-              .updateSubsetMember((ConceptSubsetMemberJpa) subsetMember);
+              .updateSubsetMember(subsetMember);
           for (Attribute attribute : subsetMember.getAttributes()) {
             contentService.removeAttribute(attribute.getId());
           }
