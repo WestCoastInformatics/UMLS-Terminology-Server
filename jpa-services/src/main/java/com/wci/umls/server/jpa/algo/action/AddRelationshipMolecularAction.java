@@ -90,12 +90,10 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // Duplicate check
     for (final ConceptRelationship a : getConcept().getRelationships()) {
-      if (a.getFrom().getId().equals(relationship.getFrom().getId())
-          && a.getTo().getId().equals(relationship.getTo().getId())) {
+      if (a.equals(relationship)) {
         rollback();
-        throw new LocalException("Relationship already exists between concept "
-            + relationship.getFrom().getId() + ", and concept "
-            + relationship.getTo().getId());
+        throw new LocalException(
+            "Duplicate relationship - " + relationship.getRelationshipType());
       }
     }
 
