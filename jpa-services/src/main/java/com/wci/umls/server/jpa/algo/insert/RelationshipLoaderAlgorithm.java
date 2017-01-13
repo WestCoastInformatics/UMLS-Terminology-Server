@@ -269,6 +269,7 @@ public class RelationshipLoaderAlgorithm
 
       commitClearBegin();
       handler.commitClearBegin();
+      handler.close();
 
       logInfo("[RelationshipLoader] Added " + addCount + " new Relationships.");
       logInfo("[RelationshipLoader] Updated " + updateCount
@@ -284,6 +285,8 @@ public class RelationshipLoaderAlgorithm
 
     Exception e) {
       logError("Unexpected problem - " + e.getMessage());
+      handler.rollback();
+      handler.close();
       throw e;
     }
 
@@ -457,6 +460,12 @@ public class RelationshipLoaderAlgorithm
         newRelationship.createInverseRelationship(newRelationship,
             inverseRelType, inverseAdditionalRelType);
 
+    // TESTTEST
+    if(toTermId.equals("C3235") && fromTermId.equals("C34816")){
+      System.out.println("TESTTEST");
+    }
+    // END TESTTEST
+    
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
     String newRelationshipRui = handler.getTerminologyId(newRelationship,

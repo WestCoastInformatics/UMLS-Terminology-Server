@@ -315,6 +315,8 @@ public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
+      handler.rollback();
+      handler.close();
       throw e;
     }
 

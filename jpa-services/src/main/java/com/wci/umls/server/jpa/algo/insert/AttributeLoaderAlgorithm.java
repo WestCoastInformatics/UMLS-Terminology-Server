@@ -361,6 +361,7 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
       commitClearBegin();
       handler.commitClearBegin();
+      handler.close();
 
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
@@ -379,6 +380,8 @@ public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
+      handler.rollback();
+      handler.close();
       throw e;
     }
 
