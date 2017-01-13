@@ -90,10 +90,12 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
     // Duplicate check
     for (final ConceptRelationship a : getConcept().getRelationships()) {
-      if (a.equals(relationship)) {
+      if (a.getFrom().getId().equals(relationship.getFrom().getId())
+          && a.getTo().getId().equals(relationship.getTo().getId())) {
         rollback();
-        throw new LocalException(
-            "Duplicate relationship - " + relationship.getName());
+        throw new LocalException("Relationship already exists between concept "
+            + relationship.getFrom().getId() + ", and concept "
+            + relationship.getTo().getId());
       }
     }
 
@@ -154,8 +156,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
         // Remove the relationships
         removeRelationship(rel.getId(), rel.getClass());
-        removeRelationship(getInverseRelationship(rel).getId(),
-            rel.getClass());
+        removeRelationship(getInverseRelationship(rel).getId(), rel.getClass());
 
         // Change status of the source and target concept
         if (getChangeStatusFlag()) {
@@ -199,7 +200,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
         updateAtom(demotion.getTo());
       }
     }
-    
+
     // Add the relationships
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =
@@ -245,5 +246,5 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
             + ", " + getRelationship().getAdditionalRelationshipType() + ", "
             + relationship.getTerminology());
   }
-  
+
 }
