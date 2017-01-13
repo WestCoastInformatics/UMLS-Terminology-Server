@@ -68,7 +68,7 @@ public class MetaEditingServiceRestNormalUseTest
   private static Project project;
 
   /** The umls terminology. */
-  private String umlsTerminology = "MTH";
+  private String umlsTerminology = "NCIMTH";
 
   /** The umls version. */
   private String umlsVersion = "latest";
@@ -135,7 +135,7 @@ public class MetaEditingServiceRestNormalUseTest
         authToken);
 
     ConceptJpa concept2Jpa =
-        new ConceptJpa(contentService.getConcept("C0002073", umlsTerminology,
+        new ConceptJpa(contentService.getConcept("C0002085", umlsTerminology,
             umlsVersion, null, authToken), false);
     concept2Jpa.setId(null);
     concept2Jpa.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
@@ -144,7 +144,7 @@ public class MetaEditingServiceRestNormalUseTest
         authToken);
 
     ConceptJpa concept3Jpa =
-        new ConceptJpa(contentService.getConcept("C0065642", umlsTerminology,
+        new ConceptJpa(contentService.getConcept("C0065661", umlsTerminology,
             umlsVersion, null, authToken), false);
     concept3Jpa.setId(null);
     concept3Jpa.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);

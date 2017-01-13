@@ -2635,6 +2635,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int objectCt = 0;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
+    try{
     while ((line = reader.readLine()) != null) {
       FieldedStringTokenizer.split(line, "|", 16, fields);
 
@@ -2914,7 +2915,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
-
+    } catch(Exception e){
+      logError("exception thrown on line: " + line);
+      throw e;
+    }
     // update terminologies after setting the rel directionality flag
     for (final Terminology terminology : loadedTerminologies.values()) {
       updateTerminology(terminology);
