@@ -57,7 +57,6 @@ tsApp.controller('FinishWorkflowModalCtrl', [
 
       // Success
       function(data) {
-        console.debug('xxx=', data);
         // finish workflow
         $scope.finishWorkflow(worklist);
       },
