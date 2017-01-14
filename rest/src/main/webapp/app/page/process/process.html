@@ -119,7 +119,7 @@
     <div ng-show="selected.process">
 
       <!-- Process Details -->
-      <table class="slim table pointer">
+      <table class="slim table">
         <tbody>
           <tr>
             <td>
@@ -273,7 +273,7 @@
           ng-class="{selected: step.id == selected.step.id}">
           <td>
             {{$index}}.
-            <span ng-show="selected.mode != 'Execution'" class="nobreak">
+            <span ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'" class="nobreak">
               <!--  Enable/Disable step -->
               <input type="checkbox" title="Enable/Disable Step"
                 ng-change="toggleEnable(step);" ng-model="step.enabled"
