@@ -12,7 +12,7 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
     templateUrl : 'app/component/report/report.html',
     controller : [ '$scope', 'reportService', function($scope, reportService) {
       // Scope vars
-      $scope.showHidden = true;
+      $scope.config = {showHidden :  false};
 
     } ]
   };

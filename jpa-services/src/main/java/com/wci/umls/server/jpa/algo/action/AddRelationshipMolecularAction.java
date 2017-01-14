@@ -93,7 +93,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
       if (a.equals(relationship)) {
         rollback();
         throw new LocalException(
-            "Duplicate relationship - " + relationship.getName());
+            "Duplicate relationship - " + relationship.getRelationshipType());
       }
     }
 
@@ -154,8 +154,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
 
         // Remove the relationships
         removeRelationship(rel.getId(), rel.getClass());
-        removeRelationship(getInverseRelationship(rel).getId(),
-            rel.getClass());
+        removeRelationship(getInverseRelationship(rel).getId(), rel.getClass());
 
         // Change status of the source and target concept
         if (getChangeStatusFlag()) {
@@ -199,7 +198,7 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
         updateAtom(demotion.getTo());
       }
     }
-    
+
     // Add the relationships
     relationship = (ConceptRelationshipJpa) addRelationship(relationship);
     final ConceptRelationshipJpa newInverseRelationship =
@@ -245,5 +244,5 @@ public class AddRelationshipMolecularAction extends AbstractMolecularAction {
             + ", " + getRelationship().getAdditionalRelationshipType() + ", "
             + relationship.getTerminology());
   }
-  
+
 }

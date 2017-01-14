@@ -43,7 +43,7 @@ import com.wci.umls.server.model.content.Relationship;
     @UniqueConstraint(columnNames = {
         "terminologyId", "terminology", "version", "id"
     }), @UniqueConstraint(columnNames = {
-        "from_id", "to_id"
+        "relationshipType", "additionalRelationshipType", "from_id", "to_id"
     })
 })
 @Audited
