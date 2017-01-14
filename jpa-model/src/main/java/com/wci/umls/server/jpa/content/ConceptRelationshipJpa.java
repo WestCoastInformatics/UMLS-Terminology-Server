@@ -42,8 +42,6 @@ import com.wci.umls.server.model.content.Relationship;
 @Table(name = "concept_relationships", uniqueConstraints = {
     @UniqueConstraint(columnNames = {
         "terminologyId", "terminology", "version", "id"
-    }), @UniqueConstraint(columnNames = {
-        "relationshipType", "additionalRelationshipType", "from_id", "to_id"
     })
 })
 @Audited
