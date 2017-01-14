@@ -126,7 +126,8 @@ tsApp
             $scope.user.userPreferences.properties['relationshipHeight'] = window.outerHeight;
             $scope.user.userPreferences.properties['relationshipX'] = window.screenX;
             $scope.user.userPreferences.properties['relationshipY'] = window.screenY;
-            securityService.updateUserPreferences($scope.user.userPreferences);
+            $scope.parentWindowScope.saveWindowSettings('relationship',
+              $scope.user.userPreferences.properties);
           }, 250);
         }
 

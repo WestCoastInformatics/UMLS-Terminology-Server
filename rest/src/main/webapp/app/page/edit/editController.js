@@ -626,50 +626,63 @@ tsApp
 
         // focus windows and open those saved to user preferences
         $scope.focusWindows = function() {
+          console.debug('xxx', $scope.windows);
           // focus windows that are already open
           for ( var win in $scope.windows) {
+            console.debug('xxx1', win);
             $scope.windows[win].focus();
           }
           var width = 400;
           var height = 400;
           // open windows that were saved to user preferences
+          console.debug('xxxsty', $scope.windows['semanticType'],
+            $scope.user.userPreferences.properties['semanticType']);
           if (!$scope.windows['semanticType']
-            && $scope.user.userPreferences.properties['semanticType'] == 'true') {
+            && $scope.user.userPreferences.properties['semanticType']) {
             if ($scope.user.userPreferences.properties['semanticTypeWidth']) {
               width = $scope.user.userPreferences.properties['semanticTypeWidth'];
             }
             if ($scope.user.userPreferences.properties['semanticTypeHeight']) {
               height = $scope.user.userPreferences.properties['semanticTypeHeight'];
             }
+            console.debug('  open sty');
             $scope.openStyWindow(width, height);
           }
+          console.debug('xxxrel', $scope.windows['relationship'],
+            $scope.user.userPreferences.properties['relationship']);
           if (!$scope.windows['relationship']
-            && $scope.user.userPreferences.properties['relationship'] == 'true') {
+            && $scope.user.userPreferences.properties['relationship']) {
             if ($scope.user.userPreferences.properties['relationshipWidth']) {
               width = $scope.user.userPreferences.properties['relationshipWidth'];
             }
             if ($scope.user.userPreferences.properties['relationshipHeight']) {
               height = $scope.user.userPreferences.properties['relationshipHeight'];
             }
+            console.debug('  open rel');
             $scope.openRelationshipsWindow(width, height);
           }
-          if (!$scope.windows['context']
-            && $scope.user.userPreferences.properties['context'] == 'true') {
+          console.debug('xxxcxt', $scope.windows['context'],
+            $scope.user.userPreferences.properties['context']);
+          if (!$scope.windows['context'] && $scope.user.userPreferences.properties['context']) {
             if ($scope.user.userPreferences.properties['contextWidth']) {
               width = $scope.user.userPreferences.properties['contextWidth'];
             }
             if ($scope.user.userPreferences.properties['contextHeight']) {
               height = $scope.user.userPreferences.properties['contextHeight'];
             }
+            console.debug('  open cxt');
             $scope.openContextsWindow(width, height);
           }
-          if (!$scope.windows['atom'] && $scope.user.userPreferences.properties['atom'] == 'true') {
+          console.debug('xxxatom', $scope.windows['atom'],
+            $scope.user.userPreferences.properties['atom']);
+          if (!$scope.windows['atom'] && $scope.user.userPreferences.properties['atom']) {
             if ($scope.user.userPreferences.properties['atomWidth']) {
               width = $scope.user.userPreferences.properties['atomWidth'];
             }
             if ($scope.user.userPreferences.properties['atomHeight']) {
               height = $scope.user.userPreferences.properties['atomHeight'];
             }
+            console.debug('  open atom');
             $scope.openAtomsWindow(width, height);
           }
         }
@@ -1107,9 +1120,20 @@ tsApp
           }
         });
 
+        // Save accordion status
         $scope.saveAccordionStatus = function() {
           console.debug('saveAccordionStatus', $scope.groups);
           $scope.user.userPreferences.properties['editGroups'] = JSON.stringify($scope.groups);
+          securityService.updateUserPreferences($scope.user.userPreferences);
+        }
+
+        // Save window settings
+        $scope.saveWindowSettings = function(window, properties) {
+          for (property in properties) {
+            if (property.startsWith(window)) {
+              $scope.user.userPreferences.properties[property] = properties[property];
+            }
+          }
           securityService.updateUserPreferences($scope.user.userPreferences);
         }
 

@@ -132,12 +132,13 @@ tsApp
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
           window.resizedFinished = setTimeout(function() {
-            console.log('Resized finished.');
+            console.debug('Resized finished.');
             $scope.user.userPreferences.properties['semanticTypeWidth'] = window.outerWidth;
             $scope.user.userPreferences.properties['semanticTypeHeight'] = window.outerHeight;
             $scope.user.userPreferences.properties['semanticTypeX'] = window.screenX;
             $scope.user.userPreferences.properties['semanticTypeY'] = window.screenY;
-            securityService.updateUserPreferences($scope.user.userPreferences);
+            $scope.parentWindowScope.saveWindowSettings('semanticType',
+              $scope.user.userPreferences.properties);
           }, 250);
         }
 

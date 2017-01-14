@@ -47,6 +47,7 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.MetaEditingServiceRest;
 import com.wci.umls.server.model.actions.ChangeEvent;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -769,7 +770,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     }
 
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -782,17 +783,18 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "From Concept lastModified, as date", required = true) @QueryParam("lastModified") Long lastModified,
     @ApiParam(value = "To Concept id, e.g. 3", required = true) @QueryParam("conceptId2") Long conceptId2,
     @ApiParam(value = "From Atom id, e.g. 3", required = true) @PathParam("atomId") Long atomId,
-    @ApiParam(value = "To Atom id, e.g. 3", required = true) @PathParam("atomId2") Long atomId2,    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
+    @ApiParam(value = "To Atom id, e.g. 3", required = true) @PathParam("atomId2") Long atomId2,
+    @ApiParam(value = "Override warnings", required = false) @QueryParam("overrideWarnings") boolean overrideWarnings,
     @ApiParam(value = "Authorization token, e.g. 'author'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     Logger.getLogger(getClass())
         .info("RESTful call (MetaEditing): /demotion/add " + projectId + ","
-            + conceptId + " from atom " + atomId + " to atom " + atomId2 + " for user " + authToken);
+            + conceptId + " from atom " + atomId + " to atom " + atomId2
+            + " for user " + authToken);
 
     // Instantiate services
-    final AddDemotionMolecularAction action =
-        new AddDemotionMolecularAction();
+    final AddDemotionMolecularAction action = new AddDemotionMolecularAction();
     try {
 
       // Authorize project role, get userName
@@ -833,8 +835,8 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Websocket notification
       final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
-          IdType.RELATIONSHIP.toString(), action.getDemotionRelationship().getId(),
-          action.getConcept());
+          IdType.RELATIONSHIP.toString(),
+          action.getDemotionRelationship().getId(), action.getConcept());
       sendChangeEvent(event);
 
       return validationResult;
@@ -852,7 +854,7 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
 
-  }  
+  }
 
   /* see superclass */
   @Override
@@ -1321,18 +1323,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Note - the undo action doesn't create its own molecular and atomic
       // actions
-      // Note - if we're undoing a merge, ComponentId won't point to an
-      // existing concept, so leave that null.
-      Long conceptId;
-      if (action.getMolecularAction(molecularActionId).getName()
-          .equals("MERGE")) {
-        conceptId = null;
-      } else {
-        conceptId =
-            action.getMolecularAction(molecularActionId).getComponentId();
-      }
-      Long conceptId2 =
+
+      // Get concepts
+      final Long conceptId =
+          action.getMolecularAction(molecularActionId).getComponentId();
+      final Long conceptId2 =
           action.getMolecularAction(molecularActionId).getComponentId2();
+      Concept concept = action.getConcept(conceptId);
+      Concept concept2 = action.getConcept(conceptId2);
 
       // Configure the action
       action.setProject(project);
@@ -1356,23 +1354,23 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
       }
 
+      // Reread concepts in case they were null before the action
+      if (concept == null) {
+        concept = action.getConcept(conceptId);
+      }
+      if (concept2 == null) {
+        concept2 = action.getConcept(conceptId2);
+      }
       // Websocket notification
       final List<ChangeEvent> events = new ArrayList<>();
-      if (action.getMolecularAction(molecularActionId).getComponentId() != null
-          && action.getConcept(action.getMolecularAction(molecularActionId)
-              .getComponentId()) != null) {
-        final ChangeEvent event = new ChangeEventJpa(action.getName(),
-            authToken, IdType.CONCEPT.toString(), null, action.getConcept(
-                action.getMolecularAction(molecularActionId).getComponentId()));
-        events.add(event);
-      }
+      final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
+          IdType.CONCEPT.toString(), null, concept);
+      events.add(event);
 
-      if (action.getMolecularAction(molecularActionId).getComponentId2() != null
-          && action.getConcept(action.getMolecularAction(molecularActionId)
-              .getComponentId2()) != null) {
+      if (action.getMolecularAction(molecularActionId)
+          .getComponentId2() != null) {
         final ChangeEvent event2 = new ChangeEventJpa(action.getName(),
-            authToken, IdType.CONCEPT.toString(), null, action.getConcept(action
-                .getMolecularAction(molecularActionId).getComponentId2()));
+            authToken, IdType.CONCEPT.toString(), null, concept2);
         events.add(event2);
       }
       sendChangeEvents(events.toArray(new ChangeEvent[] {}));
@@ -1429,18 +1427,14 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // Note - the redo action doesn't create its own molecular and atomic
       // actions
-      // Note - if we're redoing a split, ComponentId2 won't point to an
-      // existing concept, so leave that null.
-      Long conceptId =
+
+      // Get concepts
+      final Long conceptId =
           action.getMolecularAction(molecularActionId).getComponentId();
-      Long conceptId2;
-      if (action.getMolecularAction(molecularActionId).getName()
-          .equals("SPLIT")) {
-        conceptId2 = null;
-      } else {
-        conceptId2 =
-            action.getMolecularAction(molecularActionId).getComponentId2();
-      }
+      final Long conceptId2 =
+          action.getMolecularAction(molecularActionId).getComponentId2();
+      Concept concept = action.getConcept(conceptId);
+      Concept concept2 = action.getConcept(conceptId2);
 
       // Configure the action
       action.setProject(project);
@@ -1464,23 +1458,24 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
         return validationResult;
       }
 
-      // Websocket notification
-      final List<ChangeEvent> events = new ArrayList<>();
-      if (action.getMolecularAction(molecularActionId).getComponentId() != null
-          && action.getConcept(action.getMolecularAction(molecularActionId)
-              .getComponentId()) != null) {
-        final ChangeEvent event = new ChangeEventJpa(action.getName(),
-            authToken, IdType.CONCEPT.toString(), null, action.getConcept(
-                action.getMolecularAction(molecularActionId).getComponentId()));
-        events.add(event);
+      // Reread concepts in case they were null before the action
+      if (concept == null) {
+        concept = action.getConcept(conceptId);
+      }
+      if (concept2 == null) {
+        concept2 = action.getConcept(conceptId2);
       }
 
-      if (action.getMolecularAction(molecularActionId).getComponentId2() != null
-          && action.getConcept(action.getMolecularAction(molecularActionId)
-              .getComponentId2()) != null) {
+      // Websocket notification
+      final List<ChangeEvent> events = new ArrayList<>();
+      final ChangeEvent event = new ChangeEventJpa(action.getName(), authToken,
+          IdType.CONCEPT.toString(), null, concept);
+      events.add(event);
+
+      if (action.getMolecularAction(molecularActionId)
+          .getComponentId2() != null) {
         final ChangeEvent event2 = new ChangeEventJpa(action.getName(),
-            authToken, IdType.CONCEPT.toString(), null, action.getConcept(action
-                .getMolecularAction(molecularActionId).getComponentId2()));
+            authToken, IdType.CONCEPT.toString(), null, concept2);
         events.add(event2);
       }
       sendChangeEvents(events.toArray(new ChangeEvent[] {}));

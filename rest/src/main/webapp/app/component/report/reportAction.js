@@ -92,21 +92,12 @@ tsApp.directive('reportAction', [
 
           // Undo action
           $scope.undoAction = function(action, overrideWarnings) {
-            if (!overrideWarnings && action.id != $scope.molecularActions[0].id) {
-              if (window
-                .confirm('Warning.  Do you want to override the warning and execute the undo?')) {
-                $scope.undoAction(action, true);
-              } else {
-                return;
-              }
-            } else {
-              metaEditingService.undoAction($scope.selected.project.id, action.activityId,
-                action.id, overrideWarnings).then(
-              // Success
-              function(data) {
-                $scope.validation = data;
-              });
-            }
+            metaEditingService.undoAction($scope.selected.project.id, action.activityId, action.id,
+              overrideWarnings).then(
+            // Success
+            function(data) {
+              $scope.validation = data;
+            });
           }
 
           // Redo action
