@@ -1,9 +1,11 @@
 // Actions/Errors controller
 tsApp.controller('ActionErrorsCtrl', [ '$scope', '$uibModalInstance', 'utilService', 'errors',
-  'warnings', 'action', function($scope, $uibModalInstance, utilService, errors, warnings, action) {
+  'warnings', 'action', 'concept',
+  function($scope, $uibModalInstance, utilService, errors, warnings, action, concept) {
 
     // Scope variables
     $scope.action = action;
+    $scope.concept = concept;
     $scope.warnings = warnings;
     $scope.errors = errors;
 

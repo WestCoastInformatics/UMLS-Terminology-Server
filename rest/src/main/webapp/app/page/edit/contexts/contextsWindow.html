@@ -6,16 +6,12 @@
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
     {{selected.component.id}}</span>
 </h4>
-<!-- <span ng-show="x.totalCount > 10" style="float: right;">
+<span ng-show="x.totalCount > 10" style="float: right;">
   Page size: <select ng-model="paging['entries'].pageSize" title="Page Size"
-    ng-change="paging['entries'].callbacks.getPagedList()">
-    <option value="5">5</option>
-    <option value="10">10</option>
-    <option value="20">20</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
+    ng-change="paging['entries'].callbacks.getPagedList()"
+    ng-options="item.value as item.name for item in pageSizes">
   </select>
-</span> -->
+</span>
 <div pager paging="paging['entries']" count="pagedEntries.totalCount"
   callbacks="paging['entries'].callbacks"></div>
 

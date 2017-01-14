@@ -94,6 +94,7 @@ tsApp.controller('FinderModalCtrl', [
     $scope.searchResults = [];
 
     // Paging vars
+    $scope.pageSizes = utilService.getPageSizes();
     $scope.paging = utilService.getPaging();
     $scope.paging.pageSize = 10;
     $scope.paging.disableFilter = true;

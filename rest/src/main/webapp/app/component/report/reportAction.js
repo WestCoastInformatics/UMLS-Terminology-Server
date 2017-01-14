@@ -27,6 +27,7 @@ tsApp.directive('reportAction', [
 
           // Paging variables
           $scope.pagedActions = [];
+          $scope.pageSizes = utilService.getPageSizes();
           $scope.paging = utilService.getPaging();
           $scope.paging.sortField = 'timestamp';
           $scope.paging.pageSize = 10;
@@ -91,21 +92,12 @@ tsApp.directive('reportAction', [
 
           // Undo action
           $scope.undoAction = function(action, overrideWarnings) {
-            if (!overrideWarnings && action.id != $scope.molecularActions[0].id) {
-              if (window
-                .confirm('Warning.  Do you want to override the warning and execute the undo?')) {
-                $scope.undoAction(action, true);
-              } else {
-                return;
-              }
-            } else {
-              metaEditingService.undoAction($scope.selected.project.id, action.activityId,
-                action.id, overrideWarnings).then(
-              // Success
-              function(data) {
-                $scope.validation = data;
-              });
-            }
+            metaEditingService.undoAction($scope.selected.project.id, action.activityId, action.id,
+              overrideWarnings).then(
+            // Success
+            function(data) {
+              $scope.validation = data;
+            });
           }
 
           // Redo action

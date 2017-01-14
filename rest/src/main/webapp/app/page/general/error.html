@@ -10,7 +10,7 @@
           title="{{error.expand ? 'Show' : 'Hide'}} long eror"
           class="noul glyphicon glyphicon-paperclip"
           ng-click="error.expand = !error.expand;"></i> <i
-          class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
+          class="noul glyphicon glyphicon-remove" ng-click="clearError()"></i>
       </span>
       <span ng-show="error.longMessage && error.expand">
         <br />{{error.longMessage}}
@@ -26,7 +26,7 @@
           title="{{success.expand ? 'Show' : 'Hide'}} long message"
           class="noul glyphicon glyphicon-paperclip"
           ng-click="success.expand = !success.expand;"></i> <i
-          class="glyphicon glyphicon-remove" ng-click="clearSuccess()"></i>
+          class="noul glyphicon glyphicon-remove" ng-click="clearSuccess()"></i>
       </span>
       <span ng-show="success.longMessage && success.expand">
         <br />{{success.longMessage}}

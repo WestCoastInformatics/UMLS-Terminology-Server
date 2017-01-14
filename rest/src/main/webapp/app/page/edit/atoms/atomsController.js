@@ -34,6 +34,7 @@ tsApp
         $scope.selected.atoms = {};
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['atoms'] = utilService.getPaging();
         $scope.paging['atoms'].sortField = null;
@@ -160,7 +161,8 @@ tsApp
             $scope.user.userPreferences.properties['atomHeight'] = window.outerHeight;
             $scope.user.userPreferences.properties['atomX'] = window.screenX;
             $scope.user.userPreferences.properties['atomY'] = window.screenY;
-            securityService.updateUserPreferences($scope.user.userPreferences);
+            $scope.parentWindowScope.saveWindowSettings('atom',
+              $scope.user.userPreferences.properties);
           }, 250);
         }
 
@@ -399,9 +401,9 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record);
+             */
           });
         };
 
@@ -440,9 +442,10 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
         };
 
@@ -480,9 +483,10 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
 
         };

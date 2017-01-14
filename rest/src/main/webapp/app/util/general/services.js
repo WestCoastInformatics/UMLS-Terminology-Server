@@ -374,9 +374,9 @@ tsApp
             value : 10
           }, {
             name : 20,
-            value : 30
+            value : 20
           }, {
-            name : 40,
+            name : 50,
             value : 50
           }, {
             name : 100,
@@ -386,6 +386,7 @@ tsApp
             value : 100000
           } ];
         }
+
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
         // use when all data is already loaded

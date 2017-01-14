@@ -13,6 +13,7 @@ tsApp.controller('componentNoteModalCtrl', function($scope, $q, $uibModalInstanc
 
   // instantiate paging and paging callbacks function
   $scope.pagedData = [];
+  $scope.pageSizes = utilService.getPageSizes();
   $scope.paging = utilService.getPaging();
   $scope.pageCallbacks = {
     getPagedList : getPagedList
