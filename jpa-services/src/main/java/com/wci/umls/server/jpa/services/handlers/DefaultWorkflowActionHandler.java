@@ -18,6 +18,7 @@ import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.maint.StampingAlgorithm;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
+import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowAction;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
@@ -252,7 +253,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
         else if (EnumSet
-            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS, WorkflowStatus.REVIEW_DONE)
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
           worklist.getReviewers().remove(userName);
@@ -303,7 +304,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
 
         // REVIEW_NEW, REVIEW_IN_PROGRESS => REVIEW_DONE
         else if (EnumSet
-            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS, WorkflowStatus.REVIEW_DONE)
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           worklist.getWorkflowStateHistory().put("Done", new Date());
@@ -318,7 +319,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
     service.updateWorklist(worklist);
 
     // Stamp the worklist when we send it for publication.
-    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
+    if (worklist.getWorkflowStatus() == WorkflowStatus.REVIEW_DONE
         && workflowAction == WorkflowAction.APPROVE) {
       final StampingAlgorithm algo = new StampingAlgorithm();
 
@@ -334,6 +335,16 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         throw new LocalException("Stamping failed - " + result.getErrors());
       }
       algo.compute();
+    }
+
+    if (worklist.getWorkflowStatus() == WorkflowStatus.READY_FOR_PUBLICATION
+        && workflowAction == WorkflowAction.FINISH) {
+
+      // Mark all tracking records as finished
+      for (TrackingRecord trackingRecord : worklist.getTrackingRecords()) {
+        trackingRecord.setFinished(true);
+        service.updateTrackingRecord(trackingRecord);
+      }
     }
 
     return worklist;

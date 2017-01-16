@@ -419,13 +419,13 @@ tsApp
                     .stampWorklist($scope.selected.project.id, worklist, approve, true).then(
                       function() {
                         $scope.selectedWorklist = null;
-                        $scope.getWorklists();
+                        $scope.getWorklists(worklist);
                       });
                 } else if ($scope.type == 'Checklist') {
                   workflowService.stampChecklist($scope.selected.project.id, worklist, approve,
                     true).then(function() {
                     $scope.selectedWorklist = null;
-                    $scope.getWorklists();
+                    $scope.getWorklists(worklist);
                   });
                 }
               }

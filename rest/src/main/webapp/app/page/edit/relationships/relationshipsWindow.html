@@ -84,7 +84,7 @@
         ng-disabled="!selected.relationship || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="!selected.relationship || editingDisabled()" title="Merge"
+        ng-disabled="editingDisabled()" title="Merge"
         class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>

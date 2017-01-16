@@ -3,7 +3,6 @@
 <div class="row">
   <!-- R1C1 -->
   <div class="col-md-6 col-xs-12">
-
     <span style="float: right;">
       <!-- Import -->
       <i ng-show="type == 'Checklist' && hasPermissions('ImportChecklist')"
@@ -13,13 +12,10 @@
     <div style="display: inline" pager paging="paging['worklists']"
       count="worklists.totalCount" callbacks="paging['worklists'].callbacks">
     </div>
-
     <!-- Basic Worklist info -->
     <span ng-show="worklists.totalCount == 0" style="display: block;"
       class="alert alert-warning">No worklists.</span>
-
     <table ng-show="worklists.totalCount > 0" class="slim table">
-
       <!-- Worklist header -->
       <thead ng-show="type === 'Worklist'" class="pointer">
         <tr>
@@ -45,12 +41,10 @@
               State
               <span ng-bind="getSortIndicator('worklists','worklistState')"></span>
             </span></th>
-
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2"">Actions</th>
         </tr>
       </thead>
-
       <!-- Checklist header -->
       <thead ng-show="type === 'Checklist'" class="pointer">
         <tr>
@@ -64,53 +58,42 @@
               LastModified
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
-
           <!-- Actions header -->
           <th class="col-md-2 col-xs-2"">Actions</th>
         </tr>
       </thead>
-
       <tbody>
         <tr ng-repeat="worklist in worklists"
           ng-click="selectWorklist(worklist);"
           ng-class="{selected: worklist.id == selectedWorklist.id}"
           class="pointer">
-
           <td>
             {{worklist.name}}
             <span ng-show="type == 'Worklist'">
               <br />{{toDate(worklist.lastModified)}}
             </span>
           </td>
-
           <td ng-show="type == 'Checklist'">
             {{toDate(worklist.lastModified)}}</td>
-
           <td ng-show="type == 'Worklist'">
             <span style="word-break: break-word;">
               {{joinEditors(worklist)}}</span>
             <br />
             <span> {{worklist.team}} </span>
           </td>
-
           <td ng-show="type == 'Worklist'">{{getWorkflowState(worklist)}}</td>
-
           <!--  actions -->
-
           <td class="nobreak">
             <i title="Remove"
               ng-show="!worklist.staged && hasPermissions('RemoveWorklist')"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-trash"></i>
-
-            <i
+              class="noul glyphicon glyphicon-trash"></i> <i
               ng-show="hasPermissions('AssignWorklist') 
                 && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN');"
               title="Assign worklist"
               class="noul glyphicon glyphicon-hand-right"></i>
-
             <span
               ng-show="hasPermissions('UnassignWorklist') && type == 'Worklist' && worklist.authors.length > 0 && !worklist.reviewerAvailable && worklist.reviewers.length==0">
               <i ng-repeat="author in worklist.authors"
@@ -118,7 +101,6 @@
                 title="Unassign worklist from {{author}}"
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
-
             <span
               ng-show="hasPermissions('UnassignWorklist') && type == 'Worklist' && worklist.reviewers.length > 0 && !worklist.reviewerAvailable && !worklist.workflowStatus =='READY_FOR_PUBLICATION'">
               <i ng-repeat="author in worklist.authors"
@@ -126,47 +108,40 @@
                 title="Unassign worklist from {{author}}"
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
-
             <span ng-show="hasPermissions('Stamp') && type == 'Checklist'">
               <i confirm="Are you sure you want to stamp the {{type}}?"
                 ng-click="stamp(worklist, true); " title="Stamp {{type}}"
                 class="noul glyphicon glyphicon-certificate"></i>
             </span>
-
+            <!-- Removed Unapprove - currently unrequired, unrequested feature.
             <span ng-show="hasPermissions('Unapprove')">
               <i confirm="Are you sure you want to unapprove the {{type}}?"
                 ng-click="stamp(worklist, false); " title="Unapprove {{type}}"
                 class="noul glyphicon glyphicon-remove-circle"></i>
             </span>
-
+           -->
           </td>
         </tr>
       </tbody>
     </table>
     <!-- End R1C1 -->
   </div>
-
   <!-- R1C2 -->
   <div class="col-md-6 col-xs-12">
-
     <!-- Details, Releases, Records -->
     <span ng-show="!selectedWorklist && worklists.length > 0"
       class="alert alert-warning">Select a worklist to see details</span>
-
     <div class="col-md-12 col-xs-12" ng-show="selectedWorklist">
-
       <!-- Worklist Details -->
       <h4>{{selectedWorklist.name}}</h4>
       <table class="slim table pointer">
         <tbody>
-
           <tr>
             <td>
               <b>Description</b>
             </td>
             <td>{{selectedWorklist.description}} {{selectedWorklist.id}}</td>
           </tr>
-
           <tr>
             <td>
               <b>Notes</b>
@@ -200,7 +175,6 @@
                 class="noul glyphicon glyphicon-download"></i>
             </td>
           </tr>
-
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Concept Reports</b>
@@ -208,15 +182,14 @@
             <td>
               <span ng-show="worklistReport && !reportRefresh">
                 <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
-                &nbsp;
-                <i ng-click="removeGeneratedConceptReport(selectedWorklist);"
+                &nbsp; <i
+                  ng-click="removeGeneratedConceptReport(selectedWorklist);"
                   title="Remove report" class="noul glyphicon glyphicon-trash"></i>
               </span>
               <span ng-show="!worklistReport && reportRefresh">
                 <i ng-click="findGeneratedReports();"
                   title="Refresh concept report generation status"
-                  class="noul glyphicon glyphicon-refresh"></i>
-                ...Generating...
+                  class="noul glyphicon glyphicon-refresh"></i> ...Generating...
               </span>
               <span
                 ng-show="!worklistReport && !reportRefresh && hasPermissions('GenerateReport')">
@@ -226,36 +199,30 @@
               </span>
             </td>
           </tr>
-
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Bin</b>
             </td>
             <td>{{selectedWorklist.workflowBinName}}</td>
           </tr>
-
-
           <tr ng-show="type == 'Worklist' && selectedWorklist.authorTime">
             <td>
               <b>Authoring Time</b>
             </td>
             <td>{{toTime(selectedWorklist.authorTime)}}</td>
           </tr>
-
           <tr ng-show="type == 'Worklist' && selectedWorklist.reviewerTime">
             <td>
               <b>Reviewer Time</b>
             </td>
             <td>{{toTime(selectedWorklist.reviewerTime)}}</td>
           </tr>
-
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Workflow Status</b>
             </td>
             <td>{{selectedWorklist.workflowStatus}}</td>
           </tr>
-
           <tr ng-show="type == 'Worklist'">
             <td>
               <b>Author(s)</b>
@@ -267,7 +234,6 @@
                 for assignment to author</span>
             </td>
           </tr>
-
           <tr
             ng-show="type == 'Worklist' && selectedWorklist.reviewers.length > 0">
             <td>
@@ -280,14 +246,12 @@
                 for assignment to reviewer</span>
             </td>
           </tr>
-
           <tr>
             <td>
               <b>Cluster/Concept Counts</b>
             </td>
             <td>{{selectedWorklist.stats.clusterCt}}/{{selectedWorklist.stats.conceptCt}}</td>
           </tr>
-
           <tr>
             <td>
               <b>Approved Count</b>
@@ -342,21 +306,14 @@
             </td>
             <td>{{toDate(state.timestamp)}}</td>
           </tr>
-
-
         </tbody>
       </table>
-
     </div>
-
     <!-- End R1C2 -->
   </div>
-
   <!-- End R1 -->
 </div>
-
 <hr ng-show="selectedWorklist">
 <!-- Bin Records Table -->
 <div ng-show="selectedWorklist" records-table selected="selected" lists="lists"
   user="user" paging="paging['records']"></div>
-
