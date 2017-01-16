@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.workflow;
 
@@ -132,6 +132,9 @@ public class TrackingRecordJpa implements TrackingRecord {
   /** The indexed data. */
   private String indexedData;
 
+  /** The finished. */
+  private boolean finished = false;
+
   /**
    * Instantiates an empty {@link TrackingRecordJpa}.
    */
@@ -161,6 +164,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     project = record.getProject();
     workflowStatus = record.getWorkflowStatus();
     indexedData = record.getIndexedData();
+    finished = record.isFinished();
   }
 
   /* see superclass */
@@ -350,6 +354,7 @@ public class TrackingRecordJpa implements TrackingRecord {
     return indexedData;
   }
 
+  /* see superclass */
   @Override
   public void setIndexedData(String indexedData) {
     this.indexedData = indexedData;
@@ -424,6 +429,19 @@ public class TrackingRecordJpa implements TrackingRecord {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public boolean isFinished() {
+    return finished;
+  }
+
+  /* see superclass */
+  @Override
+  public void setFinished(boolean finished) {
+    this.finished = finished;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -444,6 +462,7 @@ public class TrackingRecordJpa implements TrackingRecord {
         prime * result + ((worklistName == null) ? 0 : worklistName.hashCode());
     result = prime * result
         + ((checklistName == null) ? 0 : checklistName.hashCode());
+    result = prime * result + (finished ? 1231 : 1237);
     return result;
   }
 
@@ -506,6 +525,8 @@ public class TrackingRecordJpa implements TrackingRecord {
       if (other.checklistName != null)
         return false;
     } else if (!checklistName.equals(other.checklistName))
+      return false;
+    if (finished != other.finished)
       return false;
     return true;
   }
