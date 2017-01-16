@@ -144,7 +144,7 @@
       <button ng-click="approveNext()" title="Approve/Next"
         ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
+        ng-disabled="editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
         ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
