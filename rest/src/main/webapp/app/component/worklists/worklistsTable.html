@@ -127,7 +127,7 @@
                 class="noul glyphicon glyphicon-hand-left"></i>
             </span>
 
-            <span ng-show="hasPermissions('Stamp')">
+            <span ng-show="hasPermissions('Stamp') && type == 'Checklist'">
               <i confirm="Are you sure you want to stamp the {{type}}?"
                 ng-click="stamp(worklist, true); " title="Stamp {{type}}"
                 class="noul glyphicon glyphicon-certificate"></i>

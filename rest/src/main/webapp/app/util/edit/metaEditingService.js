@@ -343,7 +343,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Merge Concepts', concept);
+                  response.data.warnings, 'Merge Concepts', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -398,7 +398,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Move Concepts', concept);
+                  response.data.warnings, 'Move Concepts', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -666,7 +666,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Split Concept', concept);
+                  response.data.warnings, 'Split Concept', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
