@@ -137,8 +137,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
-    // tbd
-
+    updateHasLastModified(trackingRecord);
   }
 
   /* see superclass */
@@ -194,7 +193,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Avoid searching ready for publication lists
     final String finalQuery = ConfigUtility.composeQuery("AND", atomQuery,
-        composeQuery(project, query), "NOT workflowStatus:READY_FOR_PUBLICATION");
+        composeQuery(project, query),
+        "NOT workflowStatus:READY_FOR_PUBLICATION");
 
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);
@@ -527,7 +527,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
   }
 
-
   /**
    * Regenerate bin helper. From the set of parameters it creates and populates
    * a single workflow bin. For complete regeneration of bins this can be
@@ -574,8 +573,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     params.put("terminology", project.getTerminology());
     params.put("version", project.getVersion());
 
-    List<Long[]> results = executeClusteredConceptQuery(query,
-        definition.getQueryType(), params);
+    List<Long[]> results =
+        executeClusteredConceptQuery(query, definition.getQueryType(), params);
 
     if (results == null)
       throw new Exception("Failed to retrieve results for query");
@@ -623,8 +622,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         record.setClusterId(clusterIdCt++);
         record.setTerminology(project.getTerminology());
         record.setTimestamp(new Date());
-        record.setVersion(
-            getLatestVersion(project.getTerminology()));
+        record.setVersion(getLatestVersion(project.getTerminology()));
         record.setWorkflowBinName(bin.getName());
         record.setProject(project);
         record.setWorklistName(null);
@@ -684,8 +682,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     return bin;
 
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public List<WorkflowBin> getWorkflowBins(Project project, String type)
@@ -908,20 +906,24 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
    * @return the checklist
    * @throws Exception the exception
    */
-  public Checklist computeChecklist(Project project, String query, QueryType queryType, String name, PfsParameterJpa pfs,  Boolean override) throws Exception {
+  public Checklist computeChecklist(Project project, String query,
+    QueryType queryType, String name, PfsParameterJpa pfs, Boolean override)
+    throws Exception {
 
-    //Check to see if checklist with the same name and project already exists
+    // Check to see if checklist with the same name and project already exists
     // if override flag is set, remove the old checklist
     // if override flag is not set, throw LocalException
     final ChecklistList checklists = findChecklists(project, null, null);
-    for(final Checklist checklist : checklists.getObjects()){
-      if(checklist.getName().equals(name) && checklist.getProject().equals(project)){
-        if(override){
+    for (final Checklist checklist : checklists.getObjects()) {
+      if (checklist.getName().equals(name)
+          && checklist.getProject().equals(project)) {
+        if (override) {
           removeChecklist(checklist.getId(), true);
           commitClearBegin();
-        }
-        else{
-          throw new LocalException("A checklist for project " + project.getName() + " with name " + checklist.getName() + " already exists.");
+        } else {
+          throw new LocalException(
+              "A checklist for project " + project.getName() + " with name "
+                  + checklist.getName() + " already exists.");
         }
       }
     }
@@ -937,7 +939,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", project.getTerminology());
     params.put("version", project.getVersion());
-    final List<Long[]> results = executeClusteredConceptQuery(query, queryType, params);
+    final List<Long[]> results =
+        executeClusteredConceptQuery(query, queryType, params);
 
     final PfsParameter localPfs =
         (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
@@ -972,8 +975,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       record.setProject(project);
       record.setTerminology(project.getTerminology());
       record.setTimestamp(new Date());
-      record.setVersion(
-          getLatestVersion(project.getTerminology()));
+      record.setVersion(getLatestVersion(project.getTerminology()));
       final StringBuilder sb = new StringBuilder();
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
@@ -985,8 +987,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
       record.setIndexedData(sb.toString());
       computeTrackingRecordStatus(record);
-      final TrackingRecord newRecord =
-          addTrackingRecord(record);
+      final TrackingRecord newRecord = addTrackingRecord(record);
 
       // Add the record to the checklist.
       checklist.getTrackingRecords().add(newRecord);
@@ -997,7 +998,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     return newChecklist;
   }
-  
+
   /* see superclass */
   @Override
   public StringList getWorkflowPaths() {
@@ -1076,9 +1077,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final PfsParameter pfs = new PfsParameterJpa();
     pfs.setStartIndex(0);
     pfs.setMaxResults(1);
+    // NOTE: this is a simplification of the matrix initializer algortihm,
+    // but generally good enough.
     if (findConceptSearchResults(record.getTerminology(), null, Branch.ROOT,
-        query
-            + " AND (atoms.workflowStatus:NEEDS_REVIEW OR workflowStatus:NEEDS_REVIEW)",
+        query + " AND (atoms.workflowStatus:NEEDS_REVIEW OR "
+            + "workflowStatus:NEEDS_REVIEW OR "
+            + "semanticTypes.workflowStatus:NEEDS_REVIEW)",
         pfs).getObjects().size() > 0) {
       status = WorkflowStatus.NEEDS_REVIEW;
     }
@@ -1139,8 +1143,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final String query = ConfigUtility.composeQuery("OR", clauses);
 
     // add concepts
-    for (final SearchResult result : findConceptSearchResults(record.getTerminology(), null,
-        Branch.ROOT, query, null).getObjects()) {
+    for (final SearchResult result : findConceptSearchResults(
+        record.getTerminology(), null, Branch.ROOT, query, null).getObjects()) {
       record.getConcepts().add(new ConceptJpa(result));
     }
 

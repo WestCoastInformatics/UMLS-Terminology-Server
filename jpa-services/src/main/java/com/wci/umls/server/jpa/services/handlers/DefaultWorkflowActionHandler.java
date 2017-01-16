@@ -286,7 +286,7 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         if (EnumSet
             .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS)
             .contains(worklist.getWorkflowStatus())) {
-          worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          worklist.setWorkflowStatus(WorkflowStatus.REVIEW_DONE);
           worklist.getWorkflowStateHistory().put("Stamped", new Date());
         }
 
