@@ -13,6 +13,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
@@ -354,10 +355,11 @@ public interface RootService extends Transactionable {
    * Find type key values for query.
    *
    * @param query the query
+   * @param pfs the pfs
    * @return the list
    * @throws Exception the exception
    */
-  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query, PfsParameter pfs)
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query, PfsParameter pfs)
     throws Exception;
 
   /**

@@ -17,13 +17,13 @@ import com.wci.umls.server.helpers.TypeKeyValueList;
  * 
  * Useful for sending type key values to REST Server.
  */
-@XmlRootElement(name = "TypeKeyValueList")
+@XmlRootElement(name = "typeKeyValueList")
 public class TypeKeyValueListJpa extends AbstractResultList<TypeKeyValue>
     implements TypeKeyValueList {
 
   /* see superclass */
   @Override
-  @XmlElement(type = TypeKeyValueJpa.class, name = "TypeKeyValues")
+  @XmlElement(type = TypeKeyValueJpa.class, name = "typeKeyValues")
   public List<TypeKeyValue> getObjects() {
     return super.getObjectsTransient();
   }
