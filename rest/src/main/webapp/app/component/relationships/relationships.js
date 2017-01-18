@@ -14,7 +14,7 @@ tsApp.directive('relationships', [ function() {
       '$scope',
       'utilService',
       function($scope, utilService) {
-
+      
         // check callbacks supplied
         if (!$scope.callbacks || !$scope.callbacks.findRelationships) {
           utilService
