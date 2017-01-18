@@ -37,7 +37,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Add atom');
+                  response.data.warnings, 'Add atom', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -89,7 +89,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Update Atom');
+                  response.data.warnings, 'Update Atom', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -178,7 +178,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Add Relationship');
+                  response.data.warnings, 'Add Relationship', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -234,7 +234,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Add Semantic Type');
+                  response.data.warnings, 'Add Semantic Type', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -287,7 +287,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Approve Concept');
+                  response.data.warnings, 'Approve Concept', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -343,7 +343,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Merge Concepts');
+                  response.data.warnings, 'Merge Concepts', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -398,7 +398,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Move Concepts');
+                  response.data.warnings, 'Move Concepts', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -452,7 +452,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Remove Atom');
+                  response.data.warnings, 'Remove Atom', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -547,7 +547,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Remove Relationship');
+                  response.data.warnings, 'Remove Relationship', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -604,7 +604,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Remove Semantic Type');
+                  response.data.warnings, 'Remove Semantic Type', concept);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -666,7 +666,7 @@ tsApp
               if (response.data.errors.length > 0
                 || (!overrideWarnings && response.data.warnings.length > 0)) {
                 var modalInstance = openActionErrorsModal(response.data.errors,
-                  response.data.warnings, 'Split Concept');
+                  response.data.warnings, 'Split Concept', concept1);
                 modalInstance.result.then(
                 // Success
                 function(data) {
@@ -745,7 +745,7 @@ tsApp
         // MODALS
 
         // Open the actions/errors modal following a molecular action
-        var openActionErrorsModal = function(errors, warnings, activityId) {
+        var openActionErrorsModal = function(errors, warnings, activityId, lconcept) {
 
           return $uibModal.open({
             templateUrl : 'app/util/edit/actionErrorsWarnings.html',
@@ -760,6 +760,9 @@ tsApp
               },
               action : function() {
                 return activityId;
+              },
+              concept : function() {
+                return lconcept;
               }
             }
           });

@@ -177,7 +177,7 @@ public class ApproveMolecularAction extends AbstractMolecularAction {
       }
     }
 
-    // For each relationship that wasn't removed:
+    // For each relationship:
     // Change workflow status from NEEDS_REVIEW to READY_FOR_PUBLiCATION
     // Change relationshipType to RO if it is not RO, RB, RN, or XR
     final List<String> typeList = Arrays.asList("RO", "RB", "RN", "XR");

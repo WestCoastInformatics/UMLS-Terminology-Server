@@ -8,12 +8,8 @@
 </h4>
 <span ng-show="pagedAtoms.totalCount > 10" style="float: right;">
   Page size: <select ng-model="paging['atoms'].pageSize" title="Page Size"
-    ng-change="paging['atoms'].callbacks.getPagedList()">
-    <option value="10">10</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-    <option value="200">200</option>
-    <option value="1000000">All</option>
+    ng-change="paging['atoms'].callbacks.getPagedList()"
+    ng-options="item.value as item.name for item in pageSizes">
   </select>
 </span>
 <div pager paging="paging['atoms']" count="selected.component.atoms.length"
@@ -42,8 +38,8 @@
           ng-bind="getSortIndicator('atoms','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openAddAtomModal(luser)" title="Add atom"
-            ng-disabled="editingDisabled()"
-            class="btn btn-xs btn-primary">Add Atom</button>
+            ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Add
+            Atom</button>
         </span></th>
     </tr>
   </thead>
@@ -142,16 +138,13 @@
     </span>
     <span style="float: right;">
       <button ng-click="approveConcept()" title="Approve"
-        ng-disabled="editingDisabled()"
-        class="btn btn-xs btn-primary">Approve</button>
-      <button ng-click="next()" title="Next"
-        ng-disabled="editingDisabled()"
+        ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Approve</button>
+      <button ng-click="next()" title="Next" ng-disabled="editingDisabled()"
         class="btn btn-xs btn-primary">Next</button>
       <button ng-click="approveNext()" title="Approve/Next"
-        ng-disabled="editingDisabled()"
-        class="btn btn-xs btn-primary">Approve/Next</button>
+        ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Approve/Next</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"
+        ng-disabled="editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
         ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"

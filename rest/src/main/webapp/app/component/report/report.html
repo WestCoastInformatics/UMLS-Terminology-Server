@@ -20,9 +20,9 @@
   <!-- Buttons for suppressible/obsolete -->
   <!--  NOTE: descriptionLogicTerminologies ALWAYS show obsolete/suppressible
   but the button does not appear -->
-  <button ng-click="showHidden = !showHidden" class="btn btn-xs btn-primary">
-    <span ng-show="showHidden">Hide</span>
-    <span ng-show="!showHidden">Show </span>
+  <button ng-click="config.showHidden = !config.showHidden" class="btn btn-xs btn-primary">
+    <span ng-show="config.showHidden">Hide</span>
+    <span ng-show="!config.showHidden">Show </span>
     <span ng-show="selected.metadata.obsoleteLabel">{{selected.metadata.obsoleteLabel}}</span>
     <span ng-show="!selected.metadata.obsoleteLabel">Suppressible &amp;
       Obsolete</span>
@@ -32,28 +32,28 @@
     metadata="selected.metadata" callbacks="callbacks"></div>
   <!-- Semantic Types -->
   <div semantic-types component="selected.component"
-    metadata="selected.metadata" show-hidden="showHidden" callbacks="callbacks"></div>
+    metadata="selected.metadata" show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Definitions -->
   <div definitions component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Atoms -->
-  <div atoms selected="selected" lists="lists" show-hidden="showHidden"
+  <div atoms selected="selected" lists="lists" show-hidden="config.showHidden"
     callbacks="callbacks"></div>
   <!-- Attributes -->
   <div attributes component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Subsets -->
   <div subsets component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Relationships -->
   <div relationships component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Deep relationships for metathesaurus CONCEPTs only-->
   <div
     ng-if="selected.metadata.terminology.metathesaurus && selected.component.type === 'CONCEPT'"
     relationships-deep component="selected.component"
-    metadata="selected.metadata" show-hidden="showHidden" callbacks="callbacks"></div>
+    metadata="selected.metadata" show-hidden="config.showHidden" callbacks="callbacks"></div>
   <!-- Mappings -->
   <div mappings component="selected.component" metadata="selected.metadata"
-    show-hidden="showHidden" callbacks="callbacks"></div>
+    show-hidden="config.showHidden" callbacks="callbacks"></div>
 </div>

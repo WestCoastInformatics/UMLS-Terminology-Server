@@ -9,11 +9,8 @@
 <span ng-show="pagedRelationships.totalCount > 10" style="float: right;">
   Page size: <select ng-model="paging['relationships'].pageSize"
     title="Page Size"
-    ng-change="paging['relationships'].callbacks.getPagedList()">
-    <option selected value="10">10</option>
-    <option value="20">20</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
+    ng-change="paging['relationships'].callbacks.getPagedList()"
+    ng-options="item.value as item.name for item in pageSizes">
   </select>
 </span>
 
@@ -43,8 +40,8 @@
         <span ng-bind="getSortIndicator('relationships','lastModifiedBy')"></span></th>
       <th class="col-md-1 col-xs-1"><span style="float: right;">
           <button ng-click="openInsertModal()" title="Add relationship"
-            ng-disabled="editingDisabled()"
-            class="btn btn-xs btn-primary">Add Rel</button>
+            ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Add
+            Rel</button>
         </span></th>
     </tr>
   </thead>
@@ -64,7 +61,7 @@
 
         <i
           confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
-          ng-show="relationship.level != 'S' && selected.project.editingEnabled"
+          ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
           ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
           title="Delete" class="noul glyphicon glyphicon-trash"></i>
 
@@ -80,15 +77,15 @@
 
     <span style="float: right;">
       <input type="checkbox" ng-model="preferredOnly"
-        ng-disabled="editingDisabled()"
-        ng-click="getPagedRelationships()" title="Show preferred only">
+        ng-disabled="editingDisabled()" ng-click="getPagedRelationships()"
+        title="Show preferred only">
       <span>Show preferred only</span>
       <button ng-click="transferConceptToEditor()"
         ng-disabled="!selected.relationship || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
       <button ng-click="openMergeModal()"
-        ng-disabled="!selected.relationship || editingDisabled()"
-        title="Merge" class="btn btn-xs btn-primary">Merge</button>
+        ng-disabled="editingDisabled()" title="Merge"
+        class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>
 </nav>

@@ -1179,8 +1179,9 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         addTerminology(term);
 
         // cache terminology by RSAB and VSAB
+        // ONLY load the current version of the terminology here.
         loadedTerminologies.put(term.getTerminology(), term);
-        if (!fields[2].equals("")) {
+        if (!fields[2].equals("") && term.isCurrent()) {
           loadedTerminologies.put(fields[2], term);
         }
       }
@@ -2634,6 +2635,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int objectCt = 0;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
+    try{
     while ((line = reader.readLine()) != null) {
       FieldedStringTokenizer.split(line, "|", 16, fields);
 
@@ -2913,7 +2915,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
     }
-
+    } catch(Exception e){
+      logError("exception thrown on line: " + line);
+      throw e;
+    }
     // update terminologies after setting the rel directionality flag
     for (final Terminology terminology : loadedTerminologies.values()) {
       updateTerminology(terminology);

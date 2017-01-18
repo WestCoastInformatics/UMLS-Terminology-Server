@@ -1118,6 +1118,9 @@ public abstract class RootServiceJpa implements RootService {
    */
   protected <T extends HasLastModified> T getHasLastModified(final Long id,
     final Class<T> clazz) throws Exception {
+    if (id == null) {
+      return null;
+    }
     // Get transaction and object
     tx = manager.getTransaction();
     final T component = manager.find(clazz, id);
@@ -1799,8 +1802,8 @@ public abstract class RootServiceJpa implements RootService {
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz) throws Exception {
 
-    // If query parameters are not fully filled out, return an empty List.
-    if (ConfigUtility.isEmpty(query) || queryType == null) {
+    // If query type is not filled out, return an empty List.
+    if (queryType == null) {
       return new ArrayList<Long>();
     }
 

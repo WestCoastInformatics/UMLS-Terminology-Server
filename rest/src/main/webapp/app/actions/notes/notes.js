@@ -65,6 +65,7 @@ tsApp.directive('notes', [ function() {
 
           // Paging parameters
           $scope.pagedNotes = [];
+          $scope.pageSizes = utilService.getPageSizes();
           $scope.paging = utilService.getPaging();
           $scope.paging.sortField = 'lastModified';
           $scope.paging.sortAscending = true;

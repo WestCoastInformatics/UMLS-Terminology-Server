@@ -257,18 +257,16 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
         // retrieve the concept
         tempConcept = getConcept(i);
 
-        // Verify concept exists
+        // only lock concepts that exist (because in undo/redo they may not)
         if (tempConcept == null) {
-          // unlock concepts and fail
-          rollback();
-          throw new Exception("Concept does not exist " + i);
+          continue;
         }
 
         if (i == conceptId) {
-          this.concept = new ConceptJpa(tempConcept, true);
+          concept = new ConceptJpa(tempConcept, true);
         }
         if (i == conceptId2) {
-          this.concept2 = new ConceptJpa(tempConcept, true);
+          concept2 = new ConceptJpa(tempConcept, true);
         }
 
         // Fail if already locked - this is secondary protection
@@ -325,17 +323,18 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       setMolecularAction(newMolecularAction);
     }
 
-//    // throw exception on terminology mismatch
-//    if (!project.getTerminology().equals((concept != null
-//        ? concept.getTerminology() : concept2.getTerminology()))) {
-//      // unlock concepts and fail
-//      rollback();
-//      throw new Exception("Project and concept terminologies do not match");
-//    }
+    // // throw exception on terminology mismatch
+    // if (!project.getTerminology().equals((concept != null
+    // ? concept.getTerminology() : concept2.getTerminology()))) {
+    // // unlock concepts and fail
+    // rollback();
+    // throw new Exception("Project and concept terminologies do not match");
+    // }
 
     // Concept freshness check - the driving concept of the action
     // should match the "last modified" value.
-    if (lastModified != null
+    // NOTE: this fails to do a last modified check when undoing a merge
+    if (concept != null && lastModified != null
         && concept.getLastModified().getTime() != lastModified.longValue()) {
       // unlock concepts and fail
       rollback();

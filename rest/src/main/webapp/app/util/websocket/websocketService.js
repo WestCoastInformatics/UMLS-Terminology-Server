@@ -57,6 +57,7 @@ tsApp.service('websocketService',
       };
 
       this.connection.onclose = function(event) {
+        window.alert("Websocket unexpectedly closed, please refresh the page.");
         // Log so we know it is happening
         console.debug('MESSAGE Connection closed', event);
       };

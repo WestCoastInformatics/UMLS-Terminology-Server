@@ -67,6 +67,7 @@ tsApp
         }
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['project'] = utilService.getPaging();
         $scope.paging['project'].sortField = 'lastModified';

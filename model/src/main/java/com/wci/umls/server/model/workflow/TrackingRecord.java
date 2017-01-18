@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -161,4 +161,18 @@ public interface TrackingRecord extends HasLastModified, HasTerminology,
    * @param checklistName the checklist name
    */
   public void setChecklistName(String checklistName);
+  
+  /**
+   * Indicates whether or not finished is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isFinished();
+
+  /**
+   * Sets the finished.
+   *
+   * @param finished the finished
+   */
+  public void setFinished(boolean finished);
 }

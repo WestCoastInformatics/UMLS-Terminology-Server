@@ -137,7 +137,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
-    // tbd
+    Logger.getLogger(getClass())
+    .debug("Workflow Service - update tracking record " + trackingRecord);
+
+    updateHasLastModified(trackingRecord);
 
   }
 
@@ -194,7 +197,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Avoid searching ready for publication lists
     final String finalQuery = ConfigUtility.composeQuery("AND", atomQuery,
-        composeQuery(project, query), "NOT workflowStatus:READY_FOR_PUBLICATION");
+        composeQuery(project, query), "finished:false");
 
     final TrackingRecordList results = new TrackingRecordListJpa();
     final SearchHandler searchHandler = getSearchHandler(null);

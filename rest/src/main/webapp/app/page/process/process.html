@@ -119,7 +119,7 @@
     <div ng-show="selected.process">
 
       <!-- Process Details -->
-      <table class="slim table pointer">
+      <table class="slim table">
         <tbody>
           <tr>
             <td>
@@ -263,8 +263,7 @@
             <th class="col-md-4 col-xs-4">Name</th>
             <th class="col-md-4 col-xs-4">Description</th>
             <th class="col-md-3 col-xs-3">Last Modified</th>
-            <th ng-show="hasPermissions('EditProcessOrStep')"
-              class="col-md-1 col-xs-1">Actions</th>
+            <th class="col-md-1 col-xs-1">Actions</th>
           </tr>
         </thead>
         <tr ng-repeat="step in selected.process.steps"
@@ -273,7 +272,7 @@
           ng-class="{selected: step.id == selected.step.id}">
           <td>
             {{$index}}.
-            <span ng-show="selected.mode != 'Execution'" class="nobreak">
+            <span ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'" class="nobreak">
               <!--  Enable/Disable step -->
               <input type="checkbox" title="Enable/Disable Step"
                 ng-change="toggleEnable(step);" ng-model="step.enabled"
@@ -302,7 +301,7 @@
               </span>
             </span>
           </td>
-          <td ng-show="hasPermissions('EditProcessOrStep')" class="nobreak">
+          <td class="nobreak">
             <span ng-show="selected.mode == 'Execution'" log
               selected="{step : step, project : selected.project}" type="Step"
               poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>

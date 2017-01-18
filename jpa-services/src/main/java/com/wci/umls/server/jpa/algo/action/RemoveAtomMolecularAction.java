@@ -3,14 +3,20 @@
  */
 package com.wci.umls.server.jpa.algo.action;
 
+import java.util.ArrayList;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomNoteJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -99,6 +105,30 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
     handleCode(atom);
     handleConcept(atom);
     handleDescriptor(atom);
+
+    // If atom has any relationships, remove it from atom, remove
+    // inverses from the other atoms, and delete the relationships.
+    for (AtomRelationship relationship : new ArrayList<>(
+        atom.getRelationships())) {
+      atom.getRelationships().remove(relationship);
+      updateAtom(atom);
+
+      final Atom relatedAtom = getAtom(relationship.getTo().getId());
+      final AtomRelationship inverseRelationship =
+          (AtomRelationship) getInverseRelationship(relationship);
+      relatedAtom.getRelationships().remove(inverseRelationship);
+      updateAtom(relatedAtom);
+
+      removeRelationship(relationship.getId(), AtomRelationshipJpa.class);
+      removeRelationship(inverseRelationship.getId(), AtomRelationshipJpa.class);
+    }
+
+    // If atom has any notes, remove them from the atom and delete the notes.
+    for (Note note : new ArrayList<>(atom.getNotes())) {
+      atom.getNotes().remove(note);
+      updateAtom(atom);
+      removeNote(note.getId(), AtomNoteJpa.class);
+    }
 
     // Remove the atom from the concept
     removeById(getConcept().getAtoms(), atom.getId());

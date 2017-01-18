@@ -188,7 +188,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/precedence', precedenceList).then(
+      $http.post(metadataUrl + '/precedence', precedenceList).then(
       // success
       function(response) {
         gpService.decrement();
@@ -209,7 +209,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/rootTerminology', rootTerminology).then(
+      $http.post(metadataUrl + '/rootTerminology', rootTerminology).then(
       // success
       function(response) {
         gpService.decrement();
@@ -230,7 +230,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/terminology', terminology).then(
+      $http.post(metadataUrl + '/terminology', terminology).then(
       // success
       function(response) {
         gpService.decrement();
@@ -251,7 +251,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/termType', termType).then(
+      $http.post(metadataUrl + '/termType', termType).then(
       // success
       function(response) {
         gpService.decrement();
@@ -272,7 +272,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/attributeName', atn).then(
+      $http.post(metadataUrl + '/attributeName', atn).then(
       // success
       function(response) {
         gpService.decrement();
@@ -293,7 +293,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/relationshipType', relType).then(
+      $http.post(metadataUrl + '/relationshipType', relType).then(
       // success
       function(response) {
         gpService.decrement();
@@ -309,12 +309,12 @@ tsApp.service('metadataService', [
     };
 
     // update add rel type
-    this.updateAdditionalRelationshipType = function(addRelType) {
-      console.debug('update addRelType');
+    this.updateAdditionalRelationshipType = function(additionalRelationshipTypeList) {
+      console.debug('update additionalRelationshipTypeList');
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(metadataUrl + '/addRelType', addRelType).then(
+      $http.post(metadataUrl + '/additionalRelationshipType', additionalRelationshipTypeList).then(
       // success
       function(response) {
         gpService.decrement();
@@ -787,7 +787,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(metadataUrl + '/termType', termType).then(
+      $http.put(metadataUrl + '/termType', termType).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -814,7 +814,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(metadataUrl + '/attributeName', attributeName).then(
+      $http.put(metadataUrl + '/attributeName', attributeName).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -841,7 +841,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(metadataUrl + '/relationshipType', relationshipTypeList).then(
+      $http.put(metadataUrl + '/relationshipType', relationshipTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);
@@ -868,7 +868,7 @@ tsApp.service('metadataService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(metadataUrl + '/additionalRelationshipType', additionalRelationshipTypeList).then(
+      $http.put(metadataUrl + '/additionalRelationshipType', additionalRelationshipTypeList).then(
       // success
       function(response) {
         console.debug('  validation = ', response.data);

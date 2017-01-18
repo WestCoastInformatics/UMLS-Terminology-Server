@@ -40,6 +40,7 @@ tsApp
               $scope.worklists = [];
 
               // Paging variables
+              $scope.pageSizes = utilService.getPageSizes();
               $scope.paging = {};
               $scope.paging['worklists'] = utilService.getPaging();
               $scope.paging['worklists'].sortField = 'lastModified';
@@ -418,13 +419,13 @@ tsApp
                     .stampWorklist($scope.selected.project.id, worklist, approve, true).then(
                       function() {
                         $scope.selectedWorklist = null;
-                        $scope.getWorklists();
+                        $scope.getWorklists(worklist);
                       });
                 } else if ($scope.type == 'Checklist') {
                   workflowService.stampChecklist($scope.selected.project.id, worklist, approve,
                     true).then(function() {
                     $scope.selectedWorklist = null;
-                    $scope.getWorklists();
+                    $scope.getWorklists(worklist);
                   });
                 }
               }

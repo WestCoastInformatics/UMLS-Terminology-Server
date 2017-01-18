@@ -22,6 +22,7 @@ tsApp.directive('labels', [ 'utilService', function(utilService) {
 
       // instantiate paging and paging callbacks function
       scope.pagedData = [];
+      $scope.pageSizes = utilService.getPageSizes();
       scope.paging = utilService.getPaging();
       scope.pageCallbacks = {
         getPagedList : getPagedList

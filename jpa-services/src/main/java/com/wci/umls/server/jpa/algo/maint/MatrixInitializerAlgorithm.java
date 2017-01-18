@@ -61,6 +61,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     if (conceptIds != null) {
       logInfo("  update mode = " + conceptIds.size());
     }
+    else{
+      conceptIds = new HashSet<>(
+          getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
+    }
 
     fireProgressEvent(0, "Starting...find publishable atoms");
     try {
@@ -106,8 +110,6 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
-      final Set<Long> conceptIds = new HashSet<>(
-          getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
       final Set<Long> failures = validateConcepts(getProject(), conceptIds);
       checkCancel();
       fireProgressEvent(40, "Found concepts with validation failures");
@@ -124,7 +126,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
               null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(50, "Found concepts to make reviewed");
-      logInfo("  concepts to make reviewed = " + failures.size());
+      logInfo("  concepts to make reviewed = " + makeReviewed.size());
 
       // Find READY_FOR_PUBLICATION or PUBLISHED concepts that should be
       // NEEDS_REVIEW

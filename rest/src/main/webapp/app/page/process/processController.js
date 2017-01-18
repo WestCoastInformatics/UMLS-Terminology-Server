@@ -63,6 +63,7 @@ tsApp
         $scope.stepInterval = null;
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['process'] = {
           page : 1,

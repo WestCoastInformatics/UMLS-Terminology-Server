@@ -50,7 +50,7 @@ tsApp.directive('finder', [ function() {
         // Lookup component, if valid, add it
         $scope.lookupComponent = function(componentId) {
           // componentId is a number
-          if ((componentId + '').match(/^\d+$/)) {
+          if ((componentId + '').match(/^[1-9]\d+$/)) {
             contentService.getConcept(componentId, $scope.selected.project.id).then(
             // Success
             function(data) {
@@ -94,6 +94,7 @@ tsApp.controller('FinderModalCtrl', [
     $scope.searchResults = [];
 
     // Paging vars
+    $scope.pageSizes = utilService.getPageSizes();
     $scope.paging = utilService.getPaging();
     $scope.paging.pageSize = 10;
     $scope.paging.disableFilter = true;

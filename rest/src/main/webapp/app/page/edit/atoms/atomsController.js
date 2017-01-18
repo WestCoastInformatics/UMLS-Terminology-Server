@@ -34,6 +34,7 @@ tsApp
         $scope.selected.atoms = {};
 
         // Paging variables
+        $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = {};
         $scope.paging['atoms'] = utilService.getPaging();
         $scope.paging['atoms'].sortField = null;
@@ -55,6 +56,18 @@ tsApp
         // Watch for component changes
         $scope.$watch('selected.component', function() {
           $scope.getPagedAtoms();
+
+          // Clear the checkbox selections if needed
+          var conceptAtomIds = [];
+          for (var i = 0; i < $scope.selected.component.atoms.length; i++) {
+            conceptAtomIds.push($scope.selected.component.atoms[i].id);
+          }
+          for (atomIdStr in $scope.selected.atoms) {
+            var atomId = parseInt(atomIdStr);
+            if (!conceptAtomIds.includes(atomId)) {
+              delete $scope.selected.atoms[atomId];
+            }
+          }
 
           // Clear filterList and reset based on current component
           $scope.paging['atoms'].filterList.length = 0;
@@ -148,7 +161,8 @@ tsApp
             $scope.user.userPreferences.properties['atomHeight'] = window.outerHeight;
             $scope.user.userPreferences.properties['atomX'] = window.screenX;
             $scope.user.userPreferences.properties['atomY'] = window.screenY;
-            securityService.updateUserPreferences($scope.user.userPreferences);
+            $scope.parentWindowScope.saveWindowSettings('atom',
+              $scope.user.userPreferences.properties);
           }, 250);
         }
 

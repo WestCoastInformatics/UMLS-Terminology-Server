@@ -14,12 +14,8 @@
   <div ng-show="showing">
     <span ng-show="pagedData.totalCount > 10" style="float: right;">
       Page size: <select ng-model="paging.pageSize" title="Page Size"
-        ng-change="getPagedList()">
-        <option value="10">10</option>
-        <option value="50">50</option>
-        <option value="100">100</option>
-        <option value="200">200</option>
-        <option value="1000000">All</option>
+        ng-change="getPagedList()"
+        ng-options="item.value as item.name for item in pageSizes">
       </select>
     </span>
     <span class="alert alert-warning" style="margin-left: 15px"

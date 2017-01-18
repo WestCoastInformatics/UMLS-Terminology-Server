@@ -169,11 +169,19 @@ public class SubsetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
+      handler.rollback();
+      handler.close();
       throw e;
     }
 
   }
 
+  /**
+   * Creates the subsets.
+   *
+   * @param line the line
+   * @throws Exception the exception
+   */
   @SuppressWarnings("unchecked")
   private void createSubsets(String line) throws Exception {
     String fields[] = new String[14];
@@ -302,6 +310,13 @@ public class SubsetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
     }
   }
 
+  /**
+   * Creates the subset members and attributes.
+   *
+   * @param line the line
+   * @param handler the handler
+   * @throws Exception the exception
+   */
   private void createSubsetMembersAndAttributes(String line,
     IdentifierAssignmentHandler handler) throws Exception {
 

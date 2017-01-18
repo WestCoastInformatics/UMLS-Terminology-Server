@@ -1,7 +1,13 @@
 // Semantic types controller
 
-tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabService',
-  'securityService', 'utilService', 'contentService',
+tsApp.controller('ContextsCtrl', [
+  '$scope',
+  '$window',
+  'utilService',
+  'tabService',
+  'securityService',
+  'utilService',
+  'contentService',
   function($scope, $window, utilService, tabService, securityService, utilService, contentService) {
 
     console.debug("configure ContextsCtrl");
@@ -20,6 +26,7 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
     $scope.selected.entry = null;
 
     // Paging variables
+    $scope.pageSizes = utilService.getPageSizes();
     $scope.paging = {};
     $scope.paging['entries'] = utilService.getPaging();
     $scope.paging['entries'].sortField = 'terminology';
@@ -97,7 +104,9 @@ tsApp.controller('ContextsCtrl', [ '$scope', '$window', 'utilService', 'tabServi
         $scope.user.userPreferences.properties['contextHeight'] = window.outerHeight;
         $scope.user.userPreferences.properties['contextX'] = window.screenX;
         $scope.user.userPreferences.properties['contextY'] = window.screenY;
-        securityService.updateUserPreferences($scope.user.userPreferences);
+        $scope.parentWindowScope.saveWindowSettings('context',
+          $scope.user.userPreferences.properties);
+
       }, 250);
     }
 
