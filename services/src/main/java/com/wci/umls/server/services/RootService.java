@@ -357,7 +357,7 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query, PfsParameter pfs)
     throws Exception;
 
   /**
