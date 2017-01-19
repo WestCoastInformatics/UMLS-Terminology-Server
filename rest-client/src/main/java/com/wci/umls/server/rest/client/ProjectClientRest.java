@@ -22,6 +22,8 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
@@ -564,5 +566,39 @@ public class ProjectClientRest extends RootClientRest
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
+  }
+
+  @Override
+  public TypeKeyValueList findTypeKeyValues(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void removeTypeKeyValue(Long id, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public TypeKeyValue getTypeKeyValue(Long id, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public TypeKeyValue addTypeKeyValue(TypeKeyValue tkv, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void updateTypeKeyValue(TypeKeyValue tkv, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    
   }
 }
