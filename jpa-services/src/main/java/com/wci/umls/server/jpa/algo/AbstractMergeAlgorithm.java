@@ -33,7 +33,7 @@ import com.wci.umls.server.model.content.ConceptRelationship;
  * Abstract support for merge algorithms.
  */
 public abstract class AbstractMergeAlgorithm
-    extends AbstractSourceInsertionAlgorithm {
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.

@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -84,8 +85,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept, e.g. newConcept", required = true) ConceptJpa concept,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Test): /add " + concept);
+    Logger.getLogger(getClass()).info("RESTful call (Test): /add " + concept);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -162,11 +162,13 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Remove all attached components", required = false) @QueryParam("cascade") boolean cascade,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Test): /remove/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (Test): /remove/" + id);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
+      // Get the project
+      Project project = contentService.getProjects().getObjects().get(0);
+
       String authUser = authorizeApp(securityService, authToken,
           "remove concept", UserRole.ADMINISTRATOR);
       contentService.setLastModifiedBy(authUser);
@@ -180,7 +182,9 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
 
           // Remove inverse as well
           for (Relationship<? extends ComponentInfo, ? extends ComponentInfo> inverseRel : contentService
-              .getInverseRelationships(rel).getObjects()) {
+              .getInverseRelationships(project.getTerminology(),
+                  project.getVersion(), rel)
+              .getObjects()) {
             // TODO - figure out what distinguishing feature is
             if (inverseRel.getTo().getId().equals(rel.getFrom().getId())) {
               contentService.removeRelationship(inverseRel.getId(),
@@ -227,8 +231,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Semantic Type Component id, e.g. 1", required = true) @PathParam("styId") Long styId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Test): /sty/" + styId);
+    Logger.getLogger(getClass()).info("RESTful call (Test): /sty/" + styId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -261,8 +264,8 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept Relationship id, e.g. 1", required = true) @PathParam("id") Long relationshipId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Test): /relationship/" + relationshipId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Test): /relationship/" + relationshipId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -326,8 +329,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom id, e.g. 1", required = true) @PathParam("id") Long atomId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Test): /atom/" + atomId);
+    Logger.getLogger(getClass()).info("RESTful call (Test): /atom/" + atomId);
 
     ContentService contentService = new ContentServiceJpa();
     try {
@@ -361,8 +363,7 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Atom, e.g. new atom", required = true) AtomJpa atom,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Test): /update " + atom);
+    Logger.getLogger(getClass()).info("RESTful call (Test): /update " + atom);
 
     final ContentService contentService = new ContentServiceJpa();
     try {

@@ -20,7 +20,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
 import com.wci.umls.server.jpa.meta.AttributeNameJpa;
 import com.wci.umls.server.jpa.meta.CitationJpa;
@@ -42,7 +42,7 @@ import com.wci.umls.server.model.meta.UsageType;
 /**
  * Implementation of an algorithm to import metadata.
  */
-public class MetadataLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class MetadataLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The loaded organizing class types. */
   private Map<String, IdType> loadedOrganizingClassTypes = null;

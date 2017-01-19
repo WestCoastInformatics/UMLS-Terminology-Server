@@ -651,47 +651,62 @@ public class IndexUtility {
         final List<SortField> sortFields = new ArrayList<>();
 
         for (final String sortFieldName : sortFieldNames) {
-          final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
-              .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
 
           // the computed string name of the indexed field to sort by
           String sortFieldStr = null;
 
-          // check existence of the annotated get[SortFieldName]() method
-          if (nameToAnalyzedMap.size() == 0) {
-            throw new Exception(clazz.getName()
-                + " does not have declared, annotated method for field "
-                + sortFieldName);
-          }
-
-          // first, check explicit [SortFieldName]Sort index
-          if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
-              && !nameToAnalyzedMap.get(sortFieldName + "Sort")) {
-            sortFieldStr = sortFieldName + "Sort";
-          }
-
-          // next check the default name (rendered as ""), if not analyzed, use
-          // this as sort
-          else if (nameToAnalyzedMap.get("") != null
-              && nameToAnalyzedMap.get("").equals(false)) {
+          // if a subfield search (e.g. FIELD1.FIELD2) skip preconditions
+          if (sortFieldName.contains(".")) {
+            System.out.println("subfield search detected: " + sortFieldName);
             sortFieldStr = sortFieldName;
           }
 
-          // if an indexed sort field could not be found, throw exception
-          if (sortFieldStr == null) {
-            throw new Exception(
-                "Could not retrieve a non-analyzed Field annotation for get method for variable name "
-                    + sortFieldName);
+          // otherwise, check preconditions
+          else {
+            System.out.println("normal field search detected: " + sortFieldName);
+
+            final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
+                .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
+
+            // check existence of the annotated get[SortFieldName]() method
+            if (nameToAnalyzedMap.size() == 0) {
+              throw new Exception(clazz.getName()
+                  + " does not have declared, annotated method for field "
+                  + sortFieldName);
+            }
+
+            // first, check explicit [SortFieldName]Sort index
+            if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
+                && !nameToAnalyzedMap.get(sortFieldName + "Sort")) {
+              sortFieldStr = sortFieldName + "Sort";
+            }
+
+            // next check the default name (rendered as ""), if not analyzed,
+            // use
+            // this as sort
+            else if (nameToAnalyzedMap.get("") != null
+                && nameToAnalyzedMap.get("").equals(false)) {
+              sortFieldStr = sortFieldName;
+            }
+
+            // if an indexed sort field could not be found, throw exception
+            if (sortFieldStr == null) {
+              throw new Exception(
+                  "Could not retrieve a non-analyzed Field annotation for get method for variable name "
+                      + sortFieldName);
+            }
           }
 
           // construct the sort field object
           SortField sortField = null;
 
           // check for LONG fields
-          if (sortFieldStr.equals("lastModified")
+          if (sortFieldStr.equals("lastModified") || sortFieldStr.equals("effectiveTime")
               || sortFieldStr.equals("timestamp")
-              || (sortFieldStr.toLowerCase().endsWith("id") && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
-              || sortFieldStr.toLowerCase().endsWith("idsort") && !sortFieldStr.toLowerCase().endsWith("terminologyidsort")) {
+              || (sortFieldStr.toLowerCase().endsWith("id")
+                  && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
+              || sortFieldStr.toLowerCase().endsWith("idsort") && !sortFieldStr
+                  .toLowerCase().endsWith("terminologyidsort")) {
             sortField = new SortField(sortFieldStr, SortField.Type.LONG,
                 !pfs.isAscending());
           }

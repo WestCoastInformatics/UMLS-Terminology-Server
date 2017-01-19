@@ -22,7 +22,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.QueryActionAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -47,7 +47,7 @@ import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
  * Implementation of an algorithm to update releasability / publishable.
  */
 public class UpdateReleasabilityAlgorithm
-    extends AbstractSourceInsertionAlgorithm {
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link UpdateReleasabilityAlgorithm}.

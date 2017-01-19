@@ -1437,22 +1437,28 @@ public interface ContentService extends MetadataService {
   /**
    * Returns the inverse relationships.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param relationship the relationship
    * @return the inverse relationships
    * @throws Exception the exception
    */
-  public RelationshipList getInverseRelationships(
+  public RelationshipList getInverseRelationships(String terminology,
+    String version,
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
    * Find inverse relationship.
    *
+   * @param terminology the terminology
+   * @param version the version
    * @param relationship the relationship
    * @return the relationship<? extends component info,? extends component info>
    * @throws Exception the exception
    */
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
+    String terminology, String version,
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 

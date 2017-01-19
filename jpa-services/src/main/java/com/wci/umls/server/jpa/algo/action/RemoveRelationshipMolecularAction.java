@@ -116,7 +116,7 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
     // Remove the relationship from the concepts
     removeById(getConcept().getRelationships(), relationship.getId());
     removeById(getConcept2().getRelationships(),
-        getInverseRelationship(relationship).getId());
+        getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), relationship).getId());
 
     // Update Concepts
     updateConcept(getConcept());
@@ -124,7 +124,7 @@ public class RemoveRelationshipMolecularAction extends AbstractMolecularAction {
 
     // Remove the relationships
     removeRelationship(relationship.getId(), relationship.getClass());
-    removeRelationship(getInverseRelationship(relationship).getId(),
+    removeRelationship(getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), relationship).getId(),
         relationship.getClass());
 
     // Change status of ONLY the source concept

@@ -45,15 +45,15 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * Abstract support for source-file insertion algorithms.
  */
-public abstract class AbstractSourceInsertionAlgorithm
+public abstract class AbstractInsertMaintReleaseAlgorithm
     extends AbstractAlgorithm {
 
   /**
-   * Instantiates an empty {@link AbstractSourceInsertionAlgorithm}.
+   * Instantiates an empty {@link AbstractInsertMaintReleaseAlgorithm}.
    *
    * @throws Exception the exception
    */
-  public AbstractSourceInsertionAlgorithm() throws Exception {
+  public AbstractInsertMaintReleaseAlgorithm() throws Exception {
     // n/a
   }
 

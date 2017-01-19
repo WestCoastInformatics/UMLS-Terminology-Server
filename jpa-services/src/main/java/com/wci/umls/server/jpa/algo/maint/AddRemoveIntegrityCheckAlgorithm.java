@@ -16,23 +16,15 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 
 /**
  * Implementation of an algorithm to add or remove integrity checks to the
  * project.
  */
-public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class AddRemoveIntegrityCheckAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The add remove. */
   private String addRemove;
@@ -97,10 +89,7 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
       commitClearBegin();
 
       // Each AddRemove check has only a single step
-      steps = 1;
-
-      previousProgress = 0;
-      stepsCompleted = 0;
+      setSteps(1);
 
       TypeKeyValue validationCheckData =
           this.addTypeKeyValue(new TypeKeyValueJpa(checkName, value1, value2));
@@ -155,21 +144,6 @@ public class AddRemoveIntegrityCheckAlgorithm extends AbstractAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          "ADDREMOVEINTEGRITYCHECK progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */
