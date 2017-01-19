@@ -19,7 +19,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
@@ -29,7 +29,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
 /**
  * Implementation of an algorithm to bequeath old versioned SRC concepts.
  */
-public class BequeathAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link BequeathAlgorithm}.

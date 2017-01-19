@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
@@ -34,7 +34,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import mappings.
  */
-public class MapSetLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The xmap from map. */
   private Map<String, String> xmapFromMap = new HashMap<>();

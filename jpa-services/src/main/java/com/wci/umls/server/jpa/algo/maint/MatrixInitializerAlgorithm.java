@@ -63,7 +63,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
     }
     else{
       conceptIds = new HashSet<>(
-          getAllConceptIds(getTerminology(), getVersion(), Branch.ROOT));
+          getAllConceptIds(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT));
     }
 
     fireProgressEvent(0, "Starting...find publishable atoms");
@@ -73,7 +73,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get unpublishable concepts with publishable atoms
       final Set<Long> makePublishable =
-          new HashSet<>(handler.getIdResults(getTerminology(), getVersion(),
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(), getProject().getVersion(),
               Branch.ROOT, "publishable:false AND atoms.publishable:true", null,
               ConceptJpa.class, null, new int[1], manager));
       checkCancel();
@@ -82,7 +82,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get publishable concepts without publishable atoms
       final Set<Long> makeUnpublishable =
-          new HashSet<>(handler.getIdResults(getTerminology(), getVersion(),
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(), getProject().getVersion(),
               Branch.ROOT, "publishable:true AND NOT atoms.publishable:true",
               null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
@@ -95,8 +95,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           manager.createQuery("select r from ConceptRelationshipJpa r "
               + " where terminology = :terminology and version = :version "
               + " and workflowStatus in (  :ws )");
-      query.setParameter("terminology", getTerminology());
-      query.setParameter("version", getVersion());
+      query.setParameter("terminology", getProject().getTerminology());
+      query.setParameter("version", getProject().getVersion());
       query.setParameter("ws", WorkflowStatus.NEEDS_REVIEW);
 
       @SuppressWarnings("unchecked")
@@ -117,7 +117,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Find NEEDS_REVIEW concepts that should be READY_FOR_PUBLICATION
       final Set<Long> makeReviewed = new HashSet<>(
-          handler.getIdResults(getTerminology(), getVersion(), Branch.ROOT,
+          handler.getIdResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
               "workflowStatus:NEEDS_REVIEW AND NOT atoms.workflowStatus:NEEDS_REVIEW "
                   + "AND NOT atoms.workflowStatus:DEMOTION AND NOT semanticTypes.workflowStatus:NEEDS_REVIEW "
                   + (needsReviewR.size() == 0 ? ""
@@ -131,7 +131,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       // Find READY_FOR_PUBLICATION or PUBLISHED concepts that should be
       // NEEDS_REVIEW
       final Set<Long> makeNeedsReview = new HashSet<>(
-          handler.getIdResults(getTerminology(), getVersion(), Branch.ROOT,
+          handler.getIdResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
               "(workflowStatus:READY_FOR_PUBLICATION OR workflowStatus:PUBLISHED) "
                   + "AND (atoms.workflowStatus:NEEDS_REVIEW OR atoms.workflowStatus:DEMOTION "
                   + "OR semanticTypes.workflowStatus:NEEDS_REVIEW "
@@ -142,7 +142,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
               null, ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(60, "Found concepts to make needs review");
-      logInfo("  concepts to make reviewed = " + failures.size());
+      logInfo("  concepts to make needs review = " + failures.size());
 
       final Set<Long> conceptsToChange = new HashSet<>();
       conceptsToChange.addAll(makePublishable);

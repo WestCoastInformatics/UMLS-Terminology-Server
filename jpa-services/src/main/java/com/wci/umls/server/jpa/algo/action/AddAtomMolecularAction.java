@@ -156,7 +156,6 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
     // update the concept
     updateConcept(getConcept());
     
-    handler.close();
   }
 
   /* see superclass */

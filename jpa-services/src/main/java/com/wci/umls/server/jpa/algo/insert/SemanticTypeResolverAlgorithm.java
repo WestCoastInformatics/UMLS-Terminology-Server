@@ -22,7 +22,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
  * semantic type components, and remove either old or new depending on params..
  */
 public class SemanticTypeResolverAlgorithm
-    extends AbstractSourceInsertionAlgorithm {
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** Whether new semanticTypes 'win' and replace older ones, or vice versa. */
   private String winLose = null;
