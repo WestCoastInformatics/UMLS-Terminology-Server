@@ -1583,14 +1583,14 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     final int[] totalCt = new int[1];
     return new ArrayList<TypeKeyValue>(
         searchHandler.getQueryResults(null, null, Branch.ROOT, query, null,
-            TypeKeyValueJpa.class, null, totalCt, getEntityManager()));
+            TypeKeyValueJpa.class, pfs, totalCt, getEntityManager()));
   }
 
   /**
