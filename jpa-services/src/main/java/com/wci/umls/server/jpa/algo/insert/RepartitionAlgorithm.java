@@ -17,7 +17,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
@@ -27,7 +27,7 @@ import com.wci.umls.server.services.WorkflowService;
 /**
  * Implementation of an algorithm to repartition bins.
  */
-public class RepartitionAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The type. */
   private String type;

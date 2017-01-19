@@ -17,13 +17,13 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.model.workflow.Checklist;
 
 /**
  * Implementation of an algorithm to create report table checklists.
  */
-public class ReportChecklistAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class ReportChecklistAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link ReportChecklistAlgorithm}.
