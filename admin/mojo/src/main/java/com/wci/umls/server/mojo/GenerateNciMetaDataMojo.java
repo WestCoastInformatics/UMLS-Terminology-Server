@@ -352,6 +352,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // configuration
     createSnomedCtInsertionProcess(project1, projectId, authToken);
 
+    // Create and set up a ProdMid Cleanup process.
+    createProdMidCleanupProcess(project1, projectId, authToken);
+
     // Create and set up a release process and algorithm configuration for
     // testing
     /*
@@ -1711,6 +1714,78 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties = new HashMap<String, String>();
     algoProperties.put("type", "MUTUALLY_EXCLUSIVE");
     algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Creates the prod mid cleanup process.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  private void createProdMidCleanupProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("ProdMid Cleanup Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("ProdMid Cleanup Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Release");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("UPDATEPUBLISHED");
+    algoConfig.setDescription("UPDATEPUBLISHED Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("UPDATEPUBLISHED algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRODMIDCLEANUP");
+    algoConfig.setDescription("PRODMIDCLEANUP Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRODMIDCLEANUP algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREFNAMES");
+    algoConfig.setDescription("PREFNAMES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREFNAMES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);

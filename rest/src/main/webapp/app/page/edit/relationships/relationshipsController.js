@@ -108,7 +108,9 @@ tsApp
 
         // notify edit controller when semantic type window closes
         $window.onbeforeunload = function(evt) {
-          $scope.parentWindowScope.removeWindow('relationship');
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('relationship');
+          }
         }
         $scope.$on('$destroy', function() {
           if (!parentClosing) {
