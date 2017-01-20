@@ -48,6 +48,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
@@ -58,6 +59,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueListJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
@@ -1583,14 +1585,18 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
-  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query, PfsParameter pfs)
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     final int[] totalCt = new int[1];
-    return new ArrayList<TypeKeyValue>(
+    List<TypeKeyValue> results = new ArrayList<TypeKeyValue>(
         searchHandler.getQueryResults(null, null, Branch.ROOT, query, null,
             TypeKeyValueJpa.class, pfs, totalCt, getEntityManager()));
+    TypeKeyValueList list= new TypeKeyValueListJpa();
+    list.setTotalCount(totalCt[0]);
+    list.setObjects(results);
+    return list;
   }
 
   /**

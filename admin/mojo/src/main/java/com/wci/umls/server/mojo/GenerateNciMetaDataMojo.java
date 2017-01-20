@@ -858,7 +858,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.terminology = :terminology "
         + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-        + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+        + "  and c.terminology='NCI'  "
         + "group by a.id having count(distinct c.conceptId)>1");
     definition.setEditable(true);
     definition.setEnabled(true);
