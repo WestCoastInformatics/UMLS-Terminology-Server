@@ -1556,7 +1556,7 @@ public abstract class RootServiceJpa implements RootService {
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Add type, key, value - " + typeKeyValue);
-    return addObject(typeKeyValue);
+    return addHasLastModified(typeKeyValue);
   }
 
   /* see superclass */
@@ -1564,7 +1564,7 @@ public abstract class RootServiceJpa implements RootService {
   public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception {
     Logger.getLogger(getClass())
         .debug("Update type, key, value - " + typeKeyValue);
-    updateObject(typeKeyValue);
+    addHasLastModified(typeKeyValue);
   }
 
   /* see superclass */
@@ -1572,7 +1572,7 @@ public abstract class RootServiceJpa implements RootService {
   public void removeTypeKeyValue(Long typeKeyValueId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Remove type, key, value - " + typeKeyValueId);
-    removeObject((TypeKeyValueJpa) getTypeKeyValue(typeKeyValueId));
+    addHasLastModified((TypeKeyValueJpa) getTypeKeyValue(typeKeyValueId));
   }
 
   /* see superclass */
