@@ -84,6 +84,10 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     securityService = new SecurityServiceJpa();
   }
 
+  static {
+    Logger.getLogger("ProjectServiceRestImpl registered");
+  }
+
   /* see superclass */
   @Override
   @PUT
@@ -829,23 +833,23 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     }
 
   }
- 
-  
 
   @Override
-  @Path("/tkv/add")
+  @Path("/typeKeyValue/add")
   @PUT
   @ApiOperation(value = "Add a type key value", notes = "Adds a type key value object", response = TypeKeyValueJpa.class)
   public TypeKeyValue addTypeKeyValue(
-    @ApiParam(value = "The type key value to add") TypeKeyValueJpa tkv,
+    @ApiParam(value = "The type key value to add") TypeKeyValueJpa typeKeyValue,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (TKV, PUT): / " + tkv);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Project, PUT): / " + typeKeyValue);
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "find projects",
-          UserRole.VIEWER);
-      return projectService.addTypeKeyValue(tkv);
+      final String username = authorizeApp(securityService, authToken,
+          "find projects", UserRole.VIEWER);
+      projectService.setLastModifiedBy(username);
+      return projectService.addTypeKeyValue(typeKeyValue);
     } catch (Exception e) {
       handleException(e, "trying to get projects ");
       return null;
@@ -856,7 +860,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @Path("/tkv/{id}")
+  @Path("/typeKeyValue/{id}")
   @GET
   @ApiOperation(value = "Get a type key value", notes = "Gets a type key value object by id", response = TypeKeyValueJpa.class)
   public TypeKeyValue getTypeKeyValue(
@@ -864,7 +868,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     {
-      Logger.getLogger(getClass()).info("RESTful call (TKV, Get): / " + id);
+      Logger.getLogger(getClass()).info("RESTful call (Project, Get): / " + id);
       final ProjectService projectService = new ProjectServiceJpa();
       try {
         authorizeApp(securityService, authToken, "find projects",
@@ -881,21 +885,22 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @Path("/tkv/update")
+  @Path("/typeKeyValue/update")
   @POST
   @ApiOperation(value = "Update a type key value", notes = "Updates a type key value object", response = TypeKeyValueJpa.class)
 
   public void updateTypeKeyValue(
-    @ApiParam(value = "The type key value to add") TypeKeyValueJpa tkv,
+    @ApiParam(value = "The type key value to add") TypeKeyValueJpa typeKeyValue,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (TKV, Update): /update " + tkv.toString());
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Project, Update): /update " + typeKeyValue.toString());
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "find projects",
-          UserRole.VIEWER);
-      projectService.updateTypeKeyValue(tkv);
+      final String username = authorizeApp(securityService, authToken,
+          "find projects", UserRole.VIEWER);
+      projectService.setLastModifiedBy(username);
+      projectService.updateTypeKeyValue(typeKeyValue);
     } catch (Exception e) {
       handleException(e, "trying to get projects ");
 
@@ -907,7 +912,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @Path("/tkv/remove/{id}")
+  @Path("/typeKeyValue/remove/{id}")
   @DELETE
   @ApiOperation(value = "Removes a type key value", notes = "Removes a type key value object by id", response = TypeKeyValueJpa.class)
 
@@ -915,11 +920,12 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The type key value to remove") @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (TKV): /remove " + id);
+    Logger.getLogger(getClass()).info("RESTful call (Project): /remove " + id);
     final ProjectService projectService = new ProjectServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "find projects",
-          UserRole.VIEWER);
+      final String username = authorizeApp(securityService, authToken,
+          "find projects", UserRole.VIEWER);
+      projectService.setLastModifiedBy(username);
       projectService.removeTypeKeyValue(id);
     } catch (Exception e) {
       handleException(e, "trying to get projects ");
@@ -932,7 +938,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
   }
 
   @Override
-  @Path("/tkv/find")
+  @Path("/typeKeyValue/find")
   @POST
   @ApiOperation(value = "Finds type key values", notes = "Finds type key value objects", response = TypeKeyValueJpa.class)
   public TypeKeyValueList findTypeKeyValues(
@@ -941,7 +947,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (TKV): /find, " + query + " " + pfs);
+        .info("RESTful call (Project): /find, " + query + " " + pfs);
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       authorizeApp(securityService, authToken, "find type key values",
