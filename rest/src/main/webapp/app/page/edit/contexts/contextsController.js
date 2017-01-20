@@ -87,7 +87,9 @@ tsApp.controller('ContextsCtrl', [
 
     // notify edit controller when semantic type window closes
     $window.onbeforeunload = function(evt) {
-      $scope.parentWindowScope.removeWindow('context');
+      if (!parentClosing) {
+        $scope.parentWindowScope.removeWindow('context');
+      }
     }
     $scope.$on('$destroy', function() {
       if (!parentClosing) {

@@ -819,7 +819,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     query = manager.createQuery(
-        "SELECT c.id, att.id FROM DescriptorJpa d join d.attributes att WHERE att.terminology = :terminology "
+        "SELECT d.id, att.id FROM DescriptorJpa d join d.attributes att WHERE att.terminology = :terminology "
             + " AND att.version = :version");
     query.setParameter("terminology", terminology);
     query.setParameter("version", version);

@@ -110,6 +110,8 @@ public class ProdMidCleanupAlgorithm
       }
 
       commitClearBegin();
+      
+      // Consider truncating action tables, log entries, etc. 
 
       logInfo("[ProdMid Cleanup] Removed content for " + getSteps()
           + " non-current terminologies.");
