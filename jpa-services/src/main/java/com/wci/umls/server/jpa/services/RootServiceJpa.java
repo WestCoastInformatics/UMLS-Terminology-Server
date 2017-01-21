@@ -1564,7 +1564,7 @@ public abstract class RootServiceJpa implements RootService {
   public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception {
     Logger.getLogger(getClass())
         .debug("Update type, key, value - " + typeKeyValue);
-    addHasLastModified(typeKeyValue);
+    updateHasLastModified(typeKeyValue);
   }
 
   /* see superclass */
@@ -1572,7 +1572,7 @@ public abstract class RootServiceJpa implements RootService {
   public void removeTypeKeyValue(Long typeKeyValueId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Remove type, key, value - " + typeKeyValueId);
-    addHasLastModified((TypeKeyValueJpa) getTypeKeyValue(typeKeyValueId));
+    removeHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
   }
 
   /* see superclass */
@@ -1580,7 +1580,7 @@ public abstract class RootServiceJpa implements RootService {
   public TypeKeyValue getTypeKeyValue(Long typeKeyValueId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Get type, key, value - " + typeKeyValueId);
-    return getObject(typeKeyValueId, TypeKeyValueJpa.class);
+    return getHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
   }
 
   /* see superclass */
@@ -1591,7 +1591,7 @@ public abstract class RootServiceJpa implements RootService {
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     final int[] totalCt = new int[1];
     List<TypeKeyValue> results = new ArrayList<TypeKeyValue>(
-        searchHandler.getQueryResults(null, null, Branch.ROOT, query, null,
+        searchHandler.getQueryResults(null, null, Branch.ROOT, query, "key",
             TypeKeyValueJpa.class, pfs, totalCt, getEntityManager()));
     TypeKeyValueList list= new TypeKeyValueListJpa();
     list.setTotalCount(totalCt[0]);

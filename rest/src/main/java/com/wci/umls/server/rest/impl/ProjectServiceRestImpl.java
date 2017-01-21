@@ -847,11 +847,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String username = authorizeApp(securityService, authToken,
-          "find projects", UserRole.VIEWER);
+          "add type key value", UserRole.VIEWER);
       projectService.setLastModifiedBy(username);
       return projectService.addTypeKeyValue(typeKeyValue);
     } catch (Exception e) {
-      handleException(e, "trying to get projects ");
+      handleException(e, "trying to add type key value ");
       return null;
     } finally {
       projectService.close();
@@ -871,11 +871,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       Logger.getLogger(getClass()).info("RESTful call (Project, Get): / " + id);
       final ProjectService projectService = new ProjectServiceJpa();
       try {
-        authorizeApp(securityService, authToken, "find projects",
+        authorizeApp(securityService, authToken, "get type key value",
             UserRole.VIEWER);
         return projectService.getTypeKeyValue(id);
       } catch (Exception e) {
-        handleException(e, "trying to get projects ");
+        handleException(e, "trying to get type key value ");
         return null;
       } finally {
         projectService.close();
@@ -893,16 +893,17 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The type key value to add") TypeKeyValueJpa typeKeyValue,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Project, Update): /update " + typeKeyValue.toString());
+    Logger.getLogger(getClass())
+        .info("RESTful call (Project, TypeKeyValue): /update "
+            + typeKeyValue.toString());
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String username = authorizeApp(securityService, authToken,
-          "find projects", UserRole.VIEWER);
+          "update type key value", UserRole.VIEWER);
       projectService.setLastModifiedBy(username);
       projectService.updateTypeKeyValue(typeKeyValue);
     } catch (Exception e) {
-      handleException(e, "trying to get projects ");
+      handleException(e, "trying to update type key value ");
 
     } finally {
       projectService.close();
@@ -920,15 +921,16 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "The type key value to remove") @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Project): /remove " + id);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Project/TypeKeyValue): /remove " + id);
     final ProjectService projectService = new ProjectServiceJpa();
     try {
       final String username = authorizeApp(securityService, authToken,
-          "find projects", UserRole.VIEWER);
+          "remove type key value", UserRole.VIEWER);
       projectService.setLastModifiedBy(username);
       projectService.removeTypeKeyValue(id);
     } catch (Exception e) {
-      handleException(e, "trying to get projects ");
+      handleException(e, "trying to remove type key value ");
 
     } finally {
       projectService.close();
