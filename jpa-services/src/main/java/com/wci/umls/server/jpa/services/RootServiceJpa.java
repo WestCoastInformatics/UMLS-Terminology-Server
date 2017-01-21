@@ -48,6 +48,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
@@ -58,6 +59,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueListJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
@@ -1554,7 +1556,7 @@ public abstract class RootServiceJpa implements RootService {
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Add type, key, value - " + typeKeyValue);
-    return addObject(typeKeyValue);
+    return addHasLastModified(typeKeyValue);
   }
 
   /* see superclass */
@@ -1562,7 +1564,7 @@ public abstract class RootServiceJpa implements RootService {
   public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception {
     Logger.getLogger(getClass())
         .debug("Update type, key, value - " + typeKeyValue);
-    updateObject(typeKeyValue);
+    updateHasLastModified(typeKeyValue);
   }
 
   /* see superclass */
@@ -1570,7 +1572,7 @@ public abstract class RootServiceJpa implements RootService {
   public void removeTypeKeyValue(Long typeKeyValueId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Remove type, key, value - " + typeKeyValueId);
-    removeObject((TypeKeyValueJpa) getTypeKeyValue(typeKeyValueId));
+    removeHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
   }
 
   /* see superclass */
@@ -1578,19 +1580,23 @@ public abstract class RootServiceJpa implements RootService {
   public TypeKeyValue getTypeKeyValue(Long typeKeyValueId) throws Exception {
     Logger.getLogger(getClass())
         .debug("Get type, key, value - " + typeKeyValueId);
-    return getObject(typeKeyValueId, TypeKeyValueJpa.class);
+    return getHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
   }
 
   /* see superclass */
   @Override
-  public List<TypeKeyValue> findTypeKeyValuesForQuery(String query)
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query, PfsParameter pfs)
     throws Exception {
     Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
     final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
     final int[] totalCt = new int[1];
-    return new ArrayList<TypeKeyValue>(
-        searchHandler.getQueryResults(null, null, Branch.ROOT, query, null,
-            TypeKeyValueJpa.class, null, totalCt, getEntityManager()));
+    List<TypeKeyValue> results = new ArrayList<TypeKeyValue>(
+        searchHandler.getQueryResults(null, null, Branch.ROOT, query, "key",
+            TypeKeyValueJpa.class, pfs, totalCt, getEntityManager()));
+    TypeKeyValueList list= new TypeKeyValueListJpa();
+    list.setTotalCount(totalCt[0]);
+    list.setObjects(results);
+    return list;
   }
 
   /**

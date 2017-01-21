@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -40,7 +40,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Algorithm responsible for loading "classes_atoms.src" files.
  */
-public class AtomLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The add count. */
   private int addCount = 0;

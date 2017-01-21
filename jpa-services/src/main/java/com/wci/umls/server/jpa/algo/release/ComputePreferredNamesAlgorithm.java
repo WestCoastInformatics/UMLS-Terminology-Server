@@ -73,7 +73,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     params.put("version", getProject().getVersion());
     // Normalization is only for English
     final List<Long> conceptIds = executeSingleComponentIdQuery(
-        "select a.id from ConceptJpa c " + "where c.terminology = :terminology "
+        "select c.id from ConceptJpa c " + "where c.terminology = :terminology "
             + "  and c.version = :version and publishable = true",
         QueryType.JQL, params, ConceptJpa.class);
     commitClearBegin();

@@ -18,7 +18,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * Implementation of an algorithm to execute an action based on a user-defined
  * query.
  */
-public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The object type class. */
   @SuppressWarnings("rawtypes")
@@ -169,7 +169,9 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
         Atom fromAtom = atomRelationship.getFrom();
         Atom toAtom = atomRelationship.getTo();
         AtomRelationship inverseAtomRelationship =
-            (AtomRelationship) getInverseRelationship(atomRelationship);
+            (AtomRelationship) getInverseRelationship(
+                getProject().getTerminology(), getProject().getVersion(),
+                atomRelationship);
 
         fromAtom.getRelationships().remove(atomRelationship);
         toAtom.getRelationships().remove(inverseAtomRelationship);
@@ -279,7 +281,6 @@ public class QueryActionAlgorithm extends AbstractSourceInsertionAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("static-access")
   @Override
   public void setProperties(Properties p) throws Exception {
 

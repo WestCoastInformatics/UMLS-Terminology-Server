@@ -22,12 +22,16 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueListJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.model.actions.AtomicActionList;
@@ -564,5 +568,131 @@ public class ProjectClientRest extends RootClientRest
     } else {
       throw new Exception("Unexpected status " + response.getStatus());
     }
+  }
+  /* see superclass */
+  @Override
+  public TypeKeyValue addTypeKeyValue(TypeKeyValueJpa typeKeyValue, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("TypeKeyValue Client - add typeKeyValue" + typeKeyValue);
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/typeKeyValue/");
+
+    String typeKeyValueString = ConfigUtility
+        .getStringForGraph(typeKeyValue == null ? new TypeKeyValueJpa() : typeKeyValue);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).put(Entity.xml(typeKeyValueString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    TypeKeyValueJpa result =
+        ConfigUtility.getGraphForString(resultString, TypeKeyValueJpa.class);
+
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public void updateTypeKeyValue(TypeKeyValueJpa typeKeyValue, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("TypeKeyValue Client - update typeKeyValue " + typeKeyValue);
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/typeKeyValue/");
+
+    String typeKeyValueString = ConfigUtility
+        .getStringForGraph(typeKeyValue == null ? new TypeKeyValueJpa() : typeKeyValue);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(typeKeyValueString));
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void removeTypeKeyValue(Long id, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("TypeKeyValue Client - remove typeKeyValue " + id);
+    validateNotEmpty(id, "id");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/typeKeyValue/" + id);
+
+    if (id == null)
+      return;
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue getTypeKeyValue(Long id, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("TypeKeyValue Client - get typeKeyValue " + id);
+    validateNotEmpty(id, "id");
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/typeKeyValue/" + id);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).get();
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TypeKeyValueJpa typeKeyValue =
+        ConfigUtility.getGraphForString(resultString, TypeKeyValueJpa.class);
+    return typeKeyValue;
+  }
+  
+  /* see superclass */
+  @Override
+  public TypeKeyValueList findTypeKeyValues(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception {
+
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/typeKeyValue/find"
+            + "?query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
+    String pfsString = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsString));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    TypeKeyValueList list =
+        ConfigUtility.getGraphForString(resultString, TypeKeyValueListJpa.class);
+    return list;
   }
 }

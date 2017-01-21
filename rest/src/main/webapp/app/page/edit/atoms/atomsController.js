@@ -143,7 +143,9 @@ tsApp
 
         // notify edit controller when semantic type window closes
         $window.onbeforeunload = function(evt) {
-          $scope.parentWindowScope.removeWindow('atom');
+          if (!parentClosing) {
+            $scope.parentWindowScope.removeWindow('atom');
+          }
         }
         $scope.$on('$destroy', function() {
           if (!parentClosing) {
@@ -401,9 +403,9 @@ tsApp
           // Success
           function(data) {
             /*
-             * $scope.parentWindowScope.getRecords(false);
-             * $scope.parentWindowScope.getConcepts($scope.selected.record);
-             */
+                         * $scope.parentWindowScope.getRecords(false);
+                         * $scope.parentWindowScope.getConcepts($scope.selected.record);
+                         */
           });
         };
 
@@ -442,10 +444,9 @@ tsApp
           // Success
           function(data) {
             /*
-             * $scope.parentWindowScope.getRecords(false);
-             * $scope.parentWindowScope.getConcepts($scope.selected.record,
-             * true);
-             */
+                         * $scope.parentWindowScope.getRecords(false);
+                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+                         */
           });
         };
 
@@ -483,10 +484,9 @@ tsApp
           // Success
           function(data) {
             /*
-             * $scope.parentWindowScope.getRecords(false);
-             * $scope.parentWindowScope.getConcepts($scope.selected.record,
-             * true);
-             */
+                         * $scope.parentWindowScope.getRecords(false);
+                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
+                         */
           });
 
         };

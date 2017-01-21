@@ -1602,7 +1602,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public RelationshipList getInverseRelationships(
+  public RelationshipList getInverseRelationships(String terminology,
+    String version,
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     Logger.getLogger(getClass())
@@ -1613,16 +1614,22 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // inverseRelationship = null;
 
     if (relationship != null) {
-      String inverseRelType =
-          getRelationshipType(relationship.getRelationshipType(),
-              relationship.getTerminology(), relationship.getVersion())
-                  .getInverse().getAbbreviation();
+      final String inverseRelType =
+          getRelationshipType(relationship.getRelationshipType(), terminology,
+              version).getInverse().getAbbreviation();
 
-      RelationshipList relList =
+      final String inverseAdditionalRelType = getAdditionalRelationshipType(
+          relationship.getAdditionalRelationshipType(), terminology, version)
+              .getInverse().getAbbreviation();
+
+      final RelationshipList relList =
           findRelationshipsForComponentHelper(null, null, null, Branch.ROOT,
               "fromId:" + relationship.getTo().getId() + " AND toId:"
                   + relationship.getFrom().getId() + " AND relationshipType:"
-                  + inverseRelType,
+                  + inverseRelType
+                  + (ConfigUtility.isEmpty(inverseAdditionalRelType) ? ""
+                      : " AND additionalRelationshipType:"
+                          + inverseAdditionalRelType),
               false, null, relationship.getClass());
 
       if (relList.size() == 0) {
@@ -1637,19 +1644,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
     }
   }
 
-  /**
-   * Get inverse relationship.
-   *
-   * @param relationship the relationship
-   * @return the relationship<? extends component info,? extends component info>
-   * @throws Exception the exception
-   */
   @Override
   public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
+    String terminology, String version,
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
 
-    RelationshipList relList = getInverseRelationships(relationship);
+    RelationshipList relList =
+        getInverseRelationships(terminology, version, relationship);
 
     // If there's only one inverse relationship returned, that's the one we
     // want.

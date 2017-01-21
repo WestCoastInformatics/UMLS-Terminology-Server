@@ -15,7 +15,7 @@ import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractSourceInsertionAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -32,7 +32,7 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import attributes.
  */
-public class AttributeLoaderAlgorithm extends AbstractSourceInsertionAlgorithm {
+public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.

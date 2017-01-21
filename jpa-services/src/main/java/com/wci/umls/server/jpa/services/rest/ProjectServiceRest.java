@@ -11,12 +11,16 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a content available via a REST service.
  */
@@ -235,6 +239,58 @@ public interface ProjectServiceRest {
    * @throws Exception the exception
    */
   public void forceException(Boolean localFlag, String authToken)
+    throws Exception;
+
+  /**
+   * Find type key values.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the type key value list
+   * @throws Exception the exception
+   */
+  public TypeKeyValueList findTypeKeyValues(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the type key value.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeTypeKeyValue(Long id, String authToken) throws Exception;
+
+  /**
+   * Gets the type key value.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue getTypeKeyValue(Long id, String authToken) throws Exception;
+
+  /**
+   * Update type key value.
+   *
+   * @param tkv the tkv
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the type key value.
+   *
+   * @param tkv the tkv
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue addTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
     throws Exception;
 
 }

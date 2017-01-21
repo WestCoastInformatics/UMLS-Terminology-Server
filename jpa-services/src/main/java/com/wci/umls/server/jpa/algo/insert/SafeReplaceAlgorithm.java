@@ -247,7 +247,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
           // Remove the inverse relationship from the toAtom
           Atom relatedAtom = getAtom(rel.getTo().getId());
           AtomRelationship inverseDemotion =
-              (AtomRelationship) getInverseRelationship(rel);
+              (AtomRelationship) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
           relatedAtom.getRelationships().remove(inverseDemotion);
 
           // Update the related atom

@@ -115,7 +115,7 @@ public class RemoveAtomMolecularAction extends AbstractMolecularAction {
 
       final Atom relatedAtom = getAtom(relationship.getTo().getId());
       final AtomRelationship inverseRelationship =
-          (AtomRelationship) getInverseRelationship(relationship);
+          (AtomRelationship) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), relationship);
       relatedAtom.getRelationships().remove(inverseRelationship);
       updateAtom(relatedAtom);
 
