@@ -1334,6 +1334,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private void createSnomedCtInsertionProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 
@@ -1732,6 +1733,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @param authToken the auth token
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private void createProdMidCleanupProcess(Project project1, Long projectId,
     String authToken) throws Exception {
 

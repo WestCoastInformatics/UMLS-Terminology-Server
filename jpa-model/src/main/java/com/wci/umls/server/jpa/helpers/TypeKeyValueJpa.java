@@ -3,23 +3,32 @@
  */
 package com.wci.umls.server.jpa.helpers;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * JPA enabled scored implementation of {@link TypeKeyValue}.
@@ -47,6 +56,25 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
   /** The value. */
   @Column(nullable = true, length = 4000)
   private String value;
+  
+  /** The last modified. */
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastModified = new Date();
+
+  /** The last modified. */
+  @Column(nullable = false)
+  private String lastModifiedBy;
+
+  /** The last modified. */
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date timestamp = new Date();
+  
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = true)
+  private WorkflowStatus workflowStatus;
 
   /**
    * Instantiates an empty {@link TypeKeyValueJpa}.
@@ -65,6 +93,10 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
     type = typeKeyValue.getType();
     key = typeKeyValue.getKey();
     value = typeKeyValue.getValue();
+    lastModified = typeKeyValue.getLastModified();
+    lastModifiedBy = typeKeyValue.getLastModifiedBy();
+    timestamp = typeKeyValue.getTimestamp();
+    workflowStatus = typeKeyValue.getWorkflowStatus();
   }
 
   /**
@@ -143,6 +175,59 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
   public void setValue(String value) {
     this.value = value;
   }
+  
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public Date getLastModified() {
+    return lastModified;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastModified(Date lastModified) {
+    this.lastModified = lastModified;
+  }
+
+  /* see superclass */
+  @Override
+  public Date getTimestamp() {
+    return timestamp;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTimestamp(Date timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
+  }
+  
+  /* see superclass */
+  @Override
+  @FieldBridge(impl = EnumBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
+    return workflowStatus;
+  }
+
+  /* see superclass */
+  @Override
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
+    this.workflowStatus = workflowStatus;
+
+  }
 
   /* see superclass */
   @Override
@@ -215,4 +300,5 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
     return "TypeKeyValueJpa [id=" + id + ", type=" + type + ", key=" + key
         + ", value=" + value + "]";
   }
+
 }

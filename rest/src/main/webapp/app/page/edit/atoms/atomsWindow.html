@@ -22,8 +22,8 @@
           ng-click="setSortField('atoms','name')">Name</span> <span
           ng-bind="getSortIndicator('atoms','name')"></span></th>
       <th class="col-md-2 col-xs-2"><span
-          ng-click="setSortField('atoms','termType,terminology')">Termgroup</span>
-        <span ng-bind="getSortIndicator('atoms','termType,terminology')"></span></th>
+          ng-click="setSortField('atoms','terminology,termType')">Termgroup</span>
+        <span ng-bind="getSortIndicator('atoms','terminology,termType')"></span></th>
       <th class="col-md-1 col-xs-1"><span
           ng-click="setSortField('atoms','codeId')">Code</span> <span
           ng-bind="getSortIndicator('atoms','codeId')"></span></th>
@@ -50,7 +50,7 @@
         <input type="checkbox" value="{{atom.name}}"
           ng-checked="isRowSelected(atom)">&nbsp;
         <!-- Chevron -->
-        <i class="noul glyphicon" ng-click="toggleAttributes(atom)"
+        <i class="noul glyphicon" ng-click="toggleAttributes(atom); $event.stopPropagation()"
           ng-class="[{'glyphicon-chevron-down' : attributes[atom.id]}, {'glyphicon-chevron-right' : !attributes[atom.id]}]"
           title="{{attributes[atom.id] ? 'Hide' : 'Show'}} attributes"></i>
         &nbsp; {{atom.name}}

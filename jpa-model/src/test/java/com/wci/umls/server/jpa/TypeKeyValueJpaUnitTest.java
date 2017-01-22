@@ -100,6 +100,9 @@ public class TypeKeyValueJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("type");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("timestamp");
     assertTrue(tester.testNotNullFields());
   }
 
@@ -115,13 +118,16 @@ public class TypeKeyValueJpaUnitTest extends ModelUnitSupport {
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
     tester.include("key");
-    // assertTrue(tester.testAnalyzedIndexedFields());
+    assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
     tester.include("type");
     tester.include("keySort");
     tester.include("value");
+    tester.include("lastModified");
+    tester.include("lastModifiedBy");
+    tester.include("workflowStatus");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }

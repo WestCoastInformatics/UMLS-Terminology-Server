@@ -111,10 +111,15 @@ endif
 #  id|normString
 # PREREQUISITE: LVG is installed at LVG_HOME listed below
 echo "  Compute lexical class identity for MRCONSO"
-setenv LVG_HOME c:/data/lvg2016
+setenv LVG_HOME c:/data/lvg2017
 /bin/rm -f lexicalClassIdentity.txt
-# handle ENG
-perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/luiNorm.bat -t:3 | cut -d\| -f 1,2,4 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
+# handle win/unix
+if (-e $LVG_HOME/bin/luiNorm.bat) then
+  set luiNorm = "luiNorm.bat"
+else
+  set luiNorm = "luiNorm"
+endif
+perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/$luiNorm -t:3 -n | sed 's/-No Output-//' | cut -d\| -f 1,2,4 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRCONSO.RRF for LUI - ENG"
 	exit 1

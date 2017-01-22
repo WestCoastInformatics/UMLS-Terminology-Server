@@ -64,7 +64,6 @@ import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
-// TODO: Auto-generated Javadoc
 /**
  * Algorithm to write the RRF content files.
  */

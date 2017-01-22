@@ -2,11 +2,13 @@
 279679|ENG|alzheimer dementia type|
 818392|ENG|dorsi latissimus|
 1066075|ENG|alzheimer dementia|
+1217702|ENG|hm|
 1222027|ENG|alzheimer disease1|
+1340950|ENG|hm1|
 1698328|ENG|alzheimer dementia1|
 1825900|ENG|alzheimer dementia type1|
-6329046|ENG|alzheimer di|
-6330837|ENG|alzheimer di1|
+6329046|ENG|alzheimer d1|
+6330837|ENG|alzheimer d11|
 11268479|ENG|dorsi latissimus1|
 1000230|ENG|1 1 4 6 amylo transglucosidase|
 10012198|ENG|activity dictionary edition hungarian meddra medical regulatory terminology|
@@ -53,10 +55,10 @@
 1009597|ENG|blood pmn|
 10096226|ENG|a abortion birth ectopic i life miscarriage or phenx pregnancy pregnancy stillbirth your|
 1009707|ENG|body lo water|
-10106780|ENG|head jamas japanese japanese jjmt medical medical subject thesaurus translation|
+10106780|ENG|head jamae japanese japanese jjmt medical medical subject thesaurus translation|
 10106782|ENG|2014 head japanese medical subject translation|
 10108924|ENG|mshjpn2011|
-10110012|ENG|2011 head jamas japanese japanese jjmt medical medical subject thesaurus translation|
+10110012|ENG|2011 head jamae japanese japanese jjmt medical medical subject thesaurus translation|
 1011069|ENG|care miscarriage|
 10111415|ENG|illness occupational|
 10111995|ENG|vemurafenib|
@@ -144,7 +146,7 @@
 1015527|ENG|dermatitis fungoid|
 10155858|ENG|tkmt2011|
 10155936|ENG|2011 korean medical term traditional|
-1015745|ENG|di|
+1015745|ENG|d1|
 1015765|ENG|diabetes mellitus pregnancy relate|
 10157664|ENG|3tc 5 mg ml oral solution|
 1015783|ENG|diagnose disorder gastrointestinal|
@@ -1612,7 +1614,7 @@
 11341124|ENG|enlarge find lymph node|
 11341845|ENG|fertile not|
 11342374|ENG|enflame pharynx|
-1134287|ENG|10 2 2 3 3 6 acridinyl bi di dimethylamino ethyl o palmitoylglycero phosphate|
+1134287|ENG|10 2 2 3 3 6 acridinyl bi d1 dimethylamino ethyl o palmitoylglycero phosphate|
 11343252|ENG|snomedct vet|
 11343453|ENG|below concentration normal serum sodium|
 11344149|ENG|effusion thoracic|
@@ -2203,71 +2205,71 @@
 11645035|ENG|cancer center hawaii nutrition research terminology|
 11645894|ENG|conference harmonisation international|
 11646394|ENG|cancer division nci prevention program|
-11646395|ENG|1403 dcp nci2014|
-11646396|ENG|1403 dicom nci2014|
-11646397|ENG|1403 kegg nci2014|
+11646395|ENG|1403e dcp nci2014|
+11646396|ENG|1403e dicom nci2014|
+11646397|ENG|1403e kegg nci2014|
 11646398|ENG|bridg nci|
 1164648|ENG|aripiprazole|
 11647584|ENG|17alpha hydroxyprogesterone|
-11648261|ENG|1403 clinical consortium data interchange standard|
+11648261|ENG|1403e clinical consortium data interchange standard|
 11649096|ENG|database kegg pathway|
-11649528|ENG|1403 developmental nci program therapeutics|
-11649529|ENG|1403 cancer dictionary nci term|
-11649530|ENG|1403 cancer division nci prevention program|
-11649531|ENG|1403 ctcae nci2014|
-11649532|ENG|1403 ich nci2014|
-11649533|ENG|1403 hl7 nci nci2014|
+11649528|ENG|1403e developmental nci program therapeutics|
+11649529|ENG|1403e cancer dictionary nci term|
+11649530|ENG|1403e cancer division nci prevention program|
+11649531|ENG|1403e ctcae nci2014|
+11649532|ENG|1403e ich nci2014|
+11649533|ENG|1403e hl7 nci nci2014|
 11649534|ENG|bioc nci|
 11649601|ENG|cancer database institute interaction national nature pathway|
 11649602|ENG|council drug national prescription program|
-11649603|ENG|1403 child development health human institute national|
+11649603|ENG|1403e child development health human institute national|
 11649858|ENG|embryonic lo pre|
 11650517|ENG|twin vanish|
 11650859|ENG|acromegalic|
 11652272|ENG|1 lav|
 11652635|ENG|cancer dictionary nci term|
-11652636|ENG|03 nci2014|
-11652637|ENG|1403 ctep nci2014 sdc|
-11652638|ENG|1403 nci2014 pid|
-11652639|ENG|1403 nci2014 reni|
-11652640|ENG|1403 nci2014 zfin|
+11652636|ENG|03e nci2014|
+11652637|ENG|1403e ctep nci2014 sdc|
+11652638|ENG|1403e nci2014 pid|
+11652639|ENG|1403e nci2014 reni|
+11652640|ENG|1403e nci2014 zfin|
 11652641|ENG|cdc nci|
 11652642|ENG|dtp nci|
 11652643|ENG|ich nci|
 11652644|ENG|nci nichd|
 11653802|ENG|17 20 3 4 dione ene hydroxypregn|
 11654087|ENG|brthlvn|
-11654130|ENG|1403 biomedical domain group integrate model research|
+11654130|ENG|1403e biomedical domain group integrate model research|
 11654651|ENG|17alpha 20 3 4 delta dione ol pregnene|
-11655764|ENG|1403 bridg nci2014|
-11655765|ENG|1403 bioc nci2014|
-11655766|ENG|1403 cdisc nci2014|
-11655767|ENG|1403 nci2014 ncpdp|
-11655768|ENG|1403 nci2014 nichd|
+11655764|ENG|1403e bridg nci2014|
+11655765|ENG|1403e bioc nci2014|
+11655766|ENG|1403e cdisc nci2014|
+11655767|ENG|1403e nci2014 ncpdp|
+11655768|ENG|1403e nci2014 nichd|
 11655769|ENG|ctep nci sdc|
 11655770|ENG|jax nci|
 11655771|ENG|kegg nci|
 11655772|ENG|nci ncpdp|
 11655773|ENG|nci reni|
-11656690|ENG|1403 code measure unify unit|
+11656690|ENG|1403e code measure unify unit|
 11656994|ENG|5 family nucleotidase|
 11657313|ENG|biomedical domain group integrate model research|
 11657561|ENG|birth cesarean|
 11657575|ENG|cancer classification disease evaluation program simple therapy|
-11659000|ENG|1403 cdc nci2014|
-11659001|ENG|1403 jax nci2014|
+11659000|ENG|1403e cdc nci2014|
+11659001|ENG|1403e jax nci2014|
 11659002|ENG|dcp nci|
 11659003|ENG|hl7 nci nci|
-11659086|ENG|1403 cancer database institute interaction national nature pathway|
-11659087|ENG|1403 council drug national prescription program|
-11659881|ENG|1403 center control disease prevention s u|
-11660499|ENG|1403 adapt biocarta map molecular nci online pathway use|
-11661003|ENG|1403 communication digital image medicine|
-11661624|ENG|1403 conference harmonisation international|
+11659086|ENG|1403e cancer database institute interaction national nature pathway|
+11659087|ENG|1403e council drug national prescription program|
+11659881|ENG|1403e center control disease prevention s u|
+11660499|ENG|1403e adapt biocarta map molecular nci online pathway use|
+11661003|ENG|1403e communication digital image medicine|
+11661624|ENG|1403e conference harmonisation international|
 11662148|ENG|developmental nci program therapeutics|
-11662149|ENG|1403 7 health level nci|
-11662150|ENG|1403 crch nci2014|
-11662151|ENG|1403 gloss nci nci2014|
+11662149|ENG|1403e 7 health level nci|
+11662150|ENG|1403e crch nci2014|
+11662151|ENG|1403e gloss nci nci2014|
 11662152|ENG|cdisc nci|
 11662153|ENG|fda nci|
 11662154|ENG|nci ucum|
@@ -2278,28 +2280,28 @@
 11663576|ENG|alfa hydroxy progesterone|
 11663720|ENG|adapt biocarta map molecular nci online pathway use|
 11664051|ENG|cervical insufficiency|
-11664135|ENG|1403 adverse common criterion event terminology|
-11664891|ENG|1403 adapt jackson laboratory mouse nci terminology use|
+11664135|ENG|1403e adverse common criterion event terminology|
+11664891|ENG|1403e adapt jackson laboratory mice nci terminology use|
 11665395|ENG|7 health level nci|
-11665396|ENG|03 2014 nci thesaurus|
-11665397|ENG|1403 dtp nci2014|
+11665396|ENG|03e 2014 nci thesaurus|
+11665397|ENG|1403e dtp nci2014|
 11665398|ENG|crch nci|
 11665399|ENG|dicom nci|
 11665860|ENG|carboplatin etoposide ifosfamide regimen rituximab|
 11666234|ENG|disorder glandular or other thyroid|
-11666289|ENG|1403 administration drug food s u|
-11666566|ENG|1403 database model organism zebrafish|
-11667204|ENG|1403 cancer center hawaii nutrition research terminology|
-11667206|ENG|1403 cancer classification disease evaluation program simple therapy|
+11666289|ENG|1403e administration drug food s u|
+11666566|ENG|1403e database model organism zebrafish|
+11667204|ENG|1403e cancer center hawaii nutrition research terminology|
+11667206|ENG|1403e cancer classification disease evaluation program simple therapy|
 11667339|ENG|1 1 1 1 1 1 1 1h 1s 2 2 2 2 2 2r 3 3 3 4 5 5 5 amino carbonyl d dihydro dimethylethyl erythro hydroxy inden monohydrate n pentonamide phenylmethyl piperazinyl pyridinylmethyl s salt sulfate trideoxy yl|
-11668076|ENG|adapt jackson laboratory mouse nci terminology use|
-11668115|ENG|1403 database kegg pathway|
-11668579|ENG|1403 fda nci2014|
-11668580|ENG|1403 nci2014 ucum|
+11668076|ENG|adapt jackson laboratory mice nci terminology use|
+11668115|ENG|1403e database kegg pathway|
+11668579|ENG|1403e fda nci2014|
+11668580|ENG|1403e nci2014 ucum|
 11668581|ENG|gloss nci nci|
 11668582|ENG|nci pid|
 11668702|ENG|birth life numb|
-11669036|ENG|1403 information nomenclature registry system|
+11669036|ENG|1403e information nomenclature registry system|
 11669788|ENG|0 mdrcze17|
 11670255|ENG|0 17 activity czech dictionary edition meddra medical regulatory terminology|
 11670719|ENG|0 mdrdut17|
@@ -2367,7 +2369,7 @@
 11709195|ENG|medication zidovudine|
 11709350|ENG|diagnose disease hodgkin sarcoma|
 11710636|ENG|diagnose infection postoperative wind|
-11711801|ENG|3 a a base been behalf classification codes combining computer created created ct department has health i k know nomenclature read rt snomed snomed u version which|
+11711801|ENG|3 a a base been behalf classification codes combining computer created created ct department ha health i k know nomenclature read rt snomed snomed u version which|
 11712111|ENG|ab antibody digoxin f fragment specific|
 11712248|ENG|damage incomplete lo or organ pelvic pregnancy tissue|
 11712249|ENG|disorder incomplete lo metabolic pregnancy|
@@ -2864,7 +2866,6 @@
 1217698|ENG|healthcare maintenance routine|
 1217699|ENG|hcm|
 1217701|ENG|health maintainence|
-1217702|ENG|hm|
 1217703|ENG|rhcm|
 1217704|ENG|rhm|
 1217716|ENG|blood occult positive stool|
@@ -3219,7 +3220,6 @@
 134079|ENG|losartan|
 134082|ENG|etabonate loteprednol|
 1340883|ENG|hemihydrate timolol|
-1340950|ENG|hms|
 1341064|ENG|hydrochlorid moexipril|
 1341069|ENG|hydrochlorid nefazodone|
 1341070|ENG|hydrochlorid olopatadine|
@@ -6381,7 +6381,7 @@
 21186|ENG|indapamide|
 211944|ENG|drug ipecac|
 211960|ENG|lymph mucocutan node syn|
-211961|ENG|di female genital|
+211961|ENG|d1 female genital|
 211965|ENG|pulmonary tuberculosis unspecified|
 211974|ENG|ectopic pregnancy unspecified|
 211975|ENG|complication pregnancy unspecified|
@@ -8030,7 +8030,7 @@
 2748688|ENG|3 4 h hydroxybenzoate monooxygenase nad p substance|
 2748689|ENG|3 4 hydroxybenzoate monooxygenase substance|
 2748795|ENG|3 5 cyclic gmp phosphodiesterase substance|
-2748910|ENG|3 a a a base been behalf classification codes combining computer copyright created created crown ct department has health i i k know nomenclature read rt snomed snomed u version which|
+2748910|ENG|3 a a a base been behalf classification codes combining computer copyright created created crown ct department ha health i i k know nomenclature read rt snomed snomed u version which|
 274892|ENG|6 abortion month|
 2748971|ENG|3 abortion disorder month|
 2749429|ENG|3 category context dependant history miscarriage|
@@ -9062,6 +9062,7 @@
 2842270|ENG|anuria category context d dependant|
 2842277|ENG|anuria find|
 2842342|ENG|anxiety find|
+28429|ENG||
 2843700|ENG|aphagia find|
 2843816|ENG|aptha disorder oral|
 2843819|ENG|aptha mouth or oral ulcer|
@@ -9790,7 +9791,7 @@
 2962892|ENG|clostridium difficile organism|
 296366|ENG|diisopyramide|
 2964457|ENG|coccidioidal disorder meningitis|
-296502|ENG|di fem inflam pelv|
+296502|ENG|d1 fem inflam pelv|
 2965161|ENG|cola disorder irritable|
 2965547|ENG|colfosceril dup palmitate substance|
 2965548|ENG|colfosceril palmitate product|
@@ -10092,8 +10093,8 @@
 2996043|ENG|dexamethasone tobramycin|
 2996069|ENG|dexrazoxane substance|
 2996182|ENG|dg|
-2996227|ENG|di inflam pelvic|
-2996239|ENG|di joint temporomandibular|
+2996227|ENG|d1 inflam pelvic|
+2996239|ENG|d1 joint temporomandibular|
 299624|ENG|erbumine perindopril|
 2996306|ENG|diabetes disorder gestational maternal mellitus|
 2996307|ENG|diabetes disorder gestational mellitus|
@@ -10442,7 +10443,7 @@
 3016673|ENG|disorder immune infectious system|
 3016682|ENG|disorder immunodeficiency lymphocyte t|
 3016723|ENG|disorder impairment renal|
-301679|ENG|fiessing leroy reiter syndrome|
+301679|ENG|fies leroy reiter syndrome|
 3016859|ENG|disorder induce mptp parkinsonism|
 3017210|ENG|disorder infection mycobacterium unspecified x|
 3017235|ENG|disorder infection neonatal tract urinary|
@@ -12305,7 +12306,7 @@
 3551798|ENG|abnormal result test urine|
 3551802|ENG|abnormality anatomic congenital|
 3551804|ENG|abnormality anatomical congenital|
-355231|ENG|1 1 2 2 3 di methyl propanone pyridinyl|
+355231|ENG|1 1 2 2 3 d1 methyl propanone pyridinyl|
 35525|ENG|ribavirin|
 355269|ENG|1 1 2 2 dimethyl ethanamine ethoxy n n phenyl pyridinyl|
 355292|ENG|1 1 2 2h 3 dihydro imidazol methyl thione|
@@ -14083,7 +14084,7 @@
 5|ENG|131 albumen i macroaggregated|
 500|ENG|3 4 hydroxybenzoate monooxygenase|
 500541|ENG|alzheimer dat dementia type|
-500544|ENG|alzheimer dementia di|
+500544|ENG|alzheimer d1 dementia|
 500547|ENG|alzheimer dementia disease|
 500554|ENG|alzheimer dementia sdat senile type|
 500813|ENG|i sick|
@@ -14364,11 +14365,11 @@
 5319355|ENG|ppac|
 5319394|ENG|ve|
 5320|ENG|betaxolol|
-5320239|ENG|0 1 3ml 9mcg additive alfacon interferon mdv ml or sdv subcutan vial|
-5320240|ENG|0 1 3ml 9mcg alfacon disposable interferon ml subcutan syrinx|
+5320239|ENG|0 1 3ml 9mcg additive alfacon interferon mdv ml or sdv subcutane vial|
+5320240|ENG|0 1 3ml 9mcg alfacon disposable interferon ml subcutane syrinx|
 5320925|ENG|0 5g additive ea gamma globulin igg immu intraven mdv or sdv vial|
-5321262|ENG|1 15mcg 5ml additive alfacon interferon mdv ml or sdv subcutan vial|
-5321263|ENG|1 15mcg 5ml alfacon disposable interferon ml subcutan syrinx|
+5321262|ENG|1 15mcg 5ml additive alfacon interferon mdv ml or sdv subcutane vial|
+5321263|ENG|1 15mcg 5ml alfacon disposable interferon ml subcutane syrinx|
 5321270|ENG|1 1g ifosfamide intraven kit mesna|
 5321971|ENG|10 additive caprylate gam glob igg immune intraven mdv ml or sdv vial|
 5321975|ENG|10 additive gamma globulin igg immu intraven mdv ml or sdv vial|
@@ -14387,7 +14388,7 @@
 5323930|ENG|150mg al chewable citrate didanosine magnesium nacb oral sodium tablet|
 5323934|ENG|150mg calcium carb chewable didanosine mag oral tablet|
 5323935|ENG|150mg calcium carbonate chewable didanosine magnesium oral tablet|
-5324423|ENG|1b 2mmiu 5ml additive gamma interferon mdv ml or recomb sdv subcutan vial|
+5324423|ENG|1b 2mmiu 5ml additive gamma interferon mdv ml or recomb sdv subcutane vial|
 5324437|ENG|1g 3 ifosfamide intraven kit mesna|
 5324499|ENG|1g additive ea gamma globulin igg immu intraven mdv or sdv vial|
 5325041|ENG|2 5g additive ea gamma globulin igg immu intraven mdv or sdv vial|
@@ -14413,7 +14414,7 @@
 5329110|ENG|600mg efavirenz oral tablet|
 5329169|ENG|625mg mesilate nelfinavir oral tablet|
 5329216|ENG|6g additive ea gamma globulin igg immu intraven mdv or sdv vial|
-5329513|ENG|90mg enfuvirtide kit subcutan|
+5329513|ENG|90mg enfuvirtide kit subcutane|
 532997|ENG|c cesarean section|
 5330137|ENG|acetylcysteine obsolete|
 533034|ENG|c combine levonorgestrel o|
@@ -14436,7 +14437,7 @@
 535207|ENG|candida vaginal|
 535209|ENG|candidal enteritis|
 535210|ENG|candidal esophagitis|
-535220|ENG|candidia di hiv result|
+535220|ENG|candidia d1 hiv result|
 535226|ENG|candidiasis disease hiv result|
 535227|ENG|candidiasis esophagus|
 535229|ENG|candidiasis gastrointestinal|
@@ -14459,7 +14460,7 @@
 5353359|ENG|psy2004|
 5353375|ENG|aid measurement serodiagnose|
 5353557|ENG|1 1 2 2 4 4 6 9ci bi ethanediyl methyl piperazinedione s|
-5353558|ENG|1 1 2 2 4 4 6 di ethanediyl methyl piperazinedione s|
+5353558|ENG|1 1 2 2 4 4 6 d1 ethanediyl methyl piperazinedione s|
 5353824|ENG|1 1s 2 2 2r 3 3 3r 3s 4 acid amino aminophenyl carbamic ester furanyl hydroxy methylpropyl phenylmethyl propyl sulfonyl tetrahydro|
 5353860|ENG|1 2 2 3 beta dideoxy enofuranosyl glycero pent thymine|
 5353905|ENG|1 2 4 4 4 5 5 6 6 7 8 acid amino amnio benzoyl formyl glutamic hexahydro l methyl n oxo pteridinyl|
@@ -14581,7 +14582,7 @@
 5374411|ENG|tu|
 5374469|ENG|uroprotectant|
 5374611|ENG|ziken|
-537569|ENG|carin di hiv pn pneumocy re|
+537569|ENG|carin d1 hiv pn pneumocy re|
 537577|ENG|carinii disease hiv pneumocystis pneumonia result|
 537580|ENG|carinii pcp pneum pneumocyst|
 537581|ENG|carinii pcp pneumocystis pneumonia|
@@ -14719,7 +14720,7 @@
 544466|ENG|cibal post syndrome|
 544580|ENG|cimetidine hydrochlorid|
 544911|ENG|cjd|
-544912|ENG|cjd creutzfeld di jakob|
+544912|ENG|cjd creutzfeld d1 jakob|
 544913|ENG|cjd creutzfeldt disease jakob|
 544929|ENG|cl|
 545|ENG|11 14 17 5 8 acid eicosapentaenoic|
@@ -14728,7 +14729,7 @@
 545394|ENG|clavulanate disodium potassium ticarcillin|
 545430|ENG|cle columnar esophagus line|
 545431|ENG|cle columnar line oeso|
-545701|ENG|clinical di hiv inf secondary|
+545701|ENG|clinical d1 hiv inf secondary|
 545702|ENG|clinical disease human immunodeficiency infection infectious secondary virus|
 545704|ENG|clinical find hiv other|
 545705|ENG|clinical find human immunodeficiency other virus|
@@ -14758,7 +14759,7 @@
 547843|ENG|columnar epith line low oeso|
 547844|ENG|columnar epithelial esophagus line low|
 547957|ENG|combine diacet ethynodiol oc|
-547961|ENG|combine di multip tic vocal|
+547961|ENG|combine d1 multip tic vocal|
 547962|ENG|combine disorder motor multiple tic vocal|
 548191|ENG|comp def guan hypoxan phosribo|
 54836|ENG|carvedilol|
@@ -14802,8 +14803,8 @@
 550297|ENG|conception product retain rpc|
 550298|ENG|conception product retain rpoc|
 5503183|ENG|lenalidomide|
-550355|ENG|cond di hiv oth rslt spcf|
-550356|ENG|cond di hiv oth rslt spcf x|
+550355|ENG|cond d1 hiv oth rslt spcf|
+550356|ENG|cond d1 hiv oth rslt spcf x|
 550382|ENG|condition disease hiv other result specify|
 550383|ENG|condition disease hiv other result specify x|
 550471|ENG|conduction disorder other|
@@ -14861,7 +14862,7 @@
 553419|ENG|craniofacial muscle|
 55361|ENG|chlorhexidine gluconate|
 5538|ENG|biomedical dental material|
-553819|ENG|creutzfeldt di jakob jcd|
+553819|ENG|creutzfeldt d1 jakob jcd|
 553820|ENG|creutzfeldt disease jakob jcd|
 553825|ENG|crf|
 5539855|ENG|ctcae nci|
@@ -14914,14 +14915,14 @@
 555980|ENG|cystitis unspecified|
 556064|ENG|cytomegaloviral disease disease hiv result|
 556081|ENG|cytomegalovirus group|
-556095|ENG|cytomegvir di di hiv result|
+556095|ENG|cytomegvir d1 d1 hiv result|
 556125|ENG|d d hiv inf para rslt unsp|
 556126|ENG|d d hiv inf para rslt unsp x|
 556161|ENG|d diarrhea|
 55617|ENG|chloride chromic|
 556173|ENG|d difficulty swallow|
-556177|ENG|d di hiv inf parasit reslt|
-556178|ENG|d di hiv inf parasit reslt x|
+556177|ENG|d d1 hiv inf parasit reslt|
+556178|ENG|d d1 hiv inf parasit reslt x|
 556183|ENG|d disease waste|
 556197|ENG|d dropsy|
 5562020|ENG|fetal nonreassuring status|
@@ -15146,23 +15147,23 @@
 561096|ENG|dipalmitoylphosphatidylcholine mcnc pt qn ser|
 5611|ENG|birth trauma|
 5612|ENG|birth weight|
-561335|ENG|di fem inflammtry org pelv|
-561336|ENG|di fem inflammtry org pelv x|
-561339|ENG|di female inflam pelvic|
-561395|ENG|di hiv inf multi result|
-561396|ENG|di hiv inf mycobac resultg|
-561399|ENG|di hiv interst lymp pneum re|
-561402|ENG|di hiv mal neopl rslt unsp|
-561403|ENG|di hiv mal neopl rslt unsp x|
-561404|ENG|di hiv malig mult neop result|
-561407|ENG|di hiv other result vir|
-561408|ENG|di hiv result syndro waste|
-561437|ENG|di inflammatory pelvic pid|
-561508|ENG|di nervous peripheral sy|
-561509|ENG|di nervous peripheral system|
-561569|ENG|di sexual transmitd unspcf|
-561570|ENG|di sexual transmitd unspcf x|
-561571|ENG|di sexually std transmit|
+561335|ENG|d1 fem inflammtry org pelv|
+561336|ENG|d1 fem inflammtry org pelv x|
+561339|ENG|d1 female inflam pelvic|
+561395|ENG|d1 hiv inf multi result|
+561396|ENG|d1 hiv inf mycobac resultg|
+561399|ENG|d1 hiv interst lymp pneum re|
+561402|ENG|d1 hiv mal neopl rslt unsp|
+561403|ENG|d1 hiv mal neopl rslt unsp x|
+561404|ENG|d1 hiv malig mult neop result|
+561407|ENG|d1 hiv other result vir|
+561408|ENG|d1 hiv result syndro waste|
+561437|ENG|d1 inflammatory pelvic pid|
+561508|ENG|d1 nervous peripheral sy|
+561509|ENG|d1 nervous peripheral system|
+561569|ENG|d1 sexual transmitd unspcf|
+561570|ENG|d1 sexual transmitd unspcf x|
+561571|ENG|d1 sexually std transmit|
 561671|ENG|disea mod predom sex transm w|
 5616710|ENG|cd4 count determination procedure|
 561675|ENG|disease disease hiv infectious other parasitic result|
@@ -16549,7 +16550,7 @@
 6195218|ENG|deficiency immuno|
 6195261|ENG|depression natal post|
 6195264|ENG|depression partum post|
-6195361|ENG|di george syndrome|
+6195361|ENG|d1 george syndrome|
 6195413|ENG|d i p|
 6195414|ENG|dipalmitoyl phosphatidylcholine|
 6195473|ENG|disorder gastro intestinal|
@@ -16638,117 +16639,117 @@
 632588|ENG|2 h miscarriage o|
 6327236|ENG|hiv serodiag|
 6327259|ENG|human immunodefic virus|
-6327294|ENG|di immunological|
+6327294|ENG|d1 immunological|
 6327310|ENG|compl infect pregn|
 6327331|ENG|intestinal obstruct|
 6327370|ENG|legi|
 6327373|ENG|anti hiv po|
 6327414|ENG|m tuberc|
-6327546|ENG|di ovarian|
+6327546|ENG|d1 ovarian|
 6327608|ENG|cardiovasc compl pregn|
 6327609|ENG|compl hematol pregn|
 6327610|ENG|diabetes pregn|
 6327611|ENG|outcome pregn|
 6327677|ENG|rehabil|
 6327766|ENG|ther|
-6327772|ENG|di tourette|
+6327772|ENG|d1 tourette|
 6327773|ENG|shock syndrome tox|
-6327908|ENG|breast di|
-6328016|ENG|depressive di|
-6328020|ENG|di digestive system|
-6328067|ENG|di eye|
-6328087|ENG|di fungus|
-6328094|ENG|di gastrointestinal|
+6327908|ENG|breast d1|
+6328016|ENG|d1 depressive|
+6328020|ENG|d1 digestive system|
+6328067|ENG|d1 eye|
+6328087|ENG|d1 fungus|
+6328094|ENG|d1 gastrointestinal|
 6328165|ENG|all htlv|
 6328167|ENG|htlv iii infect|
 6328205|ENG|defic immunol syndrome|
-6328219|ENG|di infect|
-6328265|ENG|creutzfeldt di jakob|
-6328380|ENG|autoimmune di|
-6328432|ENG|di orl|
+6328219|ENG|d1 infect|
+6328265|ENG|creutzfeldt d1 jakob|
+6328380|ENG|autoimmune d1|
+6328432|ENG|d1 orl|
 6328450|ENG|pathol|
 6328458|ENG|pharmacol|
-6328466|ENG|di placenta|
+6328466|ENG|d1 placenta|
 6328480|ENG|adolescence pregn|
 6328592|ENG|statist|
 6328638|ENG|drug ther|
-6328671|ENG|di uterine|
-6328680|ENG|di virus|
+6328671|ENG|d1 uterine|
+6328680|ENG|d1 virus|
 6328872|ENG|dipyridil|
 6328911|ENG|anemia equine infect|
 6328934|ENG|acquire defic immune syndrome|
 6328936|ENG|acquire defic immuno syndrome|
-6328944|ENG|di fetal|
+6328944|ENG|d1 fetal|
 6328967|ENG|branch enzyme glucan|
 6328977|ENG|admin|
 6329032|ENG|htlv iii infect lav|
 6329033|ENG|htlv iii serodiag|
 6329034|ENG|htlv iii seropo|
-6329063|ENG|di immunol|
+6329063|ENG|d1 immunol|
 6329090|ENG|inj wind|
-6329128|ENG|di kidney|
+6329128|ENG|d1 kidney|
 6329274|ENG|antag narcotic|
 6329360|ENG|pharmacokin|
 6329394|ENG|pregn|
 6329397|ENG|leukoencep multifoc prog|
-6329403|ENG|di puerperal|
-6329508|ENG|di slow virus|
-6329567|ENG|di tobacco use|
-6329619|ENG|di vulvar|
-6329747|ENG|communicable di|
+6329403|ENG|d1 puerperal|
+6329508|ENG|d1 slow virus|
+6329567|ENG|d1 tobacco use|
+6329619|ENG|d1 vulvar|
+6329747|ENG|communicable d1|
 6329752|ENG|congen defect|
 6329835|ENG|dppc|
 6329863|ENG|epidemiol|
-6329936|ENG|di hodgkin|
+6329936|ENG|d1 hodgkin|
 6330007|ENG|fertilisation inhib|
 6330080|ENG|cleft diffuse lymphoma small|
 6330137|ENG|mibx|
 6330150|ENG|mortal|
 6330230|ENG|infect opportunistic|
-6330249|ENG|di parasitic|
+6330249|ENG|d1 parasitic|
 6330280|ENG|adolescent pregn|
 6330282|ENG|pregn teenage|
 6330300|ENG|psychol|
-6330343|ENG|di reiter|
-6330355|ENG|di free royal|
+6330343|ENG|d1 reiter|
+6330355|ENG|d1 free royal|
 6330384|ENG|shock tox|
 6330409|ENG|cpd sulfhydryl|
 6330437|ENG|human iii infect lymphotropic t type virus|
 6330481|ENG|ultrasonogr|
-6330587|ENG|bartter di|
+6330587|ENG|bartter d1|
 6330646|ENG|counsel genet|
 6330653|ENG|cytol|
-6330674|ENG|deglutition di|
+6330674|ENG|d1 deglutition|
 6330715|ENG|econ|
 6330721|ENG|abnorm|
 6330780|ENG|cpd heterocyclic|
-6330809|ENG|aleutian di mink|
+6330809|ENG|aleutian d1 mink|
 6330820|ENG|htlv i infect|
 6330860|ENG|abortion ind|
-6330913|ENG|animal di|
+6330913|ENG|animal d1|
 6330960|ENG|infect mai|
 6331000|ENG|microbiol|
-6331012|ENG|di mouth tooth|
-6331018|ENG|di muscular|
-6331129|ENG|di nerve peripheral|
-6331149|ENG|di placental|
+6331012|ENG|d1 mouth tooth|
+6331018|ENG|d1 muscular|
+6331129|ENG|d1 nerve peripheral|
+6331149|ENG|d1 placental|
 6331189|ENG|pulmonary tb unspec|
 6331282|ENG|panenceph sclero subac|
 6331309|ENG|diet ther|
 6331317|ENG|infect trichomonas|
 6331335|ENG|infect tract urinary|
-6331338|ENG|di venereal|
-6331466|ENG|castleman di|
+6331338|ENG|d1 venereal|
+6331466|ENG|castleman d1|
 6331544|ENG|dimethylpge2|
 6331585|ENG|embryol|
 6331649|ENG|hepatitis infect|
-6331656|ENG|di hippel lindau|
+6331656|ENG|d1 hippel lindau|
 6331658|ENG|aid complex relat|
 6331662|ENG|antibody hiv po|
 6331691|ENG|1 human immunodefic type virus|
 6331710|ENG|acquire defic immunol syndrome|
 6331716|ENG|infant lbw|
-6331720|ENG|di infect skin|
+6331720|ENG|d1 infect skin|
 6331855|ENG|metab|
 6331877|ENG|abnorm multiple|
 6331917|ENG|compl neopl pregn|
@@ -16763,8 +16764,8 @@
 6332106|ENG|infect retrovirus|
 6332121|ENG|ang iso sar|
 6332130|ENG|acquire immunodefic simian syndrome|
-6332133|ENG|di fungal skin|
-6332150|ENG|di stomatognathic|
+6332133|ENG|d1 fungal skin|
+6332150|ENG|d1 stomatognathic|
 6332215|ENG|transpl|
 6332326|ENG|biol factor|
 6332392|ENG|abuse cocaine unspec|
@@ -16776,42 +16777,42 @@
 6332605|ENG|humanity|
 6332629|ENG|infect surg wind|
 6332630|ENG|gondii infect toxoplasma|
-6332773|ENG|di mental|
+6332773|ENG|d1 mental|
 6332774|ENG|cpd mercapto|
 6332783|ENG|miliary tb unspec|
 6332943|ENG|compl pregn|
 6332944|ENG|ectopic pregn|
 6333008|ENG|eff rad|
-6333044|ENG|di retinal|
-6333076|ENG|di sex transm|
+6333044|ENG|d1 retinal|
+6333076|ENG|d1 sex transm|
 6333143|ENG|abortion ther|
 6333196|ENG|abortion vet|
 6333313|ENG|candidiasis site|
 6333332|ENG|chlamydia infect|
 6333351|ENG|abnorm congen|
 6333369|ENG|cycl gmp phosphodiesterase|
-6333410|ENG|di duhring|
+6333410|ENG|d1 duhring|
 6333512|ENG|aid serodiag|
 6333580|ENG|acquire immunodefic syndrome|
 6333594|ENG|infect postop wind|
-6333633|ENG|di kawasaki|
+6333633|ENG|d1 kawasaki|
 6333640|ENG|compl labor|
 6333674|ENG|apparatus instrum|
-6333733|ENG|di myocardial|
+6333733|ENG|d1 myocardial|
 6333765|ENG|neopl|
-6333766|ENG|di nervous system|
+6333766|ENG|d1 nervous system|
 6333823|ENG|parasitol|
 6333898|ENG|radiogr|
-6333912|ENG|di respiratory tract|
+6333912|ENG|d1 respiratory tract|
 6333917|ENG|risa|
 6333932|ENG|infect salmonella|
 6333935|ENG|biol science|
-6334015|ENG|di vaginal|
-6334131|ENG|cervix di|
-6334236|ENG|di endocrin|
+6334015|ENG|d1 vaginal|
+6334131|ENG|cervix d1|
+6334236|ENG|d1 endocrin|
 6334238|ENG|cond erythematous|
 6334250|ENG|acquire feline immunodefic syndrome|
-6334269|ENG|de di gilles la tourette|
+6334269|ENG|d1 de gilles la tourette|
 6334295|ENG|2005 ccs2005 icd9cm map|
 6334609|ENG|0 10 2 2b alfa ea injector interferon kit million ml pen q recomb sub unit|
 6335266|ENG|1 200 capsule capsule invirase mesilate milligram oral saquinavir|
@@ -17014,7 +17015,7 @@
 6516480|ENG|antag dopaminergic|
 6516539|ENG|enceph hiv|
 6516559|ENG|envir health public|
-6516613|ENG|compl di female pregnancy urogenital|
+6516613|ENG|compl d1 female pregnancy urogenital|
 6516742|ENG|assoc hiv nephropathy|
 6516746|ENG|hiv nephropathy relat|
 6516747|ENG|hiv infect opportunistic relat|
@@ -17025,25 +17026,25 @@
 6516922|ENG|bogaert leukoenceph van|
 6516945|ENG|04 j lymphocyte|
 6516946|ENG|aid assoc lymphoma|
-6516996|ENG|di menkes|
+6516996|ENG|d1 menkes|
 6516997|ENG|03 acid mercaptopropionic|
 6517006|ENG|microbiol phenomenon|
-6517026|ENG|di muscle|
+6517026|ENG|d1 muscle|
 6517028|ENG|avia complex mycobact|
-6517112|ENG|di neurolog|
+6517112|ENG|d1 neurolog|
 6517161|ENG|og|
 6517220|ENG|pharm preparation|
 6517239|ENG|1 1 2 3 4 6 methyl phenyl poi tetrahydropyridine|
 6517242|ENG|acute inflam polyradiculoneuropathy|
 6517336|ENG|cd4 recept surface|
-6517361|ENG|di rett|
+6517361|ENG|d1 rett|
 6518072|ENG|a anatomy|
 6518233|ENG|cardiovasc system|
 6518258|ENG|cd4 recept|
 6518261|ENG|cell physiol|
 6518268|ENG|cfids|
 6518338|ENG|congen hypocupremia|
-6518415|ENG|defic di hypoxanthine phosphoribosyl transferase|
+6518415|ENG|d1 defic hypoxanthine phosphoribosyl transferase|
 6518417|ENG|defic|
 6518420|ENG|05p deletion syndrome|
 6518439|ENG|002 003 dideoxycytidine|
@@ -17067,7 +17068,7 @@
 6518816|ENG|acute inflam polyneuropathy|
 6518850|ENG|a isolation|
 6518905|ENG|acute bt leukemia lymphocytic|
-6518913|ENG|di male urogenital|
+6518913|ENG|d1 male urogenital|
 6518916|ENG|mammogr|
 6518937|ENG|002 mercaptoethanesulfonate|
 6518938|ENG|03 acid mercaptopropanoic|
@@ -17075,13 +17076,13 @@
 6519056|ENG|neurol symptom|
 6519075|ENG|05 nucleotidase|
 6519104|ENG|aid infect opportunistic relat|
-6519112|ENG|di otorhinolaryngol|
+6519112|ENG|d1 otorhinolaryngol|
 6519136|ENG|panenceph sclerose subacute|
 6519155|ENG|02 pge|
-6519178|ENG|di nervous peripheral pn system|
+6519178|ENG|d1 nervous peripheral pn system|
 6519198|ENG|02 e prostaglandin|
 6519213|ENG|phenomenon psychol|
-6519400|ENG|di swallow|
+6519400|ENG|d1 swallow|
 6519464|ENG|transm|
 6519515|ENG|virol|
 6519866|ENG|raltegravir|
@@ -17099,38 +17100,38 @@
 6520411|ENG|antag dopamine|
 6520412|ENG|antag dopamine recept|
 6520445|ENG|05 08 11 14 17 acid eicosapentaenoic|
-6520632|ENG|di hemic lymphatic|
+6520632|ENG|d1 hemic lymphatic|
 6520665|ENG|hormone replace ther|
 6520683|ENG|associate htlv myelopathy wi|
 6520686|ENG|antibody htlv wiii|
 6520687|ENG|antigen htlv wiii|
 6520689|ENG|htlv serology wiii|
-6520826|ENG|di lesch nyhan|
-6520837|ENG|di lowe|
+6520826|ENG|d1 lesch nyhan|
+6520837|ENG|d1 lowe|
 6520926|ENG|gordonae mycobact|
 6520970|ENG|01 naphthylisothiocyanate|
 6520987|ENG|nervous physiol system|
 6521102|ENG|physiol reproductive urinary|
-6521116|ENG|di pn|
+6521116|ENG|d1 pn|
 6521146|ENG|principle process psychol|
 6521156|ENG|pulm tuberculosis|
 6521176|ENG|08 quinolinol|
-6521279|ENG|di slim|
+6521279|ENG|d1 slim|
 6521336|ENG|04 aab cell t|
 6521418|ENG|05 nucleotidase uridylate|
 6521435|ENG|06 a b vitamin|
 6521527|ENG|certolizumab pegol|
 6521953|ENG|05 amp nucleotidase|
 6522044|ENG|bact|
-6522047|ENG|bazin di|
+6522047|ENG|bazin d1|
 6522130|ENG|004 cd count lymphocyte|
 6522131|ENG|004 cd molecule|
 6522132|ENG|004 cd receptor|
-6522182|ENG|chronic di fatigue|
+6522182|ENG|chronic d1 fatigue|
 6522258|ENG|03 05 05 cyclic gmp nucleotidohydrolas|
 6522259|ENG|03 05 cyclic gmp phosphodiesterase|
 6522341|ENG|002 003 dideoxyinosine|
-6522346|ENG|di occup|
+6522346|ENG|d1 occup|
 6522363|ENG|drug eff|
 6522412|ENG|body enceph inclusion measle|
 6522423|ENG|enceph|
@@ -17144,26 +17145,26 @@
 6523098|ENG|infect pneumocystis|
 6523119|ENG|a prevention|
 6523263|ENG|01 02 08 sarcosineisoleucineangiotensin|
-6523320|ENG|di relate substance|
-6523358|ENG|di grind tooth|
-6523410|ENG|cervical di uterine|
-6523425|ENG|di hippel lindau von|
-6523429|ENG|di waste|
+6523320|ENG|d1 relate substance|
+6523358|ENG|d1 grind tooth|
+6523410|ENG|cervical d1 uterine|
+6523425|ENG|d1 hippel lindau von|
+6523429|ENG|d1 waste|
 6523450|ENG|abiraterone acetate|
 6523931|ENG|06 acid aminocaproic|
 6523933|ENG|06 acid aminohexanoic|
 6523934|ENG|01 aminonaphthalene|
 6523953|ENG|antihiv positivity|
 6523958|ENG|archaebact|
-6524025|ENG|behcet di|
+6524025|ENG|behcet d1|
 6524052|ENG|brain inflam|
 6524102|ENG|004 antigen cd|
 6524103|ENG|004 cd lymphocyte positive t|
-6524160|ENG|cjd creutzfeldt di jakob|
+6524160|ENG|cjd creutzfeldt d1 jakob|
 6524304|ENG|03 03 dichlorobenzidine|
 6524366|ENG|aid enceph|
 6524369|ENG|enceph ovine|
-6524376|ENG|di end kidney stage|
+6524376|ENG|d1 end kidney stage|
 6524483|ENG|geogr location|
 6524542|ENG|econ healthcare organ|
 6524552|ENG|1 a compound heterocyclic ring|
@@ -17171,7 +17172,7 @@
 6524590|ENG|htlv infection lav wiii|
 6524612|ENG|ig iv|
 6524737|ENG|aid lymphoma relat|
-6524762|ENG|defic di hydroxylase maternal phenylalanine|
+6524762|ENG|d1 defic hydroxylase maternal phenylalanine|
 6524781|ENG|01 04 methylphenylpyridinium|
 6524783|ENG|15 a f2alpha methylprostaglandin|
 6524803|ENG|mptp poi|
@@ -17182,7 +17183,7 @@
 6525008|ENG|phenylketonuria pregn|
 6525139|ENG|01 02 08 angiotensin ile sar|
 6525154|ENG|aid serol|
-6525192|ENG|di hair steely|
+6525192|ENG|d1 hair steely|
 6525252|ENG|tc thre|
 6525307|ENG|ultrastruct|
 6525773|ENG|a administration|
@@ -17190,20 +17191,20 @@
 6525808|ENG|antag|
 6525813|ENG|antigbm disease|
 6525962|ENG|01 acid carboxyglutamic|
-6526056|ENG|combine di motor multiple tic vocal|
-6526076|ENG|abnorm congenital di hereditary neonatal|
+6526056|ENG|combine d1 motor multiple tic vocal|
+6526076|ENG|abnorm congenital d1 hereditary neonatal|
 6526079|ENG|contra|
 6526142|ENG|acute demyelinate inflam polyradiculoneuropathy|
 6526173|ENG|02 16 16 dimethylprostaglandin e|
 6526175|ENG|02 02 dipyridil|
-6526176|ENG|di immune system|
+6526176|ENG|d1 immune system|
 6526217|ENG|05 ecto nucleotidase|
 6526250|ENG|assoc enteropathy hiv|
 6526312|ENG|acquire defic feline immuno syndrome|
 6526367|ENG|genet struct|
 6526415|ENG|health occup|
 6526449|ENG|assoc hiv lipodystrophy syndrome|
-6526454|ENG|di hiv waste|
+6526454|ENG|d1 hiv waste|
 6526472|ENG|assoc htlv i myelopathy|
 6526518|ENG|acromegaly gh inappropriate secret syndrome|
 6526524|ENG|infect mycobact|
@@ -17212,9 +17213,9 @@
 6526629|ENG|leukoenceph sclerose subacute|
 6526648|ENG|004 count lymphocyte t|
 6526706|ENG|myeloenceph|
-6526761|ENG|di neurological|
+6526761|ENG|d1 neurological|
 6526789|ENG|defic nutritional|
-6526790|ENG|di metab nutritional|
+6526790|ENG|d1 metab nutritional|
 6526821|ENG|antag opioid|
 6526887|ENG|physiol plant|
 6526897|ENG|carinii infect pneumocystis|
@@ -17224,7 +17225,7 @@
 6527216|ENG|020405 acid trichlorophenoxyacetic|
 6527538|ENG|pasireotide|
 6527638|ENG|tesamorelin|
-6527771|ENG|anti basement di glomerular membrane|
+6527771|ENG|anti basement d1 glomerular membrane|
 6527985|ENG|chem syn|
 6527998|ENG|chorea ind pregnancy|
 6527999|ENG|assoc choreoathetosis pregnancy|
@@ -17232,10 +17233,10 @@
 6528123|ENG|acquire complex defic dementia immune syndrome|
 6528124|ENG|aid complex dementia relat|
 6528144|ENG|diag use|
-6528153|ENG|di endocrin system|
-6528209|ENG|danlos di ehlers|
-6528229|ENG|di end renal stage|
-6528368|ENG|di gynecol|
+6528153|ENG|d1 endocrin system|
+6528209|ENG|d1 danlos ehlers|
+6528229|ENG|d1 end renal stage|
+6528368|ENG|d1 gynecol|
 6528462|ENG|assoc htlv i myelopathy paraparesis spastic tropical|
 6528465|ENG|antigen htlv lav wiii|
 6528467|ENG|htlv wiii|
@@ -17244,31 +17245,31 @@
 6528477|ENG|11 a hydroxycorticosteroid|
 6528484|ENG|hypertension ind pregn|
 6528518|ENG|infect intracellulare mycobact|
-6528533|ENG|di insomnia|
+6528533|ENG|d1 insomnia|
 6528534|ENG|instrum|
 6528615|ENG|leukoenceph multifocal progressive|
 6528712|ENG|multifetal pregn reduction|
-6528719|ENG|di musculoskeletal|
+6528719|ENG|d1 musculoskeletal|
 6528780|ENG|01 naphthylamine|
 6528790|ENG|aid assoc nephropathy|
 6528841|ENG|06 ohda|
 6528851|ENG|andd organisation|
 6528894|ENG|02 alfa pge|
-6529098|ENG|connective di skin tissue|
+6529098|ENG|connective d1 skin tissue|
 6529112|ENG|acromegaly hypersecret somatotropin syndrome|
 6529154|ENG|02 04 05 a t|
-6529275|ENG|di viral|
-6529304|ENG|di zellweger|
+6529275|ENG|d1 viral|
+6529304|ENG|d1 zellweger|
 6529670|ENG|telaprevir|
 6529806|ENG|01 04 alfa branch enzyme glucan|
-6529824|ENG|anti di gbm|
+6529824|ENG|anti d1 gbm|
 6529831|ENG|archaeobact|
 6529887|ENG|bact infect mycosis|
 6529898|ENG|behavioral discipline|
-6529961|ENG|cardiovasc di|
+6529961|ENG|cardiovasc d1|
 6529996|ENG|073 antigen cd|
 6530029|ENG|cholestasis peripheral pulm stenose|
-6530087|ENG|compleat defic di hgprt|
+6530087|ENG|compleat d1 defic hgprt|
 6530093|ENG|congen|
 6530188|ENG|0102 dipalmitoylphosphatidylcholine|
 6530252|ENG|aid assoc enteropathy|
@@ -17286,10 +17287,10 @@
 6530538|ENG|avia infect intracellulare mycobact|
 6530543|ENG|infect retroviridae|
 6530557|ENG|innerv|
-6530616|ENG|di hair kinky|
-6530639|ENG|di lindau|
+6530616|ENG|d1 hair kinky|
+6530639|ENG|d1 lindau|
 6530641|ENG|lj|
-6530666|ENG|di genitourinary male|
+6530666|ENG|d1 genitourinary male|
 6530691|ENG|06 a mercaptopurine|
 6530703|ENG|01 01 02 03 04 06 methylphenyltetrahydropyridine|
 6530726|ENG|ind mptp parkinsonism|
@@ -17664,7 +17665,7 @@
 6703810|ENG|abort comp shock spon w|
 6703943|ENG|abort hemor unsp w|
 6704015|ENG|ac infect polyneuritis|
-6704629|ENG|di human immuno virus|
+6704629|ENG|d1 human immuno virus|
 6705418|ENG|ab compl spon unsp w|
 6705419|ENG|abort inc spon uncompl|
 6705420|ENG|abort comp embol spon w|
@@ -17679,14 +17680,14 @@
 6708087|ENG|cervix mal neo uterus|
 6708136|ENG|aff compl matern nb nec|
 6708153|ENG|ab embolism unsp w|
-6708176|ENG|di mycobacterial|
+6708176|ENG|d1 mycobacterial|
 6708183|ENG|ab fail renal unsp w|
 6708212|ENG|erupt nec nonspecif skin|
 6708226|ENG|hernia obstr ventral|
 6708290|ENG|abn conception oth prod|
 6708323|ENG|abdmnal site tndr unspcf|
 6708602|ENG|ab comp compl nec spon w|
-6708603|ENG|ab comp di metab spon w|
+6708603|ENG|ab comp d1 metab spon w|
 6708604|ENG|ab damag inc pelv spon w|
 6708605|ENG|ab fail inc ren spon w|
 6708606|ENG|abort embol spon unsp w|
@@ -17707,7 +17708,7 @@
 6711285|ENG|ab compl unsp w|
 6711599|ENG|postcholecystectomy synd|
 6711820|ENG|ab compl nec spon unsp w|
-6711821|ENG|ab di metab spon unsp w|
+6711821|ENG|ab d1 metab spon unsp w|
 6711822|ENG|abort hemor spon unsp w|
 6711823|ENG|abort inc shock spon w|
 6712354|ENG|abd clo delay wind|
@@ -17740,7 +17741,7 @@
 6714577|ENG|deficiency nutrition|
 6714581|ENG|abdmnal generalise pain|
 6714891|ENG|dystrph lmb lwr rflx sym|
-6714966|ENG|ab di inc metab spon w|
+6714966|ENG|ab d1 inc metab spon w|
 6714967|ENG|abor comp inf pel spon w|
 6714968|ENG|abor inc inf pelv spon w|
 6714969|ENG|abort hemor inc spon w|
@@ -18077,7 +18078,7 @@
 7063429|ENG|diagnose disseminate tuberculosis|
 7063697|ENG|cough dry symptom|
 7064050|ENG|ecchymosis flank|
-706443|ENG|anti anti di di gbm gbm|
+706443|ENG|anti anti d1 d1 gbm gbm|
 7064671|ENG|diagnose disease hair kinky menkes|
 706499|ENG|anti antiglomerular basement disease gbm membrane|
 706528|ENG|anti basement disease glomerular membrane|
@@ -18937,7 +18938,7 @@
 76115|ENG|terconazole|
 7612972|ENG|female pregnancy|
 7613|ENG|cell physiology|
-761300|ENG|burk di hiv lym result|
+761300|ENG|burk d1 hiv lym result|
 761305|ENG|burkitt disease hiv lymphoma result|
 76189|ENG|enanthate testosterone|
 76286|ENG|tetrahydrozoline|
@@ -19869,7 +19870,7 @@
 7781800|ENG|diarrhea disorder|
 7781815|ENG|aptha disorder mouth or oral ulcer|
 7782353|ENG|anaphylaxis disorder generalise|
-778265|ENG|cerv cervicitis di oth|
+778265|ENG|cerv cervicitis d1 oth|
 7782682|ENG|adoption procedure|
 7782801|ENG|disorder insomnia or transient|
 7782808|ENG|25million 2b 5ml alfa injection interferon iu product solution|
@@ -20443,17 +20444,17 @@
 8106858|ENG|0 000833 drug hr implant mg mirena|
 810699|ENG|dhad iff mesna|
 8108056|ENG|1 100 capsule capsule milligram oral zidovudine zidovudine|
-810840|ENG|di female genital tract|
+810840|ENG|d1 female genital tract|
 8108457|ENG|alt2009|
 8108495|ENG|2009 alternative bill concept|
-810872|ENG|di gest gtd trophoblastic|
-810881|ENG|di gestational trophoblastic|
+810872|ENG|d1 gest gtd trophoblastic|
+810881|ENG|d1 gestational trophoblastic|
 8108904|ENG|abdominal anesthesia low posterior wall|
 8109101|ENG|abdomen musculoskeletal px system unlisted|
-810912|ENG|di hiv hod lym non oth result|
-810913|ENG|di hiv hodgkin lymphoma non oth result type|
-810914|ENG|di hiv kaposi result sarc|
-810919|ENG|di hodgkin site unspec|
+810912|ENG|d1 hiv hod lym non oth result|
+810913|ENG|d1 hiv hodgkin lymphoma non oth result type|
+810914|ENG|d1 hiv kaposi result sarc|
+810919|ENG|d1 hodgkin site unspec|
 8109513|ENG|abdominal anesthesia anterior low wall|
 811|ENG|abortion induce|
 8110443|ENG|abdominal anesthesia posterior upper wall|
@@ -21700,7 +21701,7 @@
 9525512|ENG|abuse alcohol drug|
 9525537|ENG|anemia eia equine infectious|
 9525573|ENG|genitals wart|
-9525689|ENG|birth child give numb|
+9525689|ENG|birth child gave numb|
 9525752|ENG|psoriasi|
 9525844|ENG|muscle tumor uterine|
 9525922|ENG|pnds2011|

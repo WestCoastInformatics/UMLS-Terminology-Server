@@ -16,10 +16,10 @@ import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents a content available via a REST service.
  */
@@ -272,25 +272,24 @@ public interface ProjectServiceRest {
   public TypeKeyValue getTypeKeyValue(Long id, String authToken) throws Exception;
 
   /**
-   * Adds the type key value.
-   *
-   * @param tkv the tkv
-   * @param authToken the auth token
-   * @return the com.wci.umls.server.helpers. type key value
-   * @throws Exception the exception
-   */
-  public com.wci.umls.server.helpers.TypeKeyValue addTypeKeyValue(
-    com.wci.umls.server.helpers.TypeKeyValue tkv, String authToken)
-    throws Exception;
-
-  /**
    * Update type key value.
    *
    * @param tkv the tkv
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateTypeKeyValue(com.wci.umls.server.helpers.TypeKeyValue tkv,
-    String authToken) throws Exception;
+  public void updateTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the type key value.
+   *
+   * @param tkv the tkv
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue addTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
+    throws Exception;
 
 }
