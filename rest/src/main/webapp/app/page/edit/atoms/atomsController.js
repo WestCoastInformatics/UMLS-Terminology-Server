@@ -115,10 +115,8 @@ tsApp
         }
         function getPagedAtoms() {
           // page from the stys that are available to add
-          console.debug('before', $scope.selected.component.atoms);
           $scope.pagedAtoms = utilService.getPagedArray($scope.selected.component.atoms,
             $scope.paging['atoms']);
-          console.debug('after', $scope.selected.component.atoms);
         }
 
         // approve concept
@@ -403,9 +401,9 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record);
+             */
           });
         };
 
@@ -444,9 +442,10 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
         };
 
@@ -484,9 +483,10 @@ tsApp
           // Success
           function(data) {
             /*
-                         * $scope.parentWindowScope.getRecords(false);
-                         * $scope.parentWindowScope.getConcepts($scope.selected.record, true);
-                         */
+             * $scope.parentWindowScope.getRecords(false);
+             * $scope.parentWindowScope.getConcepts($scope.selected.record,
+             * true);
+             */
           });
 
         };

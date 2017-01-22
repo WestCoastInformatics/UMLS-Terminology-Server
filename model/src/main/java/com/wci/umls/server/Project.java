@@ -10,7 +10,6 @@ import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.TypeKeyValue;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents an project with users, roles, and configuration for editing.
  */

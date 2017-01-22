@@ -10,7 +10,7 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * Generically represents a tuple of type, key, and value. Used for configuring
  * filters, acronym lists, etcs.
  */
-public interface TypeKeyValue extends HasId, HasLastModified {
+public interface TypeKeyValue extends HasLastModified {
 
   /**
    * Returns the type.

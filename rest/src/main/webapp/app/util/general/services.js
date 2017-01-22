@@ -433,7 +433,7 @@ tsApp
         this.sortBy = function(field, reverse) {
 
           var fields = field.split(',');
-
+          console.debug('fields',fields);
           // key: function to return field value from object
           var keys = {};
           for (var i = 0; i < fields.length; i++) {

@@ -78,9 +78,6 @@
           <td>{{process.name}}</td>
           <td>
             {{getExecutionState(process)}}
-            <span class="label label-warning" ng-show="process.warning">
-              <br />WARNING
-            </span>
           </td>
           <td>{{toDate(process.lastModified)}}</td>
 
@@ -207,10 +204,6 @@
             </td>
             <td>
               {{getExecutionState(selected.process)}}
-              <span class="label label-warning"
-                ng-show="selected.process.warning">
-                <br />WARNING
-              </span>
             </td>
           </tr>
 
@@ -296,9 +289,6 @@
             {{toDate(step.lastModified)}}
             <span ng-show="selected.mode == 'Execution'">
               <br />{{getExecutionState(step)}}
-              <span class="label label-warning" ng-show="step.warning">
-                <br />WARNING
-              </span>
             </span>
           </td>
           <td class="nobreak">

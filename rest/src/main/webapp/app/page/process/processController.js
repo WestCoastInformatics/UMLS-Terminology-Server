@@ -461,22 +461,26 @@ tsApp
         // compute execution state based on process flags
         $scope.getExecutionState = function(execution) {
           if (!execution) {
-            return '';
+            retval = '';
           } else if ($scope.selected.mode == 'Config') {
-            return 'CONFIG';
+            retval = 'CONFIG';
           } else if (!execution.startDate) {
-            return 'READY';
+            retval = 'READY';
           } else if (!execution.stopDate && !execution.failDate && !execution.finishDate) {
-            return 'RUNNING';
+            retval = 'RUNNING';
           } else if (execution.stopDate) {
-            return 'STOPPED';
+            retval = 'STOPPED';
           } else if (execution.failDate && execution.finishDate) {
-            return 'CANCELLED';
+            retval = 'CANCELLED';
           } else if (!execution.failDate && execution.finishDate) {
-            return 'COMPLETE';
+            retval = 'COMPLETE';
           } else if (execution.failDate && !execution.finishDate) {
-            return 'FAILED';
+            retval = 'FAILED';
           }
+          if (execution.warning) {
+            retval += ', WARNING';
+          }
+          return retval;
         }
 
         $scope.getProcessConfigsCt = function() {
