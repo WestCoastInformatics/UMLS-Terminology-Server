@@ -184,6 +184,9 @@ public class UpdateReleasabilityAlgorithm
           //
           queryAction.compute();
 
+          // Close algorithm for each loop
+          queryAction.close();
+
         } catch (Exception e) {
           e.printStackTrace();
           fail("Unexpected exception thrown - please review stack trace.");
