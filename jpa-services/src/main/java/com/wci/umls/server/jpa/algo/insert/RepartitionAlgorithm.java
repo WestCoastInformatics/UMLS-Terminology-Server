@@ -200,8 +200,9 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Set default value to first mutually exclusive config found.
     List<String> possibleValues = new ArrayList<>();
     String defaultValue = "";
+    WorkflowService workflowService = null;
     try {
-      final WorkflowService workflowService = new WorkflowServiceJpa();
+      workflowService = new WorkflowServiceJpa();
       final List<WorkflowConfig> configs =
           workflowService.getWorkflowConfigs(getProject());
       for (WorkflowConfig config : configs) {
@@ -214,6 +215,12 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
     } catch (Exception e) {
       // n/a
+    } finally {
+      try {
+        workflowService.close();
+      } catch (Exception e1) {
+        // n/a
+      }
     }
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Workflow Bin Type",

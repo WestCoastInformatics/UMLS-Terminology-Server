@@ -146,24 +146,21 @@ public class UpdateReleasabilityAlgorithm
 
         // Perform a QueryActionAlgorithm using the class and query
         final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
-        queryAction.setLastModifiedBy(getLastModifiedBy());
-        queryAction.setLastModifiedFlag(isLastModifiedFlag());
-        queryAction.setProcess(getProcess());
-        queryAction.setProject(getProject());
-        queryAction.setTerminology(getTerminology());
-        queryAction.setVersion(getVersion());
-        queryAction.setWorkId(getWorkId());
-
-        Properties algoProperties = new Properties();
-        algoProperties.put("objectType", clazz.getSimpleName());
-        algoProperties.put("action", "Make Unpublishable");
-        algoProperties.put("queryType", QueryType.JQL.toString());
-        algoProperties.put("query", query);
-        queryAction.setProperties(algoProperties);
-
-        // Run the QUERYACTION algorithm
         try {
+          queryAction.setLastModifiedBy(getLastModifiedBy());
+          queryAction.setLastModifiedFlag(isLastModifiedFlag());
+          queryAction.setProcess(getProcess());
+          queryAction.setProject(getProject());
+          queryAction.setTerminology(getTerminology());
+          queryAction.setVersion(getVersion());
+          queryAction.setWorkId(getWorkId());
 
+          Properties algoProperties = new Properties();
+          algoProperties.put("objectType", clazz.getSimpleName());
+          algoProperties.put("action", "Make Unpublishable");
+          algoProperties.put("queryType", QueryType.JQL.toString());
+          algoProperties.put("query", query);
+          queryAction.setProperties(algoProperties);
           queryAction.setTransactionPerOperation(false);
           queryAction.beginTransaction();
 
@@ -184,13 +181,15 @@ public class UpdateReleasabilityAlgorithm
           //
           queryAction.compute();
 
-          // Close algorithm for each loop
-          queryAction.close();
+          // Commit the algorithm.
+          queryAction.commit();
 
         } catch (Exception e) {
+          queryAction.rollback();
           e.printStackTrace();
           fail("Unexpected exception thrown - please review stack trace.");
         } finally {
+          // Close algorithm for each loop
           queryAction.close();
         }
 
