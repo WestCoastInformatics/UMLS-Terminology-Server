@@ -26,7 +26,7 @@ open (IN, "unpublished/ruiDaFlags.txt") || die "could not open unpublished/ruiDa
 while (<IN>) {
   chop;
   @_ = split/\|/;  
-  $map{$_[0]} = "~DA:$_[1]";
+  $damap{$_[0]} = "~DA:$_[1]";
 }
 close(IN);
 
@@ -62,16 +62,16 @@ while(<STDIN>) {
   	$fromType = "CONCEPT";
   	$fromTerminology = $terminology;
   }
+  # compute disambiguation flag if needed
+  if ($damap{$id}) {
+    $terminologyId = $damap{$id};
+  }
   
   # compute inverse RUI
   $inverseId = $map{$id};
   $id =~ s/R0*//;
   $inverseId =~ s/R0*//;
 
-  # compute disambiguation flag if needed
-  if ($map{$terminologyId}) {
-    $terminologyId = $map{$terminologyId};
-  }
   if ($inverseId) {
     print "$id|$terminology|$terminologyId|$type|$additionalType|$fromId|$fromType|$fromTerminology|$toId|$toType|$toTerminology|$inverseId|\n";
   } else {
