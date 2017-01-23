@@ -164,8 +164,6 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
-      handler.commitClearBegin();
-      handler.close();
 
       // Finally, update all xmapSets
       for (MapSet mapSet : addedMapSets.values()) {

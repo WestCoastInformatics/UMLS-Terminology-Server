@@ -68,6 +68,8 @@ public class WaitAlgorithmTest extends IntegrationUnitSupport {
     algo.setProject(algo.getProjects().getObjects().get(0));
     algo.setTerminology("MTH");
     algo.setVersion("latest");
+    algo.setTransactionPerOperation(false);
+    algo.beginTransaction();
   }
 
   /**

@@ -360,9 +360,6 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
       clearCaches();
 
       commitClearBegin();
-      handler.commitClearBegin();
-      handler.close();
-
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
       logInfo("[AttributeLoader] Updated " + attributeUpdateCount
