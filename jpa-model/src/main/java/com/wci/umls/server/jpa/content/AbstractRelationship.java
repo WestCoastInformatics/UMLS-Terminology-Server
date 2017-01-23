@@ -243,6 +243,10 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
       inverseRelationship
           .setAssertedDirection(!relationship.isAssertedDirection());
 
+      // Inverse relationships don't keep the group value from its originating
+      // relationship - clear it out
+      inverseRelationship.setGroup(null);
+
       return inverseRelationship;
     } else {
 

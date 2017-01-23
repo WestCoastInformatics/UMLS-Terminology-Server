@@ -473,7 +473,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     // sort the atoms
     final List<Atom> sortedAtoms = new ArrayList<>(c.getAtoms());
     Collections.sort(sortedAtoms,
-        new ReportsAtomComparator(c, getProject().getPrecedenceList()));
+        new ReportsAtomComparator(c, getPrecedenceList(getProject().getTerminology(),
+            getProject().getVersion())));
 
     String prefLui = null;
     String prevLui = null;
