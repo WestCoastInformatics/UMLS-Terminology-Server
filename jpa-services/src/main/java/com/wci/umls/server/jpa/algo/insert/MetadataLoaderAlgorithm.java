@@ -856,70 +856,83 @@ public class MetadataLoaderAlgorithm
     }
 
     //
-    // Update the precedence list
+    // Update the precedence lists (both default and project lists)
     //
-    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
-        getProject().getVersion());
-    final KeyValuePairList existingPrecedences = list.getPrecedence();
-    final KeyValuePairList updatedPrecedences =
-        new KeyValuePairList(existingPrecedences);
+    final List<PrecedenceList> precedenceLists = new ArrayList<>();
+    precedenceLists.add(getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion()));
+    precedenceLists.add(getProject().getPrecedenceList());
 
-    boolean insertionRequired = false;
-    boolean insertionPerformed = false;
+    for (PrecedenceList list : precedenceLists) {
+      final KeyValuePairList existingPrecedences = list.getPrecedence();
+      final KeyValuePairList updatedPrecedences =
+          new KeyValuePairList(existingPrecedences);
+      final List<KeyValuePair> localHighTermGroups =
+          new ArrayList<>(highTermGroups);
+      final List<KeyValuePair> localLowTermGroups =
+          new ArrayList<>(lowTermGroups);
 
-    // Loop through the highTermGroups, possibly multiple times (a high term
-    // group further down the list may need to be inserted before one higher in
-    // the list can)
-    // e.g. NCI SY -> NCI PT
-    // NCI PT -> NCI DN
-    // SY cannot be added on the first run, because PT hasn't been inserted yet.
-    // But on second loop through, PT will be there, and SY will insert
-    do {
-      insertionRequired = false;
-      insertionPerformed = false;
+      boolean insertionRequired = false;
+      boolean insertionPerformed = false;
 
-      // Check for each High Term Groups whether it needs to be inserted into
-      // the precedence list
-      for (final KeyValuePair highTermGroup : new ArrayList<>(highTermGroups)) {
-        // Look up the corresponding low term group
-        final KeyValuePair lowTermGroup =
-            lowTermGroups.get(highTermGroups.indexOf(highTermGroup));
+      // Loop through the highTermGroups, possibly multiple times (a high term
+      // group further down the list may need to be inserted before one higher
+      // in the list can)
+      // e.g. NCI SY -> NCI PT
+      // NCI PT -> NCI DN
+      // SY cannot be added on the first run, because PT hasn't been inserted
+      // yet.
+      // But on next loop through, PT will be there, and SY will insert
+      do {
+        insertionRequired = false;
+        insertionPerformed = false;
 
-        // If high term group is already in the precedence list, we're good.
-        // This high term/low term group pair doesn't need to be looked at again
-        if (updatedPrecedences.contains(highTermGroup)) {
-          highTermGroups.remove(highTermGroup);
-          lowTermGroups.remove(lowTermGroup);
-          continue;
+        // Check for each High Term Groups whether it needs to be inserted into
+        // the precedence list
+        for (final KeyValuePair highTermGroup : new ArrayList<>(
+            localHighTermGroups)) {
+          // Look up the corresponding low term group
+          final KeyValuePair lowTermGroup = localLowTermGroups
+              .get(localHighTermGroups.indexOf(highTermGroup));
+
+          // If high term group is already in the precedence list, we're good.
+          // This high term/low term group pair doesn't need to be looked at
+          // again
+          if (updatedPrecedences.contains(highTermGroup)) {
+            localHighTermGroups.remove(highTermGroup);
+            localLowTermGroups.remove(lowTermGroup);
+            continue;
+          }
+          // Otherwise, set the flag that a high term group needs to be inserted
+          insertionRequired = true;
+
+          // If low term group exists in the precedence list, insert the high
+          // term
+          // group above it, and set the flag that an insertion happened
+          if (updatedPrecedences.contains(lowTermGroup)) {
+            final int indexOfLowTermGroup =
+                updatedPrecedences.getKeyValuePairs().indexOf(lowTermGroup);
+            updatedPrecedences.getKeyValuePairs().add(indexOfLowTermGroup,
+                highTermGroup);
+            insertionPerformed = true;
+          }
         }
-        // Otherwise, set the flag that a high term group needs to be inserted
-        insertionRequired = true;
 
-        // If low term group exists in the precedence list, insert the high term
-        // group above it, and set the flag that an insertion happened
-        if (updatedPrecedences.contains(lowTermGroup)) {
-          final int indexOfLowTermGroup =
-              updatedPrecedences.getKeyValuePairs().indexOf(lowTermGroup);
-          updatedPrecedences.getKeyValuePairs().add(indexOfLowTermGroup,
-              highTermGroup);
-          insertionPerformed = true;
+        // If an insertion was required but no insertion was performed, there is
+        // an error in termgroups.src file and/or database. Throw an exception
+        if (insertionRequired && !insertionPerformed) {
+          throw new Exception(
+              "ERROR: unable to insert High Term Group(s) into the precedence list: "
+                  + highTermGroups);
         }
+
+      } while (insertionRequired);
+
+      // If the precedences changed, update the Precedence List
+      if (!existingPrecedences.equals(updatedPrecedences)) {
+        list.setPrecedence(updatedPrecedences);
+        updatePrecedenceList(list);
       }
-
-      // If an insertion was required but no insertion was performed, there is
-      // an error in termgroups.src file and/or database. Throw an exception
-      if (insertionRequired && !insertionPerformed) {
-        throw new Exception(
-            "ERROR: unable to insert High Term Group(s) into the precedence list: "
-                + highTermGroups);
-      }
-
-    } while (insertionRequired);
-
-    // If the precedences changed, update the Precedence List
-    if (!existingPrecedences.equals(updatedPrecedences)) {
-      list.setPrecedence(updatedPrecedences);
-      updatePrecedenceList(list);
     }
 
   }
