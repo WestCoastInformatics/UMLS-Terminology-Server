@@ -285,7 +285,7 @@
       <dependency>
         <groupId>gov.nih.nlm.nls.lvg</groupId>
         <artifactId>lvgdist</artifactId>
-        <version>2015</version>
+        <version>2017.0</version>
       </dependency>
 
       <!-- Trove -->

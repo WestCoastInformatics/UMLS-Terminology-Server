@@ -21,6 +21,16 @@ while (<IN>) {
 }
 close(IN);
 
+# cache RELA=> inverse
+open (IN, "unpublished/ruiDaFlags.txt") || die "could not open unpublished/ruiDaFlags.txt: $! $?\n";
+while (<IN>) {
+  chop;
+  @_ = split/\|/;  
+  $map{$_[0]} = "~DA:$_[1]";
+}
+close(IN);
+
+
 # C0000039|A0016511|AUI|SY|C0000039|A1317687|AUI|permuted_term_of|R28482429||MSH|MSH|||N||
 # CUI1,AUI1,STYPE1,REL,CUI2,AUI2,STYPE2,RELA,RUI,SRUI,SAB,SL,RG,DIR,SUPPRESS,CVF
 while(<STDIN>) {
@@ -52,9 +62,16 @@ while(<STDIN>) {
   	$fromType = "CONCEPT";
   	$fromTerminology = $terminology;
   }
+  
+  # compute inverse RUI
   $inverseId = $map{$id};
   $id =~ s/R0*//;
   $inverseId =~ s/R0*//;
+
+  # compute disambiguation flag if needed
+  if ($map{$terminologyId}) {
+    $terminologyId = $map{$terminologyId};
+  }
   if ($inverseId) {
     print "$id|$terminology|$terminologyId|$type|$additionalType|$fromId|$fromType|$fromTerminology|$toId|$toType|$toTerminology|$inverseId|\n";
   } else {
