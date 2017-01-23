@@ -15,12 +15,12 @@ import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 
 /**
  * Implementation of an algorithm to save information before an insertion.
  */
-public class PreInsertionAlgorithm extends AbstractMergeAlgorithm {
+public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link PreInsertionAlgorithm}.

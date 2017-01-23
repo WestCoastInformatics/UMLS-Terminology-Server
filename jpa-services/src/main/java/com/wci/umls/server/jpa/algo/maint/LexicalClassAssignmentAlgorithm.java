@@ -69,14 +69,15 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
     setMolecularActionFlag(false);
 
+    final UmlsIdentifierAssignmentHandler handler =
+        (UmlsIdentifierAssignmentHandler) getIdentifierAssignmentHandler(
+            getProject().getTerminology());
+    final UmlsIdentityService service = new UmlsIdentityServiceJpa();
+
     try {
       fireProgressEvent(0, "Starting, look up LUI assignments");
       // Assume this is configured to be a umls identifier handler properly
       // configured
-      final UmlsIdentifierAssignmentHandler handler =
-          (UmlsIdentifierAssignmentHandler) getIdentifierAssignmentHandler(
-              getProject().getTerminology());
-      final UmlsIdentityService service = new UmlsIdentityServiceJpa();
 
       // Track changes
       final Map<String, Long> postLexicalClassLuiMap = new HashMap<>(20000);
@@ -220,6 +221,8 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       e.printStackTrace();
       logError("Unexpected problem - " + e.getMessage());
       throw e;
+    } finally {
+      service.close();
     }
 
   }

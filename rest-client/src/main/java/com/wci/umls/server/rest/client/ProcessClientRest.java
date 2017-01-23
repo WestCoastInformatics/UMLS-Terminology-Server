@@ -481,42 +481,6 @@ public class ProcessClientRest extends RootClientRest
     return algorithmConfig;
   }
 
-  /**
-   * Returns the algorithm config.
-   *
-   * @param projectId the project id
-   * @param key the key
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
-  @Override
-  public AlgorithmConfig getAlgorithmConfigForKey(Long projectId, String key,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Process Client - get algorithmConfig " + key);
-    validateNotEmpty(key, "key");
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/config/algo/key/" + key + "?projectId=" + projectId);
-
-    Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    AlgorithmConfigJpa algorithmConfig =
-        ConfigUtility.getGraphForString(resultString, AlgorithmConfigJpa.class);
-    return algorithmConfig;
-  }
-
   /* see superclass */
   @Override
   public KeyValuePairList getInsertionAlgorithms(Long projectId,

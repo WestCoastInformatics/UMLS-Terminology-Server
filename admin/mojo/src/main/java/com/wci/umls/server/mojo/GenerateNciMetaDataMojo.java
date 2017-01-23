@@ -280,8 +280,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     MetadataServiceRest metadataService = new MetadataServiceRestImpl();
     PrecedenceListJpa list =
         new PrecedenceListJpa(metadataService.getDefaultPrecedenceList(
-            project1.getTerminology(), "latest", authToken));
+            project1.getTerminology(), project1.getVersion(), authToken));
     list.setId(null);
+    // Make sure the project connected list has no terminology/version
+    list.setTerminology("");
+    list.setVersion("");
     metadataService = new MetadataServiceRestImpl();
     list =
         (PrecedenceListJpa) metadataService.addPrecedenceList(list, authToken);
