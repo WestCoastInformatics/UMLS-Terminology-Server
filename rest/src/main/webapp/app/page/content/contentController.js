@@ -277,6 +277,7 @@ tsApp
         }
         function findComponents(loadFirst, suppressWarnings) {
           $scope.searchOrBrowse = "SEARCH";
+          $scope.searchResultsCollapsed = false;
           if ($scope.queryForList) {
             $scope.findComponentsAsList(loadFirst, suppressWarnings);
           }

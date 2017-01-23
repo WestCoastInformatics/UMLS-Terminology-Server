@@ -156,7 +156,7 @@ echo "  Compute relationship identity for MRREL"
 /bin/rm -f relationshipIdentity.txt inverseRui.txt mrrel.txt rel.txt rela.txt
 grep inverse MRDOC.RRF  | grep 'REL|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rel.txt
 grep inverse MRDOC.RRF  | grep 'RELA|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rela.txt
-lib/inverseRui.pl MRREL.RRF | sort -t\| -k 2,2 -o mrrel.txt
+lib/inverseRui.pl MRREL.RRF | sort -u | sort -t\| -k 2,2 -o mrrel.txt
 join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/; print "$_\n" if $_[0] ne $_[1];' | sort -u -o inverseRui.txt
 /bin/rm -f mrrel.txt rel.txt rela.txt
 

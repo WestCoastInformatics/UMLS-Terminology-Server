@@ -720,7 +720,16 @@ public class MetaEditingServiceRestImpl extends RootServiceRestImpl
 
       // All new content is unpublished and publishable
       relationship.setPublished(false);
-      relationship.setPublishable(true);
+      if (relationship.getRelationshipType().equals("XR")) {
+        relationship.setPublishable(false);
+      } else {
+        relationship.setPublishable(true);
+      }
+      // Set defaults for a concept level relationship
+      relationship.setStated(true);
+      relationship.setInferred(true);
+      relationship.setSuppressible(false);
+      relationship.setObsolete(false);
 
       // Configure the action
       action.setProject(project);
