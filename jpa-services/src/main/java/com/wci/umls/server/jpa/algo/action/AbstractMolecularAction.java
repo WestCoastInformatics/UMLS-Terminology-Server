@@ -18,6 +18,7 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.LocalException;
@@ -339,9 +340,12 @@ public abstract class AbstractMolecularAction extends AbstractAlgorithm
       // unlock concepts and fail
       rollback();
       throw new LocalException(
-          "Concept has changed since last read, please refresh and try again ("
-              + lastModified + (concept != null
-                  ? ", " + concept.getLastModified().getTime() : " "));
+          "Concept is stale, click 'Refresh' and try again ("
+              + ConfigUtility.DATE_FORMAT4.format(new Date(lastModified))
+              + (concept != null ? ", "
+                  + ConfigUtility.DATE_FORMAT4.format(concept.getLastModified())
+                  : " ")
+              + ")");
     }
   }
 
