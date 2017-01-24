@@ -602,6 +602,7 @@ tsApp
 
         // refresh windows
         $scope.refreshWindows = function() {
+          console.debug('refreshWindows', $scope.windows);
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
               $scope.windows[key].$windowScope.refresh();
@@ -614,9 +615,8 @@ tsApp
           if ($scope.windows.hasOwnProperty(windowName)) {
             delete $scope.windows[windowName];
           }
-          // Retain last settings.
-          // securityService.saveProperty($scope.user.userPreferences,
-          // windowName, false);
+
+          $scope.user.userPreferences.properties[windowName] = false;
         }
 
         // remove windows

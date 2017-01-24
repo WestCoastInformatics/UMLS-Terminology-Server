@@ -5,10 +5,9 @@ tsApp.controller('ContextsCtrl', [
   '$window',
   'utilService',
   'tabService',
-  'securityService',
   'utilService',
   'contentService',
-  function($scope, $window, utilService, tabService, securityService, utilService, contentService) {
+  function($scope, $window, utilService, tabService, utilService, contentService) {
 
     console.debug("configure ContextsCtrl");
 
@@ -18,6 +17,7 @@ tsApp.controller('ContextsCtrl', [
 
     // preserve parent scope reference
     $scope.parentWindowScope = window.opener.$windowScope;
+    $scope.parentClosing = false;
     window.$windowScope = $scope;
     $scope.selected = $scope.parentWindowScope.selected;
     $scope.lists = $scope.parentWindowScope.lists;
@@ -87,12 +87,12 @@ tsApp.controller('ContextsCtrl', [
 
     // notify edit controller when semantic type window closes
     $window.onbeforeunload = function(evt) {
-      if (!parentClosing) {
+      if (!$scope.parentClosing) {
         $scope.parentWindowScope.removeWindow('context');
       }
     }
     $scope.$on('$destroy', function() {
-      if (!parentClosing) {
+      if (!$scope.parentClosing) {
         $scope.parentWindowScope.removeWindow('context');
       }
     });
