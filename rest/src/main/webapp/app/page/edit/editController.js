@@ -611,12 +611,14 @@ tsApp
 
         // remove window from map when it is closed
         $scope.removeWindow = function(windowName) {
+          console.debug('xxx1', windowName, $scope.windows); 
           if ($scope.windows.hasOwnProperty(windowName)) {
+            console.debug('xxx3', windowName); 
             delete $scope.windows[windowName];
           }
-          // Retain last settings.
-          // securityService.saveProperty($scope.user.userPreferences,
-          // windowName, false);
+
+          $scope.user.userPreferences.properties[windowName] = false;
+          console.debug('xxx', $scope.user.userPreferences.properties[windowName]);
         }
 
         // remove windows

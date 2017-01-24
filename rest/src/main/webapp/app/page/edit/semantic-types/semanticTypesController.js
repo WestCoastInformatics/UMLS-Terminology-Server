@@ -26,8 +26,9 @@ tsApp
 
         // preserve parent scope reference
         $scope.parentWindowScope = window.opener.$windowScope;
+        $scope.parentClosing = false;
         window.$windowScope = $scope;
-        $scope.user = securityService.getUser();
+        $scope.user = $scope.parentWindowScope.user;
         $scope.selected = $scope.parentWindowScope.selected;
         $scope.lists = $scope.parentWindowScope.lists;
 
@@ -176,18 +177,18 @@ tsApp
 
         // notify edit controller when semantic type window closes
         $window.onbeforeunload = function(evt) {
-          if (!parentClosing) {
+          if (!$scope.parentClosing) {
             $scope.parentWindowScope.removeWindow('semanticType');
           }
         }
         $scope.$on('$destroy', function() {
-          if (!parentClosing) {
+          if (!$scope.parentClosing) {
             $scope.parentWindowScope.removeWindow('semanticType');
           }
         });
 
         // on window resize, save dimensions and screen location to user
-        // preferencesD
+        // preferences
         $window.onresize = function(evt) {
           clearTimeout(window.resizedFinished);
           window.resizedFinished = setTimeout(function() {
