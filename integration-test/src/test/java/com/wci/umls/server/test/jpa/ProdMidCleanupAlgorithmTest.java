@@ -57,15 +57,19 @@ public class ProdMidCleanupAlgorithmTest extends IntegrationUnitSupport {
   /** The project. */
   Project project = null;
 
+  /** The added terminology. */
   Terminology addedTerminology = null;
 
+  /** The added concept. */
   Concept addedConcept = null;
 
+  /** The added atom. */
   Atom addedAtom = null;
 
   /**
    * Setup class.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @BeforeClass
   public static void setupClass() throws Exception {

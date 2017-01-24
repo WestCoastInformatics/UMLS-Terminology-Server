@@ -152,8 +152,6 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
-      handler.commitClearBegin();
-      handler.close();
 
       logInfo("[SubsetLoader] Added " + subsetAddCount + " new Subsets.");
       logInfo("[SubsetLoader] Added " + subsetMemberAddCount

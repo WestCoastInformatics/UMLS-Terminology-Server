@@ -191,6 +191,8 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       // release
       if (terminology.isCurrent() && terminology.getFirstReleases()
           .get(releaseInfo.getTerminology()) == null) {
+        logInfo("    firstRelease = " + releaseInfo.getVersion() + " "
+            + terminology.getTerminology());
         terminology.getFirstReleases().put(releaseInfo.getTerminology(),
             releaseInfo.getVersion());
       }
@@ -202,6 +204,8 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
               .get(releaseInfo.getTerminology()) != null
           && terminology.getLastReleases()
               .get(releaseInfo.getTerminology()) == null) {
+        logInfo("    lastRelease = " + prevReleaseInfo.getVersion() + " "
+            + terminology.getTerminology());
         terminology.getLastReleases().put(releaseInfo.getTerminology(),
             prevReleaseInfo.getVersion());
       }
@@ -217,8 +221,33 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   public void reset() throws Exception {
     logInfo("Reset create new release");
 
+    // Undo firstReleases/lastReleases settings to current release info.
+    // Set first/last release based on release info
     final ReleaseInfo releaseInfo =
-        this.getCurrentReleaseInfo(getProject().getTerminology());
+        getCurrentReleaseInfo(getProject().getTerminology());
+    final ReleaseInfo prevReleaseInfo =
+        getPreviousReleaseInfo(getProject().getTerminology());
+    for (final Terminology terminology : getTerminologies().getObjects()) {
+      // Mark unpublished current terminologies with "first" release as this
+      // release
+      if (terminology.isCurrent() && terminology.getFirstReleases()
+          .get(releaseInfo.getTerminology()).equals(releaseInfo.getVersion())) {
+        logInfo("  reset firstRelease = " + releaseInfo.getVersion() + " "
+            + terminology.getTerminology());
+        terminology.getFirstReleases().remove(releaseInfo.getTerminology());
+      }
+
+      // Mark non-current terminologies, previously published, with "last"
+      // release as previous release
+      else if (!terminology.isCurrent()
+          && terminology.getLastReleases().get(releaseInfo.getTerminology())
+              .equals(prevReleaseInfo.getVersion())) {
+        logInfo("  reset lastRelease = " + prevReleaseInfo.getVersion() + " "
+            + terminology.getTerminology());
+        terminology.getLastReleases().remove(releaseInfo.getTerminology());
+      }
+    }
+
     // IF matches this version, remove it
     if (releaseInfo.getName().equals(getProject().getVersion())) {
       logInfo("  Remove release info = " + releaseInfo);

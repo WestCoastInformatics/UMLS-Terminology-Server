@@ -143,6 +143,12 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     demotionRelationship.setTerminology(getTerminology());
     demotionRelationship.setTerminologyId("");
     demotionRelationship.setVersion(getVersion());
+    demotionRelationship.setPublishable(false);
+    demotionRelationship.setPublished(false);
+    demotionRelationship.setSuppressible(false);
+    demotionRelationship.setObsolete(false);
+    demotionRelationship.setStated(true);
+    demotionRelationship.setInferred(true);
 
     // construct inverse relationship
     inverseDemotionRelationship = new AtomRelationshipJpa();
@@ -154,6 +160,12 @@ public class AddDemotionMolecularAction extends AbstractMolecularAction {
     inverseDemotionRelationship.setTerminology(getTerminology());
     inverseDemotionRelationship.setTerminologyId("");
     inverseDemotionRelationship.setVersion(getVersion());
+    inverseDemotionRelationship.setPublishable(false);
+    inverseDemotionRelationship.setPublished(false);
+    inverseDemotionRelationship.setSuppressible(false);
+    inverseDemotionRelationship.setObsolete(false);
+    inverseDemotionRelationship.setStated(true);
+    inverseDemotionRelationship.setInferred(true);
 
     // Add the demotions
     demotionRelationship =

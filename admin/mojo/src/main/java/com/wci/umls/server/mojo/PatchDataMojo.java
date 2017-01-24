@@ -60,9 +60,9 @@ public class PatchDataMojo extends AbstractMojo {
       getLog().info("  start = " + start);
       getLog().info("  end = " + end);
 
-      // Patch 1000001
-      // Set project handler key/url for all projects
-      if ("20161215".compareTo(start) >= 0 && "20161215".compareTo(end) <= 0) {
+      // Patch 20170101 - SAMPLE
+      // See corresponding src/main/resources/patchData20170101.sql file
+      if ("20170101".compareTo(start) >= 0 && "20170101".compareTo(end) <= 0) {
         // tbd
       }
 

@@ -434,6 +434,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         + "?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
+    Algorithm instance = null;
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -453,9 +454,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
       for (final AlgorithmConfig algo : process.getSteps()) {
-        Algorithm instance =
-            processService.getAlgorithmInstance(algo.getAlgorithmKey());
+        instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
         algo.setParameters(instance.getParameters());
+        instance.close();
         for (final AlgorithmParameter param : algo.getParameters()) {
           // Populate both Value and Values (UI will determine which is required
           // for each algorithm type)
@@ -554,6 +555,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         + "?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
+    Algorithm instance = null;
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -578,9 +580,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (final AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        final Algorithm instance = processService
+        instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
         algorithmExecution.setParameters(instance.getParameters());
+        instance.close();
         for (final AlgorithmParameter param : algorithmExecution
             .getParameters()) {
           // Populate both Value and Values (UI will determine which is required
@@ -978,6 +981,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         .info("RESTful call (Process): /config/algo/validate?projectId="
             + projectId + " for user " + authToken + ", " + algo);
     final ProcessService processService = new ProcessServiceJpa();
+    Algorithm algorithm = null;
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -995,8 +999,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         }
       }
 
-      final Algorithm algorithm =
-          processService.getAlgorithmInstance(algo.getAlgorithmKey());
+      algorithm = processService.getAlgorithmInstance(algo.getAlgorithmKey());
       if (algorithm == null) {
         throw new LocalException(
             "Missing algorithm for key " + algo.getAlgorithmKey());
@@ -1008,6 +1011,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     } catch (Exception e) {
       handleException(e, "trying to validate algorithm config");
     } finally {
+      if (algorithm != null) {
+        algorithm.close();
+      }
       processService.close();
       securityService.close();
     }
@@ -1104,6 +1110,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         + id + "?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
+    Algorithm instance = null;
     try {
       final String userName =
           authorizeProject(processService, projectId, securityService,
@@ -1122,8 +1129,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(algo, projectId);
 
       // Populate the parameters based on its properties' values.
-      final Algorithm instance =
-          processService.getAlgorithmInstance(algo.getAlgorithmKey());
+      instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
       instance.setProject(processService.getProject(projectId));
       instance.setProcess(new ProcessExecutionJpa(algo.getProcess()));
       algo.setParameters(instance.getParameters());
@@ -1145,74 +1151,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to get a algorithm config");
       return null;
     } finally {
-      processService.close();
-      securityService.close();
-    }
-  }
-
-  /**
-   * Returns the algorithm config.
-   *
-   * @param projectId the project id
-   * @param key the key
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/config/algo/key/{key}")
-  @ApiOperation(value = "Get algorithm config for key", notes = "Gets the algorithm config for the specified key", response = AlgorithmConfigJpa.class)
-  public AlgorithmConfig getAlgorithmConfigForKey(
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "AlgorithmConfig key, e.g. MATRIXINIT", required = true) @PathParam("key") String key,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Process): /config/algo/"
-        + key + "?projectId=" + projectId + " for user " + authToken);
-
-    final ProcessService processService = new ProcessServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the algorithm config", UserRole.AUTHOR);
-      processService.setLastModifiedBy(userName);
-
-      // Load algorithm config object
-      final AlgorithmConfig algo =
-          (AlgorithmConfig) processService.getAlgorithmInstance(key);
-
-      if (algo == null) {
-        return algo;
+      if (instance != null) {
+        instance.close();
       }
-
-      // Verify that passed projectId matches ID of the algorithm config's
-      // project
-      verifyProject(algo, projectId);
-
-      // Populate the parameters based on its properties' values.
-      final Algorithm instance =
-          processService.getAlgorithmInstance(algo.getAlgorithmKey());
-      algo.setParameters(instance.getParameters());
-      for (final AlgorithmParameter param : algo.getParameters()) {
-        // Populate both Value and Values (UI will determine which is required
-        // for each algorithm type)
-        if (algo.getProperties().get(param.getFieldName()) != null) {
-          if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
-            param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(","))));
-          } else {
-            param.setValue(algo.getProperties().get(param.getFieldName()));
-          }
-        }
-      }
-
-      return algo;
-    } catch (Exception e) {
-      handleException(e, "trying to get an algorithm config");
-      return null;
-    } finally {
       processService.close();
       securityService.close();
     }
@@ -1663,6 +1604,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // this will throw a CancelException which will clean up all the maps
         // and mark everything as cancelled
         processAlgorithmMap.get(id).cancel();
+        // Do not close - let run thread close it
+        // processAlgorithmMap.get(id).close();
       }
 
       return id;
@@ -1796,32 +1739,33 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     final Exception[] exceptions = new Exception[1];
     final boolean handleException = background != null && background;
 
-    // Set up the service, and load the process Config and Execution
-    final ProcessServiceJpa processService = new ProcessServiceJpa();
-    processService.setLastModifiedBy(userName);
-
-    final ProcessConfig processConfig =
-        processService.getProcessConfig(processConfigId);
-    final ProcessExecution processExecution =
-        processService.getProcessExecution(processExecutionId);
-
-    // Clear out the finish and fail date fields (these could have been
-    // populated from a previous run)
-    processExecution.setStopDate(null);
-    processExecution.setFailDate(null);
-    processExecution.setFinishDate(null);
-    processService.updateProcessConfig(processConfig);
-
     final Thread t = new Thread(new Runnable() {
 
       /* see superclass */
       @SuppressWarnings("cast")
       @Override
       public void run() {
+        ProcessServiceJpa processService = null;
         // Declare execution so it can be accessed
+        ProcessExecution processExecution = null;
         AlgorithmExecution algorithmExecution = null;
+        Algorithm algorithm = null;
         Boolean firstRestartedAlgorithm = false;
         try {
+          processService = new ProcessServiceJpa();
+          processService.setLastModifiedBy(userName);
+
+          final ProcessConfig processConfig =
+              processService.getProcessConfig(processConfigId);
+          processExecution =
+              processService.getProcessExecution(processExecutionId);
+
+          // Clear out the finish and fail date fields (these could have been
+          // populated from a previous run)
+          processExecution.setStopDate(null);
+          processExecution.setFailDate(null);
+          processExecution.setFinishDate(null);
+          processService.updateProcessExecution(processExecution);
 
           // Set initial progress to zero and count the number of steps to
           // execute
@@ -1865,7 +1809,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               lastCompletedAlgorithm = ae;
             }
 
-            // If were stepping back and the lastCompletedAlgorithm is finished
+            // If were stepping back and the lastCompletedAlgorithm is
+            // finished
             // Remove it from "previously completed algorithm ids"
             if (step != null && step < 0
                 && lastCompletedAlgorithm.getFinishDate() != null) {
@@ -1873,7 +1818,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                   .remove(lastCompletedAlgorithm.getAlgorithmConfigId());
               algorithmToRestart = lastCompletedAlgorithm;
               firstRestartedAlgorithm = true;
-              // If there was only one warning, and it was the step being undone
+              // If there was only one warning, and it was the step being
+              // undone
               // set warning back to false;
               if (lastCompletedAlgorithm.isWarning() && warningCt == 1) {
                 processExecution.setWarning(false);
@@ -1932,7 +1878,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // Create and configure the algorithm
-            final Algorithm algorithm = processService
+            algorithm = processService
                 .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
             algorithm.setProject(processExecution.getProject());
             algorithm.setProcess(processExecution);
@@ -1951,6 +1897,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             algorithm.setProperties(prop);
 
             // track currently running algorithm
+            // If a previous run is already in the map, make sure to close it
+            if (processAlgorithmMap.containsKey(processExecution.getId())) {
+              processAlgorithmMap.get(processExecution.getId()).close();
+            }
             processAlgorithmMap.put(processExecution.getId(), algorithm);
 
             // Check preconditions (if this is not an unstep)
@@ -1970,20 +1920,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             // modified by updateProgress
             final AlgorithmExecution finalAlgorithmExecution =
                 algorithmExecution;
+            final ProcessExecution processExecution2 = processExecution;
 
             algorithm.addProgressListener(new ProgressListener() {
               @Override
               public void updateProgress(ProgressEvent processEvent) {
                 if (processEvent.isWarning()) {
                   finalAlgorithmExecution.setWarning(true);
-                  processExecution.setWarning(true);
+                  processExecution2.setWarning(true);
                   return;
                 }
                 lookupAeProgressMap.put(aeId, processEvent.getPercent());
 
                 // pe progress is the current progress plus the scaled
                 // progress of the ae
-                lookupPeProgressMap.put(processExecution.getId(),
+                lookupPeProgressMap.put(processExecution2.getId(),
                     (int) ((100 * currentCt) / enabledSteps)
                         + (int) (processEvent.getPercent() / enabledSteps));
 
@@ -2000,6 +1951,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithm.reset();
               // Commit and reset transaction
               algorithm.commitClearBegin();
+
               // Don't reset on any later algorithms
               firstRestartedAlgorithm = false;
             }
@@ -2022,7 +1974,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               // Commit any changes the algorithm wants to make
               algorithm.commit();
 
-              // Take the number of steps completed times 100 and divided by the
+              // Take the number of steps completed times 100 and divided by
+              // the
               // total number of steps
               lookupPeProgressMap.put(processExecution.getId(),
                   (int) ((100 * ++stepCt) / enabledSteps));
@@ -2031,14 +1984,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               algorithmExecution.setFinishDate(new Date());
               processService.updateAlgorithmExecution(algorithmExecution);
 
-              // Update the process execution (in case anything has been done to
+              // Update the process execution (in case anything has been done
+              // to
               // it by the algorithm)
               processService.updateProcessExecution(processExecution);
 
-              // Mark algorithm as finished
-              lookupAeProgressMap.remove(algorithmExecution.getId());
-              processAlgorithmMap.remove(processExecution.getId());
             }
+            
+            // Mark algorithm as finished
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+            processAlgorithmMap.remove(processExecution.getId());
+
+            // close the algorithm
+            algorithm.close();
 
             // If this is a "step" operation, we're done.
             if (step != null) {
@@ -2084,13 +2042,21 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // e.printStackTrace();
           exceptions[0] = e;
 
-          // Remove process and algorithm from the maps
-          processAlgorithmMap.remove(processExecutionId);
-          lookupPeProgressMap.remove(processExecutionId);
-          lookupAeProgressMap.remove(algorithmExecution.getId());
-
           // Mark algorithm and process as failed
           try {
+
+            // Remove process and algorithm from the maps
+            if (processAlgorithmMap.containsKey(processExecution.getId())) {
+              processAlgorithmMap.get(processExecution.getId()).close();
+            }
+            processAlgorithmMap.remove(processExecutionId);
+            lookupPeProgressMap.remove(processExecutionId);
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+
+            // close the algorithm
+            if (algorithm != null) {
+              algorithm.close();
+            }
 
             // set cancel conditions if cancel was used.
             algorithmExecution.setFailDate(new Date());
@@ -2147,16 +2113,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             handleException(e, "trying to execute a process");
           }
 
-        } finally
-
-        {
+        } finally {
           try {
             processService.close();
           } catch (Exception e) {
-            // n/a
+            e.printStackTrace();
           }
         }
-
       }
     });
     if (background != null && background == true) {
@@ -2168,7 +2131,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         throw new Exception(exceptions[0]);
       }
     }
-
   }
 
   /* see superclass */
@@ -2263,6 +2225,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             + projectId + "&processId=" + processId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
+    Algorithm algorithm = null;
     try {
       final String userName = authorizeProject(processService, projectId,
           securityService, authToken, "adding a new algorithm config",
@@ -2272,7 +2235,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Load project
       final Project project = processService.getProject(projectId);
       final ProcessConfig process = processService.getProcessConfig(processId);
-      final Algorithm algorithm = processService.getAlgorithmInstance(key);
+      algorithm = processService.getAlgorithmInstance(key);
       final AlgorithmConfig algo = new AlgorithmConfigJpa();
       algo.setProject(project);
       algo.setProcess(process);
@@ -2288,6 +2251,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to return a new algorithm config");
       return null;
     } finally {
+      if (algorithm != null) {
+        algorithm.close();
+      }
       processService.close();
       securityService.close();
     }

@@ -535,6 +535,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
           && !(rel.getRelationshipType().equals("PAR")
               || rel.getRelationshipType().equals("CHD")
               || rel.getRelationshipType().equals("SIB")
+              || rel.getRelationshipType().equals("XR")
               || rel.getRelationshipType().equals("AQ")
               || rel.getRelationshipType().equals("QB"))) {
         usedToIds.add(rel.getTo().getTerminologyId());

@@ -56,15 +56,19 @@ public class UpdatePublishedAlgorithmTest extends IntegrationUnitSupport {
   /** The project. */
   Project project = null;
 
+  /** The current snomed terminology. */
   Terminology currentSnomedTerminology = null;
 
+  /** The added concept. */
   Concept addedConcept = null;
 
+  /** The added atom. */
   Atom addedAtom = null;
 
   /**
    * Setup class.
-   * @throws Exception
+   *
+   * @throws Exception the exception
    */
   @BeforeClass
   public static void setupClass() throws Exception {

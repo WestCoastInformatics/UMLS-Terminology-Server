@@ -111,10 +111,15 @@ endif
 #  id|normString
 # PREREQUISITE: LVG is installed at LVG_HOME listed below
 echo "  Compute lexical class identity for MRCONSO"
-setenv LVG_HOME c:/data/lvg2016
+setenv LVG_HOME c:/data/lvg2017
 /bin/rm -f lexicalClassIdentity.txt
-# handle ENG
-perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/luiNorm.bat -t:3 | cut -d\| -f 1,2,4 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
+# handle win/unix
+if (-e $LVG_HOME/bin/luiNorm.bat) then
+  set luiNorm = "luiNorm.bat"
+else
+  set luiNorm = "luiNorm"
+endif
+perl -ne '($d, $language, $d, $id, $d, $d, $d, $d, $d, $d, $d, $d, $d, $d, $string) = split /\|/; $id =~ s/L0*//; print "$id|$language|$string\n" if $language eq "ENG";' MRCONSO.RRF | $LVG_HOME/bin/$luiNorm -t:3 -n | sed 's/-No Output-//' | cut -d\| -f 1,2,4 | sed 's/$/\|/' | sort -u -o lexicalClassIdentity.txt
 if ($status != 0) then
 	echo "ERROR handling MRCONSO.RRF for LUI - ENG"
 	exit 1
@@ -151,7 +156,7 @@ echo "  Compute relationship identity for MRREL"
 /bin/rm -f relationshipIdentity.txt inverseRui.txt mrrel.txt rel.txt rela.txt
 grep inverse MRDOC.RRF  | grep 'REL|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rel.txt
 grep inverse MRDOC.RRF  | grep 'RELA|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rela.txt
-lib/inverseRui.pl MRREL.RRF | sort -t\| -k 2,2 -o mrrel.txt
+lib/inverseRui.pl MRREL.RRF | sort -u | sort -t\| -k 2,2 -o mrrel.txt
 join -t\| -j 2 -o 1.1 2.1 mrrel.txt mrrel.txt | perl -ne 'chop; @_ = split /\|/; print "$_\n" if $_[0] ne $_[1];' | sort -u -o inverseRui.txt
 /bin/rm -f mrrel.txt rel.txt rela.txt
 

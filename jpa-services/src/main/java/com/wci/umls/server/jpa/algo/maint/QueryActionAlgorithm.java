@@ -294,7 +294,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       action = String.valueOf(p.getProperty("action"));
     }
     if (p.getProperty("queryType") != null) {
-      queryType = QueryType.valueOf(QueryType.class,
+      queryType = Enum.valueOf(QueryType.class,
           String.valueOf(p.getProperty("queryType")));
     }
     if (p.getProperty("query") != null) {

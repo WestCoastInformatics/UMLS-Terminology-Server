@@ -21,7 +21,7 @@ tsApp.directive('favorites', [
 
         // instantiate paging and paging callbacks function
         scope.pagedData = null;
-        $scope.pageSizes = utilService.getPageSizes();
+        scope.pageSizes = utilService.getPageSizes();
         scope.paging = utilService.getPaging();
         scope.pageCallbacks = {
           getPagedList : getPagedList

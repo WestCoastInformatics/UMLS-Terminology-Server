@@ -217,18 +217,6 @@ public interface ProcessServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Returns the algorithm config for key.
-   *
-   * @param projectId the project id
-   * @param algorithmKey the algorithm key
-   * @param authToken the auth token
-   * @return the algorithm config by key
-   * @throws Exception the exception
-   */
-  public AlgorithmConfig getAlgorithmConfigForKey(Long projectId,
-    String algorithmKey, String authToken) throws Exception;
-
-  /**
    * Returns the insertion algorithms.
    *
    * @param projectId the project id

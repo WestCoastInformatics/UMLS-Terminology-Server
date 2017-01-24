@@ -271,29 +271,6 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
-    // get algorithm config for key
-    this.getAlgorithmConfigForKey = function(projectId, key) {
-      console.debug('get algorithm config for key', projectId, key);
-      var deferred = $q.defer();
-
-      // Get projects
-      gpService.increment();
-      $http.get(processUrl + '/config/algo/key/' + key + '?projectId=' + projectId).then(
-      // success
-      function(response) {
-        console.debug('  config = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
     // get algorithm log
     this.getAlgorithmLog = function(projectId, algorithmExecutionId, query) {
       console.debug('get algorithm log', projectId, algorithmExecutionId, query);

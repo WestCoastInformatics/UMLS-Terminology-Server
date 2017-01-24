@@ -75,6 +75,10 @@
   class="navbar navbar-default navbar-fixed-bottom">
   <div class="container-fluid">
 
+    <span style="float: left;">
+      <button ng-click="reloadConcept()" title="Refresh concept"
+        class="btn btn-xs btn-primary">Refresh</button>
+    </span>
     <span style="float: right;">
       <input type="checkbox" ng-model="preferredOnly"
         ng-disabled="editingDisabled()" ng-click="getPagedRelationships()"
@@ -83,9 +87,8 @@
       <button ng-click="transferConceptToEditor()"
         ng-disabled="!selected.relationship || editingDisabled()"
         title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
-      <button ng-click="openMergeModal()"
-        ng-disabled="editingDisabled()" title="Merge"
-        class="btn btn-xs btn-primary">Merge</button>
+      <button ng-click="openMergeModal()" ng-disabled="editingDisabled()"
+        title="Merge" class="btn btn-xs btn-primary">Merge</button>
     </span>
   </div>
 </nav>

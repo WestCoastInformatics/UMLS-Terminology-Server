@@ -42,12 +42,17 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     final ValidationResult result = new ValidationResultJpa();
-    // There must be a project precedence list with at least one entry.
-    if (getProject().getPrecedenceList() == null) {
-      result.addError("Project does not have a precedence list");
-    } else if (getProject().getPrecedenceList().getPrecedence()
-        .getKeyValuePairs().size() == 0) {
-      result.addError("Project has a precedence list with no entries.");
+    // There must be a default precedence list with at least one entry.
+    if (getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion()) == null) {
+      result.addError("Precedence list not found for terminology: "
+          + getProject().getTerminology() + ", " + getProject().getVersion());
+    } else if (getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion()).getPrecedence().getKeyValuePairs()
+            .size() == 0) {
+      result.addError(
+          "Precedence list for terminology " + getProject().getTerminology()
+              + ", " + getProject().getVersion() + " has no entries.");
     }
     return result;
   }
@@ -146,7 +151,8 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     // If there are atoms, recompute the preferred name
     if (hasAtoms) {
       final String computedName = handler.computePreferredName(
-          concept.getAtoms(), getProject().getPrecedenceList());
+          concept.getAtoms(), getPrecedenceList(getProject().getTerminology(),
+              getProject().getVersion()));
       if (computedName == null) {
         throw new Exception(
             "Unexpected concept without preferred name - " + concept.getId());

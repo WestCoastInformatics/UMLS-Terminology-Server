@@ -20,7 +20,6 @@ import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
 
-// TODO: Auto-generated Javadoc
 /**
  * Represents a content available via a REST service.
  */
