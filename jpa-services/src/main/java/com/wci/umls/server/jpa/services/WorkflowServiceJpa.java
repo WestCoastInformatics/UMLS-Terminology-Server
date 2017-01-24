@@ -137,11 +137,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
   @Override
   public void updateTrackingRecord(TrackingRecord trackingRecord)
     throws Exception {
-    Logger.getLogger(getClass())
-    .debug("Workflow Service - update tracking record " + trackingRecord);
-
     updateHasLastModified(trackingRecord);
-
   }
 
   /* see superclass */
