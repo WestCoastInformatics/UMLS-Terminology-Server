@@ -602,6 +602,7 @@ tsApp
 
         // refresh windows
         $scope.refreshWindows = function() {
+          console.debug('refreshWindows', $scope.windows);
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
               $scope.windows[key].$windowScope.refresh();
@@ -611,14 +612,11 @@ tsApp
 
         // remove window from map when it is closed
         $scope.removeWindow = function(windowName) {
-          console.debug('xxx1', windowName, $scope.windows); 
           if ($scope.windows.hasOwnProperty(windowName)) {
-            console.debug('xxx3', windowName); 
             delete $scope.windows[windowName];
           }
 
           $scope.user.userPreferences.properties[windowName] = false;
-          console.debug('xxx', $scope.user.userPreferences.properties[windowName]);
         }
 
         // remove windows
