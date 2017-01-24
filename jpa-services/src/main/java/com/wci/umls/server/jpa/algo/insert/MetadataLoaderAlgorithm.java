@@ -19,6 +19,9 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.meta.AdditionalRelationshipTypeJpa;
@@ -42,13 +45,20 @@ import com.wci.umls.server.model.meta.UsageType;
 /**
  * Implementation of an algorithm to import metadata.
  */
-public class MetadataLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class MetadataLoaderAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The loaded organizing class types. */
   private Map<String, IdType> loadedOrganizingClassTypes = null;
 
   /** The run date. */
   private Date runDate = null;
+
+  /** The low term groups referenced in termgroups.src. */
+  private List<KeyValuePair> lowTermGroups = new ArrayList<>();
+
+  /** The high term groups referenced in termgroups.src. */
+  private List<KeyValuePair> highTermGroups = new ArrayList<>();
 
   /**
    * Instantiates an empty {@link MetadataLoaderAlgorithm}.
@@ -134,6 +144,50 @@ public class MetadataLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm
         validationResult.addWarning(
             "MRDOC references inverse Additional Relationship Type that exists in the database, but is not in MRDOC: "
                 + abbreviation);
+      }
+    }
+
+    // For termgroups.src, ensure every low term group already exists
+    // in database's precedence list(getPrecedenceList(project.getTerm,
+    // project.getVersion) or as a high term group on a different line of the
+    // file.
+    lines =
+        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
+    fields = new String[6];
+
+    // Load all of the low and high term groups
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 6, fields);
+      final String lowTermTerminology = fields[1].indexOf('_') != -1
+          ? fields[1].substring(0, fields[1].indexOf('_'))
+          : fields[1].substring(0, fields[1].indexOf('/'));
+
+      final String highTermTerminology = fields[0].indexOf('_') != -1
+          ? fields[0].substring(0, fields[0].indexOf('_'))
+          : fields[0].substring(0, fields[0].indexOf('/'));
+
+      final String lowTermType =
+          fields[1].substring(fields[1].indexOf('/') + 1);
+      final String highTermType =
+          fields[0].substring(fields[0].indexOf('/') + 1);
+
+      lowTermGroups.add(new KeyValuePair(lowTermTerminology, lowTermType));
+      highTermGroups.add(new KeyValuePair(highTermTerminology, highTermType));
+    }
+
+    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion());
+    final KeyValuePairList precedences = list.getPrecedence();
+
+    // Check that every referenced low term either exists in the precedence list
+    // or as a high terms on a different line of the file.
+    for (KeyValuePair lowTermGroup : lowTermGroups) {
+      if (!precedences.contains(lowTermGroup)
+          && (!highTermGroups.contains(lowTermGroup) || lowTermGroups
+              .indexOf(lowTermGroup) == highTermGroups.indexOf(lowTermGroup))) {
+        validationResult.addError("termgroups.src high term group "
+            + highTermGroups.get(lowTermGroups.indexOf(lowTermGroup))
+            + " cannot be entered into precedence list: associated low term group not found in precedence list or termgroups.src.");
       }
     }
 
@@ -800,6 +854,87 @@ public class MetadataLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm
       logInfo("[MetadataLoader] Adding Term Type: " + newTermType);
       addTermType(newTermType);
     }
+
+    //
+    // Update the precedence lists (both default and project lists)
+    //
+    final List<PrecedenceList> precedenceLists = new ArrayList<>();
+    precedenceLists.add(getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion()));
+    precedenceLists.add(getProject().getPrecedenceList());
+
+    for (PrecedenceList list : precedenceLists) {
+      final KeyValuePairList existingPrecedences = list.getPrecedence();
+      final KeyValuePairList updatedPrecedences =
+          new KeyValuePairList(existingPrecedences);
+      final List<KeyValuePair> localHighTermGroups =
+          new ArrayList<>(highTermGroups);
+      final List<KeyValuePair> localLowTermGroups =
+          new ArrayList<>(lowTermGroups);
+
+      boolean insertionRequired = false;
+      boolean insertionPerformed = false;
+
+      // Loop through the highTermGroups, possibly multiple times (a high term
+      // group further down the list may need to be inserted before one higher
+      // in the list can)
+      // e.g. NCI SY -> NCI PT
+      // NCI PT -> NCI DN
+      // SY cannot be added on the first run, because PT hasn't been inserted
+      // yet.
+      // But on next loop through, PT will be there, and SY will insert
+      do {
+        insertionRequired = false;
+        insertionPerformed = false;
+
+        // Check for each High Term Groups whether it needs to be inserted into
+        // the precedence list
+        for (final KeyValuePair highTermGroup : new ArrayList<>(
+            localHighTermGroups)) {
+          // Look up the corresponding low term group
+          final KeyValuePair lowTermGroup = localLowTermGroups
+              .get(localHighTermGroups.indexOf(highTermGroup));
+
+          // If high term group is already in the precedence list, we're good.
+          // This high term/low term group pair doesn't need to be looked at
+          // again
+          if (updatedPrecedences.contains(highTermGroup)) {
+            localHighTermGroups.remove(highTermGroup);
+            localLowTermGroups.remove(lowTermGroup);
+            continue;
+          }
+          // Otherwise, set the flag that a high term group needs to be inserted
+          insertionRequired = true;
+
+          // If low term group exists in the precedence list, insert the high
+          // term
+          // group above it, and set the flag that an insertion happened
+          if (updatedPrecedences.contains(lowTermGroup)) {
+            final int indexOfLowTermGroup =
+                updatedPrecedences.getKeyValuePairs().indexOf(lowTermGroup);
+            updatedPrecedences.getKeyValuePairs().add(indexOfLowTermGroup,
+                highTermGroup);
+            insertionPerformed = true;
+          }
+        }
+
+        // If an insertion was required but no insertion was performed, there is
+        // an error in termgroups.src file and/or database. Throw an exception
+        if (insertionRequired && !insertionPerformed) {
+          throw new Exception(
+              "ERROR: unable to insert High Term Group(s) into the precedence list: "
+                  + highTermGroups);
+        }
+
+      } while (insertionRequired);
+
+      // If the precedences changed, update the Precedence List
+      if (!existingPrecedences.equals(updatedPrecedences)) {
+        list.setPrecedence(updatedPrecedences);
+        updatePrecedenceList(list);
+      }
+    }
+
   }
 
   /**
@@ -964,6 +1099,7 @@ public class MetadataLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm
     return params;
   }
 
+  /* see superclass */
   @Override
   public String getDescription() {
     return "Loads and processes MRDOC.RRF and sources.src into metadata objects.";
