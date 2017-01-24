@@ -462,6 +462,7 @@ tsApp
         $scope.getExecutionState = function(execution) {
           if (!execution) {
             retval = '';
+            return;
           } else if ($scope.selected.mode == 'Config') {
             retval = 'CONFIG';
           } else if (!execution.startDate) {
