@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +77,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
             "ERROR - PDQ/PT termgroup required in precedence list in order to insert PDQ/XM.");
       }
       precedences.getKeyValuePairs().add(indexOfPdqPt, kvp);
+      updatePrecedenceList(list);
     }
 
     //
@@ -133,8 +133,6 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // NCI, version=NCI.version), codeId=100001
     //
 
-    
-    
     // Algorithm (use molecular actions for id assignment).
     // 1. Find any concepts with PDQ/XM atoms
     // * make the atoms of that concept unpublishable
