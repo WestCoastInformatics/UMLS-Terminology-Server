@@ -3,10 +3,13 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -18,6 +21,8 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 
 /**
  * Algorithm for creating NCI-PDQ map.
@@ -49,13 +54,16 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
   }
 
   /* see superclass */
+  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     logInfo("Starting create NCI-PDQ map algorithm");
     fireProgressEvent(0, "Starting");
 
+    //
     // 1. Add PDQ/XM termgroup to precedence list (just above PDQ/PT) - only if
     // it doesn't already exist in the precedence list
+    //
 
     final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
         getProject().getVersion());
@@ -72,18 +80,20 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       precedences.getKeyValuePairs().add(indexOfPdqPt, kvp);
     }
 
+    //
     // 2. Make any PDQ/XM atoms unpublishable (e.g. find and update them)
     // Also make the previous version of the map unpublishable and its mappings
     // unpublishable
+    //
 
     // Generate parameters to pass into query execution
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", "PDQ");
     params.put("termType", "XM");
-    final String query = "SELECT DISTINCT a.id " + "FROM AtomJpa a "
+    String query = "SELECT DISTINCT a.id " + "FROM AtomJpa a "
         + "WHERE a.terminology=:terminology AND a.termType=:termType ";
 
-    // Execute query to get atom Ids
+    // Execute a query to get atom Ids
     final List<Long> atomIds = executeSingleComponentIdQuery(query,
         QueryType.JQL, params, AtomJpa.class);
 
@@ -93,20 +103,38 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       updateAtom(atom);
     }
 
-    // Execute query to get mapset Ids
-    // final List<Long> mapSetIds = executeSingleComponentIdQuery(query,
-    // QueryType.JQL, params, MapSetJpa.class);
-    //
-    // final MapSetList mapSetList = this.getMapSets("PDQ", null, Branch.ROOT);
-    //
-    // final MapSet mapSet = getMapSet(terminology, version, branch)
-    // mapSet.setPublishable(false);
-    // updateMapSet(mapSet);
-    // for (final Mapping mapping : mapSet.getMappings()){
-    // mapping.setPublishable(false);
-    // updateMapping(mapping);
-    // }
+    // Execute a query to get current PDQ mapset
+    query = "SELECT DISTINCT m " + "FROM MapSetJpa m "
+        + "WHERE m.terminology=:terminology and m.publishable=true";
+    final javax.persistence.Query jpaQuery =
+        getEntityManager().createQuery(query);
 
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    final MapSet mapSet = (MapSet) jpaQuery.getSingleResult();
+    mapSet.setPublishable(false);
+    updateMapSet(mapSet);
+    for (final Mapping mapping : mapSet.getMappings()) {
+      mapping.setPublishable(false);
+      updateMapping(mapping);
+    }
+
+    //
+    // 3. Create a map set for this map (see #4 for most of the fields).
+    // Add a PDQ/XM atom "NCI_$version to PDQ_$version Mappings" (terminology =
+    // NCI, version=NCI.version), codeId=100001
+    //
+
+    
+    
     // Algorithm (use molecular actions for id assignment).
     // 1. Find any concepts with PDQ/XM atoms
     // * make the atoms of that concept unpublishable

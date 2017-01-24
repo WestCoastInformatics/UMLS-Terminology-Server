@@ -158,12 +158,12 @@ public class MetadataLoaderAlgorithm
     // Load all of the low and high term groups
     for (String line : lines) {
       FieldedStringTokenizer.split(line, "|", 6, fields);
-      final String lowTermTerminology = fields[1].indexOf('_') != -1
-          ? fields[1].substring(0, fields[1].indexOf('_'))
+      final String lowTermTerminology = fields[1].matches("(.+?)_\\d.*")
+          ? fields[1].replaceFirst("(.+?)_\\d.*", "$1")
           : fields[1].substring(0, fields[1].indexOf('/'));
 
-      final String highTermTerminology = fields[0].indexOf('_') != -1
-          ? fields[0].substring(0, fields[0].indexOf('_'))
+      final String highTermTerminology = fields[0].matches("(.+?)_\\d.*")
+          ? fields[0].replaceFirst("(.+?)_\\d.*", "$1")
           : fields[0].substring(0, fields[0].indexOf('/'));
 
       final String lowTermType =
