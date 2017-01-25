@@ -49,10 +49,8 @@ public class WaitAlgorithmTest extends IntegrationUnitSupport {
     processService = new ProcessServiceJpa();
 
     // If the algorithm is defined in the config.properties, get from there.
-    if (processService.getAlgorithmInstance("WAIT",
-        algo.getProjects().getObjects().get(0)) != null) {
-      algo = (WaitAlgorithm) processService.getAlgorithmInstance("WAIT",
-          algo.getProjects().getObjects().get(0));
+    if (processService.getAlgorithmInstance("WAIT") != null) {
+      algo = (WaitAlgorithm) processService.getAlgorithmInstance("WAIT");
     }
     // If not, create and configure from scratch
     else {
