@@ -26,6 +26,7 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.TypeKeyValue;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -50,7 +51,7 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
   private String type;
 
   /** The key. */
-  @Column(name = "key_field", nullable = true)
+  @Column(name = "key_field", nullable = true, length = 4000)
   private String key;
 
   /** The value. */
@@ -118,6 +119,8 @@ public class TypeKeyValueJpa implements TypeKeyValue, Comparable<TypeKeyValue> {
    * @return the id
    */
   /* see superclass */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public Long getId() {
     return id;
