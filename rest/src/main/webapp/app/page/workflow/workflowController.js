@@ -63,20 +63,18 @@ tsApp.controller('WorkflowCtrl', [
 
     // Handle worklist actions
     $scope.$on('termServer::binsChange', function(event, project) {
-      console.debug('abc');
       if (project.id == $scope.selected.project.id) {
         // Bins changed, refresh bins
-        $scope.getBins();
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
     });
 
     // $scope.$on('termServer::checklistChange', -- n/a, no action on checklist
     // change
     $scope.$on('termServer::worklistChange', function(event, data) {
-      console.debug('def');
       if (data.id == $scope.selected.project.id) {
         // could affect worklist bin counts
-        $scope.getBins();
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
     });
 
@@ -94,12 +92,12 @@ tsApp.controller('WorkflowCtrl', [
     $scope.setConfig = function(config) {
       $scope.selected.config = config;
       if ($scope.selected.config) {
-        $scope.getBins($scope.selected.project.id, $scope.selected.config);
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
     }
 
     // Retrieve all bins with project and type
-    $scope.getBins = function(projectId, config) {
+    $scope.getBins = function(projectId, config, bin) {
       // Clear the records
       $scope.lists.records = [];
 
@@ -110,6 +108,15 @@ tsApp.controller('WorkflowCtrl', [
         function(data) {
           $scope.lists.bins = data.bins;
           $scope.lists.bins.totalCount = $scope.lists.bins.length;
+          if (bin) {
+            var filtered = $scope.lists.bins.filter(function(item) {
+              return item.id == bin.id;
+            });
+            if (filtered.length == 1) {
+              $scope.selectBin(filtered[0]);
+            }
+          }
+
         });
       }
     };
@@ -233,16 +240,26 @@ tsApp.controller('WorkflowCtrl', [
 
     }
 
+    // Regenerate single bin
+    $scope.regenerateBin = function(bin) {
+      workflowService
+        .regenerateBin($scope.selected.project.id, bin.id, $scope.selected.config.type).then(
+        // Success
+        function(data) {
+          $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+        });
+    };
+
     // Regenerate bins
     $scope.regenerateBins = function() {
       workflowService.clearBins($scope.selected.project.id, $scope.selected.config.type).then(
         // Success
-        function(response) {
+        function(data) {
           workflowService.regenerateBins($scope.selected.project.id, $scope.selected.config.type)
             .then(
             // Success
-            function(response) {
-              $scope.getBins($scope.selected.project.id, $scope.selected.config);
+            function(data) {
+              $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
             });
         });
     };
@@ -252,7 +269,7 @@ tsApp.controller('WorkflowCtrl', [
       workflowService.recomputeConceptStatus($scope.selected.project.id, updateFlag).then(
       // Success
       function(response) {
-        $scope.getBins($scope.selected.project.id, $scope.selected.config);
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       });
     };
 
@@ -270,7 +287,7 @@ tsApp.controller('WorkflowCtrl', [
           }
           workflowService.updateWorkflowBinDefinition($scope.selected.project.id, bin).then(
             function(response) {
-              $scope.regenerateBins();
+              $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
             });
         });
     };
@@ -296,7 +313,7 @@ tsApp.controller('WorkflowCtrl', [
             .then(
             // Successs
             function(response) {
-              $scope.regenerateBins();
+              $scope.getBins($scope.selected.project.id, $scope.selected.config);
             });
         });
     };
@@ -389,7 +406,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(project) {
-        $scope.getBins($scope.selected.project.id, $scope.selected.config);
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
         // "worklists" accordion should reload
         $scope.selected.refreshCt++;
 
@@ -488,7 +505,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.regenerateBins();
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, lbin);
       });
     };
 
@@ -521,7 +538,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.regenerateBins();
+        $scope.getBins($scope.selected.project.id, $scope.selected.config);
       });
     };
 
@@ -554,7 +571,7 @@ tsApp.controller('WorkflowCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        $scope.regenerateBins();
+        $scope.getBins($scope.selected.project.id, $scope.selected.config);
       });
     };
 

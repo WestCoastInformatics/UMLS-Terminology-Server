@@ -2208,7 +2208,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @GET
+  @POST
   @Path("/bin/{id}/regenerate")
   @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin", response = WorkflowBinJpa.class)
   public WorkflowBin regenerateBin(

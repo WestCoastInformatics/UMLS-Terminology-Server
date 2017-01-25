@@ -181,7 +181,7 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/definition/' + definitionId).then(
+      $http['delete'](workflowUrl + '/definition/' + definitionId + '?projectId=' + projectId).then(
       // success
       function(response) {
         console.debug('  successful remove workflow bin definition');
@@ -841,6 +841,31 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // regenerate bin
+    this.regenerateBin = function(projectId, id, workflowBinType) {
+      console.debug('regenerate bin');
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment('Regenerating bin...');
+      $http.post(
+        workflowUrl + '/bin/' + id + '/regenerate?projectId=' + projectId + '&type='
+          + workflowBinType, '').then(
+      // success
+      function(response) {
+        console.debug('  successful regenerate bin');
+        gpService.decrement('Regenerating bin...');
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement('Regenerating bin...');
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
     // regenerate bins
     this.regenerateBins = function(projectId, workflowBinType) {
       console.debug('regenerate bins');
@@ -864,6 +889,29 @@ tsApp.service('workflowService', [
           gpService.decrement('Regenerating bins...');
           deferred.reject(response.data);
         });
+      return deferred.promise;
+    };
+
+    // clear bin
+    this.clearBin = function(projectId, id) {
+      console.debug('clear bin', projectId, id);
+      var deferred = $q.defer();
+
+      // find tracking records
+      gpService.increment();
+      $http.post(workflowUrl + '/bin/' + id + '/clear?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful clear bin');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
       return deferred.promise;
     };
 
