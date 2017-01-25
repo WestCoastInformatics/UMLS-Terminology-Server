@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryType;
@@ -46,6 +45,32 @@ public interface WorkflowServiceRest {
    */
   public WorkflowConfig addWorkflowConfig(Long projectId,
     WorkflowConfigJpa config, String authToken) throws Exception;
+
+  /**
+   * Import workflow config.
+   *
+   * @param contentDispositionHeader the content disposition header
+   * @param in the in
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the workflow config
+   * @throws Exception the exception
+   */
+  public WorkflowConfig importWorkflowConfig(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String authToken) throws Exception;
+
+  /**
+   * Export process config.
+   *
+   * @param projectId the project id
+   * @param workflowId the workflow id
+   * @param authToken the auth token
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  public InputStream exportWorkflowConfig(Long projectId, Long workflowId,
+    String authToken) throws Exception;
 
   /**
    * Update workflow config.
@@ -672,11 +697,10 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param approve the approve
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampWorklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception;
+  public void stampWorklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception;
 
   /**
    * Stamp checklist.
@@ -686,11 +710,10 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param approve the approve
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampChecklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception;
+  public void stampChecklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception;
 
   /**
    * Recompute concept status.
@@ -699,10 +722,9 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param updaterFlag the updater flag
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, Boolean updaterFlag, String authToken) throws Exception;
+  public void recomputeConceptStatus(Long projectId, String activityId,
+    Boolean updaterFlag, String authToken) throws Exception;
 
 }

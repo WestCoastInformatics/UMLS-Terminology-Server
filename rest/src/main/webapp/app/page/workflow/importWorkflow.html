@@ -1,0 +1,44 @@
+<form ng-submit="importWorkflow(file);">
+  <div class="modal-header">
+    <h4 style="display: inline">Import Workflow</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
+
+  <div class="modal-body">
+    <div>
+      <!-- Refset info -->
+
+      <table class="table">
+        <tr>
+          <td>
+            <b>Choose File</b>
+          </td>
+          <td>
+            <div>
+              <span style="margin-left: 15px" type="file" ngf-select
+                ng-model="file" name="file" ngf-pattern="*.txt"
+                ngf-max-size="200MB" class="btn btn-xs btn-primary">Browse
+                for File</span>
+              <div ngf-drop ng-model="file" class="drop-box"
+                ngf-drag-over-class="'dragover'" ngf-max-size="200MB"
+                ngf-pattern="*.txt">Drop file here</div>
+            </div>
+          </td>
+        </tr>
+        <tr ng-show="file">
+          <td>Selected File</td>
+          <td>{{file.name}}</td>
+        </tr>
+      </table>
+      <div errors errors="errors" warnings="warnings" comments="comments"></div>
+
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-disabled="!file">Import</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+  </div>
+</form>

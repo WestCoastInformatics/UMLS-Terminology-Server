@@ -34,7 +34,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   private Long checklistId;
 
   /** Indicates if the action should be to approve or to unapprove. */
-  private boolean approve;
+  private boolean approve = true;
 
   /**
    * Instantiates an empty {@link StampingAlgorithm}.
@@ -226,7 +226,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param =
         new AlgorithmParameterJpa("Worklist Id", "worklistId", "Worklist id.",
@@ -235,6 +235,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
     param = new AlgorithmParameterJpa("Checklist Id", "checklistId",
         "Checklist id.", "e.g. 12345", 20, AlgorithmParameter.Type.INTEGER, "");
     params.add(param);
+    // Approve not put in as a parameter, since unapprove functionality was
+    // determined currently not useful
     return params;
   }
 

@@ -36,7 +36,6 @@
       <span uib-tooltip="Workflow Bins">Bins</span>
     </h5>
     </uib-accordion-heading>
-
     <div class="row">
       <div class="col-md-12 col-xs-12">
         <select ng-model="selected.config" ng-show="lists.configs.length > 1"
@@ -67,7 +66,12 @@
         <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
           <i ng-click="openEditConfigModal(selected.config)"
             ng-show="selected.config" title="Edit workflow configuration"
-            class="ml20 noul glyphicon glyphicon-pencil"></i>
+            class="ml20 noul glyphicon glyphicon-pencil"></i> <i
+            ng-show="selected.config" ng-click="exportWorkflow()"
+            title="Export workflow"
+            class="ml20 noul glyphicon glyphicon-download"></i> <i
+            ng-show="selected.config" ng-click="openImportWorkflowModal()"
+            title="Import workflow" class="ml20 noul glyphicon glyphicon-upload"></i>
           <i
             confirm="Are you sure you want to remove the 
           {{selected.config.type}} configuration?"
@@ -116,8 +120,8 @@
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
                   <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
                     title="Regenerate Bin"
-                    class="noul glyphicon glyphicon-repeat"></i>
-                  <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
+                    class="noul glyphicon glyphicon-repeat"></i> <i
+                    ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
                     title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
                   <i
                     confirm="Are you sure you want to remove the bin definition?"
@@ -148,13 +152,11 @@
                   ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
                   ng-click="setConfig(selected.config); $event.stopPropagation()"
                   title="Refresh counts"
-                  class="noul glyphicon glyphicon-refresh"></i>
-                <i
+                  class="noul glyphicon glyphicon-refresh"></i> <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
-                &nbsp;
-                <i
+                &nbsp; <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && 
                   selected.project.editingEnabled && hasPermissions('CreateWorklist')"
                   ng-click="openAddWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
@@ -166,12 +168,10 @@
         <span ng-show="lists.bins.length == 0" style="display: block;"
           class="alert alert-warning">No workflow Bins</span>
       </div>
-
       <hr ng-show="selected.bin">
       <!-- Bin Records Table -->
       <div ng-show="selected.bin" records-table selected="selected"
         lists="lists" user="user" paging="paging"></div>
-
     </div>
     </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group
       ng-click="saveAccordionStatus()" is-open="groups[1].open">
@@ -194,6 +194,5 @@
     <div worklists-table type="Worklist" selected="selected" lists="lists"
       user="user"></div>
     </uib-accordion-group></uib-accordion>
-
   </div>
 </div>

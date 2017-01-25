@@ -103,4 +103,32 @@ public interface Algorithm
    */
   public String getDescription();
   
+  /**
+   * Returns the terminology.
+   * 
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   * 
+   * @param terminology the terminology
+   */
+  public void setTerminology(String terminology);
+
+  /**
+   * Returns the version.
+   * 
+   * @return the version
+   */
+  public String getVersion();
+
+  /**
+   * Sets the version.
+   * 
+   * @param version the version
+   */
+  public void setVersion(String version);  
+  
 }

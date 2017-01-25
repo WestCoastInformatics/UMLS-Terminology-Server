@@ -20,6 +20,8 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -42,7 +44,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * JPA and JAXB enabled implementation of {@link ProcessService}.
  */
-public class ProcessServiceJpa extends ProjectServiceJpa
+public class ProcessServiceJpa extends WorkflowServiceJpa
     implements ProcessService {
 
   /** The algorithms map. */
@@ -510,6 +512,38 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     handleLazyInit(algorithmExecution);
 
     return algorithmExecution;
+  }
+
+  /* see superclass */
+  @Override
+  public void executeSingleAlgorithm(Algorithm algorithm, Project project)
+    throws Exception {
+
+    // Perform standard algorithm configuration
+    algorithm.setProject(project);
+    algorithm.setTerminology(project.getTerminology());
+    algorithm.setVersion(project.getVersion());
+
+    // Begin the transaction
+    algorithm.setTransactionPerOperation(false);
+    algorithm.beginTransaction();
+
+    // Check the preconditions. If any errors, don't continue.
+    final ValidationResult result = algorithm.checkPreconditions();
+    if (!result.isValid()) {
+      throw new Exception(
+          "Algorithm failed preconditions: " + result.getErrors());
+    }
+
+    // If no validation errors, execute algorithm
+    algorithm.compute();
+
+    // Commit any changes the algorithm wants to make
+    algorithm.commit();
+
+    // Always close the algorithm
+    algorithm.close();
+
   }
 
   /**

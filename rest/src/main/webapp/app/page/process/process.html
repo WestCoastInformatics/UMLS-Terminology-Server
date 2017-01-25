@@ -120,7 +120,7 @@
             </td>
             <td>
               {{selected.process.name}} &nbsp;
-              <i ng-show="selected.mode == 'Execution'"
+              <i ng-show="selected.mode != 'Execution'"
                 ng-click="exportProcess()" title="Export process"
                 class="noul glyphicon glyphicon-download"></i>
             </td>
