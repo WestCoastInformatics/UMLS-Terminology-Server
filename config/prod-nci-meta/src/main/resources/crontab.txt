@@ -1,0 +1,28 @@
+#
+# Run nightly tasks
+# This includes restarting the tomcat server.
+#
+00 00 * * 0-5 /meme_work/ncim/bin/nightly_tasks.csh
+
+#
+# Run cron validation script (runs the MID Validation queries and emails them)
+#
+00 09 * * 6 /meme_work/ncim/bin/cronvalidate.csh
+
+#
+# EMS
+#
+
+#
+# Send daily editing report
+#
+02 06 * * 2-6 /meme_work/ncim/bin/dailyReports.csh
+
+
+
+
+
+
+
+
+
