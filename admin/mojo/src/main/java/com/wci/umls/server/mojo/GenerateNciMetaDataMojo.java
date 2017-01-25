@@ -945,6 +945,73 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE", authToken);
 
+    //
+    // Add MID VALIDATOIN
+    //
+    getLog().info("  Create a MID VALIDATION config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType("MID_VALIDATION");
+    config.setMutuallyExclusive(false);
+    config.setProjectId(projectId);
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+
+    // Approved C rel matching demotion
+    getLog().info("    Approved C rel matching demotion");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("Approved C rel matching demotion");
+    definition.setDescription(
+        "Finds approved concept relationships matching demotions.");
+    definition.setQuery("select cr.from_id conceptId1, cr.to_id conceptId2 "
+        + "from atom_relationships ar, concept_relationships cr, "
+        + "     concepts_atoms ca1, concepts_atoms ca2, concepts c1, concepts c2 "
+        + "where ar.terminology = :terminology and cr.terminology = :terminology "
+        + "  and ar.from_id = ca1.atoms_id and ar.to_id = ca2.atoms_id "
+        + "  and cr.from_id = ca1.concepts_id and cr.to_id = ca2.concepts_id "
+        + "  and ar.workflowStatus = 'DEMOTION' "
+        + "  and cr.workflowStatus in ('READY_FOR_PUBLICATION','PUBLISHED'");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    //
+    // Add MID VALIDATION (NO concepts)
+    //
+    getLog().info("  Create a MID VALIDATION_NOCONCEPT config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType("MID_VALIDATION_NOCONCEPT");
+    config.setMutuallyExclusive(false);
+    config.setProjectId(projectId);
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+
+    // Approved C rel matching demotion
+    getLog().info("    Atom with leading/trailing junk");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("Atom with leading/trailing junk");
+    definition.setDescription(
+        "Finds atoms with leading or trailing whitespace or junk chars");
+    definition
+        .setQuery("select c.id from atoms a, concepts_atoms ca, concepts c "
+            + "where ca.atoms_id = a.id and ca.concepts_id = c.id"
+            + "  and a.name like ' %' or a.name like '% ' "
+            + "  and c.terminology = :terminology;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
     // Matrix initializer
     workflowService = new WorkflowServiceRestImpl();
     workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
@@ -1337,8 +1404,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);    
-    
+    processConfig.getSteps().add(algoConfig);
+
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
   }
@@ -1737,7 +1804,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
-    
+
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("POSTINSERTION");
     algoConfig.setDescription("POSTINSERTION Algorithm");
