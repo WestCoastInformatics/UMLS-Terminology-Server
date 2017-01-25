@@ -16,6 +16,11 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
+      <span ng-show="ws.connected" class="alert alert-success">CONNECTED</span>
+      <span ng-show="ws && !ws.connected">
+        <span class="alert alert-danger"> DISCONNECTED</span>
+        <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -246,7 +251,8 @@
         <button ng-click="openContextsWindow(null, null)"
           title="{{selected.metadata.hierarchiesLabel}}"
           ng-disabled="!selected.component" class="btn btn-xs btn-primary">Tree</button>
-        <i ng-show="selected.component" ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
+        <i ng-show="selected.component"
+          ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
       <!-- Concept actions -->

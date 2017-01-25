@@ -20,7 +20,6 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
-import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
@@ -58,6 +57,9 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
   /** The release algorithms map. */
   private static Map<String, String> releaseAlgorithmsMap = new HashMap<>();
+
+  /** The report algorithms map. */
+  private static Map<String, String> reportAlgorithmsMap = new HashMap<>();
 
   static {
     init();
@@ -128,6 +130,20 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       e.printStackTrace();
       releaseAlgorithmsMap = null;
     }
+
+    try {
+      config = ConfigUtility.getConfigProperties();
+      final String key = "report.algorithm.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+
+        // Pull algorithm from algorithm map, and add to specific algorithm-type
+        // map
+        reportAlgorithmsMap.put(handlerName, algorithmsMap.get(handlerName));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      reportAlgorithmsMap = null;
+    }
   }
 
   /**
@@ -140,19 +156,39 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     validateInit();
   }
 
+  /**
+   * Returns the algorithms for type.
+   *
+   * @param type the type
+   * @return the algorithms for type
+   * @throws Exception the exception
+   */
   /* see superclass */
   @Override
-  public KeyValuePairList getInsertionAlgorithms() throws Exception {
+  public KeyValuePairList getAlgorithmsForType(String type) throws Exception {
     final KeyValuePairList algorithmList = new KeyValuePairList();
 
-    for (final String key : insertionAlgorithmsMap.keySet()) {
+    Map<String, String> algorithmsMap = null;
+    if (type.equals("insertion")) {
+      algorithmsMap = insertionAlgorithmsMap;
+    } else if (type.equals("maintenance")) {
+      algorithmsMap = maintenanceAlgorithmsMap;
+    } else if (type.equals("release")) {
+      algorithmsMap = releaseAlgorithmsMap;
+    } else if (type.equals("report")) {
+      algorithmsMap = reportAlgorithmsMap;
+    } else {
+      throw new Exception("invalid type - " + type);
+    }
 
-      final String name = insertionAlgorithmsMap.get(key);
+    for (final String key : algorithmsMap.keySet()) {
+
+      final String name = algorithmsMap.get(key);
       if (name != null) {
         algorithmList.addKeyValuePair(new KeyValuePair(key, name));
       } else {
-        throw new Exception(
-            "Misalignment between all algorithms and insertion algorithms in config file");
+        throw new Exception("Misalignment between all algorithms and " + type
+            + " algorithms in config file");
       }
     }
 
@@ -161,36 +197,17 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
   /* see superclass */
   @Override
-  public KeyValuePairList getMaintenanceAlgorithms() throws Exception {
+  public KeyValuePairList getReportAlgorithms() throws Exception {
     final KeyValuePairList algorithmList = new KeyValuePairList();
 
-    for (final String key : maintenanceAlgorithmsMap.keySet()) {
+    for (final String key : reportAlgorithmsMap.keySet()) {
 
-      final String name = maintenanceAlgorithmsMap.get(key);
+      final String name = reportAlgorithmsMap.get(key);
       if (name != null) {
         algorithmList.addKeyValuePair(new KeyValuePair(key, name));
       } else {
         throw new Exception(
-            "Misalignment between all algorithms and maintenance algorithms in config file");
-      }
-    }
-
-    return algorithmList;
-  }
-
-  /* see superclass */
-  @Override
-  public KeyValuePairList getReleaseAlgorithms() throws Exception {
-    final KeyValuePairList algorithmList = new KeyValuePairList();
-
-    for (final String key : releaseAlgorithmsMap.keySet()) {
-
-      final String name = releaseAlgorithmsMap.get(key);
-      if (name != null) {
-        algorithmList.addKeyValuePair(new KeyValuePair(key, name));
-      } else {
-        throw new Exception(
-            "Misalignment between all algorithms and release algorithms in config file");
+            "Misalignment between all algorithms and report algorithms in config file");
       }
     }
 
@@ -230,6 +247,11 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     if (releaseAlgorithmsMap == null) {
       throw new Exception(
           "Release algorithms did not properly initialize, serious error.");
+    }
+
+    if (reportAlgorithmsMap == null) {
+      throw new Exception(
+          "Report algorithms did not properly initialize, serious error.");
     }
   }
 

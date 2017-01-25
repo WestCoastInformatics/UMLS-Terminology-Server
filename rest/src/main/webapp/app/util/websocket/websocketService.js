@@ -4,16 +4,25 @@ tsApp.service('websocketService',
     '$rootScope',
     '$location',
     '$http',
+    '$interval',
     'utilService',
-    function($rootScope, $location, $http, utilService) {
+    function($rootScope, $location, $http, $interval, utilService) {
 
       // Data model
-      this.data = {
-        message : null
+      var data = {
+        message : null,
+        connected : false
       };
+
+      var connection = null;
 
       // Track events to ignore
       var ignoreConcepts = {};
+
+      // Get data
+      this.getData = function() {
+        return data;
+      }
 
       // Increment an ignore counter for this concept
       this.incrementConceptIgnore = function(conceptId) {
@@ -35,42 +44,73 @@ tsApp.service('websocketService',
       // Determine URL without requiring injection
       // should support wss for https
       // and assumes REST services and websocket are deployed together
-      this.getUrl = function() {
+      function getUrl() {
         var url = window.location.href;
         url = url.replace('http', 'ws');
         url = url.replace('index.html', '');
         url = url.replace('index2.html', '');
         url = url.substring(0, url.indexOf('#'));
         url = url + "/websocket";
-        console.debug("Websocket URL" + url);
+        console.debug("Websocket URL " + url);
         return url;
-      };
+      }
+      ;
 
-      // TODO Add wiki entry about registering scopes and broadcast event
-      // receipt
-      // lists
-      this.connection = new WebSocket(this.getUrl());
+      var interval = null;
+      this.cancelInterval = function() {
+        $interval.cancel(interval);
+      }
+      // Reopen the connection
+      this.reopen = function() {
+        reopen();
+      }
+      function reopen() {
 
-      this.connection.onopen = function() {
+        if (interval != null) {
+          console.debug('cancel interval in reopen', interval, data.connected);
+          $interval.cancel(interval);
+          interval = null;
+        }
+        connection = new WebSocket(getUrl());
+        interval = $interval(function() {
+          if (data.connected) {
+            console.debug('ping connection', data.connected);
+            connection.send('ping');
+          } else {
+            // N/A - just have user reload the window.
+            // reopen();
+          }
+        }, 5000)
+      }
+      reopen();
+
+      connection.onopen = function() {
         // Log so we know it is happening
         console.debug('MESSAGE Connection open');
+        data.connected = true;
       };
 
-      this.connection.onclose = function(event) {
-        window.alert("Websocket unexpectedly closed, please log out and log in again.");
+      connection.onclose = function(event) {
         // Log so we know it is happening
         console.debug('MESSAGE Connection closed', event);
+        data.connected = false;
+        if (interval != null) {
+          console.debug('cancel interval in reopen', interval, data.connected);
+          $interval.cancel(interval);
+          interval = null;
+        }
       };
 
       // error handler
-      this.connection.onerror = function(error) {
+      connection.onerror = function(error) {
         console.debug('MESSAGE Connection on error', error);
+        data.connected = false;
         utilService.handleError(error, null, null, null);
       };
 
       // Send a message to the websocket server endpoint
       this.send = function(message) {
-        this.connection.send(JSON.stringify(message));
+        connection.send(JSON.stringify(message));
       };
 
       //
@@ -112,7 +152,7 @@ tsApp.service('websocketService',
       }
 
       // handle receipt of a message
-      this.connection.onmessage = function(event) {
+      connection.onmessage = function(event) {
         // Need to determine what kind of message it was.
         // First, if it's a "change event", then we can determine what changed
         // and whether to fire "concept changed" or "atom changed"

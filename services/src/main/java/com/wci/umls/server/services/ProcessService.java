@@ -20,28 +20,21 @@ import com.wci.umls.server.helpers.ProcessExecutionList;
 public interface ProcessService extends ProjectService {
 
   /**
-   * Returns the authoring algorithms.
+   * Returns the algorithms by type.
    *
-   * @return the authoring algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getInsertionAlgorithms() throws Exception;
-
-  /**
-   * Returns the maintenance algorithms.
-   *
-   * @return the maintenance algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getMaintenanceAlgorithms() throws Exception;
-
-  /**
-   * Returns the release algorithms.
-   *
+   * @param type the type
    * @return the release algorithms
    * @throws Exception the exception
    */
-  public KeyValuePairList getReleaseAlgorithms() throws Exception;
+  public KeyValuePairList getAlgorithmsForType(String type) throws Exception;
+
+  /**
+   * Returns the report algorithms.
+   *
+   * @return the report algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getReportAlgorithms() throws Exception;
 
   /**
    * Returns the algorithm instance.

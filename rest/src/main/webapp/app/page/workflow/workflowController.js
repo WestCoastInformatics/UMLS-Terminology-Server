@@ -4,6 +4,7 @@ tsApp.controller('WorkflowCtrl', [
   '$http',
   '$location',
   '$uibModal',
+  '$window',
   'utilService',
   'websocketService',
   'tabService',
@@ -13,7 +14,7 @@ tsApp.controller('WorkflowCtrl', [
   'metadataService',
   'workflowService',
   'reportService',
-  function($scope, $http, $location, $uibModal, utilService, websocketService, tabService,
+  function($scope, $http, $location, $uibModal, $window, utilService, websocketService, tabService,
     configureService, securityService, projectService, metadataService, workflowService,
     reportService) {
     console.debug("configure WorkflowCtrl");
@@ -22,6 +23,7 @@ tsApp.controller('WorkflowCtrl', [
     tabService.setShowing(true);
     utilService.clearError();
     $scope.user = securityService.getUser();
+    $scope.ws = websocketService.getData();
     projectService.getUserHasAnyRole();
     tabService.setSelectedTabByLabel('Workflow');
 
@@ -77,6 +79,11 @@ tsApp.controller('WorkflowCtrl', [
         $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
       }
     });
+
+    // reconnect
+    $scope.reconnect = function() {
+      $window.location.reload();
+    }
 
     // Paging parameters
     $scope.resetPaging = function() {

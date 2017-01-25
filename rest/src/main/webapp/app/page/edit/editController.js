@@ -9,6 +9,7 @@ tsApp
       '$interval',
       '$q',
       '$uibModal',
+      '$window',
       'tabService',
       'utilService',
       'configureService',
@@ -21,15 +22,18 @@ tsApp
       'contentService',
       'reportService',
       'metaEditingService',
-      function($scope, $location, $window, $interval, $q, $uibModal, tabService, utilService,
-        configureService, securityService, websocketService, workflowService, configureService,
-        projectService, metadataService, contentService, reportService, metaEditingService) {
+      function($scope, $location, $window, $interval, $q, $uibModal, $window, tabService,
+        utilService, configureService, securityService, websocketService, workflowService,
+        configureService, projectService, metadataService, contentService, reportService,
+        metaEditingService) {
         console.debug("configure EditCtrl");
 
         // Set up tabs and controller
         tabService.setShowing(true);
         utilService.clearError();
         $scope.user = securityService.getUser();
+        $scope.ws = websocketService.getData();
+
         projectService.getUserHasAnyRole();
         tabService.setSelectedTabByLabel('Edit');
 
@@ -169,6 +173,11 @@ tsApp
           }
 
         });
+
+        // reconnect
+        $scope.reconnect = function() {
+          $window.location.reload();
+        }
 
         // Manage a changed concept, pull a value from the queue
         $scope.conceptChange = function() {

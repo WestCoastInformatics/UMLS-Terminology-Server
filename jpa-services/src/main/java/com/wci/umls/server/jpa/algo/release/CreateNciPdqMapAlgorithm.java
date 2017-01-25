@@ -53,7 +53,6 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
   }
 
   /* see superclass */
-  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     logInfo("Starting create NCI-PDQ map algorithm");
