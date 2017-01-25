@@ -128,6 +128,7 @@ public class TypeKeyValueJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("workflowStatus");
+    tester.include("id");
     assertTrue(tester.testNotAnalyzedIndexedFields());
 
   }
