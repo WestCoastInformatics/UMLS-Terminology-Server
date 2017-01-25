@@ -46,10 +46,9 @@ public class FailOnceAlgorithmTest extends IntegrationUnitSupport {
     processService = new ProcessServiceJpa();
 
     // If the algorithm is defined in the config.properties, get from there.
-    if (processService.getAlgorithmInstance("FAILONCE",
-        algo.getProjects().getObjects().get(0)) != null) {
-      algo = (FailOnceAlgorithm) processService.getAlgorithmInstance("FAILONCE",
-          algo.getProjects().getObjects().get(0));
+    if (processService.getAlgorithmInstance("FAILONCE") != null) {
+      algo =
+          (FailOnceAlgorithm) processService.getAlgorithmInstance("FAILONCE");
     }
     // If not, create and configure from scratch
     else {

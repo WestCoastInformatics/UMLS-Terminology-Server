@@ -198,7 +198,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public Algorithm getAlgorithmInstance(String key, Project project)
+  public Algorithm getAlgorithmInstance(String key)
     throws Exception {
 
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
