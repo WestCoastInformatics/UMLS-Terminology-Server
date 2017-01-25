@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.PfsParameter;
 
 /**
- * The JAXB enabled implementation of the paging/filtering/sorting object.
+ * The JAXB enabled implementation of the paging/filtering/sorting object. 
  */
 @XmlRootElement(name = "pfs")
 public class PfsParameterJpa implements PfsParameter {

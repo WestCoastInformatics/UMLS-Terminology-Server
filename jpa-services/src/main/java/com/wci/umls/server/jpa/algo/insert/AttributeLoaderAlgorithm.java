@@ -355,10 +355,6 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
       // need them anymore
       clearRelationshipAltTerminologies();
 
-      // Finally, clear out the static caches that have been populated during by
-      // the previous loader algorithms - we don't need them anymore either
-      clearCaches();
-
       commitClearBegin();
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
