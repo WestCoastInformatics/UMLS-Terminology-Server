@@ -79,6 +79,67 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // export workflow
+    this.exportWorkflow = function(projectId, workflowId) {
+      console.debug('exportProcess', projectId, workflowId);
+      gpService.increment();
+      $http.post(workflowUrl + '/config/export?projectId=' + projectId + '&workflowId=' + workflowId,
+        '').then(
+      // Success
+      function(response) {
+        var blob = new Blob([ JSON.stringify(response.data, null, 2) ], {
+          type : ''
+        });
+
+        // fake a file URL and download it
+        var fileURL = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = fileURL;
+        a.target = '_blank';
+        a.download = 'workflow.' + workflowId + '.txt';
+        document.body.appendChild(a);
+        gpService.decrement();
+        a.click();
+
+      },
+      // Error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+      });
+    };    
+    
+
+    // Import workflow
+    this.importWorkflow = function(projectId, file) {
+      console.debug('importWorkflow', projectId);
+      var deferred = $q.defer();
+      gpService.increment();
+      Upload.upload({
+        url : workflowUrl + '/config/import?projectId=' + projectId,
+        data : {
+          file : file
+        }
+      }).then(
+      // Success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      },
+      // event
+      function(evt) {
+        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+        console.debug('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+      });
+      return deferred.promise;
+    };    
+    
     // update worklist
     this.updateWorklist = function(projectId, worklist) {
       console.debug('updateWorklist', projectId, worklist);
@@ -1201,7 +1262,7 @@ tsApp.service('workflowService', [
             + overrideWarnings : ''), null).then(
       // success
       function(response) {
-        console.debug('  validation = ', response.data);
+        console.debug('  validation = Successful stamp');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -1232,7 +1293,7 @@ tsApp.service('workflowService', [
             + overrideWarnings : ''), null).then(
       // success
       function(response) {
-        console.debug('  validation = ', response.data);
+        console.debug('  validation = Successful stamp');
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -1256,7 +1317,7 @@ tsApp.service('workflowService', [
           + (updateFlag ? '&update=' + updateFlag : ''), null).then(
       // success
       function(response) {
-        console.debug('  validation = ', response.data);
+        console.debug('  validation = Successful concept status recompute');
         gpService.decrement('Recomputing concept status...');
         deferred.resolve(response.data);
       },

@@ -79,10 +79,6 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     setLastModifiedBy(getLastModifiedBy());
 
-    // Set transaction mode
-    setTransactionPerOperation(false);
-    beginTransaction();
-
     // Load the project and workflow config
     Project project = getProject();
     // verifyProject -> n/a because we're getting bins for a project
@@ -130,7 +126,7 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       regenerateBinHelper(project, definition, ++rank, conceptsSeen,
           conceptIdWorklistNameMap);
     }
-    commit();
+    commitClearBegin();
 
     // Update the progress
     updateProgress();

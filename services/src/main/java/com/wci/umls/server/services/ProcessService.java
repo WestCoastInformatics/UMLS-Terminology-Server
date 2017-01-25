@@ -7,6 +7,7 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -217,6 +218,16 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception;
+
+  /**
+   * Execute single algorithm.
+   *
+   * @param algorithm the algorithm
+   * @param project the project
+   * @throws Exception the exception
+   */
+  public void executeSingleAlgorithm(Algorithm algorithm, Project project)
+    throws Exception;
 
   /**
    * Returns the algorithm log.

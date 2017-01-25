@@ -340,9 +340,40 @@ tsApp.controller('WorkflowCtrl', [
       return securityService.hasPermissions(action);
     }
 
+    // Export a workflow config
+    $scope.exportWorkflow = function() {
+      workflowService.exportWorkflow($scope.selected.project.id, $scope.selected.config.id);
+    }
+
     //
     // MODALS
     //
+
+    // Import a workflow
+    $scope.openImportWorkflowModal = function() {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/importWorkflow.html',
+        controller : 'ImportWorkflowModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        if (data) {
+          $scope.getConfigs();
+        }
+      });
+    };
 
     // Add checklist modal
     $scope.openAddChecklistModal = function(bin, clusterType) {
