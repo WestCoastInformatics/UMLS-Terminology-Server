@@ -41,7 +41,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * JPA and JAXB enabled implementation of {@link ProcessService}.
- */()
+ */
 public class ProcessServiceJpa extends ProjectServiceJpa
     implements ProcessService {
 
@@ -215,8 +215,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public Algorithm getAlgorithmInstance(String key)
-    throws Exception {
+  public Algorithm getAlgorithmInstance(String key) throws Exception {
 
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
         "algorithm.handler", key, Algorithm.class);
