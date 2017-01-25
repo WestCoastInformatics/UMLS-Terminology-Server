@@ -455,6 +455,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (final AlgorithmConfig algo : process.getSteps()) {
         instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
+        instance.setProject(processService.getProject(projectId));
         algo.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algo.getParameters()) {
@@ -575,6 +576,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processExecution's
       // project
       verifyProject(processExecution, projectId);
+      Project project = processService.getProject(projectId);
 
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
@@ -582,6 +584,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           .getSteps()) {
         instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+        instance.setProject(project);
         algorithmExecution.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algorithmExecution
@@ -1004,6 +1007,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         throw new LocalException(
             "Missing algorithm for key " + algo.getAlgorithmKey());
       }
+      algorithm.setProject(processService.getProject(projectId));
       final Properties p = new Properties();
       p.putAll(algo.getProperties());
       algorithm.checkProperties(p);
@@ -1990,7 +1994,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               processService.updateProcessExecution(processExecution);
 
             }
-            
+
             // Mark algorithm as finished
             lookupAeProgressMap.remove(algorithmExecution.getId());
             processAlgorithmMap.remove(processExecution.getId());

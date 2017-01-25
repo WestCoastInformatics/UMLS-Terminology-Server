@@ -9,15 +9,18 @@ tsApp
       '$location',
       '$routeParams',
       '$window',
+      '$uibModal',
+      '$q',
       'gpService',
       'utilService',
       'tabService',
       'securityService',
       'contentService',
       'metaEditingService',
-      '$uibModal',
-      function($scope, $http, $location, $routeParams, $window, gpService, utilService, tabService,
-        securityService, contentService, metaEditingService, $uibModal) {
+      'websocketService',
+      function($scope, $http, $location, $routeParams, $window, $uibModal, $q, gpService,
+        utilService, tabService, securityService, contentService, metaEditingService,
+        websocketService) {
 
         console.debug("configure AtomsCtrl");
 
@@ -27,6 +30,7 @@ tsApp
 
         // preserve parent scope reference
         $scope.parentWindowScope = window.opener.$windowScope;
+        $scope.parentClosing = false;
         window.$windowScope = $scope;
         $scope.selected = $scope.parentWindowScope.selected;
         $scope.lists = $scope.parentWindowScope.lists;
@@ -119,19 +123,74 @@ tsApp
             $scope.paging['atoms']);
         }
 
-        // approve concept
-        $scope.approveConcept = function() {
-          $scope.parentWindowScope.approveConcept($scope.selected.component);
+        //
+        // THE FOLLOWING CODE IS REPLICATED (with minor variation) in the 4
+        // popup windows and the main edit window
+        // 
+
+        // Approve concept
+        $scope.approveConcept = function(concept) {
+          // Need a promise, so we can reload the tracking records
+          var deferred = $q.defer();
+          contentService.getConcept(concept.id, $scope.selected.project.id).then(
+            function(data) {
+              var concept = data;
+              metaEditingService.approveConcept($scope.selected.project.id,
+                $scope.selected.activityId, concept, false).then(
+              // Success
+              function(data) {
+                deferred.resolve(data);
+              },
+              // Error
+              function(data) {
+                deferred.reject(data);
+              });
+            });
+          return deferred.promise;
         }
 
-        // approve next
+        // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
-          $scope.parentWindowScope.approveNext();
+          var lastIndex = $scope.lists.concepts.length;
+          var successCt = 0;
+          for (var i = 0; i < $scope.lists.concepts.length; i++) {
+            if (!$scope.lists.concepts[i].id) {
+              continue;
+            }
+            // ignore the websocket event from this.
+            websocketService.incrementConceptIgnore($scope.lists.concepts[i].id);
+            $scope.approveConcept($scope.lists.concepts[i]).then(
+            // Success
+            function(data) {
+              successCt++;
+              if (successCt == lastIndex) {
+                $scope.parentWindowScope.getRecords();
+                $scope.next();
+              }
+            });
+          }
         }
+
+        // // approve concept
+        // $scope.approveConcept = function() {
+        // $scope.parentWindowScope.approveConcept($scope.selected.component);
+        // }
+        //
+        // // approve next
+        // $scope.approveNext = function() {
+        // $scope.parentWindowScope.approveNext();
+        // }
+        //
 
         // next
         $scope.next = function() {
           $scope.parentWindowScope.next();
+        }
+
+        // Reload concept
+        $scope.reloadConcept = function() {
+          utilService.clearError();
+          $scope.parentWindowScope.reloadConcept($scope.selected.component);
         }
 
         // refresh
@@ -141,12 +200,12 @@ tsApp
 
         // notify edit controller when semantic type window closes
         $window.onbeforeunload = function(evt) {
-          if (!parentClosing) {
+          if (!$scope.parentClosing) {
             $scope.parentWindowScope.removeWindow('atom');
           }
         }
         $scope.$on('$destroy', function() {
-          if (!parentClosing) {
+          if (!$scope.parentClosing) {
             $scope.parentWindowScope.removeWindow('atom');
           }
         });

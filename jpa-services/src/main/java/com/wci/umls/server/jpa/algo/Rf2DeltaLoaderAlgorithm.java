@@ -3324,7 +3324,7 @@ public class Rf2DeltaLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception{
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 Delta directory to load", "", 255,

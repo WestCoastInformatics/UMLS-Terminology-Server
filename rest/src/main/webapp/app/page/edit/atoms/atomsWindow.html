@@ -50,7 +50,8 @@
         <input type="checkbox" value="{{atom.name}}"
           ng-checked="isRowSelected(atom)">&nbsp;
         <!-- Chevron -->
-        <i class="noul glyphicon" ng-click="toggleAttributes(atom); $event.stopPropagation()"
+        <i class="noul glyphicon"
+          ng-click="toggleAttributes(atom); $event.stopPropagation()"
           ng-class="[{'glyphicon-chevron-down' : attributes[atom.id]}, {'glyphicon-chevron-right' : !attributes[atom.id]}]"
           title="{{attributes[atom.id] ? 'Hide' : 'Show'}} attributes"></i>
         &nbsp; {{atom.name}}
@@ -136,15 +137,18 @@
       <button ng-click="setSortPreferred()" title="Sort by atom precedence"
         class="btn btn-xs btn-primary">Sort preferred</button>
     </span>
+    <span style="float: left;">
+      <button ng-click="reloadConcept()" title="Refresh concept"
+        class="btn btn-xs btn-primary">Refresh</button>
+    </span>
     <span style="float: right;">
-      <button ng-click="approveConcept()" title="Approve"
+      <button ng-click="approveConcept(selected.component)" title="Approve"
         ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Approve</button>
       <button ng-click="next()" title="Next" ng-disabled="editingDisabled()"
         class="btn btn-xs btn-primary">Next</button>
       <button ng-click="approveNext()" title="Approve/Next"
         ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Approve/Next</button>
-      <button ng-click="openMergeModal()"
-        ng-disabled="editingDisabled()"
+      <button ng-click="openMergeModal()" ng-disabled="editingDisabled()"
         title="Merge" class="btn btn-xs btn-primary">Merge</button>
       <button ng-click="openMoveModal()"
         ng-disabled="getSelectedAtomCount() == 0 || editingDisabled()"

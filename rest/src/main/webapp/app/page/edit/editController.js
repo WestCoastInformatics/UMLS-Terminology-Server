@@ -558,7 +558,9 @@ tsApp
           $scope.lists.concepts = [];
           for (var i = 0; i < $scope.selected.record.concepts.length; i++) {
             contentService.getConcept($scope.selected.record.concepts[i].id,
-              $scope.selected.project.id).then(function(data) {
+              $scope.selected.project.id).then(
+            // Success
+            function(data) {
               // prevent duplicates (due to websocket msgs) from being added
               // to concept list
               var found = false;
@@ -600,6 +602,7 @@ tsApp
 
         // refresh windows
         $scope.refreshWindows = function() {
+          console.debug('refreshWindows', $scope.windows);
           for ( var key in $scope.windows) {
             if ($scope.windows[key] && $scope.windows[key].$windowScope) {
               $scope.windows[key].$windowScope.refresh();
@@ -612,9 +615,8 @@ tsApp
           if ($scope.windows.hasOwnProperty(windowName)) {
             delete $scope.windows[windowName];
           }
-          // Retain last settings.
-          // securityService.saveProperty($scope.user.userPreferences,
-          // windowName, false);
+
+          $scope.user.userPreferences.properties[windowName] = false;
         }
 
         // remove windows
@@ -626,17 +628,13 @@ tsApp
 
         // focus windows and open those saved to user preferences
         $scope.focusWindows = function() {
-          console.debug('xxx', $scope.windows);
           // focus windows that are already open
           for ( var win in $scope.windows) {
-            console.debug('xxx1', win);
             $scope.windows[win].focus();
           }
           var width = 400;
           var height = 400;
           // open windows that were saved to user preferences
-          console.debug('xxxsty', $scope.windows['semanticType'],
-            $scope.user.userPreferences.properties['semanticType']);
           if (!$scope.windows['semanticType']
             && $scope.user.userPreferences.properties['semanticType']) {
             if ($scope.user.userPreferences.properties['semanticTypeWidth']) {
@@ -645,11 +643,8 @@ tsApp
             if ($scope.user.userPreferences.properties['semanticTypeHeight']) {
               height = $scope.user.userPreferences.properties['semanticTypeHeight'];
             }
-            console.debug('  open sty');
             $scope.openStyWindow(width, height);
           }
-          console.debug('xxxrel', $scope.windows['relationship'],
-            $scope.user.userPreferences.properties['relationship']);
           if (!$scope.windows['relationship']
             && $scope.user.userPreferences.properties['relationship']) {
             if ($scope.user.userPreferences.properties['relationshipWidth']) {
@@ -658,11 +653,8 @@ tsApp
             if ($scope.user.userPreferences.properties['relationshipHeight']) {
               height = $scope.user.userPreferences.properties['relationshipHeight'];
             }
-            console.debug('  open rel');
             $scope.openRelationshipsWindow(width, height);
           }
-          console.debug('xxxcxt', $scope.windows['context'],
-            $scope.user.userPreferences.properties['context']);
           if (!$scope.windows['context'] && $scope.user.userPreferences.properties['context']) {
             if ($scope.user.userPreferences.properties['contextWidth']) {
               width = $scope.user.userPreferences.properties['contextWidth'];
@@ -670,11 +662,8 @@ tsApp
             if ($scope.user.userPreferences.properties['contextHeight']) {
               height = $scope.user.userPreferences.properties['contextHeight'];
             }
-            console.debug('  open cxt');
             $scope.openContextsWindow(width, height);
           }
-          console.debug('xxxatom', $scope.windows['atom'],
-            $scope.user.userPreferences.properties['atom']);
           if (!$scope.windows['atom'] && $scope.user.userPreferences.properties['atom']) {
             if ($scope.user.userPreferences.properties['atomWidth']) {
               width = $scope.user.userPreferences.properties['atomWidth'];
@@ -682,7 +671,6 @@ tsApp
             if ($scope.user.userPreferences.properties['atomHeight']) {
               height = $scope.user.userPreferences.properties['atomHeight'];
             }
-            console.debug('  open atom');
             $scope.openAtomsWindow(width, height);
           }
         }
@@ -692,13 +680,23 @@ tsApp
           return securityService.hasPermissions(action);
         }
 
+        // Reload the concept (e.g. called from another window
+        $scope.reloadConcept = function(concept) {
+          contentService.getConcept(concept.id, $scope.selected.project.id).then(
+          // Success
+          function(data) {
+            $scope.selectConcept(data);
+
+          });
+
+        }
         // select concept & get concept report
         $scope.selectConcept = function(concept) {
+          if ($scope.selected.component == null || concept.id != $scope.selected.component.id) {
+            securityService.saveProperty($scope.user.userPreferences, 'editConcept', concept.id);
+          }
 
           $scope.selected.component = concept;
-
-          securityService.saveProperty($scope.user.userPreferences, 'editConcept',
-            $scope.selected.component.id);
 
           // Update the selected concept in the list
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
@@ -708,7 +706,6 @@ tsApp
               break;
             }
           }
-
           $scope.refreshWindows();
         };
 
@@ -900,6 +897,11 @@ tsApp
           return utilService.getSortIndicator(table, field, $scope.paging);
         };
 
+        //
+        // THE FOLLOWING CODE IS REPLICATED (with minor variation) in the 4
+        // popup windows and the main edit window
+        // 
+
         // Approve concept
         $scope.approveConcept = function(concept) {
           // Need a promise, so we can reload the tracking records
@@ -923,6 +925,8 @@ tsApp
 
         // Approves all selector concepts and moves on to next record
         $scope.approveNext = function() {
+          var lastIndex = $scope.lists.concepts.length;
+          var successCt = 0;
           for (var i = 0; i < $scope.lists.concepts.length; i++) {
             if (!$scope.lists.concepts[i].id) {
               continue;
@@ -932,8 +936,11 @@ tsApp
             $scope.approveConcept($scope.lists.concepts[i]).then(
             // Success
             function(data) {
-              $scope.getRecords();
-              $scope.selectNextRecord($scope.selected.record);
+              successCt++;
+              if (successCt == lastIndex) {
+                $scope.getRecords();
+                $scope.selectNextRecord($scope.selected.record);
+              }
             });
           }
         }

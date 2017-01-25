@@ -310,7 +310,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception  {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("ObjectType",
         "objectType", "Type of object an action will be performed on",

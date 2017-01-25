@@ -1,3 +1,6 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.workflow;
 
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.ClusterTypeStats;
 import com.wci.umls.server.model.workflow.TrackingRecord;
 import com.wci.umls.server.model.workflow.WorkflowBin;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 
 /**
  * JAXB and JPA enabled implementation of a {@link WorkflowBin}.
@@ -167,6 +171,22 @@ public class WorkflowBinJpa implements WorkflowBin {
     if (collectionCopy) {
       trackingRecords = new ArrayList<>(bin.getTrackingRecords());
     }
+  }
+
+  /**
+   * Instantiates a {@link WorkflowBinJpa} from the specified parameters.
+   *
+   * @param def the bin
+   */
+  public WorkflowBinJpa(WorkflowBinDefinition def) {
+    lastModified = def.getLastModified();
+    lastModifiedBy = def.getLastModifiedBy();
+    timestamp = def.getTimestamp();
+    name = def.getName();
+    description = def.getDescription();
+    editable = def.isEditable();
+    enabled = def.isEnabled();
+    required = def.isRequired();
   }
 
   /* see superclass */

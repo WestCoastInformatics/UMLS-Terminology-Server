@@ -393,7 +393,7 @@ public class WorkflowClientRest extends RootClientRest
         + "/workflow/bin/regenerate/all?projectId=" + projectId + "&type="
         + type);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
+        .header("Authorization", authToken).post(Entity.text(""));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -1545,7 +1545,6 @@ public class WorkflowClientRest extends RootClientRest
         + "/workflow/status/compute?projectId=" + projectId
         + (activityId == null ? "" : "&activityId=" + activityId)
         + (updaterFlag == null ? "" : "&update=" + updaterFlag));
-
 
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));

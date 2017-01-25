@@ -189,7 +189,7 @@ public class UpdatePublishedAlgorithm
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception  {
     final List<AlgorithmParameter> params = super.getParameters();
     return params;
   }

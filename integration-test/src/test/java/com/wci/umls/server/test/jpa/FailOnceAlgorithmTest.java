@@ -107,7 +107,7 @@ public class FailOnceAlgorithmTest extends IntegrationUnitSupport {
 
       // This second run, the algorithm should succeed
     } catch (Exception e) {
-      //Test to make sure it didn't throw any exceptions on the second run
+      // Test to make sure it didn't throw any exceptions on the second run
       assertTrue(false);
       algo.rollback();
     } finally {

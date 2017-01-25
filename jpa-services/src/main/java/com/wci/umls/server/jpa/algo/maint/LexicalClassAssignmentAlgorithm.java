@@ -120,7 +120,8 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       // NOTE: this assumes RRF preferred name handler
       final RrfComputePreferredNameHandler prefHandler =
           new RrfComputePreferredNameHandler();
-      final PrecedenceList list = getProject().getPrecedenceList();
+      final PrecedenceList list = getPrecedenceList(
+          getProject().getTerminology(), getProject().getVersion());
       prefHandler.cacheList(list);
       ct = 0;
       for (final Long atomId : atomIds) {
@@ -247,7 +248,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception  {
     return super.getParameters();
   }
 

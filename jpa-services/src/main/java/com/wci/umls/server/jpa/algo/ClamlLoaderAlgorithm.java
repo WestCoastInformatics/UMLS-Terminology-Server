@@ -2053,7 +2053,7 @@ public class ClamlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input File",
         "inputFile", "Input ClaML file to load", "", 255,

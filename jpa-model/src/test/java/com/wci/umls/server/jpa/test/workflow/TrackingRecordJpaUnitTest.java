@@ -206,6 +206,7 @@ public class TrackingRecordJpaUnitTest extends ModelUnitSupport {
     tester.include("clusterType");
     tester.include("terminology");
     tester.include("version");
+    tester.include("finished");
     assertTrue(tester.testNotNullFields());
   }
 

@@ -20,6 +20,7 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -197,7 +198,8 @@ public class ProcessServiceJpa extends ProjectServiceJpa
 
   /* see superclass */
   @Override
-  public Algorithm getAlgorithmInstance(String key) throws Exception {
+  public Algorithm getAlgorithmInstance(String key)
+    throws Exception {
 
     return ConfigUtility.newStandardHandlerInstanceWithConfiguration(
         "algorithm.handler", key, Algorithm.class);
@@ -605,8 +607,7 @@ public class ProcessServiceJpa extends ProjectServiceJpa
     pfs.setSortField("lastModified");
 
     // Load the processExecution, to get the workId
-    ProcessExecution processExecution =
-        getProcessExecution(processExecutionId);
+    ProcessExecution processExecution = getProcessExecution(processExecutionId);
     String workId = processExecution.getWorkId();
 
     final List<String> clauses = new ArrayList<>();

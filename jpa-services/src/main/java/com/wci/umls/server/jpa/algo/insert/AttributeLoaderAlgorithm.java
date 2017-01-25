@@ -355,10 +355,6 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
       // need them anymore
       clearRelationshipAltTerminologies();
 
-      // Finally, clear out the static caches that have been populated during by
-      // the previous loader algorithms - we don't need them anymore either
-      clearCaches();
-
       commitClearBegin();
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
@@ -404,7 +400,7 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

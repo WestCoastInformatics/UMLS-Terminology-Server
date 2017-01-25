@@ -285,7 +285,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
