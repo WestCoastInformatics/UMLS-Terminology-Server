@@ -42,7 +42,7 @@ tsApp
         $scope.paging = {};
         $scope.paging['atoms'] = utilService.getPaging();
         $scope.paging['atoms'].sortField = null;
-        $scope.paging['atoms'].pageSize = 10;
+        $scope.paging['atoms'].pageSize = 100000;
         $scope.paging['atoms'].filterFields = {};
         $scope.paging['atoms'].filterFields.name = 1;
         $scope.paging['atoms'].filterFields.codeId = 1;

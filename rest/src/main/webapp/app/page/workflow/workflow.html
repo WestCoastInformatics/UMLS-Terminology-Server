@@ -17,6 +17,11 @@
           ng-options="projectRole for projectRole in lists.projectRoles"></select>
         <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
       </span>
+      <span ng-show="ws.connected" class="alert alert-success">CONNECTED</span>
+      <span ng-show="ws && !ws.connected">
+        <span class="alert alert-danger"> DISCONNECTED</span>
+        <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
+      </span>
       <span ng-show="selected.project && !selected.project.editingEnabled"
         style="display: block;" class="alert alert-danger">Editing is
         disabled.</span>
@@ -107,15 +112,13 @@
                 <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
-                  <i ng-click="openEditBinModal(bin)"
-                    ng-show="bin.enabled" title="Edit Bin"
-                    class="noul glyphicon glyphicon-pencil"></i>
-                  <i ng-click="regenerateBin(bin)"
-                    ng-show="bin.enabled" title="Regenerate Bin"
-                    class="noul glyphicon glyphicon-repeat"></i>               
-                  <i ng-click="openCloneBinModal(bin)"
-                    ng-show="bin.enabled" title="Clone Bin"
-                    class="noul glyphicon glyphicon-copy"></i>
+                  <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
+                    title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
+                  <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                    title="Regenerate Bin"
+                    class="noul glyphicon glyphicon-repeat"></i>
+                  <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
+                    title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
                   <i
                     confirm="Are you sure you want to remove the bin definition?"
                     ng-click="removeBin(bin); $event.stopPropagation()"

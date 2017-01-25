@@ -4012,6 +4012,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
 
+  @SuppressWarnings("unchecked")
   @Override
   public Tree getTreeForTreePosition(TreePosition<?> treePosition)
     throws Exception {
@@ -4057,6 +4058,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
       } else {
         finalQuery.append("ancestorPath:\"" + partAncPath + "\"");
       }
+
       // Prepare the manager and lucene query
 
       final Query luceneQuery = queryParser.parse(finalQuery.toString());
@@ -4085,16 +4087,29 @@ public class ContentServiceJpa extends MetadataServiceJpa
       // partTree.setTerminology(treePosition.getTerminology());
       // partTree.setVersion(treePosition.getVersion());
 
+      // this is necessary because additionalRelationshipType is not indexed
+      TreePosition<?> treepos = null;
+      int ct = 0;
+      final String treePositionRela =
+          ConfigUtility.isEmpty(treePosition.getAdditionalRelationshipType())
+              ? "" : treePosition.getAdditionalRelationshipType();
+      for (final TreePosition<?> tp : (List<TreePosition<?>>) fullTextQuery
+          .getResultList()) {
+        final String tpRela =
+            ConfigUtility.isEmpty(tp.getAdditionalRelationshipType()) ? ""
+                : tp.getAdditionalRelationshipType();
+        if (tpRela.equals(treePositionRela)) {
+          ct++;
+          treepos = tp;
+        }
+      }
+
       // original approach
-      if (fullTextQuery.getResultSize() != 1) {
+      if (ct != 1) {
         throw new Exception(
             "Unexpected number of results: " + fullTextQuery.getResultSize()
                 + ", " + partId + ", " + partAncPath);
-
       }
-
-      final TreePosition<?> treepos =
-          (TreePosition<?>) fullTextQuery.getResultList().get(0);
 
       final Tree partTree = new TreeJpa(treepos);
 
