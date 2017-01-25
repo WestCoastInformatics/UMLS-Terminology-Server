@@ -122,6 +122,7 @@ public class TypeKeyValueJpaUnitTest extends ModelUnitSupport {
 
     // Test non analyzed fields
     tester = new IndexedFieldTester(object);
+    tester.include("id");
     tester.include("type");
     tester.include("keySort");
     tester.include("value");
