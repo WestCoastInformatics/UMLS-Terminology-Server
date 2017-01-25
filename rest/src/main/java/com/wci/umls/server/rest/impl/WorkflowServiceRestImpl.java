@@ -1847,6 +1847,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
 
+      // Add "bins" for definitions that don't have bins yet.
+      // Just add them at the end, there are too many situations
+      // where it would be hard to find out the right order.
+      // Next regenerate will fix it.
+      final WorkflowConfig config =
+          workflowService.getWorkflowConfig(project, type);
+      Set<String> binNames =
+          bins.stream().map(b -> b.getName()).collect(Collectors.toSet());
+      for (final WorkflowBinDefinition def : config
+          .getWorkflowBinDefinitions()) {
+        if (!binNames.contains(def.getName())) {
+          bins.add(new WorkflowBinJpa(def));
+        }
+      }
+
       final WorkflowBinList list = new WorkflowBinListJpa();
       list.setObjects(bins);
       list.setTotalCount(list.size());
