@@ -192,6 +192,10 @@ tsApp.controller('WorkflowCtrl', [
       $scope.selected.bin = bin;
       $scope.selected.clusterType = clusterType;
 
+      if (!bin.id) {
+        return;
+      }
+
       if (clusterType && clusterType == 'default') {
         $scope.paging.filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
@@ -257,10 +261,11 @@ tsApp.controller('WorkflowCtrl', [
         function(data) {
           workflowService.regenerateBins($scope.selected.project.id, $scope.selected.config.type)
             .then(
-            // Success
-            function(data) {
-              $scope.getBins($scope.selected.project.id, $scope.selected.config, $scope.selected.bin);
-            });
+              // Success
+              function(data) {
+                $scope.getBins($scope.selected.project.id, $scope.selected.config,
+                  $scope.selected.bin);
+              });
         });
     };
 

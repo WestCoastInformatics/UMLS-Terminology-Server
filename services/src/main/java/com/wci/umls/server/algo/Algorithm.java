@@ -82,8 +82,9 @@ public interface Algorithm
    * Returns the parameters.
    *
    * @return the parameters
+   * @throws Exception the exception
    */
-  public List<AlgorithmParameter> getParameters();
+  public List<AlgorithmParameter> getParameters() throws Exception;
 
   /**
    * Sets the parameters.

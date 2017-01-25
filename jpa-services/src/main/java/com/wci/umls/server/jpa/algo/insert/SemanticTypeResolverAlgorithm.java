@@ -263,7 +263,7 @@ public class SemanticTypeResolverAlgorithm
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("WinLose", "winLose",
         "Whether new SemanticTypes created during this insertion 'win' or 'lose' to old semantic types.",

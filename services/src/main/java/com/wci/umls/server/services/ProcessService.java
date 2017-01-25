@@ -7,6 +7,7 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -46,10 +47,12 @@ public interface ProcessService extends ProjectService {
    * Returns the algorithm instance.
    *
    * @param key the key
+   * @param project the project
    * @return the algorithm instance
    * @throws Exception the exception
    */
-  public Algorithm getAlgorithmInstance(String key) throws Exception;
+  public Algorithm getAlgorithmInstance(String key, Project project)
+    throws Exception;
 
   /**
    * Adds the process config.
@@ -227,8 +230,8 @@ public interface ProcessService extends ProjectService {
    * @return the algorithm log
    * @throws Exception the exception
    */
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query)
-    throws Exception;
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId,
+    String query) throws Exception;
 
   /**
    * Returns the process log.
@@ -239,8 +242,8 @@ public interface ProcessService extends ProjectService {
    * @return the process log
    * @throws Exception the exception
    */
-  public String getProcessLog(Long projectId, Long processExecutionId, String query)
-    throws Exception;
+  public String getProcessLog(Long projectId, Long processExecutionId,
+    String query) throws Exception;
 
   /**
    * Save log to file.
@@ -250,8 +253,8 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public void saveLogToFile(Long projectId, ProcessExecution processExecution)
-      throws Exception;  
-  
+    throws Exception;
+
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions
