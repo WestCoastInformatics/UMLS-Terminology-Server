@@ -657,13 +657,11 @@ public class IndexUtility {
 
           // if a subfield search (e.g. FIELD1.FIELD2) skip preconditions
           if (sortFieldName.contains(".")) {
-            System.out.println("subfield search detected: " + sortFieldName);
             sortFieldStr = sortFieldName;
           }
 
           // otherwise, check preconditions
           else {
-            System.out.println("normal field search detected: " + sortFieldName);
 
             final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
                 .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
@@ -701,7 +699,8 @@ public class IndexUtility {
           SortField sortField = null;
 
           // check for LONG fields
-          if (sortFieldStr.equals("lastModified") || sortFieldStr.equals("effectiveTime")
+          if (sortFieldStr.equals("lastModified")
+              || sortFieldStr.equals("effectiveTime")
               || sortFieldStr.equals("timestamp")
               || (sortFieldStr.toLowerCase().endsWith("id")
                   && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
