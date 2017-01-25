@@ -20,7 +20,6 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
-import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -42,7 +41,7 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * JPA and JAXB enabled implementation of {@link ProcessService}.
- */
+ */()
 public class ProcessServiceJpa extends ProjectServiceJpa
     implements ProcessService {
 
