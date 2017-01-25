@@ -8,6 +8,10 @@ import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
@@ -75,6 +79,7 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @Override
   public String getAncestorPath() {
     return ancestorPath;
@@ -127,11 +132,8 @@ public abstract class AbstractTreePosition<T extends ComponentHasAttributesAndNa
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result =
         prime * result + ((ancestorPath == null) ? 0 : ancestorPath.hashCode());
     result = prime * result + childCt;
