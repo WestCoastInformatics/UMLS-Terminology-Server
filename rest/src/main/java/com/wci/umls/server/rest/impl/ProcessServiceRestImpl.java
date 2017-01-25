@@ -482,20 +482,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process configs.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process config list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
   @Path("/config/find")
+  @Consumes({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
+  @Produces({
+      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
+  })
   @ApiOperation(value = "Find processConfigs", notes = "Find processConfigs", response = ProcessConfigListJpa.class)
   public ProcessConfigList findProcessConfigs(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
@@ -533,15 +529,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the process execution
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -615,16 +602,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
@@ -667,14 +644,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -734,15 +703,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return processExecutions;
   }
 
-  /**
-   * Removes the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param cascade the cascade
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -805,15 +765,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Adds the algorithm config.
-   *
-   * @param projectId the project id
-   * @param config the algorithm config
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @PUT
@@ -1024,14 +975,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  /**
-   * Removes the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -1091,15 +1034,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -1675,7 +1609,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * @param step the step
    * @throws Exception the exception
    */
-
   private void runProcessAsThread(Long projectId, Long processConfigId,
     Long processExecutionId, String userName, Boolean background,
     Boolean restart, Integer step) throws Exception {
@@ -2115,6 +2048,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @GET
   @Path("algo/{algorithmExecutionId}/log")
   @ApiOperation(value = "Get log entries of specified algorithm execution", notes = "Get log entries of specified algorithm execution", response = Integer.class)
