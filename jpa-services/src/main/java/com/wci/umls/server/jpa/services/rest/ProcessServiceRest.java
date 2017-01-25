@@ -217,37 +217,16 @@ public interface ProcessServiceRest {
     String authToken) throws Exception;
 
   /**
-   * Returns the insertion algorithms.
+   * Returns the algorithms for the type.
    *
    * @param projectId the project id
-   * @param authToken the auth token
-   * @return the insertion algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getInsertionAlgorithms(Long projectId,
-    String authToken) throws Exception;
-
-  /**
-   * Returns the maintenance algorithms.
-   *
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the maintenance algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getMaintenanceAlgorithms(Long projectId,
-    String authToken) throws Exception;
-
-  /**
-   * Returns the release algorithms.
-   *
-   * @param projectId the project id
+   * @param type the type
    * @param authToken the auth token
    * @return the release algorithms
    * @throws Exception the exception
    */
-  public KeyValuePairList getReleaseAlgorithms(Long projectId, String authToken)
-    throws Exception;
+  public KeyValuePairList getAlgorithmsForType(Long projectId, String type,
+    String authToken) throws Exception;
 
   /**
    * Execute process.

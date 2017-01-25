@@ -1165,86 +1165,27 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/algo/insertion")
-  @ApiOperation(value = "Get all insertion algorithms", notes = "Gets the insertion algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getInsertionAlgorithms(
+  @Path("/algo/{release,report,insertion,maintenance}")
+  @ApiOperation(value = "Get all algorithms", notes = "Gets the algorithms for the specified type", response = KeyValuePairList.class)
+  public KeyValuePairList getAlgorithmsForType(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("projectId") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/insertion?projectId=" + projectId
-            + " for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/" + type
+        + "?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the insertion algorithms", UserRole.AUTHOR);
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken, "getting the " + type + " algorithms",
+          UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getInsertionAlgorithms();
+      return processService.getAlgorithmsForType(type);
+
     } catch (Exception e) {
-      handleException(e, "trying to get the insertion algorithms");
-      return null;
-    } finally {
-      processService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/algo/maintenance")
-  @ApiOperation(value = "Get all maintenance algorithms", notes = "Gets the maintenance algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getMaintenanceAlgorithms(
-    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/maintenance?projectId=" + projectId
-            + " for user " + authToken);
-
-    final ProcessService processService = new ProcessServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the maintenance algorithms", UserRole.AUTHOR);
-      processService.setLastModifiedBy(userName);
-
-      return processService.getMaintenanceAlgorithms();
-    } catch (Exception e) {
-      handleException(e, "trying to get the maintenance algorithms");
-      return null;
-    } finally {
-      processService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/algo/release")
-  @ApiOperation(value = "Get all release algorithms", notes = "Gets the release algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getReleaseAlgorithms(
-    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/release?projectId=" + projectId
-            + " for user " + authToken);
-
-    final ProcessService processService = new ProcessServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the release algorithms", UserRole.AUTHOR);
-      processService.setLastModifiedBy(userName);
-
-      return processService.getReleaseAlgorithms();
-    } catch (Exception e) {
-      handleException(e, "trying to get the release algorithms");
+      handleException(e, "trying to get the " + type + " algorithms");
       return null;
     } finally {
       processService.close();

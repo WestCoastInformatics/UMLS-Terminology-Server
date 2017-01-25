@@ -76,9 +76,7 @@
           ng-class="{selected: process.id == selected.process.id}">
 
           <td>{{process.name}}</td>
-          <td>
-            {{getExecutionState(process)}}
-          </td>
+          <td>{{getExecutionState(process)}}</td>
           <td>{{toDate(process.lastModified)}}</td>
 
           <!--  actions -->
@@ -95,20 +93,18 @@
           </td>
         </tr>
       </tbody>
-      <span ng-show="lists.processes.totalCount == 0"
-        class="alert alert-warning">There are no processes of type
-        {{selected.processType}}.</span>
-
     </table>
+    <span ng-show="lists.processes.totalCount == 0" class="alert alert-warning">There
+      are no processes of type {{selected.processType}}.</span>
   </div>
 
 
   <!-- R1C2 - process details -->
   <div class="col-md-6 col-xs-12">
 
-    <span ng-show="selected.process">
+    <div style="display: inline" ng-show="selected.process">
       <h4>Process Details</h4>
-    </span>
+    </div>
     <!-- Details, Releases, Records -->
     <span ng-show="!selected.process && list.processes.length > 0"
       class="alert alert-warning">Select a process to see details</span>
@@ -202,9 +198,7 @@
             <td>
               <b>State</b>
             </td>
-            <td>
-              {{getExecutionState(selected.process)}}
-            </td>
+            <td>{{getExecutionState(selected.process)}}</td>
           </tr>
 
           <tr
@@ -265,7 +259,9 @@
           ng-class="{selected: step.id == selected.step.id}">
           <td>
             {{$index}}.
-            <span ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'" class="nobreak">
+            <span
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
+              class="nobreak">
               <!--  Enable/Disable step -->
               <input type="checkbox" title="Enable/Disable Step"
                 ng-change="toggleEnable(step);" ng-model="step.enabled"
@@ -347,3 +343,4 @@
       </span>
     </div>
   </div>
+</div>
