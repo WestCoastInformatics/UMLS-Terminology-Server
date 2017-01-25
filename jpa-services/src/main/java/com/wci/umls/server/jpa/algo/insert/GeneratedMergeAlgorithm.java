@@ -288,7 +288,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     // Query Type (only support JQL and SQL)

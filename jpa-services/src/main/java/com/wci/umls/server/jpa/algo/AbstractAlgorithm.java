@@ -373,7 +373,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = new ArrayList<>();
 
     // Terminology/Version/Project/ActivityId/WorkId

@@ -454,7 +454,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
       for (final AlgorithmConfig algo : process.getSteps()) {
-        instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
+        instance = processService.getAlgorithmInstance(algo.getAlgorithmKey(),
+            processService.getProject(projectId));
         algo.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algo.getParameters()) {
@@ -575,13 +576,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processExecution's
       // project
       verifyProject(processExecution, projectId);
+      Project project = processService.getProject(projectId);
 
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
       for (final AlgorithmExecution algorithmExecution : processExecution
           .getSteps()) {
-        instance = processService
-            .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+        instance = processService.getAlgorithmInstance(
+            algorithmExecution.getAlgorithmKey(), project);
         algorithmExecution.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algorithmExecution
@@ -999,7 +1001,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         }
       }
 
-      algorithm = processService.getAlgorithmInstance(algo.getAlgorithmKey());
+      algorithm = processService.getAlgorithmInstance(algo.getAlgorithmKey(),
+          processService.getProject(projectId));
       if (algorithm == null) {
         throw new LocalException(
             "Missing algorithm for key " + algo.getAlgorithmKey());
@@ -1129,8 +1132,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       verifyProject(algo, projectId);
 
       // Populate the parameters based on its properties' values.
-      instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
-      instance.setProject(processService.getProject(projectId));
+      instance = processService.getAlgorithmInstance(algo.getAlgorithmKey(),
+          processService.getProject(projectId));
       instance.setProcess(new ProcessExecutionJpa(algo.getProcess()));
       algo.setParameters(instance.getParameters());
       for (final AlgorithmParameter param : algo.getParameters()) {
@@ -1878,8 +1881,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             }
 
             // Create and configure the algorithm
-            algorithm = processService
-                .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+            algorithm = processService.getAlgorithmInstance(
+                algorithmExecution.getAlgorithmKey(),
+                processExecution.getProject());
             algorithm.setProject(processExecution.getProject());
             algorithm.setProcess(processExecution);
             algorithm.setWorkId(processExecution.getWorkId());
@@ -1990,7 +1994,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               processService.updateProcessExecution(processExecution);
 
             }
-            
+
             // Mark algorithm as finished
             lookupAeProgressMap.remove(algorithmExecution.getId());
             processAlgorithmMap.remove(processExecution.getId());
@@ -2235,7 +2239,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Load project
       final Project project = processService.getProject(projectId);
       final ProcessConfig process = processService.getProcessConfig(processId);
-      algorithm = processService.getAlgorithmInstance(key);
+      algorithm = processService.getAlgorithmInstance(key, project);
       final AlgorithmConfig algo = new AlgorithmConfigJpa();
       algo.setProject(project);
       algo.setProcess(process);

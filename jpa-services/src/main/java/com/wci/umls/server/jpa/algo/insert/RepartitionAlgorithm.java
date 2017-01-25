@@ -18,11 +18,9 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.model.workflow.WorkflowBin;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
-import com.wci.umls.server.services.WorkflowService;
 
 /**
  * Implementation of an algorithm to repartition bins.
@@ -79,84 +77,71 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // bins
     setSteps(2);
 
-    final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
-    try {
-      workflowService.setLastModifiedBy(getLastModifiedBy());
+    setLastModifiedBy(getLastModifiedBy());
 
-      // Set transaction mode
-      workflowService.setTransactionPerOperation(false);
-      workflowService.beginTransaction();
+    // Set transaction mode
+    setTransactionPerOperation(false);
+    beginTransaction();
 
-      // Load the project and workflow config
-      Project project = getProject();
-      // verifyProject -> n/a because we're getting bins for a project
-      if (!project.isEditingEnabled()) {
-        throw new LocalException(
-            "Editing is disabled on project: " + getProject().getName());
-      }
-
-      // Start by clearing the bins
-      // remove bins and all of the tracking records in the bins
-      logInfo("[Repartition] Clearing Current " + type + " Bins");
-      commitClearBegin();
-
-      final List<WorkflowBin> results =
-          workflowService.getWorkflowBins(project, type);
-      for (final WorkflowBin workflowBin : results) {
-        workflowService.removeWorkflowBin(workflowBin.getId(), true);
-      }
-
-      workflowService.commit();
-      workflowService.beginTransaction();
-
-      // Update the progress
-      updateProgress();
-
-      logInfo("[Repartition] Clearing Current " + type + " Bins Completed");
-      logInfo("[Repartition] Regenerating " + type + " Bins");
-      commitClearBegin();
-
-      // reread after the commit
-      project = workflowService.getProject(project.getId());
-
-      final WorkflowConfig workflowConfig =
-          workflowService.getWorkflowConfig(project, type);
-
-      // concepts seen set
-      final Set<Long> conceptsSeen = new HashSet<>();
-      final Map<Long, String> conceptIdWorklistNameMap =
-          workflowService.getConceptIdWorklistNameMap(getProject());
-
-      // Look up the bin definitions
-      int rank = 0;
-      for (final WorkflowBinDefinition definition : workflowConfig
-          .getWorkflowBinDefinitions()) {
-        checkCancel();
-
-        workflowService.regenerateBinHelper(project, definition, ++rank,
-            conceptsSeen, conceptIdWorklistNameMap);
-      }
-      workflowService.commit();
-
-      // Update the progress
-      updateProgress();
-
-      logInfo("[Repartition] Regenerating " + type + " Bins Completed");
-
-      logInfo("  project = " + project.getId());
-      logInfo("  workId = " + getWorkId());
-      logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getLastModifiedBy());
-      logInfo("Finished REPARTITION");
-
-    } catch (
-
-    Exception e) {
-      logError("Unexpected problem - " + e.getMessage());
-      throw e;
-    } finally {
-      workflowService.close();
+    // Load the project and workflow config
+    Project project = getProject();
+    // verifyProject -> n/a because we're getting bins for a project
+    if (!project.isEditingEnabled()) {
+      throw new LocalException(
+          "Editing is disabled on project: " + getProject().getName());
     }
+
+    // Start by clearing the bins
+    // remove bins and all of the tracking records in the bins
+    logInfo("[Repartition] Clearing Current " + type + " Bins");
+    commitClearBegin();
+
+    final List<WorkflowBin> results = getWorkflowBins(project, type);
+    for (final WorkflowBin workflowBin : results) {
+      removeWorkflowBin(workflowBin.getId(), true);
+    }
+
+    commit();
+    beginTransaction();
+
+    // Update the progress
+    updateProgress();
+
+    logInfo("[Repartition] Clearing Current " + type + " Bins Completed");
+    logInfo("[Repartition] Regenerating " + type + " Bins");
+    commitClearBegin();
+
+    // reread after the commit
+    project = getProject(project.getId());
+
+    final WorkflowConfig workflowConfig = getWorkflowConfig(project, type);
+
+    // concepts seen set
+    final Set<Long> conceptsSeen = new HashSet<>();
+    final Map<Long, String> conceptIdWorklistNameMap =
+        getConceptIdWorklistNameMap(getProject());
+
+    // Look up the bin definitions
+    int rank = 0;
+    for (final WorkflowBinDefinition definition : workflowConfig
+        .getWorkflowBinDefinitions()) {
+      checkCancel();
+
+      regenerateBinHelper(project, definition, ++rank, conceptsSeen,
+          conceptIdWorklistNameMap);
+    }
+    commit();
+
+    // Update the progress
+    updateProgress();
+
+    logInfo("[Repartition] Regenerating " + type + " Bins Completed");
+
+    logInfo("  project = " + project.getId());
+    logInfo("  workId = " + getWorkId());
+    logInfo("  activityId = " + getActivityId());
+    logInfo("  user  = " + getLastModifiedBy());
+    logInfo("Finished REPARTITION");
 
   }
 
@@ -192,7 +177,7 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     // Load all workflow configs, get all types, populate pick-list for workflow
@@ -200,26 +185,13 @@ public class RepartitionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Set default value to first mutually exclusive config found.
     List<String> possibleValues = new ArrayList<>();
     String defaultValue = "";
-    WorkflowService workflowService = null;
-    try {
-      workflowService = new WorkflowServiceJpa();
-      final List<WorkflowConfig> configs =
-          workflowService.getWorkflowConfigs(getProject());
-      for (WorkflowConfig config : configs) {
-        possibleValues.add(config.getType());
-        if (defaultValue.equals("")) {
-          if (config.isMutuallyExclusive()) {
-            defaultValue = config.getType();
-          }
+    final List<WorkflowConfig> configs = getWorkflowConfigs(getProject());
+    for (WorkflowConfig config : configs) {
+      possibleValues.add(config.getType());
+      if (defaultValue.equals("")) {
+        if (config.isMutuallyExclusive()) {
+          defaultValue = config.getType();
         }
-      }
-    } catch (Exception e) {
-      // n/a
-    } finally {
-      try {
-        workflowService.close();
-      } catch (Exception e1) {
-        // n/a
       }
     }
 

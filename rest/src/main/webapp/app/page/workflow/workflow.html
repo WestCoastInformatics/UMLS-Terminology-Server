@@ -42,7 +42,7 @@
         <button confirm="Are you sure you want to regenerate bins?"
           title="Regenerate bins" ng-click="regenerateBins()"
           ng-show="hasPermissions('RegenerateBins')"
-          class="ml20 btn btn-xs btn-primary">Renerate</button>
+          class="ml20 btn btn-xs btn-primary">Regenerate</button>
         <button confirm="Are you sure you want to initialize concept status?"
           title="Initialize concept status" ng-click="recomputeConceptStatus()"
           ng-show="hasPermissions('RecomputeConceptStatus')"
@@ -107,10 +107,13 @@
                 <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
-                  <i ng-click="openEditBinModal(bin); $event.stopPropagation()"
+                  <i ng-click="openEditBinModal(bin)"
                     ng-show="bin.enabled" title="Edit Bin"
                     class="noul glyphicon glyphicon-pencil"></i>
-                  <i ng-click="openCloneBinModal(bin); $event.stopPropagation()"
+                  <i ng-click="regenerateBin(bin)"
+                    ng-show="bin.enabled" title="Regenerate Bin"
+                    class="noul glyphicon glyphicon-repeat"></i>               
+                  <i ng-click="openCloneBinModal(bin)"
                     ng-show="bin.enabled" title="Clone Bin"
                     class="noul glyphicon glyphicon-copy"></i>
                   <i
