@@ -1100,11 +1100,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/algo/{type}")
+  @Path("/algo/{type:insertion|maintenance|release|report}")
   @ApiOperation(value = "Get all algorithms", notes = "Gets the algorithms for the specified type", response = KeyValuePairList.class)
   public KeyValuePairList getAlgorithmsForType(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("projectId") String type,
+    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Process): /algo/" + type
