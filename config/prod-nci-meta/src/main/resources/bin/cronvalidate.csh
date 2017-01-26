@@ -33,14 +33,18 @@ echo ""
 # if enabled, run stuff
 if ($enabled == "true") then
 	
-	# Login as admin
+		# Login as admin
 	echo "  Login ... `/bin/date`"
 	set authToken = `curl -H "Content-type: text/plain" -X POST -d "$adminPwd" $url/security/authenticate/$adminUser  | perl -pe 's/.*"authToken":"([^"]*).*/$1/;'`
 	 	
-    # find the "validation" process
-    # TODO: select id from processConfig where project_id=... and name = 'VALIDATE_MID';
-
-    # TODO: execute
+	# 1. Daily Editing Report
+	echo "  Run MID Validation Report... `/bin/date`"
+	set processId = `echo "select id from process_configs where name='MID Validation Report';" | $mysql | tail -1`
+	echo "    processId = $processId"
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/prepare?projectId=$projectId
+	sleep 2		
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/execute?projectId=$projectId&background=true"
+	 
 else
     echo "  DISABLED"
 endif

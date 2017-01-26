@@ -358,6 +358,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // Create and set up a ProdMid Cleanup process.
     createProdMidCleanupProcess(project1, projectId, authToken);
 
+    // Create and set up a "daily editing report" and "mid validation report"
+    // process.
+    createReportProcesses(project1, projectId, authToken);
+
     // Create and set up a release process and algorithm configuration for
     // testing
     /*
@@ -1894,6 +1898,89 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
+  }
+
+  /**
+   * Creates the report processes.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createReportProcesses(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Daily Editing Report");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Daily Editing Report");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Report");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("DAILYREPORT");
+    algoConfig.setDescription("Daily Editing Report Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("Daily Editing Report Algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+
+    // MID V
+
+    process = new ProcessServiceRestImpl();
+
+    processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("MID Validation Report");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("MID Validation Report");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Report");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MID VALIDATION");
+    algoConfig.setDescription("MID Validation Report Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MID Validation Report Algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+
   }
 
   /**

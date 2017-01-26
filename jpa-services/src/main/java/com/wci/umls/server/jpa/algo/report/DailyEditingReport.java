@@ -37,7 +37,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
   public DailyEditingReport() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("MATRIXINIT");
+    setWorkId("MIDVALIDATION");
     setLastModifiedBy("admin");
   }
 
@@ -46,7 +46,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
   public ValidationResult checkPreconditions() throws Exception {
 
     if (getProject() == null) {
-      throw new Exception("Matrix initializer requires a project to be set");
+      throw new Exception("Daily editing report requires a project to be set");
     }
     // n/a - NO preconditions
     return new ValidationResultJpa();
@@ -201,10 +201,15 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
         } else {
           from = config.getProperty("mail.smtp.user");
         }
-        ConfigUtility.sendEmail(
-            "MEME Daily Editing Report - "
-                + ConfigUtility.DATE_YYYYMMDD.format(yesterday),
-            from, getEmail(), report.toString(), config);
+        try {
+          ConfigUtility.sendEmail(
+              "MEME Daily Editing Report - "
+                  + ConfigUtility.DATE_YYYYMMDD.format(yesterday),
+              from, getEmail(), report.toString(), config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
       }
       logInfo("  report = \n\n" + report);
       logInfo("Finished daily editing report");

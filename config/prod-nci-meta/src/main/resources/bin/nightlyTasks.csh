@@ -37,11 +37,19 @@ if ($enabled == "true") then
 	echo "  Login ... `/bin/date`"
 	set authToken = `curl -H "Content-type: text/plain" -X POST -d "$adminPwd" $url/security/authenticate/$adminUser  | perl -pe 's/.*"authToken":"([^"]*).*/$1/;'`
 	 	
-    # repartition MUTUALLY_EXCLUSIVE bins
+	# 1. Daily Editing Report
+	echo "  Run Daily Editing Report... `/bin/date`"
+	set processId = `echo "select id from process_configs where name='Daily Editing Report';" | $mysql | tail -1`
+	echo "    processId = $processId"
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/prepare?projectId=$projectId
+	sleep 2		
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/execute?projectId=$projectId&background=true"
+	 	
+    # 2. repartition MUTUALLY_EXCLUSIVE bins
 	echo "  Regenerate MUTUALLY_EXCLUSIVE ... `/bin/date`"
 	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/workflow/bin/regenerate/all?projectId=$projectId&type=MUTUALLY_EXCLUSIVE"
 	
-    # Bounce the tomcat server
+    # 3. Bounce the tomcat server
     sudo /sbin/service tomcat-meme-8080 stop
     if ($status != 0) then
         echo "ERROR: could not stop server"
