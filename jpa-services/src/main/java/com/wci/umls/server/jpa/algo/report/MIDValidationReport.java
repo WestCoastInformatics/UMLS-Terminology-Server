@@ -113,6 +113,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       try {
         // Get and execute query (truncate any trailing semi-colon)
         final Query query = manager.createNativeQuery(queryStr);
+        query.setParameter("terminology", getProject().getTerminology());
         query.setMaxResults(10);
         final List<Object[]> objects = query.getResultList();
 
@@ -134,6 +135,8 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
         e.printStackTrace();
         // If the query failed, just go to the next one
       }
+
+      commitClearBegin();
     }
 
     // Check for errors and report the
@@ -157,25 +160,6 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
 
       }
 
-      // Send email
-      final Properties props = ConfigUtility.getConfigProperties();
-      if (!ConfigUtility.isEmpty(getEmail())) {
-        try {
-          String from = null;
-          if (props.containsKey("mail.smtp.from")) {
-            from = props.getProperty("mail.smtp.from");
-          } else {
-            from = props.getProperty("mail.smtp.user");
-          }
-          ConfigUtility.sendEmail("MID Validation QA Results", from, getEmail(),
-              msg.toString(), props);
-        } catch (Exception e) {
-          e.printStackTrace();
-          // do nothing - this just means email couldn't be sent
-        }
-      }
-
-      throw new Exception("Failure to pass QA checks. " + errors);
     } else {
       logInfo("  NO errors");
     }
@@ -192,18 +176,6 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
 
   /* see superclass */
   @Override
-  public void checkProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     return super.getParameters();
   }
@@ -211,7 +183,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
   /* see superclass */
   @Override
   public String getDescription() {
-    return "Daily Editing Report";
+    return "MID Validation Report";
   }
 
   /**

@@ -448,6 +448,19 @@ public interface WorkflowServiceRest {
     String type, String authToken) throws Exception;
 
   /**
+   * Regenerate bin.
+   *
+   * @param projectId the project id
+   * @param name the name
+   * @param type the type
+   * @param authToken the auth token
+   * @return the workflow bin
+   * @throws Exception the exception
+   */
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name, String type,
+    String authToken) throws Exception;
+
+  /**
    * Generate concept report.
    *
    * @param projectId the project id

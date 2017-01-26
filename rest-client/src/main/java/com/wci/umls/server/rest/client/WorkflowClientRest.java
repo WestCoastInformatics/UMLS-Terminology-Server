@@ -1134,6 +1134,34 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name,
+    String type, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - regenerate bin "
+        + projectId + ", " + name + ", " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(name, "name");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/definition/regenerate?projectId=" + projectId + "&type="
+        + type + "&name=" + name);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
+    final String resultString = response.readEntity(String.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, WorkflowBinJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public String generateConceptReport(Long projectId, Long worklistId,
     Long delay, Boolean sendEmail, String conceptReportType,
     Integer relationshipCt, String authToken) throws Exception {

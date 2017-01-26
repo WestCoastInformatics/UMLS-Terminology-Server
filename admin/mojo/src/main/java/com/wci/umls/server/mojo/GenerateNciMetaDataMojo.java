@@ -974,7 +974,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         + "  and ar.from_id = ca1.atoms_id and ar.to_id = ca2.atoms_id "
         + "  and cr.from_id = ca1.concepts_id and cr.to_id = ca2.concepts_id "
         + "  and ar.workflowStatus = 'DEMOTION' "
-        + "  and cr.workflowStatus in ('READY_FOR_PUBLICATION','PUBLISHED'");
+        + "  and cr.workflowStatus in ('READY_FOR_PUBLICATION','PUBLISHED')");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -1927,7 +1927,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
 
     AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("DAILYREPORT");
+    algoConfig.setAlgorithmKey("DAILYEDITING");
     algoConfig.setDescription("Daily Editing Report Algorithm");
     algoConfig.setEnabled(true);
     algoConfig.setName("Daily Editing Report Algorithm");
@@ -1937,11 +1937,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 
@@ -1963,7 +1961,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
 
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("MID VALIDATION");
+    algoConfig.setAlgorithmKey("MIDVALIDATION");
     algoConfig.setDescription("MID Validation Report Algorithm");
     algoConfig.setEnabled(true);
     algoConfig.setName("MID Validation Report Algorithm");
@@ -1976,8 +1974,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 

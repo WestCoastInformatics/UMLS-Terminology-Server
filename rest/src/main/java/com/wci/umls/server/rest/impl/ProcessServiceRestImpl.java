@@ -486,12 +486,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/config/find")
-  @Consumes({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
-  @Produces({
-      MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
-  })
   @ApiOperation(value = "Find processConfigs", notes = "Find processConfigs", response = ProcessConfigListJpa.class)
   public ProcessConfigList findProcessConfigs(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,

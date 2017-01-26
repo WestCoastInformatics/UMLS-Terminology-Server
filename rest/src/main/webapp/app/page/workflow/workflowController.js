@@ -253,12 +253,13 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
-      workflowService
-        .regenerateBin($scope.selected.project.id, bin.id, $scope.selected.config.type).then(
-        // Success
-        function(data) {
-          $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
-        });
+      // send both id and name
+      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
+        $scope.selected.config.type).then(
+      // Success
+      function(data) {
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+      });
     };
 
     // Regenerate bins
