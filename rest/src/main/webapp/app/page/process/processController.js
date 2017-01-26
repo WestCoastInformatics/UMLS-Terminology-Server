@@ -50,7 +50,7 @@ tsApp
           algorithms : [],
           projects : [],
           projectRoles : [],
-          processTypes : [ 'Insertion', 'Maintenance', 'Release' ],
+          processTypes : [ 'Insertion', 'Maintenance', 'Release', 'Report' ],
           algorithmConfigTypes : [],
           modes : [ 'Config', 'Execution' ]
         }
@@ -198,8 +198,8 @@ tsApp
 
           if ($scope.selected.mode == 'Config') {
             $scope.lists.algorithmConfigTypes = [];
-            processService['get' + $scope.selected.processType + 'Algorithms'](
-              $scope.selected.project.id).then(
+            processService.getAlgorithmsForType(
+              $scope.selected.project.id, $scope.selected.processType.toLowerCase()).then(
             // Success
             function(data) {
               for (var i = 0; i < data.keyValuePairs.length; i++) {
