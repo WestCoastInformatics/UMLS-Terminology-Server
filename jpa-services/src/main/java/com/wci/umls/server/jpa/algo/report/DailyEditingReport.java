@@ -193,6 +193,19 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append("--------------------------------------------\n");
       report.append("For more detail, follow this link to the EMS\n");
 
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        ConfigUtility.sendEmail(
+            "MEME Daily Editing Report - "
+                + ConfigUtility.DATE_YYYYMMDD.format(yesterday),
+            from, getEmail(), report.toString(), config);
+      }
       logInfo("  report = \n\n" + report);
       logInfo("Finished daily editing report");
 
