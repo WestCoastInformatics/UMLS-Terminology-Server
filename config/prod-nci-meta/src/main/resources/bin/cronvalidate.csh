@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 #
 # Nightly tasks
 # 1. Bounce server (if switch is on)
@@ -9,10 +9,11 @@ set rootdir = `dirname $0`
 set abs_rootdir = `cd $rootdir && pwd`
 setenv MEME_HOME $abs_rootdir:h
 
-
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
 echo "--------------------------------------------------------"
+echo "MEME_HOME = $MEME_HOME"
+
 echo "Collect settings..."
 set host = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$1"'`
 set port = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$2"'`
