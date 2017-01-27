@@ -81,6 +81,9 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       final List<MolecularAction> actions = query.getResultList();
       // int[] - total, approvals, rels, stys, splits, merges
       final Map<String, int[]> actionStats = new HashMap<>();
+      actionStats.put("APPROVE", new int[] {
+          0, 0, 0, 0, 0, 0, 0
+      });
       final Map<String, Set<Long>> conceptStats = new HashMap<>();
       conceptStats.put("APPROVE", new HashSet<>());
       int actionCt = 0;
@@ -101,9 +104,6 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
         }
         // concept stats
         conceptStats.get(editor).add(action.getComponentId());
-        if (action.getComponentId2() != null) {
-          conceptStats.get(editor).add(action.getComponentId2());
-        }
 
         // Total stats[0]
         actionStats.get(editor)[0]++;
@@ -111,6 +111,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
         // Approval stats[1]
         if (action.getName().equals("APPROVE")) {
           actionStats.get(editor)[1]++;
+          actionStats.get("APPROVE")[1]++;
           conceptStats.get("APPROVE").add(action.getComponentId());
         }
 
@@ -167,7 +168,9 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
           .append("\n");
       report.append("Time now: " + new Date(start)).append("\n");
       report.append("\n");
-      report.append("Concepts Approved this day: " + conceptStats.get("APPROVE"))
+      report
+          .append(
+              "Concepts Approved this day: " + actionStats.get("APPROVE")[1])
           .append("\n");
       report.append(
           "                  Distinct: " + conceptStats.get("APPROVE").size())
@@ -186,6 +189,10 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append(
           "---------  -------  -----------------  -------------  -------------  ------  ------\n");
       for (final String editor : actionStats.keySet()) {
+        // Skip the special "APPROVE" count
+        if (editor.equals("APPROVE")) {
+          continue;
+        }
         final int[] stats = actionStats.get(editor);
         report
             .append(
