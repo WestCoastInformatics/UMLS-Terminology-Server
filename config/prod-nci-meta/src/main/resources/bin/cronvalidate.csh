@@ -38,6 +38,7 @@ if ($enabled == "true") then
 	set authToken = `curl -H "Content-type: text/plain" -X POST -d "$adminPwd" $url/security/authenticate/$adminUser  | perl -pe 's/.*"authToken":"([^"]*).*/$1/;'`
 	 	
     # find the "validation" process
+    set processId = `echo "select id from process_configs where project_id=$projectId and name=VALIDATE_MID;" | $mysql`
     # TODO: select id from processConfig where project_id=... and name = 'VALIDATE_MID';
 
     # TODO: execute

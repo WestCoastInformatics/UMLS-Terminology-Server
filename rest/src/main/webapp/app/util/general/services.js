@@ -440,9 +440,16 @@ tsApp
           return function(x, y) {
             for (var i = 0; i < fields.length; i++) {
               var key = fields[i];
-              var a = x[key].toLowerCase();
-              var b = y[key].toLowerCase();
-
+              var a = x[key];
+              var b = y[key];
+              
+              if((a,'').match(/^[a-zA-Z]/)){
+                a = a.toLowerCase();
+              }
+              if((b,'').match(/^[a-zA-Z]/)){
+                b = b.toLowerCase();
+              }
+              
               if (a == b) {
                 continue;
               }
