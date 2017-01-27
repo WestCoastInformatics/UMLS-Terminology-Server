@@ -3,12 +3,14 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
@@ -33,6 +35,18 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public ValidationResult checkPreconditions() throws Exception {
+
+    // Check the process input path
+    final String path =
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
+            + File.separator + getProcess().getInputPath();
+
+    final File pathAsFile = new File(path);
+    if (!pathAsFile.exists()) {
+      throw new LocalException(
+          "Input path specified in process does not exist");
+    }
+
     return new ValidationResultJpa();
   }
 
