@@ -101,6 +101,9 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
         }
         // concept stats
         conceptStats.get(editor).add(action.getComponentId());
+        if (action.getComponentId2() != null) {
+          conceptStats.get(editor).add(action.getComponentId2());
+        }
 
         // Total stats[0]
         actionStats.get(editor)[0]++;
@@ -160,10 +163,11 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append("EMS v3 Daily Editing Report for " + yesterday)
           .append("\n");
       report.append("Database : " + ConfigUtility.getConfigProperties()
-          .getProperty("javax.persistence.jdbc.url").replaceAll("\\?.*", "")).append("\n");
+          .getProperty("javax.persistence.jdbc.url").replaceAll("\\?.*", ""))
+          .append("\n");
       report.append("Time now: " + new Date(start)).append("\n");
       report.append("\n");
-      report.append("Concepts Approved this day: " + actionStats.get("APPROVE"))
+      report.append("Concepts Approved this day: " + conceptStats.get("APPROVE"))
           .append("\n");
       report.append(
           "                  Distinct: " + conceptStats.get("APPROVE").size())
@@ -183,11 +187,13 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
           "---------  -------  -----------------  -------------  -------------  ------  ------\n");
       for (final String editor : actionStats.keySet()) {
         final int[] stats = actionStats.get(editor);
-        report.append(
-            String.format("%9s  %7d  %10d %6s  %13d  %12d  %7d  %6d\n",
-                editor, stats[0], stats[1], "(" +
-                (int) (stats[1] * 100.0 / conceptStats.get(editor).size()) + "%)",
-                stats[2], stats[3], stats[4], stats[5]));
+        report
+            .append(
+                String.format("%9s  %7d  %10d %6s  %13d  %12d  %7d  %6d\n",
+                    editor, stats[0], stats[1],
+                    "(" + (int) (stats[1] * 100.0
+                        / conceptStats.get(editor).size()) + "%)",
+                    stats[2], stats[3], stats[4], stats[5]));
       }
 
       report.append("--------------------------------------------\n");
