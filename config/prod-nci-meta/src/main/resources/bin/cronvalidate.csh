@@ -42,9 +42,9 @@ if ($enabled == "true") then
 	echo "  Run MID Validation Report... `/bin/date`"
 	set processId = `echo "select id from process_configs where name='MID Validation Report';" | $mysql | tail -1`
 	echo "    processId = $processId"
-	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/prepare?projectId=$projectId
+	set executionId = `curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET"$url/process/config/$processId/prepare?projectId=$projectId"`
 	sleep 2		
-	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/execute?projectId=$projectId&background=true"
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET "$url/process/execution/$executionId/execute?projectId=$projectId&background=true"
 	 
 else
     echo "  DISABLED"

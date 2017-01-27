@@ -42,9 +42,9 @@ if ($enabled == "true") then
 	echo "  Run Daily Editing Report... `/bin/date`"
 	set processId = `echo "select id from process_configs where name='Daily Editing Report';" | $mysql | tail -1`
 	echo "    processId = $processId"
-	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/prepare?projectId=$projectId
+	set executionId = `curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET "$url/process/config/$processId/prepare?projectId=$projectId"`
 	sleep 2		
-	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/process/config/$processId/execute?projectId=$projectId&background=true"
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET "$url/process/execution/$executionId/execute?projectId=$projectId&background=true"
 	 	
     # 2. repartition MUTUALLY_EXCLUSIVE bins
 	echo "  Regenerate MUTUALLY_EXCLUSIVE ... `/bin/date`"
