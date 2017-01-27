@@ -613,7 +613,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     params.put("terminology", project.getTerminology());
     params.put("version", project.getVersion());
 
-    List<Long[]> results =
+    final List<Long[]> results =
         executeClusteredConceptQuery(query, definition.getQueryType(), params);
 
     if (results == null)

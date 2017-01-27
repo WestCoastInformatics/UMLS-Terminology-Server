@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,7 +36,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
   public DailyEditingReport() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("MATRIXINIT");
+    setWorkId("MIDVALIDATION");
     setLastModifiedBy("admin");
   }
 
@@ -46,7 +45,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
   public ValidationResult checkPreconditions() throws Exception {
 
     if (getProject() == null) {
-      throw new Exception("Matrix initializer requires a project to be set");
+      throw new Exception("Daily editing report requires a project to be set");
     }
     // n/a - NO preconditions
     return new ValidationResultJpa();
@@ -157,10 +156,11 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       //
       // --------------------------------------------
       // For more detail, follow this link to the EMS
+      report.append("<html><body><pre>").append("\n");
       report.append("EMS v3 Daily Editing Report for " + yesterday)
           .append("\n");
       report.append("Database : " + ConfigUtility.getConfigProperties()
-          .getProperty("javax.persistence.jdbc.url")).append("\n");
+          .getProperty("javax.persistence.jdbc.url").replaceAll("\\?.*", "")).append("\n");
       report.append("Time now: " + new Date(start)).append("\n");
       report.append("\n");
       report.append("Concepts Approved this day: " + actionStats.get("APPROVE"))
@@ -168,7 +168,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append(
           "                  Distinct: " + conceptStats.get("APPROVE").size())
           .append("\n");
-      report.append("Number of actions this day: " + actionCt).append("\n");
+      report.append("Number of actions this day: " + actionCt).append("\n\n");
       report.append(
           "Shown below are editing statistics for each authority.  The E-{initials}\n");
       report.append(
@@ -184,15 +184,37 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       for (final String editor : actionStats.keySet()) {
         final int[] stats = actionStats.get(editor);
         report.append(
-            String.format("%9s  %7d  %11d (%3d)  %13d  %12d  %7d  %6d\n",
-                editor, stats[0], stats[1],
-                (int) (stats[1] * 100.0 / conceptStats.get(editor).size()),
+            String.format("%9s  %7d  %10d %6s  %13d  %12d  %7d  %6d\n",
+                editor, stats[0], stats[1], "(" +
+                (int) (stats[1] * 100.0 / conceptStats.get(editor).size()) + "%)",
                 stats[2], stats[3], stats[4], stats[5]));
       }
 
       report.append("--------------------------------------------\n");
-      report.append("For more detail, follow this link to the EMS\n");
+      report.append(
+          "For more detail, see the execution of this report in the 'Process' tab\n");
+      final String url = config.getProperty("base.url") + "/#/process";
+      report.append("  <a href=\"" + url + "\">" + url + "</a>\n");
+      report.append("<html><body><pre>").append("\n");
 
+      // Send email if configured.
+      if (!ConfigUtility.isEmpty(getEmail())) {
+        String from = null;
+        if (config.containsKey("mail.smtp.from")) {
+          from = config.getProperty("mail.smtp.from");
+        } else {
+          from = config.getProperty("mail.smtp.user");
+        }
+        try {
+          ConfigUtility.sendEmail(
+              "MEME Daily Editing Report - "
+                  + ConfigUtility.DATE_YYYYMMDD.format(yesterday),
+              from, getEmail(), report.toString(), config);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // do nothing - this just means email couldn't be sent
+        }
+      }
       logInfo("  report = \n\n" + report);
       logInfo("Finished daily editing report");
 
@@ -207,18 +229,6 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
   @Override
   public void reset() throws Exception {
     // n/a - No reset
-  }
-
-  /* see superclass */
-  @Override
-  public void checkProperties(Properties p) throws Exception {
-    // n/a
-  }
-
-  /* see superclass */
-  @Override
-  public void setProperties(Properties p) throws Exception {
-    // n/a
   }
 
   /* see superclass */

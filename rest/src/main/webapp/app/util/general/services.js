@@ -442,14 +442,12 @@ tsApp
               var key = fields[i];
               var a = x[key];
               var b = y[key];
-              
-              if((a,'').match(/^[a-zA-Z]/)){
+              if ((a + '').match(/^[a-zA-Z]/)) {
                 a = a.toLowerCase();
               }
-              if((b,'').match(/^[a-zA-Z]/)){
+              if ((b + '').match(/^[a-zA-Z]/)) {
                 b = b.toLowerCase();
               }
-              
               if (a == b) {
                 continue;
               }

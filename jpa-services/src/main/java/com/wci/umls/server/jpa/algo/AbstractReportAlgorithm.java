@@ -55,6 +55,11 @@ public abstract class AbstractReportAlgorithm extends AbstractAlgorithm {
     return params;
   }
 
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {

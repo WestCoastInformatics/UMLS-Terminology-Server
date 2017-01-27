@@ -1080,7 +1080,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         try {
           algorithm.rollback();
         } catch (Exception e2) {
-          // do nothing
+          // n/a, if this fails algo is already rolled back.
         }
         handleException(e, "trying to regenerate bins");
       } finally {
@@ -2395,6 +2395,91 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         return newBin;
 
       } catch (Exception e) {
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
+        handleException(e, "trying to regenerate a single bin");
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+      return null;
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/definition/regenerate")
+  @ApiOperation(value = "Regenerate bin from definition", notes = "Regenerate bin from definition.  Used for a defintion that does not yet have a bin", response = WorkflowBinJpa.class)
+  public WorkflowBin regenerateBinDefinition(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin definition name, e.g. 'demotions'", required = true) @QueryParam("name") String name,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /definition/regenerate " + name);
+
+    // Only one user can regenerate a bin at a time
+    synchronized (lock) {
+
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName = authorizeProject(workflowService, projectId,
+            securityService, authToken, "trying to regenerate a single bin",
+            UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
+        final Project project = workflowService.getProject(projectId);
+        if (!project.isEditingEnabled()) {
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
+        }
+
+        // Set transaction scope
+        workflowService.setTransactionPerOperation(false);
+        workflowService.beginTransaction();
+
+        // Remove the bin by name if it exists (assume rank - if never created)
+        int rank = 0;
+        for (final WorkflowBin bin : workflowService.getWorkflowBins(project,
+            type)) {
+          if (bin.getName().equals(name)) {
+            rank = bin.getRank();
+            workflowService.removeWorkflowBin(bin.getId(), true);
+          }
+        }
+
+        // Get the bin definitions
+        final List<WorkflowBinDefinition> definitions =
+            workflowService.getWorkflowBinDefinitions(project, type);
+        WorkflowBin newBin = null;
+        for (final WorkflowBinDefinition definition : definitions) {
+          if (definition.getName().equals(name)) {
+            newBin = workflowService.regenerateBinHelper(project, definition,
+                rank, new HashSet<>(),
+                workflowService.getConceptIdWorklistNameMap(project));
+            break;
+          }
+        }
+
+        workflowService.addLogEntry(userName, projectId, newBin.getId(), null,
+            null, "REGENERATE BIN DEFINITION - " + name + ", " + type);
+        workflowService.commit();
+
+        // websocket - n/a
+
+        return newBin;
+
+      } catch (Exception e) {
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
         handleException(e, "trying to regenerate a single bin");
       } finally {
         workflowService.close();
@@ -3355,7 +3440,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             // bail, no algorithm
             throw new LocalException(
                 "Update mode used and no concepts have changed since last run");
-          } 
+          }
           algorithm.setConceptIds(conceptIds);
         }
       }

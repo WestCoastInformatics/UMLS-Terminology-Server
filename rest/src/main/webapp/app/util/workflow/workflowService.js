@@ -83,32 +83,32 @@ tsApp.service('workflowService', [
     this.exportWorkflow = function(projectId, workflowId) {
       console.debug('exportProcess', projectId, workflowId);
       gpService.increment();
-      $http.post(workflowUrl + '/config/export?projectId=' + projectId + '&workflowId=' + workflowId,
-        '').then(
-      // Success
-      function(response) {
-        var blob = new Blob([ JSON.stringify(response.data, null, 2) ], {
-          type : ''
+      $http.post(
+        workflowUrl + '/config/export?projectId=' + projectId + '&workflowId=' + workflowId, '')
+        .then(
+        // Success
+        function(response) {
+          var blob = new Blob([ JSON.stringify(response.data, null, 2) ], {
+            type : ''
+          });
+
+          // fake a file URL and download it
+          var fileURL = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = fileURL;
+          a.target = '_blank';
+          a.download = 'workflow.' + workflowId + '.txt';
+          document.body.appendChild(a);
+          gpService.decrement();
+          a.click();
+
+        },
+        // Error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
         });
-
-        // fake a file URL and download it
-        var fileURL = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = fileURL;
-        a.target = '_blank';
-        a.download = 'workflow.' + workflowId + '.txt';
-        document.body.appendChild(a);
-        gpService.decrement();
-        a.click();
-
-      },
-      // Error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-      });
-    };    
-    
+    };
 
     // Import workflow
     this.importWorkflow = function(projectId, file) {
@@ -138,8 +138,8 @@ tsApp.service('workflowService', [
         console.debug('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
       });
       return deferred.promise;
-    };    
-    
+    };
+
     // update worklist
     this.updateWorklist = function(projectId, worklist) {
       console.debug('updateWorklist', projectId, worklist);
@@ -242,19 +242,20 @@ tsApp.service('workflowService', [
 
       // Add project
       gpService.increment();
-      $http['delete'](workflowUrl + '/definition/' + definitionId + '?projectId=' + projectId).then(
-      // success
-      function(response) {
-        console.debug('  successful remove workflow bin definition');
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+      $http['delete'](workflowUrl + '/definition/' + definitionId + '?projectId=' + projectId)
+        .then(
+        // success
+        function(response) {
+          console.debug('  successful remove workflow bin definition');
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
       return deferred.promise;
     };
 
@@ -903,15 +904,19 @@ tsApp.service('workflowService', [
     };
 
     // regenerate bin
-    this.regenerateBin = function(projectId, id, workflowBinType) {
-      console.debug('regenerate bin');
+    this.regenerateBin = function(projectId, id, name, workflowBinType) {
+      console.debug('regenerate bin', projectId, id, name, workflowBinType);
       var deferred = $q.defer();
 
       // find tracking records
       gpService.increment('Regenerating bin...');
-      $http.post(
-        workflowUrl + '/bin/' + id + '/regenerate?projectId=' + projectId + '&type='
-          + workflowBinType, '').then(
+      var url = workflowUrl + '/bin/' + id + '/regenerate?projectId=' + projectId + '&type='
+        + workflowBinType;
+      if (!id) {
+        url = workflowUrl + '/definition/regenerate?projectId=' + projectId + '&type='
+          + workflowBinType + '&name=' + name;
+      }
+      $http.post(url, '').then(
       // success
       function(response) {
         console.debug('  successful regenerate bin');
