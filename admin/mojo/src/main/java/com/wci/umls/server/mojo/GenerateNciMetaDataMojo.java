@@ -235,6 +235,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     project1.setTerminology(terminology);
     project1.setWorkflowPath(ConfigUtility.DEFAULT);
     project1.setVersion(version);
+    project1.setEditingEnabled(true);
+    project1.setAutomationsEnabled(true);
     List<String> newAtomTermgroups = new ArrayList<>();
     newAtomTermgroups.add("MTH/PN");
     newAtomTermgroups.add("NCIMTH/PN");

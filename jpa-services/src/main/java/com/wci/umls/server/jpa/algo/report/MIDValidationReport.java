@@ -114,6 +114,15 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
         // Get and execute query (truncate any trailing semi-colon)
         final Query query = manager.createNativeQuery(queryStr);
         query.setParameter("terminology", getProject().getTerminology());
+        if (queryStr.contains(":terminology")) {
+          query.setParameter("terminology", getProject().getTerminology());
+        }
+        if (queryStr.contains(":version")) {
+          query.setParameter("version", getProject().getVersion());
+        }
+        if (queryStr.contains(":projectId")) {
+          query.setParameter("projectId", getProject().getId());
+        }
         query.setMaxResults(10);
         final List<Object[]> objects = query.getResultList();
 
@@ -132,7 +141,6 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       } catch (Exception e) {
         errors.put(name, new ArrayList<>());
         errors.get(name).add("Unexpected error executing query: " + e);
-        e.printStackTrace();
         // If the query failed, just go to the next one
       }
 
@@ -159,6 +167,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
         }
 
       }
+      logInfo("  SEND EMAIL");
 
     } else {
       logInfo("  NO errors");
