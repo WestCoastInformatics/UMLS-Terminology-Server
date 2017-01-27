@@ -464,7 +464,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (algo.getProperties().get(param.getFieldName()) != null) {
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(new ArrayList<String>(Arrays.asList(
-                  algo.getProperties().get(param.getFieldName()).split(","))));
+                  algo.getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(algo.getProperties().get(param.getFieldName()));
             }
@@ -577,7 +577,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(
                   new ArrayList<String>(Arrays.asList(algorithmExecution
-                      .getProperties().get(param.getFieldName()).split(","))));
+                      .getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(
                   algorithmExecution.getProperties().get(param.getFieldName()));
@@ -1071,7 +1071,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         if (algo.getProperties().get(param.getFieldName()) != null) {
           if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
             param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(","))));
+                algo.getProperties().get(param.getFieldName()).split(";"))));
           } else {
             param.setValue(algo.getProperties().get(param.getFieldName()));
           }

@@ -48,7 +48,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
 
   /** The group. */
   @Column(name = "relGroup", nullable = true)
-  private String group;
+  private String group = "";
 
   /** The inferred. */
   @Column(nullable = false)
