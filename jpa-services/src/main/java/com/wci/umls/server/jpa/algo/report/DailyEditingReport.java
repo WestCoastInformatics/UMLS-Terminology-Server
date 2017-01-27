@@ -76,7 +76,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
               + "where lastModified >= :startDate and lastModified < :endDate");
       query.setParameter("startDate", yesterday);
       // TODO: query.setParameter("endDate", today);
-      query.setParameter("endDate", new Date());
+      query.setParameter("endDate", today);
       @SuppressWarnings("unchecked")
       final List<MolecularAction> actions = query.getResultList();
       // int[] - total, approvals, rels, stys, splits, merges
