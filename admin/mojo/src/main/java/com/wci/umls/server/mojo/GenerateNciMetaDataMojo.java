@@ -2430,7 +2430,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - confirm whether Joanne will be doing this manually...
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("METAMORPHOSYS");
     algoConfig.setDescription("METAMORPHOSYS Algorithm");
