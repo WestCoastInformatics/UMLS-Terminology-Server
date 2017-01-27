@@ -245,7 +245,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
 
       // Inverse relationships don't keep the group value from its originating
       // relationship - clear it out
-      inverseRelationship.setGroup(null);
+      inverseRelationship.setGroup("");
 
       return inverseRelationship;
     } else {

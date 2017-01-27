@@ -228,7 +228,10 @@
             <td class="nobreak">
               <span notes selected="selected" empty="concept.notes"
                 type="Concept"></span>
-              <i title="Remove from list"
+              <i title="Refresh concept"
+                ng-click="reloadConcept(concept); $event.stopPropagation()"
+                class="noul glyphicon glyphicon-repeat"></i>
+                              <i title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
