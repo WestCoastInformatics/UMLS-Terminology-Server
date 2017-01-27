@@ -95,7 +95,7 @@ public class DummyAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,

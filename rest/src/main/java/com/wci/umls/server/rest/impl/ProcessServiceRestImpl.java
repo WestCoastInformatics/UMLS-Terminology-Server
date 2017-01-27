@@ -455,6 +455,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // its properties' values.
       for (final AlgorithmConfig algo : process.getSteps()) {
         instance = processService.getAlgorithmInstance(algo.getAlgorithmKey());
+        instance.setProject(processService.getProject(projectId));
         algo.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algo.getParameters()) {
@@ -481,16 +482,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process configs.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process config list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
@@ -532,15 +523,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the process execution
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -575,6 +557,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify that passed projectId matches ID of the processExecution's
       // project
       verifyProject(processExecution, projectId);
+      Project project = processService.getProject(projectId);
 
       // For each of the process' algorithms, populate the parameters based on
       // its properties' values.
@@ -582,6 +565,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           .getSteps()) {
         instance = processService
             .getAlgorithmInstance(algorithmExecution.getAlgorithmKey());
+        instance.setProject(project);
         algorithmExecution.setParameters(instance.getParameters());
         instance.close();
         for (final AlgorithmParameter param : algorithmExecution
@@ -612,16 +596,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
@@ -664,14 +638,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -731,15 +697,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return processExecutions;
   }
 
-  /**
-   * Removes the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param cascade the cascade
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -802,15 +759,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Adds the algorithm config.
-   *
-   * @param projectId the project id
-   * @param config the algorithm config
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @PUT
@@ -1004,6 +952,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         throw new LocalException(
             "Missing algorithm for key " + algo.getAlgorithmKey());
       }
+      algorithm.setProject(processService.getProject(projectId));
       final Properties p = new Properties();
       p.putAll(algo.getProperties());
       algorithm.checkProperties(p);
@@ -1020,14 +969,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  /**
-   * Removes the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -1087,15 +1028,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -1162,86 +1094,27 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/algo/insertion")
-  @ApiOperation(value = "Get all insertion algorithms", notes = "Gets the insertion algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getInsertionAlgorithms(
+  @Path("/algo/{type:insertion|maintenance|release|report}")
+  @ApiOperation(value = "Get all algorithms", notes = "Gets the algorithms for the specified type", response = KeyValuePairList.class)
+  public KeyValuePairList getAlgorithmsForType(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/insertion?projectId=" + projectId
-            + " for user " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Process): /algo/" + type
+        + "?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the insertion algorithms", UserRole.AUTHOR);
+      final String userName = authorizeProject(processService, projectId,
+          securityService, authToken, "getting the " + type + " algorithms",
+          UserRole.AUTHOR);
       processService.setLastModifiedBy(userName);
 
-      return processService.getInsertionAlgorithms();
+      return processService.getAlgorithmsForType(type);
+
     } catch (Exception e) {
-      handleException(e, "trying to get the insertion algorithms");
-      return null;
-    } finally {
-      processService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/algo/maintenance")
-  @ApiOperation(value = "Get all maintenance algorithms", notes = "Gets the maintenance algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getMaintenanceAlgorithms(
-    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/maintenance?projectId=" + projectId
-            + " for user " + authToken);
-
-    final ProcessService processService = new ProcessServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the maintenance algorithms", UserRole.AUTHOR);
-      processService.setLastModifiedBy(userName);
-
-      return processService.getMaintenanceAlgorithms();
-    } catch (Exception e) {
-      handleException(e, "trying to get the maintenance algorithms");
-      return null;
-    } finally {
-      processService.close();
-      securityService.close();
-    }
-  }
-
-  /* see superclass */
-  @Override
-  @GET
-  @Path("/algo/release")
-  @ApiOperation(value = "Get all release algorithms", notes = "Gets the release algorithms", response = KeyValuePairList.class)
-  public KeyValuePairList getReleaseAlgorithms(
-    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/release?projectId=" + projectId
-            + " for user " + authToken);
-
-    final ProcessService processService = new ProcessServiceJpa();
-    try {
-      final String userName =
-          authorizeProject(processService, projectId, securityService,
-              authToken, "getting the release algorithms", UserRole.AUTHOR);
-      processService.setLastModifiedBy(userName);
-
-      return processService.getReleaseAlgorithms();
-    } catch (Exception e) {
-      handleException(e, "trying to get the release algorithms");
+      handleException(e, "trying to get the " + type + " algorithms");
       return null;
     } finally {
       processService.close();
@@ -1730,7 +1603,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * @param step the step
    * @throws Exception the exception
    */
-
   private void runProcessAsThread(Long projectId, Long processConfigId,
     Long processExecutionId, String userName, Boolean background,
     Boolean restart, Integer step) throws Exception {
@@ -1990,7 +1862,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               processService.updateProcessExecution(processExecution);
 
             }
-            
+
             // Mark algorithm as finished
             lookupAeProgressMap.remove(algorithmExecution.getId());
             processAlgorithmMap.remove(processExecution.getId());
@@ -2170,6 +2042,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @GET
   @Path("algo/{algorithmExecutionId}/log")
   @ApiOperation(value = "Get log entries of specified algorithm execution", notes = "Get log entries of specified algorithm execution", response = Integer.class)

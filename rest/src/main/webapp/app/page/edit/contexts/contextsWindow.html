@@ -2,7 +2,7 @@
   class="alert alert-danger">Editing is disabled.</span>
 <h4>
   <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.hierarchiesLabel}}
-    and {{selected.metadata.attributesLabel}} ({{pagedEntries.totalCount}})</b>
+    <span ng-show="pagedEntries.totalCount">({{pagedEntries.totalCount}})</span></b>
   <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
     {{selected.component.id}}</span>
 </h4>

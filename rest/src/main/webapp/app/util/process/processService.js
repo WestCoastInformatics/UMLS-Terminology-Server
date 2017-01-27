@@ -7,7 +7,7 @@ tsApp.service('processService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-
+    
     // add algorithm config
     this.addAlgorithmConfig = function(projectId, processId, algo) {
       console.debug('addAlgorithmConfig', projectId, processId, algo);
@@ -59,7 +59,7 @@ tsApp.service('processService', [
     this.findProcessConfigs = function(projectId, query, pfs) {
       console.debug('findProcessConfig', projectId, query, pfs);
       var deferred = $q.defer();
-
+      
       // Get projects
       gpService.increment();
       $http.post(
@@ -372,63 +372,17 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
-    // get insertion algorithms
-    this.getInsertionAlgorithms = function(projectId) {
-      console.debug('get insertion algorithms', projectId);
+    // get algorithms
+    this.getAlgorithmsForType = function(projectId, type) {
+      console.debug('get ' + type + ' algorithms', projectId);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
-      $http.get(processUrl + '/algo/insertion?projectId=' + projectId).then(
+      $http.get(processUrl + '/algo/' + type + '?projectId=' + projectId).then(
       // success
       function(response) {
-        console.debug('  insertion = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
-    // get maintenance algorithms
-    this.getMaintenanceAlgorithms = function(projectId) {
-      console.debug('get maintenance algorithms', projectId);
-      var deferred = $q.defer();
-
-      // Get projects
-      gpService.increment();
-      $http.get(processUrl + '/algo/maintenance?projectId=' + projectId).then(
-      // success
-      function(response) {
-        console.debug('  maintenance = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
-      return deferred.promise;
-    };
-
-    // get release algorithms
-    this.getReleaseAlgorithms = function(projectId) {
-      console.debug('get release algorithms', projectId);
-      var deferred = $q.defer();
-
-      // Get projects
-      gpService.increment();
-      $http.get(processUrl + '/algo/release?projectId=' + projectId).then(
-      // success
-      function(response) {
-        console.debug('  release = ', response.data);
+        console.debug('  algorithms = ', response.data);
         gpService.decrement();
         deferred.resolve(response.data);
       },
@@ -658,6 +612,7 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // export process
     this.exportProcess = function(projectId, processId) {
       console.debug('exportProcess', projectId, processId);
       gpService.increment();

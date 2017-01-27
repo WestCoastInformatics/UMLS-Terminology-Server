@@ -321,7 +321,7 @@ public class UmlsIdentityLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception{
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input UMLS UI Files directory to load", "", 255,

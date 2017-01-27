@@ -935,7 +935,7 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters() throws Exception{
     return super.getParameters();
   }
 

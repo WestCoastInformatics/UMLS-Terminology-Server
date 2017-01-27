@@ -76,9 +76,7 @@
           ng-class="{selected: process.id == selected.process.id}">
 
           <td>{{process.name}}</td>
-          <td>
-            {{getExecutionState(process)}}
-          </td>
+          <td>{{getExecutionState(process)}}</td>
           <td>{{toDate(process.lastModified)}}</td>
 
           <!--  actions -->
@@ -95,20 +93,18 @@
           </td>
         </tr>
       </tbody>
-      <span ng-show="lists.processes.totalCount == 0"
-        class="alert alert-warning">There are no processes of type
-        {{selected.processType}}.</span>
-
     </table>
+    <span ng-show="lists.processes.totalCount == 0" class="alert alert-warning">There
+      are no processes of type {{selected.processType}}.</span>
   </div>
 
 
   <!-- R1C2 - process details -->
   <div class="col-md-6 col-xs-12">
 
-    <span ng-show="selected.process">
+    <div style="display: inline" ng-show="selected.process">
       <h4>Process Details</h4>
-    </span>
+    </div>
     <!-- Details, Releases, Records -->
     <span ng-show="!selected.process && list.processes.length > 0"
       class="alert alert-warning">Select a process to see details</span>
@@ -124,7 +120,7 @@
             </td>
             <td>
               {{selected.process.name}} &nbsp;
-              <i ng-show="selected.mode == 'Execution'"
+              <i ng-show="selected.mode != 'Execution'"
                 ng-click="exportProcess()" title="Export process"
                 class="noul glyphicon glyphicon-download"></i>
             </td>
@@ -202,9 +198,7 @@
             <td>
               <b>State</b>
             </td>
-            <td>
-              {{getExecutionState(selected.process)}}
-            </td>
+            <td>{{getExecutionState(selected.process)}}</td>
           </tr>
 
           <tr
@@ -259,13 +253,15 @@
             <th class="col-md-1 col-xs-1">Actions</th>
           </tr>
         </thead>
-        <tr ng-repeat="step in selected.process.steps"
+        <tr ng-repeat-start="step in selected.process.steps"
           ng-click="selectStep(step);"
           ng-style="{'opacity' : step.enabled == 0 ? 0.4 : 1}"
           ng-class="{selected: step.id == selected.step.id}">
           <td>
             {{$index}}.
-            <span ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'" class="nobreak">
+            <span
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
+              class="nobreak">
               <!--  Enable/Disable step -->
               <input type="checkbox" title="Enable/Disable Step"
                 ng-change="toggleEnable(step);" ng-model="step.enabled"
@@ -308,6 +304,24 @@
               class="noul glyphicon glyphicon-trash"></i>
           </td>
         </tr>
+
+        <!-- Show parameter details for selected step -->
+        <tr ng-show="step.id == selected.step.id && step.parameters.length>0"
+          ng-repeat-end ng-class="{selected: step.id == selected.step.id}">
+          <td colspan="4">
+            <span ng-repeat="parameter in step.parameters">
+              <span class="ml20">
+                <b>{{parameter.name}}:</b> {{parameter.value}}
+                <span ng-show="!parameter.value">
+                  [
+                  <span ng-repeat="value in parameter.values">{{value}}</span>
+                  ]
+                </span>
+              </span>
+              <br />
+            </span>
+          </td>
+        </tr>
       </table>
       <div
         ng-show="selected.process.steps.length == 0 && selected.mode == 'Config'"
@@ -347,3 +361,4 @@
       </span>
     </div>
   </div>
+</div>

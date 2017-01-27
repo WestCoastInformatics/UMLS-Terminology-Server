@@ -483,68 +483,17 @@ public class ProcessClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public KeyValuePairList getInsertionAlgorithms(Long projectId,
+  public KeyValuePairList getAlgorithmsForType(Long projectId, String type,
     String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Process Client - get insertion Algorithms");
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algo/insertion?projectId=" + projectId);
-
-    Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    KeyValuePairList insertionAlgorithms =
-        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
-    return insertionAlgorithms;
-  }
-
-  /* see superclass */
-  @Override
-  public KeyValuePairList getMaintenanceAlgorithms(Long projectId,
-    String authToken) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Process Client - get maintenance Algorithms");
-
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algo/maintenance?projectId=" + projectId);
-
-    Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).get();
-
-    String resultString = response.readEntity(String.class);
-    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-      // n/a
-    } else {
-      throw new Exception(response.toString());
-    }
-
-    // converting to object
-    KeyValuePairList maintenanceAlgorithms =
-        ConfigUtility.getGraphForString(resultString, KeyValuePairList.class);
-    return maintenanceAlgorithms;
-  }
-
-  /* see superclass */
-  @Override
-  public KeyValuePairList getReleaseAlgorithms(Long projectId, String authToken)
-    throws Exception {
     Logger.getLogger(getClass())
         .debug("Process Client - get release Algorithms");
 
+    validateNotEmpty(type, "type");
+    validateNotEmpty(projectId, "projectId");
+
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(config.getProperty("base.url")
-        + "/process/algo/release?projectId=" + projectId);
+        + "/process/algo/" + type + "?projectId=" + projectId);
 
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();

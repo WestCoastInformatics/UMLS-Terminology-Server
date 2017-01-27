@@ -34,14 +34,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -58,7 +59,6 @@ import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
 import com.wci.umls.server.jpa.algo.insert.RepartitionAlgorithm;
 import com.wci.umls.server.jpa.algo.maint.MatrixInitializerAlgorithm;
@@ -69,6 +69,7 @@ import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
+import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
@@ -98,6 +99,7 @@ import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.model.workflow.WorkflowEpoch;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.model.workflow.Worklist;
+import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.WorkflowService;
 import com.wci.umls.server.services.handlers.WorkflowActionHandler;
@@ -177,6 +179,127 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
       handleException(e, "trying to " + action);
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Path("/config/import")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @ApiOperation(value = "Import workflow config", notes = "Imports a workflow config", response = WorkflowConfigJpa.class)
+  public WorkflowConfig importWorkflowConfig(
+    @ApiParam(value = "Form data header", required = true) @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
+    @ApiParam(value = "Content of members file", required = true) @FormDataParam("file") InputStream in,
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /config/import?projectId=" + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "adding a process config", UserRole.ADMINISTRATOR);
+      workflowService.setLastModifiedBy(userName);
+      // This should be atomic
+      workflowService.setTransactionPerOperation(false);
+      workflowService.beginTransaction();
+
+      // Load project
+      final Project project = workflowService.getProject(projectId);
+
+      // Convert to a String
+      final String json = IOUtils.toString(in, "UTF-8");
+
+      // Convert to an object
+      final WorkflowConfigJpa workflow =
+          ConfigUtility.getGraphForJson(json, WorkflowConfigJpa.class);
+
+      // Clean up the imported process
+      workflow.setProject(project);
+      // Verify that passed projectId matches ID of the processConfig's project
+      verifyProject(workflow, projectId);
+
+      // Save steps
+      final List<WorkflowBinDefinition> binDefinitions =
+          workflow.getWorkflowBinDefinitions();
+
+      // Prep workflow config
+      workflow.setId(null);
+      workflow.getWorkflowBinDefinitions().clear();
+      final WorkflowConfigList list = workflowService.findWorkflowConfigs(
+          projectId,
+          "type:\"" + QueryParserBase.escape(workflow.getType()) + "\"", null);
+      if (list.size() > 0) {
+        workflow.setType(workflow.getType() + " - "
+            + ConfigUtility.DATE_YYYYMMDDHHMMSS.format(new Date()));
+      }
+      final WorkflowConfig newWorkflowConfig =
+          workflowService.addWorkflowConfig(workflow);
+
+      // Add bin definitions
+      for (final WorkflowBinDefinition binDefinition : binDefinitions) {
+        binDefinition.setId(null);
+        binDefinition.setWorkflowConfig(newWorkflowConfig);
+        newWorkflowConfig.getWorkflowBinDefinitions()
+            .add(workflowService.addWorkflowBinDefinition(binDefinition));
+      }
+
+      workflowService.updateWorkflowConfig(newWorkflowConfig);
+      workflowService.addLogEntry(userName, projectId,
+          newWorkflowConfig.getId(), null, null,
+          "IMPORT workflow config - " + newWorkflowConfig);
+
+      workflowService.commit();
+      return newWorkflowConfig;
+    } catch (Exception e) {
+      handleException(e, "trying to add a process config");
+      return null;
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @POST
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/config/export")
+  @ApiOperation(value = "Export workflow config", notes = "Exports a workflow config", response = InputStream.class)
+  public InputStream exportWorkflowConfig(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "WorkflowConfig id, e.g. 23425", required = true) @QueryParam("workflowId") Long workflowId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /config/export?projectId=" + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      final String userName =
+          authorizeProject(workflowService, projectId, securityService,
+              authToken, "adding a process config", UserRole.ADMINISTRATOR);
+      workflowService.setLastModifiedBy(userName);
+
+      // Load project/process
+      final WorkflowConfig workflow =
+          workflowService.getWorkflowConfig(workflowId);
+      verifyProject(workflow, projectId);
+
+      return new ByteArrayInputStream(
+          ConfigUtility.getJsonForGraph(workflow).getBytes("UTF-8"));
+
+    } catch (Exception e) {
+      handleException(e, "trying to export a workflow config");
       return null;
     } finally {
       workflowService.close();
@@ -926,6 +1049,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     // Only one user can regenerate bins at a time
     synchronized (lock) {
       // Instantiate services
+      final ProcessService processService = new ProcessServiceJpa();
       final RepartitionAlgorithm algorithm = new RepartitionAlgorithm();
       try {
 
@@ -938,27 +1062,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         final WorkflowConfig workflowConfig =
             algorithm.getWorkflowConfig(project, type);
 
-        algorithm.setLastModifiedBy(userName);
-        algorithm.setProject(project);
-        algorithm.setTerminology(project.getTerminology());
-        algorithm.setVersion(project.getVersion());
-        algorithm.setTransactionPerOperation(false);
-        algorithm.beginTransaction();
-
+        // Set up and run the algorithm
         final Properties algoProperties = new Properties();
         algoProperties.put("type", type);
         algorithm.setProperties(algoProperties);
+        algorithm.setLastModifiedBy(userName);
 
-        // Check preconditions
-        final ValidationResult result = algorithm.checkPreconditions();
-        if (!result.isValid()) {
-          throw new Exception("Repartition Algorithm failed preconditions: "
-              + result.getErrors());
-        }
-        algorithm.compute();
-
-        // Commit any changes the algorithm wants to make
-        algorithm.commit();
+        processService.executeSingleAlgorithm(algorithm, project);
 
         // TODO question what would correct objectId be?
         // Websocket notification
@@ -970,11 +1080,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         try {
           algorithm.rollback();
         } catch (Exception e2) {
-          // do nothing
+          // n/a, if this fails algo is already rolled back.
         }
         handleException(e, "trying to regenerate bins");
       } finally {
         algorithm.close();
+        processService.close();
         securityService.close();
       }
     }
@@ -1847,6 +1958,21 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       Collections.sort(bins, (o1, o2) -> o1.getRank() - o2.getRank());
 
+      // Add "bins" for definitions that don't have bins yet.
+      // Just add them at the end, there are too many situations
+      // where it would be hard to find out the right order.
+      // Next regenerate will fix it.
+      final WorkflowConfig config =
+          workflowService.getWorkflowConfig(project, type);
+      Set<String> binNames =
+          bins.stream().map(b -> b.getName()).collect(Collectors.toSet());
+      for (final WorkflowBinDefinition def : config
+          .getWorkflowBinDefinitions()) {
+        if (!binNames.contains(def.getName())) {
+          bins.add(new WorkflowBinJpa(def));
+        }
+      }
+
       final WorkflowBinList list = new WorkflowBinListJpa();
       list.setObjects(bins);
       list.setTotalCount(list.size());
@@ -2208,7 +2334,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @GET
+  @POST
   @Path("/bin/{id}/regenerate")
   @ApiOperation(value = "Regenerate bin", notes = "Regenerate bin", response = WorkflowBinJpa.class)
   public WorkflowBin regenerateBin(
@@ -2269,6 +2395,91 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         return newBin;
 
       } catch (Exception e) {
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
+        handleException(e, "trying to regenerate a single bin");
+      } finally {
+        workflowService.close();
+        securityService.close();
+      }
+      return null;
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/definition/regenerate")
+  @ApiOperation(value = "Regenerate bin from definition", notes = "Regenerate bin from definition.  Used for a defintion that does not yet have a bin", response = WorkflowBinJpa.class)
+  public WorkflowBin regenerateBinDefinition(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Workflow bin definition name, e.g. 'demotions'", required = true) @QueryParam("name") String name,
+    @ApiParam(value = "Workflow bin type", required = true) @QueryParam("type") String type,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /definition/regenerate " + name);
+
+    // Only one user can regenerate a bin at a time
+    synchronized (lock) {
+
+      final WorkflowServiceJpa workflowService = new WorkflowServiceJpa();
+      try {
+        final String userName = authorizeProject(workflowService, projectId,
+            securityService, authToken, "trying to regenerate a single bin",
+            UserRole.AUTHOR);
+        workflowService.setLastModifiedBy(userName);
+        final Project project = workflowService.getProject(projectId);
+        if (!project.isEditingEnabled()) {
+          throw new LocalException(
+              "Editing is disabled on project: " + project.getName());
+        }
+
+        // Set transaction scope
+        workflowService.setTransactionPerOperation(false);
+        workflowService.beginTransaction();
+
+        // Remove the bin by name if it exists (assume rank - if never created)
+        int rank = 0;
+        for (final WorkflowBin bin : workflowService.getWorkflowBins(project,
+            type)) {
+          if (bin.getName().equals(name)) {
+            rank = bin.getRank();
+            workflowService.removeWorkflowBin(bin.getId(), true);
+          }
+        }
+
+        // Get the bin definitions
+        final List<WorkflowBinDefinition> definitions =
+            workflowService.getWorkflowBinDefinitions(project, type);
+        WorkflowBin newBin = null;
+        for (final WorkflowBinDefinition definition : definitions) {
+          if (definition.getName().equals(name)) {
+            newBin = workflowService.regenerateBinHelper(project, definition,
+                rank, new HashSet<>(),
+                workflowService.getConceptIdWorklistNameMap(project));
+            break;
+          }
+        }
+
+        workflowService.addLogEntry(userName, projectId, newBin.getId(), null,
+            null, "REGENERATE BIN DEFINITION - " + name + ", " + type);
+        workflowService.commit();
+
+        // websocket - n/a
+
+        return newBin;
+
+      } catch (Exception e) {
+        try {
+          workflowService.rollback();
+        } catch (Exception e2) {
+          // n/a - if this fails, it's already rolled back
+        }
         handleException(e, "trying to regenerate a single bin");
       } finally {
         workflowService.close();
@@ -3080,8 +3291,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/worklist/{id}/stamp")
-  @ApiOperation(value = "Stamp worklist", notes = "Approve all concepts on worklist", response = ValidationResultJpa.class)
-  public ValidationResult stampWorklist(
+  @ApiOperation(value = "Stamp worklist", notes = "Approve all concepts on worklist")
+  public void stampWorklist(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Worklist id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
@@ -3093,6 +3304,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         + "/stamp " + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
+    final ProcessService processService = new ProcessServiceJpa();
     final StampingAlgorithm algorithm = new StampingAlgorithm();
     try {
 
@@ -3101,22 +3313,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "stamping worklist", UserRole.AUTHOR);
       final Project project = algorithm.getProject(projectId);
 
+      // Set up and run the algorithm
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy("S-" + userName);
-      algorithm.setProject(project);
-      algorithm.setTerminology(project.getTerminology());
-      algorithm.setVersion(project.getVersion());
       algorithm.setWorklistId(id);
       algorithm.setApprove(approve);
 
-      final ValidationResult result = algorithm.checkPreconditions();
-      if (!result.isValid()) {
-        return result;
-      }
-
-      algorithm.compute();
-
-      return result;
+      processService.executeSingleAlgorithm(algorithm, project);
 
     } catch (Exception e) {
       try {
@@ -3125,9 +3328,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // do nothing
       }
       handleException(e, "stamping worklist");
-      return null;
     } finally {
       algorithm.close();
+      processService.close();
       securityService.close();
     }
 
@@ -3137,8 +3340,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/checklist/{id}/stamp")
-  @ApiOperation(value = "Stamp checklist", notes = "Approve all concepts on checklist", response = ValidationResultJpa.class)
-  public ValidationResult stampChecklist(
+  @ApiOperation(value = "Stamp checklist", notes = "Approve all concepts on checklist")
+  public void stampChecklist(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Checklist id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Activity id, e.g. wrk16a_demotions_001", required = true) @QueryParam("activityId") String activityId,
@@ -3149,31 +3352,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         + id + "/stamp " + projectId + ", " + activityId + ", " + approve);
 
     // Instantiate services
+    final ProcessService processService = new ProcessServiceJpa();
     final StampingAlgorithm algorithm = new StampingAlgorithm();
     try {
 
       // Authorize project role, get userName
       final String userName = authorizeProject(algorithm, projectId,
           securityService, authToken, "stamping checklist", UserRole.AUTHOR);
-
       final Project project = algorithm.getProject(projectId);
 
+      // Set up and run the algorithm
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy("S-" + userName);
-      algorithm.setProject(project);
-      algorithm.setTerminology(project.getTerminology());
-      algorithm.setVersion(project.getVersion());
       algorithm.setChecklistId(id);
       algorithm.setApprove(approve);
 
-      final ValidationResult result = algorithm.checkPreconditions();
-      if (!result.isValid()) {
-        return result;
-      }
-
-      algorithm.compute();
-
-      return result;
+      processService.executeSingleAlgorithm(algorithm, project);
 
     } catch (Exception e) {
       try {
@@ -3182,9 +3376,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // do nothing
       }
       handleException(e, "stamping checklist");
-      return null;
     } finally {
       algorithm.close();
+      processService.close();
       securityService.close();
     }
 
@@ -3194,8 +3388,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/status/compute")
-  @ApiOperation(value = "Recompute concept status", notes = "Recompute concept status", response = ValidationResultJpa.class)
-  public ValidationResult recomputeConceptStatus(
+  @ApiOperation(value = "Recompute concept status", notes = "Recompute concept status")
+  public void recomputeConceptStatus(
     @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Activity id, e.g. MATRIXINIT", required = true) @QueryParam("activityId") String activityId,
     @ApiParam(value = "Update flag, e.g. false", required = false) @QueryParam("update") Boolean updateFlag,
@@ -3206,6 +3400,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
             + activityId);
 
     // Instantiate services
+    final ProcessService processService = new ProcessServiceJpa();
     final MatrixInitializerAlgorithm algorithm =
         new MatrixInitializerAlgorithm();
     try {
@@ -3214,14 +3409,11 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName =
           authorizeProject(algorithm, projectId, securityService, authToken,
               "compute concept status", UserRole.AUTHOR);
-
       final Project project = algorithm.getProject(projectId);
 
+      // Set up and run the algorithm
       algorithm.setActivityId(activityId);
       algorithm.setLastModifiedBy(userName);
-      algorithm.setProject(project);
-      algorithm.setTerminology(project.getTerminology());
-      algorithm.setVersion(project.getVersion());
 
       if (updateFlag != null && updateFlag) {
         final PfsParameter pfs = new PfsParameterJpa();
@@ -3246,23 +3438,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
               .map(o -> Long.valueOf(o.toString())).collect(Collectors.toSet());
           if (conceptIds.size() == 0) {
             // bail, no algorithm
-            ValidationResult result = new ValidationResultJpa();
-            result.addWarning(
+            throw new LocalException(
                 "Update mode used and no concepts have changed since last run");
-            return result;
           }
           algorithm.setConceptIds(conceptIds);
         }
       }
 
-      final ValidationResult result = algorithm.checkPreconditions();
-      if (!result.isValid()) {
-        return result;
-      }
-
-      algorithm.compute();
-
-      return result;
+      processService.executeSingleAlgorithm(algorithm, project);
 
     } catch (
 
@@ -3273,8 +3456,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // do nothing
       }
       handleException(e, "compute concept status");
-      return null;
     } finally {
+      processService.close();
       algorithm.close();
       securityService.close();
     }

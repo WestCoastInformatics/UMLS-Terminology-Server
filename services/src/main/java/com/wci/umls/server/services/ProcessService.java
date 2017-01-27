@@ -7,6 +7,7 @@ import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.AlgorithmExecution;
 import com.wci.umls.server.ProcessConfig;
 import com.wci.umls.server.ProcessExecution;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -19,28 +20,21 @@ import com.wci.umls.server.helpers.ProcessExecutionList;
 public interface ProcessService extends ProjectService {
 
   /**
-   * Returns the authoring algorithms.
+   * Returns the algorithms by type.
    *
-   * @return the authoring algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getInsertionAlgorithms() throws Exception;
-
-  /**
-   * Returns the maintenance algorithms.
-   *
-   * @return the maintenance algorithms
-   * @throws Exception the exception
-   */
-  public KeyValuePairList getMaintenanceAlgorithms() throws Exception;
-
-  /**
-   * Returns the release algorithms.
-   *
+   * @param type the type
    * @return the release algorithms
    * @throws Exception the exception
    */
-  public KeyValuePairList getReleaseAlgorithms() throws Exception;
+  public KeyValuePairList getAlgorithmsForType(String type) throws Exception;
+
+  /**
+   * Returns the report algorithms.
+   *
+   * @return the report algorithms
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getReportAlgorithms() throws Exception;
 
   /**
    * Returns the algorithm instance.
@@ -219,6 +213,16 @@ public interface ProcessService extends ProjectService {
   public AlgorithmExecution getAlgorithmExecution(Long id) throws Exception;
 
   /**
+   * Execute single algorithm.
+   *
+   * @param algorithm the algorithm
+   * @param project the project
+   * @throws Exception the exception
+   */
+  public void executeSingleAlgorithm(Algorithm algorithm, Project project)
+    throws Exception;
+
+  /**
    * Returns the algorithm log.
    *
    * @param projectId the project id
@@ -227,8 +231,8 @@ public interface ProcessService extends ProjectService {
    * @return the algorithm log
    * @throws Exception the exception
    */
-  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId, String query)
-    throws Exception;
+  public String getAlgorithmLog(Long projectId, Long algorithmExecutionId,
+    String query) throws Exception;
 
   /**
    * Returns the process log.
@@ -239,8 +243,8 @@ public interface ProcessService extends ProjectService {
    * @return the process log
    * @throws Exception the exception
    */
-  public String getProcessLog(Long projectId, Long processExecutionId, String query)
-    throws Exception;
+  public String getProcessLog(Long projectId, Long processExecutionId,
+    String query) throws Exception;
 
   /**
    * Save log to file.
@@ -250,8 +254,8 @@ public interface ProcessService extends ProjectService {
    * @throws Exception the exception
    */
   public void saveLogToFile(Long projectId, ProcessExecution processExecution)
-      throws Exception;  
-  
+    throws Exception;
+
   // add/remove/update/get/find process configs
   // add/remove/update/get algorithm configs
   // add/remove/update/get/find process executions

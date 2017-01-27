@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -13,6 +13,7 @@ import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.workflow.Checklist;
@@ -251,6 +252,18 @@ public interface WorkflowService extends ContentService {
    */
   public WorkflowConfig getWorkflowConfig(Long id) throws Exception;
 
+  /**
+   * Find workflow configs.
+   *
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @return the workflow config list
+   * @throws Exception the exception
+   */
+  public WorkflowConfigList findWorkflowConfigs(Long projectId, String query,
+    PfsParameter pfs) throws Exception;  
+  
   /**
    * Add workflow bin definition.
    *

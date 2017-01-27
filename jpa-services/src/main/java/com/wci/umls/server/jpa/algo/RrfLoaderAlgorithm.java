@@ -3737,7 +3737,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception{
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RRF directory to load", "", 255,

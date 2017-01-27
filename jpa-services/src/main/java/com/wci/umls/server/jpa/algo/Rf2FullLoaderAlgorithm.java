@@ -234,7 +234,7 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() {
+  public List<AlgorithmParameter> getParameters()  throws Exception{
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 Full directory to load", "", 255,

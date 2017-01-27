@@ -51,6 +51,7 @@ public class NotificationWebsocket {
    */
   @OnOpen
   public void onOpen(Session session) {
+
     // Add to sessions list
     synchronized (sessions) {
       sessions.add(session);
@@ -88,7 +89,7 @@ public class NotificationWebsocket {
    */
   @OnMessage
   public void echoText(String text) {
-    Logger.getLogger(getClass()).info("message: " + text);
+    Logger.getLogger(getClass()).debug("message: " + text);
   }
 
   /**

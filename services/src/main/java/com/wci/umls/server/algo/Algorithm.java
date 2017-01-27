@@ -82,8 +82,9 @@ public interface Algorithm
    * Returns the parameters.
    *
    * @return the parameters
+   * @throws Exception the exception
    */
-  public List<AlgorithmParameter> getParameters();
+  public List<AlgorithmParameter> getParameters() throws Exception;
 
   /**
    * Sets the parameters.
@@ -101,5 +102,33 @@ public interface Algorithm
    * @return the description
    */
   public String getDescription();
+  
+  /**
+   * Returns the terminology.
+   * 
+   * @return the terminology
+   */
+  public String getTerminology();
+
+  /**
+   * Sets the terminology.
+   * 
+   * @param terminology the terminology
+   */
+  public void setTerminology(String terminology);
+
+  /**
+   * Returns the version.
+   * 
+   * @return the version
+   */
+  public String getVersion();
+
+  /**
+   * Sets the version.
+   * 
+   * @param version the version
+   */
+  public void setVersion(String version);  
   
 }

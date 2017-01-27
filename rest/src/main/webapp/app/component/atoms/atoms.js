@@ -39,6 +39,7 @@ tsApp.directive('atoms', [ function() {
         $scope.pagedData = [];
         $scope.pageSizes = utilService.getPageSizes();
         $scope.paging = utilService.getPaging();
+        $scope.paging.pageSize = 100000;
         $scope.pageCallbacks = {
           getPagedList : getPagedList
         };
