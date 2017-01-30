@@ -141,7 +141,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  @POST
+  @PUT
   @Path("/config")
   @ApiOperation(value = "Add a workflow config", notes = "Add a workflow config", response = WorkflowConfigJpa.class)
   @Override
@@ -310,7 +310,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/config")
   @ApiOperation(value = "Update a workflow config", notes = "Update a workflow config")
   public void updateWorkflowConfig(
@@ -353,7 +353,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/worklist")
   @ApiOperation(value = "Update a worklist", notes = "Update a worklist")
   public void updateWorklist(
@@ -625,7 +625,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/definition")
   @ApiOperation(value = "Add a workflow bin definition", notes = "Add a workflow bin definition", response = WorkflowBinDefinitionJpa.class)
   public WorkflowBinDefinition addWorkflowBinDefinition(
@@ -700,7 +700,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/epoch")
   @ApiOperation(value = "Add a workflow epoch", notes = "Add a workflow epoch", response = WorkflowEpochJpa.class)
   public WorkflowEpoch addWorkflowEpoch(
@@ -783,7 +783,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/definition")
   @ApiOperation(value = "Update a workflow bin definition", notes = "Update a workflow bin definition")
   public void updateWorkflowBinDefinition(
@@ -807,7 +807,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       verifyProject(origDef.getWorkflowConfig(), projectId);
 
       def.setWorkflowConfig(origDef.getWorkflowConfig());
+      
+      // Lookup and update this definition's bin, if any
+      for (WorkflowBin workflowBin : workflowService.getWorkflowBins(project,
+          origDef.getWorkflowConfig().getType())) {
+        if (workflowBin.getName().equals(origDef.getName())) {
+          // Update the bin based on the updated definition
+          workflowBin.setEnabled(def.isEnabled());
+          workflowBin.setName(def.getName());
+          workflowBin.setRequired(def.isRequired());
+          workflowService.updateWorkflowBin(workflowBin);
+          break;
+        }
+      }      
+      
       workflowService.updateWorkflowBinDefinition(def);
+
       workflowService.addLogEntry(userName, projectId, def.getId(), null, null,
           "UPDATE workflow bin definition - " + def);
 
@@ -859,6 +874,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.removeWorkflowBinDefinition(id);
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE workflow bin definition - " + id);
+
+      // Lookup and remove this definition's bin and associated tracking
+      // records, if any
+      for (WorkflowBin workflowBin : workflowService.getWorkflowBins(project,
+          def.getWorkflowConfig().getType())) {
+        if (workflowBin.getName().equals(def.getName())) {
+          workflowService.removeWorkflowBin(workflowBin.getId(), true);
+          break;
+        }
+      }
 
       // Websocket notification
       final ChangeEvent event =
@@ -1604,7 +1629,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/checklist")
   @ApiOperation(value = "Create checklist", notes = "Create checklist", response = ChecklistJpa.class)
   public Checklist createChecklist(
@@ -1707,7 +1732,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/worklist")
   @ApiOperation(value = "Create worklist", notes = "Create worklist", response = WorklistJpa.class)
   public Worklist createWorklist(
