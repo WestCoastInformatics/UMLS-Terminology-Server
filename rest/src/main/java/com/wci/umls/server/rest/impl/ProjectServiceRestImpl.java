@@ -153,6 +153,11 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         throw new Exception("Project " + project.getId() + " does not exist");
       }
 
+      // compare old and new typeKeyValue lists
+      // double for loop for old and new
+      // remove anything in old, not in new  removeTypeKeyValue()
+      //
+      
       // Update project
       project.setUserRoleMap(origProject.getUserRoleMap());
       project.setPrecedenceList(origProject.getPrecedenceList());

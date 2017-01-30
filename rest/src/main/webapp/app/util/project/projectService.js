@@ -138,6 +138,53 @@ tsApp
           return deferred.promise;
         };
 
+        // add TypeKeyValue
+        this.addTypeKeyValue = function(typeKeyValue) {
+          console.debug('addTypeKeyValue');
+          var deferred = $q.defer();
+
+          // Add project
+          gpService.increment();
+          $http.put(projectUrl + '/typeKeyValue/add', typeKeyValue).then(
+          // success
+          function(response) {
+            console.debug('  addTypeKeyValue = ', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+
+ 
+        // remove type key value
+        this.removeTypeKeyValue = function(id) {
+          console.debug('removeTypeKeyValue', id);
+          var deferred = $q.defer();
+
+          // Add project
+          gpService.increment();
+          $http['delete'](projectUrl + '/typeKeyValue/remove/' + id).then(
+          // success
+          function(response) {
+            console.debug('  successful remove typeKeyValue');
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        };
+        
         // Finds users on given project
         this.findAssignedUsersForProject = function(projectId, query, pfs) {
           // Setup deferred

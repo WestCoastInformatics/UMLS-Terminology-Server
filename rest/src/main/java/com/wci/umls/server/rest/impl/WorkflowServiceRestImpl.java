@@ -57,6 +57,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
+import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.actions.ChangeEventJpa;
@@ -68,6 +69,7 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowEpochListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
@@ -478,6 +480,37 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     return null;
 
   }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/epoch")
+  @ApiOperation(value = "Get current workflow epoch", notes = "Gets a workflow epoch", response = WorkflowEpochJpa.class)
+  public WorkflowEpoch getCurrentWorkflowEpoch(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /workflow/epoch" + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "get workflow epoch", UserRole.AUTHOR);
+
+      final WorkflowEpoch epoch = workflowService.getCurrentWorkflowEpoch(workflowService.getProject(projectId));
+      
+      return epoch;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a workflow config");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
 
   /* see superclass */
   @Override
@@ -733,7 +766,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       return epoch;
 
     } catch (Exception e) {
-      handleException(e, "trying to add workflow bin definition");
+      handleException(e, "trying to add workflow epoch");
       return null;
     } finally {
       workflowService.close();
@@ -1496,6 +1529,39 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
       handleException(e, "trying to get workflow paths");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+  
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/epoch/all")
+  @ApiOperation(value = "Get workflow epochs", notes = "Gets the supported workflow epochs", response = WorkflowEpochList.class)
+  public WorkflowEpochList getWorkflowEpochs(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /epochs");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get workflow epochs",
+          UserRole.VIEWER);
+
+      List<WorkflowEpoch> epochs = workflowService.getWorkflowEpochs(workflowService.getProject(projectId));
+
+      WorkflowEpochList list = new WorkflowEpochListJpa();
+      list.setObjects(epochs);
+      list.setTotalCount(epochs.size());
+      
+      return list;
+      
+    } catch (Exception e) {
+      handleException(e, "trying to get workflow epochs");
     } finally {
       workflowService.close();
       securityService.close();

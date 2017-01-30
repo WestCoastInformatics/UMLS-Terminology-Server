@@ -21,6 +21,12 @@ tsApp.run([ 'securityService', function(securityService) {
     'EDITOR5' : true,
     'ADMINISTRATOR' : true
   });
+  securityService.addPermission('EditEpoch', {
+    'REVIEWER' : true,
+    'AUTHOR' : false,
+    'EDITOR5' : true,
+    'ADMINISTRATOR' : true
+  });
   securityService.addPermission('RecomputeConceptStatus', {
     'REVIEWER' : true,
     'AUTHOR' : false,

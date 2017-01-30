@@ -38,6 +38,9 @@
     </uib-accordion-heading>
     <div class="row">
       <div class="col-md-12 col-xs-12">
+        <button ng-show="hasPermissions('EditEpoch')"
+          title="Edit epoch" ng-click="openEditEpochModal()"
+          class="btn btn-xs btn-primary mr20">epoch: {{selected.epoch.name}}</button>
         <select ng-model="selected.config" ng-show="lists.configs.length > 1"
           ng-options="config as config.type for config in lists.configs"
           ng-change="setConfig(selected.config)"></select>

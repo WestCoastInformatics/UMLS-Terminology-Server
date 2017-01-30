@@ -101,9 +101,24 @@
               title="Automations enabled.">
           </td>
         </tr>
+        
+        <tr>
+          <td>
+            <b>Workflow path</b>
+          </td>
+          <td>
+            <span ng-show="workflowPaths.length == 1">{{project.workflowPath}}</span>
+            <select ng-show="workflowPaths.length > 1"
+              ng-model="project.workflowPath"
+              ng-options="item for item in workflowPaths"></select>
+          </td>
+        </tr>
       </table>
     </div>
   </div>
+  <uib-accordion>
+  <uib-accordion-group>
+  <uib-accordion-heading>Validation Checks</uib-accordion-heading>
   <div class="row">
     <div class="col-md-6 col-xs-12">
       <table class="slim table">
@@ -146,7 +161,48 @@
       </table>
     </div>
   </div>
-
+  </uib-accordion-group>
+  <uib-accordion-group>
+  <uib-accordion-heading>Validation Data</uib-accordion-heading>
+  <div>
+    <span style="float: right;">
+      <button ng-click="openAddValidationCheckModal()" title="Add validation check"
+        class="btn btn-xs btn-primary">Add</button>
+    </span>
+  </div>
+  <table class="slim table">
+        <thead>
+          <tr>
+            <th class="col-md-6 col-xs-6">Validation Check</th>
+            <th class="col-md-3 col-xs-3">Value 1</th>
+            <th class="col-md-2 col-xs-2">Value 2</th>
+            <th class="col-md-1 col-xs-1"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="check in project.validationData | orderBy">
+            <td>{{check.type}}</td>
+            <td>{{check.key}}</td>
+            <td>{{check.value}}</td>
+            <td>
+              <i ng-click="removeValidationCheck(check)"
+                title="Remove validation check from project"
+                class="noul glyphicon glyphicon-trash"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </uib-accordion-group>
+  
+  <uib-accordion-group>
+  <uib-accordion-heading>Precedence List</uib-accordion-heading>
+    <div edit-precedence selected="selected" lists="lists" callbacks="callbacks"></div>
+  </uib-accordion-group>
+  
+  </uib-accordion>
+  
+  
+    
   <!-- Errors -->
   <div class="row">
     <div class="col-md-12 col-xs-12">

@@ -2,21 +2,24 @@
 tsApp.controller('EditProjectModalCtrl', [
   '$scope',
   '$uibModalInstance',
+  '$uibModal',
   'securityService',
   'utilService',
   'metadataService',
   'projectService',
+  'workflowService',
   'selected',
   'lists',
   'user',
   'validationChecks',
   'action',
   'project',
-  function($scope, $uibModalInstance, securityService, utilService, metadataService,
-    projectService, selected, lists, user, validationChecks, action, project) {
+  function($scope, $uibModalInstance, $uibModal, securityService, utilService, metadataService,
+    projectService, workflowService, selected, lists, user, validationChecks, action, project) {
 
     // Scope variables
     $scope.action = action;
+    $scope.mode = 'project';
 
     // use project if passed in
     $scope.project = (project ? project : {
@@ -94,6 +97,22 @@ tsApp.controller('EditProjectModalCtrl', [
       });
 
     }
+    
+    $scope.removeValidationCheck = function(check) {
+      projectService.removeTypeKeyValue(check.id).then(
+        function(data) {
+          for (var i=0; project.validationData.length; i++) {
+            if (project.validationData[i].type == check.type &&
+                project.validationData[i].key == check.key &&
+                project.validationData[i].value == check.value) {
+              // remove this check
+              data = data;
+              break;
+            }
+          }
+          projectService.updateProject(project);
+        });
+    }
 
     // Add the project
     $scope.submitProject = function(project) {
@@ -155,6 +174,43 @@ tsApp.controller('EditProjectModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
+    // 
+    // MODALS
+    //
+    $scope.openAddValidationCheckModal = function(terminology) {
+      console.debug('openAddValidationCheckModal ', terminology);
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/admin/addValidationCheck.html',
+        controller : 'AddValidationCheckModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          terminology : function() {
+            return terminology;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        
+      });
+
+    };
+
+
+
+    
     //
     // INITIALIZE
     //
@@ -170,6 +226,7 @@ tsApp.controller('EditProjectModalCtrl', [
         }
       }
       $scope.setTerminology(project.terminology);
+      $scope.selected.project = project;
     } else {
       // Wire default validation check 'on' by default
       for (var i = 0; i < $scope.validationChecks.length; i++) {
@@ -183,6 +240,19 @@ tsApp.controller('EditProjectModalCtrl', [
     if (action == 'Add') {
       $scope.project.editingEnabled = true;
     }
-
+    
+    metadataService.getPrecedenceListById($scope.selected.project.precedenceListId).then(
+    // Success
+    function(data) {
+      $scope.lists.precedenceList = data;
+    });
+    
+    workflowService.getWorkflowPaths().then(
+      function(data) {
+      $scope.workflowPaths = data.strings;
+      if ($scope.workflowPaths.length == 1) {
+        $scope.project.workflowPath = $scope.workflowPaths[0];
+      }
+    });
     // end
   } ]);
