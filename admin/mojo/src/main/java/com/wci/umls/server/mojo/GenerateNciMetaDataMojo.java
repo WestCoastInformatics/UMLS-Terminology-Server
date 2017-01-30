@@ -967,7 +967,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
 
-    // Approved C rel matching demotion
+    // Atom with leading/trailing junk
     getLog().info("    Atom with leading/trailing junk");
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("Atom with leading/trailing junk");
@@ -987,6 +987,30 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
 
+    // Relationship group is null (instead of blank)
+    getLog().info("    Relationship group is null");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("Relationship group is null");
+    definition.setDescription(
+        "Finds atoms with leading or trailing whitespace or junk chars");
+    definition
+        .setQuery("select r.id,'CONCEPT' from concept_relationships r where relGroup is null"
+            + "union all select r.id,'ATOM' from atom_relationships r where relGroup is null"
+            + "union all select r.id,'CODE' from code_relationships r where relGroup is null"
+            + "union all select r.id, 'DESCRIPTOR' from descriptor_relationships r where relGroup is null"
+            + "union all select r.id,'COMPONENT_INFO' from component_info_relationships r where relGroup is null"
+            );
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need algorithm?
+    
     // Matrix initializer
     workflowService = new WorkflowServiceRestImpl();
     workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
