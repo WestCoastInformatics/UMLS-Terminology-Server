@@ -1639,6 +1639,17 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processExecution.setFinishDate(null);
           processService.updateProcessExecution(processExecution);
 
+          // Log starting a process if no algorithm executions
+          if (processExecution.getSteps().size() == 0 && !restart) {
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "STARTING PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName());
+          }
+          
           // Set initial progress to zero and count the number of steps to
           // execute
           lookupPeProgressMap.put(processExecution.getId(), 0);
@@ -1882,6 +1893,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Check if process has finished, mark it so
           if (ct == processConfig.getSteps().size()
               && (step == null || step > 0)) {
+
+            // Log starting a process
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "FINISHED PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName());
+
             processExecution.setStopDate(null);
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
@@ -1946,6 +1967,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
               algorithmExecution.setFinishDate(new Date());
               processExecution.setFinishDate(new Date());
+            } else {
+              processService.addLogEntry(processExecution.getProject().getId(),
+                  processExecution.getLastModifiedBy(),
+                  processExecution.getTerminology(),
+                  processExecution.getVersion(),
+                  algorithmExecution.getActivityId(),
+                  processExecution.getWorkId(),
+                  "ERROR " + "Unexpected problem - " + e.getMessage());
             }
             processService.updateAlgorithmExecution(algorithmExecution);
 

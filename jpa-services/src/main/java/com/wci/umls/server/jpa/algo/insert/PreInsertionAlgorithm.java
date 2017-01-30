@@ -57,7 +57,8 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
-      throw new Exception("Specified input directory does not exist");
+      throw new Exception(
+          "Specified input directory does not exist - " + srcFullPath);
     }
 
     checkFileExist(srcFullPath, "attributes.src");
@@ -174,7 +175,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
