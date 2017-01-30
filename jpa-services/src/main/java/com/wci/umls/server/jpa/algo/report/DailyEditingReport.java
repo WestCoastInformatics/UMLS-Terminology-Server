@@ -76,11 +76,14 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
               + "where lastModified >= :startDate and lastModified < :endDate");
       query.setParameter("startDate", yesterday);
       // TODO: query.setParameter("endDate", today);
-      query.setParameter("endDate", new Date());
+      query.setParameter("endDate", today);
       @SuppressWarnings("unchecked")
       final List<MolecularAction> actions = query.getResultList();
       // int[] - total, approvals, rels, stys, splits, merges
       final Map<String, int[]> actionStats = new HashMap<>();
+      actionStats.put("APPROVE", new int[] {
+          0, 0, 0, 0, 0, 0, 0
+      });
       final Map<String, Set<Long>> conceptStats = new HashMap<>();
       conceptStats.put("APPROVE", new HashSet<>());
       int actionCt = 0;
@@ -108,6 +111,7 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
         // Approval stats[1]
         if (action.getName().equals("APPROVE")) {
           actionStats.get(editor)[1]++;
+          actionStats.get("APPROVE")[1]++;
           conceptStats.get("APPROVE").add(action.getComponentId());
         }
 
@@ -160,10 +164,13 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append("EMS v3 Daily Editing Report for " + yesterday)
           .append("\n");
       report.append("Database : " + ConfigUtility.getConfigProperties()
-          .getProperty("javax.persistence.jdbc.url").replaceAll("\\?.*", "")).append("\n");
+          .getProperty("javax.persistence.jdbc.url").replaceAll("\\?.*", ""))
+          .append("\n");
       report.append("Time now: " + new Date(start)).append("\n");
       report.append("\n");
-      report.append("Concepts Approved this day: " + actionStats.get("APPROVE"))
+      report
+          .append(
+              "Concepts Approved this day: " + actionStats.get("APPROVE")[1])
           .append("\n");
       report.append(
           "                  Distinct: " + conceptStats.get("APPROVE").size())
@@ -182,12 +189,18 @@ public class DailyEditingReport extends AbstractReportAlgorithm {
       report.append(
           "---------  -------  -----------------  -------------  -------------  ------  ------\n");
       for (final String editor : actionStats.keySet()) {
+        // Skip the special "APPROVE" count
+        if (editor.equals("APPROVE")) {
+          continue;
+        }
         final int[] stats = actionStats.get(editor);
-        report.append(
-            String.format("%9s  %7d  %10d %6s  %13d  %12d  %7d  %6d\n",
-                editor, stats[0], stats[1], "(" +
-                (int) (stats[1] * 100.0 / conceptStats.get(editor).size()) + "%)",
-                stats[2], stats[3], stats[4], stats[5]));
+        report
+            .append(
+                String.format("%9s  %7d  %10d %6s  %13d  %12d  %7d  %6d\n",
+                    editor, stats[0], stats[1],
+                    "(" + (int) (stats[1] * 100.0
+                        / conceptStats.get(editor).size()) + "%)",
+                    stats[2], stats[3], stats[4], stats[5]));
       }
 
       report.append("--------------------------------------------\n");

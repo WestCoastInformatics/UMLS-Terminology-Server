@@ -39,9 +39,6 @@ tsApp.controller('AlgorithmModalCtrl', [
 
     // Update algorithm
     $scope.submitAlgorithm = function(algorithm) {
-      if (algorithm && algorithm.value == 'null') {
-        algorithm.value = null;
-      }
       if (action == 'Edit') {
         processService.updateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
           .then(
@@ -73,14 +70,10 @@ tsApp.controller('AlgorithmModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
-    // Dismiss modal
+    // Validate algorithm
     $scope.validate = function(algorithm) {
       $scope.errors = [];
       $scope.messages = [];
-      // fix algorithm value - sometimes null
-      if (algorithm.value == 'null') {
-        algorithm.value = null;
-      }
       processService.validateAlgorithmConfig($scope.project.id, selected.process.id, algorithm)
         .then(
         // Success
@@ -153,7 +146,7 @@ tsApp.directive('stringToNumber', function() {
     require : 'ngModel',
     link : function(scope, element, attrs, ngModel) {
       ngModel.$parsers.push(function(value) {
-        return '' + value;
+        return value == null ? null : '' + value;
       });
       ngModel.$formatters.push(function(value) {
         return parseFloat(value);
@@ -166,7 +159,7 @@ tsApp.directive('stringToBoolean', function() {
     require : 'ngModel',
     link : function(scope, element, attrs, ngModel) {
       ngModel.$parsers.push(function(value) {
-        return '' + value;
+        return value == null ? null : '' + value;
       });
       ngModel.$formatters.push(function(value) {
         return value === 'true';

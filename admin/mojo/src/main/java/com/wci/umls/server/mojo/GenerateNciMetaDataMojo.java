@@ -348,51 +348,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken);
     process = new ProcessServiceRestImpl();
 
-    // Create and set up a test NCI_2016_05E insertion process and algorithm
-    // configuration
+    //
+    // Create and set up process and algorithm configurations
+    //
     createNciInsertionProcess(project1, projectId, authToken);
-
-    // Create and set up a test SNOMEDCT_US_2016_09_01 insertion process and
-    // algorithm
-    // configuration
     createSnomedCtInsertionProcess(project1, projectId, authToken);
-
-    // Create and set up a ProdMid Cleanup process.
+    createUmlsInsertionProcess(project1, projectId, authToken);
+    createTemplateInsertionProcess(project1, projectId, authToken);
+    createPreProductionProcess(project1, projectId, authToken);
+    createReleaseProcess(project1, projectId, authToken);
+    createFeedbackProcess(project1, projectId, authToken);
     createProdMidCleanupProcess(project1, projectId, authToken);
-
-    // Create and set up a "daily editing report" and "mid validation report"
-    // process.
     createReportProcesses(project1, projectId, authToken);
-
-    // Create and set up a release process and algorithm configuration for
-    // testing
-    /*
-     * TODO add and test processConfig = new ProcessConfigJpa();
-     * processConfig.setDescription("Process for release testing use");
-     * processConfig.setFeedbackEmail(null); processConfig.setName(
-     * "Test Release Process"); processConfig.setProject(project1);
-     * processConfig.setTerminology(terminology);
-     * processConfig.setVersion(version); processConfig.setTimestamp(new
-     * Date()); processConfig.setType("Release"); processConfig =
-     * process.addProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-     * authToken); process = new ProcessServiceRestImpl();
-     * 
-     * algoConfig = new AlgorithmConfigJpa();
-     * algoConfig.setAlgorithmKey("RRFHISTORY"); algoConfig.setDescription(
-     * "Rrf history algorithm for testing use"); algoConfig.setEnabled(true);
-     * algoConfig.setName("Test RRF History algorithm");
-     * algoConfig.setProcess(processConfig); algoConfig.setProject(project1);
-     * algoConfig.setTerminology(terminology); algoConfig.setTimestamp(new
-     * Date()); algoConfig.setVersion(version);
-     * 
-     * algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-     * (AlgorithmConfigJpa) algoConfig, authToken); process = new
-     * ProcessServiceRestImpl();
-     * 
-     * processConfig.getSteps().add(algoConfig);
-     * process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-     * authToken);
-     */
+    createLexicalClassAssignmentProcess(project1, projectId, authToken);
+    createComputePreferredNamesProcess(project1, projectId, authToken);
 
     //
     // Fake some data as needs review
@@ -1049,7 +1018,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the NCI insertion process.
+   * Create and set up a NCI_2016_05E insertion process and algorithm
+   * configurations
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -1441,7 +1411,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the snomed ct insertion process.
+   * Create and set up a SNOMEDCT_US_2016_09_01 insertion process and algorithm
+   * configurations
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -1854,7 +1825,811 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the prod mid cleanup process.
+   * Create and set up a UMLS insertion process and algorithms configurations
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createUmlsInsertionProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Insertion process for UMLS");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Insertion process for UMLS");
+    processConfig.setProject(project1);
+    processConfig.setTerminology("UMLS");
+    processConfig.setVersion("latest");
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Insertion");
+    processConfig.setInputPath("inv/UMLS/insert");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREINSERTION");
+    algoConfig.setDescription("PREINSERTION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREINSERTION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("METADATALOADING");
+    algoConfig.setDescription("METADATALOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("METADATALOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATOMLOADING");
+    algoConfig.setDescription("ATOMLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATOMLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RELATIONSHIPLOADING");
+    algoConfig.setDescription("RELATIONSHIPLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RELATIONSHIPLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CONTEXTLOADING");
+    algoConfig.setDescription("CONTEXTLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CONTEXTLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SEMANTICTYPELOADING");
+    algoConfig.setDescription("SEMANTICTYPELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SEMANTICTYPELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
+    algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATTRIBUTELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - add the rest of the algorithms
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("POSTINSERTION");
+    algoConfig.setDescription("POSTINSERTION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("POSTINSERTION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a template insertion process and algorithms configuration
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createTemplateInsertionProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Template Insertion process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Template Insertion process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology("TERMINOLOGY");
+    processConfig.setVersion("VERSION");
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Insertion");
+    processConfig.setInputPath("inv/TERMINOLOGY_VERSION/insert");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREINSERTION");
+    algoConfig.setDescription("PREINSERTION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREINSERTION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("METADATALOADING");
+    algoConfig.setDescription("METADATALOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("METADATALOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATOMLOADING");
+    algoConfig.setDescription("ATOMLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATOMLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RELATIONSHIPLOADING");
+    algoConfig.setDescription("RELATIONSHIPLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RELATIONSHIPLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CONTEXTLOADING");
+    algoConfig.setDescription("CONTEXTLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CONTEXTLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SEMANTICTYPELOADING");
+    algoConfig.setDescription("SEMANTICTYPELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SEMANTICTYPELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MAPSETLOADING");
+    algoConfig.setDescription("MAPSETLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MAPSETLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SUBSETLOADING");
+    algoConfig.setDescription("SUBSETLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SUBSETLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
+    algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ATTRIBUTELOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("mergeSet", "TERMINOLOGY-SRC");
+    algoProperties.put("checkNames", "");
+    algoProperties.put("filterQueryType", null);
+    algoProperties.put("filterQuery", null);
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
+            + "a1.terminology = :terminology and a1.version = :version and "
+            + "a1.publishable = true and a2.terminology = :terminology and "
+            + "a2.version != :version and a2.publishable = true and a1.codeId = "
+            + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
+            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
+            + ":projectTerminology and exclude = true) and a1.termType in "
+            + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
+            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
+            + ":projectTerminology and normExclude = true)");
+    algoProperties.put("checkNames", null);
+    algoProperties.put("newAtomsOnly", "false");
+    algoProperties.put("filterQueryType", "");
+    algoProperties.put("filterQuery", "");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "true");
+    algoProperties.put("mergeSet", "TERMINOLOGY-REPL");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - does SafeReplace need to be able to match by termType?
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SAFEREPLACE");
+    algoConfig.setDescription("SAFEREPLACE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SAFEREPLACE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("stringClassId", "false");
+    algoProperties.put("lexicalClassId", "true");
+    algoProperties.put("codeId", "true");
+    algoProperties.put("conceptId", "false");
+    algoProperties.put("descriptorId", "false");
+    algoProperties.put("terminology", "");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MIDMERGE");
+    algoConfig.setDescription("MIDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MIDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+    algoProperties.put("checkNames", null);
+    algoProperties.put("newAtomsOnly", "true");
+    algoProperties.put("filterQueryType", "LUCENE");
+    algoProperties.put("filterQuery", "");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "true");
+    algoProperties.put("mergeSet", "TERMINOLOGY-MID");
+    algoConfig.setProperties(algoProperties);
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SEMANTICTYPERESOLVER");
+    algoConfig.setDescription("SEMANTICTYPERESOLVER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SEMANTICTYPERESOLVER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("winLose", "lose");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("UPDATERELEASABILITY");
+    algoConfig.setDescription("UPDATERELEASABILITY Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("UPDATERELEASABILITY algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("BEQUEATH");
+    algoConfig.setDescription("BEQUEATH Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("BEQUEATH algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPORTCHECKLIST");
+    algoConfig.setDescription("REPORTCHECKLIST Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPORTCHECKLIST algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MATRIXINIT");
+    algoConfig.setDescription("MATRIXINIT Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MATRIXINIT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPARTITION");
+    algoConfig.setDescription("REPARTITION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPARTITION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("type", "MUTUALLY_EXCLUSIVE");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("POSTINSERTION");
+    algoConfig.setDescription("POSTINSERTION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("POSTINSERTION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a PreProduction process
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createPreProductionProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Pre-Production Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Pre-Production Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Release");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CREATENEWRELEASE");
+    algoConfig.setDescription("CREATENEWRELEASE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CREATENEWRELEASE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("warnValidationChecks", "true");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREFNAMES");
+    algoConfig.setDescription("PREFNAMES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREFNAMES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CREATENDCPDQMAP");
+    algoConfig.setDescription("CREATENDCPDQMAP Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CREATENDCPDQMAP algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("ASSIGNRELEASEIDS");
+    algoConfig.setDescription("ASSIGNRELEASEIDS Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("ASSIGNRELEASEIDS algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("CONTEXTTYPE");
+    algoConfig.setDescription("CONTEXTTYPE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("CONTEXTTYPE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    // TODO - figure out real value for siblingsThreshold
+    algoProperties.put("siblingsThreshold", "10");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("METAMORPHOSYS");
+    algoConfig.setDescription("METAMORPHOSYS Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("METAMORPHOSYS algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a release process
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createReleaseProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Release Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Release Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Release");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RRFMETADATA");
+    algoConfig.setDescription("RRFMETADATA Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RRFMETADATA algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RRFCONTENT");
+    algoConfig.setDescription("RRFCONTENT Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RRFCONTENT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RRFHISTORY");
+    algoConfig.setDescription("RRFHISTORY Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RRFHISTORY algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RRFINDEX");
+    algoConfig.setDescription("RRFINDEX Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RRFINDEX algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("NCIMETA");
+    algoConfig.setDescription("NCIMETA Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("NCIMETA algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - once it's available, add ValidateReleaseAlgorithm
+
+    // TODO - once it's available, add RunMetamorphoSysAlgorithm
+
+    // TODO - once it's available, add PackageReleaseAlgorithm
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a feedback process
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createFeedbackProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Feedback Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Feedback Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Release");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREFNAMES");
+    algoConfig.setDescription("PREFNAMES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREFNAMES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - once it's available, add ReloadConceptHistoryAlgorithm
+
+    // TODO - once it's available, add FeedbackReleaseAlgorithm
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a ProdMid Cleanup process
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -1927,7 +2702,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the report processes.
+   * Create and set up a "daily editing report" and "mid validation report"
+   * process.
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -2003,6 +2779,98 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
 
+  }
+
+  /**
+   * Create and set up a Lexical Class Assignment process
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createLexicalClassAssignmentProcess(Project project1,
+    Long projectId, String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Lexical Class Assignment Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Lexical Class Assignment Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("LEXICALCLASSASSIGNMENT");
+    algoConfig.setDescription("LEXICALCLASSASSIGNMENT Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("LEXICALCLASSASSIGNMENT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Create and set up a Compute Preferred Names process
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createComputePreferredNamesProcess(Project project1,
+    Long projectId, String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Compute Preferred Names Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Compute Preferred Names Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PREFNAMES");
+    algoConfig.setDescription("PREFNAMES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PREFNAMES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
   }
 
   /**
