@@ -260,12 +260,28 @@ tsApp
 
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
-          for (var i = 0; i < $scope.lists.concepts.length; i++) {
-            var c = $scope.lists.concepts[i];
-            if (concept.id == c.id) {
-              // Cut this element out
-              $scope.lists.concepts.splice(i, 1);
-              break;
+          $scope.selected.component = concept;
+          // If this is the only concept on the list, clear selected and close all other windows.
+          if ($scope.lists.concepts.length == 1) {
+            $scope.lists.concepts = [];
+            $scope.selected.component = null;
+            $scope.closeWindows();
+          } else {
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              var c = $scope.lists.concepts[i];
+              if (concept.id == c.id) {
+                // Cut this element out
+                $scope.lists.concepts.splice(i, 1);
+                // If the concept being removed is the selected one, select the previous concept if possible.
+                if ($scope.selected.component.id = c.id) {
+                  if (i != $scope.lists.concepts.length) {
+                    $scope.selected.component = $scope.lists.concepts[i];
+                  } else {
+                    $scope.selected.component = $scope.lists.concepts[i - 1];
+                  }
+                }
+                break;
+              }
             }
           }
         }
@@ -628,6 +644,15 @@ tsApp
           $scope.user.userPreferences.properties[windowName] = false;
         }
 
+        // close windows
+        $scope.closeWindows = function() {
+          for ( var key in $scope.windows) {
+            if ($scope.windows[key] && $scope.windows[key].$windowScope) {
+              $scope.windows[key].close();
+            }
+          }
+        }        
+        
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
