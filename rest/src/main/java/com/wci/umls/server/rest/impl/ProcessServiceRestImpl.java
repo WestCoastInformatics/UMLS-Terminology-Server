@@ -1647,9 +1647,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                 processExecution.getVersion(), null,
                 processExecution.getWorkId(),
                 "STARTING PROCESS " + processExecution.getId() + ", "
-                    + processExecution.getName());
+                    + processExecution.getName() + "\n\t  project = "
+                    + processExecution.getProject().getId() + ", "
+                    + processExecution.getProject().getName());
           }
-          
+
           // Set initial progress to zero and count the number of steps to
           // execute
           lookupPeProgressMap.put(processExecution.getId(), 0);

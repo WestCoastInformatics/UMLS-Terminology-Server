@@ -53,7 +53,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Check the input directories
     final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + getProcess().getInputPath();
+            + "/" + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {

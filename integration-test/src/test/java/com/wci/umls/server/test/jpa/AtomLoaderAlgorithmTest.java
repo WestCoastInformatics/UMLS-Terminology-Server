@@ -85,21 +85,20 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
     processExecution.setProject(project);
     processExecution.setTerminology(project.getTerminology());
     processExecution.setVersion(project.getVersion());
-    processExecution.setInputPath("terminologies/NCI_INSERT/src");// <- Set this to
+    processExecution.setInputPath("terminologies/NCI_INSERT/src");// <- Set this
+                                                                  // to
     // the standard
     // folder
     // location
 
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+    processExecution.setInputPath(processExecution.getInputPath() + "/temp");
 
     // Create and populate a relationships.src document in the /temp
     // temporary subfolder
@@ -133,12 +132,8 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
     out.println(
         "362249700|NCI_2016_05E|NCI_2016_05E/PT|C48571|R|Y|N|Percent Volume per Volume|N||C48571||ENG|362249700|");
     out.println(
-        "362281363|ICH_2016_05E|ICH_2016_05E/AB|0215|R|Y|N|% (V/V)|N||C48571||ENG|362281363|");    
+        "362281363|ICH_2016_05E|ICH_2016_05E/AB|0215|R|Y|N|% (V/V)|N||C48571||ENG|362281363|");
     out.close();
-
-    
-    
-    
 
     // Create and configure the algorithm
     algo = new AtomLoaderAlgorithm();
@@ -184,32 +179,34 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
       algo.compute();
 
       // Make sure the atoms in the temporary input file were added.
-      SearchResultList list =
-          contentService.findConceptSearchResults(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
-              "atoms.nameSort:\"National Cancer Institute Thesaurus, 2016_05E\"",
-              null);
+      SearchResultList list = contentService.findConceptSearchResults(
+          processExecution.getTerminology(), processExecution.getVersion(),
+          Branch.ROOT,
+          "atoms.nameSort:\"National Cancer Institute Thesaurus, 2016_05E\"",
+          null);
       assertEquals(1, list.size());
 
-      list = contentService.findConceptSearchResults(processExecution.getTerminology(), processExecution.getVersion(), Branch.ROOT,
-          "atoms.nameSort:\"NCI_2016_05E\"", null);
+      list = contentService.findConceptSearchResults(
+          processExecution.getTerminology(), processExecution.getVersion(),
+          Branch.ROOT, "atoms.nameSort:\"NCI_2016_05E\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
-          "atoms.nameSort:\"(H115D)VHL35 Peptide\"", null);
+      list = contentService.findConceptSearchResults("NCI", "2016_05E",
+          Branch.ROOT, "atoms.nameSort:\"(H115D)VHL35 Peptide\"", null);
       assertEquals(1, list.size());
 
-      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
-          "atoms.nameSort:\"1+ Score, WHO\"", null);
+      list = contentService.findConceptSearchResults("NCI", "2016_05E",
+          Branch.ROOT, "atoms.nameSort:\"1+ Score, WHO\"", null);
       assertEquals(1, list.size());
-      
-      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
-          "atoms.nameSort:\"Flank\"", null);
+
+      list = contentService.findConceptSearchResults("NCI", "2016_05E",
+          Branch.ROOT, "atoms.nameSort:\"Flank\"", null);
       assertEquals(1, list.size());
-      
-      list = contentService.findConceptSearchResults("NCI", "2016_05E", Branch.ROOT,
-          "atoms.nameSort:\"Sancycline\"", null);
-      assertEquals(1, list.size());      
-      
+
+      list = contentService.findConceptSearchResults("NCI", "2016_05E",
+          Branch.ROOT, "atoms.nameSort:\"Sancycline\"", null);
+      assertEquals(1, list.size());
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -228,9 +225,9 @@ public class AtomLoaderAlgorithmTest extends IntegrationUnitSupport {
     FileUtils.forceDelete(outputFile);
 
     File testDirectory = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-        + File.separator + processExecution.getInputPath());
-    
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath());
+
     FileUtils.deleteDirectory(testDirectory);
 
     processService.close();

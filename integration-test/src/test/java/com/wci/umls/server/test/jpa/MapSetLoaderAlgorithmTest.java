@@ -110,14 +110,12 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+    processExecution.setInputPath(processExecution.getInputPath() + "/temp");
 
     // Create and populate attributes.src documents in the
     // /temp temporary subfolder
@@ -307,7 +305,7 @@ public class MapSetLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     File testDirectory = new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath());
+            + "/"  + processExecution.getInputPath());
 
     FileUtils.deleteDirectory(testDirectory);
 
