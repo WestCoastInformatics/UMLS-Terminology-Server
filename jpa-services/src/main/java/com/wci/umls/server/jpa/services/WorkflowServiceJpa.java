@@ -269,6 +269,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass())
         .debug("Workflow Service - add workflow epoch ");
 
+    // TODO: make epoch part of the project -> so we can just say project.getWorkflowEpoch...
     String maxName = "";
     WorkflowEpoch maxEpoch = null;
     for (final WorkflowEpoch epoch : getWorkflowEpochs(project)) {
