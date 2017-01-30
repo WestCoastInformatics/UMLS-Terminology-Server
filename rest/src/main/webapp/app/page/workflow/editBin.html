@@ -4,7 +4,6 @@
     <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
   </span>
 </div>
-
 <div class="modal-body">
   <table class="slim table">
     <tr>
@@ -61,14 +60,6 @@
         <input type="checkbox" ng-model="definition.required">
       </td>
     </tr>
-    <tr>
-      <td>
-        <b>Editable</b>
-      </td>
-      <td>
-        <input type="checkbox" ng-model="definition.editable">
-      </td>
-    </tr>
     <tr ng-show="action == 'Add' || action == 'Clone'">
       <td>
         <b>Position bin after</b>
@@ -80,10 +71,8 @@
       </td>
     </tr>
   </table>
-
   <!-- Errors -->
   <div errors="errors"></div>
-
   <!-- messages -->
   <div class="col-md-12 col-xs-12">
     <div class="alert alert-success" ng-repeat="message in messages">
@@ -93,13 +82,12 @@
     </div>
   </div>
 </div>
-
 <div class="modal-footer">
-  <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitDefinition(bin, definition); ">Add</button>
-  <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitDefinition(bin, definition); ">Save</button>
-  <button ng-show="action == 'Clone'" class="btn btn-primary"
-    ng-click="submitDefinition(bin, definition); ">Clone</button>
+  <button ng-show="action == 'Add'" ng-disabled="!testSucceeded"
+    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Add</button>
+  <button ng-show="action == 'Edit'" ng-disabled="!testSucceeded"
+    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Save</button>
+  <button ng-show="action == 'Clone'" ng-disabled="!testSucceeded"
+    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Clone</button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

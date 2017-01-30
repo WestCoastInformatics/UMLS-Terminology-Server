@@ -70,7 +70,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
-    // Dismiss modal
+    // Validate algorithm
     $scope.validate = function(algorithm) {
       $scope.errors = [];
       $scope.messages = [];

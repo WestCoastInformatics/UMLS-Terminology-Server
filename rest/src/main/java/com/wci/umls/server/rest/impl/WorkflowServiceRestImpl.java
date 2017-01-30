@@ -647,12 +647,23 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+      final Project project = workflowService.getProject(projectId);
 
-      // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
       verifyProject(config, projectId);
 
+      // Make sure a workflow bin definition with the same name doesn't already
+      // exist
+      for (WorkflowBinDefinition workflowBinDefinition : workflowService
+          .getWorkflowBinDefinitions(project, config.getType())) {
+        if (workflowBinDefinition.getName().equals(binDefinition.getName())) {
+          throw new LocalException(
+              "Bin with this name already exists: " + binDefinition.getName());
+        }
+      }
+
+      // Add to list in workflow config and save
       List<WorkflowBinDefinition> definitions =
           config.getWorkflowBinDefinitions();
 
@@ -807,7 +818,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       verifyProject(origDef.getWorkflowConfig(), projectId);
 
       def.setWorkflowConfig(origDef.getWorkflowConfig());
-      
+
       // Lookup and update this definition's bin, if any
       for (WorkflowBin workflowBin : workflowService.getWorkflowBins(project,
           origDef.getWorkflowConfig().getType())) {
@@ -819,8 +830,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           workflowService.updateWorkflowBin(workflowBin);
           break;
         }
-      }      
-      
+      }
+
       workflowService.updateWorkflowBinDefinition(def);
 
       workflowService.addLogEntry(userName, projectId, def.getId(), null, null,
