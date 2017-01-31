@@ -167,10 +167,10 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
           newDefinition.setTerminology(setTerminology.getTerminology());
           newDefinition.setVersion(setTerminology.getVersion());
           newDefinition.setTimestamp(new Date());
-          newDefinition.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newDefinition.setSuppressible("OYE".contains(fields[8].toUpperCase()));
+          newDefinition.setObsolete(fields[9].toUpperCase().equals("O"));
           newDefinition.setPublished(fields[6].toUpperCase().equals("Y"));
           newDefinition.setPublishable(fields[7].toUpperCase().equals("Y"));
-          newDefinition.setObsolete(false);
 
           // Load the containing object
           ComponentHasDefinitions containerComponent =
@@ -270,10 +270,10 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
           newAttribute.setTerminology(setTerminology.getTerminology());
           newAttribute.setVersion(setTerminology.getVersion());
           newAttribute.setTimestamp(new Date());
-          newAttribute.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newAttribute.setSuppressible("OYE".contains(fields[8].toUpperCase()));
+          newAttribute.setObsolete(fields[9].toUpperCase().equals("O"));
           newAttribute.setPublished(fields[6].toUpperCase().equals("Y"));
           newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
-          newAttribute.setObsolete(false);
 
           // Load the containing object
           ComponentHasAttributes containerComponent =
