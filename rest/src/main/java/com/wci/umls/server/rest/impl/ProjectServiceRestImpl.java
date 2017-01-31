@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -154,14 +155,41 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       }
 
       // compare old and new typeKeyValue lists
-      // double for loop for old and new
-      // remove anything in old, not in new  removeTypeKeyValue()
-      //
+      final List<TypeKeyValue> oldValidationData = origProject.getValidationData();
+      final List<TypeKeyValue> newValidationData = project.getValidationData();
+
+      // Find validation data to remove
+      final List<TypeKeyValue> validationDataToRemove = new ArrayList<>();
+      for (final TypeKeyValue tkv : oldValidationData) {
+        boolean found = false;
+        for (final TypeKeyValue tkv2 : newValidationData) {
+             if (tkv2.getId() != null && tkv.equals(tkv2)) { found = true; break; }
+        }
+        if (!found) { 
+           validationDataToRemove.add(tkv); 
+        }
+      }
+
+      // Add new validation data 
+      for (final TypeKeyValue tkv : newValidationData) {
+         if (tkv.getId() == null) {
+           projectService.addTypeKeyValue(tkv);
+           // VERIFY THAT tkv.getId() is not null at this point
+           if (tkv.getId() == null) {
+             throw new Exception("tkv.getId() should not be null " + tkv);
+           }
+         }
+      }
       
       // Update project
       project.setUserRoleMap(origProject.getUserRoleMap());
       project.setPrecedenceList(origProject.getPrecedenceList());
       projectService.updateProject(project);
+
+      // Remove old validation data
+      for (final TypeKeyValue tkv : validationDataToRemove) {
+         projectService.removeTypeKeyValue(tkv.getId());
+      }
 
       projectService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "UPDATE project " + project);

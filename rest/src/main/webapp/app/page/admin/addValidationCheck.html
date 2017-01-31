@@ -8,7 +8,6 @@
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12 col-xs-12">
-
       <table class="slim table">
         <thead>
           <tr>
@@ -18,9 +17,10 @@
         </thead>
         <tbody>
           <tr>
-            <td>Name</td>
+            <td>Validation Check</td>
             <td>
-              <input ng-model="typeKeyValue.type" size="40" />
+              <select ng-model="typeKeyValue.type"
+          ng-options="item for item in selected.project.validationChecks"></select>
             </td>
           </tr>
           <tr>

@@ -99,19 +99,19 @@ tsApp.controller('EditProjectModalCtrl', [
     }
     
     $scope.removeValidationCheck = function(check) {
-      projectService.removeTypeKeyValue(check.id).then(
-        function(data) {
-          for (var i=0; project.validationData.length; i++) {
-            if (project.validationData[i].type == check.type &&
-                project.validationData[i].key == check.key &&
-                project.validationData[i].value == check.value) {
-              // remove this check
-              data = data;
-              break;
-            }
-          }
-          projectService.updateProject(project);
-        });
+      var index = 0;
+      for (var i=0; project.validationData.length; i++) {
+        if (project.validationData[i].type == check.type &&
+            project.validationData[i].key == check.key &&
+            project.validationData[i].value == check.value) {
+          // remove this check
+          index = i;
+          break;
+        }
+      }
+      project.validationData.splice(index, 1);
+      projectService.updateProject(project);
+      
     }
 
     // Add the project
@@ -187,15 +187,6 @@ tsApp.controller('EditProjectModalCtrl', [
         resolve : {
           selected : function() {
             return $scope.selected;
-          },
-          lists : function() {
-            return $scope.lists;
-          },
-          user : function() {
-            return $scope.user;
-          },
-          terminology : function() {
-            return terminology;
           }
         }
       });
@@ -216,7 +207,7 @@ tsApp.controller('EditProjectModalCtrl', [
     //
 
     // Configure validation checks
-    if (project) {
+    if (project) {  // if editing selected project
       // Attach validation checks
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
@@ -227,7 +218,7 @@ tsApp.controller('EditProjectModalCtrl', [
       }
       $scope.setTerminology(project.terminology);
       $scope.selected.project = project;
-    } else {
+    } else {  // new project
       // Wire default validation check 'on' by default
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if ($scope.validationChecks[i].value.startsWith('Default')) {
@@ -236,6 +227,7 @@ tsApp.controller('EditProjectModalCtrl', [
           $scope.availableChecks.push($scope.validationChecks[i].value);
         }
       }
+      $scope.selected.project = undefined;
     }
     if (action == 'Add') {
       $scope.project.editingEnabled = true;

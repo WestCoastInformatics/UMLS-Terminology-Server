@@ -1,42 +1,26 @@
-// Edit terminology modal controller
+// Add validation check modal controller
 tsApp.controller('AddValidationCheckModalCtrl', [
   '$scope',
   '$uibModalInstance',
   'utilService',
   'projectService',
   'selected',
-  'lists',
-  'user',
-  'terminology',
-  function($scope, $uibModalInstance, utilService, projectService, selected, lists, user,
-    terminology) {
+  function($scope, $uibModalInstance, utilService, projectService, selected) {
 
     // Scope variables
     $scope.typeKeyValue = {};
     $scope.selected = selected;
-    $scope.lists = lists;
-    $scope.user = user;
     $scope.errors = [];
 
     // Add type key value
     $scope.addValidationCheck = function() {
       if (!$scope.typeKeyValue.type && !$scope.typeKeyValue.key) {
-        window.alert('The name and value 1 fields cannot be blank. ');
+        window.alert('The value 1 field cannot be blank. ');
         return;
       }
 
-      // Add type key value
-      projectService.addTypeKeyValue($scope.typeKeyValue).then(
-      // Success
-      function(data) {
-        // Close modal and send back the project
-        $uibModalInstance.close(data);
-      },
-      // Error
-      function(data) {
-        $scope.errors[0] = data;
-        utilService.clearError();
-      });
+      $scope.selected.project.validationData.push($scope.typeKeyValue);
+      $uibModalInstance.close();
     };
 
     // Dismiss the modal
