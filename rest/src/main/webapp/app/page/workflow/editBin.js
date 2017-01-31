@@ -62,10 +62,12 @@ tsApp.controller('BinModalCtrl', [
         .then(
         // success
         function(data) {
+          $scope.testSucceeded = true;
           $scope.messages.push("Query met validation requirements.");
         },
         // Error
         function(data) {
+          $scope.testSucceeded = false;
           utilService.handleDialogError($scope.errors, data);
         });
     }

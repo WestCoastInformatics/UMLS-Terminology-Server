@@ -16,19 +16,18 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
-
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.services.RootService;
 
 /**
  * Algorithm to write the RRF history files.
@@ -209,17 +208,16 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
     // Unpublishable concepts get DEL/bequeathal
     // because unpublishable/unpublished concepts have been removed.
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
-        "select distinct c from ConceptJpa c where c.publishable = false "
-            + "and c.terminology = :terminology order by c.terminologyId");
+    final Map<String, String> params = new HashMap<>();
+    params.put("terminology", getProject().getTerminology());
+    final List<Long> conceptIds = executeSingleComponentIdQuery(
+        "select c.id from ConceptJpa c where c.publishable = false "
+            + "and c.terminology = :terminology order by c.terminologyId",
+        QueryType.JQL, params, ConceptJpa.class);
 
-    hQuery.setParameter("terminology", getProject().getTerminology());
-    hQuery.setReadOnly(true).setFetchSize(2000);
-    ScrollableResults scrollableResults =
-        hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (scrollableResults.next()) {
-      final Concept c = (Concept) scrollableResults.get()[0];
+    int objectCt = 0;
+    for (final Long conceptId : conceptIds) {
+      final Concept c = getConcept(conceptId);
 
       // Skip any concept that doesn't have a real CUI
       if (c.getId().toString().equals(c.getTerminologyId())) {
@@ -338,6 +336,10 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
           }
         } // end for
       }
+
+      // Periodically log and commit
+      logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+
     }
 
     updateProgress();

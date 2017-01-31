@@ -53,11 +53,12 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Check the input directories
     final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + getProcess().getInputPath();
+            + "/" + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
-      throw new Exception("Specified input directory does not exist");
+      throw new Exception(
+          "Specified input directory does not exist - " + srcFullPath);
     }
 
     checkFileExist(srcFullPath, "attributes.src");
@@ -174,7 +175,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

@@ -4,12 +4,13 @@
 package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.Identity;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * Represents identity for a {@link SemanticTypeComponent}.
  */
-public interface SemanticTypeComponentIdentity extends HasId {
+public interface SemanticTypeComponentIdentity extends HasId, Identity {
 
   /**
    * Sets the concept terminology id.

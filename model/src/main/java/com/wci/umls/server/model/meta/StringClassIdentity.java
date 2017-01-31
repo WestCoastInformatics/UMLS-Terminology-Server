@@ -5,11 +5,12 @@ package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasName;
+import com.wci.umls.server.helpers.Identity;
 
 /**
  * Represents atom identity for Metathesaurus editing.
  */
-public interface StringClassIdentity extends HasId, HasName {
+public interface StringClassIdentity extends HasId, HasName, Identity {
 
   /**
    * Returns the language.

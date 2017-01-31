@@ -390,7 +390,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Merge Set",
         "mergeSet", "The merge set to perform the merges on", "e.g. NCI-SY", 10,
-        AlgorithmParameter.Type.MULTI, "");
+        AlgorithmParameter.Type.ENUM, "");
     // Look for the mergefacts.src file and populate the enum based on the
     // merge_set column.
     List<String> mergeSets = getMergeSets(getSrcDirFile());
@@ -406,7 +406,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     param = new AlgorithmParameterJpa("Integrity Checks", "checkNames",
         "The names of the integrity checks to run", "e.g. MGV_B", 10,
-        AlgorithmParameter.Type.ENUM, "");
+        AlgorithmParameter.Type.MULTI, "");
 
     List<String> validationChecks = new ArrayList<>();
     for (final KeyValuePair validationCheck : getValidationCheckNames()

@@ -18,16 +18,16 @@ import com.wci.umls.server.helpers.GetterSetterTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.helpers.NullableFieldTester;
-import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
-import com.wci.umls.server.model.meta.AtomIdentity;
+import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
+import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 
 /**
- * Unit testing for {@link AtomIdentityJpa}.
+ * Unit testing for {@link SemanticTypeComponentIdentityJpa}.
  */
-public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
+public class SemanticTypeComponentIdentityJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
-  private AtomIdentityJpa object;
+  private SemanticTypeComponentIdentityJpa object;
 
   /**
    * Setup class.
@@ -43,7 +43,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() {
 
-    object = new AtomIdentityJpa();
+    object = new SemanticTypeComponentIdentityJpa();
 
   }
 
@@ -61,7 +61,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   }
 
   /**
-   * Test equals and hashcode methods.
+   * Test equals and hascode methods.
    *
    * @throws Exception the exception
    */
@@ -70,13 +70,9 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
 
-    tester.include("stringClassId");
+    tester.include("conceptTerminologyId");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("termType");
-    tester.include("codeId");
-    tester.include("conceptId");
-    tester.include("descriptorId");
+    tester.include("semanticType");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -96,7 +92,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     tester.exclude("identityCode");
-    assertTrue(tester.testCopyConstructor(AtomIdentity.class));
+    assertTrue(tester.testCopyConstructor(SemanticTypeComponentIdentity.class));
   }
 
   /**
@@ -121,13 +117,9 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
 
-    tester.include("stringClassId");
+    tester.include("conceptTerminologyId");
     tester.include("terminology");
-    tester.include("terminologyId");
-    tester.include("termType");
-    tester.include("codeId");
-    tester.include("conceptId");
-    tester.include("descriptorId");
+    tester.include("semanticType");
 
     assertTrue(tester.testNotNullFields());
   }

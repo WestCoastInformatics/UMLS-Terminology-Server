@@ -45,6 +45,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -464,7 +465,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (algo.getProperties().get(param.getFieldName()) != null) {
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(new ArrayList<String>(Arrays.asList(
-                  algo.getProperties().get(param.getFieldName()).split(","))));
+                  algo.getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(algo.getProperties().get(param.getFieldName()));
             }
@@ -577,7 +578,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(
                   new ArrayList<String>(Arrays.asList(algorithmExecution
-                      .getProperties().get(param.getFieldName()).split(","))));
+                      .getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(
                   algorithmExecution.getProperties().get(param.getFieldName()));
@@ -1071,7 +1072,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         if (algo.getProperties().get(param.getFieldName()) != null) {
           if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
             param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(","))));
+                algo.getProperties().get(param.getFieldName()).split(";"))));
           } else {
             param.setValue(algo.getProperties().get(param.getFieldName()));
           }
@@ -1639,6 +1640,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processExecution.setFinishDate(null);
           processService.updateProcessExecution(processExecution);
 
+          // Log starting a process if no algorithm executions
+          if (processExecution.getSteps().size() == 0 && !restart) {
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "STARTING PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName() + "\n\t  project = "
+                    + processExecution.getProject().getId() + ", "
+                    + processExecution.getProject().getName());
+          }
+
           // Set initial progress to zero and count the number of steps to
           // execute
           lookupPeProgressMap.put(processExecution.getId(), 0);
@@ -1781,7 +1795,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               if (!result.isValid()) {
                 throw new LocalException(
                     "Algorithm " + algorithmExecution.getId()
-                        + " failed preconditions: " + result.getErrors());
+                        + " failed preconditions: " + FieldedStringTokenizer
+                            .join(new ArrayList<>(result.getErrors()), "\n"));
               }
             }
 
@@ -1882,6 +1897,16 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Check if process has finished, mark it so
           if (ct == processConfig.getSteps().size()
               && (step == null || step > 0)) {
+
+            // Log starting a process
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "FINISHED PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName());
+
             processExecution.setStopDate(null);
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
@@ -1946,6 +1971,14 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
               algorithmExecution.setFinishDate(new Date());
               processExecution.setFinishDate(new Date());
+            } else {
+              processService.addLogEntry(processExecution.getProject().getId(),
+                  processExecution.getLastModifiedBy(),
+                  processExecution.getTerminology(),
+                  processExecution.getVersion(),
+                  algorithmExecution.getActivityId(),
+                  processExecution.getWorkId(),
+                  "ERROR " + "Unexpected problem - " + e.getMessage());
             }
             processService.updateAlgorithmExecution(algorithmExecution);
 

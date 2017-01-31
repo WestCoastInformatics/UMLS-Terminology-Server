@@ -4,11 +4,12 @@
 package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.Identity;
 
 /**
  * Represents atom identity for Metathesaurus editing.
  */
-public interface AtomIdentity extends HasId {
+public interface AtomIdentity extends HasId, Identity {
 
   /**
    * Returns the string class id.

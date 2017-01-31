@@ -143,7 +143,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
-  @POST
+  @PUT
   @Path("/config")
   @ApiOperation(value = "Add a workflow config", notes = "Add a workflow config", response = WorkflowConfigJpa.class)
   @Override
@@ -312,7 +312,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/config")
   @ApiOperation(value = "Update a workflow config", notes = "Update a workflow config")
   public void updateWorkflowConfig(
@@ -355,7 +355,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/worklist")
   @ApiOperation(value = "Update a worklist", notes = "Update a worklist")
   public void updateWorklist(
@@ -658,7 +658,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/definition")
   @ApiOperation(value = "Add a workflow bin definition", notes = "Add a workflow bin definition", response = WorkflowBinDefinitionJpa.class)
   public WorkflowBinDefinition addWorkflowBinDefinition(
@@ -680,12 +680,23 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       final String userName = authorizeProject(workflowService, projectId,
           securityService, authToken, action, UserRole.AUTHOR);
       workflowService.setLastModifiedBy(userName);
+      final Project project = workflowService.getProject(projectId);
 
-      // Add to list in workflow config and save
       final WorkflowConfig config = workflowService
           .getWorkflowConfig(binDefinition.getWorkflowConfig().getId());
       verifyProject(config, projectId);
 
+      // Make sure a workflow bin definition with the same name doesn't already
+      // exist
+      for (WorkflowBinDefinition workflowBinDefinition : workflowService
+          .getWorkflowBinDefinitions(project, config.getType())) {
+        if (workflowBinDefinition.getName().equals(binDefinition.getName())) {
+          throw new LocalException(
+              "Bin with this name already exists: " + binDefinition.getName());
+        }
+      }
+
+      // Add to list in workflow config and save
       List<WorkflowBinDefinition> definitions =
           config.getWorkflowBinDefinitions();
 
@@ -733,7 +744,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/epoch")
   @ApiOperation(value = "Add a workflow epoch", notes = "Add a workflow epoch", response = WorkflowEpochJpa.class)
   public WorkflowEpoch addWorkflowEpoch(
@@ -816,7 +827,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/definition")
   @ApiOperation(value = "Update a workflow bin definition", notes = "Update a workflow bin definition")
   public void updateWorkflowBinDefinition(
@@ -840,7 +851,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       verifyProject(origDef.getWorkflowConfig(), projectId);
 
       def.setWorkflowConfig(origDef.getWorkflowConfig());
+
+      // Lookup and update this definition's bin, if any
+      for (WorkflowBin workflowBin : workflowService.getWorkflowBins(project,
+          origDef.getWorkflowConfig().getType())) {
+        if (workflowBin.getName().equals(origDef.getName())) {
+          // Update the bin based on the updated definition
+          workflowBin.setEnabled(def.isEnabled());
+          workflowBin.setName(def.getName());
+          workflowBin.setRequired(def.isRequired());
+          workflowService.updateWorkflowBin(workflowBin);
+          break;
+        }
+      }
+
       workflowService.updateWorkflowBinDefinition(def);
+
       workflowService.addLogEntry(userName, projectId, def.getId(), null, null,
           "UPDATE workflow bin definition - " + def);
 
@@ -892,6 +918,16 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       workflowService.removeWorkflowBinDefinition(id);
       workflowService.addLogEntry(userName, projectId, id, null, null,
           "REMOVE workflow bin definition - " + id);
+
+      // Lookup and remove this definition's bin and associated tracking
+      // records, if any
+      for (WorkflowBin workflowBin : workflowService.getWorkflowBins(project,
+          def.getWorkflowConfig().getType())) {
+        if (workflowBin.getName().equals(def.getName())) {
+          workflowService.removeWorkflowBin(workflowBin.getId(), true);
+          break;
+        }
+      }
 
       // Websocket notification
       final ChangeEvent event =
@@ -1172,6 +1208,49 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
+  @Path("/record/done")
+  @ApiOperation(value = "Find done work", notes = "Finds tracking records done", response = TrackingRecordListJpa.class)
+  public TrackingRecordList findDoneWork(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "User name", required = false) @QueryParam("userName") String userName,
+    @ApiParam(value = "User role, e.g. AUTHOR", required = false) @QueryParam("role") UserRole role,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /record/done ");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find done work", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+
+      // find available tracking records
+      final WorkflowActionHandler handler =
+          workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
+      final TrackingRecordList trackingRecords =
+          handler.findDoneWork(project, userName, role, pfs, workflowService);
+
+      for (final TrackingRecord tr : trackingRecords.getObjects()) {
+        workflowService.handleLazyInit(tr);
+      }
+
+      // websocket - n/a
+
+      return trackingRecords;
+    } catch (Exception e) {
+      handleException(e, "trying to find done work");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
   @Path("/record/available")
   @ApiOperation(value = "Find available work", notes = "Finds tracking records available for work", response = TrackingRecordListJpa.class)
   public TrackingRecordList findAvailableWork(
@@ -1388,6 +1467,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       return list;
     } catch (Exception e) {
       handleException(e, "trying to find assigned worklists");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/worklist/done")
+  @ApiOperation(value = "Find done worklists", notes = "Finds worklists done for work", response = WorklistListJpa.class)
+  public WorklistList findDoneWorklists(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "User name", required = false) @QueryParam("userName") String userName,
+    @ApiParam(value = "User role, e.g. AUTHOR", required = false) @QueryParam("role") UserRole role,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /worklist/done, " + projectId + ", "
+            + userName + ", " + role);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find done worklists", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+
+      final WorkflowActionHandler handler =
+          workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
+      final WorklistList list = handler.findDoneWorklists(project, userName,
+          role, pfs, workflowService);
+
+      // websocket - n/a
+
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to find done worklists");
     } finally {
       workflowService.close();
       securityService.close();
@@ -1670,7 +1789,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/checklist")
   @ApiOperation(value = "Create checklist", notes = "Create checklist", response = ChecklistJpa.class)
   public Checklist createChecklist(
@@ -1773,7 +1892,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @POST
+  @PUT
   @Path("/worklist")
   @ApiOperation(value = "Create worklist", notes = "Create worklist", response = WorklistJpa.class)
   public Worklist createWorklist(

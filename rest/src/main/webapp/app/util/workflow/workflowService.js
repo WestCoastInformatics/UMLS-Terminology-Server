@@ -85,7 +85,7 @@ tsApp.service('workflowService', [
 
       // Add workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/config?projectId=' + projectId, config).then(
+      $http.put(workflowUrl + '/config?projectId=' + projectId, config).then(
       // success
       function(response) {
         console.debug('  config = ', response.data);
@@ -108,7 +108,7 @@ tsApp.service('workflowService', [
 
       // Update workflow config
       gpService.increment();
-      $http.put(workflowUrl + '/config?projectId=' + projectId, config).then(
+      $http.post(workflowUrl + '/config?projectId=' + projectId, config).then(
       // success
       function(response) {
         console.debug('  successful update workflow config');
@@ -192,7 +192,7 @@ tsApp.service('workflowService', [
 
       // Update worklist
       gpService.increment();
-      $http.put(workflowUrl + '/worklist?projectId=' + projectId, worklist).then(
+      $http.post(workflowUrl + '/worklist?projectId=' + projectId, worklist).then(
       // success
       function(response) {
         console.debug('  successful update worklist');
@@ -261,7 +261,7 @@ tsApp.service('workflowService', [
 
       // Add workflow bin Definition
       gpService.increment();
-      $http.post(
+      $http.put(
         workflowUrl + '/definition?projectId=' + projectId
           + (positionAfterId ? '&positionAfterId=' + positionAfterId : ''), workflowBinDefinition)
         .then(
@@ -287,7 +287,7 @@ tsApp.service('workflowService', [
 
       // Update workflow binDefinition
       gpService.increment();
-      $http.put(workflowUrl + '/definition?projectId=' + projectId, workflowBinDefinition).then(
+      $http.post(workflowUrl + '/definition?projectId=' + projectId, workflowBinDefinition).then(
       // success
       function(response) {
         console.debug('  workflow bin Definition = ', response.data);
@@ -439,6 +439,62 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // Find done work
+    this.findDoneWork = function(projectId, userName, pfs) {
+      console.debug('findDoneWork', projectId, userName, pfs);
+
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/records/done?projectId=' + projectId + '&userName=' + userName,
+        utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  doneWork = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    // Find done worklists
+    this.findDoneWorklists = function(projectId, userName, role, pfs) {
+      console.debug('findDoneWorklists', projectId, userName, role, pfs);
+
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/worklist/done?projectId=' + projectId + '&userName=' + userName
+          + '&role=' + role, utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  doneWorklists = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };    
+    
     // Finds checklists
     this.findChecklists = function(projectId, query, pfs) {
       console.debug('findChecklists', projectId, query, pfs);
@@ -758,9 +814,9 @@ tsApp.service('workflowService', [
       // Setup deferred
       var deferred = $q.defer();
 
-      // Make POST call
+      // Make PUT call
       gpService.increment();
-      $http.post(
+      $http.put(
         workflowUrl + '/worklist?projectId=' + projectId + '&workflowBinId=' + workflowBinId
           + (clusterType != 'default' ? '&clusterType=' + clusterType : ''),
         utilService.prepPfs(pfs)).then(

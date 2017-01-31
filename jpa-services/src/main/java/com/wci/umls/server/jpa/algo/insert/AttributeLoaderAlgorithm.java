@@ -32,7 +32,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import attributes.
  */
-public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class AttributeLoaderAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -167,10 +168,10 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
           newDefinition.setTerminology(setTerminology.getTerminology());
           newDefinition.setVersion(setTerminology.getVersion());
           newDefinition.setTimestamp(new Date());
-          newDefinition.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newDefinition.setSuppressible("OYE".contains(fields[8].toUpperCase()));
+          newDefinition.setObsolete(fields[9].toUpperCase().equals("O"));
           newDefinition.setPublished(fields[6].toUpperCase().equals("Y"));
           newDefinition.setPublishable(fields[7].toUpperCase().equals("Y"));
-          newDefinition.setObsolete(false);
 
           // Load the containing object
           ComponentHasDefinitions containerComponent =
@@ -270,10 +271,10 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
           newAttribute.setTerminology(setTerminology.getTerminology());
           newAttribute.setVersion(setTerminology.getVersion());
           newAttribute.setTimestamp(new Date());
-          newAttribute.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newAttribute.setSuppressible("OYE".contains(fields[8].toUpperCase()));
+          newAttribute.setObsolete(fields[9].toUpperCase().equals("O"));
           newAttribute.setPublished(fields[6].toUpperCase().equals("Y"));
           newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
-          newAttribute.setObsolete(false);
 
           // Load the containing object
           ComponentHasAttributes containerComponent =
@@ -356,6 +357,8 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
       clearRelationshipAltTerminologies();
 
       commitClearBegin();
+      handler.commit();
+
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
       logInfo("[AttributeLoader] Updated " + attributeUpdateCount
@@ -400,7 +403,7 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
