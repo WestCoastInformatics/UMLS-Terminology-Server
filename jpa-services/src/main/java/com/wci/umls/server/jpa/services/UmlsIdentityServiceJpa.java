@@ -21,7 +21,11 @@ import org.hibernate.search.jpa.Search;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
+import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
+import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
@@ -185,7 +189,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     throws Exception {
     Logger.getLogger(getClass()).debug(
         "Umls Identity Service - get semanticTypeComponent identity " + id);
-    return getObject(id, SemanticTypeComponentIdentity.class);
+    return getObject(id, SemanticTypeComponentIdentityJpa.class);
   }
 
   /* see superclass */
@@ -308,7 +312,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   public AtomIdentity getAtomIdentity(long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get atom identity " + id);
-    return getObject(id, AtomIdentity.class);
+    return getObject(id, AtomIdentityJpa.class);
   }
 
   /* see superclass */
@@ -330,7 +334,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max atom class Id
       maxIds.put("AUI", atomId);
-      Logger.getLogger(getClass()).info("Initializing max AUI = " + (atomId + 1));
+      Logger.getLogger(getClass())
+          .info("Initializing max AUI = " + (atomId + 1));
     }
     final long result = maxIds.get("AUI") + 1;
     maxIds.put("AUI", result);
@@ -418,7 +423,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get string identity " + id);
 
-    return getObject(id, StringClassIdentity.class);
+    return getObject(id, StringClassIdentityJpa.class);
   }
 
   /* see superclass */
@@ -441,7 +446,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max string class Id
       maxIds.put("SUI", stringId);
-      Logger.getLogger(getClass()).info("Initializing max SUI = " + (stringId + 1));
+      Logger.getLogger(getClass())
+          .info("Initializing max SUI = " + (stringId + 1));
     }
     final long result = maxIds.get("SUI") + 1;
     maxIds.put("SUI", result);
@@ -524,7 +530,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get lexical class identity " + id);
-    return getObject(id, LexicalClassIdentity.class);
+    return getObject(id, LexicalClassIdentityJpa.class);
   }
 
   /* see superclass */
@@ -547,7 +553,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
       }
       // Set the max lexical class Id
       maxIds.put("LUI", lexicalId);
-      Logger.getLogger(getClass()).info("Initializing max LUI = " + (lexicalId + 1));
+      Logger.getLogger(getClass())
+          .info("Initializing max LUI = " + (lexicalId + 1));
     }
     final long result = maxIds.get("LUI") + 1;
     maxIds.put("LUI", result);
@@ -631,7 +638,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     throws Exception {
     Logger.getLogger(getClass())
         .debug("Umls Identity Service - get relationship identity " + id);
-    return getObject(id, RelationshipIdentity.class);
+    return getObject(id, RelationshipIdentityJpa.class);
   }
 
   /* see superclass */
@@ -844,5 +851,4 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     }
   }
 
- 
 }

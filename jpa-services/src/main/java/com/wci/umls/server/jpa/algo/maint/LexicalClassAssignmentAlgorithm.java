@@ -40,7 +40,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   public LexicalClassAssignmentAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("LUI_REASSIGNMENT");
+    setWorkId("LEXICALCLASSASSIGNMENT");
     setLastModifiedBy("admin");
   }
 
@@ -59,11 +59,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting lexical class assignment");
-    logInfo("  project = " + getProject().getId());
-    logInfo("  workId = " + getWorkId());
-    logInfo("  activityId = " + getActivityId());
-    logInfo("  user  = " + getLastModifiedBy());
+    logInfo("Starting LEXICALCLASSASSIGNMENT");
 
     setMolecularActionFlag(false);
 
@@ -208,7 +204,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
       logInfo("  updated LUIs ct = " + updatedLuis);
       logInfo("  new LUIs ct = " + newLuis);
-      logInfo("Finished lexical class assignment");
+      logInfo("Finished LEXICALCLASSASSIGNMENT");
 
     } catch (
 

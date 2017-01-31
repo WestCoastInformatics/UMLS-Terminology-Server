@@ -65,7 +65,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting compute preferred names");
+    logInfo("Starting PREFNAMES");
 
     // Configure algorithm
     final ComputePreferredNameHandler handler =
@@ -118,7 +118,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  concept count = " + objectCt);
     logInfo("  concepts updated = " + updatedCt);
-    logInfo("Finished compute preferred names");
+    logInfo("Finished PREFNAMES");
 
   }
 
@@ -150,9 +150,9 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
     // If there are atoms, recompute the preferred name
     if (hasAtoms) {
-      final String computedName = handler.computePreferredName(
-          concept.getAtoms(), getPrecedenceList(getProject().getTerminology(),
-              getProject().getVersion()));
+      final String computedName =
+          handler.computePreferredName(concept.getAtoms(), getPrecedenceList(
+              getProject().getTerminology(), getProject().getVersion()));
       if (computedName == null) {
         throw new Exception(
             "Unexpected concept without preferred name - " + concept.getId());
