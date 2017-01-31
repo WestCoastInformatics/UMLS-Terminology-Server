@@ -21,9 +21,10 @@ tsApp
       'contentService',
       'websocketService',
       'appConfig',
+      'editService',
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
         gpService, utilService, tabService, configureService, securityService, projectService,
-        metadataService, contentService, websocketService, appConfig) {
+        metadataService, contentService, websocketService, appConfig, editService) {
         console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
@@ -56,6 +57,7 @@ tsApp
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
         $scope.callbacks = contentService.getCallbacks();
+        $scope.editCallbacks = editService.getCallbacks();
         // Scope vars
         $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
         $scope.selected = {
