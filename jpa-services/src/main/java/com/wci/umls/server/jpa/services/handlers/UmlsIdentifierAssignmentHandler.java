@@ -344,13 +344,13 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         final AttributeIdentity identity = new AttributeIdentityJpa();
         identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
-        if(component instanceof Atom){
-          identity.setComponentId(((Atom)component).getAlternateTerminologyIds().get(projectTerminology));
-        }                
-        else if(component instanceof Relationship){
-          identity.setComponentId(((Relationship<?,?>)component).getAlternateTerminologyIds().get(projectTerminology));
-        }                
-        else{
+        if (component instanceof Atom) {
+          identity.setComponentId(((Atom) component)
+              .getAlternateTerminologyIds().get(projectTerminology));
+        } else if (component instanceof Relationship) {
+          identity.setComponentId(((Relationship<?, ?>) component)
+              .getAlternateTerminologyIds().get(projectTerminology));
+        } else {
           identity.setComponentId(component.getTerminologyId());
         }
         identity.setComponentTerminology(component.getTerminology());
@@ -788,11 +788,11 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     int commitCt) throws Exception {
     service.logAndCommit(preMessage, objectCt, logCt, commitCt);
   }
-  
+
   /* see superclass */
   @Override
-  public void silentIntervalCommit(int objectCt, int logCt,
-    int commitCt) throws Exception {
+  public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
+    throws Exception {
     service.silentIntervalCommit(objectCt, logCt, commitCt);
-  }  
+  }
 }

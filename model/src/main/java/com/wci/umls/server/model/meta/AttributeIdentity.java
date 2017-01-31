@@ -5,11 +5,12 @@ package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.HasName;
+import com.wci.umls.server.helpers.Identity;
 
 /**
  * Represents attribute identity for Metathesaurus editing.
  */
-public interface AttributeIdentity extends HasId, HasName {
+public interface AttributeIdentity extends HasId, HasName, Identity {
 
   /**
    * Sets the component type.

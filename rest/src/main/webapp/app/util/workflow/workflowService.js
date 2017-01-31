@@ -371,6 +371,62 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // Find done work
+    this.findDoneWork = function(projectId, userName, pfs) {
+      console.debug('findDoneWork', projectId, userName, pfs);
+
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/records/done?projectId=' + projectId + '&userName=' + userName,
+        utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  doneWork = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    // Find done worklists
+    this.findDoneWorklists = function(projectId, userName, role, pfs) {
+      console.debug('findDoneWorklists', projectId, userName, role, pfs);
+
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(
+        workflowUrl + '/worklist/done?projectId=' + projectId + '&userName=' + userName
+          + '&role=' + role, utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  doneWorklists = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };    
+    
     // Finds checklists
     this.findChecklists = function(projectId, query, pfs) {
       console.debug('findChecklists', projectId, query, pfs);

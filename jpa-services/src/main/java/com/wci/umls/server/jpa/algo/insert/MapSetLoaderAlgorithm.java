@@ -171,6 +171,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+      handler.commit();
 
       // If any mapTo or MapFrom entries were unused, log them
       final Set<String> xmapFromUnusuedSet = xmapFromMap.keySet();

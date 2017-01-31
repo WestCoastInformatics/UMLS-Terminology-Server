@@ -32,7 +32,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 /**
  * Implementation of an algorithm to import attributes.
  */
-public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class AttributeLoaderAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -356,6 +357,8 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
       clearRelationshipAltTerminologies();
 
       commitClearBegin();
+      handler.commit();
+
       logInfo(
           "[AttributeLoader] Added " + attributeAddCount + " new Attributes.");
       logInfo("[AttributeLoader] Updated " + attributeUpdateCount
@@ -400,7 +403,7 @@ public class AttributeLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorith
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

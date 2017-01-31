@@ -119,4 +119,32 @@ public interface WorkflowActionHandler extends Configurable {
    */
   public WorklistList findAssignedWorklists(Project project, String userName,
     UserRole role, PfsParameter pfs, WorkflowService service) throws Exception;
+
+  /**
+   * Find done work.
+   *
+   * @param project the project
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param service the service
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findDoneWork(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception;
+
+  /**
+   * Find done worklists.
+   *
+   * @param project the project
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param service the service
+   * @return the worklist list
+   * @throws Exception the exception
+   */
+  public WorklistList findDoneWorklists(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception;
 }

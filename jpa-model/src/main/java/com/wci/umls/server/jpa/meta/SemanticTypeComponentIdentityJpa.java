@@ -183,6 +183,19 @@ public class SemanticTypeComponentIdentityJpa
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getIdentityCode() {
+    return conceptTerminologyId + semanticType + terminology;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIdentityCode(String identityCode) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public String toString() {
     return "SemanticTypeComponentIdentityJpa [id=" + id + ", terminology="
         + terminology + ", conceptTerminologyId=" + conceptTerminologyId

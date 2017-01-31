@@ -268,6 +268,7 @@ public class RelationshipLoaderAlgorithm
       }
 
       commitClearBegin();
+      handler.commit();
 
       logInfo("[RelationshipLoader] Added " + addCount + " new Relationships.");
       logInfo("[RelationshipLoader] Updated " + updateCount

@@ -56,6 +56,7 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("identityCode");
     tester.test();
   }
 
@@ -75,7 +76,7 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("componentId");
     tester.include("componentTerminology");
     tester.include("componentType");
-    tester.include("hashCode");
+    tester.include("hashcode");
 
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
@@ -94,6 +95,7 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.exclude("identityCode");
     assertTrue(tester.testCopyConstructor(AttributeIdentity.class));
   }
 
@@ -125,7 +127,7 @@ public class AttributeIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("componentId");
     tester.include("componentType");
     tester.include("componentTerminology");
-    tester.include("hashCode");
+    tester.include("hashcode");
 
     assertTrue(tester.testNotNullFields());
   }

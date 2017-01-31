@@ -2124,11 +2124,14 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // Otherwise, use what was given if MAPSETRSAB already provided
       else {
-        mapset.setVersion(atv);
         // In case MAPSETRSAB was set first, strip off the RSAB part and use the
         // rest as the version
         if (mapset.getTerminology() != null) {
-          mapset.setVersion(atv.substring(mapset.getTerminology().length()));
+          String version = atv.substring(mapset.getTerminology().length());
+          mapset.setVersion(
+              version.startsWith("_") ? version.substring(1) : version);
+        } else {
+          mapset.setVersion(atv);
         }
       }
     } else if (atn.equals("MTH_MAPFROMEXHAUSTIVE")) {

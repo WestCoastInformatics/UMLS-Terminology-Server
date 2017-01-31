@@ -1175,6 +1175,49 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
+  @Path("/record/done")
+  @ApiOperation(value = "Find done work", notes = "Finds tracking records done", response = TrackingRecordListJpa.class)
+  public TrackingRecordList findDoneWork(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "User name", required = false) @QueryParam("userName") String userName,
+    @ApiParam(value = "User role, e.g. AUTHOR", required = false) @QueryParam("role") UserRole role,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Workflow): /record/done ");
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find done work", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+
+      // find available tracking records
+      final WorkflowActionHandler handler =
+          workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
+      final TrackingRecordList trackingRecords =
+          handler.findDoneWork(project, userName, role, pfs, workflowService);
+
+      for (final TrackingRecord tr : trackingRecords.getObjects()) {
+        workflowService.handleLazyInit(tr);
+      }
+
+      // websocket - n/a
+
+      return trackingRecords;
+    } catch (Exception e) {
+      handleException(e, "trying to find done work");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
   @Path("/record/available")
   @ApiOperation(value = "Find available work", notes = "Finds tracking records available for work", response = TrackingRecordListJpa.class)
   public TrackingRecordList findAvailableWork(
@@ -1391,6 +1434,46 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       return list;
     } catch (Exception e) {
       handleException(e, "trying to find assigned worklists");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/worklist/done")
+  @ApiOperation(value = "Find done worklists", notes = "Finds worklists done for work", response = WorklistListJpa.class)
+  public WorklistList findDoneWorklists(
+    @ApiParam(value = "Project id, e.g. 5", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "User name", required = false) @QueryParam("userName") String userName,
+    @ApiParam(value = "User role, e.g. AUTHOR", required = false) @QueryParam("role") UserRole role,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Workflow): /worklist/done, " + projectId + ", "
+            + userName + ", " + role);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "trying to find done worklists", UserRole.AUTHOR);
+
+      final Project project = workflowService.getProject(projectId);
+
+      final WorkflowActionHandler handler =
+          workflowService.getWorkflowHandlerForPath(project.getWorkflowPath());
+      final WorklistList list = handler.findDoneWorklists(project, userName,
+          role, pfs, workflowService);
+
+      // websocket - n/a
+
+      return list;
+    } catch (Exception e) {
+      handleException(e, "trying to find done worklists");
     } finally {
       workflowService.close();
       securityService.close();

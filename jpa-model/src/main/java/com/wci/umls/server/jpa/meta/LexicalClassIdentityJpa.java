@@ -151,6 +151,19 @@ public class LexicalClassIdentityJpa implements LexicalClassIdentity {
     return true;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getIdentityCode() {
+    return language + normalizedName;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIdentityCode(String identityCode) {
+    // n/a
+  }
+
   @Override
   public String toString() {
     return "LexicalClassIdentityJpa [id=" + id + ", normalizedName="
