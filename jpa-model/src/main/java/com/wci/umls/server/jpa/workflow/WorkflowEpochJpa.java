@@ -1,6 +1,5 @@
 package com.wci.umls.server.jpa.workflow;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -90,9 +89,8 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
    * Instantiates a {@link WorkflowEpochJpa} from the specified parameters.
    *
    * @param epoch the workflow epoch
-   * @param collectionCopy the deep copy
    */
-  public WorkflowEpochJpa(WorkflowEpoch epoch, boolean collectionCopy) {
+  public WorkflowEpochJpa(WorkflowEpoch epoch) {
     id = epoch.getId();
     lastModified = epoch.getLastModified();
     lastModifiedBy = epoch.getLastModifiedBy();
@@ -100,9 +98,6 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
     name = epoch.getName();
     active = epoch.isActive();
     project = epoch.getProject();
-    if (collectionCopy) {
-      workflowBins = new ArrayList<>(epoch.getWorkflowBins());
-    }
   }
 
   /* see superclass */
@@ -214,22 +209,6 @@ public class WorkflowEpochJpa implements WorkflowEpoch {
       project = new ProjectJpa();
     }
     project.setId(projectId);
-  }
-
-  /* see superclass */
-  @XmlTransient
-  @Override
-  public List<WorkflowBin> getWorkflowBins() {
-    if (workflowBins == null) {
-      return new ArrayList<>();
-    }
-    return workflowBins;
-  }
-
-  /* see superclass */
-  @Override
-  public void setWorkflowBins(List<WorkflowBin> workflowBins) {
-    this.workflowBins = workflowBins;
   }
 
   /* see superclass */

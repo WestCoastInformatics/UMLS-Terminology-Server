@@ -415,7 +415,6 @@ public class RelationshipLoaderAlgorithm
     newRelationship.setBranch(Branch.ROOT);
     newRelationship.setFrom(fromComponent);
     newRelationship.setGroup(group);
-    newRelationship.setObsolete(false);
     newRelationship.setPublishable(publishable.equals("Y"));
     newRelationship.setPublished(published.equals("Y"));
     newRelationship.setRelationshipType(lookupRelationshipType(relType));
@@ -425,7 +424,10 @@ public class RelationshipLoaderAlgorithm
         newRelationship.getRelationshipType().equals("CHD") ? true : false);
     newRelationship.setStated(true);
     newRelationship.setInferred(true);
-    newRelationship.setSuppressible(suppresible.equals("Y"));
+
+    newRelationship.setSuppressible("OYE".contains(suppresible.toUpperCase()));
+    newRelationship.setObsolete(suppresible.toUpperCase().equals("O"));
+
     Terminology term = getCachedTerminology(sourceTermAndVersion);
     if (term == null) {
       throw new Exception("ERROR: lookup for " + sourceTermAndVersion
@@ -458,7 +460,7 @@ public class RelationshipLoaderAlgorithm
     Relationship newInverseRelationship =
         newRelationship.createInverseRelationship(newRelationship,
             inverseRelType, inverseAdditionalRelType);
-    
+
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
     String newRelationshipRui = handler.getTerminologyId(newRelationship,
@@ -631,7 +633,7 @@ public class RelationshipLoaderAlgorithm
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

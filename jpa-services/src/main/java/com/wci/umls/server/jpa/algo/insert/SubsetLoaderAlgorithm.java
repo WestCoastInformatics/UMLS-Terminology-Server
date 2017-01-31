@@ -422,8 +422,8 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       member.setTerminologyId(fields[12]);
       member.setTerminology(referencedTerminology.getTerminology());
       member.setVersion(referencedTerminology.getVersion());
-      member.setObsolete(false);
-      member.setSuppressible(!fields[9].equals("N"));
+      member.setSuppressible("OYE".contains(fields[9].toUpperCase()));
+      member.setObsolete(fields[9].toUpperCase().equals("O"));
       member.setPublishable(!fields[7].equals("N"));
       member.setPublished(!fields[8].equals("N"));
 
@@ -459,8 +459,8 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     memberAtt.setTerminology(referencedTerminology.getTerminology());
     memberAtt.setVersion(referencedTerminology.getVersion());
-    memberAtt.setObsolete(false);
-    memberAtt.setSuppressible(!fields[9].equals("N"));
+    memberAtt.setSuppressible("OYE".contains(fields[9].toUpperCase()));
+    memberAtt.setObsolete(fields[9].toUpperCase().equals("O"));
     memberAtt.setPublishable(!fields[7].equals("N"));
     memberAtt.setPublished(!fields[8].equals("N"));
     if (fields[4].contains("~")) {

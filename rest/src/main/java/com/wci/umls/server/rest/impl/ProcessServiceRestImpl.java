@@ -45,6 +45,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -1647,9 +1648,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
                 processExecution.getVersion(), null,
                 processExecution.getWorkId(),
                 "STARTING PROCESS " + processExecution.getId() + ", "
-                    + processExecution.getName());
+                    + processExecution.getName() + "\n\t  project = "
+                    + processExecution.getProject().getId() + ", "
+                    + processExecution.getProject().getName());
           }
-          
+
           // Set initial progress to zero and count the number of steps to
           // execute
           lookupPeProgressMap.put(processExecution.getId(), 0);
@@ -1792,7 +1795,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               if (!result.isValid()) {
                 throw new LocalException(
                     "Algorithm " + algorithmExecution.getId()
-                        + " failed preconditions: " + result.getErrors());
+                        + " failed preconditions: " + FieldedStringTokenizer
+                            .join(new ArrayList<>(result.getErrors()), "\n"));
               }
             }
 

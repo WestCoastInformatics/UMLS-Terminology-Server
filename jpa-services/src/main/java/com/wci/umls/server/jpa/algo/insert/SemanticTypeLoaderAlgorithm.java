@@ -187,11 +187,11 @@ public class SemanticTypeLoaderAlgorithm
           SemanticTypeComponent newSty = new SemanticTypeComponentJpa();
           newSty.setBranch(Branch.ROOT);
           newSty.setName(fields[4]);
-          newSty.setObsolete(false);
           newSty.setPublishable(fields[7].toUpperCase().equals("Y"));
           newSty.setPublished(fields[8].toUpperCase().equals("Y"));
           newSty.setSemanticType(fields[4]);
-          newSty.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newSty.setSuppressible(false);
+          newSty.setObsolete(false);
           newSty.setTerminology(getProject().getTerminology());
           newSty.setVersion(getProject().getVersion());
           newSty.setTerminologyId("");
@@ -256,7 +256,7 @@ public class SemanticTypeLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

@@ -33,7 +33,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
         $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
         $scope.algorithm.name = selected.algorithmConfigType.value;
-        $scope.description = selected.algorithmConfigType.value + ' <description>';
+        $scope.description = selected.algorithmConfigType.value + ' ' + (new Date().getTime());
       });
     }
 
@@ -100,7 +100,8 @@ tsApp.controller('AlgorithmModalCtrl', [
       }
 
       // Get the queryType.
-      // If this is a QueryActionAlgorithm, get the objectType.  Otherwise leave empty, and it will be handled by the server
+      // If this is a QueryActionAlgorithm, get the objectType. Otherwise leave
+      // empty, and it will be handled by the server
       var objectType = null;
       var queryType = null;
       for (var i = 0; i < $scope.algorithm.parameters.length; i++) {

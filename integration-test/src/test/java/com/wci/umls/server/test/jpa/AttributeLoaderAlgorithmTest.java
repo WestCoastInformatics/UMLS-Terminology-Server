@@ -92,14 +92,12 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+    processExecution.setInputPath(processExecution.getInputPath() + "/temp");
 
     // Create and populate an attributes.src document in the /temp
     // temporary subfolder
@@ -159,7 +157,6 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       algo.compute();
 
-
     } catch (Exception e) {
       e.printStackTrace();
       fail("Unexpected exception thrown - please review stack trace.");
@@ -179,7 +176,7 @@ public class AttributeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     FileUtils.deleteDirectory(new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
+            + "/"  + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();

@@ -90,14 +90,12 @@ public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
-    processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+    processExecution.setInputPath(processExecution.getInputPath() + "/temp");
 
     // Create and populate an attributes.src document in the /temp
     // temporary subfolder
@@ -154,7 +152,6 @@ public class SemanticTypeLoaderAlgorithmTest extends IntegrationUnitSupport {
       // Perform the algorithm
       //
       algo.compute();
-
 
     } catch (Exception e) {
       e.printStackTrace();

@@ -92,14 +92,13 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
     processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+        processExecution.getInputPath() + "/temp");
 
     // Create and populate a contexts.src document in the /temp
     // temporary subfolder
@@ -159,7 +158,7 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
       //
       // Reset the algorithm
       //
-      //algo.reset();
+      // algo.reset();
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -180,7 +179,7 @@ public class ContextLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     FileUtils.deleteDirectory(new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
+            + "/"  + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();
