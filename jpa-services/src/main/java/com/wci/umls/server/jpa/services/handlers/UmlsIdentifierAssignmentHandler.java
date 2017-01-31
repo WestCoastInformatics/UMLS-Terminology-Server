@@ -12,6 +12,7 @@ import javax.persistence.NoResultException;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
@@ -341,6 +342,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       synchronized (LOCK) {
         // Create AttributeIdentity and populate from the attribute.
         final AttributeIdentity identity = new AttributeIdentityJpa();
+        identity.setHashcode(ConfigUtility.getMd5(attribute.getValue()));
         identity.setName(attribute.getName());
         if (component instanceof Atom) {
           identity.setComponentId(((Atom) component)
