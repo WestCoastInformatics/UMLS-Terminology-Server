@@ -6,6 +6,7 @@ package com.wci.umls.server.jpa.algo.insert;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -415,6 +416,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       validationChecks.add(validationCheck.getKey());
     }
 
+    Collections.sort(validationChecks);
     param.setPossibleValues(validationChecks);
     params.add(param);
 
