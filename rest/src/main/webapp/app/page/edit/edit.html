@@ -28,8 +28,8 @@
   </div>
   <div class="col-md-12 col-xs-12">
     <uib-accordion close-others="false"> <uib-accordion-group
-      ng-show="selected.projectRole != 'ADMINISTRATOR'" is-open="groups[0].open"  ng-click="saveAccordionStatus()">
-    <uib-accordion-heading>
+      ng-show="selected.projectRole != 'ADMINISTRATOR'" is-open="groups[0].open"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Workflow Checklists">{{groups[0].title}}</span>
     </h5>
@@ -43,6 +43,8 @@
           <li ng-class="{active : selected.worklistMode == 'Assigned'}"><a
               ng-click="setWorklistMode('Assigned')">Assigned
               ({{assignedCt}})</a></li>
+          <li ng-class="{active : selected.worklistMode == 'Done'}"><a
+              ng-click="setWorklistMode('Done')">Done ({{doneCt}})</a></li>
           <li ng-class="{active : selected.worklistMode == 'Checklists'}"><a
               ng-click="setWorklistMode('Checklists')">Checklists
               ({{checklistCt}})</a></li>
@@ -95,13 +97,12 @@
                   ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Available'"
                   ng-click="assignWorklistToSelf(worklist); $event.stopPropagation();"
                   title="Claim worklist"
-                  class="noul glyphicon glyphicon-hand-right"></i>
-                <i
+                  class="noul glyphicon glyphicon-hand-right"></i> <i
                   ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                   ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                   title="Unassign worklist"
-                  class="noul glyphicon glyphicon-hand-left"></i>
-                <i confirm="Are you sure you want to stamp the worklist?"
+                  class="noul glyphicon glyphicon-hand-left"></i> <i
+                  confirm="Are you sure you want to stamp the worklist?"
                   ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
                   ng-click="openFinishWorkflowModal(worklist, true); "
                   title="Stamp" class="noul glyphicon glyphicon-certificate"></i>
@@ -189,8 +190,8 @@
         </div>
       </span>
     </div>
-    </uib-accordion-group> <!-- A3 - Concepts --> <uib-accordion-group is-open="groups[1].open" ng-click="saveAccordionStatus()">
-    <uib-accordion-heading>
+    </uib-accordion-group> <!-- A3 - Concepts --> <uib-accordion-group is-open="groups[1].open"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Concepts">{{groups[1].title}}</span>
     </h5>
@@ -230,8 +231,8 @@
                 type="Concept"></span>
               <i title="Refresh concept"
                 ng-click="reloadConcept(concept); $event.stopPropagation()"
-                class="noul glyphicon glyphicon-repeat"></i>
-                              <i title="Remove from list"
+                class="noul glyphicon glyphicon-repeat"></i> <i
+                title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
@@ -244,33 +245,38 @@
       <span style="float: left;">
         <button ng-click="openStyWindow(null, null)"
           title="{{selected.metadata.semanticTypesLabel}}"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
+          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          class="btn btn-xs btn-primary">STY</button>
         <button ng-click="openAtomsWindow(null, null)"
           title="{{selected.metadata.atomsLabel}}"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
+          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
         <button ng-click="openRelationshipsWindow(null, null)"
           title="{{selected.metadata.relationshipsLabel}}"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
+          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          class="btn btn-xs btn-primary">Rels</button>
         <button ng-click="openContextsWindow(null, null)"
           title="{{selected.metadata.hierarchiesLabel}}"
-          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Tree</button>
-        <i ng-show="selected.component"
+          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          class="btn btn-xs btn-primary">Tree</button>
+        <i
+          ng-show="selected.component && (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
       <!-- Concept actions -->
       <span style="float: right;">
         <button ng-click="approveConcept(selected.component)" title="Approve"
-          ng-disabled="!selected.component || editingDisabled()"
+          ng-disabled="!selected.component || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           class="btn btn-xs btn-primary">Approve</button>
         <button ng-click="next()" title="Next"
-          ng-disabled="!selected.component || !selected.worklist || editingDisabled()"
+          ng-disabled="!selected.component || !selected.worklist || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component || !selected.worklist || editingDisabled()"
+          ng-disabled="!selected.component || !selected.worklist || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component || editingDisabled()"
+          ng-disabled="!selected.component || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           class="btn btn-xs btn-primary">Merge</button>
       </span>
     </div>
@@ -278,7 +284,8 @@
       <!-- CONCEPT REPORT -->
       <div report-panel selected="selected" callbacks="callbacks"></div>
     </div>
-    </uib-accordion-group> <!--  METADATA EDITING --> <uib-accordion-group is-open="groups[2].open"  ng-click="saveAccordionStatus()"
+    </uib-accordion-group> <!--  METADATA EDITING --> <uib-accordion-group is-open="groups[2].open"
+      ng-click="saveAccordionStatus()"
       ng-show="selected.projectRole == 'ADMINISTRATOR'"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Metadata Editing">{{groups[2].title}}</span>
@@ -287,16 +294,15 @@
     <div class="col-md-6 col-xs-12">
       <div class="row">
         <table class="table">
-
           <tr>
             <td colspan="2">
               <b>Terminology</b> <select ng-model="selectedTerminology"
                 ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies"></select>
               <i ng-click="openEditRootTerminologyModal(selectedTerminology)"
                 title="Edit root {{selectedTerminology.terminology}}"
-                class="noul glyphicon glyphicon-pencil"></i>
-              &nbsp; {{selectedTerminology.version}}
-              <i ng-click="openEditTerminologyModal(selectedTerminology)"
+                class="noul glyphicon glyphicon-pencil"></i> &nbsp;
+              {{selectedTerminology.version}} <i
+                ng-click="openEditTerminologyModal(selectedTerminology)"
                 title="Edit {{selectedTerminology.terminology}}, {{selectedTerminology.version}}"
                 class="noul glyphicon glyphicon-pencil"></i>
             </td>
@@ -336,8 +342,6 @@
               </table>
             </td>
           </tr>
-
-
           <tr>
             <td class="col-md-3 col-xs-3">
               <b>Attribute Names</b>
@@ -373,7 +377,6 @@
               </table>
             </td>
           </tr>
-
           <tr>
             <td>
               <b>Precedence List</b>
@@ -421,7 +424,6 @@
             </td>
           </tr>
         </table>
-
       </div>
     </div>
     <div class="col-md-6 col-xs-12">
@@ -463,8 +465,6 @@
               </table>
             </td>
           </tr>
-
-
           <tr>
             <td class="col-md-3 col-xs-3">
               <b>Additional Relationship Types</b>
@@ -501,7 +501,6 @@
               </table>
             </td>
           </tr>
-
         </table>
       </div>
     </div>

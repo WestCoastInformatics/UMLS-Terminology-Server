@@ -253,7 +253,8 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
         // For review, it removes the reviewer and sets the status back to
         // EDITING_DONE
         else if (EnumSet
-            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS, WorkflowStatus.REVIEW_DONE)
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS,
+                WorkflowStatus.REVIEW_DONE)
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.EDITING_DONE);
           worklist.getReviewers().remove(userName);
@@ -304,7 +305,8 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
 
         // REVIEW_NEW, REVIEW_IN_PROGRESS => REVIEW_DONE
         else if (EnumSet
-            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS, WorkflowStatus.REVIEW_DONE)
+            .of(WorkflowStatus.REVIEW_NEW, WorkflowStatus.REVIEW_IN_PROGRESS,
+                WorkflowStatus.REVIEW_DONE)
             .contains(worklist.getWorkflowStatus())) {
           worklist.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           worklist.getWorkflowStateHistory().put("Done", new Date());
@@ -385,6 +387,36 @@ public class DefaultWorkflowActionHandler extends AbstractConfigurable
               + " AND NOT workflowStatus:EDITING_DONE AND NOT reviewers:[* TO *]))",
           pfs);
     }
+    return new WorklistListJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public TrackingRecordList findDoneWork(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
+  /* see superclass */
+  @Override
+  public WorklistList findDoneWorklists(Project project, String userName,
+    UserRole role, PfsParameter pfs, WorkflowService service) throws Exception {
+    if (role == UserRole.AUTHOR) {
+      return service.findWorklists(project,
+          "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
+              + " AND authors:" + userName
+              + " AND NOT workflowStatus:NEW AND NOT workflowStatus:EDITING_IN_PROGRESS ",
+          pfs);
+    } else if (role == UserRole.REVIEWER) {
+      return service.findWorklists(project,
+          "epoch:" + service.getCurrentWorkflowEpoch(project).getName()
+              + "( authors:" + userName
+              + " AND NOT workflowStatus:NEW AND NOT workflowStatus:EDITING_IN_PROGRESS) OR "
+              + "( reviewers:" + userName
+              + " AND NOT workflowStatus:REVIEW_NEW AND NOT workflowStatus:REVIEW_IN_PROGRESS)",
+          pfs);
+    }
+
     return new WorklistListJpa();
   }
 

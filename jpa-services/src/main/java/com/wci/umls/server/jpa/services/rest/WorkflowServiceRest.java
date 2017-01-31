@@ -202,6 +202,20 @@ public interface WorkflowServiceRest {
     UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
+   * Find done work.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findDoneWork(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
    * Find available work.
    *
    * @param projectId the project id
@@ -265,6 +279,20 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorklistList findAssignedWorklists(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find done worklists.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the worklist list
+   * @throws Exception the exception
+   */
+  public WorklistList findDoneWorklists(Long projectId, String userName,
     UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -457,8 +485,8 @@ public interface WorkflowServiceRest {
    * @return the workflow bin
    * @throws Exception the exception
    */
-  public WorkflowBin regenerateBinDefinition(Long projectId, String name, String type,
-    String authToken) throws Exception;
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name,
+    String type, String authToken) throws Exception;
 
   /**
    * Generate concept report.

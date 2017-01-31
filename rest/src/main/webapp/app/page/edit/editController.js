@@ -40,6 +40,7 @@ tsApp
         // scope vars
         $scope.assignedCt = 0;
         $scope.availableCt = 0;
+        $scope.doneCt = 0;
         $scope.checklistCt = 0;
 
         // Callbacks for report
@@ -71,7 +72,7 @@ tsApp
           concepts : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
-          worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
+          worklistModes : [ 'Available', 'Assigned', 'Done', 'Checklists' ],
           terminologies : [],
           languages : [],
           precedenceOrder : []
@@ -158,6 +159,7 @@ tsApp
             } else {
               $scope.getAssignedWorklistCt();
               $scope.getAvailableWorklistCt();
+              $scope.getDoneWorklistCt();
             }
           }
         });
@@ -313,6 +315,8 @@ tsApp
             $scope.getAvailableWorklists();
           } else if ($scope.selected.worklistMode == 'Assigned') {
             $scope.getAssignedWorklists();
+          } else if ($scope.selected.worklistMode == 'Done') {
+            $scope.getDoneWorklists();
           } else if ($scope.selected.worklistMode == 'Checklists') {
             $scope.getChecklists();
           }
@@ -339,6 +343,7 @@ tsApp
                 $scope.availableCt = data.totalCount;
                 $scope.resetSelected();
                 $scope.getAssignedWorklistCt();
+                $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
@@ -387,6 +392,7 @@ tsApp
                 $scope.assignedCt = data.totalCount;
                 $scope.resetSelected();
                 $scope.getAvailableWorklistCt();
+                $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
@@ -411,6 +417,55 @@ tsApp
             $scope.assignedCt = data.totalCount;
           });
         };
+        
+
+        // Get done worklists with project and type
+        $scope.getDoneWorklists = function() {
+          var paging = $scope.paging['worklists'];
+          var pfs = {
+            startIndex : (paging.page - 1) * paging.pageSize,
+            maxResults : paging.pageSize,
+            sortField : paging.sortField,
+            ascending : paging.sortAscending,
+            queryRestriction : paging.filter
+          };
+
+          workflowService
+            .findDoneWorklists($scope.selected.project.id, $scope.user.userName,
+              $scope.selected.projectRole, pfs)
+            .then(
+              // Success
+              function(data) {
+                $scope.lists.worklists = data.worklists;
+                $scope.lists.worklists.totalCount = data.totalCount;
+                $scope.doneCt = data.totalCount;
+                $scope.resetSelected();
+                $scope.getAssignedWorklistCt();
+                $scope.getAvailableWorklistCt();
+                $scope.getChecklistCt();
+                // select previously selected list if saved in user preferences
+                if ($scope.user.userPreferences.properties['editWorklist']) {
+                  for (var i = 0; i < $scope.lists.worklists.length; i++) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                      $scope.selectWorklist($scope.lists.worklists[i]);
+                    }
+                    ;
+                  }
+                }
+              });
+        };
+        $scope.getDoneWorklistCt = function() {
+          var pfs = {
+            startIndex : 0,
+            maxResults : 1
+          };
+          workflowService.findDoneWorklists($scope.selected.project.id, $scope.user.userName,
+            $scope.selected.projectRole, pfs).then(
+          // Success
+          function(data) {
+            $scope.doneCt = data.totalCount;
+          });
+        };        
 
         // Find checklists
         $scope.getChecklists = function() {
@@ -434,6 +489,7 @@ tsApp
                 $scope.resetSelected();
                 $scope.getAssignedWorklistCt();
                 $scope.getAvailableWorklistCt();
+                $scope.getDoneWorklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
@@ -778,7 +834,7 @@ tsApp
           // If no selected component, then try to recover from last saved
           // if (!$scope.selected.component) {
           if ($scope.selected.worklist
-            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
+            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned' || $scope.selected.worklistMode == 'Done')) {
             workflowService.findTrackingRecordsForWorklist($scope.selected.project.id,
               $scope.selected.worklist.id, pfs).then(
             // Success

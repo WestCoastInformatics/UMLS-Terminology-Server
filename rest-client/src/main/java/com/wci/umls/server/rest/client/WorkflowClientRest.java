@@ -497,6 +497,38 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public TrackingRecordList findDoneWork(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find done work - " + projectId + ", " + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/workflow/record/done" + "?projectId="
+            + projectId + "&userName=" + userName + "&role=" + role);
+    final String pfsStr = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public TrackingRecordList findTrackingRecordsForChecklist(Long projectId,
     Long id, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -604,6 +636,38 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/worklist/assigned" + "?projectId=" + projectId
         + "&userName=" + userName + "&role=" + role);
+    final String pfsStr = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, WorklistListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public WorklistList findDoneWorklists(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - find done worklists - " + projectId + ", "
+            + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/worklist/done" + "?projectId=" + projectId + "&userName="
+        + userName + "&role=" + role);
     final String pfsStr = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     final Response response = target.request(MediaType.APPLICATION_XML)

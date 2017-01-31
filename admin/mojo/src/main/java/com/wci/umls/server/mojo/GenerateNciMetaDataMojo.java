@@ -1146,7 +1146,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm for NCI-SRC");
     algoConfig.setEnabled(true);
     algoConfig.setName("PRECOMPUTEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
@@ -1167,7 +1167,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm for NCI-SY");
     algoConfig.setEnabled(true);
     algoConfig.setName("PRECOMPUTEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
@@ -1568,7 +1568,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm for SNOMEDCT_US-SRC");
     algoConfig.setEnabled(true);
     algoConfig.setName("PRECOMPUTEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
@@ -1628,7 +1628,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm for SNOMEDCT_US-SCUI");
     algoConfig.setEnabled(true);
     algoConfig.setName("PRECOMPUTEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
