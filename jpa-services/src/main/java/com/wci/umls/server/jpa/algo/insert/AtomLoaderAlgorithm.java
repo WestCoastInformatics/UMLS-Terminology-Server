@@ -301,6 +301,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+      handler.commit();
 
       logInfo("[AtomLoader] Added " + addCount + " new Atoms.");
       logInfo("[AtomLoader] Updated " + updateCount + " existing Atoms.");

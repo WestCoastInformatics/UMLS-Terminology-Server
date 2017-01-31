@@ -4,11 +4,12 @@
 package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.Identity;
 
 /**
  * The Interface LexicalClassIdentity.
  */
-public interface LexicalClassIdentity extends HasId {
+public interface LexicalClassIdentity extends HasId, Identity {
 
   /**
    * Returns the normalized name.

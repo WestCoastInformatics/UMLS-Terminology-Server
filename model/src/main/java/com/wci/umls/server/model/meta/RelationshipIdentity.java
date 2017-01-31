@@ -4,11 +4,12 @@
 package com.wci.umls.server.model.meta;
 
 import com.wci.umls.server.helpers.HasId;
+import com.wci.umls.server.helpers.Identity;
 
 /**
  * Represents attribute identity for Metathesaurus editing.
  */
-public interface RelationshipIdentity extends HasId {
+public interface RelationshipIdentity extends HasId, Identity {
 
   /**
    * Returns the terminology.
