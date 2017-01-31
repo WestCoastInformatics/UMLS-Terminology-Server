@@ -20,7 +20,7 @@
               <td class="col-md-5 col-xs-5">{{selected.component.name}}</td>
               <td class="col-md-5 col-xs-5">
                 <span ng-repeat='sty in selected.component.semanticTypes'>
-                  {{sty.semanticType}}</br>
+                  {{sty.semanticType}}<br />
                 </span>
               </td>
             </tr>
@@ -42,7 +42,7 @@
               <td class="col-md-5 col-xs-5">{{concept.name}}</td>
               <td class="col-md-5 col-xs-5">
                 <span ng-repeat='sty in concept.semanticTypes'>
-                  {{sty.semanticType}}</br>
+                  {{sty.semanticType}}<br />
                 </span>
               </td>
             </tr>
@@ -82,7 +82,7 @@
 
 <div class="modal-footer">
   <span style="float: left;">
-    <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
+    <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
   </span>
   <button ng-disabled="!toConcept" class="btn btn-primary"
     ng-click="addRelationship();" title="Add relationship">Add</button>

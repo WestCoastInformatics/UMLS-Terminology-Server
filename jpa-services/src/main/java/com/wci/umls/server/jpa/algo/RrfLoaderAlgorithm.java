@@ -17,10 +17,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.Query;
+
 import org.apache.log4j.Logger;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.AlgorithmParameter;
@@ -2635,287 +2634,291 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     int objectCt = 0;
     final PushBackReader reader = readers.getReader(RrfReaders.Keys.MRREL);
     final String fields[] = new String[16];
-    try{
-    while ((line = reader.readLine()) != null) {
-      FieldedStringTokenizer.split(line, "|", 16, fields);
+    try {
+      while ((line = reader.readLine()) != null) {
+        FieldedStringTokenizer.split(line, "|", 16, fields);
 
-      // Skip non-matching in single mode
-      if (style == Style.SINGLE && !fields[10].equals(getTerminology())
-          && !fields[10].equals("SAB")) {
-        continue;
-      }
-      // Skip SRC content for "multi" load
-      if (style == Style.MULTI && fields[10].equals("SRC")) {
-        continue;
-      }
-      // Field description
-      // 0 CUI1
-      // 1 AUI1
-      // 2 STYPE1
-      // 3 REL
-      // 4 CUI2
-      // 5 AUI2
-      // 6 STYPE2
-      // 7 RELA
-      // 8 RUI
-      // 9 SRUI
-      // 10 SAB
-      // 11 SL
-      // 12 RG
-      // 13 DIR
-      // 14 SUPPRESS
-      // 15 CVF
-      //
-      // e.g. C0002372|A0021548|AUI|SY|C0002372|A16796726|AUI||R112184262||
-      // RXNORM|RXNORM|||N|| C0002372|A0022283|AUI|RO|C2241537|A14211642|AUI
-      // |has_ingredient|R91984327||MMSL|MMSL|||N||
-
-      // No need to update things rels are connected to because setting "from"
-      // handles this in the DB. This also means, all we really need is an empty
-      // container for the object with the id set.
-
-      // Skip SIB rels
-      if (fields[3].equals("SIB")) {
-        continue;
-      }
-
-      else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
-        final AtomRelationship aRel = new AtomRelationshipJpa();
-
-        final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
-        // These are likely relationships to SRC thing, skip
-        if (fromAtom == null && style == Style.MULTI
-            && fields[3].equals("PAR")) {
+        // Skip non-matching in single mode
+        if (style == Style.SINGLE && !fields[10].equals(getTerminology())
+            && !fields[10].equals("SAB")) {
           continue;
         }
-        aRel.setFrom(fromAtom);
-
-        final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
-        // These are likely relationships to SRC thing, skip
-        if (toAtom == null && style == Style.MULTI && fields[3].equals("CHD")) {
+        // Skip SRC content for "multi" load
+        if (style == Style.MULTI && fields[10].equals("SRC")) {
           continue;
         }
-        aRel.setTo(toAtom);
+        // Field description
+        // 0 CUI1
+        // 1 AUI1
+        // 2 STYPE1
+        // 3 REL
+        // 4 CUI2
+        // 5 AUI2
+        // 6 STYPE2
+        // 7 RELA
+        // 8 RUI
+        // 9 SRUI
+        // 10 SAB
+        // 11 SL
+        // 12 RG
+        // 13 DIR
+        // 14 SUPPRESS
+        // 15 CVF
+        //
+        // e.g. C0002372|A0021548|AUI|SY|C0002372|A16796726|AUI||R112184262||
+        // RXNORM|RXNORM|||N|| C0002372|A0022283|AUI|RO|C2241537|A14211642|AUI
+        // |has_ingredient|R91984327||MMSL|MMSL|||N||
 
-        setRelationshipFields(fields, aRel);
-        addRelationship(aRel);
-        relationshipMap.put(fields[8], aRel.getId());
+        // No need to update things rels are connected to because setting "from"
+        // handles this in the DB. This also means, all we really need is an
+        // empty
+        // container for the object with the id set.
 
-      }
-      // Only handle CUI rels in META mode
-      else if (style.toString().startsWith("META") && fields[2].equals("CUI")
-          && fields[6].equals("CUI")) {
-        final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
-
-        if (fields[4].isEmpty() || fields[0].isEmpty()) {
-          final Concept fromConcept =
-              getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[5])
-                  + atomConceptIdMap.get(fields[5])));
-          conceptRel.setFrom(fromConcept);
-
-          final Concept toConcept =
-              getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[1])
-                  + atomConceptIdMap.get(fields[1])));
-          conceptRel.setTo(toConcept);
-
-        } else {
-          final Concept fromConcept =
-              getConcept(conceptIdMap.get(getTerminology() + fields[4]));
-          conceptRel.setFrom(fromConcept);
-
-          final Concept toConcept =
-              getConcept(conceptIdMap.get(getTerminology() + fields[0]));
-          conceptRel.setTo(toConcept);
-        }
-        // RUI is the terminologyId for concept relationships, not the alt
-        // terminology id
-        conceptRel.setTerminologyId(fields[8]);
-        setRelationshipFields(fields, conceptRel);
-        conceptRel.setTerminology(getTerminology());
-        conceptRel.setVersion(getVersion());
-        addRelationship(conceptRel);
-        relationshipMap.put(fields[8], conceptRel.getId());
-
-      } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
-        final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
-
-        final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
-            + atomConceptIdMap.get(fields[5]));
-        final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
-            + atomConceptIdMap.get(fields[1]));
-
-        if (fromId == null || toId == null) {
-          // Referential integrity error, we know this happens in RXNORM
-          // because RXAUI 5430346 has a relationship with SCUI type
-          // but the SCUI of this atom is null;
-          logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[1]
-              + ", " + fields[5]);
-        } else {
-          conceptRel.setFrom(getConcept(fromId));
-          conceptRel.setTo(getConcept(toId));
-
-          setRelationshipFields(fields, conceptRel);
-          addRelationship(conceptRel);
-          relationshipMap.put(fields[8], conceptRel.getId());
-        }
-      } else if (fields[2].equals("SDUI") && fields[6].equals("SDUI")) {
-        final DescriptorRelationship descriptorRel =
-            new DescriptorRelationshipJpa();
-
-        final Long fromId =
-            descriptorIdMap.get(atomTerminologyMap.get(fields[5])
-                + atomDescriptorIdMap.get(fields[5]));
-        final Long toId = descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-            + atomDescriptorIdMap.get(fields[1]));
-
-        if (fromId == null || toId == null) {
-          // Referential integrity error
-          logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[1]
-              + ", " + fields[5]);
-        } else {
-          descriptorRel.setFrom(getDescriptor(fromId));
-          descriptorRel.setTo(getDescriptor(toId));
-
-          setRelationshipFields(fields, descriptorRel);
-          addRelationship(descriptorRel);
-          relationshipMap.put(fields[8], descriptorRel.getId());
-        }
-
-      } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
-        final CodeRelationship codeRel = new CodeRelationshipJpa();
-
-        final Long fromId = codeIdMap.get(
-            atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
-        final Long toId = codeIdMap.get(
-            atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
-        if (fromId == null || toId == null) {
-          // Referential integrity error
-          logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[5]
-              + ", " + fields[1]);
-        } else {
-
-          codeRel.setFrom(getCode(fromId));
-          codeRel.setTo(getCode(toId));
-
-          setRelationshipFields(fields, codeRel);
-          addRelationship(codeRel);
-          relationshipMap.put(fields[8], codeRel.getId());
-        }
-      }
-      // Handle different STYPE1/STYPE2
-      else {
-        String stype1 = fields[2];
-        String stype2 = fields[6];
-
-        // Skip if SINGLE
-        if (style == Style.SINGLE) {
+        // Skip SIB rels
+        if (fields[3].equals("SIB")) {
           continue;
         }
 
-        // Skip if CUI and not in meta mode
-        if (!style.toString().startsWith("META")
-            && (stype1.equals("CUI") || stype2.equals("CUI"))) {
-          continue;
-        }
+        else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
+          final AtomRelationship aRel = new AtomRelationshipJpa();
 
-        final ComponentInfoRelationship componentInfoRel =
-            new ComponentInfoRelationshipJpa();
-
-        ComponentInfo from = null;
-        if (stype2.equals("CODE")) {
-          final Long fromId = codeIdMap.get(
-              atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
-          final Code code = getCode(fromId);
-          from = new ComponentInfoJpa(code);
-
-        } else if (stype2.equals("SCUI")) {
-          final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
-              + atomConceptIdMap.get(fields[5]));
-          final Concept concept = getConcept(fromId);
-          from = new ComponentInfoJpa(concept);
-
-        } else if (stype2.equals("CUI")) {
-          final Long fromId = conceptIdMap.get(getTerminology() + fields[4]);
-          final Concept concept = getConcept(fromId);
-          from = new ComponentInfoJpa(concept);
-
-        } else if (stype2.equals("SDUI")) {
-          final Long fromId =
-              descriptorIdMap.get(atomTerminologyMap.get(fields[5])
-                  + atomDescriptorIdMap.get(fields[5]));
-          final Descriptor descriptor = getDescriptor(fromId);
-          from = new ComponentInfoJpa(descriptor);
-
-        } else if (stype2.equals("AUI")) {
           final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
           // These are likely relationships to SRC thing, skip
           if (fromAtom == null && style == Style.MULTI
               && fields[3].equals("PAR")) {
             continue;
           }
-          from = new ComponentInfoJpa();
-          from.setTerminologyId(fields[5]);
-          from.setType(IdType.ATOM);
-        }
+          aRel.setFrom(fromAtom);
 
-        ComponentInfo to = null;
-        if (stype1.equals("CODE")) {
-          final Long toId = codeIdMap.get(
-              atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
-          final Code code = getCode(toId);
-          to = new ComponentInfoJpa(code);
-
-        } else if (stype1.equals("CUI")) {
-          final Long toId = conceptIdMap.get(getTerminology() + fields[0]);
-          final Concept concept = getConcept(toId);
-          to = new ComponentInfoJpa(concept);
-
-        } else if (stype1.equals("SCUI")) {
-          final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
-              + atomConceptIdMap.get(fields[1]));
-          final Concept concept = getConcept(toId);
-          to = new ComponentInfoJpa(concept);
-
-        } else if (stype1.equals("SDUI")) {
-          final Long toId =
-              descriptorIdMap.get(atomTerminologyMap.get(fields[1])
-                  + atomDescriptorIdMap.get(fields[1]));
-          final Descriptor descriptor = getDescriptor(toId);
-          to = new ComponentInfoJpa(descriptor);
-
-        } else if (stype1.equals("AUI")) {
           final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
           // These are likely relationships to SRC thing, skip
           if (toAtom == null && style == Style.MULTI
               && fields[3].equals("CHD")) {
             continue;
           }
-          to = new ComponentInfoJpa();
-          to.setTerminologyId(fields[1]);
-          to.setType(IdType.ATOM);
+          aRel.setTo(toAtom);
+
+          setRelationshipFields(fields, aRel);
+          addRelationship(aRel);
+          relationshipMap.put(fields[8], aRel.getId());
 
         }
-        if (from == null || to == null) {
-          // Referential integrity error
-          logError("line = " + line);
-          logError("Referential integrity issue with field 2 or 6: " + fields[1]
-              + ", " + fields[5]);
-        } else {
-          componentInfoRel.setFrom(from);
-          componentInfoRel.setTo(to);
-          setRelationshipFields(fields, componentInfoRel);
-          addRelationship(componentInfoRel);
-          relationshipMap.put(fields[8], componentInfoRel.getId());
+        // Only handle CUI rels in META mode
+        else if (style.toString().startsWith("META") && fields[2].equals("CUI")
+            && fields[6].equals("CUI")) {
+          final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
+
+          if (fields[4].isEmpty() || fields[0].isEmpty()) {
+            final Concept fromConcept =
+                getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[5])
+                    + atomConceptIdMap.get(fields[5])));
+            conceptRel.setFrom(fromConcept);
+
+            final Concept toConcept =
+                getConcept(conceptIdMap.get(atomTerminologyMap.get(fields[1])
+                    + atomConceptIdMap.get(fields[1])));
+            conceptRel.setTo(toConcept);
+
+          } else {
+            final Concept fromConcept =
+                getConcept(conceptIdMap.get(getTerminology() + fields[4]));
+            conceptRel.setFrom(fromConcept);
+
+            final Concept toConcept =
+                getConcept(conceptIdMap.get(getTerminology() + fields[0]));
+            conceptRel.setTo(toConcept);
+          }
+          // RUI is the terminologyId for concept relationships, not the alt
+          // terminology id
+          conceptRel.setTerminologyId(fields[8]);
+          setRelationshipFields(fields, conceptRel);
+          conceptRel.setTerminology(getTerminology());
+          conceptRel.setVersion(getVersion());
+          addRelationship(conceptRel);
+          relationshipMap.put(fields[8], conceptRel.getId());
+
+        } else if (fields[2].equals("SCUI") && fields[6].equals("SCUI")) {
+          final ConceptRelationship conceptRel = new ConceptRelationshipJpa();
+
+          final Long fromId = conceptIdMap.get(atomTerminologyMap.get(fields[5])
+              + atomConceptIdMap.get(fields[5]));
+          final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
+              + atomConceptIdMap.get(fields[1]));
+
+          if (fromId == null || toId == null) {
+            // Referential integrity error, we know this happens in RXNORM
+            // because RXAUI 5430346 has a relationship with SCUI type
+            // but the SCUI of this atom is null;
+            logError("line = " + line);
+            logError("Referential integrity issue with field 2 or 6: "
+                + fields[1] + ", " + fields[5]);
+          } else {
+            conceptRel.setFrom(getConcept(fromId));
+            conceptRel.setTo(getConcept(toId));
+
+            setRelationshipFields(fields, conceptRel);
+            addRelationship(conceptRel);
+            relationshipMap.put(fields[8], conceptRel.getId());
+          }
+        } else if (fields[2].equals("SDUI") && fields[6].equals("SDUI")) {
+          final DescriptorRelationship descriptorRel =
+              new DescriptorRelationshipJpa();
+
+          final Long fromId =
+              descriptorIdMap.get(atomTerminologyMap.get(fields[5])
+                  + atomDescriptorIdMap.get(fields[5]));
+          final Long toId =
+              descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+                  + atomDescriptorIdMap.get(fields[1]));
+
+          if (fromId == null || toId == null) {
+            // Referential integrity error
+            logError("line = " + line);
+            logError("Referential integrity issue with field 2 or 6: "
+                + fields[1] + ", " + fields[5]);
+          } else {
+            descriptorRel.setFrom(getDescriptor(fromId));
+            descriptorRel.setTo(getDescriptor(toId));
+
+            setRelationshipFields(fields, descriptorRel);
+            addRelationship(descriptorRel);
+            relationshipMap.put(fields[8], descriptorRel.getId());
+          }
+
+        } else if (fields[2].equals("CODE") && fields[6].equals("CODE")) {
+          final CodeRelationship codeRel = new CodeRelationshipJpa();
+
+          final Long fromId = codeIdMap.get(
+              atomTerminologyMap.get(fields[5]) + atomCodeIdMap.get(fields[5]));
+          final Long toId = codeIdMap.get(
+              atomTerminologyMap.get(fields[1]) + atomCodeIdMap.get(fields[1]));
+          if (fromId == null || toId == null) {
+            // Referential integrity error
+            logError("line = " + line);
+            logError("Referential integrity issue with field 2 or 6: "
+                + fields[5] + ", " + fields[1]);
+          } else {
+
+            codeRel.setFrom(getCode(fromId));
+            codeRel.setTo(getCode(toId));
+
+            setRelationshipFields(fields, codeRel);
+            addRelationship(codeRel);
+            relationshipMap.put(fields[8], codeRel.getId());
+          }
+        }
+        // Handle different STYPE1/STYPE2
+        else {
+          String stype1 = fields[2];
+          String stype2 = fields[6];
+
+          // Skip if SINGLE
+          if (style == Style.SINGLE) {
+            continue;
+          }
+
+          // Skip if CUI and not in meta mode
+          if (!style.toString().startsWith("META")
+              && (stype1.equals("CUI") || stype2.equals("CUI"))) {
+            continue;
+          }
+
+          final ComponentInfoRelationship componentInfoRel =
+              new ComponentInfoRelationshipJpa();
+
+          ComponentInfo from = null;
+          if (stype2.equals("CODE")) {
+            final Long fromId = codeIdMap.get(atomTerminologyMap.get(fields[5])
+                + atomCodeIdMap.get(fields[5]));
+            final Code code = getCode(fromId);
+            from = new ComponentInfoJpa(code);
+
+          } else if (stype2.equals("SCUI")) {
+            final Long fromId =
+                conceptIdMap.get(atomTerminologyMap.get(fields[5])
+                    + atomConceptIdMap.get(fields[5]));
+            final Concept concept = getConcept(fromId);
+            from = new ComponentInfoJpa(concept);
+
+          } else if (stype2.equals("CUI")) {
+            final Long fromId = conceptIdMap.get(getTerminology() + fields[4]);
+            final Concept concept = getConcept(fromId);
+            from = new ComponentInfoJpa(concept);
+
+          } else if (stype2.equals("SDUI")) {
+            final Long fromId =
+                descriptorIdMap.get(atomTerminologyMap.get(fields[5])
+                    + atomDescriptorIdMap.get(fields[5]));
+            final Descriptor descriptor = getDescriptor(fromId);
+            from = new ComponentInfoJpa(descriptor);
+
+          } else if (stype2.equals("AUI")) {
+            final Atom fromAtom = getAtom(atomIdMap.get(fields[5]));
+            // These are likely relationships to SRC thing, skip
+            if (fromAtom == null && style == Style.MULTI
+                && fields[3].equals("PAR")) {
+              continue;
+            }
+            from = new ComponentInfoJpa();
+            from.setTerminologyId(fields[5]);
+            from.setType(IdType.ATOM);
+          }
+
+          ComponentInfo to = null;
+          if (stype1.equals("CODE")) {
+            final Long toId = codeIdMap.get(atomTerminologyMap.get(fields[1])
+                + atomCodeIdMap.get(fields[1]));
+            final Code code = getCode(toId);
+            to = new ComponentInfoJpa(code);
+
+          } else if (stype1.equals("CUI")) {
+            final Long toId = conceptIdMap.get(getTerminology() + fields[0]);
+            final Concept concept = getConcept(toId);
+            to = new ComponentInfoJpa(concept);
+
+          } else if (stype1.equals("SCUI")) {
+            final Long toId = conceptIdMap.get(atomTerminologyMap.get(fields[1])
+                + atomConceptIdMap.get(fields[1]));
+            final Concept concept = getConcept(toId);
+            to = new ComponentInfoJpa(concept);
+
+          } else if (stype1.equals("SDUI")) {
+            final Long toId =
+                descriptorIdMap.get(atomTerminologyMap.get(fields[1])
+                    + atomDescriptorIdMap.get(fields[1]));
+            final Descriptor descriptor = getDescriptor(toId);
+            to = new ComponentInfoJpa(descriptor);
+
+          } else if (stype1.equals("AUI")) {
+            final Atom toAtom = getAtom(atomIdMap.get(fields[1]));
+            // These are likely relationships to SRC thing, skip
+            if (toAtom == null && style == Style.MULTI
+                && fields[3].equals("CHD")) {
+              continue;
+            }
+            to = new ComponentInfoJpa();
+            to.setTerminologyId(fields[1]);
+            to.setType(IdType.ATOM);
+
+          }
+          if (from == null || to == null) {
+            // Referential integrity error
+            logError("line = " + line);
+            logError("Referential integrity issue with field 2 or 6: "
+                + fields[1] + ", " + fields[5]);
+          } else {
+            componentInfoRel.setFrom(from);
+            componentInfoRel.setTo(to);
+            setRelationshipFields(fields, componentInfoRel);
+            addRelationship(componentInfoRel);
+            relationshipMap.put(fields[8], componentInfoRel.getId());
+          }
+
         }
 
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
       }
-
-      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-    }
-    } catch(Exception e){
+    } catch (Exception e) {
       logError("exception thrown on line: " + line);
       throw e;
     }
@@ -3061,6 +3064,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void loadMrconso() throws Exception {
     logInfo("  Load MRCONSO");
     logInfo("  Insert atoms and concepts ");
@@ -3309,21 +3313,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     logInfo("  Add concepts");
     objectCt = 0;
-    // NOTE: Hibernate-specific to support iterating
-    // Restrict to timestamp used for THESE atoms, in case multiple RRF
-    // files are loaded
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+    Query query = getEntityManager()
+        .createQuery("select a.id from AtomJpa a where conceptId is not null "
             + "and conceptId != '' and timestamp = :timestamp "
             + "order by terminology, conceptId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    List<Long> ids = query.getResultList();
     prevCui = null;
     cui = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
@@ -3358,22 +3357,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           cui.getId());
       commitClearBegin();
     }
-    results.close();
     logInfo("  Add descriptors");
     objectCt = 0;
 
-    // NOTE: Hibernate-specific to support iterating
-    hQuery = session.createQuery(
-        "select a from AtomJpa a " + "where descriptorId is not null "
+    query = getEntityManager().createQuery(
+        "select a.id from AtomJpa a where descriptorId is not null "
             + "and descriptorId != '' and timestamp = :timestamp "
             + "order by terminology, descriptorId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    ids = query.getResultList();
     String prevDui = null;
     Descriptor dui = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getDescriptorId() == null || atom.getDescriptorId().isEmpty()) {
         continue;
       }
@@ -3408,25 +3404,21 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           dui.getId());
       commitClearBegin();
     }
-    results.close();
 
     // Use flag to decide whether to handle codes
     logInfo("  Add codes");
     objectCt = 0;
-    // NOTE: Hibernate-specific to support iterating
-    // Skip NOCODE
-    hQuery = session
-        .createQuery("select a from AtomJpa a " + "where codeId is not null "
+    query = getEntityManager()
+        .createQuery("select a.id from AtomJpa a where codeId is not null "
             + "and codeId != '' and timestamp = :timestamp "
             + "order by terminology, codeId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    ids = query.getResultList();
     String prevCode = null;
     Code code = null;
     int atomCt = 0;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
         continue;
       }
@@ -3482,7 +3474,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.getId());
       commitClearBegin();
     }
-    results.close();
 
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects
@@ -3737,7 +3728,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception{
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RRF directory to load", "", 255,

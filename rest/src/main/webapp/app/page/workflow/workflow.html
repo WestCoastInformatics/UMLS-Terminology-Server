@@ -66,11 +66,11 @@
         <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
           <i ng-click="openEditConfigModal(selected.config)"
             ng-show="selected.config" title="Edit workflow configuration"
-            class="ml20 noul glyphicon glyphicon-pencil"></i> <i
-            ng-show="selected.config" ng-click="exportWorkflow()"
+            class="ml20 noul glyphicon glyphicon-pencil"></i>
+          <i ng-show="selected.config" ng-click="exportWorkflow()"
             title="Export workflow"
-            class="ml20 noul glyphicon glyphicon-download"></i> <i
-            ng-show="selected.config" ng-click="openImportWorkflowModal()"
+            class="ml20 noul glyphicon glyphicon-download"></i>
+          <i ng-show="selected.config" ng-click="openImportWorkflowModal()"
             title="Import workflow" class="ml20 noul glyphicon glyphicon-upload"></i>
           <i
             confirm="Are you sure you want to remove the 
@@ -112,7 +112,7 @@
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>
-                &nbsp;{{bin.name}}</br>
+                &nbsp;{{bin.name}}<br />
                 <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
@@ -120,8 +120,8 @@
                     title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
                   <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
                     title="Regenerate Bin"
-                    class="noul glyphicon glyphicon-repeat"></i> <i
-                    ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
+                    class="noul glyphicon glyphicon-repeat"></i>
+                  <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
                     title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
                   <i
                     confirm="Are you sure you want to remove the bin definition?"
@@ -152,11 +152,13 @@
                   ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
                   ng-click="setConfig(selected.config); $event.stopPropagation()"
                   title="Refresh counts"
-                  class="noul glyphicon glyphicon-refresh"></i> <i
+                  class="noul glyphicon glyphicon-refresh"></i>
+                <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
-                &nbsp; <i
+                &nbsp;
+                <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && 
                   selected.project.editingEnabled && hasPermissions('CreateWorklist')"
                   ng-click="openAddWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"

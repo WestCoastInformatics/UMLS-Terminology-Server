@@ -1,11 +1,12 @@
 <span ng-show="!selected.project" style="display: block;"
   class="alert alert-warning">No project selected.</span>
 
-<span ng-show="selected.project">
+<div ng-show="selected.project">
   <!-- Title -->
   <h5>
     {{selected.component.terminologyId}} {{selected.component.name}}
-    <span ng-show="pagedActions.totalCount>0"> ({{molecularActions.totalCount}})</span>
+    <span ng-show="pagedActions.totalCount>0">
+      ({{molecularActions.totalCount}})</span>
     <span class="label label-warning"
       ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
       uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
@@ -47,12 +48,16 @@
         <td>{{toDate(action.timestamp)}}</td>
         <td>{{action.lastModifiedBy}}</td>
         <td class="nobreak" ng-mouseenter="displayLog(action);">
-          <span ng-show="selected.project.editingEnabled && hasPermissions('UndoRedo') && selfResolved(action)"><i title="Undo action" ng-show="isUndoable(action)"
-            ng-click="undoAction(action, false); $event.stopPropagation()"
-            class="noul glyphicon glyphicon-menu-left"></i>
-          <i title="Redo action" ng-show="isRedoable(action) && hasPermissions('UndoRedo') && selfResolved(action)"
-            ng-click="redoAction(action, false); $event.stopPropagation()"
-            class="noul glyphicon glyphicon-menu-right"></i></span>
+          <span
+            ng-show="selected.project.editingEnabled && hasPermissions('UndoRedo') && selfResolved(action)">
+            <i title="Undo action" ng-show="isUndoable(action)"
+              ng-click="undoAction(action, false); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-menu-left"></i>
+            <i title="Redo action"
+              ng-show="isRedoable(action) && hasPermissions('UndoRedo') && selfResolved(action)"
+              ng-click="redoAction(action, false); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-menu-right"></i>
+          </span>
           <i uib-popover-html="action.log" popover-trigger="outsideClick"
             popover-placement="left" class="noul glyphicon glyphicon-file"></i>
         </td>
@@ -64,4 +69,4 @@
   <span ng-show="paging.filter && pagedActions.totalCount == 0"
     class="alert alert-warning"> No matching actions records found </span>
 
-</span>
+</div>
