@@ -54,8 +54,11 @@ tsApp.directive('finder', [ function() {
             contentService.getConcept(componentId, $scope.selected.project.id).then(
             // Success
             function(data) {
-              $scope.callbacks.addComponent(data);
-              $scope.lookupText = '';
+              // Only display if this is a project-terminology concept 
+              if (data.terminology == $scope.selected.project.terminology) {
+                $scope.callbacks.addComponent(data);
+                $scope.lookupText = '';
+              }
             });
           }
         }
