@@ -42,6 +42,7 @@ import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.algo.maint.ReloadConfigPropertiesAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
@@ -117,17 +118,18 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
               "A project with this name and description already exists");
         }
       }
-      
+
       // Create and add precedence list
       if (project.getTerminology() == null || project.getVersion() == null) {
-        throw new LocalException("Project terminology and version must not be null.");
+        throw new LocalException(
+            "Project terminology and version must not be null.");
       }
-      final PrecedenceList precList = metadataService.getPrecedenceList(project.getTerminology(), project.getVersion());
+      final PrecedenceList precList = new PrecedenceListJpa(metadataService
+          .getPrecedenceList(project.getTerminology(), project.getVersion()));
       precList.setId(null);
       metadataService.addPrecedenceList(precList);
       project.setPrecedenceList(precList);
-      
-      
+
       // Add project
       final Project newProject = metadataService.addProject(project);
       metadataService.addLogEntry(userName, project.getId(), project.getId(),
@@ -168,7 +170,8 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       }
 
       // compare old and new typeKeyValue lists
-      final List<TypeKeyValue> oldValidationData = origProject.getValidationData();
+      final List<TypeKeyValue> oldValidationData =
+          origProject.getValidationData();
       final List<TypeKeyValue> newValidationData = project.getValidationData();
 
       // Find validation data to remove
@@ -176,24 +179,27 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       for (final TypeKeyValue tkv : oldValidationData) {
         boolean found = false;
         for (final TypeKeyValue tkv2 : newValidationData) {
-             if (tkv2.getId() != null && tkv.equals(tkv2)) { found = true; break; }
+          if (tkv2.getId() != null && tkv.equals(tkv2)) {
+            found = true;
+            break;
+          }
         }
-        if (!found) { 
-           validationDataToRemove.add(tkv); 
+        if (!found) {
+          validationDataToRemove.add(tkv);
         }
       }
 
-      // Add new validation data 
+      // Add new validation data
       for (final TypeKeyValue tkv : newValidationData) {
-         if (tkv.getId() == null) {
-           projectService.addTypeKeyValue(tkv);
-           // VERIFY THAT tkv.getId() is not null at this point
-           if (tkv.getId() == null) {
-             throw new Exception("tkv.getId() should not be null " + tkv);
-           }
-         }
+        if (tkv.getId() == null) {
+          projectService.addTypeKeyValue(tkv);
+          // VERIFY THAT tkv.getId() is not null at this point
+          if (tkv.getId() == null) {
+            throw new Exception("tkv.getId() should not be null " + tkv);
+          }
+        }
       }
-      
+
       // Update project
       project.setUserRoleMap(origProject.getUserRoleMap());
       project.setPrecedenceList(origProject.getPrecedenceList());
@@ -201,7 +207,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
 
       // Remove old validation data
       for (final TypeKeyValue tkv : validationDataToRemove) {
-         projectService.removeTypeKeyValue(tkv.getId());
+        projectService.removeTypeKeyValue(tkv.getId());
       }
 
       projectService.addLogEntry(userName, project.getId(), project.getId(),

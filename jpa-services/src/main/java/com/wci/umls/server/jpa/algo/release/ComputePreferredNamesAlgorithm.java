@@ -17,6 +17,7 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
@@ -95,6 +96,14 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
       // if something changed, update the concept
       if (isChanged(concept, handler)) {
         updateConcept(concept);
+        // Reindex the concept relationships because the name changed
+        for (final ConceptRelationship rel : concept.getRelationships()) {
+          updateRelationship(rel);
+        }
+        for (final ConceptRelationship rel : concept
+            .getInverseRelationships()) {
+          updateRelationship(rel);
+        }
         updatedCt++;
       }
 
