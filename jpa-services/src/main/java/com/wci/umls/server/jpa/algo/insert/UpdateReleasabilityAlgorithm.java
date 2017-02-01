@@ -132,8 +132,7 @@ public class UpdateReleasabilityAlgorithm
 
       // Find all of the old version component ids
       for (Class clazz : classList) {
-        String query = "SELECT DISTINCT c.id " + "FROM " + clazz.getSimpleName()
-            + " c "
+        String query = "SELECT c.id " + "FROM " + clazz.getSimpleName() + " c "
             + "WHERE (c.terminology=:terminology AND NOT c.version=:version)";
 
         // Make sure all of the terminologies in sources.src are included in the
@@ -237,7 +236,7 @@ public class UpdateReleasabilityAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
