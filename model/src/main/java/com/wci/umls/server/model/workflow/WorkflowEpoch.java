@@ -3,8 +3,6 @@
  */
 package com.wci.umls.server.model.workflow;
 
-import java.util.List;
-
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasProject;
 

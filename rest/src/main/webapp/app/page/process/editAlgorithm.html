@@ -80,6 +80,7 @@
               <span class="btn btn-xs btn-primary"
                 ng-click="parameter.values = []" title="All">None</span>
             </span>
+          </span>
         </td>
         <td ng-show="parameter.type == 'INTEGER'">
           <input type="number" string-to-number class="w100"
@@ -111,10 +112,11 @@
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal-footer">
-    <button class="btn btn-success" ng-click="validate(algorithm)">Validate</button>
-    <button ng-disabled="!validated" ng-click="submitAlgorithm(algorithm)"
-      class="btn btn-primary" ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-  </div>
+<div class="modal-footer">
+  <button class="btn btn-success" ng-click="validate(algorithm)">Validate</button>
+  <button ng-disabled="!validated" ng-click="submitAlgorithm(algorithm)"
+    class="btn btn-primary" ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

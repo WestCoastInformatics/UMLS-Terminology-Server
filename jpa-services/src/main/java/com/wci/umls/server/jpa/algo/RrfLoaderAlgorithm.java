@@ -17,10 +17,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.persistence.Query;
+
 import org.apache.log4j.Logger;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.AlgorithmParameter;
@@ -3068,6 +3067,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void loadMrconso() throws Exception {
     logInfo("  Load MRCONSO");
     logInfo("  Insert atoms and concepts ");
@@ -3316,21 +3316,16 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     logInfo("  Add concepts");
     objectCt = 0;
-    // NOTE: Hibernate-specific to support iterating
-    // Restrict to timestamp used for THESE atoms, in case multiple RRF
-    // files are loaded
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+    Query query = getEntityManager()
+        .createQuery("select a.id from AtomJpa a where conceptId is not null "
             + "and conceptId != '' and timestamp = :timestamp "
             + "order by terminology, conceptId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    List<Long> ids = query.getResultList();
     prevCui = null;
     cui = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
@@ -3365,22 +3360,19 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           cui.getId());
       commitClearBegin();
     }
-    results.close();
     logInfo("  Add descriptors");
     objectCt = 0;
 
-    // NOTE: Hibernate-specific to support iterating
-    hQuery = session.createQuery(
-        "select a from AtomJpa a " + "where descriptorId is not null "
+    query = getEntityManager().createQuery(
+        "select a.id from AtomJpa a where descriptorId is not null "
             + "and descriptorId != '' and timestamp = :timestamp "
             + "order by terminology, descriptorId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    ids = query.getResultList();
     String prevDui = null;
     Descriptor dui = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getDescriptorId() == null || atom.getDescriptorId().isEmpty()) {
         continue;
       }
@@ -3415,25 +3407,21 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           dui.getId());
       commitClearBegin();
     }
-    results.close();
 
     // Use flag to decide whether to handle codes
     logInfo("  Add codes");
     objectCt = 0;
-    // NOTE: Hibernate-specific to support iterating
-    // Skip NOCODE
-    hQuery = session
-        .createQuery("select a from AtomJpa a " + "where codeId is not null "
+    query = getEntityManager()
+        .createQuery("select a.id from AtomJpa a where codeId is not null "
             + "and codeId != '' and timestamp = :timestamp "
             + "order by terminology, codeId");
-    hQuery.setParameter("timestamp", releaseVersionDate);
-    hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+    query.setParameter("timestamp", releaseVersionDate);
+    ids = query.getResultList();
     String prevCode = null;
     Code code = null;
     int atomCt = 0;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getCodeId() == null || atom.getCodeId().isEmpty()) {
         continue;
       }
@@ -3489,7 +3477,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           code.getId());
       commitClearBegin();
     }
-    results.close();
 
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects

@@ -80,9 +80,10 @@
               {{toDate(worklist.lastModified)}}
               <span
                 ng-show="hasPermissions('RemoveWorklist') && selected.worklistMode != 'Checklists'">
-                <br />{{getWorkflowState(worklist)}} 
+                <br />{{getWorkflowState(worklist)}}
+              </span>
             </td>
-            </span>
+
             <!--  actions -->
             <td class="nobreak">
               <span
@@ -126,7 +127,7 @@
         worklists found</span>
     </div>
     <div class="col-md-6 col-xs-12">
-      <span ng-show="selected.worklistMode != 'Available'">
+      <div ng-show="selected.worklistMode != 'Available'">
         <h5 ng-show="selected.worklist">
           {{value}} Clusters
           <span ng-show="lists.records.totalCount>0">
@@ -188,7 +189,7 @@
             ng-show="(paging['records'].filter || paging['records'].typeFilter) && lists.records.totalCount == 0"
             class="alert alert-warning"> No matching records found</span>
         </div>
-      </span>
+      </div>
     </div>
     </uib-accordion-group> <!-- A3 - Concepts --> <uib-accordion-group is-open="groups[1].open"
       ng-click="saveAccordionStatus()"> <uib-accordion-heading>
@@ -197,12 +198,12 @@
     </h5>
     </uib-accordion-heading> <!-- CONCEPTS LIST  -->
     <div class="col-md-6 col-xs-12">
-      <span>
+      <div>
         <h5 style="display: inline">Concept List</h5>
         <span style="float: right;">
-          <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
+          <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
         </span>
-      </span>
+      </div>
       <table class="slim table">
         <thead>
           <tr>
@@ -231,8 +232,8 @@
                 type="Concept"></span>
               <i title="Refresh concept"
                 ng-click="reloadConcept(concept); $event.stopPropagation()"
-                class="noul glyphicon glyphicon-repeat"></i> <i
-                title="Remove from list"
+                class="noul glyphicon glyphicon-repeat"></i>
+              <i title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
@@ -381,47 +382,9 @@
             <td>
               <b>Precedence List</b>
             </td>
-            <td>
-              <!-- NO pagign
-              <div pager paging="paging['precedenceList']"
-                count="pagedPrecedenceList.totalCount"
-                callbacks="paging['precedenceList'].callbacks"></div> -->
-              <div>
-                <span style="float: right;">
-                  <button ng-click="updatePrecedenceList()"
-                    title="Save precedence order" class="btn btn-xs btn-primary">Save</button>
-                </span>
-              </div>
-              <!--  precedence table -->
-              <div style="overflow-y: scroll; width: 100%; height: 400px">
-                <table class="yscroll slim table">
-                  <tr ng-repeat="entry in pagedPrecedenceList.data"
-                    ng-class="{selected : entriesTouched[entry.key+entry.value]}">
-                    <td>{{entry.key}}</td>
-                    <td>{{entry.value}}</td>
-                    <td>
-                      <span class="nobreak">
-                        <!-- Actions - move up-->
-                        <i ng-if="!isFirstIndex(entry)"
-                          ng-click="moveTermgroupUp(entry)"
-                          title="Move termgroup up"
-                          class="noul glyphicon glyphicon-arrow-up"></i>
-                        <!-- Actions - move down-->
-                        <i ng-if="!isLastIndex(entry)"
-                          ng-click="moveTermgroupDown(entry)"
-                          title="Move termgroup down"
-                          class="noul glyphicon glyphicon-arrow-down"></i>
-                      </span>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-              <div>
-                <span style="float: right;">
-                  <button ng-click="updatePrecedenceList()"
-                    title="Save precedence order" class="btn btn-xs btn-primary">Save</button>
-              </div>
-            </td>
+          </tr>
+          <tr>
+          <td colspan="2" edit-precedence selected="selected" lists="lists" callbacks="callbacks"></td>
           </tr>
         </table>
       </div>
@@ -506,3 +469,4 @@
     </div>
     </uib-accordion-group> </uib-accordion>
   </div>
+</div>

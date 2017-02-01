@@ -15,6 +15,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
+import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
@@ -767,5 +768,25 @@ public interface WorkflowServiceRest {
    */
   public void recomputeConceptStatus(Long projectId, String activityId,
     Boolean updaterFlag, String authToken) throws Exception;
+
+  /**
+   * Gets the current workflow epoch.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the current workflow epoch
+   * @throws Exception the exception
+   */
+  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the workflow epochs.
+   *
+   * @param authToken the auth token
+   * @return the workflow epochs
+   * @throws Exception the exception
+   */
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken) throws Exception;
 
 }
