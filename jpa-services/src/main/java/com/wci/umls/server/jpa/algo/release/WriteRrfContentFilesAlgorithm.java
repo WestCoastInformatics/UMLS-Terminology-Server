@@ -347,56 +347,42 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
-    // Determine terminologies that have concept relationship attributes
-    final javax.persistence.Query query =
+    // Determine terminologies that have relationship attributes
+    javax.persistence.Query query =
         manager.createQuery("select distinct r.terminology "
             + "from ConceptRelationshipJpa r join r.attributes a "
             + "where r.terminology != :terminology");
     query.setParameter("terminology", getProject().getTerminology());
-    final List<String> results = query.getResultList();
+    List<String> results = query.getResultList();
     for (final String result : results) {
       ruiAttributeTerminologies.add(result);
     }
 
-    // TBD
-    // session = manager.unwrap(Session.class);
-    // hQuery = session.createQuery(
-    // "select distinct r.terminology from CodeRelationshipJpa r join
-    // r.attributes a "
+    // TBD: because only concept relationships have RUI attributes so far
+    // query = manager.createQuery("select distinct r.terminology "
+    // + "from CodeRelationshipJpa r join r.attributes a "
     // + "where r.terminology != :terminology");
-    // hQuery.setParameter("terminology", getProject().getTerminology());
-    // hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    // results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    // while (results.next()) {
-    // final String result = results.get()[0].toString();
+    // query.setParameter("terminology", getProject().getTerminology());
+    // results = query.getResultList();
+    // for (final String result : results) {
     // ruiAttributeTerminologies.add(result);
     // }
-
-    // TBD
-    // session = manager.unwrap(Session.class);
-    // hQuery = session.createQuery(
-    // "select distinct r.terminology from DescriptorRelationshipJpa r join
-    // r.attributes a "
+    //
+    // query = manager.createQuery("select distinct r.terminology "
+    // + "from CodeRelationshipJpa r join r.attributes a "
     // + "where r.terminology != :terminology");
-    // hQuery.setParameter("terminology", getProject().getTerminology());
-    // hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    // results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    // while (results.next()) {
-    // final String result = results.get()[0].toString();
+    // query.setParameter("terminology", getProject().getTerminology());
+    // results = query.getResultList();
+    // for (final String result : results) {
     // ruiAttributeTerminologies.add(result);
     // }
-
-    // TBD
-    // session = manager.unwrap(Session.class);
-    // hQuery = session.createQuery(
-    // "select distinct r.terminology from AtomRelationshipJpa r join
-    // r.attributes a "
+    //
+    // query = manager.createQuery("select distinct r.terminology "
+    // + "from CodeRelationshipJpa r join r.attributes a "
     // + "where r.terminology != :terminology");
-    // hQuery.setParameter("terminology", getProject().getTerminology());
-    // hQuery.setReadOnly(true).setFetchSize(2000).setCacheable(false);
-    // results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    // while (results.next()) {
-    // final String result = results.get()[0].toString();
+    // query.setParameter("terminology", getProject().getTerminology());
+    // results = query.getResultList();
+    // for (final String result : results) {
     // ruiAttributeTerminologies.add(result);
     // }
 
@@ -473,8 +459,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     // sort the atoms
     final List<Atom> sortedAtoms = new ArrayList<>(c.getAtoms());
     Collections.sort(sortedAtoms,
-        new ReportsAtomComparator(c, getPrecedenceList(getProject().getTerminology(),
-            getProject().getVersion())));
+        new ReportsAtomComparator(c, getPrecedenceList(
+            getProject().getTerminology(), getProject().getVersion())));
 
     String prefLui = null;
     String prevLui = null;

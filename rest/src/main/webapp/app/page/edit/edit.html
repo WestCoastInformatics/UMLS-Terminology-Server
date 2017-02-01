@@ -80,9 +80,10 @@
               {{toDate(worklist.lastModified)}}
               <span
                 ng-show="hasPermissions('RemoveWorklist') && selected.worklistMode != 'Checklists'">
-                <br />{{getWorkflowState(worklist)}} 
+                <br />{{getWorkflowState(worklist)}}
+              </span>
             </td>
-            </span>
+
             <!--  actions -->
             <td class="nobreak">
               <span
@@ -126,7 +127,7 @@
         worklists found</span>
     </div>
     <div class="col-md-6 col-xs-12">
-      <span ng-show="selected.worklistMode != 'Available'">
+      <div ng-show="selected.worklistMode != 'Available'">
         <h5 ng-show="selected.worklist">
           {{value}} Clusters
           <span ng-show="lists.records.totalCount>0">
@@ -188,7 +189,7 @@
             ng-show="(paging['records'].filter || paging['records'].typeFilter) && lists.records.totalCount == 0"
             class="alert alert-warning"> No matching records found</span>
         </div>
-      </span>
+      </div>
     </div>
     </uib-accordion-group> <!-- A3 - Concepts --> <uib-accordion-group is-open="groups[1].open"
       ng-click="saveAccordionStatus()"> <uib-accordion-heading>
@@ -197,12 +198,12 @@
     </h5>
     </uib-accordion-heading> <!-- CONCEPTS LIST  -->
     <div class="col-md-6 col-xs-12">
-      <span>
+      <div>
         <h5 style="display: inline">Concept List</h5>
         <span style="float: right;">
-          <div finder selected="selected" lists="lists" callbacks="callbacks"></div>
+          <span finder selected="selected" lists="lists" callbacks="callbacks"></span>
         </span>
-      </span>
+      </div>
       <table class="slim table">
         <thead>
           <tr>
@@ -231,8 +232,8 @@
                 type="Concept"></span>
               <i title="Refresh concept"
                 ng-click="reloadConcept(concept); $event.stopPropagation()"
-                class="noul glyphicon glyphicon-repeat"></i> <i
-                title="Remove from list"
+                class="noul glyphicon glyphicon-repeat"></i>
+              <i title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
@@ -468,3 +469,4 @@
     </div>
     </uib-accordion-group> </uib-accordion>
   </div>
+</div>

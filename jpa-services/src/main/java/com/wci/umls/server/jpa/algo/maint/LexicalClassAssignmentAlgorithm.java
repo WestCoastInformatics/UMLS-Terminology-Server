@@ -10,9 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -42,7 +40,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   public LexicalClassAssignmentAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("LUI_REASSIGNMENT");
+    setWorkId("LEXICALCLASSASSIGNMENT");
     setLastModifiedBy("admin");
   }
 
@@ -61,11 +59,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting lexical class assignment");
-    logInfo("  project = " + getProject().getId());
-    logInfo("  workId = " + getWorkId());
-    logInfo("  activityId = " + getActivityId());
-    logInfo("  user  = " + getLastModifiedBy());
+    logInfo("Starting LEXICALCLASSASSIGNMENT");
 
     setMolecularActionFlag(false);
 
@@ -86,22 +80,18 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       // 0. Cache all lexical class/normal form in memory
       final Map<String, Long> preLexicalClassLuiMap = new HashMap<>(20000);
 
-      Session session = manager.unwrap(Session.class);
-      org.hibernate.Query hQuery =
-          session.createQuery("select l from LexicalClassIdentityJpa l");
-      hQuery.setReadOnly(true).setFetchSize(5000).setCacheable(false);
-      ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+      final Query query = getEntityManager()
+          .createQuery("select l.id from LexicalClassIdentityJpa l");
+      @SuppressWarnings("unchecked")
+      final List<Long> ids = query.getResultList();
       int ct = 0;
-      while (results.next()) {
-        final LexicalClassIdentity lui =
-            (LexicalClassIdentity) results.get()[0];
+      for (final Long id : ids) {
+        final LexicalClassIdentity lui = service.getLexicalClassIdentity(id);
         preLexicalClassLuiMap.put(lui.getNormalizedName(), lui.getId());
         if (++ct % 1000 == 0) {
           checkCancel();
         }
       }
-      results.close();
-      session.clear();
       fireProgressEvent(10, "Collect atoms");
 
       // 1. Rank all atoms in (project) precedence order and iterate through
@@ -214,7 +204,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
       logInfo("  updated LUIs ct = " + updatedLuis);
       logInfo("  new LUIs ct = " + newLuis);
-      logInfo("Finished lexical class assignment");
+      logInfo("Finished LEXICALCLASSASSIGNMENT");
 
     } catch (
 
@@ -248,7 +238,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     return super.getParameters();
   }
 

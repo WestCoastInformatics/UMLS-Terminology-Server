@@ -74,8 +74,9 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     final File metadir = new File(path, "META");
     if (!metadir.exists()) {
       result.addError(
-          "Release requires a 'META' directory at the input path with template MRCOLS.RRF and MRFILES.RRF files in it "
-              + dir.getPath());
+          "Release requires a 'META' directory at the input path with\n"
+              + "template MRCOLS.RRF and MRFILES.RRF files in it:\n "
+              + metadir.getPath());
     }
 
     // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
@@ -280,7 +281,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa(

@@ -300,11 +300,9 @@ tsApp
         // Get $scope.lists.worklists
         // switch based on type
         $scope.getWorklists = function(worklist) {
-          console.debug('getworklists1');
           getWorklists(worklist);
         }
         function getWorklists(worklist) {
-          console.debug('getworklists2');
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
             $scope.getAvailableWorklists();

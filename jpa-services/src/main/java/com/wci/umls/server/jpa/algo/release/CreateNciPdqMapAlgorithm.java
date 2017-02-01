@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -21,7 +19,6 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.MapSet;
-import com.wci.umls.server.model.content.Mapping;
 
 /**
  * Algorithm for creating NCI-PDQ map.
@@ -62,11 +59,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // 1. Add PDQ/XM termgroup to precedence list (just above PDQ/PT) - only if
     // it doesn't already exist in the precedence list
     //
-
     final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
         getProject().getVersion());
     final KeyValuePairList precedences = list.getPrecedence();
-
     final KeyValuePair kvp = new KeyValuePair("PDQ", "XM");
     if (!precedences.contains(kvp)) {
       final int indexOfPdqPt =
@@ -78,75 +73,111 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       precedences.getKeyValuePairs().add(indexOfPdqPt, kvp);
       updatePrecedenceList(list);
     }
+    // TODO: also do this for the project precedence list (e.g.
+    // getProject().getPrecedenceList()).
 
     //
-    // 2. Make any PDQ/XM atoms unpublishable (e.g. find and update them)
-    // Also make the previous version of the map unpublishable and its mappings
-    // unpublishable
+    // 2. Remove old PDQ/XM concept, atoms, attribute, stys, and old version
+    // MapSets
     //
 
-    // Generate parameters to pass into query execution
+    // 2a. Find any PDQ/XM atoms that are publishable
     final Map<String, String> params = new HashMap<>();
     params.put("terminology", "PDQ");
     params.put("termType", "XM");
-    String query = "SELECT DISTINCT a.id " + "FROM AtomJpa a "
-        + "WHERE a.terminology=:terminology AND a.termType=:termType ";
+    String query = "SELECT DISTINCT a.id FROM AtomJpa a "
+        + "WHERE a.terminology=:terminology "
+        + "  AND a.termType=:termType AND publishable=true ";
 
-    // Execute a query to get atom Ids
+    // Execute a query to get atom ids
     final List<Long> atomIds = executeSingleComponentIdQuery(query,
         QueryType.JQL, params, AtomJpa.class);
-
     for (final Long id : atomIds) {
       final Atom atom = this.getAtom(id);
       atom.setPublishable(false);
       updateAtom(atom);
+
+      // make the project concept unpublishable - e.g. MatrixInitializer at end
+      // of "pre production"
+      // TODO: add a matrix initializer algorithm execution at the end of pre
+      // production
     }
 
-    // Execute a query to get current PDQ mapset
-    query = "SELECT DISTINCT m " + "FROM MapSetJpa m "
+    // 2b. Make any other PDQ map sets unpublishable
+    query = "SELECT DISTINCT m FROM MapSetJpa m "
         + "WHERE m.terminology=:terminology and m.publishable=true";
     final javax.persistence.Query jpaQuery =
         getEntityManager().createQuery(query);
+    jpaQuery.setParameter("terminology", "PDQ");
 
-    // Handle special query key-words
-    if (params != null) {
-      for (final String key : params.keySet()) {
-        if (query.contains(":" + key)) {
-          jpaQuery.setParameter(key, params.get(key));
-        }
-      }
-    }
-    Logger.getLogger(getClass()).info("  query = " + query);
-
-    final MapSet mapSet = (MapSet) jpaQuery.getSingleResult();
-    mapSet.setPublishable(false);
-    updateMapSet(mapSet);
-    for (final Mapping mapping : mapSet.getMappings()) {
-      mapping.setPublishable(false);
-      updateMapping(mapping);
+    @SuppressWarnings("unchecked")
+    final List<MapSet> mapsets = jpaQuery.getResultList();
+    for (final MapSet mapset : mapsets) {
+      mapset.setPublishable(false);
+      updateMapSet(mapset);
+      // TODO: should we cascade this publishable setting?? TBD
     }
 
     //
-    // 3. Create a map set for this map (see #4 for most of the fields).
-    // Add a PDQ/XM atom "NCI_$version to PDQ_$version Mappings" (terminology =
-    // NCI, version=NCI.version), codeId=100001
-    //
+    // 3. Create a map set for this map (see #7 for most of the fields).
+    // * name = "PDQ_$version to NCI_$version Mappings"
+    // * terminologyId = 100001
+    // * not obsolete, not suppressible, READY_FOR_PUBLICATION
+    // * publishable, not published.
+    // service.addMapSet(...)
 
     // Algorithm (use molecular actions for id assignment).
-    // 1. Find any concepts with PDQ/XM atoms
-    // * make the atoms of that concept unpublishable
-    // * make the codes of that atom unpublishable
-    // * save the atom id (in executionInfo) to restore
-    // * find and make the old map set unpublishable too
-    // 2. Create a new map set concept with a single PDQ/XM atom
-    // * "PDQ_$version to NCI_$version Mappings"
+
+    // 4. Create a new concept
+    // * terminology=project.getTerminology(),version=project.getVersion
+    // * name = "PDQ_$version to NCI_$version Mappings"
+    // * not obsolete, not suppressible, READY_FOR_PUBLICATION
+    // * publishable, not published.
+    // service.addConcept(concept);
+    // concept.setTerminolgyId(concept.getId().toString());
+    // service.updateConcept(concept);
+
+    // 5. Create a PDQ/XM atom in the concept just created
+    // * name = "PDQ_$version to NCI_$version Mappings"
     // * codeId = 100001
     // * not obsolete, not suppressible, READY_FOR_PUBLICATION
     // * publishable, not published.
-    // * save the atomId (in executionInfo) to remove
-    // * create a code too and add atom to it
-    // 3. Create a "Intellectual Product" semantic type for the concept
-    // 4. Create atom attributes (e.g. from MRSAT) (name, terminology, version)
+    // IdentifierAssignmentHandler handler =
+    // getIdentifierAssignmentHandler(getProject().getTerminology());
+    // Atom atom = new AtomJpa();
+    // ..
+    // atom.setTerminologyId(handler.getTerminologyId(atom));
+    // ..
+    // service.addAtom(atom);
+    // concept.getAtoms().add(atom);
+    // service.updateConcept(concept);
+
+    // 5b. Create a "code" for the PDQ/XM atom
+    // Code code = new CodeJpa();
+    // terminology=PDQ, version = current version of PDQ
+    // terminologyId=10001
+    // ....
+    // code.getAtoms().add(atom):
+    // service.addCode(code);
+    
+    
+    // 6. Add a "Intellectual Product" to the concept
+    // * terminology=project.getTerminology(),version=project.getVersion
+    // * not obsolete, not suppressible, READY_FOR_PUBLICATION
+    // * publishable, not published.
+    // service.addSemanticTypeComponent(sty);
+    // concept.getSemanticTypes().add(sty);
+    // service.updateConcept(concept);
+
+    // 7. Add code attributes for those things shown belo
+    // Attribute attribute = new AttributeJpa();
+    // * see above for obsolete, suppressible, etc
+    // * terminology=PDQ, version = current version of PDQ
+    // service.addAttribute(attribute);
+    // code.getAttributes.add(attribute);
+    // ..
+    // service.updateCode(code);
+    
     // MAPSETVERSION|PDQ|2016_07_31
     // FROMVSAB|PDQ|PDQ_2016_07_31
     // TOVSAB|PDQ|NCI_2016_10E
@@ -158,21 +189,33 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // MTH_MAPTOEXHAUSTIVE|PDQ|N
     // FROMRSAB|PDQ|PDQ
     // MTH_MAPFROMCOMPLEXITY|PDQ|SINGLE SDUI
-    // MTH_MAPFROMEXHAUSTIVE|PDQ|N
-    // 5. Create a map set based on the information above
-    // 6. Create mappings
-    // * join PDQ->NCI in the same project concept, both publishable
+    // MTH_MAPFROMEXHAUSTIVE|PDQ|N       
+    
+    // 8. Create mappings
+    // * query: join PDQ->NCI in the same project concept, both publishable
+    // select distinct ca.descriptorId, cb.conceptId, ca.termType, cb.termType
+    // from ConceptJpa a join a.atoms ca, ConceptJpa b join b.atoms cb    
+    // where a.terminology = :projectTerminology and b.terminology = :projectTerminology
+    //   and a.id == b.id
+    //   and ca.terminology = 'PDQ' and cb.terminology = 'NCI';
+
+    // iterate over results
+    // If the descriptorId/conceptId combination hasn't yet been seen, create a mapping
+    // Mapping mapping = new MappingJpa();
+    // mapping.set XXX
     // * use mapRank=1 if term-types are PT->PT, PT->PSC, or PT->HT
     // * use mapRank=2 if term-types are different and from/to map doesn't
-    // already exist
-    // * this is an descriptorId => conceptId map
+    // servicde.addMapping(mapping);
+    // mapset.getMappings().addMapping(mapping);
+    //...
+    // service.updateMapSet(mapset);
 
   }
-
+ 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // TODO: remove the map.
+    // n/a
   }
 
   /* see superclass */

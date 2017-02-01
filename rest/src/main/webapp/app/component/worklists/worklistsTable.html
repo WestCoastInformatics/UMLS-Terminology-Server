@@ -42,7 +42,7 @@
               <span ng-bind="getSortIndicator('worklists','worklistState')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2"">Actions</th>
+          <th class="col-md-2 col-xs-2">Actions</th>
         </tr>
       </thead>
       <!-- Checklist header -->
@@ -59,7 +59,7 @@
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2"">Actions</th>
+          <th class="col-md-2 col-xs-2">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -88,7 +88,8 @@
               ng-show="!worklist.staged && hasPermissions('RemoveWorklist')"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-trash"></i> <i
+              class="noul glyphicon glyphicon-trash"></i>
+            <i
               ng-show="hasPermissions('AssignWorklist') 
                 && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN');"
@@ -153,7 +154,7 @@
                   <br /> <small>... more notes ...</small>
                 </span>
               </div>
-              <div notes selected="selected" type="{{type}}">
+              <div notes selected="selected" type="{{type}}"></div>
             </td>
           </tr>
           <tr>
@@ -182,14 +183,15 @@
             <td>
               <span ng-show="worklistReport && !reportRefresh">
                 <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
-                &nbsp; <i
-                  ng-click="removeGeneratedConceptReport(selectedWorklist);"
+                &nbsp;
+                <i ng-click="removeGeneratedConceptReport(selectedWorklist);"
                   title="Remove report" class="noul glyphicon glyphicon-trash"></i>
               </span>
               <span ng-show="!worklistReport && reportRefresh">
                 <i ng-click="findGeneratedReports();"
                   title="Refresh concept report generation status"
-                  class="noul glyphicon glyphicon-refresh"></i> ...Generating...
+                  class="noul glyphicon glyphicon-refresh"></i>
+                ...Generating...
               </span>
               <span
                 ng-show="!worklistReport && !reportRefresh && hasPermissions('GenerateReport')">
