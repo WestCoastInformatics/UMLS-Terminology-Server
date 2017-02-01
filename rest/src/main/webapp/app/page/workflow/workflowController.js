@@ -196,13 +196,17 @@ tsApp.controller('WorkflowCtrl', [
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(
       // Success
       function(data) {
-        // Identify the config with the most workflow bins (this will normally be MUTUALLY_EXCLUSIVE
-        // but doing it this way will avoid issues if the bin is renamed.
-        var configWithMostBins = data.configs.sort(function(a, b) {
-          return b.workflowBinDefinitions.length - a.workflowBinDefinitions.length
-        })[0];
         $scope.lists.configs = data.configs.sort(utilService.sortBy('type'));
-        $scope.setConfig(configWithMostBins);
+
+        // Select the MUTUALLY_EXCLUSIVE config if available.
+        // If not, select the first config in the list.
+        var selectConfig = $scope.lists.configs[0];
+        for (var i = 0; i < $scope.lists.configs.length; i++) {
+          if ($scope.lists.configs[i].type == 'MUTUALLY_EXCLUSIVE') {
+            selectConfig = $scope.lists.configs[i];
+          }
+        }
+        $scope.setConfig(selectConfig);
       });
     };
 
