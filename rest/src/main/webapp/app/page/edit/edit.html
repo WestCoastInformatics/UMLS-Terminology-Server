@@ -83,7 +83,6 @@
                 <br />{{getWorkflowState(worklist)}}
               </span>
             </td>
-
             <!--  actions -->
             <td class="nobreak">
               <span
@@ -232,8 +231,8 @@
                 type="Concept"></span>
               <i title="Refresh concept"
                 ng-click="reloadConcept(concept); $event.stopPropagation()"
-                class="noul glyphicon glyphicon-repeat"></i>
-              <i title="Remove from list"
+                class="noul glyphicon glyphicon-repeat"></i> <i
+                title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
@@ -261,7 +260,7 @@
           ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
           class="btn btn-xs btn-primary">Tree</button>
         <i
-          ng-show="selected.component && (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-show="selected.component && (selected.worklistMode != 'Done' || selected.projectRole == 'ADMINISTRATOR')"
           ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
@@ -384,7 +383,8 @@
             </td>
           </tr>
           <tr>
-          <td colspan="2" edit-precedence selected="selected" lists="lists" callbacks="callbacks"></td>
+            <td colspan="2" edit-precedence selected="selected" lists="lists"
+              callbacks="callbacks"></td>
           </tr>
         </table>
       </div>

@@ -135,7 +135,7 @@
     <div class="col-md-12 col-xs-12" ng-show="selectedWorklist">
       <!-- Worklist Details -->
       <h4>{{selectedWorklist.name}}</h4>
-      <table class="slim table pointer">
+      <table class="slim table">
         <tbody>
           <tr>
             <td>
@@ -154,7 +154,7 @@
                   <br /> <small>... more notes ...</small>
                 </span>
               </div>
-              <div notes selected="selected" type="{{type}}"></div>
+              <div notes selected="{worklist : selectedWorklist, project : selected.project}" type="{{type}}"></div>
             </td>
           </tr>
           <tr>
@@ -162,7 +162,7 @@
               <b>Log</b>
             </td>
             <td>
-              <div log selected="selected" type="{{type}}"></div>
+              <div log selected="{worklist : selectedWorklist, project : selected.project}" type="{{type}}"></div>
             </td>
           </tr>
           <tr>
@@ -182,7 +182,7 @@
             </td>
             <td>
               <span ng-show="worklistReport && !reportRefresh">
-                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
+                <a ng-click="getGeneratedConceptReport()" class="pointer">{{worklistReport}}</a>
                 &nbsp;
                 <i ng-click="removeGeneratedConceptReport(selectedWorklist);"
                   title="Remove report" class="noul glyphicon glyphicon-trash"></i>
