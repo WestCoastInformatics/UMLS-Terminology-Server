@@ -7,10 +7,11 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
-import com.wci.umls.server.model.meta.SemanticType;
 
 /**
  * Represents a service for managing content.
@@ -79,4 +80,38 @@ public interface SimpleEditServiceRest {
    */
   public void removeSemanticType(Long projectId, Long conceptId, Long semanticTypeId,
     String authToken) throws Exception;
+
+  /**
+   * Adds the concept.
+   *
+   * @param projectId the project id
+   * @param concept the concept
+   * @param authToken the auth token
+   * @return the concept
+   * @throws Exception the exception
+   */
+  public Concept addConcept(Long projectId, ConceptJpa concept, String authToken)
+    throws Exception;
+
+  /**
+   * Update concept.
+   *
+   * @param projectId the project id
+   * @param concept the concept
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateConcept(Long projectId, ConceptJpa concept, String authToken)
+    throws Exception;
+
+  /**
+   * Removes the concept.
+   *
+   * @param projectId the project id
+   * @param conceptId the concept id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeConcept(Long projectId, Long conceptId, String authToken)
+    throws Exception;
 }
