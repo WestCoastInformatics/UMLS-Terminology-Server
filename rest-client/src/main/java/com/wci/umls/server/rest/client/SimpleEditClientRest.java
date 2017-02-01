@@ -17,8 +17,12 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.rest.SimpleEditServiceRest;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 
 /**
  * A client for connecting to a simple edit REST service.
@@ -119,5 +123,41 @@ public class SimpleEditClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
+  }
+
+  @Override
+  public SemanticTypeComponent addSemanticTypeToConcept(Long projectId,
+    Long conceptId, SemanticTypeJpa semanticType, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void removeSemanticType(Long projectId, Long conceptId,
+    Long semanticTypeId, String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public Concept addConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void updateConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void removeConcept(Long projectId, Long conceptId, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    
   }
 }
