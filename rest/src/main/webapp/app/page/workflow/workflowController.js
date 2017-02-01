@@ -128,12 +128,11 @@ tsApp.controller('WorkflowCtrl', [
         });
       }
     };
-    
+
     $scope.getEpoch = function() {
-      workflowService.getWorkflowEpoch($scope.selected.project.id).then(
-        function(data) {
-          $scope.selected.epoch = data;
-        });
+      workflowService.getWorkflowEpoch($scope.selected.project.id).then(function(data) {
+        $scope.selected.epoch = data;
+      });
     }
 
     // handle change in project role
@@ -197,8 +196,13 @@ tsApp.controller('WorkflowCtrl', [
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(
       // Success
       function(data) {
+        // Identify the config with the most workflow bins (this will normally be MUTUALLY_EXCLUSIVE
+        // but doing it this way will avoid issues if the bin is renamed.
+        var configWithMostBins = data.configs.sort(function(a, b) {
+          return b.workflowBinDefinitions.length - a.workflowBinDefinitions.length
+        })[0];
         $scope.lists.configs = data.configs.sort(utilService.sortBy('type'));
-        $scope.setConfig($scope.lists.configs[0]);
+        $scope.setConfig(configWithMostBins);
       });
     };
 
@@ -628,7 +632,6 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
 
-    
     // Open edit epoch modal
     $scope.openEditEpochModal = function(lbin) {
 
@@ -649,7 +652,6 @@ tsApp.controller('WorkflowCtrl', [
         $scope.getEpoch();
       });
     };
-
 
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
