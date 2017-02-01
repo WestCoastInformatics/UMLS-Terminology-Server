@@ -62,6 +62,43 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   /**
+   * Sets the object type class.
+   *
+   * @param objectTypeClass the object type class
+   */
+  @SuppressWarnings("rawtypes")
+  public void setObjectTypeClass(Class objectTypeClass) {
+    this.objectTypeClass = objectTypeClass;
+  }
+
+  /**
+   * Sets the query type.
+   *
+   * @param queryType the query type
+   */
+  public void setQueryType(QueryType queryType) {
+    this.queryType = queryType;
+  }
+
+  /**
+   * Sets the query.
+   *
+   * @param query the query
+   */
+  public void setQuery(String query) {
+    this.query = query;
+  }
+
+  /**
+   * Sets the action.
+   *
+   * @param action the action
+   */
+  public void setAction(String action) {
+    this.action = action;
+  }
+
+  /**
    * Check preconditions.
    *
    * @return the validation result
@@ -307,10 +344,11 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * Returns the parameters.
    *
    * @return the parameters
+   * @throws Exception the exception
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("ObjectType",
         "objectType", "Type of object an action will be performed on",

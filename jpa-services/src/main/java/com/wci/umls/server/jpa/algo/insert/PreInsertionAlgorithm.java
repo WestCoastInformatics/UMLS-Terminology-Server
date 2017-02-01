@@ -52,8 +52,8 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Go through all the files needed by insertion and check for presence
     // Check the input directories
     final String srcFullPath =
-        ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + "/" + getProcess().getInputPath();
+        ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
+            + getProcess().getInputPath();
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
@@ -139,6 +139,52 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         styId.toString());
     logInfo(" maxStyIdPreInsertion = "
         + processExecution.getExecutionInfo().get("maxStyIdPreInsertion"));
+
+    // Get the max MapSet Id prior to the insertion starting
+    Long mapSetId = null;
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select max(a.id) from MapSetJpa a ");
+      final Long mapSetId2 = (Long) query.getSingleResult();
+      mapSetId = mapSetId2 != null ? mapSetId2 : mapSetId;
+    } catch (NoResultException e) {
+      mapSetId = 0L;
+    }
+    processExecution.getExecutionInfo().put("maxMapSetIdPreInsertion",
+        mapSetId.toString());
+    logInfo(" maxMapSetIdPreInsertion = "
+        + processExecution.getExecutionInfo().get("maxMapSetIdPreInsertion"));
+
+    // Get the max Atom Subset Id prior to the insertion starting
+    Long atomSubsetId = null;
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select max(a.id) from AtomSubsetJpa a ");
+      final Long atomSubsetId2 = (Long) query.getSingleResult();
+      atomSubsetId = atomSubsetId2 != null ? atomSubsetId2 : atomSubsetId;
+    } catch (NoResultException e) {
+      atomSubsetId = 0L;
+    }
+    processExecution.getExecutionInfo().put("maxAtomSubsetIdPreInsertion",
+        atomSubsetId.toString());
+    logInfo(" maxAtomSubsetIdPreInsertion = " + processExecution
+        .getExecutionInfo().get("maxAtomSubsetIdPreInsertion"));
+
+    // Get the max Concept Subset Id prior to the insertion starting
+    Long conceptSubsetId = null;
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select max(a.id) from ConceptSubsetJpa a ");
+      final Long conceptSubsetId2 = (Long) query.getSingleResult();
+      conceptSubsetId =
+          conceptSubsetId2 != null ? conceptSubsetId2 : conceptSubsetId;
+    } catch (NoResultException e) {
+      conceptSubsetId = 0L;
+    }
+    processExecution.getExecutionInfo().put("maxConceptSubsetIdPreInsertion",
+        conceptSubsetId.toString());
+    logInfo(" maxConceptSubsetIdPreInsertion = " + processExecution
+        .getExecutionInfo().get("maxConceptSubsetIdPreInsertion"));
 
     // NOTE: the processExecution is updated by the calling method,
     // typically RunProcessAsThread in ProcessServiceRestImpl
