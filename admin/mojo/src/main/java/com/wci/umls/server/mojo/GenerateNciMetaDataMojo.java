@@ -170,6 +170,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // NCIm Users:
     // CFC - Carol Creech
     // BAC - Brian Carlsen
+    // RAW - Rick Wood
     // DSS - Deborah Shapiro
     // JFW - Joanne Wong
     // LWW - Larry Wright
@@ -184,22 +185,23 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // TPW - Tammy Powell
     // MJA - Miranda Jarnot
     final String[] initials = new String[] {
-        "CFC", "BAC", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR", "LLW",
-        "TAQ", "GSC", "HAG", "TPW", "MJA"
+        "CFC", "BAC", "RAW", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR",
+        "LLW", "TAQ", "GSC", "HAG", "TPW", "MJA"
     };
     final String[] names = new String[] {
-        "Carol Creech", "Brian Carlsen", "Deborah Shapiro", "Joanne Wong",
-        "Larry Wright", "Margaret Haber", "Sherri de Coronado",
+        "Carol Creech", "Brian Carlsen", "Rick Wood", "Deborah Shapiro",
+        "Joanne Wong", "Larry Wright", "Margaret Haber", "Sherri de Coronado",
         "Gilberto Fragoso", "Laura Roth", "Lori Whiteman", "Theresa Quinn",
         "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot"
     };
     final int[] editorLevels = new int[] {
-        0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 0, 5, 5
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 0, 5, 5
     };
     final String[] roles = new String[] {
-        "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR", "REVIEWER",
-        "REVIEWER", "REVIEWER", "ADMINISTRATOR", "REVIEWER", "REVIEWER",
-        "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER", "REVIEWER"
+        "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR",
+        "ADMINISTRATOR", "REVIEWER", "REVIEWER", "REVIEWER", "ADMINISTRATOR",
+        "REVIEWER", "REVIEWER", "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER",
+        "REVIEWER"
     };
 
     Logger.getLogger(getClass()).info("Add new users");
@@ -993,13 +995,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition.setName("Relationship group is null");
     definition.setDescription(
         "Finds atoms with leading or trailing whitespace or junk chars");
-    definition
-        .setQuery("select r.id,'CONCEPT' from concept_relationships r where relGroup is null"
+    definition.setQuery(
+        "select r.id,'CONCEPT' from concept_relationships r where relGroup is null"
             + "union all select r.id,'ATOM' from atom_relationships r where relGroup is null"
             + "union all select r.id,'CODE' from code_relationships r where relGroup is null"
             + "union all select r.id, 'DESCRIPTOR' from descriptor_relationships r where relGroup is null"
-            + "union all select r.id,'COMPONENT_INFO' from component_info_relationships r where relGroup is null"
-            );
+            + "union all select r.id,'COMPONENT_INFO' from component_info_relationships r where relGroup is null");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -1009,8 +1010,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
 
-    // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need algorithm?
-    
+    // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
+    // algorithm?
+
     // Matrix initializer
     workflowService = new WorkflowServiceRestImpl();
     workflowService.recomputeConceptStatus(projectId, "MATRIXINIT", false,
@@ -1628,7 +1630,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm for SNOMEDCT_US-SCUI");
+    algoConfig
+        .setDescription("PRECOMPUTEDMERGE Algorithm for SNOMEDCT_US-SCUI");
     algoConfig.setEnabled(true);
     algoConfig.setName("PRECOMPUTEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
@@ -2445,7 +2448,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    // TODO - figure out real value for siblingsThreshold
     algoProperties.put("siblingsThreshold", "1000");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process

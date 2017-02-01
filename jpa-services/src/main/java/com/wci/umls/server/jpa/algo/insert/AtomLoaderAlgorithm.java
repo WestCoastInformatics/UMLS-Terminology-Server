@@ -340,12 +340,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         existingCode.setVersion(atom.getVersion());
         updateCode(existingCode);
 
-        // Read code relationships and updateRelationship on each one
-        // (to update the indexes with the new code information)
-        for (CodeRelationship codeRelationship : existingCode
-            .getRelationships()) {
-          updateRelationship(codeRelationship);
-        }
+//        // Read code relationships and updateRelationship on each one
+//        // (to update the indexes with the new code information)
+//        for (CodeRelationship codeRelationship : existingCode
+//            .getRelationships()) {
+//          updateRelationship(codeRelationship);
+//        }
       }
 
       // else create a new code
@@ -378,12 +378,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         existingConcept.setVersion(atom.getVersion());
         updateConcept(existingConcept);
 
-        // Read concept relationships and updateRelationship on each one
-        // (to update the indexes with the new concept information)
-        for (ConceptRelationship conceptRelationship : existingConcept
-            .getRelationships()) {
-          updateRelationship(conceptRelationship);
-        }
+//        // Read concept relationships and updateRelationship on each one
+//        // (to update the indexes with the new concept information)
+//        for (ConceptRelationship conceptRelationship : existingConcept
+//            .getRelationships()) {
+//          updateRelationship(conceptRelationship);
+//        }
       }
 
       // else create a new concept
@@ -416,12 +416,12 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         existingDescriptor.setVersion(atom.getVersion());
         updateDescriptor(existingDescriptor);
 
-        // Read descriptor relationships and updateRelationship on each one
-        // (to update the indexes with the new descriptor information)
-        for (DescriptorRelationship descriptorRelationship : existingDescriptor
-            .getRelationships()) {
-          updateRelationship(descriptorRelationship);
-        }
+//        // Read descriptor relationships and updateRelationship on each one
+//        // (to update the indexes with the new descriptor information)
+//        for (DescriptorRelationship descriptorRelationship : existingDescriptor
+//            .getRelationships()) {
+//          updateRelationship(descriptorRelationship);
+//        }
       }
 
       // else create a new descriptor

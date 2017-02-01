@@ -19,26 +19,18 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetJpa;
 import com.wci.umls.server.jpa.content.AtomSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
-import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetJpa;
 import com.wci.umls.server.jpa.content.ConceptSubsetMemberJpa;
-import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
-import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.GeneralConceptAxiomJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
@@ -107,19 +99,14 @@ public class UpdatePublishedAlgorithm
       commitClearBegin();
 
       // Find all publishable and not published components and abbreviations
-      final List<Class> componentClassList = new ArrayList<>(
-          Arrays.asList(AtomRelationshipJpa.class, AtomSubsetMemberJpa.class,
-              AtomSubsetJpa.class, AtomTransitiveRelationshipJpa.class,
-              AtomTreePositionJpa.class, AtomJpa.class, AttributeJpa.class,
-              CodeRelationshipJpa.class, CodeTransitiveRelationshipJpa.class,
-              CodeTreePositionJpa.class, CodeJpa.class,
+      final List<Class> componentClassList =
+          new ArrayList<>(Arrays.asList(AtomRelationshipJpa.class,
+              AtomSubsetMemberJpa.class, AtomSubsetJpa.class, AtomJpa.class,
+              AttributeJpa.class, CodeRelationshipJpa.class, CodeJpa.class,
               ComponentHistoryJpa.class, ComponentInfoRelationshipJpa.class,
               ConceptRelationshipJpa.class, ConceptSubsetMemberJpa.class,
-              ConceptSubsetJpa.class, ConceptTransitiveRelationshipJpa.class,
-              ConceptTreePositionJpa.class, ConceptJpa.class,
-              DefinitionJpa.class, DescriptorRelationshipJpa.class,
-              DescriptorTransitiveRelationshipJpa.class,
-              DescriptorTreePositionJpa.class, DescriptorJpa.class,
+              ConceptSubsetJpa.class, ConceptJpa.class, DefinitionJpa.class,
+              DescriptorRelationshipJpa.class, DescriptorJpa.class,
               GeneralConceptAxiomJpa.class, LexicalClassJpa.class,
               MappingJpa.class, MapSetJpa.class, SemanticTypeComponentJpa.class,
               StringClassJpa.class));
@@ -189,7 +176,7 @@ public class UpdatePublishedAlgorithm
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     return params;
   }
