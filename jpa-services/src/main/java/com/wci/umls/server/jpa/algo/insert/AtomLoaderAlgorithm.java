@@ -350,7 +350,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newCode.setPublished(false);
         newCode.setPublishable(true);
         newCode.setSuppressible(false);
-        newCode.setWorkflowStatus(atom.getWorkflowStatus());
+        newCode.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         newCode.getAtoms().add(atom);
         addCode(newCode);
@@ -381,7 +381,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newConcept.setPublished(false);
         newConcept.setPublishable(true);
         newConcept.setSuppressible(false);
-        newConcept.setWorkflowStatus(atom.getWorkflowStatus());
+        newConcept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         newConcept.getAtoms().add(atom);
         addConcept(newConcept);
@@ -412,7 +412,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newDescriptor.setPublished(false);
         newDescriptor.setPublishable(true);
         newDescriptor.setSuppressible(false);
-        newDescriptor.setWorkflowStatus(atom.getWorkflowStatus());
+        newDescriptor.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
 
         newDescriptor.getAtoms().add(atom);
         addDescriptor(newDescriptor);

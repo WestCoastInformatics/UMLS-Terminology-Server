@@ -629,7 +629,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
     clauses.add(query);
 
     if (!ConfigUtility.isEmpty(activityId)) {
-      clauses.add(activityId);
+      clauses.add("activityId:" + activityId);
     }
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);
 
@@ -669,7 +669,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
 
     clauses.add("projectId:" + projectId);
     if (!ConfigUtility.isEmpty(workId)) {
-      clauses.add(workId);
+      clauses.add("workId:" + workId);
     }
     clauses.add(query);
     String fullQuery = ConfigUtility.composeQuery("AND", clauses);

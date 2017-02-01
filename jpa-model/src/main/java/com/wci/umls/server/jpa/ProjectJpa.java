@@ -124,8 +124,6 @@ public class ProjectJpa implements Project {
   /** The new atom termgroups. */
   @ElementCollection(fetch = FetchType.EAGER)
   private List<String> newAtomTermgroups;
-MTH/PN
-NCIMTH/PN
 
   // Version?
   // "latest" is implied, and the actual next version is managed by "release
