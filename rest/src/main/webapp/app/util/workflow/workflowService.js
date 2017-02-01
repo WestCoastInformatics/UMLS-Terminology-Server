@@ -62,7 +62,7 @@ tsApp.service('workflowService', [
 
       // Add workflow config
       gpService.increment();
-      $http.post(workflowUrl + '/epoch?projectId=' + projectId, epoch).then(
+      $http.put(workflowUrl + '/epoch?projectId=' + projectId, epoch).then(
       // success
       function(response) {
         console.debug('  epoch = ', response.data);

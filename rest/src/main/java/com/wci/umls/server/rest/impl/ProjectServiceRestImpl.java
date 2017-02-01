@@ -29,6 +29,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
@@ -44,11 +45,13 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -100,24 +103,34 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Project): / " + project);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final MetadataService metadataService = new MetadataServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add project", UserRole.USER);
-      projectService.setLastModifiedBy(userName);
+      metadataService.setLastModifiedBy(userName);
 
       // check to see if project already exists
-      for (final Project p : projectService.getProjects().getObjects()) {
+      for (final Project p : metadataService.getProjects().getObjects()) {
         if (p.getName().equals(project.getName())
             && p.getDescription().equals(project.getDescription())) {
           throw new LocalException(
               "A project with this name and description already exists");
         }
       }
-
+      
+      // Create and add precedence list
+      if (project.getTerminology() == null || project.getVersion() == null) {
+        throw new LocalException("Project terminology and version must not be null.");
+      }
+      final PrecedenceList precList = metadataService.getPrecedenceList(project.getTerminology(), project.getVersion());
+      precList.setId(null);
+      metadataService.addPrecedenceList(precList);
+      project.setPrecedenceList(precList);
+      
+      
       // Add project
-      final Project newProject = projectService.addProject(project);
-      projectService.addLogEntry(userName, project.getId(), project.getId(),
+      final Project newProject = metadataService.addProject(project);
+      metadataService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "ADD project - " + project);
 
       return newProject;
@@ -125,7 +138,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to add a project");
       return null;
     } finally {
-      projectService.close();
+      metadataService.close();
       securityService.close();
     }
 

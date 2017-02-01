@@ -185,8 +185,8 @@ tsApp.controller('EditProjectModalCtrl', [
         controller : 'AddValidationCheckModalCtrl',
         backdrop : 'static',
         resolve : {
-          selected : function() {
-            return $scope.selected;
+          project : function() {
+            return $scope.project;
           }
         }
       });
@@ -207,7 +207,7 @@ tsApp.controller('EditProjectModalCtrl', [
     //
 
     // Configure validation checks
-    if (project) {  // if editing selected project
+    if (project) {  
       // Attach validation checks
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
@@ -217,8 +217,7 @@ tsApp.controller('EditProjectModalCtrl', [
         }
       }
       $scope.setTerminology(project.terminology);
-      $scope.selected.project = project;
-    } else {  // new project
+    } else {  
       // Wire default validation check 'on' by default
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if ($scope.validationChecks[i].value.startsWith('Default')) {
@@ -227,17 +226,18 @@ tsApp.controller('EditProjectModalCtrl', [
           $scope.availableChecks.push($scope.validationChecks[i].value);
         }
       }
-      $scope.selected.project = undefined;
     }
     if (action == 'Add') {
       $scope.project.editingEnabled = true;
     }
     
-    metadataService.getPrecedenceListById($scope.selected.project.precedenceListId).then(
-    // Success
-    function(data) {
-      $scope.lists.precedenceList = data;
-    });
+    if (action == 'Edit') {
+      metadataService.getPrecedenceListById($scope.project.precedenceListId).then(
+      // Success
+      function(data) {
+        $scope.lists.precedenceList = data;
+      });
+    }
     
     workflowService.getWorkflowPaths().then(
       function(data) {

@@ -116,7 +116,9 @@
       </table>
     </div>
   </div>
-  <uib-accordion>
+  <span ng-show="action == 'Add'"
+        style="display: block;" class="alert alert-danger">Validation checks and precedence list order must be edited through the Edit Project interface. After adding the project, click on the Edit (pencil) icon in the Projects list.</span>
+  <uib-accordion ng-show="action == 'Edit'">
   <uib-accordion-group>
   <uib-accordion-heading>Validation Checks</uib-accordion-heading>
   <div class="row">

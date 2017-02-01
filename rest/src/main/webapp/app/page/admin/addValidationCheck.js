@@ -4,12 +4,12 @@ tsApp.controller('AddValidationCheckModalCtrl', [
   '$uibModalInstance',
   'utilService',
   'projectService',
-  'selected',
-  function($scope, $uibModalInstance, utilService, projectService, selected) {
+  'project',
+  function($scope, $uibModalInstance, utilService, projectService, project) {
 
     // Scope variables
     $scope.typeKeyValue = {};
-    $scope.selected = selected;
+    $scope.project = project;
     $scope.errors = [];
 
     // Add type key value
@@ -19,7 +19,7 @@ tsApp.controller('AddValidationCheckModalCtrl', [
         return;
       }
 
-      $scope.selected.project.validationData.push($scope.typeKeyValue);
+      $scope.project.validationData.push($scope.typeKeyValue);
       $uibModalInstance.close();
     };
 
