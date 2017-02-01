@@ -39,7 +39,8 @@ tsApp.controller('WorkflowCtrl', [
       // Used to trigger events in worklist-table directive controller
       refreshCt : 0,
       terminology : null,
-      metadata : null
+      metadata : null,
+      epoch : null
     };
 
     // Lists
@@ -127,6 +128,13 @@ tsApp.controller('WorkflowCtrl', [
         });
       }
     };
+    
+    $scope.getEpoch = function() {
+      workflowService.getWorkflowEpoch($scope.selected.project.id).then(
+        function(data) {
+          $scope.selected.epoch = data;
+        });
+    }
 
     // handle change in project role
     $scope.changeProjectRole = function() {
@@ -148,6 +156,7 @@ tsApp.controller('WorkflowCtrl', [
 
         // Get configs
         $scope.getConfigs();
+        $scope.getEpoch();
       });
       projectService.findAssignedUsersForProject($scope.selected.project.id, null, null).then(
         function(data) {
@@ -618,6 +627,29 @@ tsApp.controller('WorkflowCtrl', [
         $scope.getBins($scope.selected.project.id, $scope.selected.config);
       });
     };
+
+    
+    // Open edit epoch modal
+    $scope.openEditEpochModal = function(lbin) {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editEpoch.html',
+        controller : 'EpochModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.getEpoch();
+      });
+    };
+
 
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION

@@ -181,6 +181,31 @@ tsApp.service('metadataService', [
       return deferred.promise;
 
     };
+    
+    // Gets the precedence for the precedenceListId
+    this.getPrecedenceListById = function(precedenceListId) {
+      console.debug('getPrecedence', precedenceListId);
+      // get precedence
+      var deferred = $q.defer();
+      gpService.increment();
+      $http.get(metadataUrl + '/precedence/' + precedenceListId).then(
+      // success
+      function(response) {
+        console.debug('  precedenceListId = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      // Return all deferred promises
+      return deferred.promise;
+
+    };
 
     // update precedence list
     this.updatePrecedenceList = function(precedenceList) {

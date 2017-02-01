@@ -2,21 +2,24 @@
 tsApp.controller('EditProjectModalCtrl', [
   '$scope',
   '$uibModalInstance',
+  '$uibModal',
   'securityService',
   'utilService',
   'metadataService',
   'projectService',
+  'workflowService',
   'selected',
   'lists',
   'user',
   'validationChecks',
   'action',
   'project',
-  function($scope, $uibModalInstance, securityService, utilService, metadataService,
-    projectService, selected, lists, user, validationChecks, action, project) {
+  function($scope, $uibModalInstance, $uibModal, securityService, utilService, metadataService,
+    projectService, workflowService, selected, lists, user, validationChecks, action, project) {
 
     // Scope variables
     $scope.action = action;
+    $scope.mode = 'project';
 
     // use project if passed in
     $scope.project = (project ? project : {
@@ -94,6 +97,22 @@ tsApp.controller('EditProjectModalCtrl', [
       });
 
     }
+    
+    $scope.removeValidationCheck = function(check) {
+      var index = 0;
+      for (var i=0; project.validationData.length; i++) {
+        if (project.validationData[i].type == check.type &&
+            project.validationData[i].key == check.key &&
+            project.validationData[i].value == check.value) {
+          // remove this check
+          index = i;
+          break;
+        }
+      }
+      project.validationData.splice(index, 1);
+      projectService.updateProject(project);
+      
+    }
 
     // Add the project
     $scope.submitProject = function(project) {
@@ -155,12 +174,40 @@ tsApp.controller('EditProjectModalCtrl', [
       $uibModalInstance.dismiss('cancel');
     };
 
+    // 
+    // MODALS
+    //
+    $scope.openAddValidationCheckModal = function(terminology) {
+      console.debug('openAddValidationCheckModal ', terminology);
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/admin/addValidationCheck.html',
+        controller : 'AddValidationCheckModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          project : function() {
+            return $scope.project;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        
+      });
+
+    };
+
+
+
+    
     //
     // INITIALIZE
     //
 
     // Configure validation checks
-    if (project) {
+    if (project) {  
       // Attach validation checks
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
@@ -170,7 +217,7 @@ tsApp.controller('EditProjectModalCtrl', [
         }
       }
       $scope.setTerminology(project.terminology);
-    } else {
+    } else {  
       // Wire default validation check 'on' by default
       for (var i = 0; i < $scope.validationChecks.length; i++) {
         if ($scope.validationChecks[i].value.startsWith('Default')) {
@@ -183,6 +230,21 @@ tsApp.controller('EditProjectModalCtrl', [
     if (action == 'Add') {
       $scope.project.editingEnabled = true;
     }
-
+    
+    if (action == 'Edit') {
+      metadataService.getPrecedenceListById($scope.project.precedenceListId).then(
+      // Success
+      function(data) {
+        $scope.lists.precedenceList = data;
+      });
+    }
+    
+    workflowService.getWorkflowPaths().then(
+      function(data) {
+      $scope.workflowPaths = data.strings;
+      if ($scope.workflowPaths.length == 1) {
+        $scope.project.workflowPath = $scope.workflowPaths[0];
+      }
+    });
     // end
   } ]);

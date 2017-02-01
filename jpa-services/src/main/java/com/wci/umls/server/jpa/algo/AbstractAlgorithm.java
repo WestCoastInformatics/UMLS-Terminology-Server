@@ -86,8 +86,13 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(), null, activityId,
-          workId, "    count = " + objectCt);
+      if (getProject() != null) {
+        addLogEntry(getLastModifiedBy(), getProject().getId(), null, activityId,
+            workId, "    count = " + objectCt);
+      } else {
+        addLogEntry(getLastModifiedBy(), getTerminology(), getVersion(),
+            activityId, workId, "    count = " + objectCt);
+      }
     }
     super.logAndCommit(objectCt, logCt, commitCt);
   }

@@ -32,7 +32,52 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
+    
+    // get workflow epoch
+    this.getWorkflowEpoch = function(projectId) {
+      var deferred = $q.defer();
 
+      // Get projects
+      gpService.increment();
+      $http.get(workflowUrl + '/epoch?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  epoch = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+
+    // add workflow epoch
+    this.addWorkflowEpoch = function(projectId, epoch) {
+      console.debug('addWorkflowEpoch');
+      var deferred = $q.defer();
+
+      // Add workflow config
+      gpService.increment();
+      $http.put(workflowUrl + '/epoch?projectId=' + projectId, epoch).then(
+      // success
+      function(response) {
+        console.debug('  epoch = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // add workflow config
     this.addWorkflowConfig = function(projectId, config) {
       console.debug('addWorkflowConfig');
@@ -186,6 +231,29 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // remove workflow epoch
+    this.removeWorkflowEpoch = function(projectId, epochId) {
+      console.debug('removeWorkflowEpoch', projectId, epochId);
+      var deferred = $q.defer();
+
+      // Add project
+      gpService.increment();
+      $http['delete'](workflowUrl + '/epoch/' + epochId + "?projectId=" + projectId).then(
+      // success
+      function(response) {
+        console.debug('  successful remove workflow epoch');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // add workflow bin Definition
     this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition, positionAfterId) {
       console.debug('addWorkflowBinDefinition', projectId, workflowBinDefinition, positionAfterId);
@@ -635,6 +703,29 @@ tsApp.service('workflowService', [
       return deferred.promise;
     };
 
+    // get all workflow epochs
+    this.getWorkflowEpochs = function(projectId) {
+      console.debug('getWorkflowEpochs', projectId);
+      var deferred = $q.defer();
+
+      // Get projects
+      gpService.increment();
+      $http.get(workflowUrl + '/epoch/all?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  epochs = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // get all workflow configs
     this.getWorkflowConfigs = function(projectId) {
       console.debug('getWorkflowConfigs', projectId);

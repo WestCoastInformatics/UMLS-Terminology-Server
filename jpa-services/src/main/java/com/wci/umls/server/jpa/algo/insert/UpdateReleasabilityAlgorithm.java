@@ -154,12 +154,11 @@ public class UpdateReleasabilityAlgorithm
           queryAction.setVersion(getVersion());
           queryAction.setWorkId(getWorkId());
 
-          Properties algoProperties = new Properties();
-          algoProperties.put("objectType", clazz.getSimpleName());
-          algoProperties.put("action", "Make Unpublishable");
-          algoProperties.put("queryType", QueryType.JQL.toString());
-          algoProperties.put("query", query);
-          queryAction.setProperties(algoProperties);
+          queryAction.setObjectTypeClass(clazz);
+          queryAction.setAction("Make Unpublishable");
+          queryAction.setQueryType(QueryType.JQL);
+          queryAction.setQuery(query);
+
           queryAction.setTransactionPerOperation(false);
           queryAction.beginTransaction();
 

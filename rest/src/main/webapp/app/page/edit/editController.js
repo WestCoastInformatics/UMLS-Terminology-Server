@@ -133,11 +133,6 @@ tsApp
           getPagedList : getPagedAdditionalRelationshipTypes
         };
 
-        $scope.paging['precedenceList'] = utilService.getPaging();
-        $scope.paging['precedenceList'].pageSize = 1000000;
-        $scope.paging['precedenceList'].callbacks = {
-          getPagedList : getPagedPrecedenceList
-        };
 
         // Handle workflow changes
         $scope.$on('termServer::checklistChange', function(event, data) {
@@ -576,9 +571,7 @@ tsApp
             $scope.selected.project.version).then(
           // Success
           function(data) {
-            $scope.precedenceList = data;
-            $scope.lists.precedenceOrder = data.precedence.keyValuePairs;
-            $scope.getPagedPrecedenceList();
+            $scope.lists.precedenceList = data;
           });
         }
 
@@ -1334,66 +1327,7 @@ tsApp
         }
         ;
 
-        $scope.getPagedPrecedenceList = function() {
-          console.debug('getprecedencelist');
-          getPagedPrecedenceList();
-        }
-        function getPagedPrecedenceList() {
-          $scope.pagedPrecedenceList = utilService.getPagedArray($scope.lists.precedenceOrder,
-            $scope.paging['precedenceList']);
-          $scope.pagedPrecedenceList.totalCount = $scope.lists.precedenceOrder.length;
-        }
-        ;
 
-        // Move a termgroup up in precedence list
-        $scope.moveTermgroupUp = function(termgroup) {
-          $scope.entriesTouched[termgroup.key + termgroup.value] = 1;
-          // Start at index 1 because we can't move the top one up
-          for (var i = 1; i < $scope.lists.precedenceOrder.length; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
-              $scope.lists.precedenceOrder.splice(i, 1);
-              $scope.lists.precedenceOrder.splice(i - 1, 0, termgroup);
-            }
-          }
-          $scope.getPagedPrecedenceList();
-        };
-
-        // Move a termgroup down in precedence list
-        $scope.moveTermgroupDown = function(termgroup) {
-          $scope.entriesTouched[termgroup.key + termgroup.value] = 1;
-          // end at index -11 because we can't move the last one down
-          for (var i = 0; i < $scope.lists.precedenceOrder.length - 1; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
-              $scope.lists.precedenceOrder.splice(i, 2, $scope.lists.precedenceOrder[i + 1],
-                termgroup);
-              break;
-            }
-          }
-          $scope.getPagedPrecedenceList();
-        };
-
-        // equivalent test for termgroups
-        $scope.isEquivalent = function(tgrp1, tgrp2) {
-          return tgrp1.key == tgrp2.key && tgrp1.value == tgrp2.value;
-        };
-
-        // Check whether this is the first entry in the list
-        $scope.isFirstIndex = function(entry) {
-          return $scope.isEquivalent(entry, $scope.lists.precedenceOrder[0]);
-        }
-
-        // Check whether this is the last entry in the list
-        $scope.isLastIndex = function(entry) {
-          return $scope.isEquivalent(entry,
-            $scope.lists.precedenceOrder[$scope.lists.precedenceOrder.length - 1]);
-        }
-
-        // Update the precedence list.
-        $scope.updatePrecedenceList = function() {
-          $scope.entriesTouched = {};
-          $scope.precedenceList.precedence.keyValuePairs = $scope.lists.precedenceOrder;
-          metadataService.updatePrecedenceList($scope.precedenceList);
-        }
 
         // Get the "max" workflow state
         $scope.getWorkflowState = function(worklist) {

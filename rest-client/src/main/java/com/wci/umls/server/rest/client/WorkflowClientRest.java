@@ -31,12 +31,14 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
+import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowEpochListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
@@ -937,7 +939,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/epoch?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(epoch));
+        .header("Authorization", authToken).put(Entity.json(epoch));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1696,6 +1698,58 @@ public class WorkflowClientRest extends RootClientRest
     } else {
       throw new Exception(response.toString());
     }
+  }
+
+  @Override
+  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - get current workflow epoch " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/epoch?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_JSON)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForJson(resultString,
+        WorkflowEpochJpa.class);
+  }
+
+  @Override
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - get workflow epochs " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/epoch/all?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_JSON)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForJson(resultString,
+        WorkflowEpochListJpa.class);
   }
 
 }
