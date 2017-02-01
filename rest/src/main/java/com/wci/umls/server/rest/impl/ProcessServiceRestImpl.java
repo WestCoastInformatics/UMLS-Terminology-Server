@@ -587,6 +587,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         }
       }
 
+      // fix state where server crash caused a process failure
+      checkBadState(processExecution, projectId, processService);
       return processExecution;
     } catch (Exception e) {
       handleException(e, "trying to get a process execution");
@@ -1310,8 +1312,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Make sure the processExecution isn't already running
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
+      for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+          processService).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
           throw new LocalException("Process execution "
               + processExecution.getId() + " is already currently running");
@@ -1389,8 +1391,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Make sure the processExecution isn't already running
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
+      for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+          processService).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
           throw new LocalException("Process execution "
               + processExecution.getId() + " is already currently running");
@@ -1458,20 +1460,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify the project
       verifyProject(processExecution, projectId);
 
-      // Make sure this process execution is running
-      boolean processRunning = false;
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
-        if (exec.getId().equals(id)) {
-          processRunning = true;
-          break;
-        }
-      }
-
-      if (!processRunning) {
-        throw new LocalException("Error canceling process Execution " + id
-            + ": not currently running.");
-      }
+      // fix state where server crash caused a process failure
+      checkBadState(processExecution, projectId, processService);
 
       // Find the algorithm and call cancel on it
       if (processAlgorithmMap.containsKey(id)) {
@@ -1491,6 +1481,47 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
+  }
+
+  /**
+   * Check bad state.
+   *
+   * @param processExecution the process execution
+   * @param projectId the project id
+   * @param processService the process service
+   * @throws Exception the exception
+   */
+  private void checkBadState(ProcessExecution processExecution, Long projectId,
+    ProcessService processService) throws Exception {
+    // Make sure this process execution is running
+    boolean processRunning = false;
+    for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+        processService).getObjects()) {
+      if (exec.getId().equals(processExecution.getId())) {
+        processRunning = true;
+        break;
+      }
+    }
+    if (!processRunning) {
+
+      // IF the process thinks it is still running, mark it as failed and save
+      // that change
+      if (processExecution.getStartDate() != null
+          && processExecution.getStopDate() == null
+          && processExecution.getFailDate() == null
+          && processExecution.getFinishDate() == null) {
+        processExecution.setFailDate(new Date());
+        processService.updateProcessExecution(processExecution);
+
+        for (final AlgorithmExecution algoExec : processExecution.getSteps()) {
+          if (algoExec.getStartDate() != null && algoExec.getFailDate() == null
+              && algoExec.getFinishDate() == null) {
+            algoExec.setFailDate(new Date());
+            processService.updateAlgorithmExecution(algoExec);
+          }
+        }
+      }
+    }
   }
 
   /* see superclass */
