@@ -362,14 +362,16 @@ public class RelationshipLoaderAlgorithm
     final String workflowStatusStr, final Boolean fromContextsSrcFile)
     throws Exception {
 
+    // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
+    // -> SRC atom
     // For the contexts.src file relationships only, if to and from ClassTypes
     // don't match, fire a
     // warning and skip the line.
-    if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
-      logWarnAndUpdate(line, "Warning - type 1: " + fromClassIdType
-          + " does not equals type 2: " + toClassIdType + ".");
-      return;
-    }
+    // if (fromContextsSrcFile && !fromClassIdType.equals(toClassIdType)) {
+    // logWarnAndUpdate(line, "Warning - type 1: " + fromClassIdType
+    // + " does not equals type 2: " + toClassIdType + ".");
+    // return;
+    // }
 
     // Load the containing objects based on type
     final Component fromComponent = getComponent(fromClassIdType, fromTermId,
@@ -388,13 +390,15 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
+    // NEW THINKING: allow a component info relationship from a SCUI/SDUI/CODE
+    // -> SRC atom
     // For the contexts.src file relationships only, if either
     // the from or to component has a terminology = 'SRC', skip it.
-    if (fromContextsSrcFile && (toComponent.getTerminology().equals("SRC")
-        || fromComponent.getTerminology().equals("SRC"))) {
-      updateProgress();
-      return;
-    }
+    // if (fromContextsSrcFile && (toComponent.getTerminology().equals("SRC")
+    // || fromComponent.getTerminology().equals("SRC"))) {
+    // updateProgress();
+    // return;
+    // }
 
     // Create the relationship.
     // If id_type_1 equals id_type_2, the relationship is of that type.
