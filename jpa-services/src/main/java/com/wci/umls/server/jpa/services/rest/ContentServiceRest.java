@@ -7,6 +7,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import java.io.InputStream;
+import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -1036,12 +1037,25 @@ public interface ContentServiceRest {
    *
    * @param projectId the project id
    * @param concept the concept
+   * @param check the check name
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String check,
     String authToken) throws Exception;
+  
+  /**
+   * Validate concepts.
+   *
+   * @param projectId the project id
+   * @param check the check
+   * @param authToken the auth token
+   * @return the sets the
+   * @throws Exception the exception
+   */
+  public Set<Long> validateConcepts(Long projectId, String check, String authToken)
+    throws Exception;
 
   /**
    * Validate atom.
@@ -1148,4 +1162,7 @@ public interface ContentServiceRest {
    */
   public Atom getAtom(Long atomId, Long projectId, String authToken)
     throws Exception;
+
+
+
 }

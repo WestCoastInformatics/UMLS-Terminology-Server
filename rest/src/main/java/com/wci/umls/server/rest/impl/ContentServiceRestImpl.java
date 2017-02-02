@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -4243,10 +4244,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/validate/concept")
-  @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept against a specific check or all project checks")
   public ValidationResult validateConcept(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @PathParam("checkId") String check,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -4257,9 +4259,63 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate conceptm", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateConcept(project.getValidationChecks(),
-          concept);
-    } catch (Exception e) {
+
+      if (check == null) {
+        return contentService.validateConcept(project.getValidationChecks(),
+            concept);
+      } else {
+        if (!"DEFAULT".equals(check)
+            && !project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService
+              .validateConcept(new ArrayList<>(Arrays.asList(check)), concept);
+        }
+      }
+
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to validate concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/concepts")
+  @ApiOperation(value = "Validate All Concepts", notes = "Validates all concept against a specific check or all project checks")
+  public Set<Long> validateConcepts(
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @PathParam("checkId") String check,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/concepts " + projectId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate conceptm", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      final Set<Long> conceptIds = new HashSet<>(contentService.getAllConceptIds(project.getTerminology(), project.getVersion(), project.getBranch()));
+      if (check == null) {
+        return contentService.validateConcepts(project, null, conceptIds);
+      } else {
+        if (!project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService.validateConcepts(project, check, conceptIds);
+        }
+      }
+    } catch (
+
+    Exception e) {
       handleException(e, "trying to validate concept");
       return null;
     } finally {

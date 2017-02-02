@@ -4826,12 +4826,12 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Set<Long> validateConcepts(Project project, Set<Long> conceptIds)
+  public Set<Long> validateConcepts(Project project, String check, Set<Long> conceptIds)
     throws Exception {
     Logger.getLogger(getClass()).info("  Validate all concepts");
     final Set<Long> failures = new HashSet<>();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key)) {
+      if (project.getValidationChecks().contains(key) && (check == null || check.equals(key))) {
         final Set<Long> failedCheck =
             getValidationHandlersMap().get(key).validateConcepts(conceptIds,
                 project.getTerminology(), project.getVersion(), this);

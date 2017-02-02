@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.client;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -2234,13 +2235,14 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
-    String authToken) throws Exception {
+    String check, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Client - validate concept " + concept);
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/content/validate/concept?projectId=" + projectId);
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/validate/concept?projectId="
+            + projectId + (check == null ? "" : "&check=" + check));
 
     final String conceptString =
         (concept != null ? ConfigUtility.getStringForGraph(concept) : null);
@@ -2258,6 +2260,32 @@ public class ContentClientRest extends RootClientRest
     return ConfigUtility.getGraphForString(resultString,
         ValidationResultJpa.class);
 
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<Long> validateConcepts(Long projectId, String check,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Client - validate concepts ");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/content/validate/concepts?projectId="
+            + projectId + (check == null ? "" : "&check=" + check));
+
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(null);
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      Logger.getLogger(getClass()).debug(resultString);
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        Set.class);
   }
 
   /* see superclass */
