@@ -241,23 +241,15 @@ public class ContextLoaderAlgorithm
    * Removes the tree positions.
    *
    * @param term the term
-   * @param oldVersions the old versions
    * @return the int
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private int removeTreePositions(Terminology term, boolean oldVersions)
-    throws Exception {
+  private int removeTreePositions(Terminology term) throws Exception {
     int removedCount = 0;
 
-    if (oldVersions) {
-      logInfo(
-          "[ContextLoader] Removing old-version tree positions for terminology: "
-              + term.getTerminology());
-    } else {
-      logInfo("[ContextLoader] Removing tree positions for terminology: "
-          + term.getTerminology() + ", version: " + term.getVersion());
-    }
+    logInfo("[ContextLoader] Removing tree positions for terminology: "
+        + term.getTerminology() + ", version: " + term.getVersion());
 
     IdType organizingClassType = term.getOrganizingClassType();
     Class<?> clazz = null;
@@ -274,7 +266,7 @@ public class ContextLoaderAlgorithm
 
     Query query = manager.createQuery("SELECT a.id FROM "
         + clazz.getSimpleName() + " a WHERE terminology = :terminology "
-        + " AND " + (oldVersions ? "NOT" : "") + " version = :version");
+        + " AND version = :version");
     query.setParameter("terminology", term.getTerminology());
     query.setParameter("version", term.getVersion());
     for (final Long id : (List<Long>) query.getResultList()) {
@@ -293,7 +285,8 @@ public class ContextLoaderAlgorithm
    * @throws Exception the exception
    */
   private void computeContexts(Terminology terminology) throws Exception {
-    logInfo("[ContextLoader] Compute contexts for " + terminology.getTerminology());
+    logInfo(
+        "[ContextLoader] Compute contexts for " + terminology.getTerminology());
 
     // Check for a cancelled call before starting
     checkCancel();
@@ -594,7 +587,7 @@ public class ContextLoaderAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    //
+
     // Delete any TreePositions and TransitiveRelationships for all terminology
     // and versions referenced in the contexts.src file.
 
@@ -606,7 +599,7 @@ public class ContextLoaderAlgorithm
     checkPreconditions();
 
     logInfo(
-        "[ContextLoader] Reset: removing all Tree Positions and Transitive Relationships added by previous run");
+        "[ContextLoader] Reset: removing all Tree Positions added by previous run");
     //
     // Load the contexts.src file
     //
@@ -629,7 +622,7 @@ public class ContextLoaderAlgorithm
 
     for (final String terminologyVersion : terminologyAndVersions) {
       final Terminology terminology = getCachedTerminology(terminologyVersion);
-      removedTreePosCount += removeTreePositions(terminology, false);
+      removedTreePosCount += removeTreePositions(terminology);
 
       commitClearBegin();
     }

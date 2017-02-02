@@ -353,7 +353,7 @@ tsApp
               // progress monitors as needed
               $timeout(function() {
                 $scope.refreshStepProgress();
-              }, 1000);
+              }, 2000);
             }
           });
         };

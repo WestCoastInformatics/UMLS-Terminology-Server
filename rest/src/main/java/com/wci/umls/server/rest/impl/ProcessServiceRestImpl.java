@@ -1533,7 +1533,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /" + id
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /" + id
         + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -1584,8 +1584,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /algo/" + id
-        + "/progress?projectId=" + projectId + " for user " + authToken);
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /algo/"
+        + id + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
