@@ -589,6 +589,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       // fix state where server crash caused a process failure
       checkBadState(processExecution, projectId, processService);
+
       return processExecution;
     } catch (Exception e) {
       handleException(e, "trying to get a process execution");
@@ -1459,9 +1460,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
       // Verify the project
       verifyProject(processExecution, projectId);
-
-      // fix state where server crash caused a process failure
-      checkBadState(processExecution, projectId, processService);
 
       // Find the algorithm and call cancel on it
       if (processAlgorithmMap.containsKey(id)) {

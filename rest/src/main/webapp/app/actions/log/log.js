@@ -31,7 +31,6 @@ tsApp.directive('log', [ function() {
 
         // Log modal
         $scope.openLogModal = function() {
-          console.debug('TESTTEST $scope.selected = ', $scope.selected);
           var modalInstance = $uibModal.open({
             templateUrl : 'app/actions/log/logModal.html',
             controller : LogModalCtrl,
@@ -71,11 +70,6 @@ tsApp.directive('log', [ function() {
 
           // Get log to display
           $scope.getLog = function() {
-
-            console.debug('TESTTEST getLog: type = ', type);
-            console.debug('TESTTEST getLog: selected.worklist = ', selected.worklist);
-            console.debug('TESTTEST getLog: selected.process = ', selected.process);
-
             if (type == 'Worklist' || type == 'Checklist') {
               var checklistId = (type == 'Checklist' ? selected.worklist.id : null);
               var worklistId = (type == 'Worklist' ? selected.worklist.id : null);

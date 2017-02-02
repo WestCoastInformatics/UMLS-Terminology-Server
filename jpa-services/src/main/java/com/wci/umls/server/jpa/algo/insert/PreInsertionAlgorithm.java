@@ -14,6 +14,7 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 
@@ -46,7 +47,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     ValidationResult validationResult = new ValidationResultJpa();
 
     if (getProject() == null) {
-      throw new Exception("Pre Insertion requires a project to be set");
+      throw new LocalException("Pre Insertion requires a project to be set");
     }
 
     // Go through all the files needed by insertion and check for presence
@@ -57,7 +58,7 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
-      throw new Exception(
+      throw new LocalException(
           "Specified input directory does not exist - " + srcFullPath);
     }
 

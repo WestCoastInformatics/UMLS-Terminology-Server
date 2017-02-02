@@ -128,12 +128,11 @@ tsApp.controller('WorkflowCtrl', [
         });
       }
     };
-    
+
     $scope.getEpoch = function() {
-      workflowService.getWorkflowEpoch($scope.selected.project.id).then(
-        function(data) {
-          $scope.selected.epoch = data;
-        });
+      workflowService.getWorkflowEpoch($scope.selected.project.id).then(function(data) {
+        $scope.selected.epoch = data;
+      });
     }
 
     // handle change in project role
@@ -198,7 +197,16 @@ tsApp.controller('WorkflowCtrl', [
       // Success
       function(data) {
         $scope.lists.configs = data.configs.sort(utilService.sortBy('type'));
-        $scope.setConfig($scope.lists.configs[0]);
+
+        // Select the MUTUALLY_EXCLUSIVE config if available.
+        // If not, select the first config in the list.
+        var selectConfig = $scope.lists.configs[0];
+        for (var i = 0; i < $scope.lists.configs.length; i++) {
+          if ($scope.lists.configs[i].type == 'MUTUALLY_EXCLUSIVE') {
+            selectConfig = $scope.lists.configs[i];
+          }
+        }
+        $scope.setConfig(selectConfig);
       });
     };
 
@@ -628,7 +636,6 @@ tsApp.controller('WorkflowCtrl', [
       });
     };
 
-    
     // Open edit epoch modal
     $scope.openEditEpochModal = function(lbin) {
 
@@ -649,7 +656,6 @@ tsApp.controller('WorkflowCtrl', [
         $scope.getEpoch();
       });
     };
-
 
     //
     // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
