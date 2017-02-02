@@ -105,6 +105,7 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
         : relationship.getTerminologyId();
   }
 
+  /* see superclass */
   @Override
   public String getInverseTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
@@ -170,22 +171,26 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
     return "Default Id Assignment Algorithm";
   }
 
+  /* see superclass */
   @Override
   public String getTerminologyId(Mapping mapping) throws Exception {
     return mapping.getTerminologyId();
   }
 
+  /* see superclass */
   @Override
   public String getTerminologyId(MapSet mapSet) throws Exception {
     return mapSet.getTerminologyId();
   }
 
+  /* see superclass */
   @Override
   public boolean getTransactionPerOperation() throws Exception {
     // N/A
     return false;
   }
 
+  /* see superclass */
   @Override
   public void setTransactionPerOperation(boolean transactionPerOperation)
     throws Exception {
@@ -193,39 +198,46 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
 
   }
 
+  /* see superclass */
   @Override
   public void commit() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void rollback() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public void close() throws Exception {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public void clear() throws Exception {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public void commitClearBegin() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
@@ -233,13 +245,7 @@ public class DefaultIdentifierAssignmentHandler extends AbstractConfigurable
 
   }
 
-  @Override
-  public void logAndCommit(String preMessage, int objectCt, int logCt,
-    int commitCt) throws Exception {
-    // N/A
-
-  }
-
+  /* see superclass */
   @Override
   public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
     throws Exception {

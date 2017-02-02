@@ -270,15 +270,13 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-
   /* see superclass */
   @Override
   public Relationship<Atom, Atom> createInverseRelationship(
     Relationship<Atom, Atom> relationship, String inverseRelType,
     String inverseAdditionalRelType) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Create inverse of atom relationship " + relationship);
-    AtomRelationship inverseRelationship =
+
+    final AtomRelationship inverseRelationship =
         new AtomRelationshipJpa((AtomRelationship) relationship, false);
 
     return populateInverseRelationship(relationship, inverseRelationship,
