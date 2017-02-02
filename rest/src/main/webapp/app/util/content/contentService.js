@@ -469,6 +469,7 @@ tsApp
             startIndex : (searchParams.page - 1) * searchParams.pageSize,
             maxResults : searchParams.pageSize,
             sortField : searchParams.sortField,
+            ascending : searchParams.sortAscending,
             expression : searchParams && searchParams.expression ? searchParams.expression.value
               : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
