@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Query;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -65,6 +67,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /** The previous progress. */
   private int previousProgress = 0;
+
+  /** The progress check, indicates when to check the progress monitor. */
+  private int progressCheck = 0;
 
   /** The steps. */
   private int steps;
@@ -192,7 +197,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("static-method")
   public List<String> loadFileIntoStringList(File srcDirFile, String fileName,
     String keepRegexFilter, String skipRegexFilter) throws Exception {
-    String sourcesFile = srcDirFile + File.separator + fileName;
+    final String sourcesFile = srcDirFile + File.separator + fileName;
     BufferedReader sources = null;
     try {
       sources = new BufferedReader(new FileReader(sourcesFile));
@@ -200,7 +205,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       throw new Exception("File not found: " + sourcesFile);
     }
 
-    List<String> lines = new ArrayList<>();
+    final List<String> lines = new ArrayList<>();
     String linePre = null;
     while ((linePre = sources.readLine()) != null) {
       linePre = linePre.replace("\r", "");
@@ -242,7 +247,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
     // Load alternateTerminologyIds
-    javax.persistence.Query jpaQuery = getEntityManager().createQuery(
+    Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
@@ -281,7 +286,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
-    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
+    final Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
@@ -309,7 +314,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
-    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
+    final Query jpaQuery = getEntityManager().createQuery(
         "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
@@ -331,31 +336,33 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Cache existing relationships' RUIs and IDs.
    *
+   * @param altTerminologyKey the alt terminology key
    * @param terminology the terminology
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingRelationshipIds(String terminology)
-    throws Exception {
+  private void cacheExistingRelationshipIds(String altTerminologyKey,
+    String terminology) throws Exception {
 
     logInfo(
         "[SourceLoader] Loading relationship Terminology Ids from database for terminology "
             + terminology);
 
-    List<String> relationshipPrefixes =
-        Arrays.asList("Code", "Concept", "Descriptor");
+    final List<String> relationshipPrefixes =
+        Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
     // Get RUIs for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      final javax.persistence.Query jpaQuery = getEntityManager()
+      final Query jpaQuery = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
-              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+              + "RelationshipJpa a join a.alternateTerminologyIds b "
+              + "where KEY(b)  = :projectTerminology and "
+              + "a.terminology = :terminology and a.publishable=true");
       jpaQuery.setParameter("terminology", terminology);
 
-      logInfo(
-          "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
-              + terminology);
+      logInfo("[SourceLoader] Loading " + relPrefix
+          + " Terminology Ids from database for terminology " + terminology);
 
       final List<Object[]> list = jpaQuery.getResultList();
       for (final Object[] entry : list) {
@@ -366,7 +373,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Add this terminology to the cached set.
-    relCachedTerms.add(terminology);
+    relCachedTerms.add(altTerminologyKey + terminology);
   }
 
   /**
@@ -459,9 +466,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingCodeIds(String terminology) throws Exception {
 
-    final javax.persistence.Query jpaQuery =
+    final Query jpaQuery =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from CodeJpa c where terminology = :terminology AND publishable=1");
+            + "from CodeJpa c where terminology = :terminology AND publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
@@ -488,9 +495,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
-    final javax.persistence.Query jpaQuery =
+    final Query jpaQuery =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from ConceptJpa c where terminology = :terminology AND publishable=1");
+            + "from ConceptJpa c where terminology = :terminology AND publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
@@ -517,9 +524,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingDescriptorIds(String terminology) throws Exception {
 
-    final javax.persistence.Query jpaQuery =
+    final Query jpaQuery =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from DescriptorJpa c where terminology = :terminology AND publishable=1");
+            + "from DescriptorJpa c where terminology = :terminology AND publishable=true");
     jpaQuery.setParameter("terminology", terminology);
 
     logInfo(
@@ -537,73 +544,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     descriptorCachedTerms.add(terminology);
   }
 
-  // /**
-  // * Returns the id.
-  // *
-  // * @param idType the id type
-  // * @param terminologyId the terminology id
-  // * @param terminology the terminology
-  // * @return the id
-  // * @throws Exception the exception
-  // */
-  // public Long getId(IdType idType, String terminologyId, String terminology)
-  // throws Exception {
-  //
-  // if (idType.equals(IdType.ATOM)) {
-  // if (!atomCachedTerms.contains(terminology)) {
-  // cacheExistingAtomIds(terminology);
-  // }
-  // return atomIdCache.get(terminologyId);
-  // }
-  //
-  // else if (idType.equals(IdType.ATTRIBUTE)) {
-  // if (!attributeCachedTerms.contains(terminology)) {
-  // cacheExistingAttributeIds(terminology);
-  // }
-  // return attributeIdCache.get(terminologyId);
-  // }
-  //
-  // else if (idType.equals(IdType.CODE)) {
-  // if (!codeCachedTerms.contains(terminology)) {
-  // cacheExistingCodeIds(terminology);
-  // }
-  // return codeIdCache.get(terminologyId + terminology);
-  // }
-  //
-  // else if (idType.equals(IdType.CONCEPT)) {
-  // if (!conceptCachedTerms.contains(terminology)) {
-  // cacheExistingConceptIds(terminology);
-  // }
-  // return conceptIdCache.get(terminologyId + terminology);
-  // }
-  //
-  // else if (idType.equals(IdType.DEFINITION)) {
-  // if (!definitionCachedTerms.contains(terminology)) {
-  // cacheExistingDefinitionIds(terminology);
-  // }
-  // return definitionIdCache.get(terminologyId);
-  // }
-  //
-  // else if (idType.equals(IdType.DESCRIPTOR)) {
-  // if (!descriptorCachedTerms.contains(terminology)) {
-  // cacheExistingDescriptorIds(terminology);
-  // }
-  // return descriptorIdCache.get(terminologyId + terminology);
-  // }
-  //
-  // else if (idType.equals(IdType.RELATIONSHIP)) {
-  // if (!relCachedTerms.contains(terminology)) {
-  // cacheExistingRelationshipIds(terminology);
-  // }
-  // return relIdCache.get(terminologyId + terminology);
-  // }
-  //
-  // else {
-  // throw new Exception("ERROR: " + idType + " is an unhandled idType.");
-  // }
-  //
-  // }
-
   /**
    * Put component.
    *
@@ -616,34 +556,24 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     throws Exception {
     if (component instanceof Atom) {
       atomIdCache.put(terminologyId, component.getId());
-    }
-
-    else if (component instanceof Attribute) {
+    } else if (component instanceof Attribute) {
       attributeIdCache.put(terminologyId, component.getId());
-    }
-
-    else if (component instanceof Concept) {
+    } else if (component instanceof Relationship) {
+      relIdCache.put(terminologyId, component.getId());
+    } else if (component instanceof Concept) {
       conceptIdCache.put(terminologyId + component.getTerminology(),
           component.getId());
-    }
-
-    else if (component instanceof Code) {
+    } else if (component instanceof Code) {
       codeIdCache.put(terminologyId + component.getTerminology(),
           component.getId());
-    }
-
-    else if (component instanceof Definition) {
+    } else if (component instanceof Definition) {
       definitionIdCache.put(terminologyId, component.getId());
-    }
-
-    else if (component instanceof Descriptor) {
+    } else if (component instanceof Descriptor) {
       descriptorIdCache.put(terminologyId + component.getTerminology(),
           component.getId());
     }
 
-    else if (component instanceof Relationship) {
-      relIdCache.put(terminologyId, component.getId());
-    } else {
+    else {
       throw new Exception("ERROR: " + component.getClass().getName()
           + " is an unhandled type.");
     }
@@ -725,16 +655,20 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("RUI")) {
-      if (!relCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingRelationshipIds(getProject().getTerminology());
+      if (!relCachedTerms
+          .contains(getProject().getTerminology() + terminology)) {
+        cacheExistingRelationshipIds(getProject().getTerminology(),
+            terminology);
       }
 
       return getComponent(relIdCache.get(terminologyId), relClass);
     }
 
     else if (type.equals("SRC_REL_ID")) {
-      if (!relCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
-        cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC");
+      if (!relCachedTerms
+          .contains(getProject().getTerminology() + "-SRC" + terminology)) {
+        cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC",
+            terminology);
       }
 
       return getComponent(relIdCache.get(terminologyId), relClass);
@@ -798,6 +732,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   public void setSteps(int steps) {
     this.steps = steps;
+    this.progressCheck = (int) ((steps + 1 / 99.0));
   }
 
   /**
@@ -898,7 +833,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   public String getCachedTerminologyName(String terminologyAndVersion)
     throws Exception {
 
-    Terminology terminology = getCachedTerminology(terminologyAndVersion);
+    final Terminology terminology = getCachedTerminology(terminologyAndVersion);
     if (terminology == null) {
       return null;
     } else {
@@ -1008,67 +943,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return cachedAdditionalRelationshipTypes.get(abbreviation);
   }
 
-  // /**
-  // * Lookup class.
-  // *
-  // * @param string the string
-  // * @return the id type
-  // * @throws Exception the exception
-  // */
-  // @SuppressWarnings("static-method")
-  // public IdType lookupIdType(String string) throws Exception {
-  //
-  // IdType objectType = null;
-  //
-  // switch (string) {
-  // case "CODE_SOURCE":
-  // objectType = IdType.CODE;
-  // break;
-  // case "SOURCE_CUI":
-  // objectType = IdType.CONCEPT;
-  // break;
-  // case "SRC_ATOM_ID":
-  // objectType = IdType.ATOM;
-  // break;
-  // case "SRC_REL_ID":
-  // objectType = IdType.RELATIONSHIP;
-  // break;
-  // default:
-  // throw new Exception("Unhandled IdType type: " + string);
-  // }
-  //
-  // return objectType;
-  // }
-
-  // /**
-  // * Lookup class.
-  // *
-  // * @param idType the id type
-  // * @return the class<? extends component>
-  // * @throws Exception the exception
-  // */
-  // public Class<? extends Component> lookupClass(IdType idType)
-  // throws Exception {
-  //
-  // Class<? extends Component> objectClass = null;
-  //
-  // switch (idType) {
-  // case CODE:
-  // objectClass = CodeJpa.class;
-  // break;
-  // case CONCEPT:
-  // objectClass = ConceptJpa.class;
-  // break;
-  // case ATOM:
-  // objectClass = AtomJpa.class;
-  // break;
-  // default:
-  // throw new Exception("Unhandled IdType type: " + idType);
-  // }
-  //
-  // return objectClass;
-  // }
-
   /**
    * Lookup workflow status.
    *
@@ -1078,21 +952,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   @SuppressWarnings("static-method")
   public WorkflowStatus lookupWorkflowStatus(String string) throws Exception {
-
-    WorkflowStatus workflowStatus = null;
-
     switch (string) {
       case "R":
-        workflowStatus = WorkflowStatus.READY_FOR_PUBLICATION;
-        break;
+        return WorkflowStatus.READY_FOR_PUBLICATION;
       case "N":
-        workflowStatus = WorkflowStatus.NEEDS_REVIEW;
-        break;
+        return WorkflowStatus.NEEDS_REVIEW;
       default:
         throw new Exception("Invalid workflowStatus type: " + string);
     }
-
-    return workflowStatus;
   }
 
   /**
@@ -1104,9 +971,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   @SuppressWarnings("static-method")
   public String lookupRelationshipType(String string) throws Exception {
-
-    String relationshipType = null;
-
     switch (string) {
       case "AQ":
       case "BRB":
@@ -1121,28 +985,20 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       case "PAR":
       case "CHD":
       case "XR":
-        relationshipType = string;
-        break;
+        return string;
       case "RT":
-        relationshipType = "RO";
-        break;
+        return "RO";
       case "NT":
-        relationshipType = "RN";
-        break;
+        return "RN";
       case "BT":
-        relationshipType = "RB";
-        break;
+        return "RB";
       case "RT?":
-        relationshipType = "RQ";
-        break;
+        return "RQ";
       case "SFO/LFO":
-        relationshipType = "SY";
-        break;
+        return "SY";
       default:
         throw new Exception("Invalid relationship type: " + string);
     }
-
-    return relationshipType;
 
   }
 
@@ -1166,61 +1022,17 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   public void updateProgress() throws Exception {
-    String algoName = getClass().getSimpleName();
-    if (algoName.contains("Loader")) {
-      updateProgressForLoadingAlgos();
-    } else {
-      updateProgressForComputingAlgos();
-    }
-  }
-
-  /**
-   * Update progress for Algorithms that load data from an SRC file.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgressForLoadingAlgos() throws Exception {
-    String algoName = getClass().getSimpleName();
-    String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
-    String objectType = algoName.substring(0, algoName.indexOf("Loader"));
-
     stepsCompleted++;
+    logAndCommit(stepsCompleted, RootService.logCt, RootService.commitCt);
 
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          shortName.toUpperCase() + " progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
+    if (stepsCompleted % progressCheck == 0) {
+      final int currentProgress = (int) ((100.0 * stepsCompleted / steps));
+      if (currentProgress > previousProgress) {
+        fireProgressEvent(currentProgress, currentProgress + "%");
+        previousProgress = currentProgress;
+      }
     }
 
-    if (!transactionPerOperation) {
-      logAndCommit("[" + shortName + "] " + objectType + " lines processed ",
-          stepsCompleted, RootService.logCt, RootService.commitCt);
-    }
-  }
-
-  /**
-   * Update progress for Algorithms that compute list of objects to process.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgressForComputingAlgos() throws Exception {
-    String algoName = getClass().getSimpleName();
-    String shortName = algoName.substring(0, algoName.indexOf("Algorithm"));
-
-    stepsCompleted++;
-
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      fireProgressEvent(currentProgress,
-          shortName.toUpperCase() + " progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
-
-    if (!transactionPerOperation) {
-      logAndCommit("[" + shortName + "] steps completed ", stepsCompleted,
-          RootService.logCt, RootService.commitCt);
-    }
   }
 
   /**
@@ -1257,17 +1069,17 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   public void clearRelationshipAltTerminologies() throws Exception {
 
-    List<String> relationshipPrefixes =
+    final List<String> relationshipPrefixes =
         Arrays.asList("Code", "Concept", "Descriptor", "Atom", "ComponentInfo");
 
     logInfo("[SourceLoader] Removing " + getProject().getTerminology() + "-SRC"
         + " Relationship Alternate Terminology Ids from database");
 
-    for (String relPrefix : relationshipPrefixes) {
+    for (final String relPrefix : relationshipPrefixes) {
 
-      final javax.persistence.Query jpaQuery =
-          getEntityManager().createQuery("select a from " + relPrefix
-              + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
+      final Query jpaQuery = getEntityManager().createQuery("select a from "
+          + relPrefix
+          + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
       jpaQuery.setParameter("terminology",
           getProject().getTerminology() + "-SRC");
 
@@ -1290,20 +1102,20 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   public Set<Pair<String, String>> getReferencedTerminologies()
     throws Exception {
 
-    Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+    final Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
 
     //
     // Load the sources.src file
     //
-    List<String> lines =
+    final List<String> lines =
         loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
 
-    String fields[] = new String[20];
+    final String fields[] = new String[20];
 
     // Each line of sources.src corresponds to one terminology.
     // Save the each terminology and version as a pair, and add to the results
     // list
-    for (String line : lines) {
+    for (final String line : lines) {
       FieldedStringTokenizer.split(line, "|", 20, fields);
       referencedTerminologies.add(new ImmutablePair<>(fields[4], fields[5]));
     }

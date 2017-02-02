@@ -58,7 +58,7 @@ public class AttributeLoaderAlgorithm
 
     // Check the input directories
 
-    String srcFullPath =
+    final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
@@ -105,21 +105,21 @@ public class AttributeLoaderAlgorithm
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
       //
-      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "attributes.src", null,
           "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM)(.*)");
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
 
-      String fields[] = new String[14];
+      final String fields[] = new String[14];
 
       // Each line of relationships.src corresponds to one relationship.
       // Check to make sure the relationship doesn't already exist in the
       // database
       // If it does, skip it.
       // If it does not, add it.
-      for (String line : lines) {
+      for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
@@ -149,7 +149,7 @@ public class AttributeLoaderAlgorithm
 
         // Load the terminology that will be assigned to the new Attribute or
         // Definition
-        Terminology setTerminology = getCachedTerminology(fields[5]);
+        final Terminology setTerminology = getCachedTerminology(fields[5]);
         if (setTerminology == null) {
           logWarnAndUpdate(line,
               "Warning - terminology not found: " + fields[5] + ".");
@@ -160,7 +160,7 @@ public class AttributeLoaderAlgorithm
         // attribute
         if (fields[3].equals("DEFINITION")) {
           // Create the definition
-          Definition newDefinition = new DefinitionJpa();
+          final Definition newDefinition = new DefinitionJpa();
           newDefinition.setBranch(Branch.ROOT);
           newDefinition.setName(fields[3]);
           newDefinition.setValue(fields[4]);
@@ -168,7 +168,8 @@ public class AttributeLoaderAlgorithm
           newDefinition.setTerminology(setTerminology.getTerminology());
           newDefinition.setVersion(setTerminology.getVersion());
           newDefinition.setTimestamp(new Date());
-          newDefinition.setSuppressible("OYE".contains(fields[8].toUpperCase()));
+          newDefinition
+              .setSuppressible("OYE".contains(fields[8].toUpperCase()));
           newDefinition.setObsolete(fields[9].toUpperCase().equals("O"));
           newDefinition.setPublished(fields[6].toUpperCase().equals("Y"));
           newDefinition.setPublishable(fields[7].toUpperCase().equals("Y"));
@@ -188,10 +189,11 @@ public class AttributeLoaderAlgorithm
           if (containerComponent instanceof Atom) {
             atom = (Atom) containerComponent;
           } else if (containerComponent instanceof AtomClass) {
-            AtomClass atomClass = (AtomClass) containerComponent;
-            List<Atom> atoms = prefNameHandler.sortAtoms(atomClass.getAtoms(),
-                getPrecedenceList(getProject().getTerminology(),
-                    getProject().getVersion()));
+            final AtomClass atomClass = (AtomClass) containerComponent;
+            final List<Atom> atoms =
+                prefNameHandler.sortAtoms(atomClass.getAtoms(),
+                    getPrecedenceList(getProject().getTerminology(),
+                        getProject().getVersion()));
             atom = atoms.get(0);
           } else {
             logWarnAndUpdate(line,
@@ -201,26 +203,28 @@ public class AttributeLoaderAlgorithm
           }
 
           // Compute definition identity
-          String newDefinitionAtui =
+          final String newDefinitionAtui =
               handler.getTerminologyId(newDefinition, atom);
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Definition oldDefinition = (Definition) getComponent("DEFINITION",
-              newDefinitionAtui, newDefinition.getTerminology(), null);
+          final Definition oldDefinition =
+              (Definition) getComponent("DEFINITION", newDefinitionAtui,
+                  newDefinition.getTerminology(), null);
 
           // If no definition with the same ATUI exists, create this new
           // definition, and add it to its containing component
           if (oldDefinition == null) {
             newDefinition.getAlternateTerminologyIds()
                 .put(getProject().getTerminology(), newDefinitionAtui);
-            newDefinition = addDefinition(newDefinition, containerComponent);
+            final Definition newDefinition2 =
+                addDefinition(newDefinition, containerComponent);
 
             definitionAddCount++;
-            putComponent(newDefinition, newDefinitionAtui);
+            putComponent(newDefinition2, newDefinitionAtui);
 
             // Add the definition to component
-            atom.getDefinitions().add(newDefinition);
+            atom.getDefinitions().add(newDefinition2);
             updateAtom(atom);
           }
           // If a previous definition with same ATUI exists, load that object.
@@ -263,7 +267,7 @@ public class AttributeLoaderAlgorithm
         // Otherwise, process the line as an attribute
         else {
           // Create the attribute
-          Attribute newAttribute = new AttributeJpa();
+          final Attribute newAttribute = new AttributeJpa();
           newAttribute.setBranch(Branch.ROOT);
           newAttribute.setName(fields[3]);
           newAttribute.setValue(fields[4]);
@@ -277,7 +281,7 @@ public class AttributeLoaderAlgorithm
           newAttribute.setPublishable(fields[7].toUpperCase().equals("Y"));
 
           // Load the containing object
-          ComponentHasAttributes containerComponent =
+          final ComponentHasAttributes containerComponent =
               (ComponentHasAttributes) getComponent(fields[10], fields[1],
                   getCachedTerminologyName(fields[11]), null);
           if (containerComponent == null) {
@@ -289,12 +293,12 @@ public class AttributeLoaderAlgorithm
           }
 
           // Compute attribute identity
-          String newAttributeAtui =
+          final String newAttributeAtui =
               handler.getTerminologyId(newAttribute, containerComponent);
 
           // Check to see if attribute with matching ATUI already exists in the
           // database
-          Attribute oldAttribute = (Attribute) getComponent("ATUI",
+          final Attribute oldAttribute = (Attribute) getComponent("ATUI",
               newAttributeAtui, newAttribute.getTerminology(), null);
 
           // If no attribute with the same ATUI exists, create this new
@@ -302,13 +306,14 @@ public class AttributeLoaderAlgorithm
           if (oldAttribute == null) {
             newAttribute.getAlternateTerminologyIds()
                 .put(getProject().getTerminology(), newAttributeAtui);
-            newAttribute = addAttribute(newAttribute, containerComponent);
+            final Attribute newAttribute2 =
+                addAttribute(newAttribute, containerComponent);
 
             attributeAddCount++;
-            putComponent(newAttribute, newAttributeAtui);
+            putComponent(newAttribute2, newAttributeAtui);
 
             // Add the attribute to component
-            containerComponent.getAttributes().add(newAttribute);
+            containerComponent.getAttributes().add(newAttribute2);
             updateComponent(containerComponent);
           }
           // If a previous attribute with same ATUI exists, load that object.

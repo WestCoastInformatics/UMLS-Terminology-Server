@@ -15,7 +15,6 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -378,7 +377,6 @@ public class ComponentInfoRelationshipJpa
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-
   /* see superclass */
   @Override
   public int hashCode() {
@@ -405,9 +403,7 @@ public class ComponentInfoRelationshipJpa
   public Relationship<ComponentInfo, ComponentInfo> createInverseRelationship(
     Relationship<ComponentInfo, ComponentInfo> relationship,
     String inverseRelType, String inverseAdditionalRelType) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Create inverse of component info relationship " + relationship);
-    ComponentInfoRelationship inverseRelationship =
+    final ComponentInfoRelationship inverseRelationship =
         new ComponentInfoRelationshipJpa(
             (ComponentInfoRelationship) relationship, false);
 

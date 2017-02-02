@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -162,6 +162,7 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
+  /* see superclass */
   @Override
   public String getInverseTerminologyId(
     Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
@@ -259,6 +260,7 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     return "UUID Hash Identifier Assignment Handler";
   }
 
+  /* see superclass */
   @Override
   public String getTerminologyId(Mapping mapping) throws Exception {
     StringBuilder hashKey = new StringBuilder();
@@ -269,6 +271,7 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
+  /* see superclass */
   @Override
   public String getTerminologyId(MapSet mapSet) throws Exception {
     StringBuilder hashKey = new StringBuilder();
@@ -278,12 +281,14 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
     return TerminologyUtility.getUuid(hashKey.toString()).toString();
   }
 
+  /* see superclass */
   @Override
   public boolean getTransactionPerOperation() throws Exception {
     // N/A
     return false;
   }
 
+  /* see superclass */
   @Override
   public void setTransactionPerOperation(boolean transactionPerOperation)
     throws Exception {
@@ -291,42 +296,49 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
 
   }
 
+  /* see superclass */
   @Override
   public void commit() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void rollback() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void close() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void clear() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void commitClearBegin() throws Exception {
     // N/A
 
   }
 
+  /* see superclass */
   @Override
   public void logAndCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
@@ -334,17 +346,11 @@ public class UuidHashIdentifierAssignmentHandler extends AbstractConfigurable
 
   }
 
-  @Override
-  public void logAndCommit(String preMessage, int objectCt, int logCt,
-    int commitCt) throws Exception {
-    // N/A
-
-  }
-  
+  /* see superclass */
   @Override
   public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
     // N/A
 
-  }    
+  }
 }

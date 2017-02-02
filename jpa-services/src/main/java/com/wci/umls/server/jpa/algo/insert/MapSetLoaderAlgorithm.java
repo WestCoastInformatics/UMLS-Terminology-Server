@@ -87,7 +87,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Check the input directories
 
-    String srcFullPath =
+    final String srcFullPath =
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
@@ -121,7 +121,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the attributes.src file, keeping only mapping lines
       //
-      List<String> lines =
+      final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "attributes.src",
               "(.*)(MAPSETNAME|MAPSETVERSION|TOVSAB|TORSAB|FROMRSAB|FROMVSAB|MAPSETGRAMMAR|MAPSETRSAB|MAPSETTYPE|MAPSETVSAB|MTH_MAPFROMEXHAUSTIVE|MTH_MAPTOEXHAUSTIVE|MTH_MAPSETCOMPLEXITY|MTH_MAPFROMCOMPLEXITY|MTH_MAPTOCOMPLEXITY|MAPSETXRTARGETID|MAPSETSID|XMAP|XMAPTO|XMAPFROM)(.*)",
               null);
@@ -131,7 +131,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(2 * lines.size());
 
       // Scan through and find all MapSets that need to be created
-      for (String line : lines) {
+      for (final String line : lines) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
@@ -142,7 +142,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       // Scan through the lines again
-      for (String line : lines) {
+      for (final String line : lines) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
@@ -213,9 +213,8 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param line the line
    * @throws Exception the exception
    */
-  private void createMapSets(String line) throws Exception {
-    String fields[] = new String[14];
-
+  private void createMapSets(final String line) throws Exception {
+    final String fields[] = new String[14];
     FieldedStringTokenizer.split(line, "|", 14, fields);
 
     // Fields:
@@ -252,7 +251,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Create a new MapSet
     // This is just a shell - fields will be filled in by Xmap attributes later
-    MapSet mapSet = new MapSetJpa();
+    final MapSet mapSet = new MapSetJpa();
     mapSet.setBranch(Branch.ROOT);
     mapSet.setName("");
     mapSet.setObsolete(false);
@@ -264,9 +263,9 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     mapSet.setTerminologyId("");
     mapSet.setVersion("");
 
-    mapSet = addMapSet(mapSet);
+    final MapSet mapSet2 = addMapSet(mapSet);
     mapsetAddCount++;
-    addedMapSets.put(fields[1], mapSet);
+    addedMapSets.put(fields[1], mapSet2);
 
   }
 
@@ -277,10 +276,9 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param handler the handler
    * @throws Exception the exception
    */
-  private void processAttributesAndPopulateXmapMaps(String line,
-    IdentifierAssignmentHandler handler) throws Exception {
-    String fields[] = new String[14];
-
+  private void processAttributesAndPopulateXmapMaps(final String line,
+    final IdentifierAssignmentHandler handler) throws Exception {
+    final String fields[] = new String[14];
     FieldedStringTokenizer.split(line, "|", 14, fields);
 
     // Fields:
@@ -608,7 +606,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // Note: do NOT persist the attribute - just use returned ATUI
 
     // Load the terminology that will be assigned to the new attribute
-    Terminology setTerminology = getCachedTerminology(fields[5]);
+    final Terminology setTerminology = getCachedTerminology(fields[5]);
     if (setTerminology == null) {
       logWarn("Warning - terminology not found: " + fields[5]
           + ".  Could not process line: " + xmapEntry);
@@ -616,7 +614,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     // Create the fake attribute
-    Attribute newAttribute = new AttributeJpa();
+    final Attribute newAttribute = new AttributeJpa();
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(setTerminology.getTerminology());
@@ -634,7 +632,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     // Compute attribute identity
-    String mappingAtui =
+    final String mappingAtui =
         handler.getTerminologyId(newAttribute, containerComponent);
 
     // Assign the ATUI to the mapping.
@@ -695,7 +693,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    */
   private Attribute makeAttribute(Mapping mapping, String name, String value)
     throws Exception {
-    Attribute att = new AttributeJpa();
+    final Attribute att = new AttributeJpa();
     att.setName(name);
     att.setValue(value);
     att.setLastModifiedBy(getLastModifiedBy());
@@ -720,7 +718,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Find all mapsets that were created since the insertion started, and set
     // them to unpublishable.
-    String query = "SELECT m.id FROM MapSetJpa m " + "WHERE m.id > "
+    final String query = "SELECT m.id FROM MapSetJpa m " + "WHERE m.id > "
         + getProcess().getExecutionInfo().get("maxMapSetIdPreInsertion");
 
     // Execute a query to get mapSet Ids
