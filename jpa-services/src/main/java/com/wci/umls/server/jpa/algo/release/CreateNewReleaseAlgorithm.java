@@ -16,6 +16,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -131,6 +132,31 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
           }
         }
       }
+    }
+
+    // Project needs to be set
+    if (getProject() == null) {
+      throw new LocalException(
+          "Create new release requires a project to be set");
+    }
+
+    // Make sure process terminology matches project terminology.
+    if (!getProcess().getTerminology().equals(getProject().getTerminology())) {
+      throw new LocalException(
+          "Create new release requires the process' terminology to be set to the project terminology ("
+              + getProject().getTerminology() + ")");
+    }
+
+    // Make sure process version is a 6-digit number that is greater than
+    // the previous project terminology's most recent release
+    final ReleaseInfo currenReleaseInfo =
+        getCurrentReleaseInfo(getProject().getTerminology());
+    if (getProcess().getVersion().length() != 6
+        || !(Long.parseLong(getProcess().getVersion()) > Long
+            .parseLong(currenReleaseInfo.getVersion()))) {
+      throw new LocalException(
+          "Create new release requires the process' version to be set a 6-digit number that is greater than the most recent releases' version ("
+              + currenReleaseInfo.getVersion() + ")");
     }
 
     return result;
