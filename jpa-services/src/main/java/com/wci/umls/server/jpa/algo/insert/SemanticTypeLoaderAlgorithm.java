@@ -109,11 +109,6 @@ public class SemanticTypeLoaderAlgorithm
 
       for (final String line : lines) {
 
-        // Check for a cancelled call once every 100 lines
-        if (getStepsCompleted() % 100 == 0) {
-          checkCancel();
-        }
-
         FieldedStringTokenizer.split(line, "|", 14, fields);
 
         // Fields:
@@ -216,10 +211,7 @@ public class SemanticTypeLoaderAlgorithm
       logInfo("[SemanticTypeLoader] Updated " + updateCount
           + " existing Semantic Types.");
 
-      logInfo("  project = " + getProject().getId());
-      logInfo("  workId = " + getWorkId());
-      logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getLastModifiedBy());
+
       logInfo("Finished SEMANTICTYPELOADING");
 
     } catch (

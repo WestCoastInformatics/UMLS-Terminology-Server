@@ -582,8 +582,12 @@ public class IndexUtility {
     final String finalQuery = (pfsQuery.toString().startsWith(" AND "))
         ? pfsQuery.toString().substring(5) : pfsQuery.toString();
 
-    Logger.getLogger(IndexUtility.class)
-        .info("  query = " + finalQuery + ", " + pfs);
+    // ONLY log this if in dev mode
+    if ("DEV".equals(
+        ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
+      Logger.getLogger(IndexUtility.class)
+          .info("  query = " + finalQuery + ", " + pfs);
+    }
     try {
       luceneQuery = queryParser.parse(finalQuery);
     } catch (ParseException e) {
