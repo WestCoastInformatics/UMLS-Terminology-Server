@@ -247,6 +247,9 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
       // relationship - clear it out
       inverseRelationship.setGroup("");
 
+      // Inverse relationships are not hierarchical
+      inverseRelationship.setHierarchical(false);
+
       return inverseRelationship;
     } else {
 
