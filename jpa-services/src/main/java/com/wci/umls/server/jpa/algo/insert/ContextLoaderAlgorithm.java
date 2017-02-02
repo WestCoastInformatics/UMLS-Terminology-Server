@@ -64,12 +64,6 @@ public class ContextLoaderAlgorithm
    */
   private List<String> linesToLoad = new ArrayList<>();
 
-  /** The created trans rels. */
-  private Set<String> createdTransRels = new HashSet<>();
-
-  /** The referenced terms. */
-  private Set<Terminology> referencedTerms = new HashSet<>();
-
   /**
    * Instantiates an empty {@link ContextLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -126,17 +120,17 @@ public class ContextLoaderAlgorithm
 
       // Scan the contexts.src file and see if HCD (hierarchical code)
       // for a given terminology is populated.
-      final Set<Terminology> termsWithHcd = findTermsWithHcd(lines);
-      final Set<Terminology> computedTerms = new HashSet<>();
+      final Set<String> withHcd = findTermsWithHcd(lines);
+      final Set<String> computedTerminologies = new HashSet<>();
 
       final String fields[] = new String[17];
       for (final String line : lines) {
 
         FieldedStringTokenizer.split(line, "|", 17, fields);
 
-        final Terminology specifiedTerm = getCachedTerminology(fields[4]);
+        final Terminology terminology = getCachedTerminology(fields[4]);
 
-        if (specifiedTerm == null) {
+        if (terminology == null) {
           logWarn("Warning - terminology not found: " + fields[6]
               + ". Could not process the following line:\n\t" + line);
           continue;
@@ -144,11 +138,11 @@ public class ContextLoaderAlgorithm
 
         // If the specified terminology never has a populated HCD, the
         // transitive relationships and tree positions can be computed.
-        if (!termsWithHcd.contains(specifiedTerm)) {
+        if (!withHcd.contains(terminology.getTerminology())) {
           // Only compute once per terminology
-          if (!computedTerms.contains(specifiedTerm)) {
-            computeContexts(specifiedTerm);
-            computedTerms.add(specifiedTerm);
+          if (!computedTerminologies.contains(terminology.getTerminology())) {
+            computeContexts(terminology);
+            computedTerminologies.add(terminology.getTerminology());
           }
         }
         // If the specified terminology has a populated HCD, we need to load the
@@ -225,8 +219,6 @@ public class ContextLoaderAlgorithm
 
       commitClearBegin();
 
-      logInfo("[ContextLoader] Loaded " + createdTransRels.size()
-          + " new Transitive Relationships from file.");
       logInfo("[ContextLoader] Loaded " + addedTreePositions
           + " new Tree Positions from file.");
 
@@ -297,11 +289,11 @@ public class ContextLoaderAlgorithm
   /**
    * Calculate contexts.
    *
-   * @param term the term
+   * @param terminology the term
    * @throws Exception the exception
    */
-  private void computeContexts(Terminology term) throws Exception {
-    logInfo("[ContextLoader] Compute contexts for " + term.getTerminology());
+  private void computeContexts(Terminology terminology) throws Exception {
+    logInfo("[ContextLoader] Compute contexts for " + terminology.getTerminology());
 
     // Check for a cancelled call before starting
     checkCancel();
@@ -331,12 +323,12 @@ public class ContextLoaderAlgorithm
     TreePositionAlgorithm algo2 = null;
 
     // Only compute for organizing class types
-    if (term.getOrganizingClassType() != null) {
+    if (terminology.getOrganizingClassType() != null) {
       algo2 = new TreePositionAlgorithm();
       algo2.setLastModifiedBy(getLastModifiedBy());
-      algo2.setTerminology(term.getTerminology());
-      algo2.setVersion(term.getVersion());
-      algo2.setIdType(term.getOrganizingClassType());
+      algo2.setTerminology(terminology.getTerminology());
+      algo2.setVersion(terminology.getVersion());
+      algo2.setIdType(terminology.getOrganizingClassType());
       algo2.setWorkId(getWorkId());
       algo2.setActivityId(UUID.randomUUID().toString());
       algo2.setCycleTolerant(false);
@@ -574,9 +566,8 @@ public class ContextLoaderAlgorithm
    * @return the map
    * @throws Exception the exception
    */
-  private Set<Terminology> findTermsWithHcd(List<String> lines)
-    throws Exception {
-    Set<Terminology> termsWithHcds = new HashSet<>();
+  private Set<String> findTermsWithHcd(List<String> lines) throws Exception {
+    Set<String> termsWithHcds = new HashSet<>();
 
     final String fields[] = new String[17];
     for (final String line : lines) {
@@ -593,12 +584,8 @@ public class ContextLoaderAlgorithm
 
       // Add all terms with populated hcd's to the set
       if (termHasHcd) {
-        termsWithHcds.add(terminology);
+        termsWithHcds.add(terminology.getTerminology());
       }
-
-      // Add all unique terminologies to the referencedTerminologies set
-      referencedTerms.add(terminology);
-
     }
 
     return termsWithHcds;
