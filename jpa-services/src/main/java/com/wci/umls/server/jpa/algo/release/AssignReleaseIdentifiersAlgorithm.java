@@ -113,12 +113,13 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     @SuppressWarnings("unchecked")
     final List<Object[]> ids = query.getResultList();
 
-    fireProgressEvent(10, "Assign LUIs");
+    fireProgressEvent(10, "Assign CUIs");
 
     // NOTE: this assumes RRF preferred name handler
     final RrfComputePreferredNameHandler prefHandler =
         new RrfComputePreferredNameHandler();
-    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
+    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion());
     prefHandler.cacheList(list);
     int ct = 0;
     List<Long> atomIds = new ArrayList<>(20000);

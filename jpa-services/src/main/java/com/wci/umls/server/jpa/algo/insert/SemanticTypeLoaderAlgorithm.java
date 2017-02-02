@@ -4,9 +4,13 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -15,7 +19,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -96,6 +99,24 @@ public class SemanticTypeLoaderAlgorithm
     try {
 
       //
+      // Cache all atom->concept
+      //
+      final Query query = manager
+          .createQuery("select c.id, a.id from ConceptJpa c join c.atoms a "
+              + "where c.terminology = :terminology "
+              + "  and c.version = :version and c.publishable = true ");
+      query.setParameter("terminology", getProject().getTerminology());
+      query.setParameter("version", getProject().getVersion());
+      final Map<Long, Long> atomConceptMap = new HashMap<>();
+      @SuppressWarnings("unchecked")
+      final List<Object[]> ids = query.getResultList();
+      for (final Object[] result : ids) {
+        Long atomId = Long.valueOf(result[0].toString());
+        Long conceptId = Long.valueOf(result[1].toString());
+        atomConceptMap.put(atomId, conceptId);
+      }
+
+      //
       // Load the attributes.src file, only keeping SEMANTIC_TYPE lines.
       //
       final List<String> lines =
@@ -155,17 +176,8 @@ public class SemanticTypeLoaderAlgorithm
           continue;
         }
 
-        // Get the concept associated with the loaded atom, or preferred atom of
-        // loaded atomClass Object
-        final List<ConceptJpa> concepts = searchHandler.getQueryResults(
-            getProject().getTerminology(), getProject().getVersion(),
-            Branch.ROOT, "atoms.id:" + atom.getId(), null, ConceptJpa.class,
-            null, new int[1], getEntityManager());
-        if (concepts.size() != 1) {
-          throw new Exception("Unexpected number of concepts: "
-              + concepts.size() + ", for atom: " + atom.getId());
-        }
-        final Concept concept = concepts.get(0);
+        // Get the concept associated with the loaded atom
+        final Concept concept = getConcept(atomConceptMap.get(atom.getId()));
 
         // If concept has a semantic type already matching this value, move on
         // otherwise add a new semantic type.
@@ -210,7 +222,6 @@ public class SemanticTypeLoaderAlgorithm
           "[SemanticTypeLoader] Added " + addCount + " new Semantic Types.");
       logInfo("[SemanticTypeLoader] Updated " + updateCount
           + " existing Semantic Types.");
-
 
       logInfo("Finished SEMANTICTYPELOADING");
 
