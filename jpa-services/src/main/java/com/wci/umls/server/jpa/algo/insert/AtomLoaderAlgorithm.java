@@ -101,7 +101,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "classes_atoms.src", null, null);
 
       logInfo("[ATOMLOADER]  Process classes_atoms.src");
@@ -153,7 +153,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         //
         // Atom based on input line.
         //
-        Atom newAtom = new AtomJpa();
+        final Atom newAtom = new AtomJpa();
         if (!ConfigUtility.isEmpty(fields[0])) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology() + "-SRC", fields[0]);
@@ -212,31 +212,31 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (oldAtom == null) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology(), newAtomAui);
-          newAtom = addAtom(newAtom);
+          final Atom newAtom2 = addAtom(newAtom);
 
           // Create a new concept to store the atom
-          Concept newConcept = new ConceptJpa();
+          final Concept newConcept = new ConceptJpa();
           newConcept.setTerminology(getProject().getTerminology());
           newConcept.setTerminologyId("");
           newConcept.setVersion(getProject().getVersion());
-          newConcept.setObsolete(newAtom.isObsolete());
-          newConcept.setSuppressible(newAtom.isSuppressible());
-          newConcept.setPublishable(newAtom.isPublishable());
-          newConcept.setPublished(newAtom.isPublished());
-          newConcept.getAtoms().add(newAtom);
-          newConcept.setName(newAtom.getName());
+          newConcept.setObsolete(false);
+          newConcept.setSuppressible(false);
+          newConcept.setPublishable(true);
+          newConcept.setPublished(false);
+          newConcept.getAtoms().add(newAtom2);
+          newConcept.setName(newAtom2.getName());
           newConcept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
-          newConcept = addConcept(newConcept);
+          final Concept newConcept2 = addConcept(newConcept);
 
           // Set the terminology Id
-          newConcept.setTerminologyId(newConcept.getId().toString());
-          updateConcept(newConcept);
+          newConcept.setTerminologyId(newConcept2.getId().toString());
+          updateConcept(newConcept2);
 
           addCount++;
-          putComponent(newAtom, newAtomAui);
+          putComponent(newAtom2, newAtomAui);
 
           // Reconcile code/concept/descriptor
-          reconcileCodeConceptDescriptor(newAtom);
+          reconcileCodeConceptDescriptor(newAtom2);
 
         }
         // If a previous atom with same AUI exists, update that object.

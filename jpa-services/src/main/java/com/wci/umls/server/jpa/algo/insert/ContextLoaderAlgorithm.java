@@ -50,7 +50,8 @@ import com.wci.umls.server.services.RootService;
 /**
  * Implementation of an algorithm to import contexts.
  */
-public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class ContextLoaderAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The added tree positions. */
   private int addedTreePositions;
@@ -121,11 +122,11 @@ public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
 
       logInfo("[ContextLoader] Checking for new/updated Contexts");
       commitClearBegin();
-      
+
       //
       // Load the contexts.src file
       //
-      List<String> lines =
+      final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
 
       // Scan the contexts.src file and see if HCD (hierarchical code)
@@ -176,7 +177,7 @@ public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
           // If it has been seen before, increment both child and descendent
           // counts by 1
           else {
-            int[] currentChildDescendantCount =
+            final int[] currentChildDescendantCount =
                 childAndDescendantCountsMap.get(parentTreeRel);
             childAndDescendantCountsMap.put(parentTreeRel, new int[] {
                 ++currentChildDescendantCount[0],
@@ -200,7 +201,7 @@ public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
             }
             // If it has been seen before, increment descendant count only by 1
             else {
-              int[] currentChildDescendantCount =
+              final int[] currentChildDescendantCount =
                   childAndDescendantCountsMap.get(parentTreeRelSub);
               childAndDescendantCountsMap.put(parentTreeRelSub, new int[] {
                   currentChildDescendantCount[0],
@@ -232,7 +233,7 @@ public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
       // Remove all the "old version" transitive relationships for the
       // terminology.
       int removedRelCount = 0;
-      for (Terminology term : referencedTerms) {
+      for (final Terminology term : referencedTerms) {
         removedRelCount += removeTransRels(term, true);
         commitClearBegin();
       }
@@ -735,7 +736,7 @@ public class ContextLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm 
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;
