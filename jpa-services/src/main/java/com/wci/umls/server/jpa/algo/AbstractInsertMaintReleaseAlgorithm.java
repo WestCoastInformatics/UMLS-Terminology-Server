@@ -357,9 +357,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       final Query jpaQuery = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b "
-              + "where KEY(b)  = :projectTerminology and "
+              + "where KEY(b)  = :altTerminologyKey and "
               + "a.terminology = :terminology and a.publishable=true");
       jpaQuery.setParameter("terminology", terminology);
+      jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
           + " Terminology Ids from database for terminology " + terminology);
