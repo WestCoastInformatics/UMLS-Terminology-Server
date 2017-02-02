@@ -336,12 +336,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Cache existing relationships' RUIs and IDs.
    *
+   * @param altTerminologyKey the alt terminology key
    * @param terminology the terminology
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingRelationshipIds(String terminology)
-    throws Exception {
+  private void cacheExistingRelationshipIds(String altTerminologyKey,
+    String terminology) throws Exception {
 
     logInfo(
         "[SourceLoader] Loading relationship Terminology Ids from database for terminology "
@@ -356,12 +357,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       final Query jpaQuery = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b "
-              + "where KEY(b)  = :terminology and a.publishable=true");
+              + "where KEY(b)  = :projectTerminology and "
+              + "a.terminology = :terminology and a.publishable=true");
       jpaQuery.setParameter("terminology", terminology);
 
-      logInfo(
-          "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
-              + terminology);
+      logInfo("[SourceLoader] Loading " + relPrefix
+          + " Terminology Ids from database for terminology " + terminology);
 
       final List<Object[]> list = jpaQuery.getResultList();
       for (final Object[] entry : list) {
@@ -372,7 +373,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Add this terminology to the cached set.
-    relCachedTerms.add(terminology);
+    relCachedTerms.add(altTerminologyKey + terminology);
   }
 
   /**
@@ -654,16 +655,20 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("RUI")) {
-      if (!relCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingRelationshipIds(getProject().getTerminology());
+      if (!relCachedTerms
+          .contains(getProject().getTerminology() + terminology)) {
+        cacheExistingRelationshipIds(getProject().getTerminology(),
+            terminology);
       }
 
       return getComponent(relIdCache.get(terminologyId), relClass);
     }
 
     else if (type.equals("SRC_REL_ID")) {
-      if (!relCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
-        cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC");
+      if (!relCachedTerms
+          .contains(getProject().getTerminology() + "-SRC" + terminology)) {
+        cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC",
+            terminology);
       }
 
       return getComponent(relIdCache.get(terminologyId), relClass);
