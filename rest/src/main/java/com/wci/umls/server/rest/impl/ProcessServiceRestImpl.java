@@ -1971,19 +1971,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Mark algorithm and process as failed
           try {
 
-            // Remove process and algorithm from the maps
-            if (processAlgorithmMap.containsKey(processExecution.getId())) {
-              processAlgorithmMap.get(processExecution.getId()).close();
-            }
-            processAlgorithmMap.remove(processExecutionId);
-            lookupPeProgressMap.remove(processExecutionId);
-            lookupAeProgressMap.remove(algorithmExecution.getId());
-
-            // close the algorithm
-            if (algorithm != null) {
-              algorithm.close();
-            }
-
             // set cancel conditions if cancel was used.
             algorithmExecution.setFailDate(new Date());
             if (e instanceof CancelException) {
@@ -2014,6 +2001,20 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processExecution.setFailDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
+
+            // Remove process and algorithm from the maps
+            if (processAlgorithmMap.containsKey(processExecution.getId())) {
+              processAlgorithmMap.get(processExecution.getId()).close();
+            }
+            processAlgorithmMap.remove(processExecutionId);
+            lookupPeProgressMap.remove(processExecutionId);
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+
+            // close the algorithm
+            if (algorithm != null) {
+              algorithm.close();
+            }
+
           } catch (Exception ex) {
             handleException(ex, "trying to update execution info");
           }

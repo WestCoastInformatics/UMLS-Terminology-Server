@@ -733,7 +733,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    */
   public void setSteps(int steps) {
     this.steps = steps;
-    this.progressCheck = (int) ((steps + 1 / 99.0));
+    this.progressCheck = (int) ((steps / 99.0) + 1);
   }
 
   /**
@@ -1029,7 +1029,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     if (stepsCompleted % progressCheck == 0) {
       final int currentProgress = (int) ((100.0 * stepsCompleted / steps));
       if (currentProgress > previousProgress) {
-        fireProgressEvent(currentProgress, currentProgress + "%");
+        fireProgressEvent(currentProgress,
+            " completed " + stepsCompleted + " of " + steps + " total steps.");
         previousProgress = currentProgress;
       }
     }
