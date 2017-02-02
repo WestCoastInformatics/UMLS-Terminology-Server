@@ -2371,9 +2371,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setName("Pre-Production Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
+    processConfig.setVersion("201610");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Release");
+    processConfig.setInputPath("mr");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
