@@ -4,9 +4,13 @@
 package com.wci.umls.server.jpa.algo.release;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -22,6 +26,7 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
+import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -30,9 +35,13 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
@@ -137,10 +146,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // 2b. Make any other PDQ map sets unpublishable
 
-    logInfo("Starting 2b");
     query = "SELECT DISTINCT m FROM MapSetJpa m "
         + "WHERE m.terminology=:terminology and m.publishable=true";
-    final javax.persistence.Query jpaQuery =
+    Query jpaQuery =
         getEntityManager().createQuery(query);
     jpaQuery.setParameter("terminology", "PDQ");
 
@@ -159,7 +167,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // * terminologyId = 100001
     // * not obsolete, not suppressible, READY_FOR_PUBLICATION
     // * publishable, not published.
-    mapSet.setName("PDQ_" + pdq.getVersion() + " to NCI_$version Mappings");
+    mapSet.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion() + " Mappings");
     mapSet.setTerminologyId("100001");
     mapSet.setObsolete(false);
     mapSet.setSuppressible(false);
@@ -193,7 +201,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // * not obsolete, not suppressible, READY_FOR_PUBLICATION
     // * publishable, not published.
     Concept concept = new ConceptJpa();
-    concept.setName("PDQ_$version to NCI_$version Mappings");
+    concept.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion() + " Mappings");
     concept.setTerminology(getProject().getTerminology());
     concept.setVersion(getProject().getVersion());
     concept.setObsolete(false);
@@ -201,9 +209,11 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     concept.setPublishable(true);
     concept.setPublished(false);
     concept.setTerminologyId("");
+    concept.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     addConcept(concept);
     concept.setTerminologyId(concept.getId().toString());
     updateConcept(concept);
+    logInfo("conceptId " + concept.getId());
 
     // 5. Create a PDQ/XM atom in the concept just created
     // * name = "PDQ_$version to NCI_$version Mappings"
@@ -213,7 +223,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     IdentifierAssignmentHandler handler =
       getIdentifierAssignmentHandler(getProject().getTerminology());
     Atom atom = new AtomJpa();
-    atom.setName("PDQ_$version to NCI_$version Mappings");
+    atom.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion() + " Mappings");
     atom.setTerminology(pdq.getTerminology());
     atom.setCodeId("100001");
     atom.setVersion(pdq.getVersion());
@@ -223,6 +233,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     atom.setPublished(false);
     atom.setConceptId("");
     atom.setDescriptorId(""); 
+    atom.setLanguage("ENG");
+    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     final StringClass strClass = new StringClassJpa();
     strClass.setLanguage(atom.getLanguage());
     strClass.setName(atom.getName());
@@ -241,6 +253,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // 5b. Create a "code" for the PDQ/XM atom
     Code code = new CodeJpa();
+    code.setName("name");  // TODO 
     code.setTerminology(pdq.getTerminology());
     code.setVersion(pdq.getVersion());
     code.setTerminologyId("100001");
@@ -248,6 +261,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     code.setSuppressible(false);
     code.setPublishable(true);
     code.setPublished(false);
+    code.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     code.getAtoms().add(atom);
     addCode(code);
     
@@ -265,41 +279,18 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     sty.setSuppressible(false);
     sty.setPublishable(true);
     sty.setPublished(false);
+    sty.setTerminologyId("");
+    sty.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     addSemanticTypeComponent(sty, concept);
     concept.getSemanticTypes().add(sty);
     updateConcept(concept);
 
     // 7. Add code attributes for those things shown below
-    Attribute attribute = new AttributeJpa();
-    attribute.setName("MAPSETVERSION");
-    attribute.setValue(pdq.getVersion());
-    attribute.setTerminology(pdq.getTerminology());
-    attribute.setVersion(pdq.getVersion());
-    attribute.setObsolete(false);
-    attribute.setSuppressible(false);
-    attribute.setPublishable(true);
-    attribute.setPublished(false);
-    addAttribute(attribute, code);
-    code.getAttributes().add(attribute);
-    
-    attribute = new AttributeJpa();
-    attribute.setName("MTH_MAPFROMEXHAUSTIVE");
-    attribute.setValue("N");
-    attribute.setTerminology(pdq.getTerminology());
-    attribute.setVersion(pdq.getVersion());
-    attribute.setObsolete(false);
-    attribute.setSuppressible(false);
-    attribute.setPublishable(true);
-    attribute.setPublished(false);
-    addAttribute(attribute, code);
-    code.getAttributes().add(attribute);
-    
-    updateCode(code);
-    
+   
     // MAPSETVERSION|PDQ|2016_07_31
-    // FROMVSAB|PDQ|PDQ_2016_07_31
-    // TOVSAB|PDQ|NCI_2016_10E
-    // MAPSETVSAB|PDQ|PDQ_2016_07_31
+    // FROMVSAB|PDQ|PDQ_2016_07_31  (appended)
+    // TOVSAB|PDQ|NCI_2016_10E  (appended)
+    // MAPSETVSAB|PDQ|PDQ_2016_07_31 (appended)
     // MTH_MAPSETCOMPLEXITY|PDQ|N_TO_N
     // TORSAB|PDQ|NCI
     // MTH_MAPTOCOMPLEXITY|PDQ|SINGLE SCUI
@@ -307,38 +298,120 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // MTH_MAPTOEXHAUSTIVE|PDQ|N
     // FROMRSAB|PDQ|PDQ
     // MTH_MAPFROMCOMPLEXITY|PDQ|SINGLE SDUI
-    // MTH_MAPFROMEXHAUSTIVE|PDQ|N       
+    // MTH_MAPFROMEXHAUSTIVE|PDQ|N    
+    Map<String, String> codeAttributes = new HashMap<>();
+    codeAttributes.put("MAPSETVERSION", pdq.getVersion());
+    codeAttributes.put("FROMVSAB", pdq.getTerminology() + "_" + pdq.getVersion());
+    codeAttributes.put("TOVSAB", nci.getTerminology() + "_" + nci.getVersion());
+    codeAttributes.put("MAPSETVSAB", pdq.getTerminology() + "_" + pdq.getVersion());
+    codeAttributes.put("MTH_MAPSETCOMPLEXITY", "N_TO_N");
+    codeAttributes.put("TORSAB", nci.getTerminology());
+    codeAttributes.put("MTH_MAPTOCOMPLEXITY", "SINGLE SCUI");
+    codeAttributes.put("MAPSETRSAB", pdq.getTerminology());
+    codeAttributes.put("MTH_MAPTOEXHAUSTIVE", "N");
+    codeAttributes.put("FROMRSAB", pdq.getTerminology());
+    codeAttributes.put("MTH_MAPFROMCOMPLEXITY", "SINGLE SDUI");
+    codeAttributes.put("MTH_MAPFROMEXHAUSTIVE", "N");
+    
+    for (String key : codeAttributes.keySet()) {
+      Attribute attribute = new AttributeJpa();
+      attribute.setName(key);
+      attribute.setValue(codeAttributes.get(key));
+      attribute.setTerminology(pdq.getTerminology());
+      attribute.setVersion(pdq.getVersion());
+      attribute.setObsolete(false);
+      attribute.setSuppressible(false);
+      attribute.setPublishable(true);
+      attribute.setPublished(false);
+      attribute.setTerminologyId("");
+      addAttribute(attribute, code);
+      code.getAttributes().add(attribute);
+      updateCode(code);
+    }
+    
+   
     
     // 8. Create mappings
-    // * query: join PDQ->NCI in the same project concept, both publishable
-    
+    // * query: join PDQ->NCI in the same project concept, both publishable    
     query = "select distinct ca.descriptorId, cb.conceptId, ca.termType, cb.termType " 
       + "from ConceptJpa a join a.atoms ca, ConceptJpa b join b.atoms cb "
       + "where a.terminology = :projectTerminology and b.terminology = :projectTerminology " 
-      + "and a.id == b.id "
+      + "and a.id = b.id "
       + "and ca.terminology = 'PDQ' and cb.terminology = 'NCI'";
-    final javax.persistence.Query jpaQuery2 =
+    jpaQuery =
         getEntityManager().createQuery(query);
-    jpaQuery2.setParameter("projectTerminology", getProject().getTerminology());
-    /*final List<MapSet> mapsets = jpaQuery.getResultList();
-    for (final MapSet mapset : mapsets) {*/
-    // iterate over results
-    // If the descriptorId/conceptId combination hasn't yet been seen, create a mapping
-    // Mapping mapping = new MappingJpa();
-    // mapping.set XXX
-    // * use mapRank=1 if term-types are PT->PT, PT->PSC, or PT->HT
-    // * use mapRank=2 if term-types are different and from/to map doesn't
-    // servicde.addMapping(mapping);
-    // mapset.getMappings().addMapping(mapping);
-    //...
-    // service.updateMapSet(mapset);
+    jpaQuery.setParameter("projectTerminology", getProject().getTerminology());
+    List<Object[]> results = jpaQuery.getResultList();
+    Set<String> descriptorIdConceptIdCache = new HashSet<>();
+    // Iterate through each result
+    int objectCt = 0;
+    int prevProgress = 0;
+    int totalCt = results.size();
+    for (Object[] resultArray : results) {
+      // If the descriptorId/conceptId combination hasn't yet been seen, create
+      // a mapping
+      if (!descriptorIdConceptIdCache
+          .contains(resultArray[0].toString() + resultArray[1].toString())) {
+        Mapping m = new MappingJpa();
+        String pdqTty = resultArray[2].toString();
+        String nciTty = resultArray[3].toString();
+        m.setAdditionalRelationshipType("");
+        m.setAdvice("");
+        m.setFromIdType(IdType.DESCRIPTOR);
+        m.setFromName("");
+        m.setFromTerminologyId(resultArray[0].toString());
+        m.setGroup("");
+        m.setMapSet(mapSet);
+        // * use mapRank=1 if term-types are PT->PT, PT->PSC, or PT->HT
+        // * use mapRank=2 if term-types are different and from/to map doesn't
+        if (pdqTty.equals("PT") && (nciTty.equals("PT") || nciTty.equals("PSC")
+            || nciTty.equals("HT"))) {
+          m.setRank("1");
+        } else {
+          m.setRank("2");
+        }
+        m.setRelationshipType("SY");
+        m.setRule("");
+        m.setObsolete(false);
+        m.setSuppressible(false);
+        m.setPublishable(true);
+        m.setPublished(false);
+        m.setTerminology(pdq.getTerminology());
+        m.setVersion(pdq.getVersion());
+        m.setToIdType(IdType.CONCEPT);
+        m.setToName("");
+        m.setToTerminologyId(resultArray[1].toString());
 
+        m.setTerminologyId(handler.getTerminologyId(m));
+
+        addMapping(m);
+        mapSet.getMappings().add(m);
+
+        // add to cache
+        descriptorIdConceptIdCache
+            .add(resultArray[0].toString() + resultArray[1].toString());
+      }
+      // log, commit, check cancel, advance progress
+      int progress = (int) (objectCt * 100.0 / totalCt);
+      if (progress != prevProgress) {
+        checkCancel();
+        this.fireAdjustedProgressEvent(progress, stepsCompleted, steps,
+            "Creating Nci Pdq Mappings");
+        prevProgress = progress;
+      }
+      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    }
+    updateMapSet(mapSet);
+    
+    fireProgressEvent(100, "Finished - 100%");
+    logInfo("  mapping count = " + objectCt);
+    logInfo("Finishing create NCI-PDQ map algorithm");
   }
  
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // n/a
+    // No reset, this can be safely re-run
   }
 
   /* see superclass */
@@ -366,7 +439,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     if (currentProgress > previousProgress) {
       checkCancel();
       fireProgressEvent(currentProgress,
-          "ASSIGN RELEASE IDS progress: " + currentProgress + "%");
+          "CREATE NCI PDQ map progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
