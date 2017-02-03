@@ -102,7 +102,7 @@ public class SemanticTypeLoaderAlgorithm
       // Cache all atom->concept
       //
       final Query query = manager
-          .createQuery("select c.id, a.id from ConceptJpa c join c.atoms a "
+          .createQuery("select a.id, c.id from ConceptJpa c join c.atoms a "
               + "where c.terminology = :terminology "
               + "  and c.version = :version and c.publishable = true ");
       query.setParameter("terminology", getProject().getTerminology());
