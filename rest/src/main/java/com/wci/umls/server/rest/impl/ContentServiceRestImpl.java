@@ -1403,6 +1403,57 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
+  
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/get")
+  @ApiOperation(value = "Get full concepts matching a search query", notes = "Gets a list of concepts that match the lucene query for the root branch", response = SearchResultListJpa.class)
+  public ConceptList getConceptsForQuery(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "project id, e.g. 1 (optional)", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "?query=" + queryStr + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    final ContentService contentService = new ContentServiceJpa();
+    final Project project =
+        projectId == null ? null : contentService.getProject(projectId);
+
+    try {
+      String username = authorizeApp(securityService, authToken, "get concepts by query",
+          UserRole.VIEWER);
+
+      // Empty queries return all results
+      final ConceptList cl = contentService.findConcepts(
+          terminology, version, Branch.ROOT, queryStr, pfs);
+      
+      for (Concept concept : cl.getObjects()) {
+       
+        if (concept != null) {
+          contentService.getGraphResolutionHandler(terminology).resolve(concept);
+          sortAtoms(securityService, contentService, username, concept, project);
+        }
+        
+      }
+      return cl;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
 
   /* see superclass */
   @Override

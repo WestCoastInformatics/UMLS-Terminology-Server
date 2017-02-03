@@ -37,6 +37,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a service for managing content.
  */
@@ -1161,6 +1162,22 @@ public interface ContentServiceRest {
    * @throws Exception the exception
    */
   public Atom getAtom(Long atomId, Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the concepts for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concepts for query
+   * @throws Exception the exception
+   */
+  public ConceptList getConceptsForQuery(String terminology, String version,
+    Long projectId, String query, PfsParameterJpa pfs, String authToken)
     throws Exception;
 
 

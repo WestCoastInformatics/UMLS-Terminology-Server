@@ -457,6 +457,29 @@ tsApp
           return deferred.promise;
         };
 
+        this.getConceptsForQuery = function(queryStr, terminology, version, projectId, pfs) {
+          console.debug('getConcepts', queryStr, terminology, version, pfs);
+
+          var deferred = $q.defer();
+          gpService.increment();
+          $http.post(
+            contentUrl + '/concept/' + terminology + '/' + version + '/get?query='
+              + encodeURIComponent(utilService.cleanQuery(queryStr))
+              + (projectId ? '&projectId=' + projectId : ''), pfs).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        }
+
         // Finds components as a list
         this.findComponentsAsList = function(queryStr, type, terminology, version, searchParams) {
           console.debug('findComponentsAsList', queryStr, type, terminology, version, searchParams);
@@ -545,10 +568,9 @@ tsApp
             if (searchParams.semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-               * if (searchParams.semanticType) { pfs.queryRestriction += " AND
-               * semanticTypes.semanticType:\"" + searchParams.semanticType +
-               * "\""; }
-               */
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
 
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology

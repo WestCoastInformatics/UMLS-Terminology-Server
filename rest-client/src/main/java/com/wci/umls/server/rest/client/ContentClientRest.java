@@ -2437,4 +2437,13 @@ public class ContentClientRest extends RootClientRest
     return resultString;
   }
 
+
+  @Override
+  public ConceptList getConceptsForQuery(String terminology, String version,
+    Long projectId, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
