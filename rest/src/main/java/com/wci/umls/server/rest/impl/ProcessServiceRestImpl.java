@@ -587,9 +587,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         }
       }
 
-      // fix state where server crash caused a process failure
-      checkBadState(processExecution, projectId, processService);
-
       return processExecution;
     } catch (Exception e) {
       handleException(e, "trying to get a process execution");
@@ -1470,6 +1467,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // processAlgorithmMap.get(id).close();
       }
 
+      // fix state where server crash caused a process failure
+      checkBadState(processExecution, projectId, processService);
+
       return id;
 
     } catch (Exception e) {
@@ -1941,9 +1941,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
             processService.close();
-            
+
             // Mark process as finished
-            lookupPeProgressMap.remove(processExecution.getId());
+            // Note: do not remove process from the map. Will stay in at 100%
+            // lookupPeProgressMap.remove(processExecution.getId());
 
             // Send email notifying about successful completion
             final String recipients = processExecution.getFeedbackEmail();
