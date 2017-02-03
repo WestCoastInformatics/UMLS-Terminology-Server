@@ -1940,7 +1940,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
-
+            processService.close();
+            
             // Mark process as finished
             lookupPeProgressMap.remove(processExecution.getId());
 

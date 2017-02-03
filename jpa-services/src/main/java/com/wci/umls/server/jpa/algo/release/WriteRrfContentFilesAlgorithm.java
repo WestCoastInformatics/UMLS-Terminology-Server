@@ -199,7 +199,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       // TODO later
       // MRMAP.RRF
       // MRSMAP.RRF
-      // SUBSET entries
       //
       updateProgress();
     }
