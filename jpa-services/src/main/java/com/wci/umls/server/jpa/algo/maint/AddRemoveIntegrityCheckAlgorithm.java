@@ -121,22 +121,22 @@ public class AddRemoveIntegrityCheckAlgorithm
             // Do nothing - removal is successful by default.
           }
         }
+      }
 
-        else if (addRemove.equals("Add")) {
+      else if (addRemove.equals("Add")) {
 
-          final TypeKeyValue validationCheckData =
-              new TypeKeyValueJpa(checkName, value1, value2);
-          if (validationData.contains(validationCheckData)) {
-            // Do nothing - addition has already been done.
-          } else {
-            // Add the new validation data
-            addTypeKeyValue(validationCheckData);
-            logInfo("  add = " + validationCheckData);
+        final TypeKeyValue validationCheckData =
+            new TypeKeyValueJpa(checkName, value1, value2);
+        if (validationData.contains(validationCheckData)) {
+          // Do nothing - addition has already been done.
+        } else {
+          // Add the new validation data
+          addTypeKeyValue(validationCheckData);
+          logInfo("  add = " + validationCheckData);
 
-            // Add it to the project and update it
-            getProject().getValidationData().add(validationCheckData);
-            updateProject(getProject());
-          }
+          // Add it to the project and update it
+          getProject().getValidationData().add(validationCheckData);
+          updateProject(getProject());
         }
       } else {
         throw new LocalException("Invalid value for addRemove = " + addRemove);
