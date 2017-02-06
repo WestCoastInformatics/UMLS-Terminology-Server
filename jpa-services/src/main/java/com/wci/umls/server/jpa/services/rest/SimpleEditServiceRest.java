@@ -6,8 +6,6 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
-import java.util.List;
-
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;

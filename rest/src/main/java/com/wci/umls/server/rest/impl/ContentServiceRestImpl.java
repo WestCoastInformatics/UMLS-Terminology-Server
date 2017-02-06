@@ -4345,7 +4345,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @ApiOperation(value = "Validate All Concepts", notes = "Validates all concept against a specific check or all project checks")
   public Set<Long> validateConcepts(
     @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @PathParam("checkId") String check,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @QueryParam("checkId") String check,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())

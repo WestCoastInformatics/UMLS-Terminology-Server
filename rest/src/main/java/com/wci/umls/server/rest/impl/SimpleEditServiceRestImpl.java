@@ -525,7 +525,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Edit): /concept/" + conceptId);
+        .info("RESTful call (Edit, DELETE): /concept/" + conceptId);
 
     final ContentService contentService = new ContentServiceJpa();
     try {

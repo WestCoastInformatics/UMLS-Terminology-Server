@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.rest.client;
 
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -19,6 +18,7 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.rest.SimpleEditServiceRest;
 import com.wci.umls.server.model.content.Atom;
@@ -163,7 +163,7 @@ public class SimpleEditClientRest extends RootClientRest
   }
 
   @Override
-  public void removeConcepts(Long projectId, List<Long> conceptIds,
+  public void removeConcepts(Long projectId, String query, PfsParameterJpa pfs,
     String authToken) throws Exception {
     // TODO Auto-generated method stub
     
