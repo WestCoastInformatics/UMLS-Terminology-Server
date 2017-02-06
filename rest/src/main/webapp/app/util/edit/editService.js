@@ -12,7 +12,7 @@ tsApp.service('editService', [
     var canEdit = appConfig['deploy.simpleedit.enabled'] == true
       || appConfig['deploy.simpleedit.enabled'] == 'true';
     var editEnabled = false;
-    
+
     console.debug('editService init', canEdit, appConfig);
 
     this.enableEditing = function() {
@@ -144,14 +144,14 @@ tsApp.service('editService', [
         });
       return deferred.promise;
     }
-    
- // add concept
-    this.addConcept = function(projectId, conceptId, concept) {
-      console.debug('addConcept', projectId, conceptId, concept);
+
+    // add concept
+    this.addConcept = function(projectId, concept) {
+      console.debug('addConcept', projectId, concept);
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.put(editUrl + '/concept?projectId=' + projectId + '&conceptId=' + conceptId, concept).then(
+      $http.put(editUrl + '/concept?projectId=' + projectId, concept).then(
       // success
       function(response) {
         console.debug('  concept = ' + response.data);
@@ -173,30 +173,54 @@ tsApp.service('editService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/concept?projectId=' + projectId + '&conceptId=' + conceptId, concept).then(
-      // success
-      function(response) {
-        console.debug('  successful update concept');
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+      $http.post(editUrl + '/concept?projectId=' + projectId + '&conceptId=' + conceptId, concept)
+        .then(
+        // success
+        function(response) {
+          console.debug('  successful update concept');
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
       return deferred.promise;
     }
 
     // remove concept
-    this.removeConcept = function(projectId, conceptId, conceptId) {
-      console.debug('removeConcept', projectId, conceptId, conceptId);
+    this.removeConcept = function(projectId, conceptId) {
+      console.debug('removeConcept', projectId, conceptId);
       var deferred = $q.defer();
 
       gpService.increment();
       $http['delete'](
-        editUrl + '/concept/' + conceptId + '?projectId=' + projectId + '&conceptId=' + conceptId).then(
+        editUrl + '/concept/' + conceptId + '?projectId=' + projectId + '&conceptId=' + conceptId)
+        .then(
+        // success
+        function(response) {
+          console.debug('  successful remove concept');
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
+      return deferred.promise;
+    }
+
+    // remove concept
+    this.removeConcepts = function(projectId, conceptIds) {
+      console.debug('removeConcept', projectId, conceptId);
+      var deferred = $q.defer();
+
+      gpService.increment();
+      $http.post(editUrl + '/concepts?projectId=' + projectId, conceptIds).then(
       // success
       function(response) {
         console.debug('  successful remove concept');

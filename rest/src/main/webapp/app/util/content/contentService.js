@@ -1078,6 +1078,62 @@ tsApp
           return deferred.promise;
         }
 
+        // validate concept
+        this.validateConcept = function(projectId, concept, checkId) {
+          console.debug('validateConcept', projectId, concept, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concept?projectId=' + projectId
+              + (checkId ? 'checkId=' + checkId : ''), concept).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+        
+        // validate concept
+        this.validateConcepts = function(projectId, conceptIds, checkId) {
+          console.debug('validateConcept', projectId, conceptIds, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concept?projectId=' + projectId
+              + (checkId ? 'checkId=' + checkId : ''), conceptIds).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
         // Popout component into new window
         this.popout = function(component) {
           var currentUrl = window.location.href;
