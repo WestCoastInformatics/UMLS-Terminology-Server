@@ -94,13 +94,12 @@ public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
     // Create the /temp subdirectory
     final File tempSrcDir = new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath() + File.separator
-            + "temp");
+            + "/"  + processExecution.getInputPath() + "/temp");
     FileUtils.mkdir(tempSrcDir.toString());
 
     // Reset the processExecution input path to /src/temp
     processExecution.setInputPath(
-        processExecution.getInputPath() + File.separator + "temp");
+        processExecution.getInputPath() + "/temp");
 
     // Create and populate an attributes.src document in the /temp
     // temporary subfolder
@@ -187,7 +186,7 @@ public class PrecomputedMergeAlgorithmTest extends IntegrationUnitSupport {
 
     FileUtils.deleteDirectory(new File(
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
-            + File.separator + processExecution.getInputPath()));
+            + "/"  + processExecution.getInputPath()));
 
     processService.close();
     contentService.close();

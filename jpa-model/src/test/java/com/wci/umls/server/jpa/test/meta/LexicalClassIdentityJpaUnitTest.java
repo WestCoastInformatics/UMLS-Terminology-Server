@@ -56,6 +56,7 @@ public class LexicalClassIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("identityCode");
     tester.test();
   }
 
@@ -89,6 +90,7 @@ public class LexicalClassIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.exclude("identityCode");
     assertTrue(tester.testCopyConstructor(LexicalClassIdentity.class));
   }
 

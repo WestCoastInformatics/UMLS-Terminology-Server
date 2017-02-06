@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 #
 # Nightly tasks
 # 1. Bounce server (if switch is on)
@@ -9,10 +9,11 @@ set rootdir = `dirname $0`
 set abs_rootdir = `cd $rootdir && pwd`
 setenv MEME_HOME $abs_rootdir:h
 
-
 echo "--------------------------------------------------------"
 echo "Starting `/bin/date`"
 echo "--------------------------------------------------------"
+echo "MEME_HOME = $MEME_HOME"
+
 echo "Collect settings..."
 set host = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$1"'`
 set port = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$2"'`
@@ -37,11 +38,19 @@ if ($enabled == "true") then
 	echo "  Login ... `/bin/date`"
 	set authToken = `curl -H "Content-type: text/plain" -X POST -d "$adminPwd" $url/security/authenticate/$adminUser  | perl -pe 's/.*"authToken":"([^"]*).*/$1/;'`
 	 	
-    # repartition MUTUALLY_EXCLUSIVE bins
+	# 1. Daily Editing Report
+	echo "  Run Daily Editing Report... `/bin/date`"
+	set processId = `echo "select id from process_configs where name='Daily Editing Report';" | $mysql | tail -1`
+	echo "    processId = $processId"
+	set executionId = `curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET "$url/process/config/$processId/prepare?projectId=$projectId"`
+	sleep 2		
+	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X GET "$url/process/execution/$executionId/execute?projectId=$projectId&background=true"
+	 	
+    # 2. repartition MUTUALLY_EXCLUSIVE bins
 	echo "  Regenerate MUTUALLY_EXCLUSIVE ... `/bin/date`"
 	curl -H "Content-type: application/json" -H "Authorization: $authToken" -X POST -d "" "$url/workflow/bin/regenerate/all?projectId=$projectId&type=MUTUALLY_EXCLUSIVE"
 	
-    # Bounce the tomcat server
+    # 3. Bounce the tomcat server
     sudo /sbin/service tomcat-meme-8080 stop
     if ($status != 0) then
         echo "ERROR: could not stop server"
@@ -59,7 +68,7 @@ else
 endif
 
 echo "--------------------------------------------------------"
-echo "Finished
+echo "Finished ... `/bin/date`"
 echo "--------------------------------------------------------"
 
 

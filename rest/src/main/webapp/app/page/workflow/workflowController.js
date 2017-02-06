@@ -39,7 +39,8 @@ tsApp.controller('WorkflowCtrl', [
       // Used to trigger events in worklist-table directive controller
       refreshCt : 0,
       terminology : null,
-      metadata : null
+      metadata : null,
+      epoch : null
     };
 
     // Lists
@@ -128,6 +129,12 @@ tsApp.controller('WorkflowCtrl', [
       }
     };
 
+    $scope.getEpoch = function() {
+      workflowService.getWorkflowEpoch($scope.selected.project.id).then(function(data) {
+        $scope.selected.epoch = data;
+      });
+    }
+
     // handle change in project role
     $scope.changeProjectRole = function() {
       // save the change
@@ -148,6 +155,7 @@ tsApp.controller('WorkflowCtrl', [
 
         // Get configs
         $scope.getConfigs();
+        $scope.getEpoch();
       });
       projectService.findAssignedUsersForProject($scope.selected.project.id, null, null).then(
         function(data) {
@@ -189,7 +197,16 @@ tsApp.controller('WorkflowCtrl', [
       // Success
       function(data) {
         $scope.lists.configs = data.configs.sort(utilService.sortBy('type'));
-        $scope.setConfig($scope.lists.configs[0]);
+
+        // Select the MUTUALLY_EXCLUSIVE config if available.
+        // If not, select the first config in the list.
+        var selectConfig = $scope.lists.configs[0];
+        for (var i = 0; i < $scope.lists.configs.length; i++) {
+          if ($scope.lists.configs[i].type == 'MUTUALLY_EXCLUSIVE') {
+            selectConfig = $scope.lists.configs[i];
+          }
+        }
+        $scope.setConfig(selectConfig);
       });
     };
 
@@ -253,12 +270,13 @@ tsApp.controller('WorkflowCtrl', [
 
     // Regenerate single bin
     $scope.regenerateBin = function(bin) {
-      workflowService
-        .regenerateBin($scope.selected.project.id, bin.id, $scope.selected.config.type).then(
-        // Success
-        function(data) {
-          $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
-        });
+      // send both id and name
+      workflowService.regenerateBin($scope.selected.project.id, bin.id, bin.name,
+        $scope.selected.config.type).then(
+      // Success
+      function(data) {
+        $scope.getBins($scope.selected.project.id, $scope.selected.config, bin);
+      });
     };
 
     // Regenerate bins
@@ -347,9 +365,40 @@ tsApp.controller('WorkflowCtrl', [
       return securityService.hasPermissions(action);
     }
 
+    // Export a workflow config
+    $scope.exportWorkflow = function() {
+      workflowService.exportWorkflow($scope.selected.project.id, $scope.selected.config.id);
+    }
+
     //
     // MODALS
     //
+
+    // Import a workflow
+    $scope.openImportWorkflowModal = function() {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/importWorkflow.html',
+        controller : 'ImportWorkflowModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        if (data) {
+          $scope.getConfigs();
+        }
+      });
+    };
 
     // Add checklist modal
     $scope.openAddChecklistModal = function(bin, clusterType) {
@@ -584,6 +633,27 @@ tsApp.controller('WorkflowCtrl', [
       // Success
       function(data) {
         $scope.getBins($scope.selected.project.id, $scope.selected.config);
+      });
+    };
+
+    // Open edit epoch modal
+    $scope.openEditEpochModal = function(lbin) {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/editEpoch.html',
+        controller : 'EpochModalCtrl',
+        backdrop : 'static',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          }
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(data) {
+        $scope.getEpoch();
       });
     };
 

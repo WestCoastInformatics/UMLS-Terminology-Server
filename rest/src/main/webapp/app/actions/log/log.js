@@ -31,7 +31,6 @@ tsApp.directive('log', [ function() {
 
         // Log modal
         $scope.openLogModal = function() {
-
           var modalInstance = $uibModal.open({
             templateUrl : 'app/actions/log/logModal.html',
             controller : LogModalCtrl,
@@ -71,7 +70,6 @@ tsApp.directive('log', [ function() {
 
           // Get log to display
           $scope.getLog = function() {
-
             if (type == 'Worklist' || type == 'Checklist') {
               var checklistId = (type == 'Checklist' ? selected.worklist.id : null);
               var worklistId = (type == 'Worklist' ? selected.worklist.id : null);
@@ -89,27 +87,29 @@ tsApp.directive('log', [ function() {
             }
 
             else if (type == 'Process') {
-              processService.getProcessLog(selected.project.id, selected.process.id, $scope.filter).then(
-              // Success
-              function(data) {
-                $scope.log = data;
-              },
-              // Error
-              function(data) {
-                utilService.handleDialogError($scope.errors, data);
-              });
+              processService.getProcessLog(selected.project.id, selected.process.id, $scope.filter)
+                .then(
+                // Success
+                function(data) {
+                  $scope.log = data;
+                },
+                // Error
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
             }
 
             else if (type == 'Step') {
-              processService.getAlgorithmLog(selected.project.id, selected.step.id, $scope.filter).then(
-              // Success
-              function(data) {
-                $scope.log = data;
-              },
-              // Error
-              function(data) {
-                utilService.handleDialogError($scope.errors, data);
-              });
+              processService.getAlgorithmLog(selected.project.id, selected.step.id, $scope.filter)
+                .then(
+                // Success
+                function(data) {
+                  $scope.log = data;
+                },
+                // Error
+                function(data) {
+                  utilService.handleDialogError($scope.errors, data);
+                });
             }
 
             // Project/component

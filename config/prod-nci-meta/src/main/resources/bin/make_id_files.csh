@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 #
 # Make identifier files from RRF data
 # 1. attributeIdentity.txt

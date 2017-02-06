@@ -23,7 +23,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
@@ -32,13 +31,14 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
+import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
-import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinListJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowEpochListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.services.rest.WorkflowServiceRest;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
@@ -88,7 +88,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/config?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(workflowConfig));
+        .header("Authorization", authToken).put(Entity.json(workflowConfig));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -97,6 +97,68 @@ public class WorkflowClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        WorkflowConfigJpa.class);
+  }
+
+  @Override
+  public InputStream exportWorkflowConfig(Long projectId, Long workflowId,
+    String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - export workflow - " + projectId + ", " + workflowId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(workflowId, "workflowId");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/config/export"
+            + "?projectId=" + projectId + "&workflowId=" + workflowId);
+    Response response = target.request(MediaType.APPLICATION_OCTET_STREAM)
+        .header("Authorization", authToken).post(Entity.text(""));
+
+    InputStream in = response.readEntity(InputStream.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+    return in;
+  }
+
+  /* see superclass */
+  @Override
+  public WorkflowConfig importWorkflowConfig(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String authToken) throws Exception {
+
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - import workflow config");
+    validateNotEmpty(projectId, "projectId");
+
+    StreamDataBodyPart fileDataBodyPart = new StreamDataBodyPart("file", in,
+        "filename.dat", MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    FormDataMultiPart multiPart = new FormDataMultiPart();
+    multiPart.bodyPart(fileDataBodyPart);
+
+    ClientConfig clientConfig = new ClientConfig();
+    clientConfig.register(MultiPartFeature.class);
+    Client client = ClientBuilder.newClient(clientConfig);
+
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/config/import" + "?projectId=" + projectId);
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken)
+        .post(Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
+
+    String resultString = response.readEntity(String.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
     // converting to object
     return ConfigUtility.getGraphForString(resultString,
         WorkflowConfigJpa.class);
@@ -114,9 +176,9 @@ public class WorkflowClientRest extends RootClientRest
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/confige?projectId=" + projectId);
+        + "/workflow/config?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.json(workflowConfig));
+        .header("Authorization", authToken).post(Entity.json(workflowConfig));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -139,7 +201,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/worklist?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.json(worklist));
+        .header("Authorization", authToken).post(Entity.json(worklist));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -264,7 +326,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/definition?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(binDefinition));
+        .header("Authorization", authToken).put(Entity.json(binDefinition));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -290,7 +352,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/definition?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.json(definition));
+        .header("Authorization", authToken).post(Entity.json(definition));
 
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
@@ -437,6 +499,38 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
+  public TrackingRecordList findDoneWork(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug(
+        "Workflow Client - find done work - " + projectId + ", " + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/workflow/record/done" + "?projectId="
+            + projectId + "&userName=" + userName + "&role=" + role);
+    final String pfsStr = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString,
+        TrackingRecordListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
   public TrackingRecordList findTrackingRecordsForChecklist(Long projectId,
     Long id, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass())
@@ -544,6 +638,38 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/worklist/assigned" + "?projectId=" + projectId
         + "&userName=" + userName + "&role=" + role);
+    final String pfsStr = ConfigUtility
+        .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.xml(pfsStr));
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, WorklistListJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public WorklistList findDoneWorklists(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - find done worklists - " + projectId + ", "
+            + userName);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(userName, "userName");
+    validateNotEmpty(role + "", "role");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/worklist/done" + "?projectId=" + projectId + "&userName="
+        + userName + "&role=" + role);
     final String pfsStr = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
     final Response response = target.request(MediaType.APPLICATION_XML)
@@ -787,7 +913,7 @@ public class WorkflowClientRest extends RootClientRest
                 .replaceAll("\\+", "%20"));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(pfs));
+        .header("Authorization", authToken).put(Entity.json(pfs));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -813,7 +939,7 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/epoch?projectId=" + projectId);
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(epoch));
+        .header("Authorization", authToken).put(Entity.json(epoch));
 
     String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -869,7 +995,7 @@ public class WorkflowClientRest extends RootClientRest
             + projectId + "&workflowBinId=" + workflowBinId
             + (clusterType == null ? "" : "&clusterType=" + clusterType));
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).post(Entity.json(pfs));
+        .header("Authorization", authToken).put(Entity.json(pfs));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -1058,6 +1184,34 @@ public class WorkflowClientRest extends RootClientRest
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/workflow/bin/" + workflowBinId + "/regenerate?projectId="
         + projectId + "&type=" + type + "&workflowBinId=" + workflowBinId);
+    final Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).post(Entity.text(""));
+    final String resultString = response.readEntity(String.class);
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(response.toString());
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForString(resultString, WorkflowBinJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name,
+    String type, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Workflow Client - regenerate bin "
+        + projectId + ", " + name + ", " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+    validateNotEmpty(name, "name");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/definition/regenerate?projectId=" + projectId + "&type="
+        + type + "&name=" + name);
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(""));
     final String resultString = response.readEntity(String.class);
@@ -1471,8 +1625,8 @@ public class WorkflowClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public ValidationResult stampWorklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception {
+  public void stampWorklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Client - stamp list " + id
         + ", " + approve + ", " + authToken);
 
@@ -1488,22 +1642,17 @@ public class WorkflowClientRest extends RootClientRest
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
 
-    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        ValidationResultJpa.class);
   }
 
   /* see superclass */
   @Override
-  public ValidationResult stampChecklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception {
+  public void stampChecklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug("Workflow Client - stamp list " + id
         + ", " + approve + ", " + authToken);
 
@@ -1519,22 +1668,17 @@ public class WorkflowClientRest extends RootClientRest
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
 
-    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
-
-    // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        ValidationResultJpa.class);
   }
 
   /* see superclass */
   @Override
-  public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, Boolean updaterFlag, String authToken) throws Exception {
+  public void recomputeConceptStatus(Long projectId, String activityId,
+    Boolean updaterFlag, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
         "Workflow Client - recompute concept status " + ", " + authToken);
 
@@ -1549,16 +1693,63 @@ public class WorkflowClientRest extends RootClientRest
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.json(null));
 
-    final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
       // n/a
     } else {
       throw new Exception(response.toString());
     }
+  }
+
+  @Override
+  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - get current workflow epoch " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/epoch?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_JSON)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
 
     // converting to object
-    return ConfigUtility.getGraphForString(resultString,
-        ValidationResultJpa.class);
+    return ConfigUtility.getGraphForJson(resultString,
+        WorkflowEpochJpa.class);
+  }
+
+  @Override
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Workflow Client - get workflow epochs " + projectId);
+
+    validateNotEmpty(projectId, "projectId");
+
+    final Client client = ClientBuilder.newClient();
+    final WebTarget target = client.target(config.getProperty("base.url")
+        + "/workflow/epoch/all?projectId=" + projectId);
+    final Response response = target.request(MediaType.APPLICATION_JSON)
+        .header("Authorization", authToken).get();
+
+    final String resultString = response.readEntity(String.class);
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // n/a
+    } else {
+      throw new Exception(resultString);
+    }
+
+    // converting to object
+    return ConfigUtility.getGraphForJson(resultString,
+        WorkflowEpochListJpa.class);
   }
 
 }

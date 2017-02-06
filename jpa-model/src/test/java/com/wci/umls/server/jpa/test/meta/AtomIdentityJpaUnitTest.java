@@ -56,6 +56,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
+    tester.exclude("identityCode");
     tester.test();
   }
 
@@ -94,6 +95,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
+    tester.exclude("identityCode");
     assertTrue(tester.testCopyConstructor(AtomIdentity.class));
   }
 
@@ -125,7 +127,7 @@ public class AtomIdentityJpaUnitTest extends ModelUnitSupport {
     tester.include("termType");
     tester.include("codeId");
     tester.include("conceptId");
-    tester.include("descriptorId");    
+    tester.include("descriptorId");
 
     assertTrue(tester.testNotNullFields());
   }

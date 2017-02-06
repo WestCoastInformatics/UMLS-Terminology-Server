@@ -4106,9 +4106,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
       // original approach
       if (ct != 1) {
-        throw new Exception(
-            "Unexpected number of results: " + ct
-                + ", " + partId + ", " + partAncPath);
+        throw new Exception("Unexpected number of results: " + ct + ", "
+            + partId + ", " + partAncPath + ", " + clazz);
       }
 
       final Tree partTree = new TreeJpa(treepos);

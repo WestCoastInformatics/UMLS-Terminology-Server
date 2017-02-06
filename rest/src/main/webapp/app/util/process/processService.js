@@ -7,7 +7,7 @@ tsApp.service('processService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-
+    
     // add algorithm config
     this.addAlgorithmConfig = function(projectId, processId, algo) {
       console.debug('addAlgorithmConfig', projectId, processId, algo);
@@ -59,7 +59,7 @@ tsApp.service('processService', [
     this.findProcessConfigs = function(projectId, query, pfs) {
       console.debug('findProcessConfig', projectId, query, pfs);
       var deferred = $q.defer();
-
+      
       // Get projects
       gpService.increment();
       $http.post(
@@ -612,6 +612,7 @@ tsApp.service('processService', [
       return deferred.promise;
     };
 
+    // export process
     this.exportProcess = function(projectId, processId) {
       console.debug('exportProcess', projectId, processId);
       gpService.increment();

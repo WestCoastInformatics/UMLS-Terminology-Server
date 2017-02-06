@@ -30,11 +30,13 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
+import com.wci.umls.server.helpers.WorkflowConfigList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.ChecklistListJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TrackingRecordListJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowConfigListJpa;
 import com.wci.umls.server.jpa.helpers.WorklistListJpa;
 import com.wci.umls.server.jpa.workflow.ChecklistJpa;
 import com.wci.umls.server.jpa.workflow.TrackingRecordJpa;
@@ -267,6 +269,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass())
         .debug("Workflow Service - add workflow epoch ");
 
+    // TODO: make epoch part of the project -> so we can just say project.getWorkflowEpoch...
     String maxName = "";
     WorkflowEpoch maxEpoch = null;
     for (final WorkflowEpoch epoch : getWorkflowEpochs(project)) {
@@ -407,6 +410,45 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     return getHasLastModified(id, WorkflowConfigJpa.class);
   }
 
+  /* see superclass */
+  @Override
+  public WorkflowConfigList findWorkflowConfigs(Long projectId, String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Workflow Service - find workflowConfigs " + "/" + query);
+
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+
+    int totalCt[] = new int[1];
+    final List<WorkflowConfig> results = new ArrayList<>();
+
+    final List<String> clauses = new ArrayList<>();
+
+    if (projectId == null) {
+      throw new Exception("Error: project must be specified");
+    }
+    clauses.add("projectId:" + projectId);
+    if (!ConfigUtility.isEmpty(query)) {
+      clauses.add(query);
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    List<WorkflowConfigJpa> workflowConfigs =
+        searchHandler.getQueryResults(null, null, Branch.ROOT, fullQuery, null,
+            WorkflowConfigJpa.class, pfs, totalCt, manager);
+
+    for (final WorkflowConfig wc : workflowConfigs) {
+      handleLazyInit(wc);
+      results.add(wc);
+    }
+
+    final WorkflowConfigList workflowConfigList = new WorkflowConfigListJpa();
+    workflowConfigList.setObjects(results);
+    workflowConfigList.setTotalCount(totalCt[0]);
+
+    return workflowConfigList;
+  }  
+  
   /* see superclass */
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(
@@ -572,7 +614,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     params.put("terminology", project.getTerminology());
     params.put("version", project.getVersion());
 
-    List<Long[]> results =
+    final List<Long[]> results =
         executeClusteredConceptQuery(query, definition.getQueryType(), params);
 
     if (results == null)

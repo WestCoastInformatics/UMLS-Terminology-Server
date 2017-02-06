@@ -48,7 +48,7 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
 
   /** The group. */
   @Column(name = "relGroup", nullable = true)
-  private String group;
+  private String group = "";
 
   /** The inferred. */
   @Column(nullable = false)
@@ -245,7 +245,10 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
 
       // Inverse relationships don't keep the group value from its originating
       // relationship - clear it out
-      inverseRelationship.setGroup(null);
+      inverseRelationship.setGroup("");
+
+      // Inverse relationships are not hierarchical
+      inverseRelationship.setHierarchical(false);
 
       return inverseRelationship;
     } else {

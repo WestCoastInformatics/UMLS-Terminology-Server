@@ -255,9 +255,15 @@ tsApp
             return 'UNRELEASABLE';
 
           // RXNORM (orange)
-          if (atom.terminology == 'RXNORM') {
+          var orangeFlag = atom.attributes.filter(function (a) { 
+            return a.name == 'AMBIGUITY_FLAG' && 
+              a.value == 'Base' && 
+              a.terminology == 'RXNORM' && 
+              a.publishable; 
+          });
+          if (orangeFlag.length > 0) {
             return 'RXNORM';
-          }
+          }  
 
           // OBSOLETE (purple)
           if (atom.obsolete)

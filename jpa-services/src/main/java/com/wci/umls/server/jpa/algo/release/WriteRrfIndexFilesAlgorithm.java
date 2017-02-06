@@ -8,13 +8,10 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
@@ -82,22 +79,21 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
     query.setParameter("terminology", getProject().getTerminology());
     steps = Integer.parseInt(query.getSingleResult().toString());
 
-    NormalizedStringHandler handler = getNormalizedStringHandler();
+    final NormalizedStringHandler handler = getNormalizedStringHandler();
 
     // process one concept at a time
-    final Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session.createQuery(
-        "select a from ConceptJpa a WHERE a.publishable = true and terminology = :terminology order by a.terminologyId");
-
-    hQuery.setParameter("terminology", getProject().getTerminology());
-    hQuery.setReadOnly(true).setFetchSize(1000);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
-    while (results.next()) {
-      final Concept c = (Concept) results.get()[0];
+    query = getEntityManager().createQuery(
+        "select a.id from ConceptJpa a WHERE a.publishable = true and "
+            + "terminology = :terminology order by a.terminologyId");
+    query.setParameter("terminology", getProject().getTerminology());
+    @SuppressWarnings("unchecked")
+    final List<Long> conceptIds = query.getResultList();
+    for (final Long conceptId : conceptIds) {
+      final Concept c = getConcept(conceptId);
 
       // caching to support only unique rows in output
-      HashSet<String> seen = new HashSet<>();
-      HashSet<String> wordsSeen = new HashSet<>();
+      final HashSet<String> seen = new HashSet<>();
+      final HashSet<String> wordsSeen = new HashSet<>();
 
       for (final Atom atom : c.getAtoms()) {
         if (atom.isPublishable()) {

@@ -391,4 +391,6 @@ public class EclConceptIndexingAlgorithm extends AbstractAlgorithm {
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
   }
+
+
 }

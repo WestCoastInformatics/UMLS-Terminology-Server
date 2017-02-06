@@ -134,7 +134,7 @@ public class WorkflowEpochJpaUnitTest extends ModelUnitSupport {
     tester.proxy(List.class, 2, l2);
     tester.proxy(Project.class, 1, p1);
     tester.proxy(Project.class, 2, p2);
-    assertTrue(tester.testCopyConstructorCollection(WorkflowEpoch.class));
+    assertTrue(tester.testCopyConstructor(WorkflowEpoch.class));
   }
 
   /**

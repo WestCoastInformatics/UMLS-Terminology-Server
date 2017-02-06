@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -267,6 +267,20 @@ public class AtomIdentityJpa implements AtomIdentity {
     } else if (!descriptorId.equals(other.descriptorId))
       return false;
     return true;
+  }
+
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getIdentityCode() {
+    return stringClassId + terminology + terminologyId + termType + codeId
+        + conceptId + descriptorId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIdentityCode(String identityCode) {
+    // n/a
   }
 
   /* see superclass */

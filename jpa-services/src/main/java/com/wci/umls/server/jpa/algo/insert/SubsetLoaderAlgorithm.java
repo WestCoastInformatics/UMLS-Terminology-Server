@@ -17,6 +17,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -119,7 +120,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the attributes.src file, keeping only subset member lines
       //
-      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "attributes.src", "(.*)(SUBSET_MEMBER)(.*)", null);
 
       // Set the number of steps to twice the number of lines to be processed
@@ -127,7 +128,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       setSteps(2 * lines.size());
 
       // Scan through and find all Subsets that need to be created
-      for (String line : lines) {
+      for (final String line : lines) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
@@ -139,7 +140,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       // Scan through the lines again, and find all Subset members that need to
       // be created
-      for (String line : lines) {
+      for (final String line : lines) {
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
           checkCancel();
@@ -152,6 +153,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+      handler.commit();
 
       logInfo("[SubsetLoader] Added " + subsetAddCount + " new Subsets.");
       logInfo("[SubsetLoader] Added " + subsetMemberAddCount
@@ -208,7 +210,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 4|900000000000530003|S|SUBSET_MEMBER|900000000000456007~ATTRIBUTEORDER~0|SNOMEDCT_US_2016_09_01|R|Y|N|N|SOURCE_CUI|SNOMEDCT_US_2016_09_01|06522d4b-2512-4c08-9ab6-2a2a0ef2e660|62fdb3cf5b09a68a28efcd60d3e2bd00|
 
     // Split out the micro-syntax as well
-    String atvFields[] = new String[3];
+    final String atvFields[] = new String[3];
     FieldedStringTokenizer.split(fields[4], "~", 3, atvFields);
     final String subsetId = atvFields[0];
     final String referencedTerminologyAndVersion = fields[5];
@@ -315,10 +317,10 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
    * @param handler the handler
    * @throws Exception the exception
    */
-  private void createSubsetMembersAndAttributes(String line,
-    IdentifierAssignmentHandler handler) throws Exception {
+  private void createSubsetMembersAndAttributes(final String line,
+    final IdentifierAssignmentHandler handler) throws Exception {
 
-    String fields[] = new String[14];
+    final String fields[] = new String[14];
 
     FieldedStringTokenizer.split(line, "|", 14, fields);
 
@@ -344,7 +346,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     // 4|900000000000530003|S|SUBSET_MEMBER|900000000000456007~ATTRIBUTEORDER~0|SNOMEDCT_US_2016_09_01|R|Y|N|N|SOURCE_CUI|SNOMEDCT_US_2016_09_01|06522d4b-2512-4c08-9ab6-2a2a0ef2e660|62fdb3cf5b09a68a28efcd60d3e2bd00|
 
     // Split out the micro-syntax as well
-    String atvFields[] = new String[3];
+    final String atvFields[] = new String[3];
     FieldedStringTokenizer.split(fields[4], "~", 3, atvFields);
     final String subsetId = atvFields[0];
     final String referencedTerminologyAndVersion = fields[5];
@@ -421,8 +423,8 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       member.setTerminologyId(fields[12]);
       member.setTerminology(referencedTerminology.getTerminology());
       member.setVersion(referencedTerminology.getVersion());
-      member.setObsolete(false);
-      member.setSuppressible(!fields[9].equals("N"));
+      member.setSuppressible("OYE".contains(fields[9].toUpperCase()));
+      member.setObsolete(fields[9].toUpperCase().equals("O"));
       member.setPublishable(!fields[7].equals("N"));
       member.setPublished(!fields[8].equals("N"));
 
@@ -435,18 +437,18 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     }
 
     // Always make an attribute, even if it's an entry for JUST a membership
-    Attribute memberAtt = new AttributeJpa();
+    final Attribute memberAtt = new AttributeJpa();
 
     // Fake an attribute to calculate the alternate terminology Id
     // Create the fake attribute
-    Attribute newAttribute = new AttributeJpa();
+    final Attribute newAttribute = new AttributeJpa();
     newAttribute.setName(fields[3]);
     newAttribute.setValue(fields[4]);
     newAttribute.setTerminology(referencedTerminology.getTerminology());
     newAttribute.setTerminologyId("");
 
     // Compute attribute identity
-    String subsetAtui =
+    final String subsetAtui =
         handler.getTerminologyId(newAttribute, referencedComponent);
 
     // Assign the ATUI to the member attribute.
@@ -458,8 +460,8 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     memberAtt.setTerminology(referencedTerminology.getTerminology());
     memberAtt.setVersion(referencedTerminology.getVersion());
-    memberAtt.setObsolete(false);
-    memberAtt.setSuppressible(!fields[9].equals("N"));
+    memberAtt.setSuppressible("OYE".contains(fields[9].toUpperCase()));
+    memberAtt.setObsolete(fields[9].toUpperCase().equals("O"));
     memberAtt.setPublishable(!fields[7].equals("N"));
     memberAtt.setPublished(!fields[8].equals("N"));
     if (fields[4].contains("~")) {
@@ -480,7 +482,39 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    // n/a - No reset
+    // No molecular actions will be generated by reset
+    setMolecularActionFlag(false);
+
+    // Find all atom subsets that were created since the insertion started, and
+    // set them to unpublishable.
+    String query = "SELECT m.id FROM AtomSubsetJpa m " + "WHERE m.id > "
+        + getProcess().getExecutionInfo().get("maxAtomSubsetIdPreInsertion");
+
+    // Execute a query to get Atom Subset Ids
+    final List<Long> atomSubsetIds = executeSingleComponentIdQuery(query,
+        QueryType.JQL, new HashMap<>(), AtomSubsetJpa.class);
+
+    for (final Long id : atomSubsetIds) {
+      final AtomSubset atomSubset =
+          (AtomSubset) getSubset(id, AtomSubsetJpa.class);
+      atomSubset.setPublishable(false);
+      updateSubset(atomSubset);
+    }
+
+    // Do the same for the concept subsets.
+    query = "SELECT m.id FROM ConceptSubsetJpa m " + "WHERE m.id > "
+        + getProcess().getExecutionInfo().get("maxConceptSubsetIdPreInsertion");
+
+    // Execute a query to get Concept Subset Ids
+    final List<Long> conceptSubsetIds = executeSingleComponentIdQuery(query,
+        QueryType.JQL, new HashMap<>(), ConceptSubsetJpa.class);
+
+    for (final Long id : conceptSubsetIds) {
+      final ConceptSubset conceptSubset =
+          (ConceptSubset) getSubset(id, ConceptSubsetJpa.class);
+      conceptSubset.setPublishable(false);
+      updateSubset(conceptSubset);
+    }
   }
 
   /* see superclass */
@@ -497,7 +531,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

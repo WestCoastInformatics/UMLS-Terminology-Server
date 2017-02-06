@@ -352,6 +352,21 @@ public class RelationshipIdentityJpa implements RelationshipIdentity {
 
   /* see superclass */
   @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getIdentityCode() {
+    return additionalRelationshipType + fromId + fromTerminology + fromType
+        + relationshipType + terminology + terminologyId + toId + toTerminology
+        + toType;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIdentityCode(String identityCode) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
   public String toString() {
     return "RelationshipIdentityJpa [id=" + id + ", terminology=" + terminology
         + ", terminologyId=" + terminologyId + ", relationshipType="

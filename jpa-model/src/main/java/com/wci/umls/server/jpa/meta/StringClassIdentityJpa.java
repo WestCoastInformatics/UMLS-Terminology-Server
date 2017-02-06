@@ -188,6 +188,19 @@ public class StringClassIdentityJpa implements StringClassIdentity {
     return true;
   }
 
+  /* see superclass */
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getIdentityCode() {
+    return name + language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIdentityCode(String identityCode) {
+    // n/a
+  }
+
   /**
    * To name.
    *

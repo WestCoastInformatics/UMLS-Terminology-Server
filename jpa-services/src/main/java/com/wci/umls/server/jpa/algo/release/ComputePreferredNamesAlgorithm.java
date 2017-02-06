@@ -17,6 +17,7 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
@@ -65,7 +66,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting compute preferred names");
+    logInfo("Starting PREFNAMES");
 
     // Configure algorithm
     final ComputePreferredNameHandler handler =
@@ -95,6 +96,14 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
       // if something changed, update the concept
       if (isChanged(concept, handler)) {
         updateConcept(concept);
+        // Reindex the concept relationships because the name changed
+        for (final ConceptRelationship rel : concept.getRelationships()) {
+          updateRelationship(rel);
+        }
+        for (final ConceptRelationship rel : concept
+            .getInverseRelationships()) {
+          updateRelationship(rel);
+        }
         updatedCt++;
       }
 
@@ -118,7 +127,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  concept count = " + objectCt);
     logInfo("  concepts updated = " + updatedCt);
-    logInfo("Finished compute preferred names");
+    logInfo("Finished PREFNAMES");
 
   }
 
@@ -150,9 +159,9 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
     // If there are atoms, recompute the preferred name
     if (hasAtoms) {
-      final String computedName = handler.computePreferredName(
-          concept.getAtoms(), getPrecedenceList(getProject().getTerminology(),
-              getProject().getVersion()));
+      final String computedName =
+          handler.computePreferredName(concept.getAtoms(), getPrecedenceList(
+              getProject().getTerminology(), getProject().getVersion()));
       if (computedName == null) {
         throw new Exception(
             "Unexpected concept without preferred name - " + concept.getId());

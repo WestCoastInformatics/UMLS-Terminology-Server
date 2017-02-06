@@ -36,9 +36,11 @@
       <span uib-tooltip="Workflow Bins">Bins</span>
     </h5>
     </uib-accordion-heading>
-
     <div class="row">
       <div class="col-md-12 col-xs-12">
+        <button ng-show="hasPermissions('EditEpoch')"
+          title="Edit epoch" ng-click="openEditEpochModal()"
+          class="btn btn-xs btn-primary mr20">epoch: {{selected.epoch.name}}</button>
         <select ng-model="selected.config" ng-show="lists.configs.length > 1"
           ng-options="config as config.type for config in lists.configs"
           ng-change="setConfig(selected.config)"></select>
@@ -68,6 +70,11 @@
           <i ng-click="openEditConfigModal(selected.config)"
             ng-show="selected.config" title="Edit workflow configuration"
             class="ml20 noul glyphicon glyphicon-pencil"></i>
+          <i ng-show="selected.config" ng-click="exportWorkflow()"
+            title="Export workflow"
+            class="ml20 noul glyphicon glyphicon-download"></i>
+          <i ng-show="selected.config" ng-click="openImportWorkflowModal()"
+            title="Import workflow" class="ml20 noul glyphicon glyphicon-upload"></i>
           <i
             confirm="Are you sure you want to remove the 
           {{selected.config.type}} configuration?"
@@ -108,7 +115,7 @@
               <td rowspan="4">
                 <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>
-                &nbsp;{{bin.name}}</br>
+                &nbsp;{{bin.name}}<br />
                 <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
                   <input type="checkbox" title="Enable/Disable Bin"
                     ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
@@ -166,12 +173,10 @@
         <span ng-show="lists.bins.length == 0" style="display: block;"
           class="alert alert-warning">No workflow Bins</span>
       </div>
-
       <hr ng-show="selected.bin">
       <!-- Bin Records Table -->
       <div ng-show="selected.bin" records-table selected="selected"
         lists="lists" user="user" paging="paging"></div>
-
     </div>
     </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group
       ng-click="saveAccordionStatus()" is-open="groups[1].open">
@@ -194,6 +199,5 @@
     <div worklists-table type="Worklist" selected="selected" lists="lists"
       user="user"></div>
     </uib-accordion-group></uib-accordion>
-
   </div>
 </div>

@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.persistence.Query;
+
 import org.apache.log4j.Logger;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
@@ -807,21 +806,20 @@ public class Rf2SnapshotLoaderAlgorithm
     logInfo("  Connect atoms and concepts");
     objectCt = 0;
     // NOTE: Hibernate-specific to support iterating
-    Session session = manager.unwrap(Session.class);
-    org.hibernate.Query hQuery = session
-        .createQuery("select a from AtomJpa a " + "where conceptId is not null "
+    final Query query = getEntityManager()
+        .createQuery("select a.id from AtomJpa a where conceptId is not null "
             + "and conceptId != '' and terminology = :terminology "
-            + "and version = :version " + "order by terminology, conceptId")
-        .setParameter("terminology", getTerminology())
-        .setParameter("version", getVersion()).setReadOnly(true)
-        .setFetchSize(2000).setCacheable(true);
-    ScrollableResults results = hQuery.scroll(ScrollMode.FORWARD_ONLY);
+            + "and version = :version " + "order by terminology, conceptId");
+    query.setParameter("terminology", getTerminology());
+    query.setParameter("version", getVersion());
+    @SuppressWarnings("unchecked")
+    final List<Long> ids = query.getResultList();
     String prevCui = null;
     String prefName = null;
     String altPrefName = null;
     Concept concept = null;
-    while (results.next()) {
-      final Atom atom = (Atom) results.get()[0];
+    for (final Long id : ids) {
+      final Atom atom = getAtom(id);
       if (atom.getConceptId() == null || atom.getConceptId().isEmpty()) {
         continue;
       }
@@ -844,9 +842,9 @@ public class Rf2SnapshotLoaderAlgorithm
 
           // Add definitions
           if (definitionMap.containsKey(concept.getTerminologyId())) {
-            for (final Long id : definitionMap
+            for (final Long id2 : definitionMap
                 .get(concept.getTerminologyId())) {
-              concept.getDefinitions().add(getDefinition(id));
+              concept.getDefinitions().add(getDefinition(id2));
             }
           }
 
@@ -893,7 +891,6 @@ public class Rf2SnapshotLoaderAlgorithm
       updateConcept(concept);
       commitClearBegin();
     }
-    results.close();
     commitClearBegin();
 
   }
@@ -2101,7 +2098,7 @@ public class Rf2SnapshotLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception{
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
         "inputDir", "Input RF2 Snapshot directory to load", "", 255,

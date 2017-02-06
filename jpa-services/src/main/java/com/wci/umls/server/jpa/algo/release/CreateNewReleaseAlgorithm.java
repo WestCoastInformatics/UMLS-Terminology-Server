@@ -16,6 +16,7 @@ import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.WorklistList;
@@ -74,8 +75,9 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     final File metadir = new File(path, "META");
     if (!metadir.exists()) {
       result.addError(
-          "Release requires a 'META' directory at the input path with template MRCOLS.RRF and MRFILES.RRF files in it "
-              + dir.getPath());
+          "Release requires a 'META' directory at the input path with\n"
+              + "template MRCOLS.RRF and MRFILES.RRF files in it:\n "
+              + metadir.getPath());
     }
 
     // Verify that there are no concepts with workflowStatus == NEEDS_REVIEW
@@ -132,6 +134,31 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       }
     }
 
+    // Project needs to be set
+    if (getProject() == null) {
+      throw new LocalException(
+          "Create new release requires a project to be set");
+    }
+
+    // Make sure process terminology matches project terminology.
+    if (!getProcess().getTerminology().equals(getProject().getTerminology())) {
+      throw new LocalException(
+          "Create new release requires the process' terminology to be set to the project terminology ("
+              + getProject().getTerminology() + ")");
+    }
+
+    // Make sure process version is a 6-digit number that is greater than
+    // the previous project terminology's most recent release
+    final ReleaseInfo currenReleaseInfo =
+        getCurrentReleaseInfo(getProject().getTerminology());
+    if (getProcess().getVersion().length() != 6
+        || !(Long.parseLong(getProcess().getVersion()) > Long
+            .parseLong(currenReleaseInfo.getVersion()))) {
+      throw new LocalException(
+          "Create new release requires the process' version to be set a 6-digit number that is greater than the most recent releases' version ("
+              + currenReleaseInfo.getVersion() + ")");
+    }
+
     return result;
 
   }
@@ -174,13 +201,14 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setVersion(getProcess().getVersion());
     releaseInfo.setName(getProcess().getVersion());
     releaseInfo.setDescription("Base release for " + releaseInfo.getName());
-    releaseInfo.setPlanned(true);
-    releaseInfo.setPublished(false);
+    releaseInfo.setPlanned(false);
+    releaseInfo.setPublished(true);
     releaseInfo.setReleaseBeginDate(new Date());
     releaseInfo.setTimestamp(new Date());
     logInfo("  Add release info = " + releaseInfo);
     addReleaseInfo(releaseInfo);
 
+    commitClearBegin();
     updateProgress();
 
     // Set first/last release based on release info
@@ -230,8 +258,9 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     for (final Terminology terminology : getTerminologies().getObjects()) {
       // Mark unpublished current terminologies with "first" release as this
       // release
-      if (terminology.isCurrent() && terminology.getFirstReleases()
-          .get(releaseInfo.getTerminology()).equals(releaseInfo.getVersion())) {
+      if (terminology.isCurrent() && !terminology.getFirstReleases().isEmpty()
+          && terminology.getFirstReleases().get(releaseInfo.getTerminology())
+              .equals(releaseInfo.getVersion())) {
         logInfo("  reset firstRelease = " + releaseInfo.getVersion() + " "
             + terminology.getTerminology());
         terminology.getFirstReleases().remove(releaseInfo.getTerminology());
@@ -240,6 +269,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       // Mark non-current terminologies, previously published, with "last"
       // release as previous release
       else if (!terminology.isCurrent()
+          && !terminology.getLastReleases().isEmpty()
           && terminology.getLastReleases().get(releaseInfo.getTerminology())
               .equals(prevReleaseInfo.getVersion())) {
         logInfo("  reset lastRelease = " + prevReleaseInfo.getVersion() + " "
@@ -280,7 +310,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa(

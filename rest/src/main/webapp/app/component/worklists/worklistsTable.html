@@ -42,7 +42,7 @@
               <span ng-bind="getSortIndicator('worklists','worklistState')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2"">Actions</th>
+          <th class="col-md-2 col-xs-2">Actions</th>
         </tr>
       </thead>
       <!-- Checklist header -->
@@ -59,7 +59,7 @@
               <span ng-bind="getSortIndicator('worklists','lastModified')"></span>
             </span></th>
           <!-- Actions header -->
-          <th class="col-md-2 col-xs-2"">Actions</th>
+          <th class="col-md-2 col-xs-2">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -88,7 +88,8 @@
               ng-show="!worklist.staged && hasPermissions('RemoveWorklist')"
               confirm="Are you sure you want to remove the worklist ({{worklist.name}})?"
               ng-click="removeWorklist(worklist); $event.stopPropagation()"
-              class="noul glyphicon glyphicon-trash"></i> <i
+              class="noul glyphicon glyphicon-trash"></i>
+            <i
               ng-show="hasPermissions('AssignWorklist') 
                 && type == 'Worklist' && (worklist.authorAvailable || worklist.reviewerAvailable)"
               ng-click="openAssignWorklistModal(worklist,'ASSIGN');"
@@ -134,7 +135,7 @@
     <div class="col-md-12 col-xs-12" ng-show="selectedWorklist">
       <!-- Worklist Details -->
       <h4>{{selectedWorklist.name}}</h4>
-      <table class="slim table pointer">
+      <table class="slim table">
         <tbody>
           <tr>
             <td>
@@ -153,7 +154,7 @@
                   <br /> <small>... more notes ...</small>
                 </span>
               </div>
-              <div notes selected="selected" type="{{type}}">
+              <div notes selected="{worklist : selectedWorklist, project : selected.project}" type="{{type}}"></div>
             </td>
           </tr>
           <tr>
@@ -161,7 +162,7 @@
               <b>Log</b>
             </td>
             <td>
-              <div log selected="selected" type="{{type}}"></div>
+              <div log selected="{worklist : selectedWorklist, project : selected.project}" type="{{type}}"></div>
             </td>
           </tr>
           <tr>
@@ -181,15 +182,16 @@
             </td>
             <td>
               <span ng-show="worklistReport && !reportRefresh">
-                <a ng-click="getGeneratedConceptReport()">{{worklistReport}}</a>
-                &nbsp; <i
-                  ng-click="removeGeneratedConceptReport(selectedWorklist);"
+                <a ng-click="getGeneratedConceptReport()" class="pointer">{{worklistReport}}</a>
+                &nbsp;
+                <i ng-click="removeGeneratedConceptReport(selectedWorklist);"
                   title="Remove report" class="noul glyphicon glyphicon-trash"></i>
               </span>
               <span ng-show="!worklistReport && reportRefresh">
                 <i ng-click="findGeneratedReports();"
                   title="Refresh concept report generation status"
-                  class="noul glyphicon glyphicon-refresh"></i> ...Generating...
+                  class="noul glyphicon glyphicon-refresh"></i>
+                ...Generating...
               </span>
               <span
                 ng-show="!worklistReport && !reportRefresh && hasPermissions('GenerateReport')">

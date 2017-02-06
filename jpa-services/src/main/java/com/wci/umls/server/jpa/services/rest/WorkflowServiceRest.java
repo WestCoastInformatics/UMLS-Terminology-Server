@@ -8,7 +8,6 @@ import java.io.InputStream;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.UserRole;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.QueryType;
@@ -16,6 +15,7 @@ import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowBinList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
+import com.wci.umls.server.helpers.WorkflowEpochList;
 import com.wci.umls.server.helpers.WorklistList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.workflow.WorkflowBinDefinitionJpa;
@@ -46,6 +46,32 @@ public interface WorkflowServiceRest {
    */
   public WorkflowConfig addWorkflowConfig(Long projectId,
     WorkflowConfigJpa config, String authToken) throws Exception;
+
+  /**
+   * Import workflow config.
+   *
+   * @param contentDispositionHeader the content disposition header
+   * @param in the in
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the workflow config
+   * @throws Exception the exception
+   */
+  public WorkflowConfig importWorkflowConfig(
+    FormDataContentDisposition contentDispositionHeader, InputStream in,
+    Long projectId, String authToken) throws Exception;
+
+  /**
+   * Export process config.
+   *
+   * @param projectId the project id
+   * @param workflowId the workflow id
+   * @param authToken the auth token
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  public InputStream exportWorkflowConfig(Long projectId, Long workflowId,
+    String authToken) throws Exception;
 
   /**
    * Update workflow config.
@@ -177,6 +203,20 @@ public interface WorkflowServiceRest {
     UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
+   * Find done work.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tracking record list
+   * @throws Exception the exception
+   */
+  public TrackingRecordList findDoneWork(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
    * Find available work.
    *
    * @param projectId the project id
@@ -240,6 +280,20 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorklistList findAssignedWorklists(Long projectId, String userName,
+    UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Find done worklists.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param role the role
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the worklist list
+   * @throws Exception the exception
+   */
+  public WorklistList findDoneWorklists(Long projectId, String userName,
     UserRole role, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -420,6 +474,19 @@ public interface WorkflowServiceRest {
    * @throws Exception the exception
    */
   public WorkflowBin regenerateBin(Long projectId, Long workflowBinId,
+    String type, String authToken) throws Exception;
+
+  /**
+   * Regenerate bin.
+   *
+   * @param projectId the project id
+   * @param name the name
+   * @param type the type
+   * @param authToken the auth token
+   * @return the workflow bin
+   * @throws Exception the exception
+   */
+  public WorkflowBin regenerateBinDefinition(Long projectId, String name,
     String type, String authToken) throws Exception;
 
   /**
@@ -672,11 +739,10 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param approve the approve
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampWorklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception;
+  public void stampWorklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception;
 
   /**
    * Stamp checklist.
@@ -686,11 +752,10 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param approve the approve
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult stampChecklist(Long projectId, Long id,
-    String activityId, boolean approve, String authToken) throws Exception;
+  public void stampChecklist(Long projectId, Long id, String activityId,
+    boolean approve, String authToken) throws Exception;
 
   /**
    * Recompute concept status.
@@ -699,10 +764,29 @@ public interface WorkflowServiceRest {
    * @param activityId the activity id
    * @param updaterFlag the updater flag
    * @param authToken the auth token
-   * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult recomputeConceptStatus(Long projectId,
-    String activityId, Boolean updaterFlag, String authToken) throws Exception;
+  public void recomputeConceptStatus(Long projectId, String activityId,
+    Boolean updaterFlag, String authToken) throws Exception;
+
+  /**
+   * Gets the current workflow epoch.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the current workflow epoch
+   * @throws Exception the exception
+   */
+  public WorkflowEpoch getCurrentWorkflowEpoch(Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the workflow epochs.
+   *
+   * @param authToken the auth token
+   * @return the workflow epochs
+   * @throws Exception the exception
+   */
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken) throws Exception;
 
 }

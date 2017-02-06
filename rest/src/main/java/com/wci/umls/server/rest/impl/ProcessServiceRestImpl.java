@@ -45,6 +45,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
@@ -464,7 +465,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           if (algo.getProperties().get(param.getFieldName()) != null) {
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(new ArrayList<String>(Arrays.asList(
-                  algo.getProperties().get(param.getFieldName()).split(","))));
+                  algo.getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(algo.getProperties().get(param.getFieldName()));
             }
@@ -482,16 +483,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process configs.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process config list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
@@ -533,15 +524,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the process execution
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -596,7 +578,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
               param.setValues(
                   new ArrayList<String>(Arrays.asList(algorithmExecution
-                      .getProperties().get(param.getFieldName()).split(","))));
+                      .getProperties().get(param.getFieldName()).split(";"))));
             } else {
               param.setValue(
                   algorithmExecution.getProperties().get(param.getFieldName()));
@@ -615,16 +597,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param query the query
-   * @param pfs the pfs
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @POST
@@ -667,14 +639,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Find process executions.
-   *
-   * @param projectId the project id
-   * @param authToken the auth token
-   * @return the process execution list
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -734,15 +698,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     return processExecutions;
   }
 
-  /**
-   * Removes the process execution.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param cascade the cascade
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -805,15 +760,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Adds the algorithm config.
-   *
-   * @param projectId the project id
-   * @param config the algorithm config
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @PUT
@@ -1024,14 +970,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
-  /**
-   * Removes the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @DELETE
@@ -1091,15 +1029,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the algorithm config.
-   *
-   * @param projectId the project id
-   * @param id the id
-   * @param authToken the auth token
-   * @return the algorithm config
-   * @throws Exception the exception
-   */
   /* see superclass */
   @Override
   @GET
@@ -1143,7 +1072,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         if (algo.getProperties().get(param.getFieldName()) != null) {
           if (param.getType().equals(AlgorithmParameter.Type.MULTI)) {
             param.setValues(new ArrayList<String>(Arrays.asList(
-                algo.getProperties().get(param.getFieldName()).split(","))));
+                algo.getProperties().get(param.getFieldName()).split(";"))));
           } else {
             param.setValue(algo.getProperties().get(param.getFieldName()));
           }
@@ -1166,11 +1095,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @GET
-  @Path("/algo/{release,report,insertion,maintenance}")
+  @Path("/algo/{type:insertion|maintenance|release|report}")
   @ApiOperation(value = "Get all algorithms", notes = "Gets the algorithms for the specified type", response = KeyValuePairList.class)
   public KeyValuePairList getAlgorithmsForType(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("projectId") String type,
+    @ApiParam(value = "The type, e.g. insertion, maintenance, release, report", required = true) @PathParam("type") String type,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Process): /algo/" + type
@@ -1381,8 +1310,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Make sure the processExecution isn't already running
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
+      for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+          processService).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
           throw new LocalException("Process execution "
               + processExecution.getId() + " is already currently running");
@@ -1460,8 +1389,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       }
 
       // Make sure the processExecution isn't already running
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
+      for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+          processService).getObjects()) {
         if (exec.getId().equals(processExecution.getId())) {
           throw new LocalException("Process execution "
               + processExecution.getId() + " is already currently running");
@@ -1529,21 +1458,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // Verify the project
       verifyProject(processExecution, projectId);
 
-      // Make sure this process execution is running
-      boolean processRunning = false;
-      for (final ProcessExecution exec : findCurrentlyExecutingProcesses(
-          projectId, authToken).getObjects()) {
-        if (exec.getId().equals(id)) {
-          processRunning = true;
-          break;
-        }
-      }
-
-      if (!processRunning) {
-        throw new LocalException("Error canceling process Execution " + id
-            + ": not currently running.");
-      }
-
       // Find the algorithm and call cancel on it
       if (processAlgorithmMap.containsKey(id)) {
         // this will throw a CancelException which will clean up all the maps
@@ -1552,6 +1466,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // Do not close - let run thread close it
         // processAlgorithmMap.get(id).close();
       }
+
+      // fix state where server crash caused a process failure
+      checkBadState(processExecution, projectId, processService);
 
       return id;
 
@@ -1562,6 +1479,47 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
     return null;
+  }
+
+  /**
+   * Check bad state.
+   *
+   * @param processExecution the process execution
+   * @param projectId the project id
+   * @param processService the process service
+   * @throws Exception the exception
+   */
+  private void checkBadState(ProcessExecution processExecution, Long projectId,
+    ProcessService processService) throws Exception {
+    // Make sure this process execution is running
+    boolean processRunning = false;
+    for (final ProcessExecution exec : findCurrentlyExecutingHelper(projectId,
+        processService).getObjects()) {
+      if (exec.getId().equals(processExecution.getId())) {
+        processRunning = true;
+        break;
+      }
+    }
+    if (!processRunning) {
+
+      // IF the process thinks it is still running, mark it as failed and save
+      // that change
+      if (processExecution.getStartDate() != null
+          && processExecution.getStopDate() == null
+          && processExecution.getFailDate() == null
+          && processExecution.getFinishDate() == null) {
+        processExecution.setFailDate(new Date());
+        processService.updateProcessExecution(processExecution);
+
+        for (final AlgorithmExecution algoExec : processExecution.getSteps()) {
+          if (algoExec.getStartDate() != null && algoExec.getFailDate() == null
+              && algoExec.getFinishDate() == null) {
+            algoExec.setFailDate(new Date());
+            processService.updateAlgorithmExecution(algoExec);
+          }
+        }
+      }
+    }
   }
 
   /* see superclass */
@@ -1575,7 +1533,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /" + id
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /" + id
         + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -1626,8 +1584,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /algo/" + id
-        + "/progress?projectId=" + projectId + " for user " + authToken);
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /algo/"
+        + id + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -1675,7 +1633,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
    * @param step the step
    * @throws Exception the exception
    */
-
   private void runProcessAsThread(Long projectId, Long processConfigId,
     Long processExecutionId, String userName, Boolean background,
     Boolean restart, Integer step) throws Exception {
@@ -1711,6 +1668,19 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           processExecution.setFailDate(null);
           processExecution.setFinishDate(null);
           processService.updateProcessExecution(processExecution);
+
+          // Log starting a process if no algorithm executions
+          if (processExecution.getSteps().size() == 0 && !restart) {
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "STARTING PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName() + "\n\t  project = "
+                    + processExecution.getProject().getId() + ", "
+                    + processExecution.getProject().getName());
+          }
 
           // Set initial progress to zero and count the number of steps to
           // execute
@@ -1854,7 +1824,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
               if (!result.isValid()) {
                 throw new LocalException(
                     "Algorithm " + algorithmExecution.getId()
-                        + " failed preconditions: " + result.getErrors());
+                        + " failed preconditions: " + FieldedStringTokenizer
+                            .join(new ArrayList<>(result.getErrors()), "\n"));
               }
             }
 
@@ -1955,13 +1926,25 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Check if process has finished, mark it so
           if (ct == processConfig.getSteps().size()
               && (step == null || step > 0)) {
+
+            // Log starting a process
+            processService.addLogEntry(processExecution.getProject().getId(),
+                processExecution.getLastModifiedBy(),
+                processExecution.getTerminology(),
+                processExecution.getVersion(), null,
+                processExecution.getWorkId(),
+                "FINISHED PROCESS " + processExecution.getId() + ", "
+                    + processExecution.getName());
+
             processExecution.setStopDate(null);
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
+            processService.close();
 
             // Mark process as finished
-            lookupPeProgressMap.remove(processExecution.getId());
+            // Note: do not remove process from the map. Will stay in at 100%
+            // lookupPeProgressMap.remove(processExecution.getId());
 
             // Send email notifying about successful completion
             final String recipients = processExecution.getFeedbackEmail();
@@ -1990,19 +1973,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
           // Mark algorithm and process as failed
           try {
 
-            // Remove process and algorithm from the maps
-            if (processAlgorithmMap.containsKey(processExecution.getId())) {
-              processAlgorithmMap.get(processExecution.getId()).close();
-            }
-            processAlgorithmMap.remove(processExecutionId);
-            lookupPeProgressMap.remove(processExecutionId);
-            lookupAeProgressMap.remove(algorithmExecution.getId());
-
-            // close the algorithm
-            if (algorithm != null) {
-              algorithm.close();
-            }
-
             // set cancel conditions if cancel was used.
             algorithmExecution.setFailDate(new Date());
             if (e instanceof CancelException) {
@@ -2019,12 +1989,34 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
               algorithmExecution.setFinishDate(new Date());
               processExecution.setFinishDate(new Date());
+            } else {
+              processService.addLogEntry(processExecution.getProject().getId(),
+                  processExecution.getLastModifiedBy(),
+                  processExecution.getTerminology(),
+                  processExecution.getVersion(),
+                  algorithmExecution.getActivityId(),
+                  processExecution.getWorkId(),
+                  "ERROR " + "Unexpected problem - " + e.getMessage());
             }
             processService.updateAlgorithmExecution(algorithmExecution);
 
             processExecution.setFailDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
+
+            // Remove process and algorithm from the maps
+            if (processAlgorithmMap.containsKey(processExecution.getId())) {
+              processAlgorithmMap.get(processExecution.getId()).close();
+            }
+            processAlgorithmMap.remove(processExecutionId);
+            lookupPeProgressMap.remove(processExecutionId);
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+
+            // close the algorithm
+            if (algorithm != null) {
+              algorithm.close();
+            }
+
           } catch (Exception ex) {
             handleException(ex, "trying to update execution info");
           }
@@ -2115,6 +2107,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
   @GET
   @Path("algo/{algorithmExecutionId}/log")
   @ApiOperation(value = "Get log entries of specified algorithm execution", notes = "Get log entries of specified algorithm execution", response = Integer.class)

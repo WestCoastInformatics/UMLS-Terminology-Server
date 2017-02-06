@@ -4,9 +4,13 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -15,7 +19,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -96,23 +99,36 @@ public class SemanticTypeLoaderAlgorithm
     try {
 
       //
+      // Cache all atom->concept
+      //
+      final Query query = manager
+          .createQuery("select a.id, c.id from ConceptJpa c join c.atoms a "
+              + "where c.terminology = :terminology "
+              + "  and c.version = :version and c.publishable = true ");
+      query.setParameter("terminology", getProject().getTerminology());
+      query.setParameter("version", getProject().getVersion());
+      final Map<Long, Long> atomConceptMap = new HashMap<>();
+      @SuppressWarnings("unchecked")
+      final List<Object[]> ids = query.getResultList();
+      for (final Object[] result : ids) {
+        Long atomId = Long.valueOf(result[0].toString());
+        Long conceptId = Long.valueOf(result[1].toString());
+        atomConceptMap.put(atomId, conceptId);
+      }
+
+      //
       // Load the attributes.src file, only keeping SEMANTIC_TYPE lines.
       //
-      List<String> lines =
+      final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "attributes.src",
               "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
 
       // Set the number of steps to the number of atoms to be processed
       setSteps(lines.size());
 
-      String fields[] = new String[14];
+      final String fields[] = new String[14];
 
-      for (String line : lines) {
-
-        // Check for a cancelled call once every 100 lines
-        if (getStepsCompleted() % 100 == 0) {
-          checkCancel();
-        }
+      for (final String line : lines) {
 
         FieldedStringTokenizer.split(line, "|", 14, fields);
 
@@ -136,7 +152,7 @@ public class SemanticTypeLoaderAlgorithm
         // 49|C47666|S|Chemical_Formula|C19H32N2O5.C4H11N|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E||875b4a03f8dedd9de05d6e9e4a440401|
 
         // Load the referenced atom, or preferred atom of atomClass object
-        Component component = getComponent(fields[10], fields[1],
+        final Component component = getComponent(fields[10], fields[1],
             getCachedTerminologyName(fields[11]), null);
         if (component == null) {
           logWarnAndUpdate(line,
@@ -149,8 +165,8 @@ public class SemanticTypeLoaderAlgorithm
         if (component instanceof Atom) {
           atom = (Atom) component;
         } else if (component instanceof AtomClass) {
-          AtomClass atomClass = (AtomClass) component;
-          List<Atom> atoms =
+          final AtomClass atomClass = (AtomClass) component;
+          final List<Atom> atoms =
               prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
@@ -160,23 +176,13 @@ public class SemanticTypeLoaderAlgorithm
           continue;
         }
 
-        // Get the concept associated with the loaded atom, or preferred atom of
-        // loaded atomClass Object
-        Concept concept = null;
-        List<ConceptJpa> concepts = searchHandler.getQueryResults(
-            getProject().getTerminology(), getProject().getVersion(),
-            Branch.ROOT, "atoms.id:" + atom.getId(), null, ConceptJpa.class,
-            null, new int[1], getEntityManager());
-        if (concepts.size() != 1) {
-          throw new Exception("Unexpected number of concepts: "
-              + concepts.size() + ", for atom: " + atom.getId());
-        }
-        concept = concepts.get(0);
+        // Get the concept associated with the loaded atom
+        final Concept concept = getConcept(atomConceptMap.get(atom.getId()));
 
         // If concept has a semantic type already matching this value, move on
         // otherwise add a new semantic type.
         boolean componentContainsSty = false;
-        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+        for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
           if (sty.getSemanticType().equals(fields[4])) {
             componentContainsSty = true;
             break;
@@ -184,21 +190,22 @@ public class SemanticTypeLoaderAlgorithm
         }
 
         if (!componentContainsSty) {
-          SemanticTypeComponent newSty = new SemanticTypeComponentJpa();
+          final SemanticTypeComponent newSty = new SemanticTypeComponentJpa();
           newSty.setBranch(Branch.ROOT);
           newSty.setName(fields[4]);
-          newSty.setObsolete(false);
           newSty.setPublishable(fields[7].toUpperCase().equals("Y"));
           newSty.setPublished(fields[8].toUpperCase().equals("Y"));
           newSty.setSemanticType(fields[4]);
-          newSty.setSuppressible(fields[9].toUpperCase().equals("Y"));
+          newSty.setSuppressible(false);
+          newSty.setObsolete(false);
           newSty.setTerminology(getProject().getTerminology());
           newSty.setVersion(getProject().getVersion());
           newSty.setTerminologyId("");
           newSty.setWorkflowStatus(lookupWorkflowStatus(fields[6]));
 
-          newSty = addSemanticTypeComponent(newSty, concept);
-          concept.getSemanticTypes().add(newSty);
+          final SemanticTypeComponent newSty2 =
+              addSemanticTypeComponent(newSty, concept);
+          concept.getSemanticTypes().add(newSty2);
           updateConcept(concept);
 
           addCount++;
@@ -216,10 +223,6 @@ public class SemanticTypeLoaderAlgorithm
       logInfo("[SemanticTypeLoader] Updated " + updateCount
           + " existing Semantic Types.");
 
-      logInfo("  project = " + getProject().getId());
-      logInfo("  workId = " + getWorkId());
-      logInfo("  activityId = " + getActivityId());
-      logInfo("  user  = " + getLastModifiedBy());
       logInfo("Finished SEMANTICTYPELOADING");
 
     } catch (
@@ -256,7 +259,7 @@ public class SemanticTypeLoaderAlgorithm
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

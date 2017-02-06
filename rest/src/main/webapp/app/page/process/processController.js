@@ -41,7 +41,10 @@ tsApp
           step : null,
           processType : securityService.getProperty($scope.user.userPreferences, 'processType',
             'Insertion'),
-          mode : securityService.getProperty($scope.user.userPreferences, 'processMode', 'Config')
+          mode : securityService.getProperty($scope.user.userPreferences, 'processMode', 'Config'),
+          configForExec : null,
+          configForExecStep : null,
+          configForExecStepCt : 0
         };
 
         // Lists
@@ -139,6 +142,9 @@ tsApp
             $scope.selected.mode);
           $scope.selected.process = null;
           $scope.getProcesses();
+          $scope.selected.configForExec = null;
+          $scope.selected.configForExecStep = null;
+          $scope.selected.configForExecStepCt = 0;
         }
 
         // Get $scope.lists.processes
@@ -185,6 +191,14 @@ tsApp
                     $scope.refreshStepProgress();
                   }, 1000);
                 }
+
+                // Read the "configForExec"
+                processService.getProcessConfig($scope.selected.project.id, data.processConfigId)
+                  .then(
+                  // Success
+                  function(data) {
+                    $scope.selected.configForExec = data;
+                  });
               }
 
               for (var i = 0; i < $scope.lists.processes.length; i++) {
@@ -198,18 +212,47 @@ tsApp
 
           if ($scope.selected.mode == 'Config') {
             $scope.lists.algorithmConfigTypes = [];
-            processService.getAlgorithms($scope.selected.project.id, $scope.selected.processType)
-              .then(
-              // Success
-              function(data) {
-                for (var i = 0; i < data.keyValuePairs.length; i++) {
-                  $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i]);
-                }
-                $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
-                $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
-              });
+            processService.getAlgorithmsForType($scope.selected.project.id,
+              $scope.selected.processType.toLowerCase()).then(
+            // Success
+            function(data) {
+              for (var i = 0; i < data.keyValuePairs.length; i++) {
+                $scope.lists.algorithmConfigTypes.push(data.keyValuePairs[i]);
+              }
+              $scope.lists.algorithmConfigTypes.sort(utilService.sortBy('value'));
+              $scope.selected.algorithmConfigType = $scope.lists.algorithmConfigTypes[0];
+            });
           }
 
+        }
+
+        // Get algorithm configs for unexecuted steps
+        $scope.getUnexecutedAlgorithms = function() {
+          if ($scope.selected.mode == 'Config' || !$scope.selected.configForExec) {
+            return [];
+          }
+          var unexecuted = [];
+          for (var i = 0; i < $scope.selected.configForExec.steps.length; i++) {
+            var configStep = $scope.selected.configForExec.steps[i];
+            if (!configStep.enabled) {
+              continue;
+            }
+            for (var j = 0; j < $scope.selected.process.steps.length; j++) {
+              var execStep = $scope.selected.process.steps[j];
+              var found = false;
+              if (configStep.name == execStep.name
+                && configStep.description == execStep.description) {
+                found = true;
+                break;
+              }
+            }
+            $scope.selected.configForExecStepStart = j;
+            if (!found) {
+              unexecuted.push(configStep);
+            }
+          }
+          $scope.selected.configForExecStepCt = unexecuted.length;
+          return unexecuted;
         }
 
         // prepare process
@@ -273,7 +316,7 @@ tsApp
                   // progress monitors as needed
                   $timeout(function() {
                     $scope.refreshProcessProgress();
-                  }, 1000);
+                  }, 2000);
                 }
               }
             });
@@ -310,7 +353,7 @@ tsApp
               // progress monitors as needed
               $timeout(function() {
                 $scope.refreshStepProgress();
-              }, 1000);
+              }, 2000);
             }
           });
         };
@@ -513,6 +556,11 @@ tsApp
         // Select $scope.selected.step
         $scope.selectStep = function(step) {
           $scope.selected.step = step;
+        }
+
+        // Select $scope.selected.step
+        $scope.selectConfigForExecStep = function(step) {
+          $scope.selected.configForExecStep = step;
         }
 
         // Get $scope.lists.algorithms

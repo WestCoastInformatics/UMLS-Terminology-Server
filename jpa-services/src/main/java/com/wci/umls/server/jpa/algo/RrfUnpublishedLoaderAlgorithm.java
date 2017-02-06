@@ -447,6 +447,7 @@ public class RrfUnpublishedLoaderAlgorithm
       xr.setTerminologyId("");
       xr.setTo(concept2);
       xr.setVersion(getVersion());
+      xr.setGroup("");
       xr.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
       logInfo("    add xr = " + xr);
       addRelationship(xr);

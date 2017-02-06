@@ -40,6 +40,7 @@ tsApp
         // scope vars
         $scope.assignedCt = 0;
         $scope.availableCt = 0;
+        $scope.doneCt = 0;
         $scope.checklistCt = 0;
 
         // Callbacks for report
@@ -71,7 +72,7 @@ tsApp
           concepts : [],
           projectRoles : [],
           recordTypes : workflowService.getRecordTypes(),
-          worklistModes : [ 'Available', 'Assigned', 'Checklists' ],
+          worklistModes : [ 'Available', 'Assigned', 'Done', 'Checklists' ],
           terminologies : [],
           languages : [],
           precedenceOrder : []
@@ -132,11 +133,6 @@ tsApp
           getPagedList : getPagedAdditionalRelationshipTypes
         };
 
-        $scope.paging['precedenceList'] = utilService.getPaging();
-        $scope.paging['precedenceList'].pageSize = 1000000;
-        $scope.paging['precedenceList'].callbacks = {
-          getPagedList : getPagedPrecedenceList
-        };
 
         // Handle workflow changes
         $scope.$on('termServer::checklistChange', function(event, data) {
@@ -158,6 +154,7 @@ tsApp
             } else {
               $scope.getAssignedWorklistCt();
               $scope.getAvailableWorklistCt();
+              $scope.getDoneWorklistCt();
             }
           }
         });
@@ -260,12 +257,28 @@ tsApp
 
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
-          for (var i = 0; i < $scope.lists.concepts.length; i++) {
-            var c = $scope.lists.concepts[i];
-            if (concept.id == c.id) {
-              // Cut this element out
-              $scope.lists.concepts.splice(i, 1);
-              break;
+          $scope.selected.component = concept;
+          // If this is the only concept on the list, clear selected and close all other windows.
+          if ($scope.lists.concepts.length == 1) {
+            $scope.lists.concepts = [];
+            $scope.selected.component = null;
+            $scope.closeWindows();
+          } else {
+            for (var i = 0; i < $scope.lists.concepts.length; i++) {
+              var c = $scope.lists.concepts[i];
+              if (concept.id == c.id) {
+                // Cut this element out
+                $scope.lists.concepts.splice(i, 1);
+                // If the concept being removed is the selected one, select the previous concept if possible.
+                if ($scope.selected.component.id = c.id) {
+                  if (i != $scope.lists.concepts.length) {
+                    $scope.selected.component = $scope.lists.concepts[i];
+                  } else {
+                    $scope.selected.component = $scope.lists.concepts[i - 1];
+                  }
+                }
+                break;
+              }
             }
           }
         }
@@ -287,16 +300,16 @@ tsApp
         // Get $scope.lists.worklists
         // switch based on type
         $scope.getWorklists = function(worklist) {
-          console.debug('getworklists1');
           getWorklists(worklist);
         }
         function getWorklists(worklist) {
-          console.debug('getworklists2');
           $scope.clearLists();
           if ($scope.selected.worklistMode == 'Available') {
             $scope.getAvailableWorklists();
           } else if ($scope.selected.worklistMode == 'Assigned') {
             $scope.getAssignedWorklists();
+          } else if ($scope.selected.worklistMode == 'Done') {
+            $scope.getDoneWorklists();
           } else if ($scope.selected.worklistMode == 'Checklists') {
             $scope.getChecklists();
           }
@@ -323,6 +336,7 @@ tsApp
                 $scope.availableCt = data.totalCount;
                 $scope.resetSelected();
                 $scope.getAssignedWorklistCt();
+                $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
@@ -371,6 +385,7 @@ tsApp
                 $scope.assignedCt = data.totalCount;
                 $scope.resetSelected();
                 $scope.getAvailableWorklistCt();
+                $scope.getDoneWorklistCt();
                 $scope.getChecklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
@@ -395,6 +410,55 @@ tsApp
             $scope.assignedCt = data.totalCount;
           });
         };
+        
+
+        // Get done worklists with project and type
+        $scope.getDoneWorklists = function() {
+          var paging = $scope.paging['worklists'];
+          var pfs = {
+            startIndex : (paging.page - 1) * paging.pageSize,
+            maxResults : paging.pageSize,
+            sortField : paging.sortField,
+            ascending : paging.sortAscending,
+            queryRestriction : paging.filter
+          };
+
+          workflowService
+            .findDoneWorklists($scope.selected.project.id, $scope.user.userName,
+              $scope.selected.projectRole, pfs)
+            .then(
+              // Success
+              function(data) {
+                $scope.lists.worklists = data.worklists;
+                $scope.lists.worklists.totalCount = data.totalCount;
+                $scope.doneCt = data.totalCount;
+                $scope.resetSelected();
+                $scope.getAssignedWorklistCt();
+                $scope.getAvailableWorklistCt();
+                $scope.getChecklistCt();
+                // select previously selected list if saved in user preferences
+                if ($scope.user.userPreferences.properties['editWorklist']) {
+                  for (var i = 0; i < $scope.lists.worklists.length; i++) {
+                    if ($scope.lists.worklists[i].id == $scope.user.userPreferences.properties['editWorklist']) {
+                      $scope.selectWorklist($scope.lists.worklists[i]);
+                    }
+                    ;
+                  }
+                }
+              });
+        };
+        $scope.getDoneWorklistCt = function() {
+          var pfs = {
+            startIndex : 0,
+            maxResults : 1
+          };
+          workflowService.findDoneWorklists($scope.selected.project.id, $scope.user.userName,
+            $scope.selected.projectRole, pfs).then(
+          // Success
+          function(data) {
+            $scope.doneCt = data.totalCount;
+          });
+        };        
 
         // Find checklists
         $scope.getChecklists = function() {
@@ -418,6 +482,7 @@ tsApp
                 $scope.resetSelected();
                 $scope.getAssignedWorklistCt();
                 $scope.getAvailableWorklistCt();
+                $scope.getDoneWorklistCt();
                 // select previously selected list if saved in user preferences
                 if ($scope.user.userPreferences.properties['editWorklist']) {
                   for (var i = 0; i < $scope.lists.worklists.length; i++) {
@@ -506,9 +571,7 @@ tsApp
             $scope.selected.project.version).then(
           // Success
           function(data) {
-            $scope.precedenceList = data;
-            $scope.lists.precedenceOrder = data.precedence.keyValuePairs;
-            $scope.getPagedPrecedenceList();
+            $scope.lists.precedenceList = data;
           });
         }
 
@@ -628,6 +691,15 @@ tsApp
           $scope.user.userPreferences.properties[windowName] = false;
         }
 
+        // close windows
+        $scope.closeWindows = function() {
+          for ( var key in $scope.windows) {
+            if ($scope.windows[key] && $scope.windows[key].$windowScope) {
+              $scope.windows[key].close();
+            }
+          }
+        }        
+        
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
@@ -753,7 +825,7 @@ tsApp
           // If no selected component, then try to recover from last saved
           // if (!$scope.selected.component) {
           if ($scope.selected.worklist
-            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned')) {
+            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned' || $scope.selected.worklistMode == 'Done')) {
             workflowService.findTrackingRecordsForWorklist($scope.selected.project.id,
               $scope.selected.worklist.id, pfs).then(
             // Success
@@ -1255,66 +1327,7 @@ tsApp
         }
         ;
 
-        $scope.getPagedPrecedenceList = function() {
-          console.debug('getprecedencelist');
-          getPagedPrecedenceList();
-        }
-        function getPagedPrecedenceList() {
-          $scope.pagedPrecedenceList = utilService.getPagedArray($scope.lists.precedenceOrder,
-            $scope.paging['precedenceList']);
-          $scope.pagedPrecedenceList.totalCount = $scope.lists.precedenceOrder.length;
-        }
-        ;
 
-        // Move a termgroup up in precedence list
-        $scope.moveTermgroupUp = function(termgroup) {
-          $scope.entriesTouched[termgroup.key + termgroup.value] = 1;
-          // Start at index 1 because we can't move the top one up
-          for (var i = 1; i < $scope.lists.precedenceOrder.length; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
-              $scope.lists.precedenceOrder.splice(i, 1);
-              $scope.lists.precedenceOrder.splice(i - 1, 0, termgroup);
-            }
-          }
-          $scope.getPagedPrecedenceList();
-        };
-
-        // Move a termgroup down in precedence list
-        $scope.moveTermgroupDown = function(termgroup) {
-          $scope.entriesTouched[termgroup.key + termgroup.value] = 1;
-          // end at index -11 because we can't move the last one down
-          for (var i = 0; i < $scope.lists.precedenceOrder.length - 1; i++) {
-            if ($scope.isEquivalent(termgroup, $scope.lists.precedenceOrder[i])) {
-              $scope.lists.precedenceOrder.splice(i, 2, $scope.lists.precedenceOrder[i + 1],
-                termgroup);
-              break;
-            }
-          }
-          $scope.getPagedPrecedenceList();
-        };
-
-        // equivalent test for termgroups
-        $scope.isEquivalent = function(tgrp1, tgrp2) {
-          return tgrp1.key == tgrp2.key && tgrp1.value == tgrp2.value;
-        };
-
-        // Check whether this is the first entry in the list
-        $scope.isFirstIndex = function(entry) {
-          return $scope.isEquivalent(entry, $scope.lists.precedenceOrder[0]);
-        }
-
-        // Check whether this is the last entry in the list
-        $scope.isLastIndex = function(entry) {
-          return $scope.isEquivalent(entry,
-            $scope.lists.precedenceOrder[$scope.lists.precedenceOrder.length - 1]);
-        }
-
-        // Update the precedence list.
-        $scope.updatePrecedenceList = function() {
-          $scope.entriesTouched = {};
-          $scope.precedenceList.precedence.keyValuePairs = $scope.lists.precedenceOrder;
-          metadataService.updatePrecedenceList($scope.precedenceList);
-        }
 
         // Get the "max" workflow state
         $scope.getWorkflowState = function(worklist) {

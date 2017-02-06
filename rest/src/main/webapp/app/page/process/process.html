@@ -1,6 +1,5 @@
 <!-- Controlled by ProcessCtrl (in processController.js)  -->
 <div class="row">
-
   <!-- Project stuff -->
   <div class="col-md-12 col-xs-12">
     <h6>
@@ -27,8 +26,6 @@
           ng-click="setMode(mode)">{{mode}} ({{counts[mode]}})</a></li>
     </ul>
   </div>
-
-
   <!-- R1C1 - process List-->
   <div class=" col-md-6 col-xs-12">
     <div class="mt10">
@@ -50,7 +47,6 @@
           class="noul glyphicon glyphicon-upload"></i>
       </span>
     </div>
-
     <div pager paging="paging['process']" style="margin-top: 5px"
       count="lists.processes.totalCount" callbacks="paging['process'].callbacks"></div>
     <table ng-show="lists.processes.totalCount > 0" class="slim table pointer">
@@ -74,11 +70,9 @@
         <tr ng-repeat="process in lists.processes"
           ng-click="selectProcess(process);"
           ng-class="{selected: process.id == selected.process.id}">
-
           <td>{{process.name}}</td>
           <td>{{getExecutionState(process)}}</td>
           <td>{{toDate(process.lastModified)}}</td>
-
           <!--  actions -->
           <td class="nobreak">
             <i title="Edit process"
@@ -97,20 +91,15 @@
     <span ng-show="lists.processes.totalCount == 0" class="alert alert-warning">There
       are no processes of type {{selected.processType}}.</span>
   </div>
-
-
   <!-- R1C2 - process details -->
   <div class="col-md-6 col-xs-12">
-
     <div style="display: inline" ng-show="selected.process">
       <h4>Process Details</h4>
     </div>
     <!-- Details, Releases, Records -->
     <span ng-show="!selected.process && list.processes.length > 0"
       class="alert alert-warning">Select a process to see details</span>
-
     <div ng-show="selected.process">
-
       <!-- Process Details -->
       <table class="slim table">
         <tbody>
@@ -120,7 +109,7 @@
             </td>
             <td>
               {{selected.process.name}} &nbsp;
-              <i ng-show="selected.mode == 'Execution'"
+              <i ng-show="selected.mode != 'Execution'"
                 ng-click="exportProcess()" title="Export process"
                 class="noul glyphicon glyphicon-download"></i>
             </td>
@@ -131,28 +120,24 @@
             </td>
             <td>{{selected.process.description}}</td>
           </tr>
-
           <tr>
             <td>
               <b>Terminology</b>
             </td>
-            <td>{{selected.project.terminology}}</td>
+            <td>{{selected.process.terminology}}</td>
           </tr>
-
           <tr>
             <td>
               <b>Version</b>
             </td>
-            <td>{{selected.project.version}}</td>
+            <td>{{selected.process.version}}</td>
           </tr>
-
           <tr ng-show="selected.process.inputPath">
             <td>
               <b>Input Path</b>
             </td>
             <td>{{selected.process.inputPath}}</td>
           </tr>
-
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Log</b>
@@ -162,7 +147,6 @@
                 poll="{{selected.mode == 'Execution' && !selected.process.finishDate  && !selected.process.stopDate  && !selected.process.failDate}}"></div>
             </td>
           </tr>
-
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Start date</b>
@@ -177,7 +161,6 @@
             <td ng-if="selected.process.stopDate">{{toDate(selected.process.stopDate)}}</td>
             <td ng-if="!selected.process.stopDate">n/a</td>
           </tr>
-
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Fail date</b>
@@ -185,7 +168,6 @@
             <td ng-if="selected.process.failDate">{{toDate(selected.process.failDate)}}</td>
             <td ng-if="!selected.process.failDate">n/a</td>
           </tr>
-
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Finish date</b>
@@ -193,14 +175,12 @@
             <td ng-if="selected.process.finishDate">{{toDate(selected.process.finishDate)}}</td>
             <td ng-if="!selected.process.finishDate">n/a</td>
           </tr>
-
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>State</b>
             </td>
             <td>{{getExecutionState(selected.process)}}</td>
           </tr>
-
           <tr
             ng-show="selected.mode == 'Execution' && selected.process.startDate && !selected.process.finishDate && !selected.process.failDate">
             <td>
@@ -214,7 +194,6 @@
                 ng-click="selectProcess(selected.process)"></i>
             </td>
           </tr>
-
           <tr
             ng-show="selected.mode == 'Execution' && selected.lastAlgorithm.startDate && !selected.process.finishDate && !selected.process.failDate">
             <td>
@@ -226,7 +205,6 @@
                 / {{max}}</span></uib-progressbar>
             </td>
           </tr>
-
         </tbody>
       </table>
       <div style="margin-bottom: 10px;">
@@ -243,7 +221,6 @@
             class="ml20 btn btn-xs btn-primary">Add</button>
         </span>
       </div>
-
       <table class="slim table pointer">
         <thead>
           <tr>
@@ -253,7 +230,7 @@
             <th class="col-md-1 col-xs-1">Actions</th>
           </tr>
         </thead>
-        <tr ng-repeat="step in selected.process.steps"
+        <tr ng-repeat-start="step in selected.process.steps"
           ng-click="selectStep(step);"
           ng-style="{'opacity' : step.enabled == 0 ? 0.4 : 1}"
           ng-class="{selected: step.id == selected.step.id}">
@@ -291,17 +268,35 @@
             <span ng-show="selected.mode == 'Execution'" log
               selected="{step : step, project : selected.project}" type="Step"
               poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>
-
             <i title="Edit step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
               class="noul glyphicon glyphicon-pencil"></i>
-
             <i title="Remove step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               confirm="Are you sure you want to remove the step ({{step.name}})?"
               ng-click="removeAlgorithmConfig(step.id); $event.stopPropagation()"
               class="noul glyphicon glyphicon-trash"></i>
+          </td>
+        </tr>
+        <!-- Show parameter details for selected step -->
+        <tr ng-show="step.id == selected.step.id && step.parameters.length>0"
+          ng-repeat-end ng-class="{selected: step.id == selected.step.id}">
+          <td colspan="4">
+            <span ng-repeat="parameter in step.parameters">
+              <span class="ml20">
+                <b>{{parameter.name}}:</b> {{parameter.value}}
+                <span ng-show="!parameter.value">
+                  [
+                  <span ng-repeat="value in parameter.values">
+                    {{value}}
+                    <span ng-if="!$last">, </span>
+                  </span>
+                  ]
+                </span>
+              </span>
+              <br />
+            </span>
           </td>
         </tr>
       </table>
@@ -341,6 +336,66 @@
           class="btn btn-xs btn-primary"
           ng-click="stepProcess(selected.process.id,-1); ">Unstep</button>
       </span>
+
+      <!-- Show the configForExec steps when in execution mode -->
+      <div ng-show="selected.configForExec && selected.configForExecStepCt > 0">
+        <h5 class="mt10">Unexecuted Steps</h5>
+        <table class="slim table pointer">
+          <thead>
+            <tr>
+              <th class="col-md-4 col-xs-4">Name</th>
+              <th class="col-md-4 col-xs-4">Description</th>
+              <th class="col-md-3 col-xs-3">Last Modified</th>
+              <th class="col-md-1 col-xs-1">Actions</th>
+            </tr>
+          </thead>
+          <tr ng-repeat-start="step in getUnexecutedAlgorithms()"
+            ng-click="selectConfigForExecStep(step);"
+            ng-class="{selected: step.id == selected.configForExecStep.id}">
+            <td style="opacity: 0.6">{{$index +
+              selected.configForExecStepStart}}. {{step.name}}</td>
+            <td style="opacity: 0.6">{{step.description}}</td>
+            <td style="opacity: 0.6">
+              {{toDate(step.lastModified)}}
+              <span ng-show="selected.mode == 'Execution'">
+                <br />{{getExecutionState(step)}}
+              </span>
+            </td>
+            <td class="nobreak">
+              <i title="Edit step" ng-show="hasPermissions('EditProcessOrStep')"
+                ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
+                class="noul glyphicon glyphicon-pencil"></i>
+              <i title="Remove step"
+                ng-show="hasPermissions('EditProcessOrStep')"
+                confirm="Are you sure you want to remove the step ({{step.name}})?"
+                ng-click="removeAlgorithmConfig(step.id); $event.stopPropagation()"
+                class="noul glyphicon glyphicon-trash"></i>
+            </td>
+          </tr>
+          <!-- Show parameter details for selected step -->
+          <tr style="opacity: 0.6"
+            ng-show="step.id == selected.configForExecStep.id && step.parameters.length>0"
+            ng-repeat-end
+            ng-class="{selected: step.id == selected.configForExecStep.id}">
+            <td colspan="4">
+              <span ng-repeat="parameter in step.parameters">
+                <span class="ml20">
+                  <b>{{parameter.name}}:</b> {{parameter.value}}
+                  <span ng-show="!parameter.value">
+                    [
+                    <span ng-repeat="value in parameter.values">
+                      {{value}}
+                      <span ng-if="!$last">, </span>
+                    </span>
+                    ]
+                  </span>
+                </span>
+                <br />
+              </span>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </div>

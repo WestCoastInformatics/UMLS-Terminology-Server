@@ -1,0 +1,52 @@
+<div class="modal-header">
+  <h4 style="display: inline">Edit Epoch</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <table class="slim table">
+    
+    <tr>
+      <td>
+        <b>New Epoch </b>
+      </td>
+      <td>
+        <input autofocus type="text" ng-model="epoch.name" size="30"
+          title="Current epoch">
+      </td>
+      <td>
+          <button class="btn btn-primary ml20 btn-xs"
+            ng-click="submitEpoch(epoch); ">Add</button>
+  
+      </td>
+    </tr>
+    
+  </table>
+  
+  <table class="slim table">
+    
+    <tr ng-repeat="epoch in epochs">
+      
+      <td>
+        {{epoch.name}}
+      </td>
+      <td>
+          <i ng-click="removeEpoch(epoch);" title="Remove epoch"
+            class="noul glyphicon glyphicon-trash"></i>
+  
+      </td>
+    </tr>
+    
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+</div>
+
+<div class="modal-footer">
+  
+  <button class="btn btn-warning" ng-click="close()">Close</button>
+</div>

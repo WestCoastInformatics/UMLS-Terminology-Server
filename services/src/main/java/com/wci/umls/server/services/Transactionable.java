@@ -85,18 +85,6 @@ public interface Transactionable {
     throws Exception;
 
   /**
-   * Log and commit.
-   *
-   * @param preMessage the pre message
-   * @param objectCt the object ct
-   * @param logCt the log ct
-   * @param commitCt the commit ct
-   * @throws Exception the exception
-   */
-  public void logAndCommit(String preMessage, int objectCt, int logCt,
-    int commitCt) throws Exception;
-  
-  /**
    * Commit at regular intervals, without logging (useful when multiple services
    * are running concurrently)
    *
@@ -106,6 +94,6 @@ public interface Transactionable {
    * @throws Exception the exception
    */
   public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
-      throws Exception;  
+    throws Exception;
 
 }

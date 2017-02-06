@@ -28,7 +28,8 @@ tsApp.controller('AtomModalCtrl', [
         $scope.atom = {
           workflowStatus : 'NEEDS_REVIEW',
           publishable : true,
-          language : 'ENG'
+          language : 'ENG',
+          codeId : 'NOCODE'
         };
         $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
       }

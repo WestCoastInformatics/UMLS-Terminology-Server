@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -28,6 +29,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
@@ -40,14 +42,17 @@ import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
 import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
 import com.wci.umls.server.jpa.algo.maint.ReloadConfigPropertiesAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.jpa.helpers.ProjectListJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.UserListJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.ProjectServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProjectServiceRest;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.ProjectService;
 import com.wci.umls.server.services.SecurityService;
 
@@ -99,14 +104,14 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Project): / " + project);
 
-    final ProjectService projectService = new ProjectServiceJpa();
+    final MetadataService metadataService = new MetadataServiceJpa();
     try {
       final String userName = authorizeApp(securityService, authToken,
           "add project", UserRole.USER);
-      projectService.setLastModifiedBy(userName);
+      metadataService.setLastModifiedBy(userName);
 
       // check to see if project already exists
-      for (final Project p : projectService.getProjects().getObjects()) {
+      for (final Project p : metadataService.getProjects().getObjects()) {
         if (p.getName().equals(project.getName())
             && p.getDescription().equals(project.getDescription())) {
           throw new LocalException(
@@ -114,9 +119,20 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         }
       }
 
+      // Create and add precedence list
+      if (project.getTerminology() == null || project.getVersion() == null) {
+        throw new LocalException(
+            "Project terminology and version must not be null.");
+      }
+      final PrecedenceList precList = new PrecedenceListJpa(metadataService
+          .getPrecedenceList(project.getTerminology(), project.getVersion()));
+      precList.setId(null);
+      metadataService.addPrecedenceList(precList);
+      project.setPrecedenceList(precList);
+
       // Add project
-      final Project newProject = projectService.addProject(project);
-      projectService.addLogEntry(userName, project.getId(), project.getId(),
+      final Project newProject = metadataService.addProject(project);
+      metadataService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "ADD project - " + project);
 
       return newProject;
@@ -124,7 +140,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to add a project");
       return null;
     } finally {
-      projectService.close();
+      metadataService.close();
       securityService.close();
     }
 
@@ -153,10 +169,46 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         throw new Exception("Project " + project.getId() + " does not exist");
       }
 
+      // compare old and new typeKeyValue lists
+      final List<TypeKeyValue> oldValidationData =
+          origProject.getValidationData();
+      final List<TypeKeyValue> newValidationData = project.getValidationData();
+
+      // Find validation data to remove
+      final List<TypeKeyValue> validationDataToRemove = new ArrayList<>();
+      for (final TypeKeyValue tkv : oldValidationData) {
+        boolean found = false;
+        for (final TypeKeyValue tkv2 : newValidationData) {
+          if (tkv2.getId() != null && tkv.equals(tkv2)) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          validationDataToRemove.add(tkv);
+        }
+      }
+
+      // Add new validation data
+      for (final TypeKeyValue tkv : newValidationData) {
+        if (tkv.getId() == null) {
+          projectService.addTypeKeyValue(tkv);
+          // VERIFY THAT tkv.getId() is not null at this point
+          if (tkv.getId() == null) {
+            throw new Exception("tkv.getId() should not be null " + tkv);
+          }
+        }
+      }
+
       // Update project
       project.setUserRoleMap(origProject.getUserRoleMap());
       project.setPrecedenceList(origProject.getPrecedenceList());
       projectService.updateProject(project);
+
+      // Remove old validation data
+      for (final TypeKeyValue tkv : validationDataToRemove) {
+        projectService.removeTypeKeyValue(tkv.getId());
+      }
 
       projectService.addLogEntry(userName, project.getId(), project.getId(),
           null, null, "UPDATE project " + project);
