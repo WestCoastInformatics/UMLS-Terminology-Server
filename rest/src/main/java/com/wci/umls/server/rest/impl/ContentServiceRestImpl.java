@@ -1403,7 +1403,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-  
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/get")
@@ -1429,20 +1429,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         projectId == null ? null : contentService.getProject(projectId);
 
     try {
-      String username = authorizeApp(securityService, authToken, "get concepts by query",
-          UserRole.VIEWER);
+      String username = authorizeApp(securityService, authToken,
+          "get concepts by query", UserRole.VIEWER);
 
       // Empty queries return all results
-      final ConceptList cl = contentService.findConcepts(
-          terminology, version, Branch.ROOT, queryStr, pfs);
-      
+      final ConceptList cl = contentService.findConcepts(terminology, version,
+          Branch.ROOT, queryStr, pfs);
+
       for (Concept concept : cl.getObjects()) {
-       
+
         if (concept != null) {
-          contentService.getGraphResolutionHandler(terminology).resolve(concept);
-          sortAtoms(securityService, contentService, username, concept, project);
+          contentService.getGraphResolutionHandler(terminology)
+              .resolve(concept);
+          sortAtoms(securityService, contentService, username, concept,
+              project);
         }
-        
+
       }
       return cl;
 
@@ -4315,13 +4317,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
         return contentService.validateConcept(project.getValidationChecks(),
             concept);
       } else {
-        if (!"DEFAULT".equals(check)
-            && !project.getValidationChecks().contains(check)) {
+        if (!project.getValidationChecks().contains(check)) {
           throw new Exception("Check " + check + " not valid for project");
         } else {
           return contentService
               .validateConcept(new ArrayList<>(Arrays.asList(check)), concept);
         }
+
       }
 
     } catch (
@@ -4352,9 +4354,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       authorizeProject(contentService, projectId, securityService, authToken,
-          "validate conceptm", UserRole.USER);
+          "validate concepts", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      final Set<Long> conceptIds = new HashSet<>(contentService.getAllConceptIds(project.getTerminology(), project.getVersion(), project.getBranch()));
+      final Set<Long> conceptIds = new HashSet<>(
+          contentService.getAllConceptIds(project.getTerminology(),
+              project.getVersion(), project.getBranch()));
       if (check == null) {
         return contentService.validateConcepts(project, null, conceptIds);
       } else {
