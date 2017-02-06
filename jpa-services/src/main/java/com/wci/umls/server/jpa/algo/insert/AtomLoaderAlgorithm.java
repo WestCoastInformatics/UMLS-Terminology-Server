@@ -82,7 +82,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   /* see superclass */
-  /* see superclass */
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
