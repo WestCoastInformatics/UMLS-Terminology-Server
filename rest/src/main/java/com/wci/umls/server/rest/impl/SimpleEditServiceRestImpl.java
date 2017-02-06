@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,13 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -201,7 +206,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       concept.setName(contentService.getComputedPreferredName(concept,
           contentService.getPrecedenceList(concept.getTerminology(),
               concept.getVersion())));
-      
+
       contentService.updateConcept(concept);
 
     } catch (Exception e) {
@@ -571,31 +576,49 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @Path("/concepts/remove")
-  @DELETE
+  @POST
   @ApiOperation(value = "Removes concept", notes = "Removes concepts by id", response = TypeKeyValueJpa.class)
   public void removeConcepts(
     @ApiParam(value = "The id of the project, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
-    @ApiParam(value = "The list of concept ids to remove", required = false) List<Long> conceptIds,
+    @ApiParam(value = "The query for concepts to remove", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The PFS filtering criteria", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
         .info("RESTful call (Project/TypeKeyValue): /remove " + projectId + ", "
-            + conceptIds);
+            + pfs);
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String username = authorizeApp(securityService, authToken,
           "remove abbreviation", UserRole.USER);
       final Project project = contentService.getProject(projectId);
       contentService.setLastModifiedBy(username);
-      List<Long> idsToRemove;
-      if (conceptIds == null) {
-        idsToRemove = contentService.getAllConceptIds(project.getTerminology(),
+    
+      // construct list of ids to remove based on query and query restriction
+      List<Long> idsToRemove = new ArrayList<>();
+      if (query != null || (pfs != null && pfs.getQueryRestriction() != null)) {
+        PfsParameter lpfs = new PfsParameterJpa(pfs);
+        lpfs.setStartIndex(-1);
+        lpfs.setMaxResults(-1);
+        lpfs.setSortField(null);
+        final SearchResultList searchResults =
+            contentService.findConceptSearchResults(project.getTerminology(),
+                project.getVersion(), project.getBranch(), query, lpfs);
+        for (SearchResult sr : searchResults.getObjects()) {
+          idsToRemove.add(sr.getId());
+        }
+      } 
+      
+      // if no query or query restriction, get all concept ids
+      else {
+        contentService.getAllConceptIds(project.getTerminology(),
             project.getVersion(), project.getBranch());
-      } else {
-        idsToRemove = conceptIds;
       }
+      
       contentService.setTransactionPerOperation(false);
       contentService.beginTransaction();
+
+      // cycle over ids
       for (Long conceptId : idsToRemove) {
 
         final Concept concept = contentService.getConcept(conceptId);
@@ -613,12 +636,12 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
         // remove the concept itself
         contentService.removeConcept(conceptId);
-
       }
+
       contentService.commit();
     } catch (Exception e) {
-      handleException(e, "trying to remove abbreviation ");
-
+      handleException(e, "trying to remove concepts ");
+      contentService.rollback();
     } finally {
       contentService.close();
       securityService.close();

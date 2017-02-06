@@ -168,12 +168,12 @@ tsApp.service('editService', [
     }
 
     // update concept
-    this.updateConcept = function(projectId, conceptId, concept) {
-      console.debug('updateConcept', projectId, conceptId, concept);
+    this.updateConcept = function(projectId, concept) {
+      console.debug('updateConcept', projectId, concept);
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/concept?projectId=' + projectId + '&conceptId=' + conceptId, concept)
+      $http.post(editUrl + '/concept?projectId=' + projectId, concept)
         .then(
         // success
         function(response) {
@@ -214,13 +214,13 @@ tsApp.service('editService', [
       return deferred.promise;
     }
 
-    // remove concept
-    this.removeConcepts = function(projectId, conceptIds) {
-      console.debug('removeConcept', projectId, conceptId);
+    // remove concepts based on project and pfs criteria   
+    this.removeConcepts = function(projectId, pfs) {
+      console.debug('removeConcept', projectId, pfs);
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/concepts?projectId=' + projectId, conceptIds).then(
+      $http.post(editUrl + '/concepts?projectId=' + projectId, pfs).then(
       // success
       function(response) {
         console.debug('  successful remove concept');

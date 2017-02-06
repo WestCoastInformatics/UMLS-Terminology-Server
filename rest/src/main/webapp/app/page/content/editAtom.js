@@ -72,7 +72,7 @@ tsApp.controller('SimpleAtomModalCtrl', [
       $scope.errors = [];
       if ($scope.action == 'Add') {
         if (!atom || !atom.name || !$scope.selectedTermgroup) {
-          $scope.errors.push('Name and  termgroup must be selected.');
+          $scope.errors.push('Name and termgroup must be selected.');
           return;
         }
         // terminology/version will be chosen by the concept
@@ -95,6 +95,14 @@ tsApp.controller('SimpleAtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
+        
+        if (!atom || !atom.name || !$scope.selectedTermgroup) {
+          $scope.errors.push('Name and termgroup must be selected.');
+          return;
+        }
+        // update term type
+        atom.termType = $scope.selectedTermgroup.substr($scope.selectedTermgroup.indexOf('/') + 1);
+
         editService.updateAtom($scope.selected.project.id, $scope.selected.component.id, atom)
           .then(
           // Success

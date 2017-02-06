@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
@@ -67,9 +68,9 @@ public interface SimpleEditServiceRest {
    * @return the semantic type component
    * @throws Exception the exception
    */
-  public SemanticTypeComponent addSemanticTypeToConcept(Long projectId, Long conceptId,
-    SemanticTypeJpa semanticType, String authToken) throws Exception;
-
+  public SemanticTypeComponent addSemanticTypeToConcept(Long projectId,
+    Long conceptId, SemanticTypeJpa semanticType, String authToken)
+    throws Exception;
 
   /**
    * Removes the semantic type.
@@ -80,8 +81,8 @@ public interface SimpleEditServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeSemanticType(Long projectId, Long conceptId, Long semanticTypeId,
-    String authToken) throws Exception;
+  public void removeSemanticType(Long projectId, Long conceptId,
+    Long semanticTypeId, String authToken) throws Exception;
 
   /**
    * Adds the concept.
@@ -92,8 +93,8 @@ public interface SimpleEditServiceRest {
    * @return the concept
    * @throws Exception the exception
    */
-  public Concept addConcept(Long projectId, ConceptJpa concept, String authToken)
-    throws Exception;
+  public Concept addConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception;
 
   /**
    * Update concept.
@@ -103,8 +104,8 @@ public interface SimpleEditServiceRest {
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void updateConcept(Long projectId, ConceptJpa concept, String authToken)
-    throws Exception;
+  public void updateConcept(Long projectId, ConceptJpa concept,
+    String authToken) throws Exception;
 
   /**
    * Removes the concept.
@@ -121,10 +122,11 @@ public interface SimpleEditServiceRest {
    * Removes the concepts.
    *
    * @param projectId the project id
-   * @param conceptIds the concept ids
+   * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void removeConcepts(Long projectId, List<Long> conceptIds, String authToken)
-    throws Exception;
+  public void removeConcepts(Long projectId, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
 }
