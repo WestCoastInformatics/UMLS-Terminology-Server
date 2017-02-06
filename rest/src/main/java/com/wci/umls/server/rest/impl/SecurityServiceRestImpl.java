@@ -365,7 +365,11 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
 
       return user.getUserPreferences();
     } catch (Exception e) {
-      handleException(e, "trying to update user preferences");
+      // do nothing
+      // Note: this was done intentionally - multiple simultaneous calls
+      // were occasionally causing errors, and the next update call will save
+      // any changes anyway
+      // handleException(e, "trying to update user preferences");
     } finally {
       securityService.close();
     }
