@@ -587,9 +587,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         }
       }
 
-      // fix state where server crash caused a process failure
-      checkBadState(processExecution, projectId, processService);
-
       return processExecution;
     } catch (Exception e) {
       handleException(e, "trying to get a process execution");
@@ -1470,6 +1467,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
         // processAlgorithmMap.get(id).close();
       }
 
+      // fix state where server crash caused a process failure
+      checkBadState(processExecution, projectId, processService);
+
       return id;
 
     } catch (Exception e) {
@@ -1533,7 +1533,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Process execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /" + id
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /" + id
         + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
@@ -1584,8 +1584,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Algorithm execution internal id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call POST (Process): /algo/" + id
-        + "/progress?projectId=" + projectId + " for user " + authToken);
+    Logger.getLogger(getClass()).debug("RESTful call POST (Process): /algo/"
+        + id + "/progress?projectId=" + projectId + " for user " + authToken);
 
     final ProcessService processService = new ProcessServiceJpa();
     try {
@@ -1940,9 +1940,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
+            processService.close();
 
             // Mark process as finished
-            lookupPeProgressMap.remove(processExecution.getId());
+            // Note: do not remove process from the map. Will stay in at 100%
+            // lookupPeProgressMap.remove(processExecution.getId());
 
             // Send email notifying about successful completion
             final String recipients = processExecution.getFeedbackEmail();
@@ -1970,19 +1972,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
           // Mark algorithm and process as failed
           try {
-
-            // Remove process and algorithm from the maps
-            if (processAlgorithmMap.containsKey(processExecution.getId())) {
-              processAlgorithmMap.get(processExecution.getId()).close();
-            }
-            processAlgorithmMap.remove(processExecutionId);
-            lookupPeProgressMap.remove(processExecutionId);
-            lookupAeProgressMap.remove(algorithmExecution.getId());
-
-            // close the algorithm
-            if (algorithm != null) {
-              algorithm.close();
-            }
 
             // set cancel conditions if cancel was used.
             algorithmExecution.setFailDate(new Date());
@@ -2014,6 +2003,20 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processExecution.setFailDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
+
+            // Remove process and algorithm from the maps
+            if (processAlgorithmMap.containsKey(processExecution.getId())) {
+              processAlgorithmMap.get(processExecution.getId()).close();
+            }
+            processAlgorithmMap.remove(processExecutionId);
+            lookupPeProgressMap.remove(processExecutionId);
+            lookupAeProgressMap.remove(algorithmExecution.getId());
+
+            // close the algorithm
+            if (algorithm != null) {
+              algorithm.close();
+            }
+
           } catch (Exception ex) {
             handleException(ex, "trying to update execution info");
           }

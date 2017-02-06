@@ -201,13 +201,14 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setVersion(getProcess().getVersion());
     releaseInfo.setName(getProcess().getVersion());
     releaseInfo.setDescription("Base release for " + releaseInfo.getName());
-    releaseInfo.setPlanned(true);
-    releaseInfo.setPublished(false);
+    releaseInfo.setPlanned(false);
+    releaseInfo.setPublished(true);
     releaseInfo.setReleaseBeginDate(new Date());
     releaseInfo.setTimestamp(new Date());
     logInfo("  Add release info = " + releaseInfo);
     addReleaseInfo(releaseInfo);
 
+    commitClearBegin();
     updateProgress();
 
     // Set first/last release based on release info
@@ -257,8 +258,9 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     for (final Terminology terminology : getTerminologies().getObjects()) {
       // Mark unpublished current terminologies with "first" release as this
       // release
-      if (terminology.isCurrent() && terminology.getFirstReleases()
-          .get(releaseInfo.getTerminology()).equals(releaseInfo.getVersion())) {
+      if (terminology.isCurrent() && !terminology.getFirstReleases().isEmpty()
+          && terminology.getFirstReleases().get(releaseInfo.getTerminology())
+              .equals(releaseInfo.getVersion())) {
         logInfo("  reset firstRelease = " + releaseInfo.getVersion() + " "
             + terminology.getTerminology());
         terminology.getFirstReleases().remove(releaseInfo.getTerminology());
@@ -267,6 +269,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
       // Mark non-current terminologies, previously published, with "last"
       // release as previous release
       else if (!terminology.isCurrent()
+          && !terminology.getLastReleases().isEmpty()
           && terminology.getLastReleases().get(releaseInfo.getTerminology())
               .equals(prevReleaseInfo.getVersion())) {
         logInfo("  reset lastRelease = " + prevReleaseInfo.getVersion() + " "

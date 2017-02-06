@@ -24,7 +24,6 @@ import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
-import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;

@@ -119,7 +119,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     // NOTE: this assumes RRF preferred name handler
     final RrfComputePreferredNameHandler prefHandler =
         new RrfComputePreferredNameHandler();
-    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(), getProject().getVersion());
+    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion());
     prefHandler.cacheList(list);
     int ct = 0;
     List<Long> atomIds = new ArrayList<>(20000);

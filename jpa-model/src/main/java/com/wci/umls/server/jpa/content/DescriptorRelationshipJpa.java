@@ -17,7 +17,6 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -400,10 +399,9 @@ public class DescriptorRelationshipJpa
   public Relationship<Descriptor, Descriptor> createInverseRelationship(
     Relationship<Descriptor, Descriptor> relationship, String inverseRelType,
     String inverseAdditionalRelType) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Create inverse of descriptor relationship " + relationship);
-    DescriptorRelationship inverseRelationship = new DescriptorRelationshipJpa(
-        (DescriptorRelationship) relationship, false);
+    final DescriptorRelationship inverseRelationship =
+        new DescriptorRelationshipJpa((DescriptorRelationship) relationship,
+            false);
 
     return populateInverseRelationship(relationship, inverseRelationship,
         inverseRelType, inverseAdditionalRelType);

@@ -144,6 +144,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
           ConceptRelationship bequeathRel = new ConceptRelationshipJpa();
           bequeathRel.setRelationshipType("BRO");
+          bequeathRel.setAdditionalRelationshipType("");
           bequeathRel.setTerminologyId("");
           bequeathRel.setTerminology(getProject().getTerminology());
           bequeathRel.setVersion(getProject().getVersion());
@@ -205,7 +206,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

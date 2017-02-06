@@ -784,13 +784,6 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
 
   /* see superclass */
   @Override
-  public void logAndCommit(String preMessage, int objectCt, int logCt,
-    int commitCt) throws Exception {
-    service.logAndCommit(preMessage, objectCt, logCt, commitCt);
-  }
-
-  /* see superclass */
-  @Override
   public void silentIntervalCommit(int objectCt, int logCt, int commitCt)
     throws Exception {
     service.silentIntervalCommit(objectCt, logCt, commitCt);

@@ -17,7 +17,6 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.apache.log4j.Logger;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Analyzer;
@@ -353,15 +352,13 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-
   /* see superclass */
   @Override
   public Relationship<Code, Code> createInverseRelationship(
     Relationship<Code, Code> relationship, String inverseRelType,
     String inverseAdditionalRelType) throws Exception {
-    Logger.getLogger(getClass())
-        .debug("Create inverse of code relationship " + relationship);
-    CodeRelationship inverseRelationship =
+
+    final CodeRelationship inverseRelationship =
         new CodeRelationshipJpa((CodeRelationship) relationship, false);
 
     return populateInverseRelationship(relationship, inverseRelationship,
@@ -387,7 +384,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
       return false;
     if (getClass() != obj.getClass())
       return false;
-    CodeRelationshipJpa other = (CodeRelationshipJpa) obj;   
+    CodeRelationshipJpa other = (CodeRelationshipJpa) obj;
     if (from == null) {
       if (other.from != null)
         return false;

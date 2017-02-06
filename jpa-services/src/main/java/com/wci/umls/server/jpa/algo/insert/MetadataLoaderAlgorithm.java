@@ -202,7 +202,7 @@ public class MetadataLoaderAlgorithm
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting METADATALOADER");
+    logInfo("Starting " + getName());
     commitClearBegin();
 
     try {
@@ -243,7 +243,7 @@ public class MetadataLoaderAlgorithm
 
       commitClearBegin();
 
-      logInfo("Finished METADATALOADING");
+      logInfo("Finished "+getName());
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
@@ -271,7 +271,7 @@ public class MetadataLoaderAlgorithm
    */
   private void handleTerminologies() throws Exception {
 
-    logInfo("[METADATALOADER] Process sources.src");
+    logInfo("  Process sources.src");
 
     // Set up a map of all Terminologies to add. Set up new Terminologies based
     // on both
@@ -357,7 +357,7 @@ public class MetadataLoaderAlgorithm
         rootTerm.setTerminology(fields[4]);
         rootTerm.setLanguage(fields[15]);
 
-        logInfo("[METADATALOADER]  add root terminology = " + rootTerm);
+        logInfo("  add root terminology = " + rootTerm);
         addRootTerminology(rootTerm);
         getCachedRootTerminologies().put(rootTerm.getTerminology(), rootTerm);
       }
@@ -383,8 +383,7 @@ public class MetadataLoaderAlgorithm
         existingRootTerm.setLanguage(fields[15]);
 
         logInfo(
-            "[METADATALOADER]  update root terminology = " + existingRootTerm);
-
+            "  update root terminology = " + existingRootTerm);
         updateRootTerminology(existingRootTerm);
         getCachedRootTerminologies().put(existingRootTerm.getTerminology(),
             existingRootTerm);
@@ -466,8 +465,7 @@ public class MetadataLoaderAlgorithm
         }
         existingTerm.setRootTerminology(getCachedRootTerminology(fields[4]));
 
-        logInfo("[METADATALOADER]  update terminology = " + existingTerm);
-
+        logInfo("  update terminology = " + existingTerm);
         updateTerminology(existingTerm);
         getCachedTerminologies().put(fields[0], existingTerm);
       }
@@ -482,7 +480,7 @@ public class MetadataLoaderAlgorithm
             && !newTerm.getVersion().equals(existingTerm.getVersion())) {
           if (existingTerm.isCurrent()) {
             existingTerm.setCurrent(false);
-            logInfo("[METADATALOADER] Updating Terminology: " + existingTerm);
+            logInfo("  update terminology = " + existingTerm);
             updateTerminology(existingTerm);
             getCachedTerminologies().put(
                 existingTerm.getTerminology() + "_" + existingTerm.getVersion(),
@@ -495,7 +493,7 @@ public class MetadataLoaderAlgorithm
     // After we finish going through the file, add everything that we need to
     // the database
     for (Terminology newTerm : termsToAddMap.values()) {
-      logInfo("[METADATALOADER]  add terminology = " + newTerm);
+      logInfo("  add terminology = " + newTerm);
       newTerm = addTerminology(newTerm);
       getCachedTerminologies()
           .put(newTerm.getTerminology() + "_" + newTerm.getVersion(), newTerm);
@@ -662,7 +660,7 @@ public class MetadataLoaderAlgorithm
    */
   private void handleTermTypes() throws Exception {
 
-    logInfo("[METADATALOADER] Process MRDOC.RRF (TTY)");
+    logInfo("  Process MRDOC.RRF (TTY)");
 
     // Set up a map of all TermTypes to add. Set up new TermTypes based on both
     // input files
@@ -756,8 +754,7 @@ public class MetadataLoaderAlgorithm
     //
     // Load the termgroups.src file
     //
-    logInfo("[METADATALOADER] Process termgroups.src");
-
+    logInfo("  Process termgroups.src");
     lines =
         loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
 
@@ -841,7 +838,7 @@ public class MetadataLoaderAlgorithm
         }
 
         if (termTypeChanged) {
-          logInfo("[METADATALOADER]  updating term type = " + loadedTermType);
+          logInfo("  updating term type = " + loadedTermType);
           updateTermType(loadedTermType);
         }
       }
@@ -849,7 +846,7 @@ public class MetadataLoaderAlgorithm
     // After we finish going through both files, add everything from the map to
     // the database
     for (TermType newTermType : ttyToAddMap.values()) {
-      logInfo("[METADATALOADER]  add term type = " + newTermType);
+      logInfo("  add term type = " + newTermType);
       addTermType(newTermType);
     }
 
@@ -900,7 +897,7 @@ public class MetadataLoaderAlgorithm
           if (updatedPrecedences.contains(highTermGroup)) {
             localHighTermGroups.remove(highTermGroup);
             localLowTermGroups.remove(lowTermGroup);
-            logInfo("[METADATALOADER]  " + highTermGroup + " already exists");
+            logInfo("  " + highTermGroup + " already exists");
             continue;
           }
           // Otherwise, set the flag that a high term group needs to be inserted
@@ -912,7 +909,7 @@ public class MetadataLoaderAlgorithm
           if (updatedPrecedences.contains(lowTermGroup)) {
             final int indexOfLowTermGroup =
                 updatedPrecedences.getKeyValuePairs().indexOf(lowTermGroup);
-            logInfo("[METADATALOADER]  add " + highTermGroup + " above "
+            logInfo("  add " + highTermGroup + " above "
                 + lowTermGroup);
             updatedPrecedences.getKeyValuePairs().add(indexOfLowTermGroup,
                 highTermGroup);
@@ -935,7 +932,7 @@ public class MetadataLoaderAlgorithm
         list.setPrecedence(updatedPrecedences);
         // NOTE this is tied to setup of precedence lists at the top of this
         // method
-        logInfo("[METADATALOADER]  update "
+        logInfo("  update "            
             + (list.getId().equals(getProject().getPrecedenceList().getId())
                 ? "project" : "default")
             + " precedence list = " + list);
@@ -952,7 +949,7 @@ public class MetadataLoaderAlgorithm
    */
   private void handleAttributeNames() throws Exception {
 
-    logInfo("[METADATALOADER]  Process MRDOC.RRF - add attribute names");
+    logInfo("  Process MRDOC.RRF - add attribute names");
 
     // Count number of added AttributeNames, for logging
     int count = 0;
@@ -993,7 +990,7 @@ public class MetadataLoaderAlgorithm
       }
     }
 
-    logInfo("[METADATALOADER]  count = " + count);
+    logInfo("  count = " + count);
   }
 
   /**
@@ -1005,7 +1002,7 @@ public class MetadataLoaderAlgorithm
   private void handleAdditionalRelationshipTypes() throws Exception {
 
     logInfo(
-        "[METADATALOADER]  Process MRDOC.RRF - add/update additional relationship types and inverses");
+        "  Process MRDOC.RRF - add/update additional relationship types and inverses");
 
     final Map<String, AdditionalRelationshipType> relaToAddMap =
         new HashMap<>();
@@ -1078,7 +1075,7 @@ public class MetadataLoaderAlgorithm
       }
     }
 
-    logInfo("[METADATALOADER]  count = " + count);
+    logInfo("  count = " + count);
 
   }
 
