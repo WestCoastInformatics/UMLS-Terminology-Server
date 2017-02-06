@@ -40,6 +40,8 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /** The siblings threshold. */
   private int siblingsThreshold;
+  
+
 
   /**
    * Instantiates an empty {@link ComputeContextTypeAlgorithm}.
@@ -115,7 +117,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
               + type + "TreePositionJpa "
               + "group by terminology, version, ancestorPath "
               + "having count(*) < :threshold");
-      query.setParameter("threshold", siblingsThreshold);
+      query.setParameter("threshold", Long.valueOf(siblingsThreshold));
       final List<Object[]> results = query.getResultList();
       checkCancel();
 
@@ -124,7 +126,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
               + type + "TreePositionJpa "
               + "group by terminology, version, ancestorPath "
               + "having count(*) > :threshold");
-      query.setParameter("threshold", siblingsThreshold);
+      query2.setParameter("threshold", Long.valueOf(siblingsThreshold));
       final List<Object[]> results2 = query2.getResultList();
       checkCancel();
 
@@ -140,6 +142,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
     // Iterate through terminologies to determine context type
     fireProgressEvent(20, "Compute siblings");
+    
     int prevProgress = 0;
     int startProgress = 20;
     int totalCt = getCurrentTerminologies().size();
@@ -180,7 +183,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
                 + "  and a.additionalRelationshipType = b.additionalRelationshipType "
                 + "  and a.node.id < b.node.id"
                 + "  and a.terminology = :terminology and b.terminology = :terminology "
-                + "  and a.version = :terminology and b.version= :terminology ");
+                + "  and a.version = :version and b.version= :version ");
         query.setParameter("terminology", term.getTerminology());
         query.setParameter("version", term.getVersion());
         final List<Object[]> results = query.getResultList();
@@ -213,7 +216,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
             to = getDescriptor(toId);
           }
 
-          newRel.setTo(from);
+          newRel.setFrom(from);
           newRel.setTo(to);
           newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
           newRel.setTerminology(term.getTerminology());
@@ -235,23 +238,26 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           final String rui = handler.getTerminologyId(newRel, "SIB",
               relToInverseMap.get(addRelType));
           newRel.setTerminologyId(rui);
+         
 
-          // check cancel
-          if (objectCt % RootService.logCt == 0) {
-            checkCancel();
-          }
-
-          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
         }
         commitClearBegin();
 
+        // check cancel
+        if (objectCt % RootService.logCt == 0) {
+          checkCancel();
+        }
+
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+        
         // update progress
         int progress = (int) ((100.0 - startProgress) * ++termCt / totalCt)
             + startProgress;
         if (progress > prevProgress) {
           fireProgressEvent(progress, "Assigning SIB RUIs");
           prevProgress = progress;
-        }
+        }        
+        
       }
     }
     commitClearBegin();
@@ -301,4 +307,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
   }
+  
+
 }

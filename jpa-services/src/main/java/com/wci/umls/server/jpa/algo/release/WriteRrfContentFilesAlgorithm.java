@@ -54,9 +54,12 @@ import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.content.DescriptorTreePosition;
+import com.wci.umls.server.model.content.MapSet;
+import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
@@ -119,6 +122,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
   /** The terminology to src atom id map. */
   private Map<String, String> terminologyToSrcAtomIdMap = new HashMap<>();
+  
+  private Map<String, String> mapSetMap = new HashMap<>();
 
   /** The handler. */
   private SearchHandler handler = null;
@@ -178,7 +183,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       for (final String line : writeMrconso(c)) {
         writerMap.get("MRCONSO.RRF").print(line);
       }
-
+/*
       for (final String line : writeMrdef(c)) {
         writerMap.get("MRDEF.RRF").print(line);
       }
@@ -194,15 +199,29 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       for (final String line : writeMrhier(c)) {
         writerMap.get("MRHIER.RRF").print(line);
       }
-      writerMap.get("MRHIER.RRF").flush();
+      writerMap.get("MRHIER.RRF").flush();*/
 
       // TODO later
       // MRMAP.RRF
       // MRSMAP.RRF
-      // SUBSET entries
+      // SUBSET members
       //
       updateProgress();
     }
+    
+   //for (MapSet mapSet : getMapSets("PDQ", "2014_08_29", Branch.ROOT).getObjects() ){
+    
+     // for (MapSet mapSet : getMapSets("SNOMEDCT_US", "2015_09_01", Branch.ROOT).getObjects() ){
+    /*for (String ui : mapSetMap.keySet()) {
+      MapSet mapSet = getMapSet(Long.getLong(ui));
+      for (final String line : writeMrmap(mapSet)) {
+        writerMap.get("MRMAP.RRF").print(line);
+      }
+      for (final String line : writeMrsmap(mapSet)) {
+        writerMap.get("MRSMAP.RRF").print(line);
+      }
+     
+    }*/
 
     // close print writers
     closeWriters();
@@ -252,7 +271,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       termMap.put(term.getTerminology(), term);
     }
 
-    for (final Terminology term : this.getTerminologyLatestVersions()
+    // TODO needs to be added back without failing on missing root SRC concept ICD10
+/*    for (final Terminology term : this.getTerminologyLatestVersions()
         .getObjects()) {
       Atom srcRhtAtom = null;
       SearchResultList searchResults = findConceptSearchResults(
@@ -276,11 +296,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           terminologyToSrcAtomIdMap.put(term.getTerminology(), srcAtomId);
         }
       } else {
+        // TODO make fault tolerant make warning
         // fails on HPO - fix this
         throw new Exception(
             "missing root SRC concept " + term.getTerminology());
       }
-    }
+    }*/
 
     final ComputePreferredNameHandler handler =
         getComputePreferredNameHandler(getProject().getTerminology());
@@ -412,6 +433,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         new PrintWriter(new FileWriter(new File(dir, "MRHIER.RRF"))));
     writerMap.put("MRHIST.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRHIST.RRF"))));
+    writerMap.put("MRMAP.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRMAP.RRF"))));
+    writerMap.put("MRSMAP.RRF",
+        new PrintWriter(new FileWriter(new File(dir, "MRSMAP.RRF"))));
   }
 
   /**
@@ -560,6 +585,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       // CVF
       sb.append("|\n");
       lines.add(sb.toString());
+      
+      // Collect the mapset concepts and cache
+      if (a.getTermType().equals("XM")) {
+        mapSetMap.put(a.getCodeId(), c.getTerminologyId());
+        this.getMapSet(a.getCodeId(), a.getTerminology(), a.getVersion(), Branch.ROOT);
+      }
     }
     Collections.sort(lines);
     return lines;
@@ -625,6 +656,221 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     return lines;
   }
 
+  /**
+   * Write mrsty.
+   *
+   * @param c the c
+   * @return the list
+   */
+  private List<String> writeMrmap(MapSet mapset) {
+
+    // Field Description
+    // 0  MAPSETCUI    Unique identifier for the UMLS concept which represents the whole map set.
+    // 1  MAPSETSAB   Source abbreviation (SAB) for the provider of the map set.
+    // 2  MAPSUBSETID Map subset identifier used to identify a subset of related mappings within a map set. This is used for cases where the FROMEXPR may have more than one potential mapping (optional).
+    // 3  MAPRANK Order in which mappings in a subset should be applied. Used only where MAPSUBSETID is used. (optional)
+    // 4  MAPID   Unique identifier for this individual mapping. Primary key of this table to identify a particular row.
+    // 5  MAPSID  Source asserted identifier for this mapping (optional).
+    // 6  FROMID  Identifier for the entity being mapped from. This is an internal UMLS identifier used to point to an external entity in a source vocabulary (represented by the FROMEXPR). When the source provides such an identifier, it is reused here. Otherwise, it is generated by NLM. The FROMID is only unique within a map set. It is not a pointer to UMLS entities like atoms or concepts. There is a one-to-one correlation between FROMID and a unique set of values in FROMSID, FROMEXPR, FROMTYPE, FROMRULE, and FROMRES within a map set.
+    // 7  FROMSID Source asserted identifier for the entity being mapped from (optional).
+    // 8  FROMEXPR    Entity being mapped from - can be a single code/identifier /concept name or a complex expression involving multiple codes/identifiers/concept names, Boolean operators and/or punctuation
+    // 9  FROMTYPE    Type of entity being mapped from.
+    // 10 FROMRULE    Machine processable rule applicable to the entity being mapped from (optional)
+    // 11 FROMRES Restriction applicable to the entity being mapped from (optional).
+    // 12 REL Relationship of the entity being mapped from to the entity being mapped to.
+    // 13 RELA    Additional relationship label (optional).
+    // 14 TOID    Identifier for the entity being mapped to. This is an internal identifier used to point to an external entity in a source vocabulary (represented by the TOEXPR). When the source provides such an identifier, it is reused here. Otherwise, it is generated by NLM. The TOID is only unique within a map set. It is not a pointer to UMLS entities like atoms or concepts. There is a one-to-one correlation between TOID and a unique set of values in TOSID, TOEXPR, TOTYPE, TORULE, TORES within a map set.
+    // 15 TOSID   Source asserted identifier for the entity being mapped to (optional).
+    // 16 TOEXPR  Entity being mapped to - can be a single code/identifier/concept name or a complex expression involving multiple codes/identifiers/concept names, Boolean operators and/or punctuation.
+    // 17 TOTYPE  Type of entity being mapped to.
+    // 18 TORULE  Machine processable rule applicable to the entity being mapped to (optional).
+    // 19 TORES   Restriction applicable to the entity being mapped to (optional).
+    // 20 MAPRULE Machine processable rule applicable to this mapping (optional).
+    // 21 MAPRES  Restriction applicable to this mapping (optional).
+    // 22 MAPTYPE Type of mapping (optional).
+    // 23 MAPATN  The name of the attribute associated with this mapping [not yet in use]
+    // 24 MAPATV  The value of the attribute associated with this mapping [not yet in use]
+    // 25 CVF The Content View Flag is a bit field used to indicate membership in a content view.
+
+    // Sample Records
+    // C1306694|MTH|||AT28307527||C0011764||C0011764|CUI|||RO||2201||<Developmental Disabilities> AND <Writing>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+    // C1306694|MTH|||AT52620421||C0010700||C0010700|CUI|||RN||1552||<Urinary Bladder>/<surgery>|BOOLEAN_EXPRESSION_STR|||||ATX||||
+    // C2919943|SNOMEDCT|0|0|AT127959271||302759005||302759005|SCUI|||RN|mapped_to|9571037057|9571037057|799.59|BOOLEAN_EXPRESSION_SDUI|||||2||||
+    // C2919943|SNOMEDCT|0|0|AT127959272||43498006||43498006|SCUI|||RQ|mapped_to|9571050056|9571050056|276.69|BOOLEAN_EXPRESSION_SDUI|||||1||||
+    
+    final List<String> lines = new ArrayList<>();
+    
+    if (!mapSetMap.containsKey(mapset.getTerminologyId())) {
+      return lines;
+    }
+
+    for (final Mapping mapping : mapset.getMappings()) {
+      final StringBuilder sb = new StringBuilder();
+      // CUI
+      // TODO: need to get the concept id for this mapset
+      sb.append(mapSetMap.get(mapping.getTerminologyId())).append("|");
+      // MAPSETSAB
+      sb.append(mapset.getTerminology()).append("|");
+      // MAPSUBSETID
+      sb.append(mapping.getGroup()).append("|");
+      // MAPRANK
+      sb.append(mapping.getRank()).append("|");
+      // MAPID
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology())) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology()));
+      } 
+      sb.append("|");
+      // MAPSID
+      sb.append(mapping.getTerminologyId()).append("|");
+      // FROMID
+      // TODO: problem here is getTerminology() doesn't match 'NCIMTH'
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology() + "-FROMID") ) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-FROMID") );
+      }
+      sb.append("|");
+      // FROMSID
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology() + "-FROMSID") ) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology() + "-FROMSID") );
+      }
+      sb.append("|");
+      // FROMEXPR
+      sb.append(mapping.getFromTerminologyId()).append("|");
+      // FROMTYPE
+      // TODO: need to convert from ex. CONCEPT to SCUI or CUI, DESCRIPTOR to SDUI (SCUI or CUI  how to know?)
+      // if from term == project term CUI
+      // else SCUI
+      // descr -> sdui
+      sb.append(mapping.getFromIdType()).append("|");
+      // FROMRULE
+      for (Attribute att : mapping.getAttributes()) {
+        if (att.getName().equals("FROMRULE")) {
+          sb.append(att.getValue());
+        }
+      }
+      sb.append("|");      
+      // FROMRES
+      for (Attribute att : mapping.getAttributes()) {
+        if (att.getName().equals("FROMRES")) {
+          sb.append(att.getValue());
+        }
+      }
+      sb.append("|");
+      // REL
+      sb.append(mapping.getRelationshipType()).append("|");
+      // RELA
+      sb.append(mapping.getAdditionalRelationshipType()).append("|");
+      // TOID
+      if (mapping.getAlternateTerminologyIds().containsKey(getTerminology() + "-TOID") ) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getTerminology() + "-TOID") );
+      }
+      sb.append("|");
+      // TOSID
+      if (mapping.getAlternateTerminologyIds().containsKey(getTerminology() + "-TOSID") ) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getTerminology() + "-TOSID") );
+      }
+      sb.append("|");
+      // TOEXPR
+      sb.append(mapping.getToTerminologyId()).append("|");
+      // TOTYPE
+      sb.append(mapping.getToIdType()).append("|");     
+      // TORULE
+      for (Attribute att : mapping.getAttributes()) {
+        if (att.getName().equals("TORULE")) {
+          sb.append(att.getValue());
+        }
+      }
+      sb.append("|");      
+      // TORES
+      for (Attribute att : mapping.getAttributes()) {
+        if (att.getName().equals("TORES")) {
+          sb.append(att.getValue());
+        }
+      }
+      sb.append("|");
+      // MAPRULE
+      sb.append(mapping.getRule()).append("|");
+      // MAPRES
+      sb.append(mapping.getAdvice()).append("|");
+      // MAPTYPE
+      // MAPATN  // TODO
+      // MAPATV
+      // CVF
+      sb.append("|");
+      sb.append("\n");
+      lines.add(sb.toString());
+    }
+    Collections.sort(lines);
+    return lines;
+  }
+      
+  /**
+   * Write mrsty.
+   *
+   * @param c the c
+   * @return the list
+   */
+  private List<String> writeMrsmap(MapSet mapset) {
+
+    // Field Description
+    // MAPSETCUI   Unique identifier for the UMLS concept which represents the whole map set.
+    // MAPSETSAB   Source abbreviation for the map set.
+    // MAPID   Unique identifier for this individual mapping. Primary key of this table to identify a particular row.
+    // MAPSID  Source asserted identifier for this mapping (optional).
+    // FROMEXPR    Entity being mapped from - can be a single code/identifier/concept name or a complex expression involving multiple codes/identifiers/concept names, Boolean operators and/or punctuation.
+    // FROMTYPE    Type of entity being mapped from.
+    // REL Relationship of the entity being mapped from to the entity being mapped to.
+    // RELA    Additional relationship label (optional).
+    // TOEXPR  Entity being mapped to - can be a single code/identifier /concept name or a complex expression involving multiple codes/identifiers/concept names, Boolean operators and/or punctuation.
+    // TOTYPE  Type of entity being mapped to.
+    // CVF The Content View Flag is a bit field used to indicate membership in a content view.
+
+
+    // Sample Records
+    // C1306694|MTH|AT28312030||C0009215|CUI|SY||<Codeine> AND <Drug Hypersensitivity>|BOOLEAN_EXPRESSION_STR||
+    // C1306694|MTH|AT28312033||C0795964|CUI|RU||<Speech Disorders>|BOOLEAN_EXPRESSION_STR||
+    // C2919943|SNOMEDCT|AT127959271||302759005|SCUI|RN|mapped_to|799.59|BOOLEAN_EXPRESSION_SDUI||
+    // C2919943|SNOMEDCT|AT127959272||43498006|SCUI|RQ|mapped_to|276.69|BOOLEAN_EXPRESSION_SDUI||
+    
+    final List<String> lines = new ArrayList<>();
+
+    for (final Mapping mapping : mapset.getMappings()) {
+      final StringBuilder sb = new StringBuilder();
+      // CUI
+      sb.append(mapset.getTerminologyId()).append("|");
+      // MAPSETSAB
+      sb.append(mapset.getTerminology()).append("|");
+      // MAPID
+      if (mapping.getAlternateTerminologyIds().containsKey(getProject().getTerminology())) {
+        sb.append(mapping.getAlternateTerminologyIds().get(getProject().getTerminology()));
+      } 
+      sb.append("|");
+      // MAPSID
+      sb.append(mapping.getTerminologyId()).append("|");
+      
+      // FROMEXPR
+      sb.append(mapping.getFromTerminologyId()).append("|");
+      // FROMTYPE
+      sb.append(mapping.getFromIdType()).append("|");
+     
+      // REL
+      sb.append(mapping.getRelationshipType()).append("|");
+      // RELA
+      sb.append(mapping.getAdditionalRelationshipType()).append("|");
+      
+      // TOEXPR
+      sb.append(mapping.getToTerminologyId()).append("|");
+      // TOTYPE
+      sb.append(mapping.getToIdType()).append("|");     
+      
+      // CVF
+      sb.append("|");
+      sb.append("\n");
+      lines.add(sb.toString());
+    }
+    Collections.sort(lines);
+    return lines;
+  }
+      
   /**
    * Write mrsty.
    *
@@ -1721,7 +1967,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // TBD - no data yet
       }
 
-      // TODO need to do something to write out SUBSET_MEMBER attributes
 
     } // end for (c.getAtoms)
     Collections.sort(lines);
