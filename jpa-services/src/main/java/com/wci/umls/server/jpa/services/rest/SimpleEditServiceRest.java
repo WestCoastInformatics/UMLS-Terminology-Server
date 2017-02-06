@@ -6,6 +6,8 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.util.List;
+
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
@@ -113,5 +115,16 @@ public interface SimpleEditServiceRest {
    * @throws Exception the exception
    */
   public void removeConcept(Long projectId, Long conceptId, String authToken)
+    throws Exception;
+
+  /**
+   * Removes the concepts.
+   *
+   * @param projectId the project id
+   * @param conceptIds the concept ids
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeConcepts(Long projectId, List<Long> conceptIds, String authToken)
     throws Exception;
 }

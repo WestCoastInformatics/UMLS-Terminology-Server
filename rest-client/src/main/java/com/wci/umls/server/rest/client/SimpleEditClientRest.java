@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.client;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.client.Client;
@@ -157,6 +158,13 @@ public class SimpleEditClientRest extends RootClientRest
   @Override
   public void removeConcept(Long projectId, Long conceptId, String authToken)
     throws Exception {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void removeConcepts(Long projectId, List<Long> conceptIds,
+    String authToken) throws Exception {
     // TODO Auto-generated method stub
     
   }

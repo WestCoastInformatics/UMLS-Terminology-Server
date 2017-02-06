@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -24,6 +25,7 @@ import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -434,6 +436,14 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       concept.setName(contentService.getComputedPreferredName(concept,
           contentService.getPrecedenceList(concept.getTerminology(),
               concept.getVersion())));
+      if (concept.getName() == null) {
+        concept.setName("");
+      }
+
+      // get the terminology id
+      concept.setTerminologyId(contentService
+          .getIdentifierAssignmentHandler(concept.getTerminology())
+          .getTerminologyId(concept));
 
       // set workflow status
       concept.setWorkflowStatus(WorkflowStatus.NEW);
@@ -565,4 +575,60 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  @Override
+  @Path("/concepts/remove")
+  @DELETE
+  @ApiOperation(value = "Removes concept", notes = "Removes concepts by id", response = TypeKeyValueJpa.class)
+  public void removeConcepts(
+    @ApiParam(value = "The id of the project, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The list of concept ids to remove", required = false) List<Long> conceptIds,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Project/TypeKeyValue): /remove " + projectId + ", "
+            + conceptIds);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String username = authorizeApp(securityService, authToken,
+          "remove abbreviation", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      contentService.setLastModifiedBy(username);
+      List<Long> idsToRemove;
+      if (conceptIds == null) {
+        idsToRemove = contentService.getAllConceptIds(project.getTerminology(),
+            project.getVersion(), project.getBranch());
+      } else {
+        idsToRemove = conceptIds;
+      }
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
+      for (Long conceptId : idsToRemove) {
+
+        final Concept concept = contentService.getConcept(conceptId);
+        if (concept == null) {
+          throw new Exception("Unexpected concept id = " + conceptId);
+        }
+
+        // remove collections
+        for (Atom atom : concept.getAtoms()) {
+          contentService.removeAtom(atom.getId());
+        }
+        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          contentService.removeSemanticTypeComponent(sty.getId());
+        }
+
+        // remove the concept itself
+        contentService.removeConcept(conceptId);
+
+      }
+      contentService.commit();
+    } catch (Exception e) {
+      handleException(e, "trying to remove abbreviation ");
+
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
 }
