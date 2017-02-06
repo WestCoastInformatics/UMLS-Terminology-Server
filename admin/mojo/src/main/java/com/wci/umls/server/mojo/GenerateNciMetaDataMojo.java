@@ -1267,6 +1267,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "false");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -1668,6 +1669,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "false");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -1942,6 +1944,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MAPSETLOADING");
+    algoConfig.setDescription("MAPSETLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MAPSETLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
     algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
     algoConfig.setEnabled(true);
@@ -2191,7 +2207,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - does SafeReplace need to be able to match by termType?
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("SAFEREPLACE");
     algoConfig.setDescription("SAFEREPLACE Algorithm");
@@ -2207,6 +2222,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "true");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -2850,7 +2866,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     Long projectId, String authToken) throws Exception {
 
     // This will make two processes, one Insertion, and one Maintenance
-
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
@@ -2882,6 +2897,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
+
+    // Now for the Maintenance one
+    process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Remap Component Info Relationships Process");

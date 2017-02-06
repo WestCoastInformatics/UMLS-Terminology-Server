@@ -126,6 +126,23 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + processExecution.getExecutionInfo().get("maxAtomIdPreInsertion"));
     commitClearBegin();
 
+    // Get the max AUI prior to the insertion starting (used to identify
+    // newly created AUIs)
+    Long AUI = null;
+    try {
+      final javax.persistence.Query query =
+          manager.createQuery("select max(a.id) from AtomIdentityJpa a ");
+      final Long AUI2 = (Long) query.getSingleResult();
+      AUI = AUI2 != null ? AUI2 : AUI;
+    } catch (NoResultException e) {
+      AUI = 0L;
+    }
+    processExecution.getExecutionInfo().put("maxAUIPreInsertion",
+        AUI.toString());
+    logInfo(" maxAUIPreInsertion = "
+        + processExecution.getExecutionInfo().get("maxAUIPreInsertion"));
+    commitClearBegin();
+
     // Get the max Semantic Type Component Id prior to the insertion starting
     Long styId = null;
     try {
