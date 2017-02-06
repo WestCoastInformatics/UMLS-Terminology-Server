@@ -115,6 +115,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       atom.setTerminology(concept.getTerminology());
       atom.setVersion(concept.getVersion());
       final Atom newAtom = contentService.addAtom(atom);
+      concept.getAtoms().add(newAtom);
 
       // TODO: consider other features:
       // e.g. molecular actions, logging, or maybe none of these things happened
@@ -126,7 +127,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
           contentService.getPrecedenceList(concept.getTerminology(),
               concept.getVersion())));
 
-      concept.getAtoms().add(newAtom);
+      
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
