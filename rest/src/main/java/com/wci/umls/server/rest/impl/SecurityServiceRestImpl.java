@@ -338,7 +338,7 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
   @POST
   @Path("/user/preferences/update")
   @ApiOperation(value = "Update user preferences", notes = "Updates the specified user preferences and returns the updated object in case cascaded data structures were added with new identifiers", response = UserPreferencesJpa.class)
-  public UserPreferences updateUserPreferences(
+  public synchronized UserPreferences updateUserPreferences(
     @ApiParam(value = "UserPreferencesJpa, e.g. update", required = true) UserPreferencesJpa userPreferences,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
@@ -365,7 +365,11 @@ public class SecurityServiceRestImpl extends RootServiceRestImpl
 
       return user.getUserPreferences();
     } catch (Exception e) {
-      handleException(e, "trying to update user preferences");
+      // do nothing
+      // Note: this was done intentionally - multiple simultaneous calls
+      // were occasionally causing errors, and the next update call will save
+      // any changes anyway
+      // handleException(e, "trying to update user preferences");
     } finally {
       securityService.close();
     }
