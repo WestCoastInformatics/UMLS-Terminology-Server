@@ -127,7 +127,6 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
           contentService.getPrecedenceList(concept.getTerminology(),
               concept.getVersion())));
 
-      
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
@@ -192,21 +191,18 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
             "Invalid concept/atom combination = " + conceptId + ", " + atom);
       }
 
-      atom.setStringClassId("");
-      atom.setLexicalClassId("");
-      atom.setStringClassId("");
-      atom.setStringClassId("");
-      atom.setCodeId("");
-      atom.setDescriptorId("");
-      atom.setConceptId(origAtom.getTerminologyId());
-      atom.setTerminology(origAtom.getTerminology());
-      atom.setVersion(origAtom.getVersion());
-
       contentService.updateAtom(atom);
       // for now, allow all changes
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
+
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+      
+      contentService.updateConcept(concept);
 
     } catch (Exception e) {
       handleException(e, "trying to update atom");
@@ -257,9 +253,6 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
         throw new LocalException("Invalid conceptId/atomId combination = "
             + conceptId + ", " + atomId);
       }
-
-      System.out.println("Attempting to commit");
-      System.out.println(concept.toString());
 
       // for now, allow all changes
       concept.getAtoms().remove(origAtom);
