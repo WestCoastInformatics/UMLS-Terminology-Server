@@ -21,8 +21,9 @@
 			uib-tooltip="Necessary and sufficient definition">D</span> <span
 			style="float: right; margin-right: 25px"
 			ng-show="callbacks.isEditingEnabled()"> <i
-			ng-click="removeConcept()" title="Edit"
-			class="noul glyphicon glyphicon-pencil"></i></span>
+			ng-click="removeComponent()" confirm="Are you sure you want to remove this?"
+			title="Delete"
+			class="noul glyphicon glyphicon-trash"></i></span>
 	</h5>
 	<!-- Buttons for suppressible/obsolete -->
 	<!--  NOTE: descriptionLogicTerminologies ALWAYS show obsolete/suppressible

@@ -1108,7 +1108,7 @@ tsApp
         
         // validate concept
         this.validateConcepts = function(projectId, conceptIds, checkId) {
-          console.debug('validateConcept', projectId, conceptIds, checkId);
+          console.debug('validateConcepts', projectId, conceptIds, checkId);
           // Setup deferred
           var deferred = $q.defer();
 
@@ -1116,8 +1116,8 @@ tsApp
           gpService.increment();
 
           $http.post(
-            contentUrl + '/validate/concept?projectId=' + projectId
-              + (checkId ? 'checkId=' + checkId : ''), conceptIds).then(
+            contentUrl + '/validate/concepts?projectId=' + projectId
+              + (checkId ? '&checkId=' + checkId : ''), conceptIds).then(
           // success
           function(response) {
             console.debug('  validation results =', response.data);
