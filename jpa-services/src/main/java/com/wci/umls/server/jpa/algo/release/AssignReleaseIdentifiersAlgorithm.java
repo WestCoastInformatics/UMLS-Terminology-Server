@@ -67,6 +67,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   public void compute() throws Exception {
     logInfo("Starting assign release identifiers");
     fireProgressEvent(0, "Starting");
+    this.setMolecularActionFlag(false);
 
     // TODO Save cui/rui/atui max values for "reset"
     // need an accessible properties object for this - the release info??
@@ -292,7 +293,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
     // Assign ATUIs for semantic types
     final javax.persistence.Query query = manager
-        .createQuery("select c.id, a.id from ConceptJpa c join c.atoms a "
+        .createQuery("select c.id, s.id from ConceptJpa c join c.semanticTypes s "
             + "where c.terminology = :terminology "
             + "  and c.version = :version and c.publishable = true ");
     query.setParameter("terminology", getProject().getTerminology());
@@ -308,6 +309,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       final SemanticTypeComponent sty =
           getSemanticTypeComponent(Long.valueOf(result[1].toString()));
 
+      if (sty == null) {
+        logInfo("sty is null " + result.toString() + " " + c.toString());
+      }
       // For each semantic type component (e.g. concept.getSemanticTypes())
       final String origAtui = sty.getTerminologyId();
       sty.setTerminologyId("");

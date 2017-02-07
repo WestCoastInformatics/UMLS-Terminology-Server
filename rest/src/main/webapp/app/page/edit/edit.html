@@ -245,38 +245,38 @@
       <span style="float: left;">
         <button ng-click="openStyWindow(null, null)"
           title="{{selected.metadata.semanticTypesLabel}}"
-          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component"
           class="btn btn-xs btn-primary">STY</button>
         <button ng-click="openAtomsWindow(null, null)"
           title="{{selected.metadata.atomsLabel}}"
-          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component"
           class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
         <button ng-click="openRelationshipsWindow(null, null)"
           title="{{selected.metadata.relationshipsLabel}}"
-          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component"
           class="btn btn-xs btn-primary">Rels</button>
         <button ng-click="openContextsWindow(null, null)"
           title="{{selected.metadata.hierarchiesLabel}}"
-          ng-disabled="!selected.component || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component"
           class="btn btn-xs btn-primary">Tree</button>
         <i
-          ng-show="selected.component && (selected.worklistMode != 'Done' || selected.projectRole == 'ADMINISTRATOR')"
+          ng-show="selected.component"
           ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
       <!-- Concept actions -->
       <span style="float: right;">
         <button ng-click="approveConcept(selected.component)" title="Approve"
-          ng-disabled="!selected.component || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component || editingDisabled()"
           class="btn btn-xs btn-primary">Approve</button>
         <button ng-click="next()" title="Next"
-          ng-disabled="!selected.component || !selected.worklist || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component || !selected.worklist || editingDisabled()"
           class="btn btn-xs btn-primary">Next</button>
         <button ng-click="approveNext()" title="Approve/Next"
-          ng-disabled="!selected.component || !selected.worklist || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component || !selected.worklist || editingDisabled()"
           class="btn btn-xs btn-primary">Approve/Next</button>
         <button ng-click="openMergeModal()" title="Merge"
-          ng-disabled="!selected.component || editingDisabled() || (selected.worklistMode == 'Done' && selected.projectRole != 'ADMINISTRATOR')"
+          ng-disabled="!selected.component || editingDisabled()"
           class="btn btn-xs btn-primary">Merge</button>
       </span>
     </div>

@@ -4,19 +4,23 @@ tsApp.directive('semanticTypes', [ function() {
   return {
     restrict : 'A',
     scope : {
-      component : '=',
-      metadata : '=',
+      selected : '=',
+      lists : '=',
       showHidden : '=',
       callbacks : '='
     },
     templateUrl : 'app/component/semantic-types/semanticTypes.html',
     controller : [
       '$scope',
+      '$uibModal',
       'utilService',
-      function($scope, utilService) {
+      'contentService',
+      'editService',
+      'appConfig',
+      function($scope, $uibModal, utilService, contentService, editService, appConfig) {
 
         function getPagedList() {
-          $scope.pagedData = utilService.getPagedArray($scope.component.semanticTypes,
+          $scope.pagedData = utilService.getPagedArray($scope.selected.component.semanticTypes,
             $scope.paging);
         }
 
@@ -31,8 +35,8 @@ tsApp.directive('semanticTypes', [ function() {
         };
 
         // watch the component
-        $scope.$watch('component', function() {
-          if ($scope.component) {
+        $scope.$watch('selected.component', function() {
+          if ($scope.selected.component) {
             // Clear paging
             $scope.paging = utilService.getPaging();
             $scope.pageCallbacks = {
@@ -52,6 +56,41 @@ tsApp.directive('semanticTypes', [ function() {
             getPagedList();
           }
         });
+
+        //
+        // MODALS
+        //
+        // Add atom modal
+        $scope.openAddSemanticTypesModal = function() {
+
+          var modalInstance = $uibModal.open({
+            templateUrl : 'app/page/content/addSemanticType.html',
+            backdrop : 'static',
+            controller : 'SimpleSemanticTypeModalCtrl',
+            resolve : {
+           
+              selected : function() {
+                return $scope.selected;
+              },
+              lists : function() {
+                return $scope.lists;
+              }
+            }
+          });
+
+          modalInstance.result.then(
+          // Success
+          function(user) {
+            $scope.callbacks.getComponent($scope.selected.component);
+          });
+        };
+        
+        $scope.removeSemanticType = function(sty) {
+          editService.removeSemanticType($scope.selected.project.id, $scope.selected.component.id, sty.id).then(function() {
+            $scope.callbacks.getComponent($scope.selected.component);
+          })
+        }
+       
 
         // end controller
       } ]

@@ -1906,11 +1906,12 @@ public interface ContentService extends MetadataService {
    * Validate concepts.
    *
    * @param project the project
+   * @param check the check
    * @param conceptIds the concept ids
    * @return the validation result
    * @throws Exception the exception
    */
-  public Set<Long> validateConcepts(Project project, Set<Long> conceptIds)
+  public Set<Long> validateConcepts(Project project, String check, Set<Long> conceptIds)
     throws Exception;
 
   /**

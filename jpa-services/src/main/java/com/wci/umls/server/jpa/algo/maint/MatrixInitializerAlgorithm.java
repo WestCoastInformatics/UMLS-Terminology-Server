@@ -110,7 +110,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
-      final Set<Long> failures = validateConcepts(getProject(), conceptIds);
+      final Set<Long> failures = validateConcepts(getProject(), null, conceptIds);
       checkCancel();
       fireProgressEvent(40, "Found concepts with validation failures");
       logInfo("  validation failures = " + failures.size());

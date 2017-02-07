@@ -348,7 +348,14 @@
           class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i>
         <i ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(selected.component)" title="Remove favorites"
-          class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
+          class="glyphicon glyphicon-heart noul glyphicon-muted"></i>&nbsp;&nbsp;
+          <!-- Simple Edit control -->
+        <i ng-show="callbacks.canEdit() && !callbacks.isEditingEnabled()"
+          ng-click="callbacks.enableEditing()" title="Enable editing"
+          class="glyphicon glyphicon-pencil noul glyphicon-muted"></i>
+        <i ng-show="callbacks.canEdit() && callbacks.isEditingEnabled()"
+          ng-click="callbacks.disableEditing()" title="Disable editing"
+          class="glyphicon glyphicon-edit noul glyphicon-muted"></i>
       </div>
     </div>
     <!-- Component display -->
