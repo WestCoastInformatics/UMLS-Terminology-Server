@@ -1,6 +1,6 @@
 
 <div class="modal-header">
-	<h4 style="display: inline">Add Semantic Type</h4>
+	<h4 style="display: inline">Add {{selected.metadata.semanticTypesLabel}}</h4>
 	<span style="float: right"> <i
 		class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
 	</span>
@@ -13,7 +13,7 @@
 		<table class="slim table">
 			<thead>
 				<tr>
-					<th>Semantic Type</th>
+					<th>{{selected.metadata.semanticTypesLabel}}</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -23,8 +23,6 @@
 						ng-click="submitSemanticType(semanticType)">Add</button></td>
 			</tr>
 		</table>
-		
-		{{pagedStys.length}}
 
 
 		<!-- Errors -->

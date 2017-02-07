@@ -1,6 +1,6 @@
 <form ng-submit="submitAtom(atom)">
   <div class="modal-header">
-    <h4 style="display: inline">{{action}} Atom</h4>
+    <h4 style="display: inline">{{action}} {{selected.metadata.atomsLabel}}</h4>
     <span style="float: right">
       <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
     </span>
@@ -15,7 +15,7 @@
           </td>
           <td>
             <textarea autofocus rows="2" cols="40" ng-model="atom.name"
-              placeholder="Name of atom"></textarea>
+              placeholder="Name"></textarea>
           </td>
         </tr>
         <tr>
