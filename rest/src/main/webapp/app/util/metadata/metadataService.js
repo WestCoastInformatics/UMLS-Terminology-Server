@@ -123,8 +123,8 @@ tsApp.service('metadataService', [
               if (metadata.generalEntries[j].key === 'Relationships_Label') {
                 metadata.relationshipsLabel = metadata.generalEntries[j].value;
               }
-              if (metadata.generalEntries[j].key === 'Semantic_Type_Label') {
-                metadata.semanticTypeLabel = metadata.generalEntries[j].value;
+              if (metadata.generalEntries[j].key === 'Semantic_Types_Label') {
+                metadata.semanticTypesLabel = metadata.generalEntries[j].value;
               }
               if (metadata.generalEntries[j].key === 'Atom_Relationships_Label') {
                 metadata.atomRelationshipsLabel = metadata.generalEntries[j].value;
