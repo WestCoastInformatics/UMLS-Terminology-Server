@@ -154,6 +154,7 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
     final Reflections reflections = new Reflections();
     for (final Class<?> clazz : reflections
         .getTypesAnnotatedWith(Indexed.class)) {
+      Logger.getLogger(getClass()).info("Purging lucene indexes for " + clazz.getName());
       fullTextEntityManager.purgeAll(clazz);
     }
   }
