@@ -21,9 +21,10 @@ tsApp
       'contentService',
       'websocketService',
       'appConfig',
+      'editService',
       function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
         gpService, utilService, tabService, configureService, securityService, projectService,
-        metadataService, contentService, websocketService, appConfig) {
+        metadataService, contentService, websocketService, appConfig, editService) {
         console.debug('configure ContentCtrl');
 
         // Set up tabs and controller
@@ -44,6 +45,7 @@ tsApp
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
+        console.debug('appConfig', appConfig);
 
         // History
         $scope.history = contentService.getHistory();
@@ -55,6 +57,8 @@ tsApp
         // Scope variables initialized from services
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
+        $scope.canSimpleEdit = editService.canEdit;
+        
         $scope.callbacks = contentService.getCallbacks();
         // Scope vars
         $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
@@ -671,6 +675,11 @@ tsApp
           // add content callbacks for special content retrieval (relationships,
           // mappings, etc.)
           utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
+          
+          // add simple editing callbacks if enabled
+          if (editService.canEdit()) {
+            utilService.extendCallbacks($scope.callbacks, editService.getCallbacks());
+          }
 
         };
 

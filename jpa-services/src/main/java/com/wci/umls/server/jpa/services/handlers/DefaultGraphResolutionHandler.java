@@ -428,6 +428,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
   @SuppressWarnings("static-method")
   protected void resolveAttributes(ComponentHasAttributes component,
     boolean nullId) throws Exception {
+    component.getAttributes().size();
     for (final Attribute att : component.getAttributes()) {
       att.getName();
       // no ATUI
@@ -446,6 +447,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    */
   @SuppressWarnings("static-method")
   protected void resolveComponentHistory(Atom component, boolean nullId) {
+    component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {
       history.getReferencedConcept().getTerminologyId();
       if (nullId) {
@@ -462,6 +464,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
    */
   @SuppressWarnings("static-method")
   protected void resolveComponentHistory(Concept component, boolean nullId) {
+    component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {
       history.getReferencedConcept().getTerminologyId();
       if (nullId) {

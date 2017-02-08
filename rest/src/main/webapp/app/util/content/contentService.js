@@ -457,6 +457,29 @@ tsApp
           return deferred.promise;
         };
 
+        this.getConceptsForQuery = function(queryStr, terminology, version, projectId, pfs) {
+          console.debug('getConcepts', queryStr, terminology, version, pfs);
+
+          var deferred = $q.defer();
+          gpService.increment();
+          $http.post(
+            contentUrl + '/concept/' + terminology + '/' + version + '/get?query='
+              + encodeURIComponent(utilService.cleanQuery(queryStr))
+              + (projectId ? '&projectId=' + projectId : ''), pfs).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        }
+
         // Finds components as a list
         this.findComponentsAsList = function(queryStr, type, terminology, version, searchParams) {
           console.debug('findComponentsAsList', queryStr, type, terminology, version, searchParams);
@@ -468,7 +491,8 @@ tsApp
           var pfs = {
             startIndex : (searchParams.page - 1) * searchParams.pageSize,
             maxResults : searchParams.pageSize,
-            sortField : null,
+            sortField : searchParams.sortField,
+            ascending : searchParams.sortAscending,
             expression : searchParams && searchParams.expression ? searchParams.expression.value
               : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
@@ -544,10 +568,9 @@ tsApp
             if (searchParams.semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-               * if (searchParams.semanticType) { pfs.queryRestriction += " AND
-               * semanticTypes.semanticType:\"" + searchParams.semanticType +
-               * "\""; }
-               */
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
 
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
@@ -1042,6 +1065,62 @@ tsApp
           // success
           function(response) {
             console.debug('  mappings =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
+        // validate concept
+        this.validateConcept = function(projectId, concept, checkId) {
+          console.debug('validateConcept', projectId, concept, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concept?projectId=' + projectId
+              + (checkId ? 'checkId=' + checkId : ''), concept).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+        
+        // validate concept
+        this.validateConcepts = function(projectId, conceptIds, checkId) {
+          console.debug('validateConcepts', projectId, conceptIds, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concepts?projectId=' + projectId
+              + (checkId ? '&checkId=' + checkId : ''), conceptIds).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
             gpService.decrement();
             deferred.resolve(response.data);
           },

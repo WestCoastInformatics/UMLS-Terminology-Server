@@ -6,6 +6,7 @@ package com.wci.umls.server.rest.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -1393,6 +1394,59 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final SearchResultList sr = contentService.findConceptSearchResults(
           terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/get")
+  @ApiOperation(value = "Get full concepts matching a search query", notes = "Gets a list of concepts that match the lucene query for the root branch", response = SearchResultListJpa.class)
+  public ConceptList getConceptsForQuery(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "project id, e.g. 1 (optional)", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "?query=" + queryStr + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    final ContentService contentService = new ContentServiceJpa();
+    final Project project =
+        projectId == null ? null : contentService.getProject(projectId);
+
+    try {
+      String username = authorizeApp(securityService, authToken,
+          "get concepts by query", UserRole.VIEWER);
+
+      // Empty queries return all results
+      final ConceptList cl = contentService.findConcepts(terminology, version,
+          Branch.ROOT, queryStr, pfs);
+
+      for (Concept concept : cl.getObjects()) {
+
+        if (concept != null) {
+          contentService.getGraphResolutionHandler(terminology)
+              .resolve(concept);
+          sortAtoms(securityService, contentService, username, concept,
+              project);
+        }
+
+      }
+      return cl;
 
     } catch (Exception e) {
       handleException(e, "trying to find the concepts by query");
@@ -4243,10 +4297,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/validate/concept")
-  @ApiOperation(value = "Validate Concept", notes = "Validates a concept")
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept against a specific check or all project checks")
   public ValidationResult validateConcept(
-    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Concept", required = true) ConceptJpa concept,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @PathParam("checkId") String check,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
@@ -4257,9 +4312,65 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeProject(contentService, projectId, securityService, authToken,
           "validate conceptm", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      return contentService.validateConcept(project.getValidationChecks(),
-          concept);
-    } catch (Exception e) {
+
+      if (check == null) {
+        return contentService.validateConcept(project.getValidationChecks(),
+            concept);
+      } else {
+        if (!project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService
+              .validateConcept(new ArrayList<>(Arrays.asList(check)), concept);
+        }
+
+      }
+
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to validate concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/concepts")
+  @ApiOperation(value = "Validate All Concepts", notes = "Validates all concept against a specific check or all project checks")
+  public Set<Long> validateConcepts(
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @QueryParam("checkId") String check,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/concepts " + projectId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate concepts", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      final Set<Long> conceptIds = new HashSet<>(
+          contentService.getAllConceptIds(project.getTerminology(),
+              project.getVersion(), project.getBranch()));
+      if (check == null) {
+        return contentService.validateConcepts(project, null, conceptIds);
+      } else {
+        if (!project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService.validateConcepts(project, check, conceptIds);
+        }
+      }
+    } catch (
+
+    Exception e) {
       handleException(e, "trying to validate concept");
       return null;
     } finally {

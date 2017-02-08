@@ -353,6 +353,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         } else {
           identity.setComponentId(component.getTerminologyId());
         }
+        if (identity.getComponentId() == null) {
+          throw new Exception("unexpected null terminology id " + component);
+        }
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());
