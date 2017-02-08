@@ -233,8 +233,8 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "remove concept note", UserRole.VIEWER);
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "remove atom", UserRole.USER);
       contentService.setTransactionPerOperation(false);
       contentService.beginTransaction();
       contentService.setLastModifiedBy(userName);
@@ -357,8 +357,8 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "remove concept note", UserRole.VIEWER);
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "remove semantic type", UserRole.USER);
       contentService.setTransactionPerOperation(false);
       contentService.beginTransaction();
       contentService.setLastModifiedBy(userName);
@@ -529,8 +529,8 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String userName = authorizeApp(securityService, authToken,
-          "remove concept", UserRole.VIEWER);
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "remove concept", UserRole.USER);
       contentService.setTransactionPerOperation(false);
       contentService.beginTransaction();
       contentService.setLastModifiedBy(userName);
@@ -589,10 +589,10 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
             + pfs);
     final ContentService contentService = new ContentServiceJpa();
     try {
-      final String username = authorizeApp(securityService, authToken,
-          "remove abbreviation", UserRole.USER);
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "remove concepts from project", UserRole.USER);
       final Project project = contentService.getProject(projectId);
-      contentService.setLastModifiedBy(username);
+      contentService.setLastModifiedBy(userName);
     
       // construct list of ids to remove based on query and query restriction
       List<Long> idsToRemove = new ArrayList<>();
@@ -640,7 +640,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
       contentService.commit();
     } catch (Exception e) {
-      handleException(e, "trying to remove concepts ");
+      handleException(e, "trying to remove concepts from project");
       contentService.rollback();
     } finally {
       contentService.close();

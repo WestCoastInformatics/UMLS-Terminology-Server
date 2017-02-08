@@ -215,15 +215,15 @@ tsApp.service('editService', [
     }
 
     // remove concepts based on project and pfs criteria   
-    this.removeConcepts = function(projectId, pfs) {
+    this.removeConcepts = function(projectId, query, pfs) {
       console.debug('removeConcept', projectId, pfs);
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/concepts?projectId=' + projectId, pfs).then(
+      $http.post(editUrl + '/concept/remove?projectId=' + projectId + (query ? '&query=' + query : ''), pfs).then(
       // success
       function(response) {
-        console.debug('  successful remove concept');
+        console.debug('  successful remove concepts');
         gpService.decrement();
         deferred.resolve(response.data);
       },
