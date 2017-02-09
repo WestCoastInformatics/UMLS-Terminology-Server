@@ -1970,7 +1970,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
-    
+
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
     algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
@@ -1990,7 +1990,97 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);    
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
+            + "a1.terminology = :terminology and a1.version = :version and "
+            + "a1.publishable = true and a2.terminology = :terminology and "
+            + "a2.version != :version and a2.publishable = true");
+    // TODO - figure out and add additional clauses
+    algoProperties.put("checkNames", null);
+    algoProperties.put("newAtomsOnly", "false");
+    algoProperties.put("filterQueryType", "LUCENE");
+    algoProperties.put("filterQuery", "atoms.terminology:NCI");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "false");
+    algoProperties.put("mergeSet", "META-SR");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
+            + "a1.terminology = :terminology and a1.version = :version and "
+            + "a1.publishable = true and a2.terminology = :terminology and "
+            + "a2.version != :version and a2.publishable = true");
+    // TODO - figure out and add additional clauses
+    algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
+    algoProperties.put("newAtomsOnly", "true");
+    algoProperties.put("filterQueryType", "");
+    algoProperties.put("filterQuery", "");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "false");
+    algoProperties.put("mergeSet", "META-CUI");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - add META-REPL generated merge
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    // TODO - ask about 'use integrities' in .csh script
+    algoProperties.put("mergeSet", "META-MERGE");
+    algoProperties.put("checkNames", "");
+    algoProperties.put("filterQueryType", null);
+    algoProperties.put("filterQuery", null);
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     // TODO - add the rest of the algorithms
 
