@@ -177,29 +177,6 @@ public class DefaultSecurityServiceHandler extends AbstractConfigurable
     return userSet;
   }
 
-  /**
-   * Returns the admin users from config file.
-   *
-   * @return the admin users from config file
-   */
-  private Set<String> getAdminUsersFromConfigFile() {
-  
-    HashSet<String> userSet = new HashSet<>();
-    String userList = properties.getProperty("users.admin");
-  
-    Logger.getLogger(getClass()).info(properties.keySet());
-  
-    if (userList == null) {
-      Logger.getLogger(getClass()).warn(
-          "Could not retrieve config parameter users.admin for security handler DEFAULT");
-      return userSet;
-    }
-  
-    for (final String user : userList.split(","))
-      userSet.add(user);
-    return userSet;
-  }
-
   /* see superclass */
   @Override
   public String getName() {
