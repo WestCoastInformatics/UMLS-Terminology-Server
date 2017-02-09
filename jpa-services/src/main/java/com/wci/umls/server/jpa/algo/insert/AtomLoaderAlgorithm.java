@@ -257,10 +257,11 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           // Update conceptTerminologyIds
           final Map<String, String> altConceptIds =
               oldAtom.getConceptTerminologyIds();
-          if (altConceptIds.get(getProject().getTerminology()) == null
-              || !altConceptIds.get(getProject().getTerminology())
-                  .equals(fields[14])) {
-            oldAtom.getAlternateTerminologyIds()
+          if (!ConfigUtility.isEmpty(fields[14])
+              && (altConceptIds.get(getProject().getTerminology()) == null
+                  || !altConceptIds.get(getProject().getTerminology())
+                      .equals(fields[14]))) {
+            oldAtom.getConceptTerminologyIds()
                 .put(getProject().getTerminology(), fields[14]);
             oldAtomChanged = true;
           }
