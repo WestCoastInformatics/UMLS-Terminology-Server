@@ -52,6 +52,9 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
   /** The descriptor id flag. */
   private Boolean descriptorId = null;
 
+  /** The term type flag. */
+  private Boolean termType = null;
+
   /** The terminology. */
   private String terminology = null;
 
@@ -82,12 +85,12 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       throw new Exception("Safe Replace requires a project to be set");
     }
 
-    if (!(codeId || conceptId || descriptorId || lexicalClassId
-        || stringClassId)) {
+    if (!(codeId || conceptId || descriptorId || lexicalClassId || stringClassId
+        || termType)) {
       throw new Exception(
           "No match-criteria are selected (e.g. code Id, concept Id, etc.).");
     }
-    
+
     // Check the input directories
 
     String srcFullPath =
@@ -97,8 +100,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     setSrcDirFile(new File(srcFullPath));
     if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
-    }    
-    
+    }
+
     return validationResult;
   }
 
@@ -134,7 +137,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
                 : "")
             + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
             + (codeId ? "AND a1.codeId = a2.codeId " : "")
-            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "");
+            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "")
+            + (termType ? "AND a1.termType = a2.termType " : "");
 
     // If terminology is not set, run the query for ALL terminologies referenced
     // in sources.src, and add all results to atomIdPairArray
@@ -247,7 +251,9 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
           // Remove the inverse relationship from the toAtom
           Atom relatedAtom = getAtom(rel.getTo().getId());
           AtomRelationship inverseDemotion =
-              (AtomRelationship) getInverseRelationship(getProject().getTerminology(), getProject().getVersion(), rel);
+              (AtomRelationship) getInverseRelationship(
+                  getProject().getTerminology(), getProject().getVersion(),
+                  rel);
           relatedAtom.getRelationships().remove(inverseDemotion);
 
           // Update the related atom
@@ -303,7 +309,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     if (p.getProperty("stringClassId") == null
         && p.getProperty("lexicalClassId") == null
         && p.getProperty("codeId") == null && p.getProperty("conceptId") == null
-        && p.getProperty("descriptorId") == null) {
+        && p.getProperty("descriptorId") == null
+        && p.getProperty("termType") == null) {
       throw new LocalException(
           "No match-criteria are selected (e.g. code Id, concept Id, etc.).");
     }
@@ -327,6 +334,9 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     if (p.getProperty("descriptorId") != null) {
       descriptorId = Boolean.parseBoolean(p.getProperty("descriptorId"));
     }
+    if (p.getProperty("termType") != null) {
+      termType = Boolean.parseBoolean(p.getProperty("termType"));
+    }
     if (p.getProperty("terminology") != null) {
       terminology = String.valueOf(p.getProperty("terminology"));
     }
@@ -335,7 +345,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa("String Class Id",
@@ -360,6 +370,11 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
     param = new AlgorithmParameterJpa("Descriptor Id", "descriptorId",
         "Match atoms by Descriptor Id?", "e.g. true", 5,
+        AlgorithmParameter.Type.BOOLEAN, "false");
+    params.add(param);
+
+    param = new AlgorithmParameterJpa("Term Type", "termType",
+        "Match atoms by Term Type?", "e.g. true", 5,
         AlgorithmParameter.Type.BOOLEAN, "false");
     params.add(param);
 

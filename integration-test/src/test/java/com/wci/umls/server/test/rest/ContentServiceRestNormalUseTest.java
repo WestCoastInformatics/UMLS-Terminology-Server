@@ -2019,7 +2019,7 @@ public class ContentServiceRestNormalUseTest extends ContentServiceRestTest {
         mshTerminology, mshVersion, p.getId(), authToken);
 
     ValidationResult result =
-        contentService.validateConcept(p.getId(), concept, adminToken);
+        contentService.validateConcept(p.getId(), concept, null, adminToken);
 
     assertTrue(result.getErrors().size() == 0);
     assertTrue(result.getWarnings().size() == 0);

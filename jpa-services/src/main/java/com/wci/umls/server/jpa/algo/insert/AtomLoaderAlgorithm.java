@@ -82,7 +82,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   }
 
   /* see superclass */
-  /* see superclass */
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
@@ -252,6 +251,18 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                   .equals(fields[0])) {
             oldAtom.getAlternateTerminologyIds()
                 .put(getProject().getTerminology() + "-SRC", fields[0]);
+            oldAtomChanged = true;
+          }
+
+          // Update conceptTerminologyIds
+          final Map<String, String> altConceptIds =
+              oldAtom.getConceptTerminologyIds();
+          if (!ConfigUtility.isEmpty(fields[14])
+              && (altConceptIds.get(getProject().getTerminology()) == null
+                  || !altConceptIds.get(getProject().getTerminology())
+                      .equals(fields[14]))) {
+            oldAtom.getConceptTerminologyIds()
+                .put(getProject().getTerminology(), fields[14]);
             oldAtomChanged = true;
           }
 

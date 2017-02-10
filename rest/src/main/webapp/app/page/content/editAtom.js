@@ -23,6 +23,17 @@ tsApp.controller('SimpleAtomModalCtrl', [
     $scope.warnings = [];
     $scope.errors = [];
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
+
+    // construct atom term groups from  general metadata term groups if not supplied on project
+    if (!$scope.selected.project.newAtomTermgroups
+      || $scope.selected.project.newAtomTermgroups.length == 0) {
+      $scope.selected.project.newAtomTermgroups = [];
+      angular.forEach($scope.selected.metadata.termTypes, function(termType) {
+        $scope.selected.project.newAtomTermgroups
+          .push($scope.selected.metadata.terminology.terminology + '/' + termType.key);
+      });
+
+    }
     $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
 
     // Init modal
@@ -61,7 +72,7 @@ tsApp.controller('SimpleAtomModalCtrl', [
       $scope.errors = [];
       if ($scope.action == 'Add') {
         if (!atom || !atom.name || !$scope.selectedTermgroup) {
-          $scope.errors.push('Name and  termgroup must be selected.');
+          $scope.errors.push('Name and termgroup must be selected.');
           return;
         }
         // terminology/version will be chosen by the concept
@@ -84,6 +95,14 @@ tsApp.controller('SimpleAtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
+        
+        if (!atom || !atom.name || !$scope.selectedTermgroup) {
+          $scope.errors.push('Name and termgroup must be selected.');
+          return;
+        }
+        // update term type
+        atom.termType = $scope.selectedTermgroup.substr($scope.selectedTermgroup.indexOf('/') + 1);
+
         editService.updateAtom($scope.selected.project.id, $scope.selected.component.id, atom)
           .then(
           // Success
@@ -96,6 +115,12 @@ tsApp.controller('SimpleAtomModalCtrl', [
           });
       }
     };
+    
+    $scope.removeAtom = function(atom) {
+      callbacks.removeAtom($scope.selected.projectId, $scope.selected.component.id, atom.id).then(function() {
+        callbacks.getComponent($scope.selected.component);
+      })
+    }
 
     // Dismiss modal
     $scope.cancel = function() {

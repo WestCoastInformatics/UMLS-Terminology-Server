@@ -7,6 +7,7 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import java.io.InputStream;
+import java.util.Set;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResultList;
@@ -36,6 +37,7 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.meta.IdType;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a service for managing content.
  */
@@ -1036,12 +1038,25 @@ public interface ContentServiceRest {
    *
    * @param projectId the project id
    * @param concept the concept
+   * @param check the check name
    * @param authToken the auth token
    * @return the validation result
    * @throws Exception the exception
    */
-  public ValidationResult validateConcept(Long projectId, ConceptJpa concept,
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String check,
     String authToken) throws Exception;
+  
+  /**
+   * Validate concepts.
+   *
+   * @param projectId the project id
+   * @param check the check
+   * @param authToken the auth token
+   * @return the sets the
+   * @throws Exception the exception
+   */
+  public Set<Long> validateConcepts(Long projectId, String check, String authToken)
+    throws Exception;
 
   /**
    * Validate atom.
@@ -1148,4 +1163,23 @@ public interface ContentServiceRest {
    */
   public Atom getAtom(Long atomId, Long projectId, String authToken)
     throws Exception;
+
+  /**
+   * Gets the concepts for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concepts for query
+   * @throws Exception the exception
+   */
+  public ConceptList getConceptsForQuery(String terminology, String version,
+    Long projectId, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+
+
 }

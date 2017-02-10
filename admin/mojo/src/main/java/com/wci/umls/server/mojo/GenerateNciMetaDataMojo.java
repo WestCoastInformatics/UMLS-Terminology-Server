@@ -364,6 +364,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     createReportProcesses(project1, projectId, authToken);
     createLexicalClassAssignmentProcess(project1, projectId, authToken);
     createComputePreferredNamesProcess(project1, projectId, authToken);
+    createRemapComponentInfoRelationshipsProcesses(project1, projectId,
+        authToken);
 
     //
     // Fake some data as needs review
@@ -1265,6 +1267,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "false");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -1666,6 +1669,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "false");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -1940,6 +1944,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MAPSETLOADING");
+    algoConfig.setDescription("MAPSETLOADING Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MAPSETLOADING algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
     algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
     algoConfig.setEnabled(true);
@@ -1947,6 +1965,117 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("mergeSet", "MTH-SRC");
+    algoProperties.put("checkNames", "");
+    algoProperties.put("filterQueryType", null);
+    algoProperties.put("filterQuery", null);
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
+            + "a1.terminology = :terminology and a1.version = :version and "
+            + "a1.publishable = true and a2.terminology = :terminology and "
+            + "a2.version != :version and a2.publishable = true");
+    // TODO - figure out and add additional clauses
+    algoProperties.put("checkNames", null);
+    algoProperties.put("newAtomsOnly", "false");
+    algoProperties.put("filterQueryType", "LUCENE");
+    algoProperties.put("filterQuery", "atoms.terminology:NCI");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "false");
+    algoProperties.put("mergeSet", "META-SR");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "JQL");
+    algoProperties.put("query",
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
+            + "a1.terminology = :terminology and a1.version = :version and "
+            + "a1.publishable = true and a2.terminology = :terminology and "
+            + "a2.version != :version and a2.publishable = true");
+    // TODO - figure out and add additional clauses
+    algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
+    algoProperties.put("newAtomsOnly", "true");
+    algoProperties.put("filterQueryType", "");
+    algoProperties.put("filterQuery", "");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "false");
+    algoProperties.put("mergeSet", "META-CUI");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - add META-REPL generated merge
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
+    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    // TODO - ask about 'use integrities' in .csh script
+    algoProperties.put("mergeSet", "META-MERGE");
+    algoProperties.put("checkNames", "");
+    algoProperties.put("filterQueryType", null);
+    algoProperties.put("filterQuery", null);
+    algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -2189,7 +2318,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - does SafeReplace need to be able to match by termType?
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("SAFEREPLACE");
     algoConfig.setDescription("SAFEREPLACE Algorithm");
@@ -2205,6 +2333,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("codeId", "true");
     algoProperties.put("conceptId", "false");
     algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "true");
     algoProperties.put("terminology", "");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
@@ -2484,8 +2613,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
-    
-    
+
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
   }
@@ -2841,6 +2969,77 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  @SuppressWarnings("static-method")
+  private void createRemapComponentInfoRelationshipsProcesses(Project project1,
+    Long projectId, String authToken) throws Exception {
+
+    // This will make two processes, one Insertion, and one Maintenance
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Remap Component Info Relationships Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Remap Component Info Relationships Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Insertion");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
+    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("COMPINFORELREMAPPER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+
+    // Now for the Maintenance one
+    process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig2 = new ProcessConfigJpa();
+    processConfig2.setDescription("Remap Component Info Relationships Process");
+    processConfig2.setFeedbackEmail(null);
+    processConfig2.setName("Remap Component Info Relationships Process");
+    processConfig2.setProject(project1);
+    processConfig2.setTerminology(project1.getTerminology());
+    processConfig2.setVersion(project1.getVersion());
+    processConfig2.setTimestamp(new Date());
+    processConfig2.setType("Maintenance");
+    processConfig2 = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig2, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig2 = new AlgorithmConfigJpa();
+    algoConfig2.setAlgorithmKey("COMPINFORELREMAPPER");
+    algoConfig2.setDescription("COMPINFORELREMAPPER Algorithm");
+    algoConfig2.setEnabled(true);
+    algoConfig2.setName("COMPINFORELREMAPPER algorithm");
+    algoConfig2.setProcess(processConfig2);
+    algoConfig2.setProject(project1);
+    algoConfig2.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig2 = process.addAlgorithmConfig(projectId, processConfig2.getId(),
+        (AlgorithmConfigJpa) algoConfig2, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig2.getSteps().add(algoConfig2);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig2,
         authToken);
   }
 
