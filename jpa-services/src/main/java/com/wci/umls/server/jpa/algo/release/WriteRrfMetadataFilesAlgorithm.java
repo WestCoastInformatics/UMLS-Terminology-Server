@@ -216,8 +216,11 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         // Look up versioned concept
         results = findConceptSearchResults(getProject().getTerminology(),
             getProject().getVersion(), getProject().getBranch(),
-            " atoms.codeId:\"V-" + term.getTerminology() + "_"
-                + term.getVersion() + "\""
+            " atoms.codeId:V-" + term.getTerminology() + "_"
+                + term.getVersion() 
+                // Try modified above instead
+                   /* " atoms.codeId:\"V-" + term.getTerminology() + "_"
+                    + term.getVersion() + "\""*/
                 + " AND atoms.terminology:SRC AND atoms.termType:RPT",
             null);
         if (results.size() > 0) {
@@ -227,8 +230,9 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         // not everything has a VCUI (e.g. "SRC" and "MTH").
       } else {
         // everything should have an RCUI
-        throw new Exception(
+        logWarn(
             "Unexpected missing RCUI concept " + term.getTerminology());
+        continue;
       }
 
       // 0 VCUI
@@ -581,7 +585,14 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         sb.append("expanded").append("|");
         outputLines.add(sb.toString());
       }
-
+      if (tty.getCodeVariantType() == CodeVariantType.UNDEFINED) {
+        sb = new StringBuilder();
+        sb.append("TTY").append("|");
+        sb.append(tty.getAbbreviation()).append("|");
+        sb.append("tty_class").append("|");
+        sb.append("other").append("|");
+        outputLines.add(sb.toString());
+      }
     }
 
     // General metadata entries (skip MAPATN)

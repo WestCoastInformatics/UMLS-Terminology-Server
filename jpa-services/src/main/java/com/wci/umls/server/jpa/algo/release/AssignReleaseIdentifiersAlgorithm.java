@@ -157,7 +157,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
       final Atom atom = getAtom(id);
       final String cui =
-          atom.getAlternateTerminologyIds().get(getProject().getTerminology());
+          atom.getConceptTerminologyIds().get(getProject().getTerminology());
       final Concept concept = getConcept(atomConceptMap.get(id));
 
       // If the CUI is set, assign it to the concept and move on

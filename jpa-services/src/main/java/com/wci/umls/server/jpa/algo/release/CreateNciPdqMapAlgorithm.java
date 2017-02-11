@@ -312,6 +312,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     codeAttributes.put("FROMRSAB", pdq.getTerminology());
     codeAttributes.put("MTH_MAPFROMCOMPLEXITY", "SINGLE SDUI");
     codeAttributes.put("MTH_MAPFROMEXHAUSTIVE", "N");
+    codeAttributes.put("MAPSETSID", code.getTerminologyId());
     
     for (String key : codeAttributes.keySet()) {
       Attribute attribute = new AttributeJpa();
