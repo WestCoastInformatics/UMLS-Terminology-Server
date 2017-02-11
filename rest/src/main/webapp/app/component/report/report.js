@@ -16,6 +16,18 @@ tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeP
         showHidden : true
       };
 
+      $scope.removeConcept = function() {
+        if ($scope.callbacks.hasOwnProperty('removeConcept')) {
+          $scope.callbacks.removeConcept($scope.selected.project.id, concept.id).then(function() {
+            // do nothing
+          })
+        } else {
+          editService.removeConcept($scope.selected.project.id, concept.id).then(function() {
+            $scope.selected.component = null;
+          });
+        }
+      }
+
     } ]
   };
 } ]);

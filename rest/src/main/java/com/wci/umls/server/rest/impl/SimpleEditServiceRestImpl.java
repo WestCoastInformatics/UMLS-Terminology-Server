@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -21,13 +23,22 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.SearchResult;
+import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.jpa.meta.SemanticTypeJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.jpa.services.rest.SimpleEditServiceRest;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.SecurityService;
@@ -109,17 +120,18 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       atom.setTerminology(concept.getTerminology());
       atom.setVersion(concept.getVersion());
       final Atom newAtom = contentService.addAtom(atom);
+      concept.getAtoms().add(newAtom);
 
       // TODO: consider other features:
       // e.g. molecular actions, logging, or maybe none of these things happened
-      // here and this is just a very simple, unaudited change - e.g. use molecular actions instead.
+      // here and this is just a very simple, unaudited change - e.g. use
+      // molecular actions instead.
 
       // Compute preferred name
       concept.setName(contentService.getComputedPreferredName(concept,
           contentService.getPrecedenceList(concept.getTerminology(),
               concept.getVersion())));
 
-      concept.getAtoms().add(newAtom);
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
@@ -153,7 +165,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
     final ContentService contentService = new ContentServiceJpa();
     try {
       final String userName = authorizeProject(contentService, projectId,
-          securityService, authToken, "add atom", UserRole.USER);
+          securityService, authToken, "update atom", UserRole.USER);
       contentService.setLastModifiedBy(userName);
       contentService.setMolecularActionFlag(false);
 
@@ -184,24 +196,21 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
             "Invalid concept/atom combination = " + conceptId + ", " + atom);
       }
 
-      atom.setStringClassId("");
-      atom.setLexicalClassId("");
-      atom.setStringClassId("");
-      atom.setStringClassId("");
-      atom.setCodeId("");
-      atom.setDescriptorId("");
-      atom.setConceptId(origAtom.getTerminologyId());
-      atom.setTerminology(origAtom.getTerminology());
-      atom.setVersion(origAtom.getVersion());
-
       contentService.updateAtom(atom);
       // for now, allow all changes
       if (atom.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
         concept.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
       }
 
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+
+      contentService.updateConcept(concept);
+
     } catch (Exception e) {
-      handleException(e, "trying to add atom note");
+      handleException(e, "trying to update atom");
     } finally {
       securityService.close();
     }
@@ -251,8 +260,136 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       }
 
       // for now, allow all changes
-      contentService.removeAtom(atomId);
       concept.getAtoms().remove(origAtom);
+      contentService.removeAtom(atomId);
+
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+
+      // TODO Decide workflow
+      contentService.commit();
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to remove note from concept");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @PUT
+  @Path("/sty")
+  @ApiOperation(value = "Add an semanticType to a concept", notes = "Adds an semanticType to a concept", response = SemanticTypeJpa.class)
+  @Override
+  public SemanticTypeComponent addSemanticTypeToConcept(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 43232345", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "SemanticType to add, as POST data", required = true) SemanticTypeJpa semanticType,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Edit): /semanticType add "
+        + projectId + ", " + conceptId + ", " + semanticType);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "add semanticType", UserRole.USER);
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularActionFlag(false);
+
+      final Project project = contentService.getProject(projectId);
+      if (project == null) {
+        throw new LocalException("Invalid project = " + projectId);
+      }
+      final Concept concept = contentService.getConcept(conceptId);
+      if (concept == null) {
+        throw new LocalException("Invalid concept = " + conceptId);
+      }
+
+      // Borrow info from concept
+      SemanticTypeComponent styc = new SemanticTypeComponentJpa();
+      styc.setBranch(concept.getBranch());
+      styc.setSemanticType(semanticType.getExpandedForm());
+      styc.setTerminology(concept.getTerminology());
+      styc.setVersion(concept.getVersion());
+      styc.setWorkflowStatus(WorkflowStatus.NEW);
+      styc.setPublishable(true);
+      // set terminology id to empty string, will be handled if appropriate
+      styc.setTerminologyId("");
+      contentService.addSemanticTypeComponent(styc, concept);
+
+      // update the concept
+      concept.getSemanticTypes().add(styc);
+      contentService.updateConcept(concept);
+
+      contentService.commit();
+      return styc;
+    } catch (Exception e) {
+      handleException(e, "trying to add semanticType");
+    } finally {
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+
+  @DELETE
+  @Path("/sty/{semanticTypeId}")
+  @ApiOperation(value = "Remove an semanticType", notes = "Removes the semanticType and detaches it from the concept")
+  @Override
+  public void removeSemanticType(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 43232345", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "SemanticType id, e.g. 482831", required = true) @PathParam("semanticTypeId") Long semanticTypeId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Edit): /semanticType/"
+        + semanticTypeId + " " + conceptId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "remove concept note", UserRole.VIEWER);
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularActionFlag(false);
+
+      final Project project = contentService.getProject(projectId);
+      if (project == null) {
+        throw new LocalException("Invalid project = " + projectId);
+      }
+      final SemanticTypeComponent origSemanticType =
+          contentService.getSemanticTypeComponent(semanticTypeId);
+      if (origSemanticType == null) {
+        throw new Exception(
+            "Unexpected missing semanticType = " + semanticTypeId);
+      }
+
+      final Concept concept = contentService.getConcept(conceptId);
+      if (concept == null) {
+        throw new Exception("Unexpected concept id = " + conceptId);
+      }
+      if (concept.getSemanticTypes().stream()
+          .filter(a -> a.getId().equals(semanticTypeId))
+          .collect(Collectors.toList()).size() != 1) {
+        throw new LocalException(
+            "Invalid conceptId/semanticTypeId combination = " + conceptId + ", "
+                + semanticTypeId);
+      }
+
+      // for now, allow all changes
+      contentService.removeSemanticTypeComponent(semanticTypeId);
+      concept.getSemanticTypes().remove(origSemanticType);
       contentService.updateConcept(concept);
 
       contentService.commit();
@@ -267,4 +404,248 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+  @PUT
+  @Path("/concept")
+  @ApiOperation(value = "Add an concept=", notes = "Adds a concept", response = ConceptJpa.class)
+  @Override
+  public Concept addConcept(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept to add, as POST data", required = true) ConceptJpa concept,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Edit): /concept add " + projectId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "add concept", UserRole.USER);
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularActionFlag(false);
+
+      final Project project = contentService.getProject(projectId);
+      if (project == null) {
+        throw new LocalException("Invalid project = " + projectId);
+      }
+
+      // TODO Check minimum requirements
+
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+      if (concept.getName() == null) {
+        concept.setName("");
+      }
+
+      // get the terminology id
+      concept.setTerminologyId(contentService
+          .getIdentifierAssignmentHandler(concept.getTerminology())
+          .getTerminologyId(concept));
+
+      // set workflow status
+      concept.setWorkflowStatus(WorkflowStatus.NEW);
+
+      // Borrow info from concept
+      final Concept newConcept = contentService.addConcept(concept);
+
+      // TODO: consider other features:
+      // e.g. molecular actions, logging, or maybe none of these things happened
+      // here and this is just a very simple, unaudited change - e.g. use
+      // molecular actions instead.
+
+      return newConcept;
+    } catch (Exception e) {
+      handleException(e, "trying to add concept");
+    } finally {
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+  @POST
+  @Path("/concept")
+  @ApiOperation(value = "Update a concept", notes = "Updates a concept")
+  @Override
+  public void updateConcept(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept to update, as POST data", required = true) ConceptJpa concept,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Edit): /concept update "
+        + projectId + ", " + concept.getId());
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeProject(contentService, projectId,
+          securityService, authToken, "update concept", UserRole.USER);
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularActionFlag(false);
+
+      final Project project = contentService.getProject(projectId);
+      if (project == null) {
+        throw new LocalException("Invalid project = " + projectId);
+      }
+      if (concept.getId() == null) {
+        throw new Exception("Unexpected null concept id ");
+      }
+      final Concept origConcept = contentService.getConcept(concept.getId());
+      if (origConcept == null) {
+        throw new Exception("Unexpected missing concept = " + concept.getId());
+      }
+
+      // Compute preferred name
+      concept.setName(contentService.getComputedPreferredName(concept,
+          contentService.getPrecedenceList(concept.getTerminology(),
+              concept.getVersion())));
+
+      // TODO Consider workflow status update here? (NEW, NEEDS_REVIEW)
+
+      contentService.updateConcept(concept);
+
+    } catch (Exception e) {
+      handleException(e, "trying to update concept");
+    } finally {
+      securityService.close();
+    }
+
+  }
+  /* see superclass */
+
+  @DELETE
+  @Path("/concept/{conceptId}")
+  @ApiOperation(value = "Remove an concept", notes = "Removes the concept and detaches it from the concept")
+  @Override
+  public void removeConcept(
+    @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept id, e.g. 43232345", required = true) @QueryParam("conceptId") Long conceptId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Edit, DELETE): /concept/" + conceptId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "remove concept", UserRole.VIEWER);
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
+      contentService.setLastModifiedBy(userName);
+      contentService.setMolecularActionFlag(false);
+
+      final Project project = contentService.getProject(projectId);
+      if (project == null) {
+        throw new LocalException("Invalid project = " + projectId);
+      }
+      final Concept origConcept = contentService.getConcept(conceptId);
+      if (origConcept == null) {
+        throw new Exception("Unexpected missing concept = " + conceptId);
+      }
+
+      final Concept concept = contentService.getConcept(conceptId);
+      if (concept == null) {
+        throw new Exception("Unexpected concept id = " + conceptId);
+      }
+
+      // remove collections
+      for (Atom atom : concept.getAtoms()) {
+        contentService.removeAtom(atom.getId());
+      }
+      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+        contentService.removeSemanticTypeComponent(sty.getId());
+      }
+
+      // remove the concept itself
+      contentService.removeConcept(conceptId);
+
+      // commit
+      contentService.commit();
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to remove note from concept");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @Path("/concepts/remove")
+  @POST
+  @ApiOperation(value = "Removes concept", notes = "Removes concepts by id", response = TypeKeyValueJpa.class)
+  public void removeConcepts(
+    @ApiParam(value = "The id of the project, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The query for concepts to remove", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "The PFS filtering criteria", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Project/TypeKeyValue): /remove " + projectId + ", "
+            + pfs);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String username = authorizeApp(securityService, authToken,
+          "remove abbreviation", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      contentService.setLastModifiedBy(username);
+    
+      // construct list of ids to remove based on query and query restriction
+      List<Long> idsToRemove = new ArrayList<>();
+      if (query != null || (pfs != null && pfs.getQueryRestriction() != null)) {
+        PfsParameter lpfs = new PfsParameterJpa(pfs);
+        lpfs.setStartIndex(-1);
+        lpfs.setMaxResults(-1);
+        lpfs.setSortField(null);
+        final SearchResultList searchResults =
+            contentService.findConceptSearchResults(project.getTerminology(),
+                project.getVersion(), project.getBranch(), query, lpfs);
+        for (SearchResult sr : searchResults.getObjects()) {
+          idsToRemove.add(sr.getId());
+        }
+      } 
+      
+      // if no query or query restriction, get all concept ids
+      else {
+        contentService.getAllConceptIds(project.getTerminology(),
+            project.getVersion(), project.getBranch());
+      }
+      
+      contentService.setTransactionPerOperation(false);
+      contentService.beginTransaction();
+
+      // cycle over ids
+      for (Long conceptId : idsToRemove) {
+
+        final Concept concept = contentService.getConcept(conceptId);
+        if (concept == null) {
+          throw new Exception("Unexpected concept id = " + conceptId);
+        }
+
+        // remove collections
+        for (Atom atom : concept.getAtoms()) {
+          contentService.removeAtom(atom.getId());
+        }
+        for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+          contentService.removeSemanticTypeComponent(sty.getId());
+        }
+
+        // remove the concept itself
+        contentService.removeConcept(conceptId);
+      }
+
+      contentService.commit();
+    } catch (Exception e) {
+      handleException(e, "trying to remove concepts ");
+      contentService.rollback();
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
 }

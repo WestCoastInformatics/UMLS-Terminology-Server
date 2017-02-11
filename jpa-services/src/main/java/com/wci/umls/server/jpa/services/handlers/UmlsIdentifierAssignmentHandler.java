@@ -353,6 +353,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         } else {
           identity.setComponentId(component.getTerminologyId());
         }
+        if (identity.getComponentId() == null) {
+          throw new Exception("unexpected null terminology id " + component);
+        }
         identity.setComponentTerminology(component.getTerminology());
         identity.setComponentType(component.getType());
         identity.setTerminology(attribute.getTerminology());
@@ -678,7 +681,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       final String idStr = id.toString();
       final int startIndex = idStr.length() + 19 - length;
       final String convertedId = prefixMap.get(type)
-          + ("000000000000000000" + idStr).substring(startIndex);
+          + ("0000000000000000000" + idStr).substring(startIndex);
       return convertedId;
     } else {
       return prefixMap.get(type) + id;
