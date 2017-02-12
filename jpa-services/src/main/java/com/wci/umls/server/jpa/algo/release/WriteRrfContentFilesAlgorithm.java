@@ -973,10 +973,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       sb.append("CUI").append("|");
       // REL
       sb.append(rel.getRelationshipType()).append("|");
-      // AUI2
-      sb.append("|");
       // CUI2
       sb.append(rel.getFrom().getTerminologyId()).append("|");
+      // AUI2
+      sb.append("|");
       // STYPE2
       sb.append("CUI").append("|");
       // RELA

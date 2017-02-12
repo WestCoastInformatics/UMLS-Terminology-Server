@@ -606,6 +606,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(entry.getExpandedForm()).append("|");
       outputLines.add(sb.toString());
     }
+    
+    // A few need to be hardcoded
+    outputLines.add("MAPATN|ACTIVE|expanded_form|Active|");
+    outputLines.add("MAPATN||expanded_form|Empty attribute name|");
+    outputLines.add("REL|DEL|expanded_form|Deleted concept|");
+    outputLines.add("REL||expanded_form|Empty relationship|");
 
     // sort and write to file
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
