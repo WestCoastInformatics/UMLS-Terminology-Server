@@ -1428,13 +1428,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         continue;
       }
 
-      // Skip LT attributes entirely
-      // There are issues with the SAB of the atom and the SAB of the LT
-      // attribute that need resolving
-      if (fields[8].equals("LT")) {
-        continue;
-      }
-
       // Field Description
       // 0 CUI
       // 1 LUI
