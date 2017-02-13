@@ -172,6 +172,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             + "  and c.publishable = true order by c.terminologyId",
         QueryType.JQL, params, ConceptJpa.class);
     commitClearBegin();
+    steps = conceptIds.size();
 
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);

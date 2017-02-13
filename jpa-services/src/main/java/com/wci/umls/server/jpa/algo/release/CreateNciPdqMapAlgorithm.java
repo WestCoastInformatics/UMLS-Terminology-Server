@@ -361,6 +361,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         m.setFromIdType(IdType.DESCRIPTOR);
         m.setFromName("");
         m.setFromTerminologyId(resultArray[0].toString());
+        m.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
+            resultArray[0].toString());
         m.setGroup("");
         m.setMapSet(mapSet);
         // * use mapRank=1 if term-types are PT->PT, PT->PSC, or PT->HT
@@ -382,6 +384,9 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         m.setToIdType(IdType.CONCEPT);
         m.setToName("");
         m.setToTerminologyId(resultArray[1].toString());
+        m.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
+            resultArray[1].toString());
+        
 
         m.setTerminologyId(handler.getTerminologyId(m));
 
