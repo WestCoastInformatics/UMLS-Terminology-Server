@@ -756,6 +756,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         sb.append("CUI");
       } else if (mapping.getFromIdType().toString().equals("CONCEPT")) {
         sb.append("SCUI");
+      } else {
+        mapping.getFromIdType().toString();
       }
       sb.append("|");
       // FROMRULE
@@ -800,6 +802,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         sb.append("CUI");
       } else if (mapping.getToIdType().toString().equals("CONCEPT")) {
         sb.append("SCUI");
+      } else {
+        mapping.getToIdType().toString();
       }
       sb.append("|");
       // TORULE
