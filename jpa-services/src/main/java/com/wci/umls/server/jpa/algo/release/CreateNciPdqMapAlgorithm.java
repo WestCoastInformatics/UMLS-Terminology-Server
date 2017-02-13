@@ -342,6 +342,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     jpaQuery =
         getEntityManager().createQuery(query);
     jpaQuery.setParameter("projectTerminology", getProject().getTerminology());
+    @SuppressWarnings("unchecked")
     List<Object[]> results = jpaQuery.getResultList();
     Set<String> descriptorIdConceptIdCache = new HashSet<>();
     // Iterate through each result

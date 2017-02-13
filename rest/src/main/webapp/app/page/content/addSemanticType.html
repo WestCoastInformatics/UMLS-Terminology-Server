@@ -1,37 +1,38 @@
 
 <div class="modal-header">
-	<h4 style="display: inline">Add Semantic Type</h4>
-	<span style="float: right"> <i
-		class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
-	</span>
+  <h4 style="display: inline">Add Semantic Type</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">
-	<div>
-		<div pager paging="paging['stys']" data="stysForDisplay" callbacks="styPageCallbacks"></div>
+  <div>
+    <div pager paging="paging['stys']" data="stysForDisplay"
+      callbacks="styPageCallbacks"></div>
 
-		<table class="slim table">
-			<thead>
-				<tr>
-					<th>Semantic Type</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tr ng-repeat="semanticType in pagedStys.data">
-				<td>{{semanticType.expandedForm}}</td>
-				<td><button class="btn btn-xs btn-primary"
-						ng-click="submitSemanticType(semanticType)">Add</button></td>
-			</tr>
-		</table>
-		
-		{{pagedStys.length}}
+    <table class="slim table">
+      <thead>
+        <tr>
+          <th>Semantic Type</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tr ng-repeat="semanticType in pagedStys.data">
+        <td>{{semanticType.expandedForm}}</td>
+        <td>
+          <button class="btn btn-xs btn-primary"
+            ng-click="submitSemanticType(semanticType)">Add</button>
+        </td>
+      </tr>
+    </table>
+    {{pagedStys.length}}
 
+    <!-- Errors -->
+    <div errors="errors"></div>
+  </div>
 
-		<!-- Errors -->
-		<div errors="errors"></div>
-	</div>
-
-	<div class="modal-footer">
-		<span class="btn btn-warning" ng-click="cancel()">Cancel</span>
-	</div>
-	</form>
+  <div class="modal-footer">
+    <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
+  </div>
+</div>

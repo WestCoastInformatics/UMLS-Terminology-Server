@@ -783,10 +783,12 @@ public interface WorkflowServiceRest {
   /**
    * Gets the workflow epochs.
    *
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the workflow epochs
    * @throws Exception the exception
    */
-  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken) throws Exception;
+  public WorkflowEpochList getWorkflowEpochs(Long projectId, String authToken)
+    throws Exception;
 
 }

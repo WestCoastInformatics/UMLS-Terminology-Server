@@ -1022,7 +1022,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Create and set up a NCI_2016_05E insertion process and algorithm
+   * Create and set up a NCI_2016_11D insertion process and algorithm
    * configurations
    *
    * @param project1 the project 1
@@ -1037,15 +1037,15 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for NCI_2016_05E");
+    processConfig.setDescription("Insertion process for NCI");
     processConfig.setFeedbackEmail(null);
-    processConfig.setName("Insertion process for NCI_2016_05E");
+    processConfig.setName("Insertion process for NCI");
     processConfig.setProject(project1);
     processConfig.setTerminology("NCI");
-    processConfig.setVersion("2016_05E");
+    processConfig.setVersion("2016_11D");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Insertion");
-    processConfig.setInputPath("inv/NCI_2016_05E/insert");
+    processConfig.setInputPath("inv/NCI_2016_11D/insert");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -1431,10 +1431,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig
-        .setDescription("Insertion process for SNOMEDCT_US_2016_09_01");
+    processConfig.setDescription("Insertion process for SNOMEDCT_US");
     processConfig.setFeedbackEmail(null);
-    processConfig.setName("Insertion process for SNOMEDCT_US_2016_09_01");
+    processConfig.setName("Insertion process for SNOMEDCT_US");
     processConfig.setProject(project1);
     processConfig.setTerminology("SNOMEDCT_US");
     processConfig.setVersion("2016_09_01");
@@ -2972,6 +2971,14 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken);
   }
 
+  /**
+   * Creates the remap component info relationships processes.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @SuppressWarnings("static-method")
   private void createRemapComponentInfoRelationshipsProcesses(Project project1,
     Long projectId, String authToken) throws Exception {
