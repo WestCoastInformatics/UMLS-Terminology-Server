@@ -681,7 +681,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       final String idStr = id.toString();
       final int startIndex = idStr.length() + 19 - length;
       final String convertedId = prefixMap.get(type)
-          + ("000000000000000000" + idStr).substring(startIndex);
+          + ("0000000000000000000" + idStr).substring(startIndex);
       return convertedId;
     } else {
       return prefixMap.get(type) + id;
