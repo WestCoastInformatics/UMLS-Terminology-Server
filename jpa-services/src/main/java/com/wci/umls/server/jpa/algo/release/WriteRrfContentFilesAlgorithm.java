@@ -639,7 +639,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   }
 
   /**
-   * Write mrsty.
+   * Write mrmap.
    *
    * @param mapset the mapset
    * @param terminologyId the terminology id
@@ -2131,7 +2131,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     if (currentProgress > previousProgress) {
       checkCancel();
       fireProgressEvent(currentProgress,
-          "RRF METADATA progress: " + currentProgress + "%");
+          "RRF CONTENT progress: " + currentProgress + "%");
       previousProgress = currentProgress;
     }
   }
