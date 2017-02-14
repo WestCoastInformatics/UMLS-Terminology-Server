@@ -132,8 +132,23 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
         throw new Exception(
             "Only a concept that exists can be udpated: " + concept);
       }
+      // Load old concept
+      final Concept oldConcept = contentService.getConcept(concept.getId());
+
+      // Update fields
+      oldConcept.setWorkflowStatus(concept.getWorkflowStatus());
+
+      // Verify no other first order fields changed
+      final String oldStr = ConfigUtility.getFirstOrderFieldHash(oldConcept);
+      final String newStr = ConfigUtility.getFirstOrderFieldHash(concept);
+      if (!oldStr.equals(newStr)) {
+        Logger.getLogger(getClass()).error("old = " + oldStr);
+        Logger.getLogger(getClass()).error("new = " + newStr);
+        throw new Exception("Unexpected attempt to change a first order field");
+      }
+
       // Update concept
-      contentService.updateConcept(concept);
+      contentService.updateConcept(oldConcept);
 
     } catch (Exception e) {
       handleException(e, "trying to update a concept");
@@ -376,8 +391,21 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
         throw new Exception(
             "Only a concept that exists can be udpated: " + atom);
       }
+      final Atom oldAtom = contentService.getAtom(atom.getId());
+
+      // Apply "atom" changes to "old atom"
+      oldAtom.setWorkflowStatus(atom.getWorkflowStatus());
+
+      // Verify no other first order fields changed
+      final String oldStr = ConfigUtility.getFirstOrderFieldHash(oldAtom);
+      final String newStr = ConfigUtility.getFirstOrderFieldHash(atom);
+      if (!oldStr.equals(newStr)) {
+        Logger.getLogger(getClass()).error("old = " + oldStr);
+        Logger.getLogger(getClass()).error("new = " + newStr);
+        throw new Exception("Unexpected attempt to change a first order field");
+      }
       // Update atom
-      contentService.updateAtom(atom);
+      contentService.updateAtom(oldAtom);
 
     } catch (Exception e) {
       handleException(e, "trying to update a atom");
@@ -476,8 +504,24 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
             "Only a relationship that exists can be udpated: " + relationship);
       }
 
+      // Load old concept
+      final ConceptRelationship oldRel = (ConceptRelationship) contentService
+          .getRelationship(relationship.getId(), ConceptRelationshipJpa.class);
+
+      // Update fields
+      oldRel.setWorkflowStatus(relationship.getWorkflowStatus());
+
+      // Verify no other first order fields changed
+      final String oldStr = ConfigUtility.getFirstOrderFieldHash(oldRel);
+      final String newStr = ConfigUtility.getFirstOrderFieldHash(relationship);
+      if (!oldStr.equals(newStr)) {
+        Logger.getLogger(getClass()).error("old = " + oldStr);
+        Logger.getLogger(getClass()).error("new = " + newStr);
+        throw new Exception("Unexpected attempt to change a first order field");
+      }
+
       // Update relationship
-      contentService.updateRelationship(relationship);
+      contentService.updateRelationship(oldRel);
 
     } catch (Exception e) {
       handleException(e, "trying to add a relationship");

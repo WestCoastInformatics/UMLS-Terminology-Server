@@ -363,7 +363,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
-          + " Terminology Ids from database for terminology " + terminology);
+          + "Relationship Terminology Ids from database for terminology " + terminology);
 
       final List<Object[]> list = jpaQuery.getResultList();
       for (final Object[] entry : list) {
