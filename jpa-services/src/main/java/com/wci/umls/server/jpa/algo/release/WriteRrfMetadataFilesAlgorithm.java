@@ -221,7 +221,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
                 // Try modified above instead
                    /* " atoms.codeId:\"V-" + term.getTerminology() + "_"
                     + term.getVersion() + "\""*/
-                + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+                + " AND atoms.terminology:SRC AND atoms.termType:VPT",
             null);
         if (results.size() > 0) {
           vcui = getConcept(results.getObjects().get(0).getId())
