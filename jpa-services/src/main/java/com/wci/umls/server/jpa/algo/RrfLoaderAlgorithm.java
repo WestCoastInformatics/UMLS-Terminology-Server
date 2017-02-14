@@ -730,8 +730,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         relMap.put(fields[1], rel);
         // Logger.getLogger(getClass())
         // .info(" add relationship type - " + rel);
-      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
-          && !fields[1].equals("SIB")) {
+      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")/*
+          && !fields[1].equals("SIB")*/) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {
@@ -1425,13 +1425,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // Skip SRC content for "multi" load
       if (style == Style.MULTI && fields[9].equals("SRC")) {
-        continue;
-      }
-
-      // Skip LT attributes entirely
-      // There are issues with the SAB of the atom and the SAB of the LT
-      // attribute that need resolving
-      if (fields[8].equals("LT")) {
         continue;
       }
 
@@ -2221,7 +2214,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // Create subset member and any subset member attributes.
         // NOTE: subset member may already exist.
         // C3853348|L11739318|S14587084|A24131773|AUI|442311000124105|AT200797951|45bb6996-8734-5033-b069-302708da2761|SUBSET_MEMBER|SNOMEDCT_US|900000000000509007~ACCEPTABILITYID~900000000000548007|N||
-        FieldedStringTokenizer.split(fields[10], "~", 3, atvFields);
+        FieldedStringTokenizer.split(fields[10] + "~", "~", 3, atvFields);
         final String subsetIdKey = atvFields[0] + fields[9];
         final String subsetMemberIdKey = fields[7] + fields[9];
         SubsetMember<? extends ComponentHasAttributes, ? extends Subset> member =
@@ -2677,10 +2670,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // empty
         // container for the object with the id set.
 
-        // Skip SIB rels
-        if (fields[3].equals("SIB")) {
-          continue;
-        }
+       
 
         else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
           final AtomRelationship aRel = new AtomRelationshipJpa();
@@ -2735,8 +2725,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           // terminology id
           conceptRel.setTerminologyId(fields[8]);
           setRelationshipFields(fields, conceptRel);
-          conceptRel.setTerminology(getTerminology());
-          conceptRel.setVersion(getVersion());
+          
           addRelationship(conceptRel);
           relationshipMap.put(fields[8], conceptRel.getId());
 

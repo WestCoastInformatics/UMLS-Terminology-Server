@@ -91,8 +91,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
    *
    * @throws Exception the exception
    */
-  private void assignCuis() throws Exception {
-
+  private void assignCuis() throws Exception {   
+    
     // Get a UMLS identity handler
     final UmlsIdentifierAssignmentHandler handler =
         (UmlsIdentifierAssignmentHandler) getIdentifierAssignmentHandler(
@@ -123,12 +123,12 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
         getProject().getVersion());
     prefHandler.cacheList(list);
     int ct = 0;
-    List<Long> atomIds = new ArrayList<>(20000);
+    final List<Long> atomIds = new ArrayList<>(20000);
     for (final Object[] result : ids) {
       final Atom atom = getAtom(Long.valueOf(result[1].toString()));
       final Long conceptId = Long.valueOf(result[0].toString());
       final String rank = new String(prefHandler.getRank(atom, list));
-      Long id = new Long(atom.getId());
+      final Long id = new Long(atom.getId());
       atomRankMap.put(id, rank);
       atomConceptMap.put(atom.getId(), conceptId);
       atomIds.add(atom.getId());
@@ -157,19 +157,19 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
 
       final Atom atom = getAtom(id);
       final String cui =
-          atom.getAlternateTerminologyIds().get(getProject().getTerminology());
-      final Concept concept = getConcept(atomConceptMap.get(id));
+          atom.getConceptTerminologyIds().get(getProject().getTerminology());
 
       // If the CUI is set, assign it to the concept and move on
       if (cui != null) {
-        // If this is already the concept id, move on
-        if (concept.getTerminologyId().equals(cui)) {
-          continue;
-        }
-        // Otherwise assign it
-        concept.setTerminologyId(cui);
-        updateConcept(concept);
+        final Concept concept = getConcept(atomConceptMap.get(id));
         assignedConcepts.add(concept.getId());
+
+        // Assign CUI if not the current CUI
+        if (!concept.getTerminologyId().equals(cui)) {
+          // Otherwise assign it
+          concept.setTerminologyId(cui);
+          updateConcept(concept);
+        }
       }
 
       // otherwise, create a new CUI, assign it ,etc.

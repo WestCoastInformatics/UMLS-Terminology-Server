@@ -186,6 +186,14 @@ public class ComponentInfoRelRemapperAlgorithm
     logInfo("Finished " + getName());
   }
 
+  /**
+   * Returns the type.
+   *
+   * @param idType the id type
+   * @return the type
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
   private String getType(IdType idType) throws Exception {
     final String stringType;
     switch (idType) {

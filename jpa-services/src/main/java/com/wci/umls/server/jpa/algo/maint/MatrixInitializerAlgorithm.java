@@ -154,6 +154,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       int prevProgress = 60;
       int statusChangeCt = 0;
       int publishableChangeCt = 0;
+      int warningCt = 0;
       for (final Long conceptId : conceptsToChange) {
         // If in "updater" mode, skip concepts not accounted for.
         if (conceptIds != null && !conceptIds.contains(conceptId)) {
@@ -197,6 +198,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
         if (makeNeedsReview.contains(conceptId)) {
           status = WorkflowStatus.NEEDS_REVIEW;
+          warningCt++;
           statusChangeCt++;
           logInfo("  status change  = " + concept.getId());
           found = true;
@@ -205,6 +207,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
         if (failures.contains(conceptId)
             && concept.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
           status = WorkflowStatus.NEEDS_REVIEW;
+          warningCt++;
           statusChangeCt++;
           logInfo("  status change (failure)  = " + concept.getId());
           found = true;
@@ -248,6 +251,11 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
           } finally {
             action.close();
           }
+        }
+        
+        if (warningCt> 0) {
+          // Trigger a warning - for "pre production"
+          logWarn("WARNING: some concepts were unapproved = " + warningCt);
         }
 
       }
