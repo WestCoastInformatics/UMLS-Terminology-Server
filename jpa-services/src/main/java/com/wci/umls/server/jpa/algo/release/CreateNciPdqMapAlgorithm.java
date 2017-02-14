@@ -408,7 +408,8 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
             m.getTerminologyId() + "~" +
             m.getAdvice());
         m.getAlternateTerminologyIds().put(getProject().getTerminology(), handler.getTerminologyId(att, xmAtom));
-
+        m.setTerminologyId("");
+        
         addMapping(m);
         mapSet.getMappings().add(m);
 

@@ -320,6 +320,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       if (!origAtui.equals(atui)) {
         sty.setTerminologyId(atui);
         updateSemanticTypeComponent(sty, c);
+      } else {
+        sty.setTerminologyId(origAtui);
       }
 
       // log, commit, check cancel, advance progress

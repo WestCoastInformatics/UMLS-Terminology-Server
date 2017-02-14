@@ -593,7 +593,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       return semanticTypeComponent.getTerminologyId();
     }
 
-    UmlsIdentityService localService = getService();
+    final UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {
