@@ -34,7 +34,7 @@ import com.wci.umls.server.ReleaseProperty;
 @Entity
 @Table(name = "release_infos", uniqueConstraints = {
     @UniqueConstraint(columnNames = {
-        "name", "terminology","version"
+        "terminology","version"
     })
 })
 @Audited
