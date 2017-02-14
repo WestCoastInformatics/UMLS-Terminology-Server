@@ -243,7 +243,7 @@ public class MetadataLoaderAlgorithm
 
       commitClearBegin();
 
-      logInfo("Finished "+getName());
+      logInfo("Finished " + getName());
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
@@ -382,8 +382,7 @@ public class MetadataLoaderAlgorithm
         existingRootTerm.setTimestamp(runDate);
         existingRootTerm.setLanguage(fields[15]);
 
-        logInfo(
-            "  update root terminology = " + existingRootTerm);
+        logInfo("  update root terminology = " + existingRootTerm);
         updateRootTerminology(existingRootTerm);
         getCachedRootTerminologies().put(existingRootTerm.getTerminology(),
             existingRootTerm);
@@ -909,8 +908,7 @@ public class MetadataLoaderAlgorithm
           if (updatedPrecedences.contains(lowTermGroup)) {
             final int indexOfLowTermGroup =
                 updatedPrecedences.getKeyValuePairs().indexOf(lowTermGroup);
-            logInfo("  add " + highTermGroup + " above "
-                + lowTermGroup);
+            logInfo("  add " + highTermGroup + " above " + lowTermGroup);
             updatedPrecedences.getKeyValuePairs().add(indexOfLowTermGroup,
                 highTermGroup);
             insertionPerformed = true;
@@ -932,7 +930,7 @@ public class MetadataLoaderAlgorithm
         list.setPrecedence(updatedPrecedences);
         // NOTE this is tied to setup of precedence lists at the top of this
         // method
-        logInfo("  update "            
+        logInfo("  update "
             + (list.getId().equals(getProject().getPrecedenceList().getId())
                 ? "project" : "default")
             + " precedence list = " + list);
