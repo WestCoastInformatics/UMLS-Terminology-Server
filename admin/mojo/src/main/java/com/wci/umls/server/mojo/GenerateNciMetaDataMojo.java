@@ -429,11 +429,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("NCI")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     // SNOMEDCT_US
@@ -463,11 +463,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     // leftovers
@@ -497,12 +497,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             && !atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
 
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     //
