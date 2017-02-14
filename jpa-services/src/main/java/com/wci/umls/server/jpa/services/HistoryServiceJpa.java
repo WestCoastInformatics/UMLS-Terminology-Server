@@ -118,10 +118,10 @@ public class HistoryServiceJpa extends ContentServiceJpa
 
   /* see superclass */
   @Override
-  public ReleaseInfo getReleaseInfo(String terminology, String name)
+  public ReleaseInfo getReleaseInfo(String terminology, String version)
     throws ParseException {
     Logger.getLogger(getClass()).debug(
-        "History Service - get release info " + terminology + ", " + name);
+        "History Service - get release info " + terminology + ", " + version);
     javax.persistence.Query query =
         manager.createQuery("select r from ReleaseInfoJpa r "
             + "where name = :name " + "and terminology = :terminology");
@@ -130,7 +130,7 @@ public class HistoryServiceJpa extends ContentServiceJpa
      * result are returned, log error and set result to null
      */
     try {
-      query.setParameter("name", name);
+      query.setParameter("version", version);
       query.setParameter("terminology", terminology);
       return (ReleaseInfo) query.getSingleResult();
     } catch (NoResultException e) {
