@@ -11,6 +11,7 @@ import com.wci.umls.server.helpers.HasLastModified;
  */
 public interface Component extends HasLastModified, ComponentInfo {
 
+  
   /**
    * Indicates whether or not the component is obsolete.
    *
