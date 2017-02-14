@@ -351,7 +351,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             throw new Exception(
                 "Unexpected number of project concepts contain atom " + atomId);
           }
-          
+
           final Concept projectConcept = concepts.getObjects().get(0);
           Atom placeholderAtom = new AtomJpa();
           placeholderAtom

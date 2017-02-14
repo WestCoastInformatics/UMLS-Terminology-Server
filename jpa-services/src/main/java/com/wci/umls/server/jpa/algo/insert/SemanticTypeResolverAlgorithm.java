@@ -162,8 +162,8 @@ public class SemanticTypeResolverAlgorithm
 
       commitClearBegin();
 
-      logInfo(" removed  " + (winLose.equals("win") ? " old " : " new ")
-          + " count = " + removedStyCount);
+      logInfo("  removed" + (winLose.equals("win") ? " old " : " new ")
+          + "count = " + removedStyCount);
 
       // Produce the sty_term_ids file for inverters
       // Get all (project term & version) concepts that contain (process

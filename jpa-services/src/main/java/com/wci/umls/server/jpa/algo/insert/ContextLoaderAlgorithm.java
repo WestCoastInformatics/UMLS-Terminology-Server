@@ -243,7 +243,7 @@ public class ContextLoaderAlgorithm
   private int removeTreePositions(Terminology term) throws Exception {
     int removedCount = 0;
 
-    logInfo("[ContextLoader] Removing tree positions for terminology: "
+    logInfo("  Removing tree positions for terminology: "
         + term.getTerminology() + ", version: " + term.getVersion());
 
     IdType organizingClassType = term.getOrganizingClassType();
@@ -280,8 +280,7 @@ public class ContextLoaderAlgorithm
    * @throws Exception the exception
    */
   private void computeContexts(Terminology terminology) throws Exception {
-    logInfo(
-        "[ContextLoader] Compute contexts for " + terminology.getTerminology());
+    logInfo("  Compute contexts for " + terminology.getTerminology());
 
     // Check for a cancelled call before starting
     checkCancel();
@@ -593,8 +592,9 @@ public class ContextLoaderAlgorithm
     // srcDirFile is set.
     checkPreconditions();
 
-    logInfo(
-        "[ContextLoader] Reset: removing all Tree Positions added by previous run");
+    logInfo("Reset " + getName()
+        + ": removing all Tree Positions added by previous run");
+
     //
     // Load the contexts.src file
     //
