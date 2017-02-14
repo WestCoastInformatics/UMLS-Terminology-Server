@@ -220,7 +220,7 @@ tsApp.service('editService', [
       var deferred = $q.defer();
 
       gpService.increment();
-      $http.post(editUrl + '/concept/remove?projectId=' + projectId + (query ? '&query=' + query : ''), pfs).then(
+      $http.post(editUrl + '/concepts/remove?projectId=' + projectId + (query ? '&query=' + query : ''), pfs).then(
       // success
       function(response) {
         console.debug('  successful remove concepts');

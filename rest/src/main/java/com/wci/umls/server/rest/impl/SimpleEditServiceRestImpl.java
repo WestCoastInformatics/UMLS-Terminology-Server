@@ -593,7 +593,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "remove concepts from project", UserRole.USER);
       final Project project = contentService.getProject(projectId);
       contentService.setLastModifiedBy(userName);
-    
+      
       // construct list of ids to remove based on query and query restriction
       List<Long> idsToRemove = new ArrayList<>();
       if (query != null || (pfs != null && pfs.getQueryRestriction() != null)) {
@@ -616,6 +616,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       }
       
       contentService.setTransactionPerOperation(false);
+      contentService.setMolecularActionFlag(false);
       contentService.beginTransaction();
 
       // cycle over ids
