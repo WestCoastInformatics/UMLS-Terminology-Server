@@ -730,8 +730,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         relMap.put(fields[1], rel);
         // Logger.getLogger(getClass())
         // .info(" add relationship type - " + rel);
-      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")
-          && !fields[1].equals("SIB")) {
+      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")/*
+          && !fields[1].equals("SIB")*/) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {

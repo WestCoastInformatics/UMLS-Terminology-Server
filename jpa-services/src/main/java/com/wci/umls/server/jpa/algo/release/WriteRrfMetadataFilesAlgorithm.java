@@ -217,11 +217,8 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         results = findConceptSearchResults(getProject().getTerminology(),
             getProject().getVersion(), getProject().getBranch(),
             " atoms.codeId:V-" + term.getTerminology() + "_"
-                + term.getVersion() 
-                // Try modified above instead
-                   /* " atoms.codeId:\"V-" + term.getTerminology() + "_"
-                    + term.getVersion() + "\""*/
-                + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+                + term.getVersion()                 
+                + " AND atoms.terminology:SRC AND atoms.termType:VPT",
             null);
         if (results.size() > 0) {
           vcui = getConcept(results.getObjects().get(0).getId())
@@ -240,7 +237,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       // 1 RCUI
       sb.append(rcui).append("|");
       // 2 VSAB
-      sb.append(term.getTerminology()).append("|");
+      sb.append(term.getTerminology() + "_" + term.getVersion()).append("|");
       // 3 RSAB
       sb.append(term.getRootTerminology().getTerminology()).append("|");
       // 4 SON
@@ -357,7 +354,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
    * @return the cfr
    */
   private String getCfr(String terminology) {
-    String queryStr = "select count(*) "
+    String queryStr = "select count(distinct terminologyId) "
         + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology"
         + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);

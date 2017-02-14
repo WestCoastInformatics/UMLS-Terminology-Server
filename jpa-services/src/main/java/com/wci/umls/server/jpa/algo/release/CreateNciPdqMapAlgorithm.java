@@ -222,33 +222,33 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     // * publishable, not published.
     IdentifierAssignmentHandler handler =
       getIdentifierAssignmentHandler(getProject().getTerminology());
-    Atom atom = new AtomJpa();
-    atom.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion() + " Mappings");
-    atom.setTerminology(pdq.getTerminology());
-    atom.setCodeId("100001");
-    atom.setVersion(pdq.getVersion());
-    atom.setObsolete(false);
-    atom.setSuppressible(false);
-    atom.setPublishable(true);
-    atom.setPublished(false);
-    atom.setConceptId("");
-    atom.setDescriptorId(""); 
-    atom.setLanguage("ENG");
-    atom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+    Atom xmAtom = new AtomJpa();
+    xmAtom.setName("PDQ_" + pdq.getVersion() + " to NCI_" + nci.getVersion() + " Mappings");
+    xmAtom.setTerminology(pdq.getTerminology());
+    xmAtom.setCodeId("100001");
+    xmAtom.setVersion(pdq.getVersion());
+    xmAtom.setObsolete(false);
+    xmAtom.setSuppressible(false);
+    xmAtom.setPublishable(true);
+    xmAtom.setPublished(false);
+    xmAtom.setConceptId("");
+    xmAtom.setDescriptorId(""); 
+    xmAtom.setLanguage("ENG");
+    xmAtom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
     final StringClass strClass = new StringClassJpa();
-    strClass.setLanguage(atom.getLanguage());
-    strClass.setName(atom.getName());
-    atom.setStringClassId(handler.getTerminologyId(strClass));
+    strClass.setLanguage(xmAtom.getLanguage());
+    strClass.setName(xmAtom.getName());
+    xmAtom.setStringClassId(handler.getTerminologyId(strClass));
     final LexicalClass lexClass = new LexicalClassJpa();
-    lexClass.setLanguage(atom.getLanguage());
-    lexClass.setNormalizedName(getNormalizedString(atom.getName()));
-    atom.setLexicalClassId(handler.getTerminologyId(lexClass));
-    atom.setTermType("XM"); 
-    atom.setTerminologyId("");
-    atom.getAlternateTerminologyIds().put(getProject().getTerminology(), handler.getTerminologyId(atom));
+    lexClass.setLanguage(xmAtom.getLanguage());
+    lexClass.setNormalizedName(getNormalizedString(xmAtom.getName()));
+    xmAtom.setLexicalClassId(handler.getTerminologyId(lexClass));
+    xmAtom.setTermType("XM"); 
+    xmAtom.setTerminologyId("");
+    xmAtom.getAlternateTerminologyIds().put(getProject().getTerminology(), handler.getTerminologyId(xmAtom));
        
-    addAtom(atom);
-    concept.getAtoms().add(atom);
+    addAtom(xmAtom);
+    concept.getAtoms().add(xmAtom);
     updateConcept(concept);
 
     // 5b. Create a "code" for the PDQ/XM atom
@@ -262,7 +262,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     code.setPublishable(true);
     code.setPublished(false);
     code.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
-    code.getAtoms().add(atom);
+    code.getAtoms().add(xmAtom);
     addCode(code);
     
     
@@ -361,7 +361,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         m.setFromIdType(IdType.DESCRIPTOR);
         m.setFromName("");
         m.setFromTerminologyId(resultArray[0].toString());
-        m.getAlternateTerminologyIds().put(getTerminology() + "-FROMID",
+        m.getAlternateTerminologyIds().put(getProject().getTerminology() + "-FROMID",
             resultArray[0].toString());
         m.setGroup("");
         m.setMapSet(mapSet);
@@ -384,11 +384,29 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         m.setToIdType(IdType.CONCEPT);
         m.setToName("");
         m.setToTerminologyId(resultArray[1].toString());
-        m.getAlternateTerminologyIds().put(getTerminology() + "-TOID",
+        m.getAlternateTerminologyIds().put(getProject().getTerminology() + "-TOID",
             resultArray[1].toString());
         
 
-        m.setTerminologyId(handler.getTerminologyId(m));
+        final Attribute att = new AttributeJpa();
+        att.setName("XMAP");
+        att.setPublishable(true);
+        att.setTerminology(m.getTerminology());
+        att.setVersion(m.getVersion());
+        att.setTerminologyId("");
+        att.setValue(m.getGroup() + "~" +
+            m.getRank() + "~" +
+            m.getAlternateTerminologyIds().get(getProject().getTerminology() + "-FROMID") + "~" +
+            m.getRelationshipType() + "~" +
+            m.getAdditionalRelationshipType() + "~" + 
+            m.getAlternateTerminologyIds().get(getProject().getTerminology() + "-TOID") + "~" +
+            m.getRule() + "~" +
+            mapSet.getMapType() + "~" +
+            "~" +
+            "~" + 
+            m.getTerminologyId() + "~" +
+            m.getAdvice());
+        m.getAlternateTerminologyIds().put(getProject().getTerminology(), handler.getTerminologyId(att, xmAtom));
 
         addMapping(m);
         mapSet.getMappings().add(m);
