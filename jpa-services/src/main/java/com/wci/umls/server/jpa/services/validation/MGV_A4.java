@@ -36,42 +36,46 @@ public class MGV_A4 extends AbstractValidationCheck {
     ValidationResult result = new ValidationResultJpa();
 
     // Only run this check on merge and move actions
-    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+    if (!(action instanceof MergeMolecularAction
+        || action instanceof MoveMolecularAction)) {
       return result;
     }
-    
+
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
         ? action.getConcept2() : action.getConcept());
     final Concept target = (action instanceof MergeMolecularAction
         ? action.getConcept() : action.getConcept2());
-    final List<Atom> source_atoms = (action instanceof MoveMolecularAction
-        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
+    final List<Atom> sourceAtoms = (action instanceof MoveMolecularAction
+        ? ((MoveMolecularAction) action).getMoveAtoms() : source.getAtoms());
 
     //
     // Obtain target atoms
     //
-    List<Atom> target_atoms = target.getAtoms();
+    final List<Atom> targetAtoms = target.getAtoms();
 
     //
     // Find publishable atom from source concept
     // having different last release cui from publishable
     // target concept atom.
     //
-    for (Atom sourceAtom : source_atoms) {
-      if (sourceAtom.isPublishable() && sourceAtom.getConceptTerminologyIds()
-          .get(source.getTerminology()) != null) {
-        for (Atom targetAtom : target_atoms) {
-          if (targetAtom.isPublishable()
+    final String projectTerminology = action.getProject().getTerminology();
+    for (final Atom sourceAtom : sourceAtoms) {
+      if ((sourceAtom.isPublishable()
+          || sourceAtom.getTerminology().equals(source.getTerminology()))
+          && sourceAtom.getConceptTerminologyIds()
+              .get(projectTerminology) != null) {
+        for (final Atom targetAtom : targetAtoms) {
+          if ((targetAtom.isPublishable()
+              || targetAtom.getTerminology().equals(target.getTerminology()))
               && targetAtom.getConceptTerminologyIds()
-                  .get(source.getTerminology()) != null
-              && !targetAtom.getConceptTerminologyIds()
-                  .get(source.getTerminology())
+                  .get(projectTerminology) != null
+              && !targetAtom.getConceptTerminologyIds().get(projectTerminology)
                   .equals(sourceAtom.getConceptTerminologyIds()
-                      .get(source.getTerminology()))) {
-            result.getErrors().add(getName()
-                + ": Publishable atom in source concept has different Concept Terminology Id than publishable atom in target concept.");
+                      .get(projectTerminology))) {
+            result.getErrors()
+                .add(getName() + ": different last published cui.");
             return result;
           }
         }
