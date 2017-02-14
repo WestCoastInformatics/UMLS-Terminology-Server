@@ -354,7 +354,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
    * @return the cfr
    */
   private String getCfr(String terminology) {
-    String queryStr = "select count(distinct terminologyId) "
+    String queryStr = "select count(distinct c.terminologyId) "
         + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology"
         + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
