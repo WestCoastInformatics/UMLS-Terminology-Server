@@ -1084,7 +1084,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             .append("|");
         sb.append("AUI").append("|");
         sb.append(r.getRelationshipType()).append("|");
-        final String aui2 = r.getTo().getAlternateTerminologyIds()
+        final String aui2 = r.getFrom().getAlternateTerminologyIds()
             .get(getProject().getTerminology());
         sb.append(auiCuiMap.get(aui2)).append("|");
         sb.append(aui2).append("|");
@@ -1127,7 +1127,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               .append("|");
           sb.append("SCUI").append("|");
           sb.append(rel.getRelationshipType()).append("|");
-          final String aui2 = conceptAuiMap.get(scui.getId());
+          final String aui2 = conceptAuiMap.get(rel.getFrom().getId());
           sb.append(auiCuiMap.get(aui2)).append("|");
           sb.append(aui2).append("|");
           sb.append("SCUI").append("|");
@@ -1173,16 +1173,16 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
                                                                                  // REL
           // determine aui2
           String aui2 = "";
-          if (rel.getTo().getType().equals("CONCEPT")) {
+          if (rel.getFrom().getType().equals("CONCEPT")) {
             aui2 = conceptAuiMap.get(scui.getId());
-          } else if (rel.getTo().getType().equals("CODE")) {
+          } else if (rel.getFrom().getType().equals("CODE")) {
             aui2 = codeAuiMap.get(scui.getId());
-          } else if (rel.getTo().getType().equals("DESCRIPTOR")) {
+          } else if (rel.getFrom().getType().equals("DESCRIPTOR")) {
             aui2 = descriptorAuiMap.get(scui.getId());
           }
           sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
           sb.append(aui2).append("|"); // 5 AUI2
-          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(rel.getFrom().getType()).append("|"); // 6 STYPE2
           sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType()))
               .append("|"); // 7 RELA
           final String rui = rel.getAlternateTerminologyIds()
@@ -1226,7 +1226,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               .append("|"); // 1 AUI1
           sb.append("CODE").append("|"); // 2 STYPE1
           sb.append(rel.getRelationshipType()).append("|"); // 3 REL
-          final String aui2 = codeAuiMap.get(code.getId());
+          final String aui2 = codeAuiMap.get(rel.getFrom().getId());
           sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
           sb.append(aui2).append("|"); // 5 AUI2
           sb.append("CODE").append("|"); // 6 STYPE2
@@ -1273,16 +1273,16 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
                                                                                  // REL
           // determine aui2
             String aui2 = "";
-          if (rel.getTo().getType().equals("CONCEPT")) {
+          if (rel.getFrom().getType().equals("CONCEPT")) {
             aui2 = conceptAuiMap.get(code.getId());
-          } else if (rel.getTo().getType().equals("CODE")) {
+          } else if (rel.getFrom().getType().equals("CODE")) {
             aui2 = codeAuiMap.get(code.getId());
-          } else if (rel.getTo().getType().equals("DESCRIPTOR")) {
+          } else if (rel.getFrom().getType().equals("DESCRIPTOR")) {
             aui2 = descriptorAuiMap.get(code.getId());
           }
           sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
           sb.append(aui2).append("|"); // 5 AUI2
-          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(rel.getFrom().getType()).append("|"); // 6 STYPE2
           sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType()))
               .append("|"); // 7 RELA
           final String rui = rel.getAlternateTerminologyIds()
@@ -1327,7 +1327,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               .append("|"); // 1 AUI1
           sb.append("CODE").append("|"); // 2 STYPE1
           sb.append(rel.getRelationshipType()).append("|"); // 3 REL
-          final String aui2 = descriptorAuiMap.get(descriptor.getId());
+          final String aui2 = descriptorAuiMap.get(rel.getFrom().getId());
           sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
           sb.append(aui2).append("|"); // 5 AUI2
           sb.append("CODE").append("|"); // 6 STYPE2
@@ -1375,16 +1375,16 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
                                                                                  // REL
           // determine aui2
           String aui2 = "";
-          if (rel.getTo().getType().equals("CONCEPT")) {
+          if (rel.getFrom().getType().equals("CONCEPT")) {
             aui2 = conceptAuiMap.get(descriptor.getId());
-          } else if (rel.getTo().getType().equals("CODE")) {
+          } else if (rel.getFrom().getType().equals("CODE")) {
             aui2 = descriptorAuiMap.get(descriptor.getId());
-          } else if (rel.getTo().getType().equals("DESCRIPTOR")) {
+          } else if (rel.getFrom().getType().equals("DESCRIPTOR")) {
             aui2 = descriptorAuiMap.get(descriptor.getId());
           }
           sb.append(auiCuiMap.get(aui2)).append("|"); // 4 CUI2
           sb.append(aui2).append("|"); // 5 AUI2
-          sb.append(rel.getTo().getType()).append("|"); // 6 STYPE2
+          sb.append(rel.getFrom().getType()).append("|"); // 6 STYPE2
           sb.append(relToInverseMap.get(rel.getAdditionalRelationshipType()))
               .append("|"); // 7 RELA
           final  String rui = rel.getAlternateTerminologyIds()
