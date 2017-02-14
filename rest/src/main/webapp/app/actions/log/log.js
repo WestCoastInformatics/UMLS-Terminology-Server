@@ -139,6 +139,14 @@ tsApp.directive('log', [ function() {
             $anchorScroll();
           };
 
+          // Stop polling
+          $scope.stopPolling = function() {
+            if ($scope.pollInterval) {
+              $interval.cancel($scope.pollInterval);
+              $scope.poll = 'false';
+            }
+          };
+
           // Close modal
           $scope.close = function() {
             if ($scope.pollInterval) {
