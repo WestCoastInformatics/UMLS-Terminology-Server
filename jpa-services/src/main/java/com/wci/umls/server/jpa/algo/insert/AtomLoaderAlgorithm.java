@@ -4,6 +4,7 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -14,6 +15,8 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -94,6 +97,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         newIdentifierAssignmentHandler(getProject().getTerminology());
     handler.setTransactionPerOperation(false);
     handler.beginTransaction();
+
+    // Track atoms that have had their last release CUI updated
+    Map<Long, String> atomPrevCuis = new HashMap<>();
 
     try {
 
@@ -261,6 +267,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
               && (altConceptIds.get(getProject().getTerminology()) == null
                   || !altConceptIds.get(getProject().getTerminology())
                       .equals(fields[14]))) {
+            // save atom's previous release CUI (will handle later)
+            atomPrevCuis.put(oldAtom.getId(),
+                altConceptIds.get(getProject().getTerminology()));
             oldAtom.getConceptTerminologyIds()
                 .put(getProject().getTerminology(), fields[14]);
             oldAtomChanged = true;
@@ -306,6 +315,65 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         handler.silentIntervalCommit(getStepsCompleted(), RootService.logCt,
             RootService.commitCt);
 
+      }
+
+      // For all atoms that had their previous release CUI updated,
+      // create placeholder atoms with the old release CUI (used by history
+      // algorithms)
+
+      // Generate parameters to pass into query executions
+      final Map<String, String> params = new HashMap<>();
+      params.put("terminology", getProject().getTerminology());
+      params.put("version", getProject().getVersion());
+
+      for (final Map.Entry<Long, String> entry : atomPrevCuis.entrySet()) {
+        final Long atomId = entry.getKey();
+        final String prevRelCui = entry.getValue();
+        // Perform a lucene search to see if ANY atom in the database still has
+        // the previous release CUI
+        final List<Long> atomIds = executeSingleComponentIdQuery(
+            "atoms.conceptTerminologyIds:\"" + getProject().getTerminology()
+                + "=" + prevRelCui + "\"",
+            QueryType.LUCENE, params, ConceptJpa.class);
+
+        // If any atom has this CUI, no need to make a placeholder
+        if (atomIds.size() > 0) {
+          continue;
+        }
+
+        // Otherwise, find the current concept for this atom, and create a new
+        // placeholder atom in it with the previous release CUI
+        else {
+          final ConceptList concepts = findConcepts(
+              getProject().getTerminology(), getProject().getVersion(),
+              Branch.ROOT, "atoms.id:" + atomId, null);
+          if (concepts.getObjects().size() != 1) {
+            throw new Exception(
+                "Unexpected number of project concepts contain atom " + atomId);
+          }
+          
+          final Concept projectConcept = concepts.getObjects().get(0);
+          Atom placeholderAtom = new AtomJpa();
+          placeholderAtom
+              .setName("Placeholder for last published cui " + prevRelCui);
+          placeholderAtom.setTerminology(getProject().getTerminology());
+          placeholderAtom.setVersion(getProject().getVersion());
+          placeholderAtom.setPublishable(false);
+          placeholderAtom.setPublished(false);
+          placeholderAtom.setObsolete(false);
+          placeholderAtom.setSuppressible(false);
+          final Map<String, String> conceptTerminologyIds = new HashMap<>();
+          conceptTerminologyIds.put(getProject().getTerminology(), prevRelCui);
+          placeholderAtom.setConceptTerminologyIds(conceptTerminologyIds);
+
+          placeholderAtom = addAtom(placeholderAtom);
+          projectConcept.getAtoms().add(placeholderAtom);
+          updateConcept(projectConcept);
+
+          // Commit each time (this way later searches will tell if a concept
+          // already has a placeholder present
+          commitClearBegin();
+        }
       }
 
       commitClearBegin();
