@@ -170,6 +170,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             + "  and c.publishable = true order by c.terminologyId",
         QueryType.JQL, params, ConceptJpa.class);
     commitClearBegin();
+    steps = conceptIds.size();
 
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);
@@ -1029,10 +1030,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       sb.append("CUI").append("|");
       // REL
       sb.append(rel.getRelationshipType()).append("|");
-      // AUI2
-      sb.append("|");
       // CUI2
       sb.append(rel.getFrom().getTerminologyId()).append("|");
+      // AUI2
+      sb.append("|");
       // STYPE2
       sb.append("CUI").append("|");
       // RELA

@@ -217,10 +217,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         results = findConceptSearchResults(getProject().getTerminology(),
             getProject().getVersion(), getProject().getBranch(),
             " atoms.codeId:V-" + term.getTerminology() + "_"
-                + term.getVersion() 
-                // Try modified above instead
-                   /* " atoms.codeId:\"V-" + term.getTerminology() + "_"
-                    + term.getVersion() + "\""*/
+                + term.getVersion()                 
                 + " AND atoms.terminology:SRC AND atoms.termType:VPT",
             null);
         if (results.size() > 0) {
@@ -240,7 +237,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       // 1 RCUI
       sb.append(rcui).append("|");
       // 2 VSAB
-      sb.append(term.getTerminology()).append("|");
+      sb.append(term.getTerminology() + "_" + term.getVersion()).append("|");
       // 3 RSAB
       sb.append(term.getRootTerminology().getTerminology()).append("|");
       // 4 SON
@@ -357,7 +354,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
    * @return the cfr
    */
   private String getCfr(String terminology) {
-    String queryStr = "select count(*) "
+    String queryStr = "select count(distinct terminologyId) "
         + "from ConceptJpa c join c.atoms a where a.terminology = :terminology and c.terminology = :projectTerminology"
         + " and a.publishable = true";
     javax.persistence.Query query = manager.createQuery(queryStr);
@@ -606,6 +603,12 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(entry.getExpandedForm()).append("|");
       outputLines.add(sb.toString());
     }
+    
+    // A few need to be hardcoded
+    outputLines.add("MAPATN|ACTIVE|expanded_form|Active|");
+    outputLines.add("MAPATN||expanded_form|Empty attribute name|");
+    outputLines.add("REL|DEL|expanded_form|Deleted concept|");
+    outputLines.add("REL||expanded_form|Empty relationship|");
 
     // sort and write to file
     final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
