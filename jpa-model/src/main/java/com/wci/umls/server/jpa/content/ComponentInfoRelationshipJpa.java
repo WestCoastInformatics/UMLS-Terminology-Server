@@ -9,6 +9,8 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -24,6 +26,7 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
@@ -59,6 +62,7 @@ public class ComponentInfoRelationshipJpa
   private String fromName;
 
   /** The from type. */
+  @Enumerated(EnumType.STRING)
   private IdType fromType;
 
   /** The to terminology id. */
@@ -74,6 +78,7 @@ public class ComponentInfoRelationshipJpa
   private String toName;
 
   /** The to type. */
+  @Enumerated(EnumType.STRING)
   private IdType toType;
 
   /** The alternate terminology ids. */
@@ -183,6 +188,7 @@ public class ComponentInfoRelationshipJpa
    *
    * @return the from type
    */
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getFromType() {
     return fromType;
@@ -323,6 +329,7 @@ public class ComponentInfoRelationshipJpa
    *
    * @return the to type
    */
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public IdType getToType() {
     return toType;

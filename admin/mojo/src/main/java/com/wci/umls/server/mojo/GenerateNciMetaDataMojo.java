@@ -2834,6 +2834,19 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // TODO - once it's available, add ValidateReleaseAlgorithm
 
     // TODO - once it's available, add RunMetamorphoSysAlgorithm
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RUNMMSYS");
+    algoConfig.setDescription("RUNMMSYS Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RUNMMSYS algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     // TODO - once it's available, add PackageReleaseAlgorithm
 
