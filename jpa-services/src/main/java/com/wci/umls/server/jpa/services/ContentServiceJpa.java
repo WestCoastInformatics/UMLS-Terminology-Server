@@ -3513,11 +3513,20 @@ public class ContentServiceJpa extends MetadataServiceJpa
             + componentInfoId + "/" + terminology + "/" + version + "/" + branch
             + "/" + query + "/" + inverseFlag);
 
-    return findRelationshipsForComponentHelper(componentInfoId, terminology,
-        version, branch,
-        ConfigUtility.isEmpty(query) ? "fromType:" + type
-            : query + " AND fromType:" + type,
-        inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
+    if (inverseFlag) {
+      return findRelationshipsForComponentHelper(componentInfoId, terminology,
+          version, branch,
+          ConfigUtility.isEmpty(query) ? "toType:" + type
+              : query + " AND toType:" + type,
+          inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
+
+    } else {
+      return findRelationshipsForComponentHelper(componentInfoId, terminology,
+          version, branch,
+          ConfigUtility.isEmpty(query) ? "fromType:" + type
+              : query + " AND fromType:" + type,
+          inverseFlag, pfs, ComponentInfoRelationshipJpa.class);
+    }
   }
 
   /* see superclass */
@@ -4825,12 +4834,13 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   /* see superclass */
   @Override
-  public Set<Long> validateConcepts(Project project, String check, Set<Long> conceptIds)
-    throws Exception {
+  public Set<Long> validateConcepts(Project project, String check,
+    Set<Long> conceptIds) throws Exception {
     Logger.getLogger(getClass()).info("  Validate all concepts");
     final Set<Long> failures = new HashSet<>();
     for (final String key : getValidationHandlersMap().keySet()) {
-      if (project.getValidationChecks().contains(key) && (check == null || check.equals(key))) {
+      if (project.getValidationChecks().contains(key)
+          && (check == null || check.equals(key))) {
         final Set<Long> failedCheck =
             getValidationHandlersMap().get(key).validateConcepts(conceptIds,
                 project.getTerminology(), project.getVersion(), this);
