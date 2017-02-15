@@ -2013,7 +2013,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               a.getAlternateTerminologyIds().get(getProject().getTerminology()))
               .append("|");
           sb.append("SCUI").append("|");
-          sb.append(a.getConceptId()).append("|");
+          sb.append(a.getCodeId()).append("|");
           String atui = attribute.getAlternateTerminologyIds()
               .get(getProject().getTerminology());
           sb.append(atui != null ? atui : "").append("|");
@@ -2094,7 +2094,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             sb.append(a.getAlternateTerminologyIds()
                 .get(getProject().getTerminology())).append("|");
             sb.append("SCUI").append("|");
-            sb.append(a.getConceptId()).append("|");
+            sb.append(a.getCodeId()).append("|");
             sb.append(att.getAlternateTerminologyIds()
                 .get(getProject().getTerminology())).append("|");
             sb.append(member.getTerminologyId()).append("|");
@@ -2147,7 +2147,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // STYPE
           sb.append("CODE").append("|");
           // CODE
-          sb.append("|");
+          sb.append(a.getCodeId()).append("|");
           // ATUI
           String atui = attribute.getAlternateTerminologyIds()
               .get(getProject().getTerminology());
@@ -2198,7 +2198,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               a.getAlternateTerminologyIds().get(getProject().getTerminology()))
               .append("|");
           sb.append("SDUI").append("|");
-          sb.append(a.getDescriptorId()).append("|");
+          sb.append(a.getCodeId()).append("|");
           String atui = attribute.getAlternateTerminologyIds()
               .get(getProject().getTerminology());
           sb.append(atui != null ? atui : "").append("|");
