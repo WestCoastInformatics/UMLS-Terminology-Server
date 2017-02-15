@@ -118,7 +118,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   private Map<String, String> terminologyToSrcRhtNameMap = new HashMap<>();
 
   /** The terminology to src atom id map. */
-  private Map<String, String> terminologyToSrcAtomIdMap = new HashMap<>();
+  private Map<String, String> terminologyToSrcAuiMap = new HashMap<>();
+
+  /** The terminology using src root. */
+  private Set<String> terminologyUsingSrcRoot = new HashSet<>();
 
   /** The handler. */
   private SearchHandler handler = null;
@@ -255,19 +258,37 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
               + " AND atoms.terminology:SRC AND atoms.termType:RPT",
           null);
       if (searchResults.size() == 1) {
-        Concept concept = getConcept(searchResults.getObjects().get(0).getId());
+        final Concept concept =
+            getConcept(searchResults.getObjects().get(0).getId());
         for (final Atom a : concept.getAtoms()) {
           if (a.getTermType().equals("RHT") && a.isPublishable()) {
             srcRhtAtom = a;
             break;
           }
         }
+
         if (srcRhtAtom != null) {
-          String srcAtomId = srcRhtAtom.getAlternateTerminologyIds()
+
+          // Look for terminology-specific atom matching RHT on string in same
+          // concept
+          boolean found = false;
+          for (final Atom a : concept.getAtoms()) {
+            if (a.getTerminology().equals(term.getTerminology())
+                && a.isPublishable()
+                && a.getName().equals(srcRhtAtom.getName())) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            terminologyUsingSrcRoot.add(term.getTerminology());
+          }
+
+          final String srcAui = srcRhtAtom.getAlternateTerminologyIds()
               .get(getProject().getTerminology());
-          String name = srcRhtAtom.getName();
+          final String name = srcRhtAtom.getName();
           terminologyToSrcRhtNameMap.put(term.getTerminology(), name);
-          terminologyToSrcAtomIdMap.put(term.getTerminology(), srcAtomId);
+          terminologyToSrcAuiMap.put(term.getTerminology(), srcAui);
         }
       } else {
         logWarn("missing root SRC concept " + term.getTerminology());
@@ -1461,10 +1482,8 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       }
     } // end for(Atom... concept.getAtoms())
 
-    // TODO: deal with PAR/CHD relationships to/from SRC atoms and top-level
-    // things
-    // in hierarchies (these don't get assigned RUIs, and currently there�s an
-    // issue of STYPE changing, etc)
+    // PAR/CHD rels to/from SRC should be addressed by component info rels
+    // sections
 
     Collections.sort(lines);
     return lines;
@@ -1501,14 +1520,14 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         continue;
       }
       int ct = 1;
+      final String aui =
+          atom.getAlternateTerminologyIds().get(getProject().getTerminology());
 
       // Find tree positions for this atom
       for (final AtomTreePosition treepos : handler.getQueryResults(null, null,
           Branch.ROOT, "nodeId:" + atom.getId(), null,
           AtomTreePositionJpa.class, null, new int[1], manager)) {
 
-        final String aui = atom.getAlternateTerminologyIds()
-            .get(getProject().getTerminology());
         final StringBuilder ptr = new StringBuilder();
         String paui = null;
         String root = null;
@@ -1541,10 +1560,11 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
         String srcRhtName =
             terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-        if (root != null && !root.equals(srcRhtName)) {
-          sb.append(
-              terminologyToSrcAtomIdMap.get(treepos.getTerminology()) + ".");
+        if ((root != null && !root.equals(srcRhtName))
+            || (root == null && !atom.getName().equals(srcRhtName))) {
+          sb.append(terminologyToSrcAuiMap.get(treepos.getTerminology()) + ".");
         }
+
         sb.append(ptr.toString()).append("|");
         sb.append(treepos.getTerminologyId()).append("|");
         sb.append("|");
@@ -1559,8 +1579,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             null, Branch.ROOT, "nodeId:" + atomConceptMap.get(atom.getId()),
             null, ConceptTreePositionJpa.class, null, new int[1], manager)) {
 
-          final String aui = atom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology());
           final StringBuilder ptr = new StringBuilder();
           String paui = null;
           String root = null;
@@ -1592,10 +1610,12 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
           String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if (root != null && !root.equals(srcRhtName)) {
+          if ((root != null && !root.equals(srcRhtName))
+              || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(
-                terminologyToSrcAtomIdMap.get(treepos.getTerminology()) + ".");
+                terminologyToSrcAuiMap.get(treepos.getTerminology()) + ".");
           }
+
           sb.append(ptr.toString()).append("|");
           sb.append(treepos.getTerminologyId()).append("|");
           sb.append("|");
@@ -1612,8 +1632,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             "nodeId:" + atomDescriptorMap.get(atom.getId()), null,
             DescriptorTreePositionJpa.class, null, new int[1], manager)) {
 
-          final String aui = atom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology());
           final StringBuilder ptr = new StringBuilder();
           String paui = null;
           String root = null;
@@ -1647,9 +1665,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
           String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if (root != null && !root.equals(srcRhtName)) {
+          if ((root != null && !root.equals(srcRhtName))
+              || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(
-                terminologyToSrcAtomIdMap.get(treepos.getTerminology()) + ".");
+                terminologyToSrcAuiMap.get(treepos.getTerminology()) + ".");
           }
           sb.append(ptr.toString()).append("|");
           sb.append(treepos.getTerminologyId()).append("|");
@@ -1666,8 +1685,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             null, Branch.ROOT, "nodeId:" + atomCodeMap.get(atom.getId()), null,
             CodeTreePositionJpa.class, null, new int[1], manager)) {
 
-          final String aui = atom.getAlternateTerminologyIds()
-              .get(getProject().getTerminology());
           final StringBuilder ptr = new StringBuilder();
           String paui = null;
           String root = null;
@@ -1699,9 +1716,10 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // If the root string doesn't equal SRC/RHT, write tree-top SRC atom
           String srcRhtName =
               terminologyToSrcRhtNameMap.get(treepos.getTerminology());
-          if (root != null && !root.equals(srcRhtName)) {
+          if ((root != null && !root.equals(srcRhtName))
+              || (root == null && !atom.getName().equals(srcRhtName))) {
             sb.append(
-                terminologyToSrcAtomIdMap.get(treepos.getTerminology()) + ".");
+                terminologyToSrcAuiMap.get(treepos.getTerminology()) + ".");
           }
           sb.append(ptr.toString()).append("|");
           sb.append(treepos.getTerminologyId()).append("|");
@@ -1711,7 +1729,25 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           lines.add(sb.toString());
         }
       }
-    }
+
+      // If the atom is an SRC/RHT atom for a terminology that uses SRC root
+      // atoms
+      if (atom.getTerminology().equals("SRC")
+          && atom.getTermType().equals("RHT")
+          && terminologyUsingSrcRoot.contains(atom.getCodeId().substring(2))) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(c.getTerminologyId()).append("|");
+        sb.append(aui).append("|");
+        sb.append("1|");
+        sb.append("|");
+        // codeId is something like V-MSH
+        sb.append(atom.getCodeId().substring(2)).append("|");
+        sb.append("|||||");
+        sb.append("\n");
+        lines.add(sb.toString());
+      }
+
+    } // end for (final Atom...
 
     Collections.sort(lines);
     return lines;
@@ -2154,7 +2190,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           if (!attribute.isPublishable()) {
             continue;
           }
-StringBuilder sb = new StringBuilder();
+          StringBuilder sb = new StringBuilder();
           sb.append(c.getTerminologyId()).append("|");
           sb.append(a.getLexicalClassId()).append("|");
           sb.append(a.getStringClassId()).append("|");
