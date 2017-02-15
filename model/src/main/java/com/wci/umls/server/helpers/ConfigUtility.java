@@ -59,6 +59,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.hibernate.mapping.Collection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -68,6 +69,7 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.primitives.UnsignedBytes;
+import com.wci.umls.server.model.content.Component;
 
 /**
  * Utility class for interacting with the configuration, serializing to JSON/XML
@@ -1231,4 +1233,24 @@ public class ConfigUtility {
 
     };
   }
+
+  /**
+   * Returns the first order field hash.
+   *
+   * @param c the c
+   * @return the first order field hash
+   * @throws Exception the exception
+   */
+  public static String getFirstOrderFieldHash(Component c) throws Exception {
+    final StringBuilder sb = new StringBuilder();
+    for (final Method m : c.getClass().getMethods()) {
+      if (!Collection.class.isAssignableFrom(m.getReturnType())
+          && m.getParameterTypes().length == 0
+          && m.getName().startsWith("get")) {
+        sb.append(m.invoke(c, new Object[] {})).append(",");
+      }
+    }
+    return "";
+  }
+
 }

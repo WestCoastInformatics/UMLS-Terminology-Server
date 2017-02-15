@@ -56,7 +56,7 @@ public class AlgorithmTestCleanup extends IntegrationUnitSupport {
    */
   @Before
   public void setup() throws Exception {
-
+    // n/a
   }
 
   /**
@@ -64,7 +64,9 @@ public class AlgorithmTestCleanup extends IntegrationUnitSupport {
    *
    * @throws Exception the exception
    */
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Test
   public void testCleanup() throws Exception {
     Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
@@ -176,7 +178,7 @@ public class AlgorithmTestCleanup extends IntegrationUnitSupport {
         for (SubsetMember subsetMember : ((AtomSubsetJpa) addedSubset)
             .getMembers()) {
           subsetMember.getAttributes().clear();
-          contentService.updateSubsetMember((AtomSubsetMemberJpa) subsetMember);
+          contentService.updateSubsetMember(subsetMember);
           for (Attribute attribute : subsetMember.getAttributes()) {
             contentService.removeAttribute(attribute.getId());
           }
@@ -190,8 +192,7 @@ public class AlgorithmTestCleanup extends IntegrationUnitSupport {
         for (SubsetMember subsetMember : ((ConceptSubsetJpa) addedSubset)
             .getMembers()) {
           subsetMember.getAttributes().clear();
-          contentService
-              .updateSubsetMember((ConceptSubsetMemberJpa) subsetMember);
+          contentService.updateSubsetMember(subsetMember);
           for (Attribute attribute : subsetMember.getAttributes()) {
             contentService.removeAttribute(attribute.getId());
           }
@@ -248,7 +249,7 @@ public class AlgorithmTestCleanup extends IntegrationUnitSupport {
    */
   @After
   public void teardown() throws Exception {
-
+    // n/a
   }
 
   /**

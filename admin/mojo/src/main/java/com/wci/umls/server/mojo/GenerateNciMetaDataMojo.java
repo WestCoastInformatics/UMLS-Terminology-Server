@@ -429,11 +429,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("NCI")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     // SNOMEDCT_US
@@ -463,11 +463,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         if (atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     // leftovers
@@ -497,12 +497,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             && !atom.getTerminology().equals("SNOMEDCT_US")) {
           atom.setWorkflowStatus(WorkflowStatus.NEEDS_REVIEW);
           testService = new IntegrationTestServiceRestImpl();
-          testService.updateAtom((AtomJpa) atom, authToken);
+          testService.updateAtom(new AtomJpa(atom), authToken);
         }
       }
 
       testService = new IntegrationTestServiceRestImpl();
-      testService.updateConcept(concept, authToken);
+      testService.updateConcept(new ConceptJpa(concept, false), authToken);
     }
 
     //
@@ -1022,7 +1022,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Create and set up a NCI_2016_05E insertion process and algorithm
+   * Create and set up a NCI_2016_11D insertion process and algorithm
    * configurations
    *
    * @param project1 the project 1
@@ -1037,15 +1037,15 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for NCI_2016_05E");
+    processConfig.setDescription("Insertion process for NCI");
     processConfig.setFeedbackEmail(null);
-    processConfig.setName("Insertion process for NCI_2016_05E");
+    processConfig.setName("Insertion process for NCI");
     processConfig.setProject(project1);
     processConfig.setTerminology("NCI");
-    processConfig.setVersion("2016_05E");
+    processConfig.setVersion("2016_11D");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Insertion");
-    processConfig.setInputPath("inv/NCI_2016_05E/insert");
+    processConfig.setInputPath("inv/NCI_2016_11D/insert");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -1431,10 +1431,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig
-        .setDescription("Insertion process for SNOMEDCT_US_2016_09_01");
+    processConfig.setDescription("Insertion process for SNOMEDCT_US");
     processConfig.setFeedbackEmail(null);
-    processConfig.setName("Insertion process for SNOMEDCT_US_2016_09_01");
+    processConfig.setName("Insertion process for SNOMEDCT_US");
     processConfig.setProject(project1);
     processConfig.setTerminology("SNOMEDCT_US");
     processConfig.setVersion("2016_09_01");
@@ -2082,7 +2081,123 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - add the rest of the algorithms
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SAFEREPLACE");
+    algoConfig.setDescription("SAFEREPLACE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SAFEREPLACE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("stringClassId", "true");
+    algoProperties.put("lexicalClassId", "false");
+    algoProperties.put("codeId", "true");
+    algoProperties.put("conceptId", "false");
+    algoProperties.put("descriptorId", "false");
+    algoProperties.put("termType", "true");
+    algoProperties.put("terminology", "");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("UPDATERELEASABILITY");
+    algoConfig.setDescription("UPDATERELEASABILITY Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("UPDATERELEASABILITY algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("BEQUEATH");
+    algoConfig.setDescription("BEQUEATH Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("BEQUEATH algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    // TODO - AD Hoc Step (UMLSCUI)
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("SEMANTICTYPERESOLVER");
+    algoConfig.setDescription("SEMANTICTYPERESOLVER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("SEMANTICTYPERESOLVER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("winLose", "win");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPORTCHECKLIST");
+    algoConfig.setDescription("REPORTCHECKLIST Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPORTCHECKLIST algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("MATRIXINIT");
+    algoConfig.setDescription("MATRIXINIT Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("MATRIXINIT algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPARTITION");
+    algoConfig.setDescription("REPARTITION Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPARTITION algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("type", "MUTUALLY_EXCLUSIVE");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("POSTINSERTION");
@@ -2500,7 +2615,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setName("Pre-Production Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion("201610");
+    processConfig.setVersion("201611");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Release");
     processConfig.setInputPath("mr");
@@ -2638,9 +2753,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setName("Release Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
+    processConfig.setVersion("201611");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Release");
+    processConfig.setInputPath("mr");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -2745,9 +2861,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setName("Feedback Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
+    processConfig.setVersion("201611");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Release");
+    processConfig.setInputPath("mr");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -2794,9 +2911,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setName("ProdMid Cleanup Process");
     processConfig.setProject(project1);
     processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
+    processConfig.setVersion("201611");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Release");
+    processConfig.setInputPath("mr");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
@@ -2972,6 +3090,14 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
         authToken);
   }
 
+  /**
+   * Creates the remap component info relationships processes.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
   @SuppressWarnings("static-method")
   private void createRemapComponentInfoRelationshipsProcesses(Project project1,
     Long projectId, String authToken) throws Exception {

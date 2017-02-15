@@ -132,7 +132,8 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
     }
 
     // Return the id if it's already a CUI
-    if (concept.getTerminologyId().startsWith(prefixMap.get("CUI"))) {
+    if (concept.getTerminologyId() != null
+        && concept.getTerminologyId().startsWith(prefixMap.get("CUI"))) {
       return concept.getTerminologyId();
     }
     long conceptId = 0L;
@@ -592,7 +593,7 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
       return semanticTypeComponent.getTerminologyId();
     }
 
-    UmlsIdentityService localService = getService();
+    final UmlsIdentityService localService = getService();
     try {
       // Block between getting next id and saving the id value
       synchronized (LOCK) {

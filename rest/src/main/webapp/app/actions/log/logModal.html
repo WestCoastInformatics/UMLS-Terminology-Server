@@ -42,5 +42,6 @@
       ng-click="filter = ''; getLog()" title="Click to clear filter text">Clear</button>
   </span>
 
+  <button class="btn btn-warning" ng-show="poll == 'true'" ng-click="stopPolling()">Stop polling</button>
   <button class="btn btn-warning" ng-click="close()">Close</button>
 </div>
