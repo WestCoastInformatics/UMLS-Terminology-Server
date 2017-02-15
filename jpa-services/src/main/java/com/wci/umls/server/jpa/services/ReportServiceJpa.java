@@ -423,7 +423,11 @@ public class ReportServiceJpa extends HistoryServiceJpa
     // additional relation types ends with form_of
     for (final Atom atom : comp.getAtoms()) {
       for (final AtomRelationship atomRel : atom.getRelationships()) {
-        if (atomRel.getAdditionalRelationshipType().endsWith("form_of")) {
+        if (atomRel.getAdditionalRelationshipType().startsWith("mth_")
+            && atomRel.getAdditionalRelationshipType().endsWith("form_of")) {
+          lexicalRelationships.add(atomRel);
+        } else if (atomRel.getAdditionalRelationshipType()
+            .equals("expanded_form")) {
           lexicalRelationships.add(atomRel);
         }
       }
