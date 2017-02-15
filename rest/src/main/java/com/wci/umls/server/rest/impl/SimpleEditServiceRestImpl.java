@@ -585,7 +585,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful call (Project/TypeKeyValue): /remove " + projectId + ", "
+        .info("RESTful call (Edit, POST): /remove " + projectId + ", "
             + pfs);
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -611,7 +611,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       
       // if no query or query restriction, get all concept ids
       else {
-        contentService.getAllConceptIds(project.getTerminology(),
+        idsToRemove= contentService.getAllConceptIds(project.getTerminology(),
             project.getVersion(), project.getBranch());
       }
       

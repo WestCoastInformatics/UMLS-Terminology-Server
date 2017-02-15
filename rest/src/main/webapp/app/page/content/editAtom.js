@@ -24,27 +24,34 @@ tsApp.controller('SimpleAtomModalCtrl', [
     $scope.errors = [];
     $scope.workflowStatuses = [ 'NEEDS_REVIEW', 'READY_FOR_PUBLICATION' ];
 
-    // construct atom term groups from  general metadata term groups if not supplied on project
-    if (!$scope.selected.project.newAtomTermgroups
-      || $scope.selected.project.newAtomTermgroups.length == 0) {
-      $scope.selected.project.newAtomTermgroups = [];
-      angular.forEach($scope.selected.metadata.termTypes, function(termType) {
-        $scope.selected.project.newAtomTermgroups
-          .push($scope.selected.metadata.terminology.terminology + '/' + termType.key);
-      });
-
-    }
-    $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
-
     // Init modal
     function initialize() {
+
+      // construct atom term groups from  general metadata term groups if not supplied on project
+      if (!$scope.selected.project.newAtomTermgroups
+        || $scope.selected.project.newAtomTermgroups.length == 0) {
+        $scope.selected.project.newAtomTermgroups = [];
+        angular.forEach($scope.selected.metadata.termTypes, function(termType) {
+          var termGroup = $scope.selected.metadata.terminology.terminology + '/' + termType.key;
+          $scope.selected.project.newAtomTermgroups.push(termGroup);
+        });
+
+      }
+
       if (!$scope.atom) {
         $scope.atom = {
           workflowStatus : 'NEEDS_REVIEW',
           publishable : true,
           language : 'ENG'
         };
-
+        $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
+      } else {
+        angular.forEach($scope.selected.project.newAtomTermgroups, function(termGroup) {
+          if (termGroup.endsWith($scope.atom.termType)) {
+            $scope.selectedTermgroup = termGroup;
+          }
+          
+        })
       }
     }
 
@@ -95,7 +102,7 @@ tsApp.controller('SimpleAtomModalCtrl', [
           utilService.handleDialogError($scope.errors, data);
         });
       } else {
-        
+
         if (!atom || !atom.name || !$scope.selectedTermgroup) {
           $scope.errors.push('Name and termgroup must be selected.');
           return;
@@ -115,11 +122,12 @@ tsApp.controller('SimpleAtomModalCtrl', [
           });
       }
     };
-    
+
     $scope.removeAtom = function(atom) {
-      callbacks.removeAtom($scope.selected.projectId, $scope.selected.component.id, atom.id).then(function() {
-        callbacks.getComponent($scope.selected.component);
-      })
+      callbacks.removeAtom($scope.selected.projectId, $scope.selected.component.id, atom.id).then(
+        function() {
+          callbacks.getComponent($scope.selected.component);
+        })
     }
 
     // Dismiss modal
