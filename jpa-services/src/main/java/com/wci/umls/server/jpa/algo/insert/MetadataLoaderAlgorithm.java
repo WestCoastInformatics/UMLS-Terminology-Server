@@ -236,9 +236,7 @@ public class MetadataLoaderAlgorithm
       }
     }
 
-    terminologyNameVersionsToNamesMap.get(terminologyAndVersion);
-
-    return null;
+    return terminologyNameVersionsToNamesMap.get(terminologyAndVersion);
   }
 
   /**
