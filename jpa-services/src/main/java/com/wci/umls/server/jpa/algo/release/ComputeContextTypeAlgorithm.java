@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -143,7 +144,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       }
 
       for (final String key : siblingTypeMap.keySet()) {
-        logInfo("    siblings = " + siblingTypeMap.get(key));
+        logInfo("    siblings = " + key + ", " + siblingTypeMap.get(key));
       }
     }
 
@@ -156,7 +157,11 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     int totalCt = getCurrentTerminologies().size();
     int objectCt = 0;
     int termCt = 0;
+    // Sort the terminologies
+    Collections.sort(getCurrentTerminologies().getObjects(),
+        (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
     for (final Terminology term : getCurrentTerminologies().getObjects()) {
+      logInfo("    terminology = " + term.getTerminology());
       checkCancel();
 
       // Set polyhierarchy and include siblings flags
@@ -247,15 +252,15 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
               relToInverseMap.get(addRelType));
           newRel.setTerminologyId(rui);
 
+          // check cancel
+          if (objectCt % RootService.logCt == 0) {
+            checkCancel();
+          }
+
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+
         }
         commitClearBegin();
-
-        // check cancel
-        if (objectCt % RootService.logCt == 0) {
-          checkCancel();
-        }
-
-        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
         // update progress
         int progress = (int) ((100.0 - startProgress) * ++termCt / totalCt)
@@ -305,7 +310,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
         "siblingsThreshold", "Indicates maximum number of siblings.",
-        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "1000");
+        "e.g. 100", 0, AlgorithmParameter.Type.INTEGER, "100");
     params.add(param);
 
     return params;

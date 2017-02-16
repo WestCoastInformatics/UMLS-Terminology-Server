@@ -2750,7 +2750,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    algoProperties.put("siblingsThreshold", "1000");
+    algoProperties.put("siblingsThreshold", "100");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),

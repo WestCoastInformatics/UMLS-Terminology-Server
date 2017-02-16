@@ -169,7 +169,10 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
         sb.append(cui2).append("|"); // 5 CUI2
         sb.append("Y").append("|"); // 6 MAPIN
         sb.append("\n");
+
         writerMap.get("MRCUI.RRF").print(sb.toString());
+        writerMap.get("MERGEDCUI.RRF")
+            .print(lastReleaseCui + "|" + cui2 + "|\n");
       }
     }
     // Determine "split" cases - all keys from atomsMoved where the value is
@@ -240,6 +243,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
           sb.append("|");
           sb.append("\n");
           writerMap.get("MRCUI.RRF").print(sb.toString());
+          writerMap.get("DELETEDCUI.RRF").print(c.getTerminology()+"|"+c.getName()+"|\n");
         }
         // If bequeathal rel -> write out bequeathal entry for each rel
         else {
@@ -360,6 +364,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
       inputFile.delete();
       Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
     }
+
   }
 
   /**
@@ -459,10 +464,23 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
 
+    // Make "CHANGE" directory
+    final File changeDir = new File(dir, "CHANGE");
+    changeDir.mkdirs();
     writerMap.put("MRAUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRAUI.RRF"))));
     writerMap.put("MRCUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCUI.RRF"))));
+    writerMap.put("MRCUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "DELETEDCUI.RRF"))));
+    writerMap.put("MRCUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "DELETEDLUI.RRF"))));
+    writerMap.put("MRCUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "DELETEDSUI.RRF"))));
+    writerMap.put("MRCUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "MERGEDCUI.RRF"))));
+    writerMap.put("MRCUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "MERGEDSUI.RRF"))));
   }
 
   /**

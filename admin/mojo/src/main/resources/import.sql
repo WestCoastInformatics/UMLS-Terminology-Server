@@ -17,7 +17,7 @@ create index x_atom_rels_1 on atom_relationships(workflowStatus);
 create index x_concept_rels_1 on concept_relationships(workflowStatus);
 
 -- Create terminology index for tree positions (not needed bcause of lucene)
-create index x_ctr_t on atom_tree_positions (termniology);
+create index x_atr_t on atom_tree_positions (terminology);
 create index x_ctr_t on concept_tree_positions (terminology);
 create index x_dtr_t on descriptor_tree_positions (terminology);
 create index x_cdtr_t on code_tree_positions (terminology);
