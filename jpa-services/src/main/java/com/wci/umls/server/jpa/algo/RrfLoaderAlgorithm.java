@@ -1058,7 +1058,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 0 VCUI
       // 1 RCUI
       // 2 VSAB
-      // 3 RSAB
       // 4 SON
       // 5 SF
       // 6 SVER
@@ -1117,12 +1116,27 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sourceMetadataMap.put(fields[3], typeAbbrMap);
       }
 
+      // Compute the version from the VSAB and RSAB
+      // DO NOT just use the version field, this turns out to be garbage
       String termVersion = null;
-      if (style == Style.SINGLE || fields[6].equals(""))
+      if (style == Style.SINGLE || fields[6].equals("")) {
         termVersion = getVersion();
-      else
-        termVersion = fields[6];
+      } else {
+        final String vsab = fields[2];
+        final String rsab = fields[3];
+        // The version is the vsab with the rsab removed and any leading _
+        // removed.
+        if (vsab.startsWith(rsab)) {
+          termVersion = vsab.substring(rsab.length());
+          if (termVersion.startsWith("_")) {
+            termVersion = termVersion.replaceAll("^_", "");
+          }
+        } else {
+          throw new Exception(
+              "VSAB does not start with RSAB: " + vsab + ", " + rsab);
+        }
 
+      }
       Terminology term = loadedTerminologies.get(fields[3]);
       if (term == null || !term.getVersion().equals(termVersion)) {
         term = new TerminologyJpa();
