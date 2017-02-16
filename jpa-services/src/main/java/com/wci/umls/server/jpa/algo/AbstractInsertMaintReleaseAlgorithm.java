@@ -363,7 +363,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
-          + "Relationship Terminology Ids from database for terminology " + terminology);
+          + "Relationship Terminology Ids from database for terminology "
+          + terminology);
 
       final List<Object[]> list = jpaQuery.getResultList();
       for (final Object[] entry : list) {
@@ -439,7 +440,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /**
    * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
+   * Terminology if version = "latest".
+   * Also cache Key = TerminologyVersion
+   * without the underscore (some terminologies don't follow the normal
+   * convention, e.g. MVX2016_09_07)
    *
    * @throws Exception the exception
    */
@@ -453,6 +457,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cachedTerminologies.put(term.getTerminology(), term);
       } else {
         cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
+            term);
+        cachedTerminologies.put(term.getTerminology() + term.getVersion(),
             term);
       }
     }
