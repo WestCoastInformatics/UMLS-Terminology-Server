@@ -550,12 +550,7 @@ public class MetadataLoaderAlgorithm
 
         logInfo("  update terminology = " + existingTerm);
         updateTerminology(existingTerm);
-        getCachedTerminologies().put(
-            existingTerm.getTerminology() + "_" + existingTerm.getVersion(),
-            existingTerm);
-        getCachedTerminologies().put(
-            existingTerm.getTerminology() + existingTerm.getVersion(),
-            existingTerm);
+        putTerminology(existingTerm);
       }
     }
 
@@ -574,12 +569,7 @@ public class MetadataLoaderAlgorithm
             existingTerm.setCurrent(false);
             logInfo("  update terminology = " + existingTerm);
             updateTerminology(existingTerm);
-            getCachedTerminologies().put(
-                existingTerm.getTerminology() + "_" + existingTerm.getVersion(),
-                existingTerm);
-            getCachedTerminologies().put(
-                existingTerm.getTerminology() + existingTerm.getVersion(),
-                existingTerm);
+            putTerminology(existingTerm);
           }
         }
       }
@@ -590,10 +580,7 @@ public class MetadataLoaderAlgorithm
     for (Terminology newTerm : termsToAddMap.values()) {
       logInfo("  add terminology = " + newTerm);
       newTerm = addTerminology(newTerm);
-      getCachedTerminologies()
-          .put(newTerm.getTerminology() + "_" + newTerm.getVersion(), newTerm);
-      getCachedTerminologies()
-          .put(newTerm.getTerminology() + newTerm.getVersion(), newTerm);
+      putTerminology(newTerm);
     }
   }
 

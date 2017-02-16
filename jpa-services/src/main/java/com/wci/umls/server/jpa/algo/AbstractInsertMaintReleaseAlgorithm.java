@@ -440,8 +440,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /**
    * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest".
-   * Also cache Key = TerminologyVersion
+   * Terminology if version = "latest". Also cache Key = TerminologyVersion
    * without the underscore (some terminologies don't follow the normal
    * convention, e.g. MVX2016_09_07)
    *
@@ -790,6 +789,26 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     return cachedRootTerminologies.get(terminology);
+  }
+
+  /**
+   * Put a terminology into the ExistingTerminologies cache
+   *
+   * @param terminology the terminology
+   * @throws Exception the exception
+   */
+  public void putTerminology(Terminology terminology) throws Exception {
+    if (cachedTerminologies.isEmpty()) {
+      cacheExistingTerminologies();
+    }
+
+    // Add terminology with two keys, with and without underscore, to handle
+    // .src file inconsistencies
+    cachedTerminologies.put(
+        terminology.getTerminology() + "_" + terminology.getVersion(),
+        terminology);
+    cachedTerminologies.put(
+        terminology.getTerminology() + terminology.getVersion(), terminology);
   }
 
   /**
