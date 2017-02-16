@@ -2301,7 +2301,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         memberAtt.setSuppressible(!fields[11].equals("N"));
         memberAtt.setPublishable(true);
         memberAtt.setPublished(true);
-        if (atvFields.length > 1) {
+        if (fields[10].indexOf("~") != -1) {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
         } else {

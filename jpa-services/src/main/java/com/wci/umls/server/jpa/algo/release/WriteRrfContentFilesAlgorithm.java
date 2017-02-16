@@ -2018,7 +2018,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // STYPE
           sb.append("CODE").append("|");
           // CODE
-          sb.append("|");
+          sb.append(a.getCodeId()).append("|");
           // ATUI
           String atui = attribute.getAlternateTerminologyIds()
               .get(getProject().getTerminology());
