@@ -325,6 +325,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
       attribute.setPublishable(true);
       attribute.setPublished(false);
       attribute.setTerminologyId("");
+      attribute.getAlternateTerminologyIds().put(getProject().getTerminology(), handler.getTerminologyId(attribute, code));
       addAttribute(attribute, code);
       code.getAttributes().add(attribute);
       updateCode(code);
@@ -349,6 +350,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     int objectCt = 0;
     int prevProgress = 0;
     int totalCt = results.size();
+    steps = results.size();
     for (Object[] resultArray : results) {
       // If the descriptorId/conceptId combination hasn't yet been seen, create
       // a mapping
@@ -417,15 +419,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         descriptorIdConceptIdCache
             .add(resultArray[0].toString() + resultArray[1].toString());
       }
-      // log, commit, check cancel, advance progress
-      int progress = (int) (objectCt * 100.0 / totalCt);
-      if (progress != prevProgress) {
-        checkCancel();
-        this.fireAdjustedProgressEvent(progress, stepsCompleted, steps,
-            "Creating Nci Pdq Mappings");
-        prevProgress = progress;
-      }
-      logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+      updateProgress();
     }
     updateMapSet(mapSet);
     
