@@ -169,11 +169,11 @@ public class MetadataLoaderAlgorithm
       FieldedStringTokenizer.split(line, "|", 6, fields);
 
       final String lowTermTerminology =
-          identifyTerminology(fields[1].substring(0, fields[0].indexOf('/')));
+          identifyTerminology(fields[1].substring(0, fields[1].indexOf('/')));
       if (lowTermTerminology == null) {
         validationResult.addError(
             "termgroups.src references a terminology that does not exist in the database or sources.src: "
-                + fields[1].substring(0, fields[0].indexOf('/')));
+                + fields[1].substring(0, fields[1].indexOf('/')));
       }
 
       final String highTermTerminology =
