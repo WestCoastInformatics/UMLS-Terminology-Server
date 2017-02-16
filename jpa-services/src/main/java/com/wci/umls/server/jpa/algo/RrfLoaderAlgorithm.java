@@ -728,10 +728,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           rel.setHierarchical(true);
         }
         relMap.put(fields[1], rel);
-        // Logger.getLogger(getClass())
-        // .info(" add relationship type - " + rel);
-      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")/*
-          && !fields[1].equals("SIB")*/) {
+
+      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {
@@ -2670,8 +2668,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // empty
         // container for the object with the id set.
 
-       
-
         else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
           final AtomRelationship aRel = new AtomRelationshipJpa();
 
@@ -2725,7 +2721,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           // terminology id
           conceptRel.setTerminologyId(fields[8]);
           setRelationshipFields(fields, conceptRel);
-          
+
           addRelationship(conceptRel);
           relationshipMap.put(fields[8], conceptRel.getId());
 

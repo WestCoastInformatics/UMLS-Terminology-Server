@@ -65,7 +65,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting assign release identifiers");
+    logInfo("Starting " + getName());
+
     fireProgressEvent(0, "Starting");
     this.setMolecularActionFlag(false);
 
@@ -83,7 +84,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     assignAtuis();
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished assign release identifiers");
+    logInfo("Finished " + getName());
   }
 
   /**
@@ -91,8 +92,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
    *
    * @throws Exception the exception
    */
-  private void assignCuis() throws Exception {   
-    
+  private void assignCuis() throws Exception {
+
     // Get a UMLS identity handler
     final UmlsIdentifierAssignmentHandler handler =
         (UmlsIdentifierAssignmentHandler) getIdentifierAssignmentHandler(
@@ -292,8 +293,8 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
         getIdentifierAssignmentHandler(getProject().getTerminology());
 
     // Assign ATUIs for semantic types
-    final javax.persistence.Query query = manager
-        .createQuery("select c.id, s.id from ConceptJpa c join c.semanticTypes s "
+    final javax.persistence.Query query = manager.createQuery(
+        "select c.id, s.id from ConceptJpa c join c.semanticTypes s "
             + "where c.terminology = :terminology "
             + "  and c.version = :version and c.publishable = true ");
     query.setParameter("terminology", getProject().getTerminology());
@@ -341,7 +342,9 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

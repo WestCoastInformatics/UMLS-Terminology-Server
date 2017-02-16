@@ -35,13 +35,14 @@
 <div class="modal-footer">
   <span style="float: left">
     <input placeholder="Search log"
-      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && log && poll != 'true'"
+      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && poll != 'true'"
       type="text" ng-model="filter" ng-model-options="{ debounce: 300 }"
       ng-change="getLog()">
     <button class="btn btn-xs btn-warning" ng-show="filter"
       ng-click="filter = ''; getLog()" title="Click to clear filter text">Clear</button>
   </span>
 
-  <button class="btn btn-warning" ng-show="poll == 'true'" ng-click="stopPolling()">Stop polling</button>
+  <button class="btn btn-primary" ng-show="poll == 'true'"
+    ng-click="stopPolling()">Stop polling</button>
   <button class="btn btn-warning" ng-click="close()">Close</button>
 </div>
