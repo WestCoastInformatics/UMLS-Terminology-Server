@@ -3,16 +3,20 @@
  */
 package com.wci.umls.server.helpers;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -20,10 +24,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -339,6 +346,37 @@ public class ConfigUtility {
     }
     return p;
 
+  }
+
+  /**
+   * Returns the home dirs of the operating environment.
+   *
+   * @return the home dirs
+   * @throws Exception the exception
+   */
+  public static Map<String, String> getHomeDirs() throws Exception {
+    final Map<String, String> map = new HashMap<>();
+
+    final String label = getConfigLabel();
+    String configFile = System.getProperty("run.config." + label);
+    if (configFile == null) {
+      java.net.URL url = ConfigUtility.class.getResource("/config.properties");
+      if (url != null) {
+        configFile = url.getPath();
+      } else if (new File(getLocalConfigFile()).exists()) {
+        configFile = getLocalConfigFile();
+      }
+    }
+
+    // The "configFile" is presumed to be in the $home/config directory.
+    final String dir = new File(configFile).getParent();
+    for (final String f : new String[] {
+        "bin", "config", "data"
+    }) {
+      map.put(f, dir + "/" + f);
+    }
+
+    return map;
   }
 
   /**
@@ -966,7 +1004,7 @@ public class ConfigUtility {
    * Gets the base index directory.
    *
    * @return the base index directory
-   * @throws Exception
+   * @throws Exception the exception
    */
   public static String getBaseIndexDirectory() throws Exception {
     return getConfigProperties()
@@ -1028,10 +1066,11 @@ public class ConfigUtility {
   }
 
   /**
-   * Get the lucene max boolean clause count
+   * Get the lucene max boolean clause count.
+   *
    * @return the max clause count
-   * @throws Exception
-   * @throws NumberFormatException
+   * @throws NumberFormatException the number format exception
+   * @throws Exception the exception
    */
   public static int getLuceneMaxClauseCount()
     throws NumberFormatException, Exception {
@@ -1109,8 +1148,8 @@ public class ConfigUtility {
    * Compose query from a list of possibly empty/null clauses and an operator
    * (typically OR or AND).
    *
-   * @param clauses the clauses
    * @param operator the operator
+   * @param clauses the clauses
    * @return the string
    */
   public static String composeQuery(String operator, List<String> clauses) {
@@ -1253,4 +1292,157 @@ public class ConfigUtility {
     return "";
   }
 
+  /** Size of the buffer to read/write data. */
+  private static final int BUFFER_SIZE = 4096;
+
+  /**
+   * Extracts a zip file specified by the zipFilePath to a directory specified
+   * by destDirectory (will be created if does not exists).
+   *
+   * @param zipFilePath the zip file path
+   * @param destDirectory the dest directory
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public static void unzip(String zipFilePath, String destDirectory)
+    throws IOException {
+    File destDir = new File(destDirectory);
+    if (!destDir.exists()) {
+      destDir.mkdir();
+    }
+    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+    ZipEntry entry = zipIn.getNextEntry();
+    // iterates over entries in the zip file
+    while (entry != null) {
+      String filePath = destDirectory + File.separator + entry.getName();
+      if (!entry.isDirectory()) {
+        // if the entry is a file, extracts it
+        extractFile(zipIn, filePath);
+      } else {
+        // if the entry is a directory, make the directory
+        File dir = new File(filePath);
+        dir.mkdir();
+      }
+      zipIn.closeEntry();
+      entry = zipIn.getNextEntry();
+    }
+    zipIn.close();
+  }
+
+  /**
+   * Extracts a zip entry (file entry).
+   *
+   * @param zipIn the zip in
+   * @param filePath the file path
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private static void extractFile(ZipInputStream zipIn, String filePath)
+    throws IOException {
+    BufferedOutputStream bos =
+        new BufferedOutputStream(new FileOutputStream(filePath));
+    byte[] bytesIn = new byte[BUFFER_SIZE];
+    int read = 0;
+    while ((read = zipIn.read(bytesIn)) != -1) {
+      bos.write(bytesIn, 0, read);
+    }
+    bos.close();
+  }
+
+  /**
+   * Executes an operating system command with more options. This is the most
+   * flexible (and confusing) of the <code>exec</code> methods.
+   * <p>
+   * It allows you to specify a command with parameters and a set of environment
+   * variable definitions. You may determine whether or not the process should
+   * write to the application log, and if it does whether it reads the processes
+   * STDOUT or STDERR. Finally, you can choose to run the process in the
+   * background.
+   *
+   * @param cmdarrayIn the cmdarray in
+   * @param env a {@link String}<code>[]</code> containing "NAME=VALUE" pairs of
+   *          environment variable definitions
+   * @param background a flag indicating whether or not to run the process in
+   *          the background.
+   * @param dir the working directory of the subprocess
+   * @param s <code>PrintWriter</code> to use for output
+   * @return a {@link String} containing the process log
+   * @throws Exception the exception
+   */
+  public static String exec(String[] cmdarrayIn, String[] env,
+    boolean background, File dir, PrintWriter s) throws Exception {
+
+    // Check if on windows and invoke "cygwin" - assume it's defined in config
+    // properties
+    // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
+    // installed
+    String[] cmdarray = null;
+    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+      // Change the command to be based around cygwin
+      if (ConfigUtility.getConfigProperties()
+          .getProperty("cygwin.bin") == null) {
+        throw new Exception("Exec on windows requires cygwin to be installed '"
+            + "and specified by cygwin.bin in config.properties");
+      }
+      final String tcsh =
+          ConfigUtility.getConfigProperties().getProperty("cygwin.bin")
+              + "/tcsh.exe";
+      cmdarray = new String[] {
+          tcsh, "-c", FieldedStringTokenizer.join(cmdarrayIn, " ")
+      };
+    } else {
+      cmdarray = cmdarrayIn;
+    }
+
+    Runtime run = null;
+    Process proc = null;
+    StringBuffer output = new StringBuffer(1000);
+    String line;
+    run = Runtime.getRuntime();
+    proc = run.exec(cmdarray, env, dir);
+    BufferedReader in = null;
+
+    // Connect a reader to the process
+    final InputStreamReader procIn =
+        new InputStreamReader(proc.getInputStream(), "UTF-8");
+    in = new BufferedReader(procIn);
+    while ((line = in.readLine()) != null) {
+      if (s != null) {
+        s.println(line);
+        s.flush();
+      }
+      output.append(line).append("\n");
+    }
+
+    // If we are not running in the background
+    // then wait for the process to finish and track its exit value
+    if (!background) {
+      proc.waitFor();
+      if (proc.exitValue() != 0) {
+        // If there was an error, read from the error stream
+        InputStreamReader converter =
+            new InputStreamReader(proc.getErrorStream(), "UTF-8");
+        in = new BufferedReader(converter);
+        StringBuffer sb = new StringBuffer(1000);
+        sb.append("\n--------------------------------------------\n");
+        sb.append("Error:");
+        while ((line = in.readLine()) != null) {
+          sb.append("\t" + line);
+          sb.append("\n");
+        }
+        sb.append("--------------------------------------------\n");
+        StringBuilder cmdBuffer = new StringBuilder();
+        for (String cmdarg : cmdarray) {
+          cmdBuffer.append(cmdarg).append(" ");
+        }
+        StringBuilder envBuffer = new StringBuilder();
+        for (String envarg : env) {
+          envBuffer.append(envarg).append(" ");
+        }
+        Exception ee = new Exception("Command failed = " + proc.exitValue()
+            + ", " + cmdBuffer + ", " + envBuffer + ", " + sb.toString());
+        throw ee;
+      }
+    }
+
+    return output.toString();
+  }
 }

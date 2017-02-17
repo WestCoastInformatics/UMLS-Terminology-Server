@@ -124,11 +124,14 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         throw new LocalException(
             "Project terminology and version must not be null.");
       }
-      final PrecedenceList precList = new PrecedenceListJpa(metadataService
-          .getPrecedenceList(project.getTerminology(), project.getVersion()));
-      precList.setId(null);
-      metadataService.addPrecedenceList(precList);
-      project.setPrecedenceList(precList);
+      final PrecedenceList precList = metadataService
+          .getPrecedenceList(project.getTerminology(), project.getVersion());
+      if (precList != null) {
+        PrecedenceList newPrecList = new PrecedenceListJpa(precList);
+        newPrecList.setId(null);
+        newPrecList = metadataService.addPrecedenceList(newPrecList);
+        project.setPrecedenceList(newPrecList);
+      }
 
       // Add project
       final Project newProject = metadataService.addProject(project);

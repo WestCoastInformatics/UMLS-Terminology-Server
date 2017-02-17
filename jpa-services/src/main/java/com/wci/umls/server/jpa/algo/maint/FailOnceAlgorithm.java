@@ -48,7 +48,7 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting FAILONCE");
+    logInfo("Starting " + getName());
 
     // If this is the first time running, throw a failure message
     if (firstRun) {
@@ -61,14 +61,16 @@ public class FailOnceAlgorithm extends AbstractAlgorithm {
       fireProgressEvent(100, "FAILONCE progress: " + 100 + "%");
     }
 
-    logInfo("Finished FAILONCE");
+    logInfo("Finished " + getName());
 
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /**

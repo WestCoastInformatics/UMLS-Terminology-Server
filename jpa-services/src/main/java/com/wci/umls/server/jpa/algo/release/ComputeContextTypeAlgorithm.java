@@ -3,6 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +41,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /** The siblings threshold. */
   private int siblingsThreshold;
-  
-
 
   /**
    * Instantiates an empty {@link ComputeContextTypeAlgorithm}.
@@ -65,7 +64,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
-    logInfo("Starting compute context type");
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
     // Get id handler
@@ -73,6 +72,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         getIdentifierAssignmentHandler(getProject().getTerminology());
 
     // Collect metadata
+    logInfo("  Collect metadata");
     final RelationshipTypeList relTypeList = getRelationshipTypes(
         getProject().getTerminology(), getProject().getVersion());
     final AdditionalRelationshipTypeList addRelTypeList =
@@ -93,8 +93,9 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     final String[] types = new String[] {
         "Atom", "Code", "Concept", "Descriptor"
     };
-    checkCancel();
+    logAndCommit(0, RootService.logCt, RootService.commitCt);
 
+    logInfo("  Compute polyhierarchy flags");
     fireProgressEvent(1, "Compute polyhierarchy flags");
     final Set<String> polyHierarchyTerminology = new HashSet<>();
     for (final String type : types) {
@@ -105,10 +106,13 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       final List<Object[]> results = query.getResultList();
       checkCancel();
       for (final Object[] result : results) {
+        logInfo("    poly = " + result[0]);
         polyHierarchyTerminology.add(result[0].toString());
+        logAndCommit(0, RootService.logCt, RootService.commitCt);
       }
     }
 
+    logInfo("  Compute sibling flags");
     fireProgressEvent(10, "Compute include sibling flags");
     final Map<String, String> siblingTypeMap = new HashMap<>();
     for (final String type : types) {
@@ -138,17 +142,26 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       for (final Object[] result : results2) {
         siblingTypeMap.remove(result[0].toString());
       }
+
+      for (final String key : siblingTypeMap.keySet()) {
+        logInfo("    siblings = " + key + ", " + siblingTypeMap.get(key));
+      }
     }
 
     // Iterate through terminologies to determine context type
+    logInfo("  Compute siblings");
     fireProgressEvent(20, "Compute siblings");
-    
+
     int prevProgress = 0;
     int startProgress = 20;
     int totalCt = getCurrentTerminologies().size();
     int objectCt = 0;
     int termCt = 0;
+    // Sort the terminologies
+    Collections.sort(getCurrentTerminologies().getObjects(),
+        (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
     for (final Terminology term : getCurrentTerminologies().getObjects()) {
+      logInfo("    terminology = " + term.getTerminology());
       checkCancel();
 
       // Set polyhierarchy and include siblings flags
@@ -238,38 +251,39 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
           final String rui = handler.getTerminologyId(newRel, "SIB",
               relToInverseMap.get(addRelType));
           newRel.setTerminologyId(rui);
-         
+
+          // check cancel
+          if (objectCt % RootService.logCt == 0) {
+            checkCancel();
+          }
+
+          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
         }
         commitClearBegin();
 
-        // check cancel
-        if (objectCt % RootService.logCt == 0) {
-          checkCancel();
-        }
-
-        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-        
         // update progress
         int progress = (int) ((100.0 - startProgress) * ++termCt / totalCt)
             + startProgress;
         if (progress > prevProgress) {
           fireProgressEvent(progress, "Assigning SIB RUIs");
           prevProgress = progress;
-        }        
-        
+        }
+
       }
     }
     commitClearBegin();
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished compute context type");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
@@ -291,12 +305,12 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     AlgorithmParameter param = new AlgorithmParameterJpa("Siblings threshold",
         "siblingsThreshold", "Indicates maximum number of siblings.",
-        "e.g. 1000", 0, AlgorithmParameter.Type.INTEGER, "1000");
+        "e.g. 100", 0, AlgorithmParameter.Type.INTEGER, "100");
     params.add(param);
 
     return params;
@@ -307,6 +321,5 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
   }
-  
 
 }

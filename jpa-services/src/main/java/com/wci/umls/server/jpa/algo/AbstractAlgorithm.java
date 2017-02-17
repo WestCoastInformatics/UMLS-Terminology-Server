@@ -85,7 +85,7 @@ public abstract class AbstractAlgorithm extends WorkflowServiceJpa
       throw new CancelException("Cancel requested");
     }
 
-    if (objectCt % logCt == 0) {
+    if (objectCt % logCt == 0 && objectCt > 0) {
       if (getProject() != null) {
         addLogEntry(getLastModifiedBy(), getProject().getId(), null, activityId,
             workId, "    count = " + objectCt);

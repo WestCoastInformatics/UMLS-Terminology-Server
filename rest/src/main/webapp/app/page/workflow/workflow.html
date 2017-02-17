@@ -38,11 +38,11 @@
     </uib-accordion-heading>
     <div class="row">
       <div class="col-md-12 col-xs-12">
-        <button ng-show="hasPermissions('EditEpoch')"
-          title="Edit epoch" ng-click="openEditEpochModal()"
-          class="btn btn-xs btn-primary mr20">epoch: {{selected.epoch.name}}</button>
+        <button ng-show="hasPermissions('EditEpoch')" title="Edit epoch"
+          ng-click="openEditEpochModal()" class="btn btn-xs btn-primary mr20">epoch:
+          {{selected.epoch.name}}</button>
         <select ng-model="selected.config" ng-show="lists.configs.length > 1"
-          ng-options="config as config.type for config in lists.configs"
+          ng-options="config as config.type for config in getConfigList()"
           ng-change="setConfig(selected.config)"></select>
         <span ng-show="lists.configs.length == 1">{{selected.config.type}}
         </span>
@@ -91,8 +91,19 @@
           </span>
         </span>
       </div>
-      <div class="col-md-12 col-xs-12">
-        <!-- NO paging control -->
+      <div class="mt10 col-md-12 col-xs-12">
+
+        <span ng-show="lists.bins.length > paging['bins'].pageSize"
+          style="float: right;">
+          Page size: <select ng-model="paging['bins'].pageSize"
+            title="Page Size"
+            ng-change="paging['bins'].callbacks.getPagedList()"
+            ng-options="item.value as item.name for item in pageSizes">
+          </select>
+        </span>
+        <div pager paging="paging['bins']" count="lists.bins.length"
+          callbacks="paging['bins'].callbacks"></div>
+
         <table class="slim table table-hover pointer" style="margin-top: 10px;"
           ng-show="lists.bins.length > 0">
           <thead class="pointer">
@@ -107,7 +118,7 @@
               <th class="col-md-1 col-xs-1">Actions</th>
             </tr>
           </thead>
-          <tbody ng-repeat="bin in lists.bins">
+          <tbody ng-repeat="bin in pagedBins.data">
             <tr ng-click="bin.enabled && selectBin(bin, 'all');"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id && bin.enabled}">
@@ -176,7 +187,7 @@
       <hr ng-show="selected.bin">
       <!-- Bin Records Table -->
       <div ng-show="selected.bin" records-table selected="selected"
-        lists="lists" user="user" paging="paging"></div>
+        lists="lists" user="user" paging="paging['records']"></div>
     </div>
     </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group
       ng-click="saveAccordionStatus()" is-open="groups[1].open">

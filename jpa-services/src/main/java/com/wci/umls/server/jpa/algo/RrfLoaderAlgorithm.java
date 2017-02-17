@@ -728,10 +728,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           rel.setHierarchical(true);
         }
         relMap.put(fields[1], rel);
-        // Logger.getLogger(getClass())
-        // .info(" add relationship type - " + rel);
-      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")/*
-          && !fields[1].equals("SIB")*/) {
+
+      } else if (fields[0].equals("REL") && fields[2].equals("rel_inverse")) {
         inverseRelMap.put(fields[1], fields[3]);
         if (inverseRelMap.containsKey(fields[1])
             && inverseRelMap.containsKey(fields[3])) {
@@ -1060,7 +1058,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // 0 VCUI
       // 1 RCUI
       // 2 VSAB
-      // 3 RSAB
       // 4 SON
       // 5 SF
       // 6 SVER
@@ -1119,12 +1116,27 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         sourceMetadataMap.put(fields[3], typeAbbrMap);
       }
 
+      // Compute the version from the VSAB and RSAB
+      // DO NOT just use the version field, this turns out to be garbage
       String termVersion = null;
-      if (style == Style.SINGLE || fields[6].equals(""))
+      if (style == Style.SINGLE || fields[6].equals("")) {
         termVersion = getVersion();
-      else
-        termVersion = fields[6];
+      } else {
+        final String vsab = fields[2];
+        final String rsab = fields[3];
+        // The version is the vsab with the rsab removed and any leading _
+        // removed.
+        if (vsab.startsWith(rsab)) {
+          termVersion = vsab.substring(rsab.length());
+          if (termVersion.startsWith("_")) {
+            termVersion = termVersion.replaceAll("^_", "");
+          }
+        } else {
+          throw new Exception(
+              "VSAB does not start with RSAB: " + vsab + ", " + rsab);
+        }
 
+      }
       Terminology term = loadedTerminologies.get(fields[3]);
       if (term == null || !term.getVersion().equals(termVersion)) {
         term = new TerminologyJpa();
@@ -2301,7 +2313,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         memberAtt.setSuppressible(!fields[11].equals("N"));
         memberAtt.setPublishable(true);
         memberAtt.setPublished(true);
-        if (atvFields.length > 1) {
+        if (fields[10].indexOf("~") != -1) {
           memberAtt.setName(atvFields[1]);
           memberAtt.setValue(atvFields[2]);
         } else {
@@ -2670,8 +2682,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // empty
         // container for the object with the id set.
 
-       
-
         else if (fields[2].equals("AUI") && fields[6].equals("AUI")) {
           final AtomRelationship aRel = new AtomRelationshipJpa();
 
@@ -2725,7 +2735,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           // terminology id
           conceptRel.setTerminologyId(fields[8]);
           setRelationshipFields(fields, conceptRel);
-          
+
           addRelationship(conceptRel);
           relationshipMap.put(fields[8], conceptRel.getId());
 

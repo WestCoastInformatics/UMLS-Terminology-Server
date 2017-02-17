@@ -17,7 +17,6 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
@@ -30,6 +29,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
 
   /**
    * Instantiates an empty {@link ComputePreferredNamesAlgorithm}.
+   *
    *
    * @throws Exception the exception
    */
@@ -66,7 +66,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting PREFNAMES");
+    logInfo("Starting " + getName());
 
     // Configure algorithm
     final ComputePreferredNameHandler handler =
@@ -96,14 +96,14 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
       // if something changed, update the concept
       if (isChanged(concept, handler)) {
         updateConcept(concept);
-        // Reindex the concept relationships because the name changed
-        for (final ConceptRelationship rel : concept.getRelationships()) {
-          updateRelationship(rel);
-        }
-        for (final ConceptRelationship rel : concept
-            .getInverseRelationships()) {
-          updateRelationship(rel);
-        }
+        // // Reindex the concept relationships because the name changed
+        // for (final ConceptRelationship rel : concept.getRelationships()) {
+        // updateRelationship(rel);
+        // }
+        // for (final ConceptRelationship rel : concept
+        // .getInverseRelationships()) {
+        // updateRelationship(rel);
+        // }
         updatedCt++;
       }
 
@@ -127,7 +127,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  concept count = " + objectCt);
     logInfo("  concepts updated = " + updatedCt);
-    logInfo("Finished PREFNAMES");
+    logInfo("Finished " + getName());
 
   }
 
@@ -179,7 +179,9 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // No reset, this can be safely re-run
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

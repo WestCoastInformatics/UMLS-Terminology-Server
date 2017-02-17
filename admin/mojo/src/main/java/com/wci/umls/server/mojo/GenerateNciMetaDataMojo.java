@@ -932,6 +932,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -967,6 +968,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION_NOCONCEPT");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -1398,6 +1400,25 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REINDEX");
+    algoConfig.setDescription("REINDEX Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REINDEX algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("indexedObjects",
+        "ConceptRelationshipJpa,CodeRelationshipJpa,DescriptorRelationshipJpa");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("POSTINSERTION");
     algoConfig.setDescription("POSTINSERTION Algorithm");
     algoConfig.setEnabled(true);
@@ -1813,6 +1834,25 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REINDEX");
+    algoConfig.setDescription("REINDEX Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REINDEX algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("indexedObjects",
+        "ConceptRelationshipJpa,CodeRelationshipJpa,DescriptorRelationshipJpa");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("POSTINSERTION");
     algoConfig.setDescription("POSTINSERTION Algorithm");
     algoConfig.setEnabled(true);
@@ -2192,6 +2232,25 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
     algoProperties.put("type", "MUTUALLY_EXCLUSIVE");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REINDEX");
+    algoConfig.setDescription("REINDEX Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REINDEX algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("indexedObjects",
+        "ConceptRelationshipJpa,CodeRelationshipJpa,DescriptorRelationshipJpa");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
@@ -2693,7 +2752,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    algoProperties.put("siblingsThreshold", "1000");
+    algoProperties.put("siblingsThreshold", "100");
     algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
@@ -2834,6 +2893,19 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // TODO - once it's available, add ValidateReleaseAlgorithm
 
     // TODO - once it's available, add RunMetamorphoSysAlgorithm
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RUNMMSYS");
+    algoConfig.setDescription("RUNMMSYS Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RUNMMSYS algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     // TODO - once it's available, add PackageReleaseAlgorithm
 
@@ -2955,6 +3027,25 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REINDEX");
+    algoConfig.setDescription("REINDEX Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REINDEX algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    final Map<String, String> algoProperties = new HashMap<String, String>();
+    algoProperties.put("indexedObjects",
+        "ConceptRelationshipJpa,CodeRelationshipJpa,DescriptorRelationshipJpa,ConceptJpa,DescriptorJpa,CodeJpa");
+    algoConfig.setProperties(algoProperties);
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);

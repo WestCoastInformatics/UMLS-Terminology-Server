@@ -359,8 +359,8 @@ public interface RootService extends Transactionable {
    * @return the list
    * @throws Exception the exception
    */
-  public TypeKeyValueList findTypeKeyValuesForQuery(String query, PfsParameter pfs)
-    throws Exception;
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query,
+    PfsParameter pfs) throws Exception;
 
   /**
    * Gets the validation check names.
@@ -383,7 +383,7 @@ public interface RootService extends Transactionable {
   public List<Long[]> executeComponentIdPairQuery(String query,
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz) throws Exception;
-  
+
   /**
    * Execute single component id query.
    *
@@ -396,8 +396,8 @@ public interface RootService extends Transactionable {
    */
   public List<Long> executeSingleComponentIdQuery(String query,
     QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz) throws Exception;  
-  
+    Class<? extends Component> clazz) throws Exception;
+
   /**
    * Execute clustered concept query.
    *
@@ -409,7 +409,7 @@ public interface RootService extends Transactionable {
    */
   public List<Long[]> executeClusteredConceptQuery(String query,
     QueryType queryType, Map<String, String> params) throws Exception;
-  
+
   /**
    * Returns the validation handlers map.
    *
@@ -429,4 +429,4 @@ public interface RootService extends Transactionable {
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
 
-}
+ }

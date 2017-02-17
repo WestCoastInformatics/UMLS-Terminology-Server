@@ -59,7 +59,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting LEXICALCLASSASSIGNMENT");
+    logInfo("Starting " + getName());
 
     setMolecularActionFlag(false);
 
@@ -204,7 +204,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
       logInfo("  updated LUIs ct = " + updatedLuis);
       logInfo("  new LUIs ct = " + newLuis);
-      logInfo("Finished LEXICALCLASSASSIGNMENT");
+      logInfo("Finished " + getName());
 
     } catch (
 
@@ -221,7 +221,9 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

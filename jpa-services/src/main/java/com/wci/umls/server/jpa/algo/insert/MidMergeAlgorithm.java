@@ -12,7 +12,7 @@ import com.wci.umls.server.jpa.ValidationResultJpa;
  * Implementation of an algorithm to import attributes.
  */
 public class MidMergeAlgorithm extends GeneratedMergeAlgorithm {
-  
+
   /**
    * Instantiates an empty {@link GeneratedMergeAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -51,10 +51,12 @@ public class MidMergeAlgorithm extends GeneratedMergeAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
     // Set GeneratedMergeAlgorithm's midMerge flag to True, and run it.
     super.setMidMerge(true);
     super.compute();
-    
+    logInfo("Finished " + getName());
+
   }
 
 }

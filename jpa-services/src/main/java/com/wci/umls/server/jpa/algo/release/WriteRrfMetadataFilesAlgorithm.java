@@ -23,7 +23,7 @@ import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -39,16 +39,8 @@ import com.wci.umls.server.model.meta.Terminology;
 /**
  * Algorithm to write the RRF metadata files.
  */
-public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class WriteRrfMetadataFilesAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link WriteRrfMetadataFilesAlgorithm}.
@@ -70,17 +62,24 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting write RRF metadata files");
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
+    setSteps(4);
 
     writeMrdoc();
+    updateProgress();
+
     writeMrsab();
+    updateProgress();
+
     writeMrrank();
+    updateProgress();
+
     writeMrcolsMrfiles();
+    updateProgress();
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished write RRF metadata files");
-
+    logInfo("Finished " + getName());
   }
 
   /**
@@ -156,8 +155,6 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
     final List<String> outputLines = new ArrayList<>();
 
     // progress monitoring
-    steps = getCurrentTerminologies().getObjects().size();
-
     for (final Terminology term : getCurrentTerminologies().getObjects()) {
 
       // Field Description
@@ -216,8 +213,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         // Look up versioned concept
         results = findConceptSearchResults(getProject().getTerminology(),
             getProject().getVersion(), getProject().getBranch(),
-            " atoms.codeId:V-" + term.getTerminology() + "_"
-                + term.getVersion()                 
+            " atoms.codeId:V-" + term.getTerminology() + "_" + term.getVersion()
                 + " AND atoms.terminology:SRC AND atoms.termType:VPT",
             null);
         if (results.size() > 0) {
@@ -227,8 +223,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
         // not everything has a VCUI (e.g. "SRC" and "MTH").
       } else {
         // everything should have an RCUI
-        logWarn(
-            "Unexpected missing RCUI concept " + term.getTerminology());
+        logWarn("Unexpected missing RCUI concept " + term.getTerminology());
         continue;
       }
 
@@ -316,7 +311,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(term.getCitation()).append("|");
 
       outputLines.add(sb.toString());
-      updateProgress();
+
     }
 
     // sort and write to file
@@ -603,7 +598,7 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
       sb.append(entry.getExpandedForm()).append("|");
       outputLines.add(sb.toString());
     }
-    
+
     // A few need to be hardcoded
     outputLines.add("MAPATN|ACTIVE|expanded_form|Active|");
     outputLines.add("MAPATN||expanded_form|Empty attribute name|");
@@ -622,7 +617,9 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
 
   }
 
@@ -636,22 +633,6 @@ public class WriteRrfMetadataFilesAlgorithm extends AbstractAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      checkCancel();
-      fireProgressEvent(currentProgress,
-          "RRF METADATA progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */

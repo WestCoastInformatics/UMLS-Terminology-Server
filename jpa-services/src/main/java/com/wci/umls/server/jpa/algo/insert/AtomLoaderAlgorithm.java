@@ -354,14 +354,24 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
           final Concept projectConcept = concepts.getObjects().get(0);
           Atom placeholderAtom = new AtomJpa();
+          placeholderAtom.setAlternateTerminologyIds(new HashMap<>());
           placeholderAtom
               .setName("Placeholder for last published cui " + prevRelCui);
           placeholderAtom.setTerminology(getProject().getTerminology());
           placeholderAtom.setVersion(getProject().getVersion());
+          placeholderAtom.setTermType("PN");
+          placeholderAtom.setCodeId(prevRelCui);
+          placeholderAtom.setTerminologyId("");
+          placeholderAtom.setConceptId("");
           placeholderAtom.setPublishable(false);
           placeholderAtom.setPublished(false);
           placeholderAtom.setObsolete(false);
           placeholderAtom.setSuppressible(false);
+          placeholderAtom
+              .setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          placeholderAtom.setLanguage("");
+          placeholderAtom.setLexicalClassId("");
+          placeholderAtom.setStringClassId("");
           final Map<String, String> conceptTerminologyIds = new HashMap<>();
           conceptTerminologyIds.put(getProject().getTerminology(), prevRelCui);
           placeholderAtom.setConceptTerminologyIds(conceptTerminologyIds);
@@ -499,7 +509,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

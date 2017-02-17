@@ -55,6 +55,7 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
     if (fullTextEntityManager == null) {
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
@@ -183,7 +184,7 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
-    AlgorithmParameter param =
+    final AlgorithmParameter param =
         new AlgorithmParameterJpa("Indexed Objects", "indexedObjects",
             "Comma-separated list of simple object class names to reindex.", "",
             255, AlgorithmParameter.Type.STRING, "");
