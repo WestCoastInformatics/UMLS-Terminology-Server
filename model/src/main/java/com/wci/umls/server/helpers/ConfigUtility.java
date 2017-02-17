@@ -63,6 +63,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
@@ -369,7 +370,7 @@ public class ConfigUtility {
     }
 
     // The "configFile" is presumed to be in the $home/config directory.
-    final String dir = new File(configFile).getParent();
+    final String dir = new File(configFile).getParentFile().getParent();
     for (final String f : new String[] {
         "bin", "config", "data"
     }) {
@@ -1362,19 +1363,20 @@ public class ConfigUtility {
    *          environment variable definitions
    * @param background a flag indicating whether or not to run the process in
    *          the background.
-   * @param dir the working directory of the subprocess
+   * @param dirIn the dir in
    * @param s <code>PrintWriter</code> to use for output
    * @return a {@link String} containing the process log
    * @throws Exception the exception
    */
   public static String exec(String[] cmdarrayIn, String[] env,
-    boolean background, File dir, PrintWriter s) throws Exception {
+    boolean background, String dirIn, PrintWriter s) throws Exception {
 
     // Check if on windows and invoke "cygwin" - assume it's defined in config
     // properties
     // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
     // installed
-    String[] cmdarray = null;
+    String dir = dirIn;
+    String[] cmdarray = cmdarrayIn;
     if (System.getProperty("os.name").toLowerCase().contains("win")) {
       // Change the command to be based around cygwin
       if (ConfigUtility.getConfigProperties()
@@ -1388,8 +1390,7 @@ public class ConfigUtility {
       cmdarray = new String[] {
           tcsh, "-c", FieldedStringTokenizer.join(cmdarrayIn, " ")
       };
-    } else {
-      cmdarray = cmdarrayIn;
+      dir = FilenameUtils.separatorsToUnix(dirIn);
     }
 
     Runtime run = null;
@@ -1397,7 +1398,7 @@ public class ConfigUtility {
     StringBuffer output = new StringBuffer(1000);
     String line;
     run = Runtime.getRuntime();
-    proc = run.exec(cmdarray, env, dir);
+    proc = run.exec(cmdarray, env, new File(dir));
     BufferedReader in = null;
 
     // Connect a reader to the process

@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -120,9 +119,7 @@ public class RunMetamorphoSysAlgorithm
     data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
     data.append("umls.release.description=Base Release for "
         + getProcess().getVersion()).append("\n");
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-    data.append(
-        "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
+    data.append("umls.release.date=" + getProcess().getVersion() + "01")
         .append("\n");
 
     // Write release.dat files (top-level and in META)
@@ -140,7 +137,7 @@ public class RunMetamorphoSysAlgorithm
     final String mmsys = pathRelease.getPath() + "/MMSYS";
     ConfigUtility.exec(new String[] {
         cmd, meta, net, mmsys
-    }, new String[] {}, false, new File(binDir), logBridge);
+    }, new String[] {}, false, binDir, logBridge);
 
     updateProgress();
 
@@ -188,7 +185,7 @@ public class RunMetamorphoSysAlgorithm
       }, new String[] {
           "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
               + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+      }, false, new File(pathRelease.getPath(), "/MMSYS").getPath(), logBridge);
     } else {
       // If fails as solaris, try as linux
       ConfigUtility.exec(new String[] {
@@ -205,7 +202,7 @@ public class RunMetamorphoSysAlgorithm
       }, new String[] {
           "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
               + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+      }, false, new File(pathRelease.getPath(), "/MMSYS").getPath(), logBridge);
     }
 
     updateProgress();
