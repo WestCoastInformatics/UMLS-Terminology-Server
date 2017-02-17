@@ -78,8 +78,8 @@ public class SemanticTypeResolverAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setdirFile(new File(srcFullPath));
-    if (!getDirFile().exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -203,7 +203,7 @@ public class SemanticTypeResolverAlgorithm
       final List<Object[]> list = jpaQuery.getResultList();
 
       // Create the sty_terms_ids file, and write each result to it
-      File outputFile = new File(getDirFile(), "sty_term_ids");
+      File outputFile = new File(getSrcDirFile(), "sty_term_ids");
       final PrintWriter out = new PrintWriter(new FileWriter(outputFile));
 
       for (final Object[] entry : list) {
@@ -214,7 +214,7 @@ public class SemanticTypeResolverAlgorithm
 
       out.close();
 
-      logInfo("  sty_term_ids file = " + getDirFile());
+      logInfo("  sty_term_ids file = " + getSrcDirFile());
 
       logInfo("Finished " + getName());
 

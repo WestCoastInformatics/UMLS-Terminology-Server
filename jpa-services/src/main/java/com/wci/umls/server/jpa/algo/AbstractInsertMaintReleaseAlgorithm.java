@@ -62,8 +62,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /** The search handler. */
   public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
-  /** The full directory where the files are. */
-  private File dirFile = null;
+  /** The full directory where the .src files are. */
+  private File srcDirFile = null;
 
   /** The previous progress. */
   private int previousProgress = 0;
@@ -686,22 +686,24 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
-  /**
-   * Returns the dir file.
-   *
-   * @return the dir file
-   */
-  public File getDirFile() {
-    return dirFile;
-  }
 
   /**
-   * Sets the dir file.
+   * Returns the src dir file.
    *
-   * @param dirFile the dir file
+   * @return the src dir file
    */
-  public void setdirFile(File dirFile) {
-    this.dirFile = dirFile;
+  public File getSrcDirFile() {
+    return srcDirFile;
+  }
+
+
+  /**
+   * Sets the src dir file.
+   *
+   * @param srcDirFile the src dir file
+   */
+  public void setSrcDirFile(File srcDirFile) {
+    this.srcDirFile = srcDirFile;
   }
 
   /**
@@ -1135,7 +1137,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // Load the sources.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getDirFile(), "sources.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
 
     final String fields[] = new String[20];
 

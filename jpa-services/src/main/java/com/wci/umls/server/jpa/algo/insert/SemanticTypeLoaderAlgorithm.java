@@ -66,8 +66,8 @@ public class SemanticTypeLoaderAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setdirFile(new File(srcFullPath));
-    if (!getDirFile().exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -120,7 +120,7 @@ public class SemanticTypeLoaderAlgorithm
       // Load the attributes.src file, only keeping SEMANTIC_TYPE lines.
       //
       final List<String> lines =
-          loadFileIntoStringList(getDirFile(), "attributes.src",
+          loadFileIntoStringList(getSrcDirFile(), "attributes.src",
               "(([a-zA-Z0-9]+?)\\|){3}(SEMANTIC_TYPE\\|){1}(.*)", null);
 
       // Set the number of steps to the number of atoms to be processed

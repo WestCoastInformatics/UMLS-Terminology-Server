@@ -25,6 +25,8 @@ public class FeedbackReleaseAlgorithm
   /** The update count. */
   private int updateCount = 0;
 
+  private File mrDirFile = null;
+
   /**
    * Instantiates an empty {@link FeedbackReleaseAlgorithm}.
    *
@@ -48,10 +50,11 @@ public class FeedbackReleaseAlgorithm
 
     // Check the mr directory
     String mrPath = config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/META";
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META";
 
-    setdirFile(new File(mrPath));
-    if (!getDirFile().exists()) {
+    mrDirFile = new File(mrPath);
+    if (mrDirFile.exists()) {
       throw new Exception(
           "Specified input directory does not exist = " + mrPath);
     }
@@ -78,7 +81,7 @@ public class FeedbackReleaseAlgorithm
     // Load the classes_atoms.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getDirFile(), "MRCONSO.RRF", null, null);
+        loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null);
 
     // Set the number of steps to the number of lines to be processed
     setSteps(lines.size());

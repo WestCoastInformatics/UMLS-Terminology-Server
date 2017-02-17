@@ -102,15 +102,15 @@ public class MetadataLoaderAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setdirFile(new File(srcFullPath));
-    if (!getDirFile().exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
     //
     // Validate AdditionalRelationshipType inverses
     //
-    List<String> lines = loadFileIntoStringList(getDirFile(), "MRDOC.RRF",
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
         "RELA\\|(.*)", null);
 
     final Set<String> relaMRDOC = new HashSet<>();
@@ -161,7 +161,7 @@ public class MetadataLoaderAlgorithm
     // project.getVersion) or as a high term group on a different line of the
     // file.
     lines =
-        loadFileIntoStringList(getDirFile(), "termgroups.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
     fields = new String[6];
 
     // Load all of the low and high term groups
@@ -211,7 +211,7 @@ public class MetadataLoaderAlgorithm
 
     // For sources.src, ensure that source_name (fields[0]) starts with the
     // stripped_source (fields[4])
-    lines = loadFileIntoStringList(getDirFile(), "sources.src", null, null);
+    lines = loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
 
     fields = new String[20];
 
@@ -374,7 +374,7 @@ public class MetadataLoaderAlgorithm
     // Load the sources.src file
     //
     List<String> lines =
-        loadFileIntoStringList(getDirFile(), "sources.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
 
     String fields[] = new String[20];
 
@@ -644,7 +644,7 @@ public class MetadataLoaderAlgorithm
       // Load the contexts.src file
       //
       final List<String> lines =
-          loadFileIntoStringList(getDirFile(), "contexts.src", null, null);
+          loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
 
       final String[] fields = new String[17];
 
@@ -775,7 +775,7 @@ public class MetadataLoaderAlgorithm
     //
     // Load TTY lines from the MRDOC file
     //
-    List<String> lines = loadFileIntoStringList(getDirFile(), "MRDOC.RRF",
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
         "TTY\\|(.*)", null);
 
     String fields[] = new String[4];
@@ -862,7 +862,7 @@ public class MetadataLoaderAlgorithm
     //
     logInfo("  Process termgroups.src");
     lines =
-        loadFileIntoStringList(getDirFile(), "termgroups.src", null, null);
+        loadFileIntoStringList(getSrcDirFile(), "termgroups.src", null, null);
 
     fields = new String[6];
 
@@ -1066,7 +1066,7 @@ public class MetadataLoaderAlgorithm
     //
     // Load ATN lines from the MRDOC file
     //
-    List<String> lines = loadFileIntoStringList(getDirFile(), "MRDOC.RRF",
+    List<String> lines = loadFileIntoStringList(getSrcDirFile(), "MRDOC.RRF",
         "ATN\\|(.*)", null);
 
     String fields[] = new String[4];
@@ -1120,7 +1120,7 @@ public class MetadataLoaderAlgorithm
     //
     // Load RELA lines from the MRDOC file
     //
-    final List<String> lines = loadFileIntoStringList(getDirFile(),
+    final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
         "MRDOC.RRF", "RELA\\|(.*)", null);
     final String fields[] = new String[4];
     for (final String line : lines) {

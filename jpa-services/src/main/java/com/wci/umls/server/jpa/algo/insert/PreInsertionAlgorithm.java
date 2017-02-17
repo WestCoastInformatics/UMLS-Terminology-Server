@@ -56,8 +56,8 @@ public class PreInsertionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir") + "/"
             + getProcess().getInputPath();
 
-    setdirFile(new File(srcFullPath));
-    if (!getDirFile().exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new LocalException(
           "Specified input directory does not exist - " + srcFullPath);
     }

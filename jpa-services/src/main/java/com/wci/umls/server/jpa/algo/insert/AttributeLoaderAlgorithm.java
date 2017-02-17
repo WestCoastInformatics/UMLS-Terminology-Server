@@ -62,8 +62,8 @@ public class AttributeLoaderAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setdirFile(new File(srcFullPath));
-    if (!getDirFile().exists()) {
+    setSrcDirFile(new File(srcFullPath));
+    if (!getSrcDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -104,7 +104,7 @@ public class AttributeLoaderAlgorithm
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
       // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
       //
-      final List<String> lines = loadFileIntoStringList(getDirFile(),
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "attributes.src", null,
           "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM)(.*)");
 
