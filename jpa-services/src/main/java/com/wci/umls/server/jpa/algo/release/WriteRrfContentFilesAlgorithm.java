@@ -1127,8 +1127,8 @@ public class WriteRrfContentFilesAlgorithm
       }
 
       // look up component info relationships where STYPE1=AUI
-      key = a.getTerminologyId() + a.getTerminology() + a.getVersion()
-          + a.getType();
+      key = a.getAlternateTerminologyIds().get(getProject().getTerminology())
+          + a.getTerminology() + a.getVersion() + a.getType();
       for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
         if (!rel.isPublishable()) {
           continue;

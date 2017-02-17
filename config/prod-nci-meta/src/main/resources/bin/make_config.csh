@@ -296,7 +296,7 @@ echo "    Get char map ... `/bin/date`"
       } \
       close($IN); ' >> $OUTPUT_DIR/chars.tmp.dat
       if ($?LVG_HOME == 1) then
-	      cat $OUTPUT_DIR/chars.tmp.dat | $LVG_HOME/bin/lvg -f:q7:q8 |\
+	      cat $OUTPUT_DIR/chars.tmp.dat | $LVG_HOME/bin/lvg.bat -f:q7:q8 |\
     	  cut -d\| -f 1,2 | perl -pe 's/\|/\:/' >! $OUTPUT_DIR/chars.dat
       else
           echo "a:b" >! $OUTPUT_DIR/chars.dat	  
@@ -451,58 +451,17 @@ gov.nih.nlm.umls.mmsys.filter.UnicodeFilter.convert_unicode_char=true
 EOF
 
 
-    perl -e '\
+    perl -e ' \
     open(IN, "$ENV{OUTPUT_DIR}/chars.dat"); \
     binmode(IN,":utf8"); \
     binmode(STDOUT,":utf8"); \
     $lprop="gov.nih.nlm.umls.mmsys.filter.UnicodeFilter.char_map=";  \
     while ($line = <IN>) { \
-        chop($line); @_ = split /\|/; \
-        $lprop .= "$line;";  } \
+        chop($line); @_ = split /\:/, $line; \
+        $char = sprintf "\\u%4.4x", unpack("U0U*", $_[0]); \
+        $lprop .= "$char\\:$_[1];";  } \
     $lprop =~ s/;$//; \
-    print "$lprop\n";' >! char_map.prop
-
-    cat >! X.java << EOF
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.util.Properties;
-import java.util.StringTokenizer;
-public class X {
-    public static void main(String[] s) {
-        try {
-            FileInputStream fin = new FileInputStream(s[0]);
-            BufferedReader in =
-                    new BufferedReader(new InputStreamReader(fin, "UTF-8"));
-            String line = null;
-            Properties p = new Properties();
-            while ((line = in.readLine()) != null) {
-                StringTokenizer st = new StringTokenizer(line,"=");
-                p.put(st.nextToken(),st.nextToken());
-            }
-            in.close();
-            p.store(new FileOutputStream(s[1]),"no comments");
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(1);
-        }
-    }
-}
-EOF
-    setenv CLASSPATH .
-    "$JAVA_HOME/bin/javac" X.java
-    if ($status != 0) then
-        echo "Javac of X.java failed"
-        exit 1
-    endif
-    "$JAVA_HOME/bin/java" X char_map.prop x.prop
-    if ($status != 0) then
-        echo "Conversion program failed"
-        exit 1
-    endif
-    grep char_map= x.prop  >> $OUTPUT_DIR/user.$f.prop
-    /bin/rm -rf X.java X.class char_map.prop x.prop
+    print "$lprop\n";'  >> $OUTPUT_DIR/user.$f.prop
 
         if ($f == "c") then
                 set rss = false
@@ -703,7 +662,6 @@ EOF
 valid_filters=gov.nih.nlm.umls.mmsys.filter.SourceListFilter;gov.nih.nlm.umls.mmsys.filter.PrecedenceFilter;gov.nih.nlm.umls.mmsys.filter.SuppressibleFilter;gov.nih.nlm.umls.mmsys.filter.AttributesFilter;gov.nih.nlm.umls.mmsys.filter.LanguagesFilter;gov.nih.nlm.umls.mmsys.filter.RelationsFilter;gov.nih.nlm.umls.mmsys.filter.SemanticTypesFilter;gov.nih.nlm.umls.mmsys.filter.ContentViewFilter;gov.nih.nlm.umls.mmsys.filter.SourceTermTypeFilter
 
 EOF
-
 
 echo "    Copying MR*RRF files .... `/bin/date`"
 /bin/cp $META_RELEASE/MRRANK.RRF $OUTPUT_DIR
