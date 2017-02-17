@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.workflow;
 
@@ -79,6 +79,10 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   @Column(nullable = false)
   private boolean mutuallyExclusive;
 
+  /** The admin config. */
+  @Column(nullable = false)
+  private boolean adminConfig;
+
   /** The last partition time. */
   @Column(nullable = true)
   private Long lastPartitionTime;
@@ -114,6 +118,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     project = config.getProject();
     timestamp = config.getTimestamp();
     mutuallyExclusive = config.isMutuallyExclusive();
+    adminConfig = config.isAdminConfig();
     type = config.getType();
     workflowBinDefinitions =
         new ArrayList<>(config.getWorkflowBinDefinitions());
@@ -212,6 +217,19 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   }
 
   /* see superclass */
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public boolean isAdminConfig() {
+    return adminConfig;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAdminConfig(boolean adminConfig) {
+    this.adminConfig = adminConfig;
+  }
+
+  /* see superclass */
   @Override
   public Long getLastPartitionTime() {
     return lastPartitionTime;
@@ -265,6 +283,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     final int prime = 31;
     int result = 1;
     result = prime * result + (mutuallyExclusive ? 1231 : 1237);
+    result = prime * result + (adminConfig ? 1231 : 1237);
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((project == null) ? 0 : project.hashCode());
     result = prime * result + ((workflowBinDefinitions == null) ? 0
@@ -283,6 +302,8 @@ public class WorkflowConfigJpa implements WorkflowConfig {
       return false;
     WorkflowConfigJpa other = (WorkflowConfigJpa) obj;
     if (mutuallyExclusive != other.mutuallyExclusive)
+      return false;
+    if (adminConfig != other.adminConfig)
       return false;
     if (project == null) {
       if (other.project != null)

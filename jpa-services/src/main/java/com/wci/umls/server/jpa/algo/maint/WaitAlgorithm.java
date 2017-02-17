@@ -56,7 +56,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting WAIT");
+    logInfo("Starting " + getName());
 
     // fire warning event
     if (warningFlag) {
@@ -78,16 +78,16 @@ public class WaitAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    logInfo("Finished WAIT");
+    logInfo("Finished " + getName());
 
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("Starting WAIT - RESET");
+    logInfo("Starting RESET " + getName());
     logInfo("  no operation");
-    logInfo("Finished WAIT - RESET");
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
@@ -116,7 +116,7 @@ public class WaitAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,

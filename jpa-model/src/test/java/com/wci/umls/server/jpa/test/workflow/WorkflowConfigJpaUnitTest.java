@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.test.workflow;
 
@@ -110,6 +110,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
 
     tester.include("type");
     tester.include("mutuallyExclusive");
+    tester.include("adminConfig");
     tester.include("project");
     tester.include("workflowBinDefinitions");
 
@@ -172,6 +173,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModified");
     tester.include("lastModifiedBy");
     tester.include("mutuallyExclusive");
+    tester.include("adminConfig");
     tester.include("type");
 
     assertTrue(tester.testNotNullFields());
@@ -195,6 +197,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("type");
     tester.include("mutuallyExclusive");
+    tester.include("adminConfig");
     tester.include("projectId");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());

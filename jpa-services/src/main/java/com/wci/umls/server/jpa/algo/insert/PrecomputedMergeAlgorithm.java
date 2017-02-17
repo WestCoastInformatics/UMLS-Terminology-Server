@@ -315,6 +315,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
 
     // Collect any merges previously performed, and UNDO them
     final MolecularActionList molecularActions =
@@ -338,7 +339,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       undoAction.setForce(false);
       undoAction.performMolecularAction(undoAction, getLastModifiedBy(), false);
     }
-
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

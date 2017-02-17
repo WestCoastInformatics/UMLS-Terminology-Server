@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -70,5 +70,19 @@ public interface WorkflowConfig extends HasLastModified, HasProject {
    * @param lastPartitionTime the new last partition time
    */
   public void setLastPartitionTime(Long lastPartitionTime);
+
+  /**
+   * Indicates whether or not admin config is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isAdminConfig();
+
+  /**
+   * Sets the admin config.
+   *
+   * @param adminConfig the admin config
+   */
+  public void setAdminConfig(boolean adminConfig);
 
 }

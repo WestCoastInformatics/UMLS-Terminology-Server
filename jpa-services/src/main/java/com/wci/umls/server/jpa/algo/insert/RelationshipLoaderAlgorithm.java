@@ -617,7 +617,9 @@ public class RelationshipLoaderAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

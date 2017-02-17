@@ -367,7 +367,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           placeholderAtom.setPublished(false);
           placeholderAtom.setObsolete(false);
           placeholderAtom.setSuppressible(false);
-          placeholderAtom.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
+          placeholderAtom
+              .setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           placeholderAtom.setLanguage("");
           placeholderAtom.setLexicalClassId("");
           placeholderAtom.setStringClassId("");
@@ -508,7 +509,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

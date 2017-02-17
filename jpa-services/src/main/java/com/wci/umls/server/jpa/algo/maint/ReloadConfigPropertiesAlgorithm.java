@@ -37,6 +37,7 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
     // Clear existing properties
     ConfigUtility.clearConfigProperties();
 
@@ -46,13 +47,16 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
     // Refresh caches (will handle WorkflowServiceJpa and all superclasses)
     // If others have caches, explicitly create and refresh them here.
     refreshCaches();
+    logInfo("Finished " + getName());
 
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
@@ -71,7 +75,7 @@ public class ReloadConfigPropertiesAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     return super.getParameters();
   }
 

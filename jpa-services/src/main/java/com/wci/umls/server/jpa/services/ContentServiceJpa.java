@@ -1627,7 +1627,8 @@ public class ContentServiceJpa extends MetadataServiceJpa
               "fromId:" + relationship.getTo().getId() + " AND toId:"
                   + relationship.getFrom().getId() + " AND relationshipType:"
                   + inverseRelType
-                  + (ConfigUtility.isEmpty(inverseAdditionalRelType) ? ""
+                  + (ConfigUtility.isEmpty(inverseAdditionalRelType)
+                      ? " AND NOT additionalRelationshipType:[* TO *] "
                       : " AND additionalRelationshipType:"
                           + inverseAdditionalRelType),
               false, null, relationship.getClass());

@@ -65,7 +65,7 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting Write RRF Indexes");
+    logInfo("Starting " + getName());
 
     openWriters();
 
@@ -167,13 +167,15 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
       updateProgress();
     }
     closeWriters();
-    logInfo("Finishing Write RRF Indexes");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
 
   }
 

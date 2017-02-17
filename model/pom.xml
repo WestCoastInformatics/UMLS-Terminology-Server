@@ -34,11 +34,17 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
     <!-- Mail -->
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
     </dependency>
+
 
     <!-- JUnit -->
     <dependency>
@@ -51,7 +57,7 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    
+
     <!-- Required for Jersey and JSON -->
 
     <dependency>
@@ -60,7 +66,7 @@
     </dependency>
 
     <!-- Required for Lucene -->
-    
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-search-orm</artifactId>

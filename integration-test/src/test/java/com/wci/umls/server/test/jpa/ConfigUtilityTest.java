@@ -3,32 +3,15 @@
  */
 package com.wci.umls.server.test.jpa;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.util.FileUtils;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.ProcessExecution;
-import com.wci.umls.server.Project;
-import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.ProjectList;
-import com.wci.umls.server.jpa.ProcessExecutionJpa;
-import com.wci.umls.server.jpa.algo.insert.ContextLoaderAlgorithm;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.ProcessServiceJpa;
-import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
