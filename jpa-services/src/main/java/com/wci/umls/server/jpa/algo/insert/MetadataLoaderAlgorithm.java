@@ -485,8 +485,10 @@ public class MetadataLoaderAlgorithm
         term.setTerminology(fields[4]);
         term.setVersion(computeVersion(fields[0], fields[4]));
         term.setDescriptionLogicTerminology(false);
-        if (determineOrganizingClassType(fields[0]) != null) {
-          term.setOrganizingClassType(determineOrganizingClassType(fields[0]));
+        final IdType organizingClassType =
+            determineOrganizingClassType(fields[0], fields[4]);
+        if (organizingClassType != null) {
+          term.setOrganizingClassType(organizingClassType);
         } else {
           term.setOrganizingClassType(IdType.CODE);
         }
@@ -521,9 +523,10 @@ public class MetadataLoaderAlgorithm
         existingTerm.setTerminology(fields[4]);
         existingTerm.setVersion(computeVersion(fields[0], fields[4]));
         existingTerm.setDescriptionLogicTerminology(false);
-        if (determineOrganizingClassType(fields[0]) != null) {
-          existingTerm
-              .setOrganizingClassType(determineOrganizingClassType(fields[0]));
+        final IdType organizingClassType =
+            determineOrganizingClassType(fields[0], fields[4]);
+        if (organizingClassType != null) {
+          existingTerm.setOrganizingClassType(organizingClassType);
         } else {
           existingTerm.setOrganizingClassType(IdType.CODE);
         }
@@ -559,11 +562,7 @@ public class MetadataLoaderAlgorithm
     for (Terminology newTerm : termsToAddMap.values()) {
       for (Terminology existingTerm : getCachedTerminologies().values()) {
         if (newTerm.getRootTerminology().getId()
-            .equals(existingTerm.getRootTerminology().getId())) {
-          System.out.print("TESTTEST");
-        }
-        if (newTerm.getRootTerminology()
-            .equals(existingTerm.getRootTerminology())
+            .equals(existingTerm.getRootTerminology().getId())
             && !newTerm.getVersion().equals(existingTerm.getVersion())) {
           if (existingTerm.isCurrent()) {
             existingTerm.setCurrent(false);
@@ -613,15 +612,16 @@ public class MetadataLoaderAlgorithm
    * @return the id type
    * @throws Exception the exception
    */
-  private IdType determineOrganizingClassType(String terminologyAndVersion)
-    throws Exception {
+  private IdType determineOrganizingClassType(String terminologyAndVersion,
+    String terminologyName) throws Exception {
 
     // If previous version of terminology exists, use previous
     // OrganizingClassType
-    final Terminology existingTerminology =
-        getCachedTerminology(terminologyAndVersion);
-    if (existingTerminology != null) {
-      return existingTerminology.getOrganizingClassType();
+    for (final Terminology existingTerminology : getCachedTerminologies()
+        .values()) {
+      if (terminologyName.equals(existingTerminology.getTerminology())) {
+        return existingTerminology.getOrganizingClassType();
+      }
     }
 
     // Otherwise, we need to look through contexts.src.
