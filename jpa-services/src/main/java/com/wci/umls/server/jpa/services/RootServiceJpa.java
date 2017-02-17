@@ -823,7 +823,7 @@ public abstract class RootServiceJpa implements RootService {
   public void logAndCommit(final int objectCt, final int logCt,
     final int commitCt) throws Exception {
     // log at regular intervals
-    if (objectCt % logCt == 0) {
+    if (objectCt % logCt == 0 && objectCt>0) {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
     if (objectCt % commitCt == 0) {
