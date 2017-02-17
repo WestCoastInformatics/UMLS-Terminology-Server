@@ -596,11 +596,12 @@ public class MetadataLoaderAlgorithm
    * 16AA_160906F). Calculate the version instead. This is also done in the RRF
    * loader
    *
-   * @param string the string
-   * @param string2 the string 2
+   * @param terminologyAndVersion the terminology and version
+   * @param terminology the terminology
    * @return the string
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private String computeVersion(String terminologyAndVersion,
     String terminology) throws Exception {
 
@@ -616,6 +617,7 @@ public class MetadataLoaderAlgorithm
    * Determine organizing class type.
    *
    * @param terminologyAndVersion the terminology
+   * @param terminologyName the terminology name
    * @return the id type
    * @throws Exception the exception
    */

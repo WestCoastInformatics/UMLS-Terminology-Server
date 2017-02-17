@@ -102,7 +102,6 @@ tsApp.controller('WorkflowCtrl', [
     $scope.resetBinPaging = function() {
       $scope.paging['bins'] = utilService.getPaging();
       $scope.paging['bins'].sortField = 'rank';
-      $scope.paging['bins'].pageSize = 5;
       $scope.paging['bins'].callbacks = {
         getPagedList : getPagedBins
       };
@@ -211,7 +210,7 @@ tsApp.controller('WorkflowCtrl', [
         return $scope.lists.configs;
       } else {
         return $scope.lists.configs.filter(function(item) {
-          !item.adminConfig
+          return !item.adminConfig;
         });
       }
     }
