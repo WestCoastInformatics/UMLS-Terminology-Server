@@ -304,6 +304,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           if (oldAtomChanged) {
             updateAtom(oldAtom);
             updateCount++;
+            putComponent(oldAtom, newAtomAui);
 
             // Reconcile code/concept/descriptor
             reconcileCodeConceptDescriptor(oldAtom);
