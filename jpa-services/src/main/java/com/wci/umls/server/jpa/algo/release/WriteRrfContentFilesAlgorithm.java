@@ -18,13 +18,15 @@ import java.util.UUID;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
@@ -41,6 +43,7 @@ import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.CodeTreePosition;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -64,16 +67,8 @@ import com.wci.umls.server.services.handlers.SearchHandler;
 /**
  * Algorithm to write the RRF content files.
  */
-public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class WriteRrfContentFilesAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The sem type map. */
   private Map<String, SemanticType> semTypeMap = new HashMap<>();
@@ -177,7 +172,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
             + "  and c.publishable = true order by c.terminologyId",
         QueryType.JQL, params, ConceptJpa.class);
     commitClearBegin();
-    steps = conceptIds.size();
+    setSteps(conceptIds.size());
 
     // Write AMBIG files
     writeAmbig();
@@ -1093,17 +1088,18 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       // determine aui2
       String aui2 = null;
       String stype2 = null;
-      if (rel.getFrom().getType() == IdType.CONCEPT) {
-        aui2 = conceptAuiMap.get(rel.getFrom().getId());
+      final Component from = findComponent(rel.getFrom());
+      if (from.getType() == IdType.CONCEPT) {
+        aui2 = conceptAuiMap.get(from.getId());
         stype2 = "SCUI";
-      } else if (rel.getFrom().getType() == IdType.CODE) {
-        aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+      } else if (from.getType() == IdType.CODE) {
+        aui2 = descriptorAuiMap.get(from.getId());
         stype2 = "CODE";
-      } else if (rel.getFrom().getType() == IdType.DESCRIPTOR) {
-        aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+      } else if (from.getType() == IdType.DESCRIPTOR) {
+        aui2 = descriptorAuiMap.get(from.getId());
         stype2 = "SDUI";
-      } else if (rel.getFrom().getType() == IdType.ATOM) {
-        aui2 = ((Atom) rel.getFrom()).getAlternateTerminologyIds()
+      } else if (from.getType() == IdType.ATOM) {
+        aui2 = ((Atom) from).getAlternateTerminologyIds()
             .get(getProject().getTerminology());
         stype2 = "AUI";
       }
@@ -1142,17 +1138,17 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         String aui2 = null;
         String stype2 = null;
         String cui2 = null;
-        if (rel.getFrom().getType() == IdType.CONCEPT) {
-          stype2 = rel.getFrom().getTerminology()
-              .equals(getProject().getTerminology()) ? "CUI" : "SCUI";
-          aui2 = stype2.equals("CUI") ? ""
-              : conceptAuiMap.get(rel.getFrom().getId());
-          cui2 = stype2.equals("CUI") ? null : rel.getFrom().getTerminologyId();
-        } else if (rel.getFrom().getType() == IdType.CODE) {
-          aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+        final Component from = findComponent(rel.getFrom());
+        if (from.getType() == IdType.CONCEPT) {
+          stype2 = from.getTerminology().equals(getProject().getTerminology())
+              ? "CUI" : "SCUI";
+          aui2 = stype2.equals("CUI") ? "" : conceptAuiMap.get(from.getId());
+          cui2 = stype2.equals("CUI") ? null : from.getTerminologyId();
+        } else if (from.getType() == IdType.CODE) {
+          aui2 = descriptorAuiMap.get(from.getId());
           stype2 = "CODE";
-        } else if (rel.getFrom().getType() == IdType.DESCRIPTOR) {
-          aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+        } else if (from.getType() == IdType.DESCRIPTOR) {
+          aui2 = descriptorAuiMap.get(from.getId());
           stype2 = "SDUI";
         }
         lines.add(this.getRelLine(rel, cui1, aui1, "AUI", cui2, aui2, stype2));
@@ -1184,14 +1180,15 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
           String aui2 = null;
           String stype2 = null;
-          if (rel.getFrom().getType() == IdType.CODE) {
-            aui2 = codeAuiMap.get(rel.getFrom().getId());
+          final Component from = findComponent(rel.getFrom());
+          if (from.getType() == IdType.CODE) {
+            aui2 = codeAuiMap.get(from.getId());
             stype2 = "CODE";
-          } else if (rel.getFrom().getType() == IdType.DESCRIPTOR) {
-            aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+          } else if (from.getType() == IdType.DESCRIPTOR) {
+            aui2 = descriptorAuiMap.get(from.getId());
             stype2 = "SDUI";
-          } else if (rel.getFrom().getType() == IdType.ATOM) {
-            aui2 = ((Atom) rel.getFrom()).getAlternateTerminologyIds()
+          } else if (from.getType() == IdType.ATOM) {
+            aui2 = ((Atom) from).getAlternateTerminologyIds()
                 .get(getProject().getTerminology());
             stype2 = "AUI";
           }
@@ -1225,15 +1222,16 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // determine aui2
           String aui2 = null;
           String stype2 = null;
-          if (rel.getFrom().getType() == IdType.CONCEPT) {
-            aui2 = conceptAuiMap.get(rel.getFrom().getId());
+          final Component from = findComponent(rel.getFrom());
+          if (from.getType() == IdType.CONCEPT) {
+            aui2 = conceptAuiMap.get(from.getId());
             stype2 = "SCUI";
-          } else if (rel.getFrom().getType() == IdType.ATOM) {
-            aui2 = ((Atom) rel.getFrom()).getAlternateTerminologyIds()
+          } else if (from.getType() == IdType.ATOM) {
+            aui2 = ((Atom) from).getAlternateTerminologyIds()
                 .get(getProject().getTerminology());
             stype2 = "AUI";
-          } else if (rel.getFrom().getType() == IdType.DESCRIPTOR) {
-            aui2 = descriptorAuiMap.get(code.getId());
+          } else if (from.getType() == IdType.DESCRIPTOR) {
+            aui2 = descriptorAuiMap.get(from.getId());
             stype2 = "SDUI";
           }
           lines.add(
@@ -1267,15 +1265,17 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
           // determine aui2
           String aui2 = null;
           String stype2 = rel.getFrom().getType().toString();
-          if (rel.getFrom().getType() == IdType.CONCEPT) {
-            aui2 = conceptAuiMap.get(rel.getFrom().getId());
+          final Component from = findComponent(rel.getFrom());
+          if (from.getType() == IdType.CONCEPT) {
+            aui2 = conceptAuiMap.get(from.getId());
             stype2 = "SCUI";
-          } else if (rel.getFrom().getType() == IdType.CODE) {
-            aui2 = descriptorAuiMap.get(rel.getFrom().getId());
+          } else if (from.getType() == IdType.CODE) {
+            aui2 = descriptorAuiMap.get(from.getId());
             stype2 = "CODE";
-          } else if (rel.getFrom().getType() == IdType.ATOM) {
-            aui2 = ((Atom) rel.getFrom()).getAlternateTerminologyIds()
+          } else if (from.getType() == IdType.ATOM) {
+            aui2 = ((Atom) from).getAlternateTerminologyIds()
                 .get(getProject().getTerminology());
+            stype2 = "AUI";
           }
           lines.add(
               this.getRelLine(rel, cui1, aui1, "SDUI", null, aui2, stype2));
@@ -1289,6 +1289,49 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     Collections.sort(lines);
     return lines;
 
+  }
+
+  /**
+   * Find component.
+   *
+   * @param componentInfo the component info
+   * @return the component
+   * @throws Exception the exception
+   */
+  private Component findComponent(ComponentInfo componentInfo)
+    throws Exception {
+    if (componentInfo.getType() == IdType.CONCEPT) {
+      return this.getConcept(componentInfo.getTerminologyId(),
+          componentInfo.getTerminology(), componentInfo.getVersion(),
+          Branch.ROOT);
+    } else if (componentInfo.getType() == IdType.CODE) {
+      return this.getCode(componentInfo.getTerminologyId(),
+          componentInfo.getTerminology(), componentInfo.getVersion(),
+          Branch.ROOT);
+    } else if (componentInfo.getType() == IdType.DESCRIPTOR) {
+      return this.getDescriptor(componentInfo.getTerminologyId(),
+          componentInfo.getTerminology(), componentInfo.getVersion(),
+          Branch.ROOT);
+    } else if (componentInfo.getType() == IdType.ATOM) {
+      final ConceptList list = findConcepts(componentInfo.getTerminology(),
+          componentInfo.getVersion(), Branch.ROOT,
+          "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
+              + "=" + componentInfo.getTerminologyId() + "\"",
+          null);
+      if (list.size() != 1) {
+        logError("ERROR: unexpected number of concepts with AUI "
+            + componentInfo.getTerminologyId() + ", " + list.size());
+        return null;
+      }
+      for (final Atom atom : list.getObjects().get(0).getAtoms()) {
+        if (atom.getAlternateTerminologyIds().get(getProject().getTerminology())
+            .equals(componentInfo.getTerminologyId())) {
+          return atom;
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -1311,14 +1354,14 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
    * @param rel the rel
    * @param cui1 the cui 1
    * @param aui1 the aui 1
-   * @param cui2 the cui 2
    * @param stype1 the stype 1
+   * @param cui2 the cui 2
    * @param aui2 the aui 2
    * @param stype2 the stype 2
    * @return the rel line
    */
   private String getRelLine(Relationship<?, ?> rel, String cui1, String aui1,
-    String cui2, String stype1, String aui2, String stype2) {
+    String stype1, String cui2, String aui2, String stype2) {
     final StringBuilder sb = new StringBuilder();
     // 0 CUI1
     sb.append(cui1).append("|");
@@ -2188,22 +2231,6 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     checkRequiredProperties(new String[] {
         ""
     }, p);
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      checkCancel();
-      fireProgressEvent(currentProgress,
-          "RRF CONTENT progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /**
