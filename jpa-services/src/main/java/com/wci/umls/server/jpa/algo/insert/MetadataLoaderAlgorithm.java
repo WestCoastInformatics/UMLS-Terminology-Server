@@ -209,6 +209,21 @@ public class MetadataLoaderAlgorithm
       }
     }
 
+    // For sources.src, ensure that source_name (fields[0]) starts with the
+    // stripped_source (fields[4])
+    lines = loadFileIntoStringList(getSrcDirFile(), "sources.src", null, null);
+
+    fields = new String[20];
+
+    for (String line : lines) {
+      FieldedStringTokenizer.split(line, "|", 20, fields);
+      if (!fields[0].startsWith(fields[4])) {
+        validationResult
+            .addError("sources.src the start of source_name: " + fields[0]
+                + " doesn't exactly match the stripped_source: " + fields[4]);
+      }
+    }
+
     return validationResult;
   }
 
@@ -468,17 +483,19 @@ public class MetadataLoaderAlgorithm
       //
       // Terminology based on input line.
       //
-      if (getCachedTerminology(fields[4], fields[5]) == null) {
+      if (getCachedTerminology(fields[0]) == null) {
         // Add if it does not yet exist
         final Terminology term = new TerminologyJpa();
         term.setCitation(new CitationJpa(fields[16]));
         term.setCurrent(true);
         term.setPreferredName(fields[7]);
         term.setTerminology(fields[4]);
-        term.setVersion(fields[5]);
+        term.setVersion(computeVersion(fields[0], fields[4]));
         term.setDescriptionLogicTerminology(false);
-        if (determineOrganizingClassType(fields[4]) != null) {
-          term.setOrganizingClassType(determineOrganizingClassType(fields[4]));
+        final IdType organizingClassType =
+            determineOrganizingClassType(fields[0], fields[4]);
+        if (organizingClassType != null) {
+          term.setOrganizingClassType(organizingClassType);
         } else {
           term.setOrganizingClassType(IdType.CODE);
         }
@@ -506,17 +523,17 @@ public class MetadataLoaderAlgorithm
       }
       // If it does already exist, update the existing terminology
       else {
-        final Terminology existingTerm =
-            getCachedTerminology(fields[4], fields[5]);
+        final Terminology existingTerm = getCachedTerminology(fields[0]);
         existingTerm.setCitation(new CitationJpa(fields[16]));
         existingTerm.setCurrent(true);
         existingTerm.setPreferredName(fields[7]);
         existingTerm.setTerminology(fields[4]);
-        existingTerm.setVersion(fields[5]);
+        existingTerm.setVersion(computeVersion(fields[0], fields[4]));
         existingTerm.setDescriptionLogicTerminology(false);
-        if (determineOrganizingClassType(fields[4]) != null) {
-          existingTerm
-              .setOrganizingClassType(determineOrganizingClassType(fields[4]));
+        final IdType organizingClassType =
+            determineOrganizingClassType(fields[0], fields[4]);
+        if (organizingClassType != null) {
+          existingTerm.setOrganizingClassType(organizingClassType);
         } else {
           existingTerm.setOrganizingClassType(IdType.CODE);
         }
@@ -543,7 +560,7 @@ public class MetadataLoaderAlgorithm
 
         logInfo("  update terminology = " + existingTerm);
         updateTerminology(existingTerm);
-        getCachedTerminologies().put(fields[0], existingTerm);
+        putTerminology(existingTerm);
       }
     }
 
@@ -551,16 +568,14 @@ public class MetadataLoaderAlgorithm
     // the same root terminology, and set their current to false.
     for (Terminology newTerm : termsToAddMap.values()) {
       for (Terminology existingTerm : getCachedTerminologies().values()) {
-        if (newTerm.getRootTerminology()
-            .equals(existingTerm.getRootTerminology())
+        if (newTerm.getRootTerminology().getId()
+            .equals(existingTerm.getRootTerminology().getId())
             && !newTerm.getVersion().equals(existingTerm.getVersion())) {
           if (existingTerm.isCurrent()) {
             existingTerm.setCurrent(false);
             logInfo("  update terminology = " + existingTerm);
             updateTerminology(existingTerm);
-            getCachedTerminologies().put(
-                existingTerm.getTerminology() + "_" + existingTerm.getVersion(),
-                existingTerm);
+            putTerminology(existingTerm);
           }
         }
       }
@@ -571,35 +586,48 @@ public class MetadataLoaderAlgorithm
     for (Terminology newTerm : termsToAddMap.values()) {
       logInfo("  add terminology = " + newTerm);
       newTerm = addTerminology(newTerm);
-      getCachedTerminologies()
-          .put(newTerm.getTerminology() + "_" + newTerm.getVersion(), newTerm);
+      putTerminology(newTerm);
     }
+  }
+
+  /**
+   * Compute version. Note: the version found in sources.src fields[5] is not
+   * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
+   * 16AA_160906F). Calculate the version instead. This is also done in the RRF
+   * loader
+   *
+   * @param string the string
+   * @param string2 the string 2
+   * @return the string
+   * @throws Exception the exception
+   */
+  private String computeVersion(String terminologyAndVersion,
+    String terminology) throws Exception {
+
+    String version = terminologyAndVersion.substring(terminology.length());
+    if (version.startsWith("_")) {
+      version = version.substring(1);
+    }
+
+    return version;
   }
 
   /**
    * Determine organizing class type.
    *
-   * @param terminology the terminology
+   * @param terminologyAndVersion the terminology
    * @return the id type
    * @throws Exception the exception
    */
-  private IdType determineOrganizingClassType(String terminology)
-    throws Exception {
+  private IdType determineOrganizingClassType(String terminologyAndVersion,
+    String terminologyName) throws Exception {
 
     // If previous version of terminology exists, use previous
     // OrganizingClassType
-    for (Map.Entry<String, Terminology> entry : getCachedTerminologies()
-        .entrySet()) {
-      String termName = null;
-      int indexOfUnderscore = entry.getKey().indexOf("_");
-      if (indexOfUnderscore == -1) {
-        termName = entry.getKey();
-      } else {
-        termName = entry.getKey().substring(0, entry.getKey().indexOf("_"));
-      }
-      Terminology term = entry.getValue();
-      if (terminology.equals(termName)) {
-        return term.getOrganizingClassType();
+    for (final Terminology existingTerminology : getCachedTerminologies()
+        .values()) {
+      if (terminologyName.equals(existingTerminology.getTerminology())) {
+        return existingTerminology.getOrganizingClassType();
       }
     }
 
@@ -724,7 +752,7 @@ public class MetadataLoaderAlgorithm
     }
 
     // Now that that's all taken care of, return the value, if it exists
-    return loadedOrganizingClassTypes.get(terminology);
+    return loadedOrganizingClassTypes.get(terminologyAndVersion);
 
   }
 
