@@ -373,6 +373,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           placeholderAtom.setLanguage("");
           placeholderAtom.setLexicalClassId("");
           placeholderAtom.setStringClassId("");
+          placeholderAtom.setDescriptorId("");
           final Map<String, String> conceptTerminologyIds = new HashMap<>();
           conceptTerminologyIds.put(getProject().getTerminology(), prevRelCui);
           placeholderAtom.setConceptTerminologyIds(conceptTerminologyIds);
