@@ -372,7 +372,7 @@ public class ConfigUtility {
     // The "configFile" is presumed to be in the $home/config directory.
     final String dir = new File(configFile).getParentFile().getParent();
     for (final String f : new String[] {
-        "bin", "config", "data"
+        "bin", "config", "data", "lvg"
     }) {
       map.put(f, dir + "/" + f);
     }
@@ -1370,7 +1370,6 @@ public class ConfigUtility {
    */
   public static String exec(String[] cmdarrayIn, String[] env,
     boolean background, String dirIn, PrintWriter s) throws Exception {
-
     // Check if on windows and invoke "cygwin" - assume it's defined in config
     // properties
     // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
@@ -1387,6 +1386,15 @@ public class ConfigUtility {
       final String tcsh =
           ConfigUtility.getConfigProperties().getProperty("cygwin.bin")
               + "/tcsh.exe";
+
+      // Fix anything that looks like a directory to use forward slashes
+      // and /cygwin oriented directories
+      for (int i = 0; i < cmdarrayIn.length; i++) {
+        if (cmdarrayIn[i].contains("\\")) {
+          cmdarrayIn[i] = FilenameUtils.separatorsToUnix(cmdarrayIn[i])
+              .replaceAll("^([a-zA-Z]):", "/cygdrive/$1");
+        }
+      }
       cmdarray = new String[] {
           tcsh, "-c", FieldedStringTokenizer.join(cmdarrayIn, " ")
       };
@@ -1394,11 +1402,21 @@ public class ConfigUtility {
     }
 
     Runtime run = null;
+
     Process proc = null;
+
     StringBuffer output = new StringBuffer(1000);
+
     String line;
     run = Runtime.getRuntime();
+    Logger.getLogger(ConfigUtility.class)
+        .info("execute = " + FieldedStringTokenizer.join(cmdarray, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  env = " + FieldedStringTokenizer.join(env, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  working dir = " + new File(dir));
     proc = run.exec(cmdarray, env, new File(dir));
+
     BufferedReader in = null;
 
     // Connect a reader to the process

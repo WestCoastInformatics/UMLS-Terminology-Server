@@ -131,13 +131,21 @@ public class RunMetamorphoSysAlgorithm
     // Run "make_config.csh"
     logInfo("  Build MMSYS config files from data");
     final String binDir = ConfigUtility.getHomeDirs().get("bin");
+    // Assumes "lvg" dir exists at same level as "config"
+    final String lvgDir = ConfigUtility.getHomeDirs().get("lvg");
+    String[] env = new String[] {};
+    if (new File(lvgDir).exists()) {
+      env = new String[] {
+          "LVG_HOME=" + lvgDir
+      };
+    }
     final String cmd = binDir + "/make_config.csh";
     final String meta = pathRelease.getPath() + "/META";
     final String net = path.getPath() + "/NET";
     final String mmsys = pathRelease.getPath() + "/MMSYS";
     ConfigUtility.exec(new String[] {
         cmd, meta, net, mmsys
-    }, new String[] {}, false, binDir, logBridge);
+    }, env, false, binDir, logBridge);
 
     updateProgress();
 
