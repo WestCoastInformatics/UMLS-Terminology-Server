@@ -76,8 +76,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -106,7 +106,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the classes_atoms.src file
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getDirFile(),
           "classes_atoms.src", null, null);
 
       logInfo("  Process classes_atoms.src");

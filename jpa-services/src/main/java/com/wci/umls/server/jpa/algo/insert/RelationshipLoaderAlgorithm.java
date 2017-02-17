@@ -84,8 +84,8 @@ public class RelationshipLoaderAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -138,14 +138,14 @@ public class RelationshipLoaderAlgorithm
       //
       // Load the relationships.src file
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getDirFile(),
           "relationships.src", null, null);
 
       //
       // Load the contexts.src file
       //
       // Only keep "PAR" relationship rows.
-      List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
+      List<String> lines2 = loadFileIntoStringList(getDirFile(),
           "contexts.src", "[0-9]+?\\|PAR(.*)", null);
 
       // There will be many duplicated lines in the contexts.src file, since the

@@ -90,8 +90,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -138,7 +138,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Load the mergefacts.src file
       //
       List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
+          loadFileIntoStringList(getDirFile(), "mergefacts.src", null, null);
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
@@ -395,7 +395,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         AlgorithmParameter.Type.ENUM, "");
     // Look for the mergefacts.src file and populate the enum based on the
     // merge_set column.
-    List<String> mergeSets = getMergeSets(getSrcDirFile());
+    List<String> mergeSets = getMergeSets(getDirFile());
 
     // If the file isn't found, or the file contains no mergeSets, set the
     // parameter to a free-entry string

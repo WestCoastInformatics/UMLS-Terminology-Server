@@ -91,8 +91,8 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -123,7 +123,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // Load the attributes.src file, keeping only mapping lines
       //
       final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "attributes.src",
+          loadFileIntoStringList(getDirFile(), "attributes.src",
               "(.*)(MAPSETNAME|MAPSETVERSION|TOVSAB|TORSAB|FROMRSAB|FROMVSAB|MAPSETGRAMMAR|MAPSETRSAB|MAPSETTYPE|MAPSETVSAB|MTH_MAPFROMEXHAUSTIVE|MTH_MAPTOEXHAUSTIVE|MTH_MAPSETCOMPLEXITY|MTH_MAPFROMCOMPLEXITY|MTH_MAPTOCOMPLEXITY|MAPSETXRTARGETID|MAPSETSID|XMAP|XMAPTO|XMAPFROM)(.*)",
               null);
 

@@ -91,8 +91,8 @@ public class ContextLoaderAlgorithm
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -116,7 +116,7 @@ public class ContextLoaderAlgorithm
       // Load the contexts.src file
       //
       final List<String> lines =
-          loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+          loadFileIntoStringList(getDirFile(), "contexts.src", null, null);
 
       // Scan the contexts.src file and see if HCD (hierarchical code)
       // for a given terminology is populated.
@@ -600,7 +600,7 @@ public class ContextLoaderAlgorithm
     // Load the contexts.src file
     //
     final List<String> lines =
-        loadFileIntoStringList(getSrcDirFile(), "contexts.src", null, null);
+        loadFileIntoStringList(getDirFile(), "contexts.src", null, null);
 
     // Scan through contexts.src, and collect all terminology/versions
     // referenced.

@@ -89,8 +89,8 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         ConfigUtility.getConfigProperties().getProperty("source.data.dir")
             + File.separator + getProcess().getInputPath();
 
-    setSrcDirFile(new File(srcFullPath));
-    if (!getSrcDirFile().exists()) {
+    setdirFile(new File(srcFullPath));
+    if (!getDirFile().exists()) {
       throw new Exception("Specified input directory does not exist");
     }
 
@@ -120,7 +120,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       //
       // Load the attributes.src file, keeping only subset member lines
       //
-      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getDirFile(),
           "attributes.src", "(.*)(SUBSET_MEMBER)(.*)", null);
 
       // Set the number of steps to twice the number of lines to be processed
