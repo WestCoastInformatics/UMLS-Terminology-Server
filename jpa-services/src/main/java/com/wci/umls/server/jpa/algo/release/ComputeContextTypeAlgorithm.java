@@ -275,7 +275,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     commitClearBegin();
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished compute context type");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */

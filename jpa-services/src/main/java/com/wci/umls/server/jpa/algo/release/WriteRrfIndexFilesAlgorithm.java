@@ -18,7 +18,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
@@ -28,16 +28,8 @@ import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 /**
  * Algorithm to write the RRF index files.
  */
-public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class WriteRrfIndexFilesAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
@@ -65,19 +57,16 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting Write RRF Indexes");
+    logInfo("Starting " + getName());
 
     openWriters();
-
-    previousProgress = 0;
-    stepsCompleted = 0;
 
     // initialize progress monitoring
     javax.persistence.Query query =
         manager.createQuery("select count(*) from ConceptJpa c "
             + "where c.publishable = true and terminology = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
-    steps = Integer.parseInt(query.getSingleResult().toString());
+    setSteps(Integer.parseInt(query.getSingleResult().toString()));
 
     final NormalizedStringHandler handler = getNormalizedStringHandler();
 
@@ -167,13 +156,15 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
       updateProgress();
     }
     closeWriters();
-    logInfo("Finishing Write RRF Indexes");
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
 
   }
 
@@ -242,22 +233,6 @@ public class WriteRrfIndexFilesAlgorithm extends AbstractAlgorithm {
       Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
     }
 
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      checkCancel();
-      fireProgressEvent(currentProgress,
-          "WRITE RRF INDEXES progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */

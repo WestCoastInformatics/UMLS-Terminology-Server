@@ -53,23 +53,35 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
+
     // Send an email
     final Properties p = ConfigUtility.getConfigProperties();
-    final String mailTo = email != null ? email : p.getProperty("mail.smtp.to");
-    ConfigUtility.sendEmail(
-        "Prepare MetamorphoSys for " + getProcess().getTerminology()
-            + " Release " + getProcess().getVersion(),
-        p.getProperty("mail.smtp.from"), mailTo,
-        "Prepare MetamorphoSys for release. \n\nPut mmsys.zip file into "
-            + p.getProperty("source.data.dir") + "/"
-            + getProcess().getInputPath() + "/mr/mmsys.zip",
-        p);
+    if (email != null) {
+      final String mailTo =
+          email != null ? email : p.getProperty("mail.smtp.to");
+      logInfo("  sending email = " + mailTo);
+      ConfigUtility.sendEmail(
+          "Prepare MetamorphoSys for " + getProcess().getTerminology()
+              + " Release " + getProcess().getVersion(),
+          p.getProperty("mail.smtp.from"), mailTo,
+          "Prepare MetamorphoSys for release. \n\nPut mmsys.zip file into "
+              + p.getProperty("source.data.dir") + "/"
+              + getProcess().getInputPath() + "/mr/mmsys.zip",
+          p);
+    } else {
+      logInfo("  DO NOT send email");
+
+    }
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

@@ -29,7 +29,7 @@ close(IN);
 while(<>) {
   my ($cui1, $aui1, $stype1, $rel, $cui2, $aui2, $stype2, $rela, $rui, $srui, $sab, $sl, $dir, $suppress) = split /\|/;
   if (!$srui) {
-     $srui = $map{$rui};
+     $srui .= $map{$rui};
   }
   print "$rui|$cui1 $aui1 $stype1 $rel $cui2 $aui2 $stype2 $rela, $srui, $sab|\n";
   print "$rui|$cui2 $aui2 $stype2 $map{$rel} $cui1 $aui1 $stype1 $map{$rela}, $srui, $sab|\n";

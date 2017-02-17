@@ -51,7 +51,7 @@ public class DummyAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting DUMMY");
+    logInfo("Starting " + getName());
 
     // Print algorithm progress to the log, waiting a second between.
     int previousProgress = 0;
@@ -66,14 +66,16 @@ public class DummyAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    logInfo("Finished DUMMY");
+    logInfo("Finished " + getName());
 
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
@@ -95,7 +97,7 @@ public class DummyAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
     AlgorithmParameter param = new AlgorithmParameterJpa("Number of Iterations",
         "num", "Number of times the algorithm will run", "e.g. 5", 10,

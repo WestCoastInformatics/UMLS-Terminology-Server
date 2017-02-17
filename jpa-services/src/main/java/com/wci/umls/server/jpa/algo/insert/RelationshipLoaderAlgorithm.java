@@ -138,21 +138,21 @@ public class RelationshipLoaderAlgorithm
       //
       // Load the relationships.src file
       //
-      List<String> lines = loadFileIntoStringList(getSrcDirFile(),
+      final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "relationships.src", null, null);
 
       //
       // Load the contexts.src file
       //
       // Only keep "PAR" relationship rows.
-      final List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
+      List<String> lines2 = loadFileIntoStringList(getSrcDirFile(),
           "contexts.src", "[0-9]+?\\|PAR(.*)", null);
 
       // There will be many duplicated lines in the contexts.src file, since the
       // main
       // distinguishing field "parent_treenum" is ignored for these purposes.
       // Remove the dups.
-      lines = removeDups(lines);
+      lines2 = removeDups(lines2);
 
       // Set the number of steps to the number of relationships to be processed
       setSteps(lines.size() + lines2.size());
@@ -368,17 +368,23 @@ public class RelationshipLoaderAlgorithm
     // return;
     // }
 
-    // Load the containing objects based on type
-    final Component fromComponent = getComponent(fromClassIdType, fromTermId,
-        getCachedTerminology(fromTermAndVersion).getTerminology(), null);
+    // Load the from and to objects based on type
+    final Component fromComponent =
+        getComponent(fromClassIdType, fromTermId,
+            fromTermAndVersion.equals("") ? null
+                : getCachedTerminology(fromTermAndVersion).getTerminology(),
+            null);
     if (fromComponent == null) {
       logWarnAndUpdate(line,
           "Warning - could not find from Component for this line.");
       return;
     }
 
-    final Component toComponent = getComponent(toClassIdType, toTermId,
-        getCachedTerminology(toTermAndVersion).getTerminology(), null);
+    final Component toComponent =
+        getComponent(toClassIdType, toTermId,
+            toTermAndVersion.equals("") ? null
+                : getCachedTerminology(toTermAndVersion).getTerminology(),
+            null);
     if (toComponent == null) {
       logWarnAndUpdate(line,
           "Warning - could not find to Component for this line.");
@@ -464,6 +470,11 @@ public class RelationshipLoaderAlgorithm
 
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
+    // TESTTEST
+    if (toTermId.equals("257515345")) {
+      System.out.println("TESTTEST - stop here.");
+    }
+    // END TESTTEST
     final String newRelationshipRui = handler.getTerminologyId(newRelationship,
         inverseRelType, inverseAdditionalRelType);
     final String newInverseRelationshipRui = handler.getTerminologyId(
@@ -613,7 +624,9 @@ public class RelationshipLoaderAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

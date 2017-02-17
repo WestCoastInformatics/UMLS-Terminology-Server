@@ -932,6 +932,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -967,6 +968,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION_NOCONCEPT");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -1971,20 +1973,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setDescription("SEMANTICTYPELOADING Algorithm");
     algoConfig.setEnabled(true);
     algoConfig.setName("SEMANTICTYPELOADING algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("MAPSETLOADING");
-    algoConfig.setDescription("MAPSETLOADING Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("MAPSETLOADING algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());

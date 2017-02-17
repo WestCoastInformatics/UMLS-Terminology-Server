@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -24,7 +23,6 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
  */
 public class RunMetamorphoSysAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
-
 
   /** Log bridge for collecting output */
   private PrintWriter logBridge = new PrintWriter(new StringWriter()) {
@@ -143,7 +141,7 @@ public class RunMetamorphoSysAlgorithm
     final String mmsys = pathRelease.getPath() + "/MMSYS";
     ConfigUtility.exec(new String[] {
         cmd, meta, net, mmsys
-    }, new String[] {}, false, new File(binDir), logBridge);
+    }, new String[] {}, false, binDir, logBridge);
 
     updateProgress();
 
@@ -191,7 +189,7 @@ public class RunMetamorphoSysAlgorithm
       }, new String[] {
           "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
               + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+      }, false, new File(pathRelease.getPath(), "/MMSYS").getPath(), logBridge);
     } else {
       // If fails as solaris, try as linux
       ConfigUtility.exec(new String[] {
@@ -208,7 +206,7 @@ public class RunMetamorphoSysAlgorithm
       }, new String[] {
           "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
               + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+      }, false, new File(pathRelease.getPath(), "/MMSYS").getPath(), logBridge);
     }
 
     updateProgress();
@@ -219,14 +217,14 @@ public class RunMetamorphoSysAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("RESET " + getName());
+    logInfo("Starting RESET " + getName());
 
     // Remove the MMSYS directory
     final File pathRelease = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion());
     logInfo("  Remove directory = " + pathRelease + "/MMSYS");
     FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
-    logInfo("RESET finished " + getName());
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

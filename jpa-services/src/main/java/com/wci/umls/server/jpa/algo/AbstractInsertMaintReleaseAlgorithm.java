@@ -363,7 +363,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
-          + "Relationship Terminology Ids from database for terminology " + terminology);
+          + "Relationship Terminology Ids from database for terminology "
+          + terminology);
 
       final List<Object[]> list = jpaQuery.getResultList();
       for (final Object[] entry : list) {
@@ -439,7 +440,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   /**
    * Cache existing terminologies. Key = Terminology_Version, or just
-   * Terminology if version = "latest"
+   * Terminology if version = "latest". Also cache Key = TerminologyVersion
+   * without the underscore (some terminologies don't follow the normal
+   * convention, e.g. MVX2016_09_07)
    *
    * @throws Exception the exception
    */
@@ -453,6 +456,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cachedTerminologies.put(term.getTerminology(), term);
       } else {
         cachedTerminologies.put(term.getTerminology() + "_" + term.getVersion(),
+            term);
+        cachedTerminologies.put(term.getTerminology() + term.getVersion(),
             term);
       }
     }
@@ -681,6 +686,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
+  
   /**
    * Returns the src dir file.
    *
@@ -784,6 +790,26 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     return cachedRootTerminologies.get(terminology);
+  }
+
+  /**
+   * Put a terminology into the ExistingTerminologies cache
+   *
+   * @param terminology the terminology
+   * @throws Exception the exception
+   */
+  public void putTerminology(Terminology terminology) throws Exception {
+    if (cachedTerminologies.isEmpty()) {
+      cacheExistingTerminologies();
+    }
+
+    // Add terminology with two keys, with and without underscore, to handle
+    // .src file inconsistencies
+    cachedTerminologies.put(
+        terminology.getTerminology() + "_" + terminology.getVersion(),
+        terminology);
+    cachedTerminologies.put(
+        terminology.getTerminology() + terminology.getVersion(), terminology);
   }
 
   /**

@@ -166,7 +166,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting create new release");
+    logInfo("Starting " +getName());
     fireProgressEvent(0, "Starting");
 
     steps = 2;
@@ -241,13 +241,13 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
     updateProgress();
     fireProgressEvent(100, "Finished");
-    logInfo("Finished Create new release");
+    logInfo("Finished " +getName());
   }
 
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("Reset create new release");
+    logInfo("Starting RESET " + getName());
 
     // Undo firstReleases/lastReleases settings to current release info.
     // Set first/last release based on release info
@@ -289,8 +289,8 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
         + getProcess().getInputPath() + "/" + getProcess().getVersion());
     logInfo("  Remove directories = " + releaseDir.getPath());
     FileUtils.deleteDirectory(releaseDir);
-    logInfo("Finished reset of Create new release");
 
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

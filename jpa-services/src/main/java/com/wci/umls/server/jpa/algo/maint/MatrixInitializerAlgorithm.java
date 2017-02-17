@@ -57,13 +57,12 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting MATRIXINIT");
+    logInfo("Starting " + getName());
     if (conceptIds != null) {
       logInfo("  update mode = " + conceptIds.size());
-    }
-    else{
-      conceptIds = new HashSet<>(
-          getAllConceptIds(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT));
+    } else {
+      conceptIds = new HashSet<>(getAllConceptIds(getProject().getTerminology(),
+          getProject().getVersion(), Branch.ROOT));
     }
 
     fireProgressEvent(0, "Starting...find publishable atoms");
@@ -73,8 +72,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get unpublishable concepts with publishable atoms
       final Set<Long> makePublishable =
-          new HashSet<>(handler.getIdResults(getProject().getTerminology(), getProject().getVersion(),
-              Branch.ROOT, "publishable:false AND atoms.publishable:true", null,
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT,
+              "publishable:false AND atoms.publishable:true", null,
               ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(10, "Found concepts to make publishable");
@@ -82,9 +82,10 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Get publishable concepts without publishable atoms
       final Set<Long> makeUnpublishable =
-          new HashSet<>(handler.getIdResults(getProject().getTerminology(), getProject().getVersion(),
-              Branch.ROOT, "publishable:true AND NOT atoms.publishable:true",
-              null, ConceptJpa.class, null, new int[1], manager));
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT,
+              "publishable:true AND NOT atoms.publishable:true", null,
+              ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(20, "Found concepts to make unpublishable");
       logInfo("  make unpublishable = " + makePublishable.size());
@@ -110,14 +111,16 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  need review rel = " + rels.size());
 
       // Perform validation and collect failed concept ids
-      final Set<Long> failures = validateConcepts(getProject(), null, conceptIds);
+      final Set<Long> failures =
+          validateConcepts(getProject(), null, conceptIds);
       checkCancel();
       fireProgressEvent(40, "Found concepts with validation failures");
       logInfo("  validation failures = " + failures.size());
 
       // Find NEEDS_REVIEW concepts that should be READY_FOR_PUBLICATION
-      final Set<Long> makeReviewed = new HashSet<>(
-          handler.getIdResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
+      final Set<Long> makeReviewed =
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT,
               "workflowStatus:NEEDS_REVIEW AND NOT atoms.workflowStatus:NEEDS_REVIEW "
                   + "AND NOT atoms.workflowStatus:DEMOTION AND NOT semanticTypes.workflowStatus:NEEDS_REVIEW "
                   + (needsReviewR.size() == 0 ? ""
@@ -130,8 +133,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
       // Find READY_FOR_PUBLICATION or PUBLISHED concepts that should be
       // NEEDS_REVIEW
-      final Set<Long> makeNeedsReview = new HashSet<>(
-          handler.getIdResults(getProject().getTerminology(), getProject().getVersion(), Branch.ROOT,
+      final Set<Long> makeNeedsReview =
+          new HashSet<>(handler.getIdResults(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT,
               "(workflowStatus:READY_FOR_PUBLICATION OR workflowStatus:PUBLISHED) "
                   + "AND (atoms.workflowStatus:NEEDS_REVIEW OR atoms.workflowStatus:DEMOTION "
                   + "OR semanticTypes.workflowStatus:NEEDS_REVIEW "
@@ -252,8 +256,8 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
             action.close();
           }
         }
-        
-        if (warningCt> 0) {
+
+        if (warningCt > 0) {
           // Trigger a warning - for "pre production"
           logWarn("WARNING: some concepts were unapproved = " + warningCt);
         }
@@ -263,7 +267,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       logInfo("  publishable changed = " + publishableChangeCt);
       logInfo("  status changed = " + statusChangeCt);
       fireProgressEvent(100, "Finished ...");
-      logInfo("Finished MATRIXINIT");
+      logInfo("Finished " + getName());
 
     } catch (
 
@@ -277,7 +281,9 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
@@ -294,7 +300,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
 
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters() throws Exception  {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     return super.getParameters();
   }
 

@@ -87,14 +87,26 @@ tsApp.controller('WorkflowCtrl', [
     }
 
     // Paging parameters
-    $scope.resetPaging = function() {
-      $scope.paging = utilService.getPaging();
-      $scope.paging.sortField = 'clusterId';
-      $scope.paging.callbacks = {
+    $scope.paging = {};
+    $scope.pageSizes = utilService.getPageSizes();
+    $scope.resetRecordPaging = function() {
+      $scope.paging['records'] = utilService.getPaging();
+      $scope.paging['records'].sortField = 'clusterId';
+      $scope.paging['records'].callbacks = {
         getPagedList : getPagedList
       };
     }
-    $scope.resetPaging();
+    $scope.resetRecordPaging();
+
+    // Paging parameters
+    $scope.resetBinPaging = function() {
+      $scope.paging['bins'] = utilService.getPaging();
+      $scope.paging['bins'].sortField = 'rank';
+      $scope.paging['bins'].callbacks = {
+        getPagedList : getPagedBins
+      };
+    }
+    $scope.resetBinPaging();
 
     // Set the workflow config
     $scope.setConfig = function(config) {
@@ -124,7 +136,8 @@ tsApp.controller('WorkflowCtrl', [
               $scope.selectBin(filtered[0]);
             }
           }
-
+          $scope.resetBinPaging();
+          $scope.getPagedBins();
         });
       }
     };
@@ -191,6 +204,16 @@ tsApp.controller('WorkflowCtrl', [
 
     };
 
+    // Determine which config lists to show
+    $scope.getConfigList = function() {
+      if ($scope.selected.projectRole == 'ADMINISTRATOR') {
+        return $scope.lists.configs;
+      } else {
+        return $scope.lists.configs.filter(function(item) {
+          return !item.adminConfig;
+        });
+      }
+    }
     // Retrieve all projects
     $scope.getConfigs = function() {
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(
@@ -221,13 +244,13 @@ tsApp.controller('WorkflowCtrl', [
       }
 
       if (clusterType && clusterType == 'default') {
-        $scope.paging.filter = ' NOT clusterType:[* TO *]';
+        $scope.paging['records'].filter = ' NOT clusterType:[* TO *]';
       } else if (clusterType && clusterType != 'all') {
-        $scope.paging.filter = clusterType;
+        $scope.paging['records'].filter = clusterType;
       } else if (clusterType == 'all') {
-        $scope.paging.filter = '';
+        $scope.paging['records'].filter = '';
       }
-      $scope.resetPaging();
+      $scope.resetRecordPaging();
       getPagedList();
     };
 
@@ -239,15 +262,15 @@ tsApp.controller('WorkflowCtrl', [
     function getPagedList() {
 
       var pfs = {
-        startIndex : ($scope.paging.page - 1) * $scope.paging.pageSize,
-        maxResults : $scope.paging.pageSize,
-        sortField : $scope.paging.sortField,
-        ascending : $scope.paging.sortAscending,
-        queryRestriction : $scope.paging.filter ? $scope.paging.filter : ''
+        startIndex : ($scope.paging['records'].page - 1) * $scope.paging['records'].pageSize,
+        maxResults : $scope.paging['records'].pageSize,
+        sortField : $scope.paging['records'].sortField,
+        ascending : $scope.paging['records'].sortAscending,
+        queryRestriction : $scope.paging['records'].filter ? $scope.paging['records'].filter : ''
       };
 
-      if ($scope.paging.typeFilter) {
-        var value = $scope.paging.typeFilter;
+      if ($scope.paging['records'].typeFilter) {
+        var value = $scope.paging['records'].typeFilter;
 
         // Handle inactive
         if (value == 'N') {
@@ -266,6 +289,15 @@ tsApp.controller('WorkflowCtrl', [
         $scope.lists.records.totalCount = data.totalCount;
       });
 
+    }
+
+    // Bin paging
+    $scope.getPagedBins = function() {
+      getPagedBins();
+    };
+    function getPagedBins() {
+      $scope.selected.bin = null;
+      $scope.pagedBins = utilService.getPagedArray($scope.lists.bins, $scope.paging['bins']);
     }
 
     // Regenerate single bin
