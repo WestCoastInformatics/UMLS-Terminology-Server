@@ -155,7 +155,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting "+getName());
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
     // open print writers
@@ -216,7 +216,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     // Write AMBIGSUI/LUI
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished "+getName());
+    logInfo("Finished " + getName());
 
   }
 
@@ -394,7 +394,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
 
     // Cache component info relationships
     query = manager.createQuery(
-        "select r from ComponentInfoRelationships r where publishable = true");
+        "select r from ComponentInfoRelationshipJpa r where publishable = true");
     List<ComponentInfoRelationship> rels = query.getResultList();
     for (final ComponentInfoRelationship rel : rels) {
       final String key =
@@ -1085,7 +1085,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     // CUI->AUI component info relationships
     String key = c.getTerminologyId() + c.getTerminology() + c.getVersion()
         + c.getType();
-    for (final ComponentInfoRelationship rel : componentInfoRelMap.get(key)) {
+    for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
       if (!rel.isPublishable()) {
         continue;
       }
@@ -1133,7 +1133,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
       // look up component info relationships where STYPE1=AUI
       key = a.getTerminologyId() + a.getTerminology() + a.getVersion()
           + a.getType();
-      for (final ComponentInfoRelationship rel : componentInfoRelMap.get(key)) {
+      for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
         if (!rel.isPublishable()) {
           continue;
         }
@@ -1177,8 +1177,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // look up component info relationships where STYPE1=SCUI
         key = scui.getTerminologyId() + scui.getTerminology()
             + scui.getVersion() + scui.getType();
-        for (final ComponentInfoRelationship rel : componentInfoRelMap
-            .get(key)) {
+        for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
           if (!rel.isPublishable()) {
             continue;
           }
@@ -1217,8 +1216,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // look up component info relationships where STYPE1=CODE
         key = code.getTerminologyId() + code.getTerminology()
             + code.getVersion() + code.getType();
-        for (final ComponentInfoRelationship rel : componentInfoRelMap
-            .get(key)) {
+        for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
 
           if (!rel.isPublishable()) {
             continue;
@@ -1261,8 +1259,7 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
         // look up component info relationships where STYPE1=SDUI
         key = sdui.getTerminologyId() + sdui.getTerminology()
             + sdui.getVersion() + sdui.getType();
-        for (final ComponentInfoRelationship rel : componentInfoRelMap
-            .get(key)) {
+        for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
           if (!rel.isPublishable()) {
             continue;
           }
@@ -1292,6 +1289,20 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
     Collections.sort(lines);
     return lines;
 
+  }
+
+  /**
+   * Returns the component info rels.
+   *
+   * @param key the key
+   * @return the component info rels
+   */
+  private List<ComponentInfoRelationship> getComponentInfoRels(String key) {
+    if (componentInfoRelMap.containsKey(key)) {
+      return componentInfoRelMap.get(key);
+    } else {
+      return new ArrayList<>(0);
+    }
   }
 
   /**
@@ -2145,9 +2156,9 @@ public class WriteRrfContentFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("Starting RESET "+getName());
+    logInfo("Starting RESET " + getName());
     // n/a
-    logInfo("Finished RESET "+getName());
+    logInfo("Finished RESET " + getName());
 
   }
 
