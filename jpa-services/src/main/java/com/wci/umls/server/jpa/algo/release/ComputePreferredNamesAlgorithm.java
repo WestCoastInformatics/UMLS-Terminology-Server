@@ -66,7 +66,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting PREFNAMES");
+    logInfo("Starting " + getName());
 
     // Configure algorithm
     final ComputePreferredNameHandler handler =
@@ -127,7 +127,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(100, "Finished - 100%");
     logInfo("  concept count = " + objectCt);
     logInfo("  concepts updated = " + updatedCt);
-    logInfo("Finished PREFNAMES");
+    logInfo("Finished " + getName());
 
   }
 
@@ -179,7 +179,9 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // No reset, this can be safely re-run
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

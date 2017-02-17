@@ -14,22 +14,6 @@ echo "Starting `/bin/date`"
 echo "--------------------------------------------------------"
 echo "MEME_HOME = $MEME_HOME"
 
-echo "Collect settings..."
-set host = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$1"'`
-set port = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$2"'`
-set db = `grep 'javax.persistence.jdbc.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; $_[1] =~ /jdbc:mysql:\/\/(.*):(\d*)\/(.*)\?/; print "$3"'`
-set user = `grep 'javax.persistence.jdbc.user' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
-set pwd = `grep 'javax.persistence.jdbc.password' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
-set mysql = "mysql -h$host -P$port -u$user -p$pwd $db"
-set url = `grep 'base.url' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
-set adminUser = `grep 'admin.user' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
-set adminPwd = `grep 'admin.password' $MEME_HOME/config/config.properties | perl -ne '@_ = split/=/; print $_[1];'`
-set enabled = `echo "select if(automationsEnabled,'true','false') from projects;" | $mysql | tail -1`
-set projectId = `echo "select id from projects;" | $mysql | tail -1`
-
-echo "project: $projectId"
-echo "enabled: $enabled"
-
 if ($#argv == 3) then
     setenv META_RELEASE $1
     set NET_DIR=$2
@@ -122,7 +106,7 @@ echo "    Get data for sources and termgroups  ... `/bin/date`"
 # sources property has the following fields:
 #   RSAB|SON|VSAB|SF|RL|LAT|CFR|IMETA
 #
-$PATH_TO_PERL -ne 'split /\|/; print "$_[3]|$_[4]|$_[2]|$_[5]|$_[13]|$_[19]|$_[15]|$_[9]\n" if $_[22] eq "Y";' \
+perl -ne '@_ = split /\|/; print "$_[3]|$_[4]|$_[2]|$_[5]|$_[13]|$_[19]|$_[15]|$_[9]\n" if $_[22] eq "Y";' \
   $META_RELEASE/MRSAB.RRF | sort -t\| -k 1,1 -u >! $OUTPUT_DIR/source_info.dat
 
 #
@@ -130,7 +114,7 @@ $PATH_TO_PERL -ne 'split /\|/; print "$_[3]|$_[4]|$_[2]|$_[5]|$_[13]|$_[19]|$_[1
 # RANK|SAB|TTY|SUPPRESS
 #
 sort -t\| -k 1,1 -o $OUTPUT_DIR/source_info.dat{,}
-$sed 's/^.//' $META_RELEASE/MRRANK.RRF | $sed 's/\|$//' |\
+sed 's/^.//' $META_RELEASE/MRRANK.RRF | sed 's/\|$//' |\
   sort -t\| -k 2,2 |\
   join -t\| -j1 2 -j2 1 -o 1.1 2.1 1.3 1.4 - $OUTPUT_DIR/source_info.dat >! $OUTPUT_DIR/termgroup_info.dat
 
@@ -166,7 +150,7 @@ awk -F\| '{print $4 "|" $2}' $OUTPUT_DIR/join1.dat >! $OUTPUT_DIR/precedence.dat
 # rows that do not have a restriction level of 0
 #
 echo "    Get sources to remove ... `/bin/date`"
-$PATH_TO_PERL -ne 'chop; split /\|/; print "$_[0]|$_[3]\n" if $_[4] ne "0";' \
+perl -ne 'chop; @_ = split /\|/; print "$_[0]|$_[3]\n" if $_[4] ne "0";' \
   $OUTPUT_DIR/source_info.dat >! $OUTPUT_DIR/sources_to_remove.dat
 
 #
@@ -189,7 +173,7 @@ awk -F\| '{print $2"|"$4"|"$3} ' $META_RELEASE/MRSTY.RRF | sort -u >! $OUTPUT_DI
 # Fields: RSAB|REL|RELA
 #
 echo "    Get SAB/REL/RELA ... `/bin/date`"
-$PATH_TO_PERL -ne 'split /\|/; next if $map{"$_[10]$_[3]$_[7]"}; \
+perl -ne '@_ = split /\|/; next if $map{"$_[10]$_[3]$_[7]"}; \
      $map{"$_[10]$_[3]$_[7]"} = 1; \
      print "$_[10]|$_[3]|$_[7]\n"' $META_RELEASE/MRREL.RRF |\
    sort -u >! $OUTPUT_DIR/rel_types.dat
@@ -200,13 +184,13 @@ $PATH_TO_PERL -ne 'split /\|/; next if $map{"$_[10]$_[3]$_[7]"}; \
 # Use MEMBERSTATUS instead of SUBSETMEMBER
 #
 echo "    Get SAB/ATN ... `/bin/date`"
-$PATH_TO_PERL -ne 'chop; split /\|/; \
+perl -ne 'chop; @_ = split /\|/; \
    if ($_[8] eq "SUBSETMEMBER") { \
      next if $map{"MEMBERSTATUS$_[9]"}; \
      $map{"MEMBERSTATUS$_[9]"} = 1; \
      print "$_[9]|MEMBERSTATUS\n"; \
    } elsif ($_[8] eq "CV_MEMBER")  { \
-     @fields = split(/~/, $_[10]); \
+     @fields = @_ = split(/~/, $_[10]); \
      $atn = $fields[1]; \
      next if $map{"$atn$_[9]"}; \
      $map{"$atn$_[9]"} = 1; \
@@ -221,14 +205,14 @@ $PATH_TO_PERL -ne 'chop; split /\|/; \
 # Build RELA to SNOMEDCT RELATIONTYPE map
 #
 echo "    Get SNOMEDCT RELA mappings ... `/bin/date`"
-$PATH_TO_PERL -ne 'chop; split /\|/; print "$_[3]|$_[1]\n" if $_[2] eq "snomedct_rela_mapping"' $META_RELEASE/MRDOC.RRF >! $OUTPUT_DIR/snomed_rela_map.dat
+perl -ne 'chop; @_ = split /\|/; print "$_[3]|$_[1]\n" if $_[2] eq "snomedct_rela_mapping"' $META_RELEASE/MRDOC.RRF >! $OUTPUT_DIR/snomed_rela_map.dat
 
 #
 #  Get data for mrpluscolsfiles.dat
 #
 echo "    Get mrpluscolsfiles.dat ... `/bin/date`"
-$PATH_TO_PERL -ne 'chop; split /\|/; print "$_[0]|MRFILES|$_[2]|$_[1]|\n"' $META_RELEASE/MRFILES.RRF >! $OUTPUT_DIR/mrpluscolsfiles.dat
-$PATH_TO_PERL -ne 'chop; split /\|/; print "$_[0]|MRCOLS|$_[7]|$_[1]|\n"' $META_RELEASE/MRCOLS.RRF >> $OUTPUT_DIR/mrpluscolsfiles.dat
+perl -ne 'chop; @_ = split /\|/; print "$_[0]|MRFILES|$_[2]|$_[1]|\n"' $META_RELEASE/MRFILES.RRF >! $OUTPUT_DIR/mrpluscolsfiles.dat
+perl -ne 'chop; @_ = split /\|/; print "$_[0]|MRCOLS|$_[7]|$_[1]|\n"' $META_RELEASE/MRCOLS.RRF >> $OUTPUT_DIR/mrpluscolsfiles.dat
 /bin/sort -u -o $OUTPUT_DIR/mrpluscolsfiles.dat $OUTPUT_DIR/mrpluscolsfiles.dat
 
 #
@@ -237,21 +221,21 @@ $PATH_TO_PERL -ne 'chop; split /\|/; print "$_[0]|MRCOLS|$_[7]|$_[1]|\n"' $META_
 # characters but no more than 4000 bytes of data.
 #
 echo "    Get max field length ... `/bin/date`"
-$PATH_TO_PERL -e 'open (F,"$ENV{META_RELEASE}/MRSAT.RRF"); \
-   while (<F>) {split /\|/; if($_[10] =~ /[\200-\377]/) { \
+perl -e 'open (F,"$ENV{META_RELEASE}/MRSAT.RRF"); \
+   while (<F>) {@_ = split /\|/; if($_[10] =~ /[\200-\377]/) { \
      $_[10] = substr($_[10],0,4000); \
      print (join "|", @_) if length($_[10])>3999; } \
    } close(F);' |\
-  $PATH_TO_PERL -e 'binmode(STDIN,":utf8"); \
-  while (<>) {split /\|/; print length($_[10]),"\n";}' |\
+  perl -e 'binmode(STDIN,":utf8"); \
+  while (<>) {@_ =split /\|/; print length($_[10]),"\n";}' |\
   sort -n | tail -1 >! /tmp/mfl.$$
-$PATH_TO_PERL -e 'open (F,"$ENV{META_RELEASE}/MRDEF.RRF"); \
-   while (<F>) {split /\|/; if($_[5] =~ /[\200-\377]/) { \
+perl -e 'open (F,"$ENV{META_RELEASE}/MRDEF.RRF"); \
+   while (<F>) {@_ =split /\|/; if($_[5] =~ /[\200-\377]/) { \
      $_[5] = substr($_[5],0,4000); \
      print (join "|", @_) if length($_[5])>3999; } \
    } close(F);' |\
-  $PATH_TO_PERL -e 'binmode(STDIN,":utf8"); \
-  while (<>) {split /\|/; print length($_[5]),"\n";}' |\
+  perl -e 'binmode(STDIN,":utf8"); \
+  while (<>) {@_=split /\|/; print length($_[5]),"\n";}' |\
   sort -n | tail -1 >> /tmp/mfl.$$
 set max_field_length=`/bin/sort -n /tmp/mfl.$$ | head -1`
 if ($max_field_length == "") set max_field_length=4000
@@ -261,15 +245,15 @@ if ($max_field_length == "") set max_field_length=4000
 # Get character map for unicode filter
 #
 echo "    Get char map ... `/bin/date`"
-    $PATH_TO_PERL -e '\
+    perl -e '\
       my $IN; my %chars = (); \
         open($IN,"<:encoding(utf8)","$ENV{META_RELEASE}/MRCONSO.RRF"); \
         binmode(STDOUT,":utf8"); \
         while (<$IN>) { \
-          split /\|/; \
+          @_ = split /\|/; \
            if ($_[1] !~ /(JPN|KOR)/ && $_[14] =~ /[^\x00-\x7F]/) { \
             my $ch; \
-            foreach $ch (split (//,$_[14])) { \
+            foreach $ch (@_ =split (//,$_[14])) { \
               if (ord($ch)>127) { $chars{$ch}=1;} \
             } \
         } } \
@@ -278,15 +262,15 @@ echo "    Get char map ... `/bin/date`"
       } \
       close($IN); ' >! $OUTPUT_DIR/chars.tmp.dat
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
       my $IN; my %chars = (); \
         open($IN,"<:encoding(utf8)","$ENV{META_RELEASE}/MRSAT.RRF"); \
         binmode(STDOUT,":utf8"); \
         while (<$IN>) { \
-          split /\|/; \
+          @_ =split /\|/; \
            if ($_[9] !~ /(JPN|KOR)/ && $_[10] =~ /[^\x00-\x7F]/) { \
             my $ch; \
-            foreach $ch (split (//,$_[10])) { \
+            foreach $ch (@_ =split (//,$_[10])) { \
               if (ord($ch)>127) { $chars{$ch}=1;} \
             } \
         } } \
@@ -295,15 +279,15 @@ echo "    Get char map ... `/bin/date`"
       } \
       close($IN); ' >> $OUTPUT_DIR/chars.tmp.dat
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
       my $IN; my %chars = (); \
         open($IN,"<:encoding(utf8)","$ENV{META_RELEASE}/MRDEF.RRF"); \
         binmode(STDOUT,":utf8"); \
         while (<$IN>) { \
-          split /\|/; \
+          @_ = split /\|/; \
            if ($_[4] !~ /(JPN|KOR)/ && $_[5] =~ /[^\x00-\x7F]/) { \
             my $ch; \
-            foreach $ch (split (//,$_[5])) { \
+            foreach $ch (@_ = split (//,$_[5])) { \
               if (ord($ch)>127) { $chars{$ch}=1;} \
             } \
         } } \
@@ -311,9 +295,13 @@ echo "    Get char map ... `/bin/date`"
         print "$key\n"; \
       } \
       close($IN); ' >> $OUTPUT_DIR/chars.tmp.dat
-      cat $OUTPUT_DIR/chars.tmp.dat | $LVG_HOME/bin/lvg -f:q7:q8 |\
-      cut -d\| -f 1,2 | $PATH_TO_PERL -pe 's/\|/\:/' >! $OUTPUT_DIR/chars.dat
-          /bin/rm -f $OUTPUT_DIR/chars.tmp.dat
+      if ($?LVG_HOME == 1) then
+	      cat $OUTPUT_DIR/chars.tmp.dat | $LVG_HOME/bin/lvg -f:q7:q8 |\
+    	  cut -d\| -f 1,2 | perl -pe 's/\|/\:/' >! $OUTPUT_DIR/chars.dat
+      else
+          echo "a:b" >! $OUTPUT_DIR/chars.dat	  
+	  endif
+      /bin/rm -f $OUTPUT_DIR/chars.tmp.dat
 
 #
 # Write all prop files: user.{a,b,c,d}.prop
@@ -359,7 +347,7 @@ if ($f == "c") then
 else if ($f == "d") then
    echo "gov.nih.nlm.umls.mmsys.filter.SourceListFilter.selected_sources=AIR|AIR;AOD|AOD;BI|BI;CCPSS|CCPSS;COSTAR|COSTAR;CPTSP|CPT;CST|CST;DDB|DDB;DMDUMD|UMD;DSM3R|DSM3R;DXP|DXP;HLREL|HLREL;ICPC|ICPC;JABL|JABL;LCH|LCH;MCM|MCM;MTHMST|MTHMST;NCISEER|NCISEER;PCDS|PCDS;PPAC|PPAC;QMR|QMR;RAM|RAM;RCD|RCD;SNM|SNM;SNMI|SNMI;ULT|ULT;WHO|WHO;ICPCBAQ|ICPC;ICPCDAN|ICPC;ICPCDUT|ICPC;ICPCFIN|ICPC;ICPCFRE|ICPC;ICPCGER|ICPC;ICPCHEB|ICPC;ICPCHUN|ICPC;ICPCITA|ICPC;ICPCNOR|ICPC;ICPCPOR|ICPC;ICPCSPA|ICPC;ICPCSWE|ICPC;MTHMSTFRE|MTHMST;MTHMSTITA|MTHMST;RCDAE|RCD;RCDSA|RCD;RCDSY|RCD;WHOFRE|WHO;WHOGER|WHO;WHOPOR|WHO;WHOSPA|WHO" >> $OUTPUT_DIR/user.$f.prop
 else
-    $PATH_TO_PERL -e '\
+    perl -e '\
         open(SAB, "$ENV{OUTPUT_DIR}/sources_to_remove.dat"); \
         binmode(SAB,":utf8"); \
         $remove_line = "gov.nih.nlm.umls.mmsys.filter.SourceListFilter.selected_sources="; \
@@ -378,7 +366,7 @@ cat <<EOF >> $OUTPUT_DIR/user.$f.prop
 #
 EOF
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
         open(PREC, "$ENV{OUTPUT_DIR}/precedence.dat"); \
         binmode(PREC,":utf8"); \
         $prec_line = "gov.nih.nlm.umls.mmsys.filter.PrecedenceFilter.precedence="; \
@@ -395,7 +383,7 @@ EOF
 #
 EOF
 
-    $PATH_TO_PERL -e ' \
+    perl -e ' \
         open(PREC, "$ENV{OUTPUT_DIR}/suppr_tg.dat"); \
         binmode(PREC,":utf8"); \
         $suptgs_line = "gov.nih.nlm.umls.mmsys.filter.SuppressibleFilter.suppressed_sabttys="; \
@@ -411,7 +399,7 @@ EOF
 #
 EOF
 
-        $PATH_TO_PERL -e '\
+        perl -e '\
         open(PREC, "$ENV{OUTPUT_DIR}/lat.dat"); \
         binmode(PREC,":utf8"); \
         $lprop="gov.nih.nlm.umls.mmsys.filter.LanguagesFilter.selected_languages=";  \
@@ -428,7 +416,7 @@ EOF
 #
 EOF
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
         open(PREC, "$ENV{OUTPUT_DIR}/stys.dat"); \
         binmode(PREC,":utf8"); \
         $stys="gov.nih.nlm.umls.mmsys.filter.SemanticTypesFilter.selected_semantic_types="; \
@@ -463,13 +451,13 @@ gov.nih.nlm.umls.mmsys.filter.UnicodeFilter.convert_unicode_char=true
 EOF
 
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
     open(IN, "$ENV{OUTPUT_DIR}/chars.dat"); \
     binmode(IN,":utf8"); \
     binmode(STDOUT,":utf8"); \
     $lprop="gov.nih.nlm.umls.mmsys.filter.UnicodeFilter.char_map=";  \
     while ($line = <IN>) { \
-        chop($line); split /\|/; \
+        chop($line); @_ = split /\|/; \
         $lprop .= "$line;";  } \
     $lprop =~ s/;$//; \
     print "$lprop\n";' >! char_map.prop
@@ -503,12 +491,12 @@ public class X {
 }
 EOF
     setenv CLASSPATH .
-    $JAVA_HOME/bin/javac X.java
+    "$JAVA_HOME/bin/javac" X.java
     if ($status != 0) then
         echo "Javac of X.java failed"
         exit 1
     endif
-    $JAVA_HOME/bin/java X char_map.prop x.prop
+    "$JAVA_HOME/bin/java" X char_map.prop x.prop
     if ($status != 0) then
         echo "Conversion program failed"
         exit 1
@@ -606,7 +594,7 @@ EOF
 #
 EOF
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
     open(SABATN, "$ENV{OUTPUT_DIR}/att_types.dat"); \
     binmode(SABATN,":utf8"); \
     $prop_line = "sabatns="; \
@@ -623,7 +611,7 @@ EOF
 #
 EOF
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
     open(SABRR, "$ENV{OUTPUT_DIR}/rel_types.dat"); \
     binmode(SABRR,":utf8"); \
     $prop_line = "sabrelrelas="; \
@@ -632,14 +620,14 @@ EOF
     $prop_line =~ s/;$//; \
     print "$prop_line\n";' >> $OUTPUT_DIR/umls.prop
 
-    $PATH_TO_PERL -ne 'split /\|/; print "$_[11]\n" if $_[9] ne "";' $META_RELEASE/MRCONSO.RRF |\
-      /bin/sort -u | $PATH_TO_PERL -ne 'chomp; print "$_;";' >! x$$.tmp
-    set scui_sources=`cat x$$.tmp | $PATH_TO_PERL -pe 's/;$//'`
+    perl -ne '@_ = split /\|/; print "$_[11]\n" if $_[9] ne "";' $META_RELEASE/MRCONSO.RRF |\
+      /bin/sort -u | perl -ne 'chomp; print "$_;";' >! x$$.tmp
+    set scui_sources=`cat x$$.tmp | perl -pe 's/;$//'`
     /bin/rm -f x$$.tmp
 
-    $PATH_TO_PERL -ne 'split /\|/; print "$_[11]\n" if $_[10] ne "";' $META_RELEASE/MRCONSO.RRF |\
-      /bin/sort -u | $PATH_TO_PERL -ne 'chomp; print "$_;";' >! x$$.tmp
-    set sdui_sources=`cat x$$.tmp | $PATH_TO_PERL -pe 's/;$//'`
+    perl -ne '@_ = split /\|/; print "$_[11]\n" if $_[10] ne "";' $META_RELEASE/MRCONSO.RRF |\
+      /bin/sort -u | perl -ne 'chomp; print "$_;";' >! x$$.tmp
+    set sdui_sources=`cat x$$.tmp | perl -pe 's/;$//'`
     /bin/rm -f x$$.tmp
 
     cat <<EOF >> $OUTPUT_DIR/umls.prop
@@ -669,7 +657,7 @@ previous_version=$prev_release
 EOF
 
 #
-$PATH_TO_PERL -ne 'split /\|/; print if $_[9] eq "MTH" && ($_[8] eq "CV_CODE" || $_[8] eq "CV_DESCRIPTION");' \
+perl -ne '@_ = split /\|/; print if $_[9] eq "MTH" && ($_[8] eq "CV_CODE" || $_[8] eq "CV_DESCRIPTION");' \
    $META_RELEASE/MRSAT.RRF >&! $META_RELEASE/cvfmrsat.dat
 set id=0
 set cvfs=""
@@ -687,7 +675,7 @@ end
 /bin/rm -f $META_RELEASE/cvfmrsat.dat
 echo "$cvfs" >> $OUTPUT_DIR/cvfs.dat
 
-    $PATH_TO_PERL -e '\
+    perl -e '\
         open(PREC, "$ENV{OUTPUT_DIR}/cvfs.dat"); \
         binmode(PREC,":utf8"); \
         $lprop = "content_views="; \
@@ -703,7 +691,7 @@ echo "$cvfs" >> $OUTPUT_DIR/cvfs.dat
 #
 EOF
 
-    $PATH_TO_PERL -ne 'BEGIN { print "subsets="; } split /\|/; \
+    perl -ne 'BEGIN { print "subsets="; } @_ = split /\|/; \
         print "$_[0]|$_[13]|$_[11]|$_[14]|$_[14];" if $_[12] eq "SB"' $META_RELEASE/MRCONSO.RRF \
         >> $OUTPUT_DIR/umls.prop
 
@@ -736,7 +724,7 @@ gzip -9 $OUTPUT_DIR/MRSTY.RRF &
 #/bin/cp $MMSYS_DIR/release.dat $OUTPUT_DIR
 
 echo "    Prep DAMRST.txt.gz .... `/bin/date`"
-$PATH_TO_PERL -ne 'split /\|/; print "$_[0]|$_[8]|$_[6]|\n" if $_[8] eq "DA" || $_[8] eq "MR" || $_[8] eq "ST"' $META_RELEASE/MRSAT.RRF | gzip -9 >&!  $OUTPUT_DIR/DAMRST.txt.gz
+perl -ne '@_ = split /\|/; print "$_[0]|$_[8]|$_[6]|\n" if $_[8] eq "DA" || $_[8] eq "MR" || $_[8] eq "ST"' $META_RELEASE/MRSAT.RRF | gzip -9 >&!  $OUTPUT_DIR/DAMRST.txt.gz
 
 echo "    Cleanup ... `/bin/date`"
 /bin/rm -f $OUTPUT_DIR/join1.dat $OUTPUT_DIR/termgroup_info.dat $OUTPUT_DIR/sr.dat

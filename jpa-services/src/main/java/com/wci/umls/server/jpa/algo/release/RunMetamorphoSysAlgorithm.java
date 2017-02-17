@@ -25,7 +25,6 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 public class RunMetamorphoSysAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
-
   /** Log bridge for collecting output */
   private PrintWriter logBridge = new PrintWriter(new StringWriter()) {
 
@@ -217,14 +216,14 @@ public class RunMetamorphoSysAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
-    logInfo("RESET " + getName());
+    logInfo("Starting RESET " + getName());
 
     // Remove the MMSYS directory
     final File pathRelease = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion());
     logInfo("  Remove directory = " + pathRelease + "/MMSYS");
     FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
-    logInfo("RESET finished " + getName());
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

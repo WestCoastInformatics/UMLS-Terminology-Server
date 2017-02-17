@@ -212,6 +212,13 @@ public class MetadataLoaderAlgorithm
     return validationResult;
   }
 
+  /**
+   * Identify terminology.
+   *
+   * @param terminologyAndVersion the terminology and version
+   * @return the string
+   * @throws Exception the exception
+   */
   private String identifyTerminology(String terminologyAndVersion)
     throws Exception {
 

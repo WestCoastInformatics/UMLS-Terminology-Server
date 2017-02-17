@@ -109,8 +109,7 @@ public class UpdateReleasabilityAlgorithm
 
     try {
 
-      logInfo(
-          "  Making all old version content unpublishable");
+      logInfo("  Making all old version content unpublishable");
       commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
@@ -215,7 +214,9 @@ public class UpdateReleasabilityAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

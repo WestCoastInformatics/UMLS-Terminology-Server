@@ -932,6 +932,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -967,6 +968,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("MID_VALIDATION_NOCONCEPT");
     config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);

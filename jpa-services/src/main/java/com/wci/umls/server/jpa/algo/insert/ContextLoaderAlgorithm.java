@@ -581,6 +581,7 @@ public class ContextLoaderAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
 
     // Delete any TreePositions and TransitiveRelationships for all terminology
     // and versions referenced in the contexts.src file.
@@ -623,7 +624,7 @@ public class ContextLoaderAlgorithm
     }
 
     logInfo("  removed tree position count = " + removedTreePosCount);
-
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */

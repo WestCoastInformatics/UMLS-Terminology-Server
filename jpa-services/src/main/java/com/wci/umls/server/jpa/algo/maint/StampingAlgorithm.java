@@ -69,11 +69,8 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    if (approve) {
-      logInfo("Started STAMPING");
-    } else {
-      logInfo("Started UNAPPROVING");
-    }
+    logInfo("Starting " + getName());
+    logInfo("  approve = " + approve);
 
     try {
       // precollect records based on if checklistId or worklistId is set
@@ -160,11 +157,7 @@ public class StampingAlgorithm extends AbstractAlgorithm {
         logInfo("  checklistId = " + checklistId);
       }
       logInfo("  approve = " + approve);
-      if (approve) {
-        logInfo("Finished STAMPING");
-      } else {
-        logInfo("Finished UNAPPROVING");
-      }
+      logInfo("Finished " + getName());
 
     } catch (Exception e) {
       logError("Unexpected problem - " + e.getMessage());
@@ -176,7 +169,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a - No reset
+    logInfo("Finished RESET " + getName());
   }
 
   /**

@@ -23,16 +23,24 @@ import org.hibernate.Session;
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomNoteJpa;
+import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
+import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomRelationship;
+import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.DescriptorRelationship;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * Implementation of an algorithm to import unpublished MEME4 data that does not
@@ -74,6 +82,7 @@ public class RrfUnpublishedLoaderAlgorithm
     loadIntegrityData();
     loadSrcAtomIds();
     loadXrRelationships();
+    loadRuiDa();
 
     logInfo("Done ...");
 
@@ -452,6 +461,113 @@ public class RrfUnpublishedLoaderAlgorithm
       logInfo("    add xr = " + xr);
       addRelationship(xr);
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
+  }
+
+  /**
+   * Load rui da.
+   *
+   * @throws Exception the exception
+   */
+  public void loadRuiDa() throws Exception {
+
+    // ==> ruiDaFlags.txt <==
+    // R115537943|1|
+    // R107246533|1|
+    // R107246535|1|
+    // R107214084|1|
+    // R107168552|1|
+    // R107274014|1|
+    // R107240012|1|
+
+    // For each RUI, find the relationship and append a ~DA:# terminology id
+    logInfo("  Load RUI da flags");
+    setLastModifiedBy("admin");
+    setMolecularActionFlag(false);
+    setLastModifiedFlag(false);
+
+    final List<String> lines = Files.readLines(
+        new File(getInputPath(), "ruiDaFlags.txt"), Charset.forName("UTF-8"));
+
+    final SearchHandler handler = getSearchHandler(ConfigUtility.DEFAULT);
+    int ct = 0;
+    for (final String line : lines) {
+      final String[] tokens = FieldedStringTokenizer.split(line, "|");
+      final String rui = tokens[0];
+      final String flag = "~DA:" + tokens[1];
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+
+      // Try concept relationship
+      final List<ConceptRelationshipJpa> crList = handler.getQueryResults(null,
+          null, Branch.ROOT, "alternateTerminologyIds:NCIMTH=" + rui, null,
+          ConceptRelationshipJpa.class, null, new int[1], getEntityManager());
+      if (crList.size() == 1) {
+        final ConceptRelationship rel = crList.get(0);
+        rel.setTerminologyId(rel.getTerminologyId() + flag);
+        logInfo("  fixing C rel = " + rui + ", " + rel);
+        updateRelationship(rel);
+        // found, go to next case
+        continue;
+      } else if (crList.size() > 1) {
+        logError(
+            "ERROR: unexpected number of C RUI matches = " + crList.size());
+      }
+
+      // Try code relationship
+      final List<CodeRelationshipJpa> cdrList = handler.getQueryResults(null,
+          null, Branch.ROOT, "alternateTerminologyIds:NCIMTH=" + rui, null,
+          CodeRelationshipJpa.class, null, new int[1], getEntityManager());
+      if (cdrList.size() == 1) {
+        final CodeRelationship rel = cdrList.get(0);
+        rel.setTerminologyId(rel.getTerminologyId() + flag);
+        logInfo("  fixing CODE rel = " + rui + ", " + rel);
+        updateRelationship(rel);
+        // found, go to next case
+        continue;
+      } else if (cdrList.size() > 1) {
+        logError(
+            "ERROR: unexpected number of CODE RUI matches = " + crList.size());
+      }
+
+      // Try descriptor relationship
+      final List<DescriptorRelationshipJpa> drList = handler.getQueryResults(
+          null, null, Branch.ROOT, "alternateTerminologyIds:NCIMTH=" + rui,
+          null, DescriptorRelationshipJpa.class, null, new int[1],
+          getEntityManager());
+      if (drList.size() == 1) {
+        final DescriptorRelationship rel = drList.get(0);
+        rel.setTerminologyId(rel.getTerminologyId() + flag);
+        logInfo("  fixing D rel = " + rui + ", " + rel);
+        updateRelationship(rel);
+        // found, go to next case
+        continue;
+      } else if (drList.size() > 1) {
+        logError(
+            "ERROR: unexpected number of D RUI matches = " + crList.size());
+      }
+
+      // Try atom relationship
+      final List<AtomRelationshipJpa> aList = handler.getQueryResults(null,
+          null, Branch.ROOT, "alternateTerminologyIds:NCIMTH=" + rui, null,
+          AtomRelationshipJpa.class, null, new int[1], getEntityManager());
+      if (aList.size() == 1) {
+        final AtomRelationship rel = aList.get(0);
+        rel.setTerminologyId(rel.getTerminologyId() + flag);
+        logInfo("  fixing A rel = " + rui + ", " + rel);
+        updateRelationship(rel);
+        // found, go to next case
+        continue;
+      } else if (aList.size() > 1) {
+        logError(
+            "ERROR: unexpected number of A RUI matches = " + crList.size());
+      }
+
+      logError("ERROR: unable to find matching relationship for = " + rui);
+
     }
     commitClearBegin();
     logInfo("    count = " + ct);

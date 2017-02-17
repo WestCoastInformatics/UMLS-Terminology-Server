@@ -62,7 +62,7 @@ public class WriteRrfMetadataFilesAlgorithm
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting write RRF metadata files");
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
     setSteps(4);
 
@@ -79,7 +79,7 @@ public class WriteRrfMetadataFilesAlgorithm
     updateProgress();
 
     fireProgressEvent(100, "Finished");
-    logInfo("Finished write RRF metadata files");
+    logInfo("Finished " + getName());
   }
 
   /**
@@ -617,7 +617,9 @@ public class WriteRrfMetadataFilesAlgorithm
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
 
   }
 

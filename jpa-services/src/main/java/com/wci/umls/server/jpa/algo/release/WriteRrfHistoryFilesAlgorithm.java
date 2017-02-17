@@ -69,7 +69,7 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting write RRF History");
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
     openWriters();
@@ -83,12 +83,8 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     writeMrcui();
     closeWriters();
 
-    // TODO: write CHAGNE/* files
-    // only MERGEDCUI/DELETEDCUI, make other ones blank.
-
     fireProgressEvent(100, "Finished");
-    logInfo("Finished write RRF Indexes");
-
+    logInfo("Finished " + getName());
   }
 
   /**
@@ -243,7 +239,8 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
           sb.append("|");
           sb.append("\n");
           writerMap.get("MRCUI.RRF").print(sb.toString());
-          writerMap.get("DELETEDCUI.RRF").print(c.getTerminology()+"|"+c.getName()+"|\n");
+          writerMap.get("DELETEDCUI.RRF")
+              .print(c.getTerminology() + "|" + c.getName() + "|\n");
         }
         // If bequeathal rel -> write out bequeathal entry for each rel
         else {
@@ -495,7 +492,9 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
+    logInfo("Starting RESET " + getName());
     // n/a
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
