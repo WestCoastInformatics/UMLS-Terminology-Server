@@ -153,6 +153,7 @@ endif
 echo "  Compute relationship identity for MRREL"
 
 # make inverseRui.txt
+alias sort "sort -T ."
 /bin/rm -f relationshipIdentity.txt inverseRui.txt mrrel.txt rel.txt rela.txt
 grep inverse MRDOC.RRF  | grep 'REL|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rel.txt
 grep inverse MRDOC.RRF  | grep 'RELA|' | cut -d\| -f 2,4,5 | sort -t\| -k 1,1 -o rela.txt

@@ -1365,18 +1365,19 @@ public class ConfigUtility {
    *          the background.
    * @param dirIn the dir in
    * @param s <code>PrintWriter</code> to use for output
+   * @param fixFlag the fix flag
    * @return a {@link String} containing the process log
    * @throws Exception the exception
    */
   public static String exec(String[] cmdarrayIn, String[] env,
-    boolean background, String dirIn, PrintWriter s) throws Exception {
+    boolean background, String dirIn, PrintWriter s, boolean fixFlag) throws Exception {
     // Check if on windows and invoke "cygwin" - assume it's defined in config
     // properties
     // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
     // installed
     String dir = dirIn;
     String[] cmdarray = cmdarrayIn;
-    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+    if (fixFlag && System.getProperty("os.name").toLowerCase().contains("win")) {
       // Change the command to be based around cygwin
       if (ConfigUtility.getConfigProperties()
           .getProperty("cygwin.bin") == null) {
