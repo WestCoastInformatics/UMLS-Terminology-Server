@@ -48,7 +48,7 @@ public class FeedbackReleaseAlgorithm
 
     // Check the mr directory
     String mrPath = config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath() + "/" + getProcess().getVersion();
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/META";
 
     setdirFile(new File(mrPath));
     if (!getDirFile().exists()) {
