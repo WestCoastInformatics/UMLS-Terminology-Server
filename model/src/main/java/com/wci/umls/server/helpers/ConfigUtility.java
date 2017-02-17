@@ -63,6 +63,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.QueryParserBase;
@@ -369,7 +370,8 @@ public class ConfigUtility {
     }
 
     // The "configFile" is presumed to be in the $home/config directory.
-    final String dir = new File(configFile).getParent();
+    final String dir = FilenameUtils.separatorsToUnix(new File(configFile).getParentFile().getParent());
+    
     for (final String f : new String[] {
         "bin", "config", "data"
     }) {
@@ -1385,6 +1387,12 @@ public class ConfigUtility {
       final String tcsh =
           ConfigUtility.getConfigProperties().getProperty("cygwin.bin")
               + "/tcsh.exe";
+      // fix items that look like paths for cygwin
+      for (int i=0; i < cmdarrayIn.length; i++) {
+        if (cmdarrayIn[i].contains(File.separator)) {
+          cmdarrayIn[i] = FilenameUtils.separatorsToUnix(cmdarrayIn[i]);
+        }
+      }
       cmdarray = new String[] {
           tcsh, "-c", FieldedStringTokenizer.join(cmdarrayIn, " ")
       };

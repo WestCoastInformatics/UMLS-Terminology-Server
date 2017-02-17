@@ -48,7 +48,7 @@ public class RunMetamorphoSysAlgorithm
   public RunMetamorphoSysAlgorithm() throws Exception {
     super();
     setActivityId(UUID.randomUUID().toString());
-    setWorkId("WRITERRFINDEXES");
+    setWorkId("RUNMMSYS");
   }
 
   /* see superclass */
@@ -121,11 +121,13 @@ public class RunMetamorphoSysAlgorithm
     data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
     data.append("umls.release.description=Base Release for "
         + getProcess().getVersion()).append("\n");
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+    /*SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
     data.append(
         "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
-        .append("\n");
-
+        .append("\n");*/
+    data.append(
+        "umls.release.date=").append(getProcess().getVersion() + "01");
+    
     // Write release.dat files (top-level and in META)
     FileUtils.fileWrite(releaseDat.getPath(), data.toString());
     FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());

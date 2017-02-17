@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
 
 /**
@@ -27,7 +28,7 @@ public class WriteNciMetaFilesAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
     // TODO Auto-generated method stub
-    return null;
+    return new ValidationResultJpa();
   }
 
   /* see superclass */

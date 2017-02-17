@@ -34,6 +34,13 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
 
+    <!-- Apache commons-io -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+    </dependency>
+
+
     <!-- Mail -->
     <dependency>
       <groupId>com.sun.mail</groupId>
