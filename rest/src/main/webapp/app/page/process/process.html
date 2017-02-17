@@ -267,7 +267,7 @@
           <td class="nobreak">
             <span ng-show="selected.mode == 'Execution'" log
               selected="{step : step, project : selected.project}" type="Step"
-              poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.stopDate}}"></span>
+              poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.failDate}}"></span>
             <i title="Edit step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"

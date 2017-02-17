@@ -686,6 +686,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
+  
   /**
    * Returns the src dir file.
    *
