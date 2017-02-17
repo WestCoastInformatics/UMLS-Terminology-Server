@@ -176,7 +176,9 @@ public class AttributeLoaderAlgorithm
           // Load the containing object
           ComponentHasDefinitions containerComponent =
               (ComponentHasDefinitions) getComponent(fields[10], fields[1],
-                  getCachedTerminology(fields[11]).getTerminology(), null);
+                  fields[11].equals("") ? null
+                      : getCachedTerminology(fields[11]).getTerminology(),
+                  null);
           if (containerComponent == null) {
             logWarnAndUpdate(line,
                 "WARNING - could not find Component for type: " + fields[10]

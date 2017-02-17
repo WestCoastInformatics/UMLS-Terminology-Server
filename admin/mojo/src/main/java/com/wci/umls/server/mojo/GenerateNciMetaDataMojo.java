@@ -1983,20 +1983,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("MAPSETLOADING");
-    algoConfig.setDescription("MAPSETLOADING Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("MAPSETLOADING algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("ATTRIBUTELOADING");
     algoConfig.setDescription("ATTRIBUTELOADING Algorithm");
     algoConfig.setEnabled(true);
