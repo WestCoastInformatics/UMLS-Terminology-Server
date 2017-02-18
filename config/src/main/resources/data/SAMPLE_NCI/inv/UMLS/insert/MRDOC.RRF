@@ -1,0 +1,403 @@
+ATN|AN|expanded_form|MeSH Annotation - an informative MeSH note written primarily for indexers or catalogers that may also be useful in explaining the use of a MeSH term to online searchers.|
+ATN|AQL|expanded_form|MeSH Allowable Qualifier - list of allowable qualifier abbreviations for MeSH main headings (e.g. AA, CL, CS, DF, DU, IM, I,P ME, PK)|
+ATN|CX|expanded_form|MeSH Consider Also Note - other word roots or prefixes that should be consulted for concepts related to this MeSH concept, e.g., the value for "Heart" is "consider also terms at cardi- and myocardi-".|
+ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
+ATN|DC|expanded_form|MeSH Descriptor class - type of MeSH term the concept name represents.|
+ATN|DQ|expanded_form|MeSH Date Qualifier Established YYYYMMDD - date the qualifier became available for indexing MEDLARS citations.|
+ATN|DX|expanded_form|MeSH Date major descriptor established YYYYMMDD - first day of the Index Medicus publication month in which the descriptor (in any form) was available for searching as a major descriptor.|
+ATN|EC|expanded_form|Specifies the MeSH main heading to be used instead of the Descriptor/Qualifier combination specified in the EC_OF attribute.|
+ATN|FR|expanded_form|MeSH Frequency|
+ATN|FX|expanded_form|MeSH MH Mapping - maps a MeSH MH to a 'See Related' MH.|
+ATN|HM|expanded_form|MeSH Heading Mapped To - heading mapped to attribute in C-MeSH containing repeating (MH or MH/SH) elements (e.g. HM = PYRROLIDINONES, HM = *TARTRATES, HM = ESTRONE/* analogs & derivatives)|
+ATN|HN|expanded_form|History Note - for MeSH history notes, the year when the current form of the MeSH term was established as a major and/or minor descriptor.|
+ATN|II|expanded_form|MeSH Indexing Information - for MeSH chemical terms (Term Type=NM), MeSH headings that may be relevant to articles that are also assigned the NM term.|
+ATN|LT|expanded_form|Indicates if a chemicals or medical device is a tradename (present in older versions of the Metathesaurus and was discontinued, then brought back starting in 2002AD)|
+ATN|MDA|expanded_form|MeSH date of entry YYYYMMDD - date the term was added to the MeSH file, which is prior to the date the term became available for indexing and searching MEDLARS citations. Terms that have been part of MeSH for many years may have no value in this element.|
+ATN|MMR|expanded_form|MeSH revision date YYYYMMDD - date of the last major revision to the term's MeSH record.|
+ATN|MN|expanded_form|MeSH hierarchical number for the concept in the MeSH tree structures. This number also appears in the HCD subelement of the REL and CXT elements.|
+ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content. |
+ATN|OL|expanded_form|MeSH Online Note - information helpful to online searchers of MEDLINE, especially when the history of a term or cross-reference has implications for online searching. This is a potential source of useful information for rules for search interface programs.|
+ATN|PA|expanded_form|Pharmacologic Action of MeSH main headings (MH) for drugs and supplementary concept names (NM). The information in this element is also represented by an "isa" relationship between the MH or NM concept and the MeSH concept name for the class of drugs with a particular pharmacologic action.|
+ATN|PI|expanded_form|MeSH heading or heading/subheading combination(s) followed by a date range in parentheses (YYYY).|
+ATN|PM|expanded_form|Public MeSH note - combines key information from the HN and PI elements in a format that is printed in the MeSH publications.|
+ATN|RN|expanded_form|Registry Number - series of numbers and hyphens (any leading zeros in an RN are dropped) or a series of numbers and periods, preceded by EC|
+ATN|RR|expanded_form|The Chemical Abstracts Registry numbers for salts, optical isomers, or isotope-labeled versions of the concept followed by the relationship of this RR to the RN (in parentheses.) Applies to chemicals only. These numbers can be used as links to information in a number of chemical and toxicological databases.|
+ATN|SC|expanded_form|MeSH Supplemental record class.|
+ATN|SOS|expanded_form|Scope Statement|
+ATN|SRC|expanded_form|MeSH Literature source of chemical name - a citation to an article in a journal indexed for MEDLINE in which the chemical has been identified. (Note: Not to be confused with source abbreviation of SRC)|
+ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed |
+ATN|TERMUI|expanded_form|Term unique identifier|
+ATN|TH|expanded_form|MeSH Thesaurus ID - identifies thesauri other than MeSH in which the MeSH heading or cross-reference is included.|
+CXTY|FULL-MULTIPLE|expanded_form|Full contexts, multiple tree positions|
+CXTY|FULL-NOSIB-IGNORE-RELA|expanded_form|Full contexts, no siblings, RELA not used when computing ancestors/descendants|
+CXTY|FULL-NOSIB-MULTIPLE-IGNORE-RELA|expanded_form|Full contexts, no siblings, multiple tree positions, RELA not used when computing ancestors/descendants|
+CXTY|FULL-NOSIB-MULTIPLE|expanded_form|Full contexts, no siblings, multiple tree positions|
+CXTY|FULL-NOSIB|expanded_form|Full contexts, no siblings|
+CXTY|FULL|expanded_form|Full contexts|
+LAT|BAQ|expanded_form|Basque|
+LAT|CHI|expanded_form|Chinese|
+LAT|CZE|expanded_form|Czech|
+LAT|DAN|expanded_form|Danish|
+LAT|DUT|expanded_form|Dutch|
+LAT|ENG|expanded_form|English|
+LAT|EST|expanded_form|Estonian|
+LAT|FIN|expanded_form|Finnish|
+LAT|FRE|expanded_form|French|
+LAT|GER|expanded_form|German|
+LAT|GRE|expanded_form|Greek|
+LAT|HEB|expanded_form|Hebrew|
+LAT|HUN|expanded_form|Hungarian|
+LAT|ITA|expanded_form|Italian|
+LAT|JPN|expanded_form|Japanese|
+LAT|KOR|expanded_form|Korean|
+LAT|LAV|expanded_form|Latvian|
+LAT|NOR|expanded_form|Norwegian|
+LAT|POL|expanded_form|Polish|
+LAT|POR|expanded_form|Portuguese|
+LAT|RUS|expanded_form|Russian|
+LAT|SCR|expanded_form|Croatian|
+LAT|SPA|expanded_form|Spanish|
+LAT|SWE|expanded_form|Swedish|
+LAT|TUR|expanded_form|Turkish|
+RELA|116676008|snomedct_rela_mapping|has_associated_morphology|
+RELA|116678009|snomedct_rela_mapping|has_measured_component|
+RELA|116680003|snomedct_rela_mapping|isa|
+RELA|116683001|snomedct_rela_mapping|has_associated_function|
+RELA|116686009|snomedct_rela_mapping|has_specimen|
+RELA|118168003|snomedct_rela_mapping|has_specimen_source_morphology|
+RELA|118169006|snomedct_rela_mapping|has_specimen_source_topography|
+RELA|118170007|snomedct_rela_mapping|has_specimen_source_identity|
+RELA|118171006|snomedct_rela_mapping|has_specimen_procedure|
+RELA|123005000|snomedct_rela_mapping|part_of|
+RELA|127489000|snomedct_rela_mapping|has_active_ingredient|
+RELA|131195008|snomedct_rela_mapping|has_subject_of_information|
+RELA|149016008|snomedct_rela_mapping|may_be_a|
+RELA|159083000|snomedct_rela_mapping|was_a|
+RELA|168666000|snomedct_rela_mapping|same_as|
+RELA|246075003|snomedct_rela_mapping|has_causative_agent|
+RELA|246090004|snomedct_rela_mapping|has_associated_finding|
+RELA|246093002|snomedct_rela_mapping|has_component|
+RELA|246100006|snomedct_rela_mapping|has_onset|
+RELA|246112005|snomedct_rela_mapping|has_severity|
+RELA|246267002|snomedct_rela_mapping|has_location|
+RELA|246454002|snomedct_rela_mapping|occurs_in|
+RELA|246456000|snomedct_rela_mapping|has_episodicity|
+RELA|246513007|snomedct_rela_mapping|has_revision_status|
+RELA|255234002|snomedct_rela_mapping|occurs_after|
+RELA|258214002|snomedct_rela_mapping|has_stage|
+RELA|260507000|snomedct_rela_mapping|has_access|
+RELA|260669005|snomedct_rela_mapping|has_approach|
+RELA|260686004|snomedct_rela_mapping|has_method|
+RELA|260858005|snomedct_rela_mapping|has_extent|
+RELA|260870009|snomedct_rela_mapping|has_priority|
+RELA|260908002|snomedct_rela_mapping|has_course|
+RELA|261583007|snomedct_rela_mapping|uses|
+RELA|263502005|snomedct_rela_mapping|has_clinical_course|
+RELA|263535000|snomedct_rela_mapping|has_communication_with_wound|
+RELA|26421000009105|snomedct_rela_mapping|has_life_circumstance|
+RELA|26431000009107|snomedct_rela_mapping|has_physiologic_state|
+RELA|272741003|snomedct_rela_mapping|has_laterality|
+RELA|308489006|snomedct_rela_mapping|has_pathological_process|
+RELA|30951000009108|snomedct_rela_mapping|includes_sub_specimen|
+RELA|309824003|snomedct_rela_mapping|has_instrumentation|
+RELA|363589002|snomedct_rela_mapping|has_associated_procedure|
+RELA|363698007|snomedct_rela_mapping|has_finding_site|
+RELA|363699004|snomedct_rela_mapping|has_direct_device|
+RELA|363700003|snomedct_rela_mapping|has_direct_morphology|
+RELA|363701004|snomedct_rela_mapping|has_direct_substance|
+RELA|363702006|snomedct_rela_mapping|has_focus|
+RELA|363703001|snomedct_rela_mapping|has_intent|
+RELA|363704007|snomedct_rela_mapping|has_procedure_site|
+RELA|363705008|snomedct_rela_mapping|has_definitional_manifestation|
+RELA|363708005|snomedct_rela_mapping|temporally_follows|
+RELA|363709002|snomedct_rela_mapping|has_indirect_morphology|
+RELA|363710007|snomedct_rela_mapping|has_indirect_device|
+RELA|363713009|snomedct_rela_mapping|has_interpretation|
+RELA|363714003|snomedct_rela_mapping|interprets|
+RELA|363715002|snomedct_rela_mapping|has_associated_etiologic_finding|
+RELA|367346004|snomedct_rela_mapping|measures|
+RELA|370124000|snomedct_rela_mapping|replaced_by|
+RELA|370125004|snomedct_rela_mapping|moved_to|
+RELA|370127007|snomedct_rela_mapping|has_access_instrument|
+RELA|370129005|snomedct_rela_mapping|has_measurement_method|
+RELA|370130000|snomedct_rela_mapping|has_property|
+RELA|370131001|snomedct_rela_mapping|has_recipient_category|
+RELA|370132008|snomedct_rela_mapping|has_scale_type|
+RELA|370133003|snomedct_rela_mapping|has_specimen_substance|
+RELA|370134009|snomedct_rela_mapping|has_time_aspect|
+RELA|370135005|snomedct_rela_mapping|has_pathological_process|
+RELA|401336002|snomedct_rela_mapping|has_subject_of_information|
+RELA|401337006|snomedct_rela_mapping|interprets|
+RELA|401338001|snomedct_rela_mapping|temporally_follows|
+RELA|405813007|snomedct_rela_mapping|has_direct_procedure_site|
+RELA|405814001|snomedct_rela_mapping|has_indirect_procedure_site|
+RELA|405815000|snomedct_rela_mapping|has_procedure_device|
+RELA|405816004|snomedct_rela_mapping|has_procedure_morphology|
+RELA|408729009|snomedct_rela_mapping|has_finding_context|
+RELA|408730004|snomedct_rela_mapping|has_procedure_context|
+RELA|408731000|snomedct_rela_mapping|has_temporal_context|
+RELA|408732007|snomedct_rela_mapping|has_subject_relationship_context|
+RELA|410675002|snomedct_rela_mapping|has_route_of_administration|
+RELA|411116001|snomedct_rela_mapping|has_dose_form|
+RELA|418775008|snomedct_rela_mapping|has_finding_method|
+RELA|419066007|snomedct_rela_mapping|has_finding_informer|
+RELA|424226004|snomedct_rela_mapping|uses_device|
+RELA|424244007|snomedct_rela_mapping|uses_energy|
+RELA|424361007|snomedct_rela_mapping|uses_substance|
+RELA|424876005|snomedct_rela_mapping|has_surgical_approach|
+RELA|425391005|snomedct_rela_mapping|uses_access_device|
+RELA|42752001|snomedct_rela_mapping|due_to|
+RELA|47429007|snomedct_rela_mapping|associated_with|
+RELA|900000000000523009|snomedct_rela_mapping|possibly_equivalent_to|
+RELA|900000000000524003|snomedct_rela_mapping|moved_to|
+RELA|900000000000525002|snomedct_rela_mapping|moved_from|
+RELA|900000000000526001|snomedct_rela_mapping|replaced_by|
+RELA|900000000000527005|snomedct_rela_mapping|same_as|
+RELA|900000000000528000|snomedct_rela_mapping|was_a|
+RELA|900000000000530003|snomedct_rela_mapping|has_alternative|
+RELA|900000000000531004|snomedct_rela_mapping|refers_to|
+RELA|entry_version_of|expanded_form|Entry version of|
+RELA|entry_version_of|rela_inverse|has_entry_version|
+RELA|expanded_form_of|expanded_form|Expanded form of|
+RELA|expanded_form_of|rela_inverse|has_expanded_form|
+RELA|has_entry_version|expanded_form|Has entry version|
+RELA|has_entry_version|rela_inverse|entry_version_of|
+RELA|has_expanded_form|expanded_form|Has expanded form|
+RELA|has_expanded_form|rela_inverse|expanded_form_of|
+RELA|has_mapping_qualifier|expanded_form|Has mapping qualifier|
+RELA|has_mapping_qualifier|rela_inverse|mapping_qualifier_of|
+RELA|has_permuted_term|expanded_form|Has permuted term|
+RELA|has_permuted_term|rela_inverse|permuted_term_of|
+RELA|has_sort_version|expanded_form|Has sort version|
+RELA|has_sort_version|rela_inverse|sort_version_of|
+RELA|has_version|expanded_form|Has version|
+RELA|has_version|rela_inverse|version_of|
+RELA|inverse_isa|expanded_form|Inverse is a|
+RELA|inverse_isa|rela_inverse|isa|
+RELA|isa|expanded_form|Is a|
+RELA|isa|rela_inverse|inverse_isa|
+RELA|mapped_from|expanded_form|Mapped from|
+RELA|mapped_from|rela_inverse|mapped_to|
+RELA|mapped_to|expanded_form|Mapped to|
+RELA|mapped_to|rela_inverse|mapped_from|
+RELA|mapping_qualifier_of|expanded_form|Mapping qualifier of|
+RELA|mapping_qualifier_of|rela_inverse|has_mapping_qualifier|
+RELA|permuted_term_of|expanded_form|Permuted term of|
+RELA|permuted_term_of|rela_inverse|has_permuted_term|
+RELA|sort_version_of|expanded_form|Sort version of|
+RELA|sort_version_of|rela_inverse|has_sort_version|
+RELA|version_of|expanded_form|Version of|
+RELA|version_of|rela_inverse|has_version|
+RELA||expanded_form|Empty relationship attribute|
+RELA||rela_inverse||
+REL|116676008|snomedct_rel_mapping|RO|
+REL|116678009|snomedct_rel_mapping|RO|
+REL|116680003|snomedct_rel_mapping|CHD|
+REL|116683001|snomedct_rel_mapping|RO|
+REL|116686009|snomedct_rel_mapping|RO|
+REL|118168003|snomedct_rel_mapping|RO|
+REL|118169006|snomedct_rel_mapping|RO|
+REL|118170007|snomedct_rel_mapping|RO|
+REL|118171006|snomedct_rel_mapping|RO|
+REL|123005000|snomedct_rel_mapping|RN|
+REL|127489000|snomedct_rel_mapping|RO|
+REL|131195008|snomedct_rel_mapping|RO|
+REL|149016008|snomedct_rel_mapping|RO|
+REL|159083000|snomedct_rel_mapping|RN|
+REL|168666000|snomedct_rel_mapping|SY|
+REL|246075003|snomedct_rel_mapping|RO|
+REL|246090004|snomedct_rel_mapping|RO|
+REL|246093002|snomedct_rel_mapping|RO|
+REL|246100006|snomedct_rel_mapping|RO|
+REL|246112005|snomedct_rel_mapping|RO|
+REL|246267002|snomedct_rel_mapping|RO|
+REL|246454002|snomedct_rel_mapping|RO|
+REL|246456000|snomedct_rel_mapping|RO|
+REL|246513007|snomedct_rel_mapping|RO|
+REL|255234002|snomedct_rel_mapping|RO|
+REL|258214002|snomedct_rel_mapping|RO|
+REL|260507000|snomedct_rel_mapping|RO|
+REL|260669005|snomedct_rel_mapping|RO|
+REL|260686004|snomedct_rel_mapping|RO|
+REL|260858005|snomedct_rel_mapping|RO|
+REL|260870009|snomedct_rel_mapping|RO|
+REL|260908002|snomedct_rel_mapping|RO|
+REL|261583007|snomedct_rel_mapping|RO|
+REL|263502005|snomedct_rel_mapping|RO|
+REL|263535000|snomedct_rel_mapping|RO|
+REL|26421000009105|snomedct_rel_mapping|RO|
+REL|26431000009107|snomedct_rel_mapping|RO|
+REL|272741003|snomedct_rel_mapping|RO|
+REL|308489006|snomedct_rel_mapping|RO|
+REL|30951000009108|snomedct_rel_mapping|RO|
+REL|309824003|snomedct_rel_mapping|RO|
+REL|363589002|snomedct_rel_mapping|RO|
+REL|363698007|snomedct_rel_mapping|RO|
+REL|363699004|snomedct_rel_mapping|RO|
+REL|363700003|snomedct_rel_mapping|RO|
+REL|363701004|snomedct_rel_mapping|RO|
+REL|363702006|snomedct_rel_mapping|RO|
+REL|363703001|snomedct_rel_mapping|RO|
+REL|363704007|snomedct_rel_mapping|RO|
+REL|363705008|snomedct_rel_mapping|RO|
+REL|363708005|snomedct_rel_mapping|RO|
+REL|363709002|snomedct_rel_mapping|RO|
+REL|363710007|snomedct_rel_mapping|RO|
+REL|363713009|snomedct_rel_mapping|RO|
+REL|363714003|snomedct_rel_mapping|RO|
+REL|363715002|snomedct_rel_mapping|RO|
+REL|367346004|snomedct_rel_mapping|RO|
+REL|370124000|snomedct_rel_mapping|RO|
+REL|370125004|snomedct_rel_mapping|RO|
+REL|370127007|snomedct_rel_mapping|RO|
+REL|370129005|snomedct_rel_mapping|RO|
+REL|370130000|snomedct_rel_mapping|RO|
+REL|370131001|snomedct_rel_mapping|RO|
+REL|370132008|snomedct_rel_mapping|RO|
+REL|370133003|snomedct_rel_mapping|RO|
+REL|370134009|snomedct_rel_mapping|RO|
+REL|370135005|snomedct_rel_mapping|RO|
+REL|401336002|snomedct_rel_mapping|RO|
+REL|401337006|snomedct_rel_mapping|RO|
+REL|401338001|snomedct_rel_mapping|RO|
+REL|405813007|snomedct_rel_mapping|RO|
+REL|405814001|snomedct_rel_mapping|RO|
+REL|405815000|snomedct_rel_mapping|RO|
+REL|405816004|snomedct_rel_mapping|RO|
+REL|408729009|snomedct_rel_mapping|RO|
+REL|408730004|snomedct_rel_mapping|RO|
+REL|408731000|snomedct_rel_mapping|RO|
+REL|408732007|snomedct_rel_mapping|RO|
+REL|410675002|snomedct_rel_mapping|RO|
+REL|411116001|snomedct_rel_mapping|RO|
+REL|418775008|snomedct_rel_mapping|RO|
+REL|419066007|snomedct_rel_mapping|RO|
+REL|424226004|snomedct_rel_mapping|RO|
+REL|424244007|snomedct_rel_mapping|RO|
+REL|424361007|snomedct_rel_mapping|RO|
+REL|424876005|snomedct_rel_mapping|RO|
+REL|425391005|snomedct_rel_mapping|RO|
+REL|42752001|snomedct_rel_mapping|RO|
+REL|47429007|snomedct_rel_mapping|RO|
+REL|900000000000523009|snomedct_rel_mapping|RO|
+REL|900000000000524003|snomedct_rel_mapping|RO|
+REL|900000000000525002|snomedct_rel_mapping|RO|
+REL|900000000000526001|snomedct_rel_mapping|RO|
+REL|900000000000527005|snomedct_rel_mapping|SY|
+REL|900000000000528000|snomedct_rel_mapping|RN|
+REL|900000000000530003|snomedct_rel_mapping|RN|
+REL|900000000000531004|snomedct_rel_mapping|RN|
+REL|AQ|expanded_form|Allowed qualifier|
+REL|AQ|rel_inverse|QB|
+REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary |
+REL|CHD|rel_inverse|PAR|
+REL|DEL|expanded_form|Deleted concept|
+REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary |
+REL|PAR|rel_inverse|CHD|
+REL|QB|expanded_form|can be qualified by.|
+REL|QB|rel_inverse|AQ|
+REL|RB|expanded_form|has a broader relationship|
+REL|RB|rel_inverse|RN|
+REL|RN|expanded_form|has a narrower relationship|
+REL|RN|rel_inverse|RB|
+REL|RO|expanded_form|has relationship other than synonymous, narrower, or broader|
+REL|RO|rel_inverse|RO|
+REL|SIB|expanded_form|has sibling relationship in a Metathesaurus source vocabulary.|
+REL|SIB|rel_inverse|SIB|
+REL|SUBX|expanded_form|Concept removed from current subset|
+REL|SY|expanded_form|source asserted synonymy.|
+REL|SY|rel_inverse|SY|
+REL||expanded_form|Empty relationship|
+SRL|0|expanded_form|No additional restrictions; general terms of the license agreement apply.|
+SRL|0|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html|
+SRL|1|expanded_form|General terms + additional restrictions in category 12.1|
+SRL|1|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category1|
+SRL|2|expanded_form|General terms + additional restrictions in category 12.2|
+SRL|2|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category2|
+SRL|3|expanded_form|General terms + additional restrictions in category 12.3|
+SRL|3|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category3|
+SRL|4|expanded_form|General terms + additional restrictions in category 12.4|
+SRL|4|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category4|
+SRL|9|expanded_form|General terms + SNOMED CT Affiliate License in Appendix 2|
+SRL|9|uri|https://uts.nlm.nih.gov/help/license/licensecategoryihtsdohelp.html|
+STT|PF|expanded_form|Preferred form of term |
+STT|VCW|expanded_form|Case and word-order variant of the preferred form|
+STT|VC|expanded_form|Case variant of the preferred form|
+STT|VO|expanded_form|Variant of the preferred form|
+STT|VW|expanded_form|Word-order variant of the preferred form|
+STYPE1|AUI|expanded_form|Atom identifier|
+STYPE1|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE1|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE1|SDUI|expanded_form|Source asserted descriptor identifier|
+STYPE2|AUI|expanded_form|Atom identifier|
+STYPE2|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE2|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE2|SDUI|expanded_form|Source asserted descriptor identifier|
+STYPE|AUI|expanded_form|Atom identifier|
+STYPE|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE|SDUI|expanded_form|Source asserted descriptor identifier|
+SUPPRESS|E|expanded_form|Suppressible due to editor decision|
+SUPPRESS|N|expanded_form|Not suppressible|
+SUPPRESS|O|expanded_form|Obsolete, SAB,TTY may be independently suppressible|
+SUPPRESS|Y|expanded_form|Suppressible due to SAB,TTY|
+SUPPRESS||expanded_form|Suppressibility not yet assigned by the UMLS|
+TS|P|expanded_form|Preferred LUI of the CUI|
+TS|S|expanded_form|Non-Preferred LUI of the CUI|
+TS|p|expanded_form|Preferred LUI of the CUI, suppressible (only used in ORF MRCON)|
+TS|s|expanded_form|Non-Preferred LUI of the CUI, suppressible (only used in ORF MRCON)|
+TTY|CE|expanded_form|Entry term for a Supplementary Concept|
+TTY|CE|tty_class|entry_term|
+TTY|DEV|expanded_form|Descriptor entry version|
+TTY|DEV|tty_class|abbreviation|
+TTY|DSV|expanded_form|Descriptor sort version|
+TTY|DSV|tty_class|abbreviation|
+TTY|ET|expanded_form|Entry term|
+TTY|ET|tty_class|entry_term|
+TTY|HS|expanded_form|Short or alternate version of hierarchical term|
+TTY|HS|tty_class|abbreviation|
+TTY|HS|tty_class|hierarchical|
+TTY|HT|expanded_form|Hierarchical term|
+TTY|HT|tty_class|hierarchical|
+TTY|HT|tty_class|preferred|
+TTY|MH|expanded_form|Main heading|
+TTY|MH|tty_class|preferred|
+TTY|N1|expanded_form|Chemical Abstracts Service Type 1 name of a chemical|
+TTY|N1|tty_class|synonym|
+TTY|NM|expanded_form|Name of Supplementary Concept|
+TTY|NM|tty_class|preferred|
+TTY|PCE|expanded_form|Preferred entry term for Supplementary Concept|
+TTY|PCE|tty_class|entry_term|
+TTY|PCE|tty_class|preferred|
+TTY|PEP|expanded_form|Preferred entry term|
+TTY|PEP|tty_class|entry_term|
+TTY|PEP|tty_class|preferred|
+TTY|PM|expanded_form|Machine permutation|
+TTY|PM|tty_class|synonym|
+TTY|PXQ|expanded_form|Preferred qualifier term|
+TTY|PXQ|tty_class|entry_term|
+TTY|QAB|expanded_form|Qualifier abbreviation|
+TTY|QAB|tty_class|abbreviation|
+TTY|QEV|expanded_form|Qualifier entry version|
+TTY|QEV|tty_class|abbreviation|
+TTY|QSV|expanded_form|Qualifier sort version|
+TTY|QSV|tty_class|abbreviation|
+TTY|RAB|expanded_form|Root abbreviation|
+TTY|RAB|tty_class|abbreviation|
+TTY|RHT|expanded_form|Root hierarchical term|
+TTY|RHT|tty_class|hierarchical|
+TTY|RPT|expanded_form|Root preferred term|
+TTY|RPT|tty_class|preferred|
+TTY|SSN|expanded_form|Source short name, used in the UMLS Knowledge Source Server|
+TTY|SSN|tty_class|abbreviation|
+TTY|TQ|expanded_form|Topical qualifier|
+TTY|TQ|tty_class|attribute|
+TTY|VAB|expanded_form|Versioned abbreviation|
+TTY|VAB|tty_class|abbreviation|
+TTY|VPT|expanded_form|Versioned preferred term|
+TTY|VPT|tty_class|preferred|
+TTY|VSY|expanded_form|Versioned synonym|
+TTY|VSY|tty_class|synonym|
+TTY|XQ|expanded_form|Alternate name for a qualifier|
+TTY|XQ|tty_class|attribute|
+TTY|XQ|tty_class|synonym|
+RELA|Chromosomal_Location_Of_Wild-type_Gene|expanded_form|Chromosomal Location Of Wild-type Gene|RELA|Chromosomal_Location_Of_Wild-type_Gene|rela_inverse|Allele_Absent_From_Wild-type_Chromosomal_Location|RELA|Gene_Product_Has_Gene_Product_Variant|expanded_form|Gene Product Has Gene Product Variant|RELA|Gene_Product_Has_Gene_Product_Variant|rela_inverse|Gene_Product_Variant_Of_Gene_Product|
