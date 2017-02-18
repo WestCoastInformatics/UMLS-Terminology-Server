@@ -74,7 +74,6 @@ public class ReportJpa extends AbstractHasLastModified implements Report {
   private QueryType queryType;
 
   /** The query result type. */
-  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private String resultType;
 
