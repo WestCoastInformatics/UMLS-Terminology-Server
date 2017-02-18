@@ -45,7 +45,7 @@ public class FeedbackReleaseAlgorithm
     final ValidationResult result = new ValidationResultJpa();
 
     if (getProject() == null) {
-      throw new Exception("Atom Loading requires a project to be set");
+      throw new Exception("Algorithm requires a project to be set");
     }
 
     // Check the mr directory
@@ -78,7 +78,7 @@ public class FeedbackReleaseAlgorithm
     fireProgressEvent(0, "Starting");
 
     //
-    // Load the classes_atoms.src file
+    // Load the MRCONSO.RRF file in the mr/[version]/META folder
     //
     final List<String> lines =
         loadFileIntoStringList(mrDirFile, "MRCONSO.RRF", null, null);
