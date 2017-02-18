@@ -686,7 +686,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
-
   /**
    * Returns the src dir file.
    *
@@ -695,7 +694,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   public File getSrcDirFile() {
     return srcDirFile;
   }
-
 
   /**
    * Sets the src dir file.
@@ -1152,5 +1150,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return referencedTerminologies;
 
   }
+
 
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
@@ -411,6 +411,30 @@ public interface RootService extends Transactionable {
     QueryType queryType, Map<String, String> params) throws Exception;
 
   /**
+   * Execute report query. This is an itemId, itemName 2 col query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Object[]> executeReportQuery(String query, QueryType queryType,
+    Map<String, String> params) throws Exception;
+
+  /**
+   * Execute query query.
+   *
+   * @param query the query
+   * @param queryType the query type
+   * @param params the params
+   * @return the list
+   * @throws Exception the exception
+   */
+  public List<Object[]> executeQuery(String query, QueryType queryType,
+    Map<String, String> params) throws Exception;
+
+  /**
    * Returns the validation handlers map.
    *
    * @return the validation handlers map
@@ -429,4 +453,4 @@ public interface RootService extends Transactionable {
   public ValidationResult validateAction(MolecularActionAlgorithm action)
     throws Exception;
 
- }
+}

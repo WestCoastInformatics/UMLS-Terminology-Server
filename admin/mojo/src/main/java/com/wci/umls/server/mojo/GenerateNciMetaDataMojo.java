@@ -39,6 +39,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -536,6 +537,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     WorkflowConfigJpa config = new WorkflowConfigJpa();
     config.setType("MUTUALLY_EXCLUSIVE");
     config.setMutuallyExclusive(true);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfig newConfig =
@@ -800,6 +802,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("QUALITY_ASSURANCE");
     config.setMutuallyExclusive(false);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -934,6 +937,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config.setType("MID_VALIDATION");
     config.setMutuallyExclusive(false);
     config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -967,9 +971,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     getLog().info("  Create a MID VALIDATION_NOCONCEPT config");
     workflowService = new WorkflowServiceRestImpl();
     config = new WorkflowConfigJpa();
-    config.setType("MID_VALIDATION_NOCONCEPT");
+    config.setType("MID_VALIDATION_OTHER");
     config.setMutuallyExclusive(false);
     config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.OTHER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);

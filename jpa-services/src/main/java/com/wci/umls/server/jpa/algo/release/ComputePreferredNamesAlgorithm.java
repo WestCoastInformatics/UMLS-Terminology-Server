@@ -3,9 +3,7 @@
  */
 package com.wci.umls.server.jpa.algo.release;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -74,14 +72,11 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     setMolecularActionFlag(false);
 
     // 1. Collect all atoms from project concepts
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
-    params.put("version", getProject().getVersion());
     // Normalization is only for English
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c " + "where c.terminology = :terminology "
             + "  and c.version = :version and publishable = true",
-        QueryType.JQL, params, ConceptJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class);
     commitClearBegin();
 
     // Iterate through each concept

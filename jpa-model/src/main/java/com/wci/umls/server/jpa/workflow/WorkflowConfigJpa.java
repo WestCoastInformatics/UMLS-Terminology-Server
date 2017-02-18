@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.workflow;
 
@@ -9,6 +9,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,9 +32,11 @@ import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 import com.wci.umls.server.model.workflow.WorkflowConfig;
@@ -83,6 +87,11 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   @Column(nullable = false)
   private boolean adminConfig;
 
+  /** The workflow status. */
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private QueryStyle queryStyle;
+
   /** The last partition time. */
   @Column(nullable = true)
   private Long lastPartitionTime;
@@ -119,6 +128,7 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     timestamp = config.getTimestamp();
     mutuallyExclusive = config.isMutuallyExclusive();
     adminConfig = config.isAdminConfig();
+    queryStyle = config.getQueryStyle();
     type = config.getType();
     workflowBinDefinitions =
         new ArrayList<>(config.getWorkflowBinDefinitions());
@@ -230,6 +240,20 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   }
 
   /* see superclass */
+  @FieldBridge(impl = EnumBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Override
+  public QueryStyle getQueryStyle() {
+    return queryStyle;
+  }
+
+  /* see superclass */
+  @Override
+  public void setQueryStyle(QueryStyle queryStyle) {
+    this.queryStyle = queryStyle;
+  }
+
+  /* see superclass */
   @Override
   public Long getLastPartitionTime() {
     return lastPartitionTime;
@@ -282,10 +306,12 @@ public class WorkflowConfigJpa implements WorkflowConfig {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + (adminConfig ? 1231 : 1237);
-    result = prime * result + ((type == null) ? 0 : type.hashCode());
+    result = prime * result + (mutuallyExclusive ? 1231 : 1237);
     result = prime * result + ((project == null) ? 0 : project.hashCode());
+    result =
+        prime * result + ((queryStyle == null) ? 0 : queryStyle.hashCode());
+    result = prime * result + ((type == null) ? 0 : type.hashCode());
     result = prime * result + ((workflowBinDefinitions == null) ? 0
         : workflowBinDefinitions.hashCode());
     return result;
@@ -301,14 +327,16 @@ public class WorkflowConfigJpa implements WorkflowConfig {
     if (getClass() != obj.getClass())
       return false;
     WorkflowConfigJpa other = (WorkflowConfigJpa) obj;
-    if (mutuallyExclusive != other.mutuallyExclusive)
-      return false;
     if (adminConfig != other.adminConfig)
+      return false;
+    if (mutuallyExclusive != other.mutuallyExclusive)
       return false;
     if (project == null) {
       if (other.project != null)
         return false;
     } else if (!project.equals(other.project))
+      return false;
+    if (queryStyle != other.queryStyle)
       return false;
     if (type == null) {
       if (other.type != null)

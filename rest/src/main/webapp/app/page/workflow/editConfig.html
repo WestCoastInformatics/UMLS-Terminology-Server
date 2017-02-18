@@ -39,6 +39,15 @@
         <input type="checkbox" ng-model="config.adminConfig">
       </td>
     </tr>
+    <tr>
+      <td>
+        <b>Query Style</b>
+      </td>
+      <td>
+        <select ng-model="config.queryStyle"
+          ng-options="item for item in queryStyles"></select>
+      </td>
+    </tr>
   </table>
 
   <!-- Errors -->

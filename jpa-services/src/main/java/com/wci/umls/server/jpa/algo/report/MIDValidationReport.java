@@ -84,7 +84,7 @@ public class MIDValidationReport extends AbstractReportAlgorithm {
       }
     }
     final WorkflowConfig config2 =
-        getWorkflowConfig(getProject(), "MID_VALIDATION_NOCONCEPT");
+        getWorkflowConfig(getProject(), "MID_VALIDATION_OPEN");
     if (config2 != null) {
       for (final WorkflowBinDefinition definition : config2
           .getWorkflowBinDefinitions()) {

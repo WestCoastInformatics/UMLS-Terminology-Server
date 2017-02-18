@@ -59,7 +59,7 @@ public abstract class AbstractHasLastModified implements HasLastModified {
    */
   public AbstractHasLastModified(HasLastModified component) {
     setId(component.getId());
-    timestamp = new Date();
+    timestamp = component.getTimestamp();
     lastModified = component.getLastModified();
     lastModifiedBy = component.getLastModifiedBy();
   }

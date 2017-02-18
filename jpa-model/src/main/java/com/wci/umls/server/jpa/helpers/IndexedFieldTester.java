@@ -35,8 +35,8 @@ public class IndexedFieldTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testAnalyzedIndexedFields() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test analyzed indexed fields - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test analyzed indexed fields - " + clazz.getName());
 
     final Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
     for (final String field : includes == null ? new HashSet<String>()
@@ -46,16 +46,16 @@ public class IndexedFieldTester extends ProxyTester {
         found = analyzedFieldsMap.get(field);
       }
       if (!found) {
-        Logger.getLogger(getClass()).info(
-            "  " + field + " is not defined as analyzed");
+        Logger.getLogger(getClass())
+            .info("  " + field + " is not defined as analyzed");
         return false;
       }
     }
     for (final String field : analyzedFieldsMap.keySet()) {
       if (analyzedFieldsMap.get(field)
           && (includes == null || !includes.contains(field))) {
-        Logger.getLogger(getClass()).info(
-            "  " + field + " should be in the include list as analyzed");
+        Logger.getLogger(getClass())
+            .info("  " + field + " should be in the include list as analyzed");
         return false;
       }
     }
@@ -70,8 +70,8 @@ public class IndexedFieldTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testNotAnalyzedIndexedFields() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test not analyzed indexed fields - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test not analyzed indexed fields - " + clazz.getName());
 
     final Map<String, Boolean> analyzedFieldsMap = getAnalyzedFieldsMap(clazz);
     for (final String field : includes) {
@@ -80,8 +80,8 @@ public class IndexedFieldTester extends ProxyTester {
         found = analyzedFieldsMap.get(field);
       }
       if (found) {
-        Logger.getLogger(getClass()).info(
-            "  " + field + " is defined as analyzed");
+        Logger.getLogger(getClass())
+            .info("  " + field + " is defined as analyzed");
         return false;
       }
     }
@@ -135,10 +135,12 @@ public class IndexedFieldTester extends ProxyTester {
       }
 
       // check for Fields annotation
-      if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
+      if (m
+          .isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
         // add all specified fields
-        for (final org.hibernate.search.annotations.Field f : m.getAnnotation(
-            org.hibernate.search.annotations.Fields.class).value()) {
+        for (final org.hibernate.search.annotations.Field f : m
+            .getAnnotation(org.hibernate.search.annotations.Fields.class)
+            .value()) {
           if (f.name().equals("")) {
             nameAnalyzedPairs.put(fieldName.toLowerCase(),
                 f.analyze().equals(Analyze.YES));
