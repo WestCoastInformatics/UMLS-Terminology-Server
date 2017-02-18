@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -26,6 +26,7 @@ import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -1478,7 +1479,7 @@ public class WorkflowClientRest extends RootClientRest
   /* see superclass */
   @Override
   public void testQuery(Long projectId, String query, QueryType type,
-    String authToken) throws Exception {
+    QueryStyle style, String authToken) throws Exception {
     Logger.getLogger(getClass())
         .debug("Workflow Client - test query - " + type + ", " + query);
 
@@ -1486,10 +1487,11 @@ public class WorkflowClientRest extends RootClientRest
     validateNotEmpty(projectId, "query");
 
     final Client client = ClientBuilder.newClient();
-    final WebTarget target = client.target(config.getProperty("base.url")
-        + "/workflow/query/test?projectId=" + projectId + "&queryType=" + type
-        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
-            .replaceAll("\\+", "%20"));
+    final WebTarget target = client.target(
+        config.getProperty("base.url") + "/workflow/query/test?projectId="
+            + projectId + "&queryType=" + type + "&queryStyle=" + style
+            + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                .replaceAll("\\+", "%20"));
     final Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).post(Entity.text(""));
 
@@ -1722,8 +1724,7 @@ public class WorkflowClientRest extends RootClientRest
     }
 
     // converting to object
-    return ConfigUtility.getGraphForJson(resultString,
-        WorkflowEpochJpa.class);
+    return ConfigUtility.getGraphForJson(resultString, WorkflowEpochJpa.class);
   }
 
   @Override

@@ -149,9 +149,9 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         query.setParameter("terminology", concept.getTerminology());
         query.setParameter("version", concept.getVersion());
         query.setParameter("prefix", prefixMap.get("CUI") + "%");
-        final Long conceptId2 =
-            new Long(query.getSingleResult().toString().substring(prefixMap.get("CUI").length())); 
-                                                                       
+        final Long conceptId2 = new Long(query.getSingleResult().toString()
+            .substring(prefixMap.get("CUI").length()));
+
         conceptId = conceptId2 != null ? conceptId2 : conceptId;
       } catch (NoResultException e) {
         conceptId = 0L;
@@ -431,12 +431,24 @@ public class UmlsIdentifierAssignmentHandler extends AbstractConfigurable
         identity.setRelationshipType(relationship.getRelationshipType());
         identity.setAdditionalRelationshipType(
             relationship.getAdditionalRelationshipType());
-        identity.setFromId(relationship.getFrom().getTerminologyId());
         identity.setFromTerminology(relationship.getFrom().getTerminology());
         identity.setFromType(relationship.getFrom().getType());
-        identity.setToId(relationship.getTo().getTerminologyId());
         identity.setToTerminology(relationship.getTo().getTerminology());
         identity.setToType(relationship.getTo().getType());
+        // If to/from objects are atoms, to/fromId need to be the AUI. Otherwise
+        // set to the terminologyId
+        if (relationship.getFrom() instanceof Atom) {
+          identity.setFromId(((Atom) relationship.getFrom())
+              .getAlternateTerminologyIds().get(projectTerminology));
+        } else {
+          identity.setFromId(relationship.getFrom().getTerminologyId());
+        }
+        if (relationship.getTo() instanceof Atom) {
+          identity.setToId(((Atom) relationship.getTo())
+              .getAlternateTerminologyIds().get(projectTerminology));
+        } else {
+          identity.setToId(relationship.getTo().getTerminologyId());
+        }
 
         final RelationshipIdentity identity2 =
             localService.getRelationshipIdentity(identity);

@@ -35,6 +35,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.search.jpa.FullTextQuery;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
@@ -823,14 +824,13 @@ public abstract class RootServiceJpa implements RootService {
   public void logAndCommit(final int objectCt, final int logCt,
     final int commitCt) throws Exception {
     // log at regular intervals
-    if (objectCt % logCt == 0 && objectCt>0) {
+    if (objectCt % logCt == 0 && objectCt > 0) {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
     if (objectCt % commitCt == 0) {
       commitClearBegin();
     }
   }
-
 
   /* see superclass */
   @Override
@@ -1631,40 +1631,17 @@ public abstract class RootServiceJpa implements RootService {
     QueryType queryType, Map<String, String> params,
     Class<? extends Component> clazz) throws Exception {
 
-    // If query parameters are not fully filled out, return an empty List.
-    if (ConfigUtility.isEmpty(query) || queryType == null) {
-      return new ArrayList<Long[]>();
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
     }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
 
     // Only JQL and SQL queries are legal
     if (queryType != QueryType.JQL && queryType != QueryType.SQL) {
       throw new Exception(
           "Only SQL and JQL type queries can be sent to executeComponentIdPairQuery");
-    }
-
-    // Check for JQL/SQL errors
-    // ensure that query begins with SELECT (i.e. prevent injection
-    // problems)
-    if (!query.toUpperCase().startsWith("SELECT")) {
-      throw new LocalException(
-          "Query has bad format:  does not begin with SELECT");
-    }
-
-    // check for multiple commands (i.e. multiple semi-colons)
-    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
-      throw new LocalException(
-          "Query has bad format:  multiple queries detected");
-    }
-
-    // crude check: check for data manipulation commands
-    if (query.toUpperCase()
-        .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
-      throw new LocalException("Query has bad format:  DDL request detected");
-    }
-
-    // check for proper format for insertion into reports
-    if (query.toUpperCase().indexOf("FROM") == -1) {
-      throw new LocalException("Query must contain the term FROM");
     }
 
     // check for correct number and type of returned objects
@@ -1797,25 +1774,17 @@ public abstract class RootServiceJpa implements RootService {
     Class<? extends Component> clazz) throws Exception {
 
     // If query type is not filled out, return an empty List.
-    if (queryType == null) {
-      return new ArrayList<Long>();
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
     }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
 
     // Handle the LUCENE case
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
-      // precondition check
-      if (params == null || !params.containsKey("terminology")) {
-        throw new Exception(
-            "Execute query should be passed params with the key 'terminology'"
-                + params);
-      }
-      if (params == null || !params.containsKey("version")) {
-        throw new Exception(
-            "Execute query should be passed params with the key 'version'"
-                + params);
-      }
+
       // Perform search
       final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
           .getIdResults(params.get("terminology"), params.get("version"),
@@ -1958,30 +1927,165 @@ public abstract class RootServiceJpa implements RootService {
   }
 
   /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
   @Override
-  @SuppressWarnings("unchecked")
-  public List<Long[]> executeClusteredConceptQuery(String query,
-    QueryType queryType, Map<String, String> params) throws Exception {
+  public List<Object[]> executeReportQuery(String query, QueryType queryType,
+    Map<String, String> params) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
 
     // Handle the LUCENE case
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
-      // precondition check
-      if (params == null || !params.containsKey("terminology")) {
-        throw new Exception(
-            "Execute query should be passed params with the key 'terminology'"
-                + params);
-      }
-      if (params == null || !params.containsKey("version")) {
-        throw new Exception(
-            "Execute query should be passed params with the key 'version'"
-                + params);
-      }
+
       // Perform search
-      final List<ConceptJpa> concepts = new DefaultSearchHandler()
-          .getQueryResults(params.get("terminology"), null, Branch.ROOT, null,
-              null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<ConceptJpa> concepts =
+          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<Object[]> results = new ArrayList<>();
+      for (final ConceptJpa c : concepts) {
+        final Object[] result = new Object[2];
+        result[0] = c.getId();
+        result[1] = c.getName();
+        results.add(result);
+      }
+      // Return the result list as arrays of component ids
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // check for correct number and type of returned objects
+    if (!query.toUpperCase()
+        .matches("SELECT.*ITEMID.*ITEMNAME.*VALUE.*FROM.*")) {
+      throw new LocalException(
+          "Query must be in the form 'SELECT x itemId, y itemName, z value FROM ...'");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list
+    return jpaQuery.getResultList();
+
+  }
+
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Object[]> executeQuery(String query, QueryType queryType,
+    Map<String, String> params) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+
+      // Perform search
+      final List<ConceptJpa> concepts =
+          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<Object[]> results = new ArrayList<>();
+      for (final ConceptJpa c : concepts) {
+        final Object[] result = new Object[2];
+        result[0] = c.getId();
+        result[1] = c.getName();
+        results.add(result);
+      }
+      // Return the result list as arrays of component ids
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list
+    return jpaQuery.getResultList();
+
+  }
+
+  /* see superclass */
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<Long[]> executeClusteredConceptQuery(String query,
+    QueryType queryType, Map<String, String> params) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+
+      // Perform search
+      final List<ConceptJpa> concepts =
+          new DefaultSearchHandler().getQueryResults(params.get("terminology"),
+              params.get("version"), Branch.ROOT, null, null, ConceptJpa.class,
+              pfs, new int[1], manager);
 
       // Cluster results
       final List<Long[]> results = new ArrayList<>();
@@ -2001,48 +2105,17 @@ public abstract class RootServiceJpa implements RootService {
 
     // Handle SQL and JQL queries here
     // Check for JQL/SQL errors
-    // ensure that query begins with SELECT (i.e. prevent injection
-    // problems)
-    if (!query.toUpperCase().startsWith("SELECT")) {
-      throw new LocalException(
-          "Query has bad format:  does not begin with SELECT");
-    }
-
-    // check for multiple commands (i.e. multiple semi-colons)
-    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
-      throw new LocalException(
-          "Query has bad format:  multiple queries detected");
-    }
-
-    // crude check: check for data manipulation commands
-    if (query.toUpperCase()
-        .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
-      throw new LocalException("Query has bad format:  DDL request detected");
-    }
-
-    // check for proper format for insertion into reports
-
-    if (query.toUpperCase().indexOf("FROM") == -1) {
-      throw new LocalException("Query must contain the term FROM");
-    }
-
-    final String selectSubStr =
-        query.substring(0, query.toUpperCase().indexOf("FROM "));
 
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
 
-    if (selectSubStr.contains("conceptId")) {
+    if (query.toUpperCase().matches("SELECT.* CONCEPTID.*FROM.*")) {
       conceptQuery = true;
-    }
-
-    if (selectSubStr.contains("conceptId1")
-        && selectSubStr.contains("conceptId2")) {
+    } else if (query.toUpperCase()
+        .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
       dualConceptQuery = true;
-    }
-
-    if (selectSubStr.contains("clusterId")) {
+    } else if (query.toUpperCase().matches("SELECT.* CLUSTERID.*FROM.*")) {
       clusterQuery = true;
     }
 
@@ -2181,6 +2254,92 @@ public abstract class RootServiceJpa implements RootService {
 
     return results;
 
+  }
+
+  /**
+   * Returns the default query params.
+   *
+   * @param project the project
+   * @return the default query params
+   */
+  @SuppressWarnings("static-method")
+  public Map<String, String> getDefaultQueryParams(Project project) {
+    final Map<String, String> params = new HashMap<>();
+    params.put("projectTerminology", project.getTerminology());
+    params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
+    return params;
+  }
+
+  /**
+   * Validate query and params.
+   *
+   * @param query the query
+   * @param type the type
+   * @param params the params
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateQueryAndParams(String query, QueryType type,
+    Map<String, String> params) throws Exception {
+
+    if (type == QueryType.LUCENE) {
+      // precondition check for lucene queries
+      if (params == null || !params.containsKey("terminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("version")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'version'"
+                + params);
+      }
+
+    }
+
+    else {
+      // precondition check for lucene queries
+      if (params == null || !params.containsKey("projectTerminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'projectTerminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("terminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("version")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'version'"
+                + params);
+      }
+      // Handle SQL and JQL queries here
+      // Check for JQL/SQL errors
+      // ensure that query begins with SELECT (i.e. prevent injection
+      // problems)
+      if (!query.toUpperCase().startsWith("SELECT")) {
+        throw new LocalException(
+            "Query has bad format:  does not begin with SELECT");
+      }
+
+      // check for multiple commands (i.e. multiple semi-colons)
+      if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+        throw new LocalException(
+            "Query has bad format:  multiple queries detected");
+      }
+
+      // crude check: check for data manipulation commands
+      if (query.toUpperCase()
+          .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+        throw new LocalException("Query has bad format:  DDL request detected");
+      }
+
+      if (query.toUpperCase().indexOf("FROM") == -1) {
+        throw new LocalException("Query must contain the term FROM");
+      }
+    }
   }
 
   /**

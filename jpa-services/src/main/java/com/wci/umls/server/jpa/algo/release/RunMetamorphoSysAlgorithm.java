@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -120,9 +119,7 @@ public class RunMetamorphoSysAlgorithm
     data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
     data.append("umls.release.description=Base Release for "
         + getProcess().getVersion()).append("\n");
-    SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-    data.append(
-        "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
+    data.append("umls.release.date=" + getProcess().getVersion() + "01")
         .append("\n");
 
     // Write release.dat files (top-level and in META)
@@ -134,13 +131,21 @@ public class RunMetamorphoSysAlgorithm
     // Run "make_config.csh"
     logInfo("  Build MMSYS config files from data");
     final String binDir = ConfigUtility.getHomeDirs().get("bin");
+    // Assumes "lvg" dir exists at same level as "config"
+    final String lvgDir = ConfigUtility.getHomeDirs().get("lvg");
+    String[] env = new String[] {};
+    if (new File(lvgDir).exists()) {
+      env = new String[] {
+          "LVG_HOME=" + lvgDir
+      };
+    }
     final String cmd = binDir + "/make_config.csh";
     final String meta = pathRelease.getPath() + "/META";
     final String net = path.getPath() + "/NET";
     final String mmsys = pathRelease.getPath() + "/MMSYS";
     ConfigUtility.exec(new String[] {
         cmd, meta, net, mmsys
-    }, new String[] {}, false, new File(binDir), logBridge);
+    }, env, false, binDir, logBridge, true);
 
     updateProgress();
 
@@ -178,17 +183,18 @@ public class RunMetamorphoSysAlgorithm
           pathRelease.getPath() + "/MMSYS/jre/windows64/bin/java",
           "-Djava.awt.headless=true",
           "-Djpf.boot.config=" + pathRelease.getPath()
-              + "/MMSYS/etc/subset.boot.properties",
-          "-Dlog4j.configuration=etc/subset.log4j.properties",
+              + "\\MMSYS\\etc\\subset.boot.properties",
+          "-Dlog4j.configuration=etc\\subset.log4j.properties",
           "-Dscript_type=.sh", "-Dfile.encoding=UTF-8", "-Xms600M", "-Xmx1400M",
-          "-Dinput.uri=" + pathRelease.getPath() + "/META",
-          "-Doutput.uri=" + pathRelease.getPath() + "/METASUBSET",
-          "-Dmmsys.config.uri=" + pathRelease.getPath() + "/log/mmsys.prop",
+          "-Dinput.uri=" + pathRelease.getPath() + "\\META",
+          "-Doutput.uri=" + pathRelease.getPath() + "\\METASUBSET",
+          "-Dmmsys.config.uri=" + pathRelease.getPath() + "\\log\\mmsys.prop",
           "org.java.plugin.boot.Boot"
       }, new String[] {
-          "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
-              + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+          "CLASSPATH=" + pathRelease.getPath() + "\\MMSYS;"
+              + pathRelease.getPath() + "\\MMSYS\\lib\\jpf-boot.jar"
+      }, false, new File(pathRelease.getPath(), "\\MMSYS").getPath(), logBridge,
+          false);
     } else {
       // If fails as solaris, try as linux
       ConfigUtility.exec(new String[] {
@@ -205,7 +211,8 @@ public class RunMetamorphoSysAlgorithm
       }, new String[] {
           "CLASSPATH=" + pathRelease.getPath() + "/MMSYS:"
               + pathRelease.getPath() + "/MMSYS/lib/jpf-boot.jar"
-      }, false, new File(pathRelease.getPath(), "/MMSYS"), logBridge);
+      }, false, new File(pathRelease.getPath(), "/MMSYS").getPath(), logBridge,
+          false);
     }
 
     updateProgress();

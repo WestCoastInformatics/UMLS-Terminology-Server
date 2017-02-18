@@ -16,6 +16,7 @@ tsApp.controller('ConfigModalCtrl', [
     $scope.config = action == 'Add' ? {} : angular.copy(selected.config);
     $scope.project = selected.project;
     $scope.errors = [];
+    $scope.queryStyles = [ 'CLUSTER', 'REPORT', 'OTHER' ];
 
     // link to error handling
     function handleError(errors, error) {

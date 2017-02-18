@@ -304,6 +304,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           if (oldAtomChanged) {
             updateAtom(oldAtom);
             updateCount++;
+            putComponent(oldAtom, newAtomAui);
 
             // Reconcile code/concept/descriptor
             reconcileCodeConceptDescriptor(oldAtom);
@@ -322,10 +323,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       // algorithms)
 
       // Generate parameters to pass into query executions
-      final Map<String, String> params = new HashMap<>();
-      params.put("terminology", getProject().getTerminology());
-      params.put("version", getProject().getVersion());
-
       for (final Map.Entry<Long, String> entry : atomPrevCuis.entrySet()) {
         final Long atomId = entry.getKey();
         final String prevRelCui = entry.getValue();
@@ -334,7 +331,8 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         final List<Long> atomIds = executeSingleComponentIdQuery(
             "atoms.conceptTerminologyIds:\"" + getProject().getTerminology()
                 + "=" + prevRelCui + "\"",
-            QueryType.LUCENE, params, ConceptJpa.class);
+            QueryType.LUCENE, getDefaultQueryParams(getProject()),
+            ConceptJpa.class);
 
         // If any atom has this CUI, no need to make a placeholder
         if (atomIds.size() > 0) {
@@ -372,6 +370,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           placeholderAtom.setLanguage("");
           placeholderAtom.setLexicalClassId("");
           placeholderAtom.setStringClassId("");
+          placeholderAtom.setDescriptorId("");
           final Map<String, String> conceptTerminologyIds = new HashMap<>();
           conceptTerminologyIds.put(getProject().getTerminology(), prevRelCui);
           placeholderAtom.setConceptTerminologyIds(conceptTerminologyIds);

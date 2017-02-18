@@ -487,8 +487,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + getProcess().getExecutionInfo().get("maxAtomSubsetIdPreInsertion");
 
     // Execute a query to get Atom Subset Ids
-    final List<Long> atomSubsetIds = executeSingleComponentIdQuery(query,
-        QueryType.JQL, new HashMap<>(), AtomSubsetJpa.class);
+    final List<Long> atomSubsetIds =
+        executeSingleComponentIdQuery(query, QueryType.JQL,
+            getDefaultQueryParams(getProject()), AtomSubsetJpa.class);
 
     for (final Long id : atomSubsetIds) {
       final AtomSubset atomSubset =
@@ -502,8 +503,9 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         + getProcess().getExecutionInfo().get("maxConceptSubsetIdPreInsertion");
 
     // Execute a query to get Concept Subset Ids
-    final List<Long> conceptSubsetIds = executeSingleComponentIdQuery(query,
-        QueryType.JQL, new HashMap<>(), ConceptSubsetJpa.class);
+    final List<Long> conceptSubsetIds =
+        executeSingleComponentIdQuery(query, QueryType.JQL,
+            getDefaultQueryParams(getProject()), ConceptSubsetJpa.class);
 
     for (final Long id : conceptSubsetIds) {
       final ConceptSubset conceptSubset =

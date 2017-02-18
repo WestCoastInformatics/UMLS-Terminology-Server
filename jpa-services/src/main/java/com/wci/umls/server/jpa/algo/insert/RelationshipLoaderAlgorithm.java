@@ -368,7 +368,7 @@ public class RelationshipLoaderAlgorithm
     // return;
     // }
 
-    // Load the containing objects based on type
+    // Load the from and to objects based on type
     final Component fromComponent =
         getComponent(fromClassIdType, fromTermId,
             fromTermAndVersion.equals("") ? null
@@ -380,9 +380,11 @@ public class RelationshipLoaderAlgorithm
       return;
     }
 
-    final Component toComponent = getComponent(toClassIdType, toTermId,
-        toTermAndVersion.equals("") ? null
-            : getCachedTerminology(toTermAndVersion).getTerminology(), null);
+    final Component toComponent =
+        getComponent(toClassIdType, toTermId,
+            toTermAndVersion.equals("") ? null
+                : getCachedTerminology(toTermAndVersion).getTerminology(),
+            null);
     if (toComponent == null) {
       logWarnAndUpdate(line,
           "Warning - could not find to Component for this line.");
@@ -468,6 +470,11 @@ public class RelationshipLoaderAlgorithm
 
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
+    // TESTTEST
+    if (toTermId.equals("257515345")) {
+      System.out.println("TESTTEST - stop here.");
+    }
+    // END TESTTEST
     final String newRelationshipRui = handler.getTerminologyId(newRelationship,
         inverseRelType, inverseAdditionalRelType);
     final String newInverseRelationshipRui = handler.getTerminologyId(

@@ -21,7 +21,7 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
-import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
+import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.model.content.ComponentHistory;
@@ -32,16 +32,8 @@ import com.wci.umls.server.services.RootService;
 /**
  * Algorithm to write the RRF history files.
  */
-public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
-
-  /** The previous progress. */
-  private int previousProgress;
-
-  /** The steps. */
-  private int steps = 3;
-
-  /** The steps completed. */
-  private int stepsCompleted;
+public class WriteRrfHistoryFilesAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The dir. */
   private File dir;
@@ -72,15 +64,15 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
+    setSteps(2);
     openWriters();
-
-    previousProgress = 0;
-    stepsCompleted = 0;
 
     writeMraui();
     updateProgress();
 
     writeMrcui();
+    updateProgress();
+
     closeWriters();
 
     fireProgressEvent(100, "Finished");
@@ -207,12 +199,10 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
 
     // Unpublishable concepts get DEL/bequeathal
     // because unpublishable/unpublished concepts have been removed.
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
             + "and c.terminology = :terminology order by c.terminologyId",
-        QueryType.JQL, params, ConceptJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class);
 
     int objectCt = 0;
     for (final Long conceptId : conceptIds) {
@@ -509,22 +499,6 @@ public class WriteRrfHistoryFilesAlgorithm extends AbstractAlgorithm {
   @Override
   public void setProperties(Properties p) throws Exception {
     // n/a
-  }
-
-  /**
-   * Update progress.
-   *
-   * @throws Exception the exception
-   */
-  public void updateProgress() throws Exception {
-    stepsCompleted++;
-    int currentProgress = (int) ((100.0 * stepsCompleted / steps));
-    if (currentProgress > previousProgress) {
-      checkCancel();
-      fireProgressEvent(currentProgress,
-          "WRITE RRF HISTORY progress: " + currentProgress + "%");
-      previousProgress = currentProgress;
-    }
   }
 
   /* see superclass */

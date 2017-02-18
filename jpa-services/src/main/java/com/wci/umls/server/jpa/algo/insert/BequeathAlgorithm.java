@@ -4,10 +4,8 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -87,12 +85,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
       setSteps(terminologies.size());
 
-      // Generate parameters to pass into query executions
-      final Map<String, String> params = new HashMap<>();
-      params.put("terminology", getProject().getTerminology());
-      params.put("version", getProject().getVersion());
-
-      for (Pair<String, String> terminology : terminologies) {
+      for (final Pair<String, String> terminology : terminologies) {
         checkCancel();
 
         final String fromConceptQuery =
@@ -101,16 +94,18 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
                 + terminology.getLeft() + "_" + terminology.getRight();
 
         // Execute query to get from concept Ids
-        final List<Long> fromConceptIds = executeSingleComponentIdQuery(
-            fromConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
+        final List<Long> fromConceptIds =
+            executeSingleComponentIdQuery(fromConceptQuery, QueryType.LUCENE,
+                getDefaultQueryParams(getProject()), ConceptJpa.class);
 
         final String toConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:RAB AND atoms.codeId:V-"
                 + terminology.getLeft();
 
         // Execute query to get to concept Ids
-        final List<Long> toConceptIds = executeSingleComponentIdQuery(
-            toConceptQuery, QueryType.LUCENE, params, ConceptJpa.class);
+        final List<Long> toConceptIds =
+            executeSingleComponentIdQuery(toConceptQuery, QueryType.LUCENE,
+                getDefaultQueryParams(getProject()), ConceptJpa.class);
 
         // Load the to Concept (there can only be one)
         if (toConceptIds.size() != 1) {
@@ -170,7 +165,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
-      
+
       logInfo("Finished " + getName());
 
     } catch (

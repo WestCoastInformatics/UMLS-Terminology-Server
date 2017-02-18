@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.workflow;
 
@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.helpers.HasProject;
+import com.wci.umls.server.helpers.QueryStyle;
 
 /**
  * Represents a collection of workflow bin definitions of a particular type for
@@ -85,4 +86,17 @@ public interface WorkflowConfig extends HasLastModified, HasProject {
    */
   public void setAdminConfig(boolean adminConfig);
 
+  /**
+   * Returns the query style.
+   *
+   * @return the query style
+   */
+  public QueryStyle getQueryStyle();
+
+  /**
+   * Sets the query style.
+   *
+   * @param queryStyle the query style
+   */
+  public void setQueryStyle(QueryStyle queryStyle);
 }

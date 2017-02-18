@@ -96,14 +96,11 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
 
       // 1. Rank all atoms in (project) precedence order and iterate through
       final Map<Long, String> atomRankMap = new HashMap<>(20000);
-      final Map<String, String> params = new HashMap<>();
-      params.put("terminology", getProject().getTerminology());
-      params.put("version", getProject().getVersion());
       // Normalization is only for English
       final List<Long> atomIds = executeSingleComponentIdQuery(
           "select a.id from ConceptJpa c join c.atoms a where c.terminology = :terminology "
               + "  and c.version = :version and a.language='ENG'",
-          QueryType.JQL, params, AtomJpa.class);
+          QueryType.JQL, getDefaultQueryParams(getProject()), AtomJpa.class);
       commitClearBegin();
 
       fireProgressEvent(11, "Get and rank atoms");

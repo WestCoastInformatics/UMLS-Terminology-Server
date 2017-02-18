@@ -2862,6 +2862,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               continue;
             }
             from = new ComponentInfoJpa();
+            from.setTerminology(fromAtom.getTerminology());
             from.setTerminologyId(fields[5]);
             from.setType(IdType.ATOM);
           }
@@ -2899,6 +2900,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
               continue;
             }
             to = new ComponentInfoJpa();
+            to.setTerminology(toAtom.getTerminology());
             to.setTerminologyId(fields[1]);
             to.setType(IdType.ATOM);
 

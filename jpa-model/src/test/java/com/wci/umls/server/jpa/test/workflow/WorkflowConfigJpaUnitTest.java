@@ -111,6 +111,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("type");
     tester.include("mutuallyExclusive");
     tester.include("adminConfig");
+    tester.include("queryStyle");
     tester.include("project");
     tester.include("workflowBinDefinitions");
 
@@ -174,6 +175,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("lastModifiedBy");
     tester.include("mutuallyExclusive");
     tester.include("adminConfig");
+    tester.include("queryStyle");
     tester.include("type");
 
     assertTrue(tester.testNotNullFields());
@@ -198,6 +200,7 @@ public class WorkflowConfigJpaUnitTest extends ModelUnitSupport {
     tester.include("type");
     tester.include("mutuallyExclusive");
     tester.include("adminConfig");
+    tester.include("queryStyle");
     tester.include("projectId");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());

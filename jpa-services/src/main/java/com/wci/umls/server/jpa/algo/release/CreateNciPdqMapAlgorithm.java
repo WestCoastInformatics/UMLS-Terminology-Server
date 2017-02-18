@@ -121,8 +121,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     //
 
     // 2a. Find any PDQ/XM atoms that are publishable
-    Map<String, String> params = new HashMap<>();
-
+    Map<String, String> params = getDefaultQueryParams(getProject());
     params.put("terminology", "PDQ");
     params.put("termType", "XM");
     String query = "SELECT DISTINCT a.id FROM AtomJpa a "
