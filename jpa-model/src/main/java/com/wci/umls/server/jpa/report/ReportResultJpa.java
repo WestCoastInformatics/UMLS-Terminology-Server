@@ -58,7 +58,7 @@ public class ReportResultJpa extends AbstractHasLastModified
    * The report result items. NOTE: These are set to @XmlTransient below due to
    * the potentially huge size of the list
    */
-  @OneToMany(mappedBy = "reportResult", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, targetEntity = ReportResultItemJpa.class)
+  @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true, targetEntity = ReportResultItemJpa.class)
   // @IndexedEmbedded(targetElement = ReportResultItemJpa.class)
   private List<ReportResultItem> resultItems = new ArrayList<>();
 
