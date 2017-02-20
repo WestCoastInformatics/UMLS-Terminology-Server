@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -25,6 +25,7 @@ public class FeedbackReleaseAlgorithm
   /** The update count. */
   private int updateCount = 0;
 
+  /** The mr dir file. */
   private File mrDirFile = null;
 
   /**

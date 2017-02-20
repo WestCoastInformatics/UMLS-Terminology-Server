@@ -2112,10 +2112,12 @@ public abstract class RootServiceJpa implements RootService {
 
     if (query.toUpperCase().matches("SELECT.* CONCEPTID.*FROM.*")) {
       conceptQuery = true;
-    } else if (query.toUpperCase()
+    }     
+    if (query.toUpperCase()
         .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
       dualConceptQuery = true;
-    } else if (query.toUpperCase().matches("SELECT.* CLUSTERID.*FROM.*")) {
+    }
+    if (query.toUpperCase().matches("SELECT.* CLUSTERID.*FROM.*")) {
       clusterQuery = true;
     }
 
