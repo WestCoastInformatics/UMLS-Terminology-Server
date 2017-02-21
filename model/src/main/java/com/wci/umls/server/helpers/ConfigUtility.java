@@ -370,7 +370,8 @@ public class ConfigUtility {
     }
 
     // The "configFile" is presumed to be in the $home/config directory.
-    final String dir = new File(configFile).getParentFile().getParent();
+    final String dir = FilenameUtils.separatorsToUnix(new File(configFile).getParentFile().getParent());
+    
     for (final String f : new String[] {
         "bin", "config", "data", "lvg"
     }) {
