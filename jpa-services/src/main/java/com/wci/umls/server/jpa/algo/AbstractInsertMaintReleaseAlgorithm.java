@@ -62,7 +62,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /** The search handler. */
   public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
 
-  /** The full directory where the src files are. */
+  /** The full directory where the .src files are. */
   private File srcDirFile = null;
 
   /** The previous progress. */
@@ -686,7 +686,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
   }
 
-  
   /**
    * Returns the src dir file.
    *
@@ -1151,5 +1150,6 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return referencedTerminologies;
 
   }
+
 
 }

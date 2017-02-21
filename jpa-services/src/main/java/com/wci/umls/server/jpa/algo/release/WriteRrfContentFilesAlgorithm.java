@@ -161,16 +161,14 @@ public class WriteRrfContentFilesAlgorithm
     prepareMaps();
 
     // Collect all concepts
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
-    params.put("version", getProject().getVersion());
+
     // Normalization is only for English
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select distinct c.id from ConceptJpa c join c.atoms a "
             + "where c.terminology = :terminology "
             + "  and c.version = :version and a.publishable = true "
             + "  and c.publishable = true order by c.terminologyId",
-        QueryType.JQL, params, ConceptJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class);
     commitClearBegin();
     setSteps(conceptIds.size());
 
@@ -286,12 +284,10 @@ public class WriteRrfContentFilesAlgorithm
         getProject().getVersion());
 
     // Determine preferred atoms for all concepts
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
-    params.put("version", getProject().getVersion());
+
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where publishable = true", QueryType.JQL,
-        params, ConceptJpa.class);
+        getDefaultQueryParams(getProject()), ConceptJpa.class);
     commitClearBegin();
     int ct = 0;
     for (Long conceptId : conceptIds) {
@@ -318,7 +314,7 @@ public class WriteRrfContentFilesAlgorithm
     // Determine preferred atoms for all descriptors
     final List<Long> descriptorIds = executeSingleComponentIdQuery(
         "select d.id from DescriptorJpa d where publishable = true",
-        QueryType.JQL, params, DescriptorJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), DescriptorJpa.class);
     commitClearBegin();
     ct = 0;
     for (Long descriptorId : descriptorIds) {
@@ -335,7 +331,7 @@ public class WriteRrfContentFilesAlgorithm
     // Determine preferred atoms for all codes
     final List<Long> codeIds = executeSingleComponentIdQuery(
         "select c.id from CodeJpa c where publishable = true", QueryType.JQL,
-        params, CodeJpa.class);
+        getDefaultQueryParams(getProject()), CodeJpa.class);
     commitClearBegin();
     ct = 0;
     for (Long codeId : codeIds) {
@@ -1127,8 +1123,8 @@ public class WriteRrfContentFilesAlgorithm
       }
 
       // look up component info relationships where STYPE1=AUI
-      key = a.getTerminologyId() + a.getTerminology() + a.getVersion()
-          + a.getType();
+      key = a.getAlternateTerminologyIds().get(getProject().getTerminology())
+          + a.getTerminology() + a.getVersion() + a.getType();
       for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
         if (!rel.isPublishable()) {
           continue;

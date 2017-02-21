@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -10,6 +10,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ChecklistList;
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -670,11 +671,12 @@ public interface WorkflowServiceRest {
    * @param projectId the project id
    * @param query the query
    * @param type the type
+   * @param style the style
    * @param authToken the auth token
    * @throws Exception the exception
    */
   public void testQuery(Long projectId, String query, QueryType type,
-    String authToken) throws Exception;
+    QueryStyle style, String authToken) throws Exception;
 
   /**
    * Import checklist.

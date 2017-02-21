@@ -238,14 +238,11 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     }
 
     // Get all concept rels
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
-    params.put("version", getProject().getVersion());
     // Normalization is only for English
     final List<Long> relIds = executeSingleComponentIdQuery(
         "select r.id from ConceptRelationshipJpa r WHERE r.publishable = true "
             + "and r.terminology = :terminology",
-        QueryType.JQL, params, ConceptRelationshipJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptRelationshipJpa.class);
     commitClearBegin();
 
     int objectCt = 0;

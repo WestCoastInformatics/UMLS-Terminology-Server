@@ -373,7 +373,7 @@ public class ConfigUtility {
     final String dir = FilenameUtils.separatorsToUnix(new File(configFile).getParentFile().getParent());
     
     for (final String f : new String[] {
-        "bin", "config", "data"
+        "bin", "config", "data", "lvg"
     }) {
       map.put(f, dir + "/" + f);
     }
@@ -1366,19 +1366,19 @@ public class ConfigUtility {
    *          the background.
    * @param dirIn the dir in
    * @param s <code>PrintWriter</code> to use for output
+   * @param fixFlag the fix flag
    * @return a {@link String} containing the process log
    * @throws Exception the exception
    */
   public static String exec(String[] cmdarrayIn, String[] env,
-    boolean background, String dirIn, PrintWriter s) throws Exception {
-
+    boolean background, String dirIn, PrintWriter s, boolean fixFlag) throws Exception {
     // Check if on windows and invoke "cygwin" - assume it's defined in config
     // properties
     // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
     // installed
     String dir = dirIn;
     String[] cmdarray = cmdarrayIn;
-    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+    if (fixFlag && System.getProperty("os.name").toLowerCase().contains("win")) {
       // Change the command to be based around cygwin
       if (ConfigUtility.getConfigProperties()
           .getProperty("cygwin.bin") == null) {
@@ -1388,10 +1388,13 @@ public class ConfigUtility {
       final String tcsh =
           ConfigUtility.getConfigProperties().getProperty("cygwin.bin")
               + "/tcsh.exe";
-      // fix items that look like paths for cygwin
-      for (int i=0; i < cmdarrayIn.length; i++) {
-        if (cmdarrayIn[i].contains(File.separator)) {
-          cmdarrayIn[i] = FilenameUtils.separatorsToUnix(cmdarrayIn[i]);
+
+      // Fix anything that looks like a directory to use forward slashes
+      // and /cygwin oriented directories
+      for (int i = 0; i < cmdarrayIn.length; i++) {
+        if (cmdarrayIn[i].contains("\\")) {
+          cmdarrayIn[i] = FilenameUtils.separatorsToUnix(cmdarrayIn[i])
+              .replaceAll("^([a-zA-Z]):", "/cygdrive/$1");
         }
       }
       cmdarray = new String[] {
@@ -1401,11 +1404,21 @@ public class ConfigUtility {
     }
 
     Runtime run = null;
+
     Process proc = null;
+
     StringBuffer output = new StringBuffer(1000);
+
     String line;
     run = Runtime.getRuntime();
+    Logger.getLogger(ConfigUtility.class)
+        .info("execute = " + FieldedStringTokenizer.join(cmdarray, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  env = " + FieldedStringTokenizer.join(env, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  working dir = " + new File(dir));
     proc = run.exec(cmdarray, env, new File(dir));
+
     BufferedReader in = null;
 
     // Connect a reader to the process

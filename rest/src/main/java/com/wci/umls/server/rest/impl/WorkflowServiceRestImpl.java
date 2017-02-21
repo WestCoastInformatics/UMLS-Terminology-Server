@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -52,6 +52,7 @@ import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
@@ -480,7 +481,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     return null;
 
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -498,8 +499,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       authorizeProject(workflowService, projectId, securityService, authToken,
           "get workflow epoch", UserRole.AUTHOR);
 
-      final WorkflowEpoch epoch = workflowService.getCurrentWorkflowEpoch(workflowService.getProject(projectId));
-      
+      final WorkflowEpoch epoch = workflowService
+          .getCurrentWorkflowEpoch(workflowService.getProject(projectId));
+
       return epoch;
 
     } catch (Exception e) {
@@ -1654,7 +1656,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     }
     return null;
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -1671,14 +1673,15 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get workflow epochs",
           UserRole.VIEWER);
 
-      List<WorkflowEpoch> epochs = workflowService.getWorkflowEpochs(workflowService.getProject(projectId));
+      List<WorkflowEpoch> epochs = workflowService
+          .getWorkflowEpochs(workflowService.getProject(projectId));
 
       WorkflowEpochList list = new WorkflowEpochListJpa();
       list.setObjects(epochs);
       list.setTotalCount(epochs.size());
-      
+
       return list;
-      
+
     } catch (Exception e) {
       handleException(e, "trying to get workflow epochs");
     } finally {
@@ -2925,6 +2928,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Project id, e.g. 5") @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Query, e.g. NOT workflowStatus:NEEDS_REVIEW", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Query type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Query style, e.g. CLUSTER", required = true) @QueryParam("queryStyle") QueryStyle queryStyle,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -2936,12 +2940,22 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       authorizeProject(workflowService, projectId, securityService, authToken,
           "trying to test query", UserRole.AUTHOR);
 
-      Project project = workflowService.getProject(projectId);
-      final Map<String, String> params = new HashMap<>();
-      params.put("terminology", project.getTerminology());
-      params.put("version", project.getVersion());
+      final Project project = workflowService.getProject(projectId);
 
-      workflowService.executeClusteredConceptQuery(query, queryType, params);
+      if (queryStyle == QueryStyle.CLUSTER) {
+        workflowService.executeClusteredConceptQuery(query, queryType,
+            workflowService.getDefaultQueryParams(project));
+      }
+
+      else if (queryStyle == QueryStyle.REPORT) {
+        workflowService.executeReportQuery(query, queryType,
+            workflowService.getDefaultQueryParams(project));
+      }
+
+      else if (queryStyle == QueryStyle.OTHER) {
+        workflowService.executeQuery(query, queryType,
+            workflowService.getDefaultQueryParams(project));
+      }
 
       // websocket - n/a
     } catch (Exception e) {

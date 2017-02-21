@@ -47,15 +47,15 @@ public class ConfigUtilityTest extends IntegrationUnitSupport {
     Logger.getLogger(getClass()).info("  exec ls");
     String out = ConfigUtility.exec(new String[] {
         "ls"
-    }, new String[] {}, false, ".", null);
+    }, new String[] {}, false, ".", null, false);
     Logger.getLogger(getClass()).info("    out = " + out);
 
     Logger.getLogger(getClass()).info("  exec echo $ABC with ABC=DEF");
-     out = ConfigUtility.exec(new String[] {
+    out = ConfigUtility.exec(new String[] {
         "echo $ABC"
     }, new String[] {
         "ABC=DEF"
-    }, false, ".", null);
+    }, false, ".", null, false);
     Logger.getLogger(getClass()).info("    out = " + out);
 
   }

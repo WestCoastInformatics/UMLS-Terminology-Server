@@ -269,7 +269,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     Logger.getLogger(getClass())
         .debug("Workflow Service - add workflow epoch ");
 
-    // TODO: make epoch part of the project -> so we can just say project.getWorkflowEpoch...
+    // TODO: make epoch part of the project -> so we can just say
+    // project.getWorkflowEpoch...
     String maxName = "";
     WorkflowEpoch maxEpoch = null;
     for (final WorkflowEpoch epoch : getWorkflowEpochs(project)) {
@@ -447,8 +448,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     workflowConfigList.setTotalCount(totalCt[0]);
 
     return workflowConfigList;
-  }  
-  
+  }
+
   /* see superclass */
   @Override
   public WorkflowBinDefinition addWorkflowBinDefinition(
@@ -610,12 +611,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // execute the query
     final String query = definition.getQuery();
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", project.getTerminology());
-    params.put("version", project.getVersion());
-
-    final List<Long[]> results =
-        executeClusteredConceptQuery(query, definition.getQueryType(), params);
+    final List<Long[]> results = executeClusteredConceptQuery(query,
+        definition.getQueryType(), getDefaultQueryParams(project));
 
     if (results == null)
       throw new Exception("Failed to retrieve results for query");
@@ -977,11 +974,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     checklist.setTimestamp(new Date());
 
     // Aggregate into clusters
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", project.getTerminology());
-    params.put("version", project.getVersion());
-    final List<Long[]> results =
-        executeClusteredConceptQuery(query, queryType, params);
+    final List<Long[]> results = executeClusteredConceptQuery(query, queryType,
+        getDefaultQueryParams(project));
 
     final PfsParameter localPfs =
         (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);

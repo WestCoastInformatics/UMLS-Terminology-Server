@@ -12,8 +12,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -87,8 +89,21 @@ public class WriteRrfMetadataFilesAlgorithm
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   private void writeMrrank() throws Exception {
     logInfo("  Write MRRANK data");
+
+    final String queryStr = "select distinct a.terminology, a.termType "
+        + "from ConceptJpa c join c.atoms a where c.terminology = :projectTerminology "
+        + " and a.publishable = true";
+    final javax.persistence.Query query = manager.createQuery(queryStr);
+    query.setParameter("projectTerminology", getProject().getTerminology());
+    final List<Object[]> results = query.getResultList();
+    final Set<String> sabTty = new HashSet<>();
+    for (final Object[] result : results) {
+      sabTty.add("" + result[0] + result[1]);
+    }
+    logInfo("  valid terminology/tty = " + sabTty.size());
     final File dir = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
         + "META");
@@ -100,6 +115,10 @@ public class WriteRrfMetadataFilesAlgorithm
       int index = precList.getPrecedence().getKeyValuePairs().size();
       for (final KeyValuePair pair : precList.getPrecedence()
           .getKeyValuePairs()) {
+        // Skip entries that are not represnted in atoms
+        if (!sabTty.contains(pair.getKey() + pair.getValue())) {
+          continue;
+        }
         final StringBuilder sb = new StringBuilder();
         sb.append(String.format("%04d", index--)).append("|");
         sb.append(pair.getKey()).append("|");
@@ -109,7 +128,9 @@ public class WriteRrfMetadataFilesAlgorithm
         sb.append(tty.isSuppressible() ? "Y" : "N").append("|");
         out.print(sb.toString() + "\n");
       }
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       throw e;
     } finally {
       out.close();

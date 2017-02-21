@@ -199,12 +199,10 @@ public class WriteRrfHistoryFilesAlgorithm
 
     // Unpublishable concepts get DEL/bequeathal
     // because unpublishable/unpublished concepts have been removed.
-    final Map<String, String> params = new HashMap<>();
-    params.put("terminology", getProject().getTerminology());
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
             + "and c.terminology = :terminology order by c.terminologyId",
-        QueryType.JQL, params, ConceptJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class);
 
     int objectCt = 0;
     for (final Long conceptId : conceptIds) {

@@ -39,6 +39,7 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.TypeKeyValue;
@@ -186,22 +187,23 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     // MJA - Miranda Jarnot
     final String[] initials = new String[] {
         "CFC", "BAC", "RAW", "DSS", "JFW", "LWW", "MWH", "SDC", "GFG", "LAR",
-        "LLW", "TAQ", "GSC", "HAG", "TPW", "MJA"
+        "LLW", "TAQ", "GSC", "HAG", "TPW", "MJA", "NEO"
     };
     final String[] names = new String[] {
         "Carol Creech", "Brian Carlsen", "Rick Wood", "Deborah Shapiro",
         "Joanne Wong", "Larry Wright", "Margaret Haber", "Sherri de Coronado",
         "Gilberto Fragoso", "Laura Roth", "Lori Whiteman", "Theresa Quinn",
-        "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot"
+        "George Chang", "Alpha Garret", "Tammy Powell", "Miranda Jarnot",
+        "Nels Olson"
     };
     final int[] editorLevels = new int[] {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 0, 5, 5
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 5, 0, 5, 5, 0
     };
     final String[] roles = new String[] {
         "AUTHOR", "ADMINISTRATOR", "ADMINISTRATOR", "ADMINISTRATOR",
         "ADMINISTRATOR", "REVIEWER", "REVIEWER", "REVIEWER", "ADMINISTRATOR",
         "REVIEWER", "REVIEWER", "AUTHOR", "AUTHOR", "AUTHOR", "REVIEWER",
-        "REVIEWER"
+        "REVIEWER", "ADMINISTRATOR"
     };
 
     Logger.getLogger(getClass()).info("Add new users");
@@ -535,6 +537,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     WorkflowConfigJpa config = new WorkflowConfigJpa();
     config.setType("MUTUALLY_EXCLUSIVE");
     config.setMutuallyExclusive(true);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     WorkflowConfig newConfig =
@@ -799,6 +802,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config = new WorkflowConfigJpa();
     config.setType("QUALITY_ASSURANCE");
     config.setMutuallyExclusive(false);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -933,6 +937,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     config.setType("MID_VALIDATION");
     config.setMutuallyExclusive(false);
     config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.CLUSTER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
@@ -966,9 +971,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     getLog().info("  Create a MID VALIDATION_NOCONCEPT config");
     workflowService = new WorkflowServiceRestImpl();
     config = new WorkflowConfigJpa();
-    config.setType("MID_VALIDATION_NOCONCEPT");
+    config.setType("MID_VALIDATION_OTHER");
     config.setMutuallyExclusive(false);
     config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.OTHER);
     config.setProjectId(projectId);
     workflowService = new WorkflowServiceRestImpl();
     newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
