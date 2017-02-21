@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.meta.IdType;
@@ -137,6 +138,17 @@ public class ComponentInfoRelRemapperAlgorithm
           getComponent(getType(toComponentInfo.getType()),
               toComponentInfo.getTerminologyId(),
               toComponentInfo.getTerminology(), null);
+
+      // Handle ComponentInfoRelationship atom components
+      // Change terminology and version from atom's to project's
+      if (fromComponent instanceof Atom) {
+        fromComponent.setTerminology(getProject().getTerminology());
+        fromComponent.setVersion(getProject().getVersion());
+      }
+      if (toComponent instanceof Atom) {
+        toComponent.setTerminology(getProject().getTerminology());
+        toComponent.setVersion(getProject().getVersion());
+      }
 
       // If to component doesn't exist, mark the relationship as unpublishable
       // (and warn)
