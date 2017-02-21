@@ -377,12 +377,13 @@ public interface RootService extends Transactionable {
    * @param queryType the query type
    * @param params the params
    * @param clazz the clazz
+   * @param test the test
    * @return the list
    * @throws Exception the exception
    */
   public List<Long[]> executeComponentIdPairQuery(String query,
     QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz) throws Exception;
+    Class<? extends Component> clazz, boolean test) throws Exception;
 
   /**
    * Execute single component id query.
@@ -391,12 +392,13 @@ public interface RootService extends Transactionable {
    * @param queryType the query type
    * @param params the params
    * @param clazz the clazz
+   * @param test the test
    * @return the list
    * @throws Exception the exception
    */
   public List<Long> executeSingleComponentIdQuery(String query,
     QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz) throws Exception;
+    Class<? extends Component> clazz, boolean test) throws Exception;
 
   /**
    * Execute clustered concept query.
@@ -404,11 +406,13 @@ public interface RootService extends Transactionable {
    * @param query the query
    * @param queryType the query type
    * @param params the params
+   * @param test the test
    * @return the list
    * @throws Exception the exception
    */
   public List<Long[]> executeClusteredConceptQuery(String query,
-    QueryType queryType, Map<String, String> params) throws Exception;
+    QueryType queryType, Map<String, String> params, boolean test)
+    throws Exception;
 
   /**
    * Execute report query. This is an itemId, itemName 2 col query.
@@ -416,11 +420,12 @@ public interface RootService extends Transactionable {
    * @param query the query
    * @param queryType the query type
    * @param params the params
+   * @param test the test
    * @return the list
    * @throws Exception the exception
    */
   public List<Object[]> executeReportQuery(String query, QueryType queryType,
-    Map<String, String> params) throws Exception;
+    Map<String, String> params, boolean test) throws Exception;
 
   /**
    * Execute query query.
@@ -428,11 +433,12 @@ public interface RootService extends Transactionable {
    * @param query the query
    * @param queryType the query type
    * @param params the params
+   * @param test the test
    * @return the list
    * @throws Exception the exception
    */
   public List<Object[]> executeQuery(String query, QueryType queryType,
-    Map<String, String> params) throws Exception;
+    Map<String, String> params, boolean test) throws Exception;
 
   /**
    * Returns the validation handlers map.

@@ -32,7 +32,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
+
     // get workflow epoch
     this.getWorkflowEpoch = function(projectId) {
       var deferred = $q.defer();
@@ -77,7 +77,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
+
     // add workflow config
     this.addWorkflowConfig = function(projectId, config) {
       console.debug('addWorkflowConfig');
@@ -253,7 +253,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
+
     // add workflow bin Definition
     this.addWorkflowBinDefinition = function(projectId, workflowBinDefinition, positionAfterId) {
       console.debug('addWorkflowBinDefinition', projectId, workflowBinDefinition, positionAfterId);
@@ -448,8 +448,7 @@ tsApp.service('workflowService', [
 
       // Make POST call
       gpService.increment();
-      $http.post(
-        workflowUrl + '/records/done?projectId=' + projectId + '&userName=' + userName,
+      $http.post(workflowUrl + '/records/done?projectId=' + projectId + '&userName=' + userName,
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
@@ -477,8 +476,8 @@ tsApp.service('workflowService', [
       // Make POST call
       gpService.increment();
       $http.post(
-        workflowUrl + '/worklist/done?projectId=' + projectId + '&userName=' + userName
-          + '&role=' + role, utilService.prepPfs(pfs)).then(
+        workflowUrl + '/worklist/done?projectId=' + projectId + '&userName=' + userName + '&role='
+          + role, utilService.prepPfs(pfs)).then(
       // success
       function(response) {
         console.debug('  doneWorklists = ', response.data);
@@ -493,8 +492,8 @@ tsApp.service('workflowService', [
       });
 
       return deferred.promise;
-    };    
-    
+    };
+
     // Finds checklists
     this.findChecklists = function(projectId, query, pfs) {
       console.debug('findChecklists', projectId, query, pfs);
@@ -725,7 +724,7 @@ tsApp.service('workflowService', [
       });
       return deferred.promise;
     };
-    
+
     // get all workflow configs
     this.getWorkflowConfigs = function(projectId) {
       console.debug('getWorkflowConfigs', projectId);
@@ -1152,15 +1151,16 @@ tsApp.service('workflowService', [
     };
 
     // test query
-    this.testQuery = function(projectId, query, queryType) {
-      console.debug('testQuery', projectId, query, queryType);
+    this.testQuery = function(projectId, query, queryType, queryStyle) {
+      console.debug('testQuery', projectId, query, queryType, queryStyle);
       var deferred = $q.defer();
 
       // Get projects
       gpService.increment();
       $http.post(
         workflowUrl + '/query/test?projectId=' + projectId + '&query='
-          + utilService.prepQuery(query) + '&queryType=' + queryType, '').then(
+          + utilService.prepQuery(query) + '&queryType=' + queryType + '&queryStyle=' + queryStyle,
+        '').then(
       // success
       function(response) {
         console.debug('  successful test query');

@@ -100,7 +100,7 @@ public class LexicalClassAssignmentAlgorithm extends AbstractAlgorithm {
       final List<Long> atomIds = executeSingleComponentIdQuery(
           "select a.id from ConceptJpa c join c.atoms a where c.terminology = :terminology "
               + "  and c.version = :version and a.language='ENG'",
-          QueryType.JQL, getDefaultQueryParams(getProject()), AtomJpa.class);
+          QueryType.JQL, getDefaultQueryParams(getProject()), AtomJpa.class,false);
       commitClearBegin();
 
       fireProgressEvent(11, "Get and rank atoms");

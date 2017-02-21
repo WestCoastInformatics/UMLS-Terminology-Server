@@ -168,7 +168,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
         params.put("projectVersion", getProject().getVersion());
 
         atomIdPairArray.addAll(executeComponentIdPairQuery(query, QueryType.JQL,
-            params, AtomJpa.class));
+            params, AtomJpa.class, false));
       }
     } else {
 
@@ -181,7 +181,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       params.put("projectVersion", getProject().getVersion());
 
       atomIdPairArray.addAll(executeComponentIdPairQuery(query, QueryType.JQL,
-          params, AtomJpa.class));
+          params, AtomJpa.class, false));
     }
 
     setSteps(atomIdPairArray.size());

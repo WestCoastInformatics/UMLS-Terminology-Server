@@ -612,7 +612,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     // execute the query
     final String query = definition.getQuery();
     final List<Long[]> results = executeClusteredConceptQuery(query,
-        definition.getQueryType(), getDefaultQueryParams(project));
+        definition.getQueryType(), getDefaultQueryParams(project), false);
 
     if (results == null)
       throw new Exception("Failed to retrieve results for query");
@@ -975,7 +975,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
 
     // Aggregate into clusters
     final List<Long[]> results = executeClusteredConceptQuery(query, queryType,
-        getDefaultQueryParams(project));
+        getDefaultQueryParams(project), false);
 
     final PfsParameter localPfs =
         (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);

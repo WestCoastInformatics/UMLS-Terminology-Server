@@ -154,7 +154,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Execute query to get component Ids
     List<Long> componentIds = executeSingleComponentIdQuery(query, queryType,
-        params, objectTypeClass);
+        params, objectTypeClass, false);
 
     setSteps(componentIds.size());
 
