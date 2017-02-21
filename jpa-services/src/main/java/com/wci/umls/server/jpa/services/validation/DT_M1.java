@@ -87,7 +87,7 @@ public class DT_M1 extends AbstractValidationCheck {
     Set<Long> idsWithoutSty =
         new HashSet<>(contentService.executeSingleComponentIdQuery(
             "publishable:true AND NOT semanticTypes.semanticType:[* TO *]",
-            QueryType.LUCENE, params, ConceptJpa.class));
+            QueryType.LUCENE, params, ConceptJpa.class, false));
 
     return Sets.intersection(conceptIds, idsWithoutSty);
 

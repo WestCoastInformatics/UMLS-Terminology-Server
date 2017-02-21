@@ -58,18 +58,18 @@ tsApp.controller('BinModalCtrl', [
     $scope.testQuery = function(binDefinition) {
       $scope.errors = [];
       $scope.messages = [];
-      workflowService.testQuery($scope.project.id, binDefinition.query, binDefinition.queryType)
-        .then(
-        // success
-        function(data) {
-          $scope.testSucceeded = true;
-          $scope.messages.push("Query met validation requirements.");
-        },
-        // Error
-        function(data) {
-          $scope.testSucceeded = false;
-          utilService.handleDialogError($scope.errors, data);
-        });
+      workflowService.testQuery($scope.project.id, binDefinition.query, binDefinition.queryType,
+        $scope.selected.config.queryStyle).then(
+      // success
+      function(data) {
+        $scope.testSucceeded = true;
+        $scope.messages.push("Query met validation requirements.");
+      },
+      // Error
+      function(data) {
+        $scope.testSucceeded = false;
+        utilService.handleDialogError($scope.errors, data);
+      });
     }
 
     // Update bin definition

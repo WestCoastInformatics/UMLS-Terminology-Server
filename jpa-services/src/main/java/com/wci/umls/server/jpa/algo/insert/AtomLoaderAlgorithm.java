@@ -332,7 +332,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "atoms.conceptTerminologyIds:\"" + getProject().getTerminology()
                 + "=" + prevRelCui + "\"",
             QueryType.LUCENE, getDefaultQueryParams(getProject()),
-            ConceptJpa.class);
+            ConceptJpa.class,false);
 
         // If any atom has this CUI, no need to make a placeholder
         if (atomIds.size() > 0) {

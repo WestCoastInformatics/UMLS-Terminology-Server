@@ -1018,8 +1018,8 @@ public class ReportServiceJpa extends HistoryServiceJpa
     QueryType queryType, Class<? extends Component> resultType)
     throws Exception {
 
-    final List<Object[]> list =
-        executeReportQuery(query, queryType, getDefaultQueryParams(project));
+    final List<Object[]> list = executeReportQuery(query, queryType,
+        getDefaultQueryParams(project), false);
 
     final Report report = new ReportJpa();
     report.setProject(project);

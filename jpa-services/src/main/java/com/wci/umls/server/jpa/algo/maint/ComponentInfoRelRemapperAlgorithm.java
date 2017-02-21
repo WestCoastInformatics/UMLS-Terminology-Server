@@ -82,7 +82,7 @@ public class ComponentInfoRelRemapperAlgorithm
 
     final List<Long> componentInfoRelIds = executeSingleComponentIdQuery(query,
         QueryType.JQL, getDefaultQueryParams(getProject()),
-        ComponentInfoRelationshipJpa.class);
+        ComponentInfoRelationshipJpa.class,false);
 
     setSteps(componentInfoRelIds.size());
 

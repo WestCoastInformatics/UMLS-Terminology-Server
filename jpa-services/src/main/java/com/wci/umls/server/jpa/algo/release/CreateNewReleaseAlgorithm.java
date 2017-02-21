@@ -166,7 +166,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
-    logInfo("Starting " +getName());
+    logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
     steps = 2;
@@ -200,7 +200,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     releaseInfo.setTerminology(getProject().getTerminology());
     releaseInfo.setVersion(getProcess().getVersion());
     releaseInfo.setName(getProcess().getVersion());
-    releaseInfo.setDescription("Base release for " + releaseInfo.getName());
+    releaseInfo.setDescription("Base release for " + releaseInfo.getVersion());
     releaseInfo.setPlanned(false);
     releaseInfo.setPublished(true);
     releaseInfo.setReleaseBeginDate(new Date());
@@ -241,7 +241,7 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
 
     updateProgress();
     fireProgressEvent(100, "Finished");
-    logInfo("Finished " +getName());
+    logInfo("Finished " + getName());
   }
 
   /* see superclass */
@@ -253,8 +253,10 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     // Set first/last release based on release info
     final ReleaseInfo releaseInfo =
         getCurrentReleaseInfo(getProject().getTerminology());
+    logInfo("  release = " + releaseInfo.getVersion());
     final ReleaseInfo prevReleaseInfo =
         getPreviousReleaseInfo(getProject().getTerminology());
+    logInfo("  prev release = " + prevReleaseInfo.getVersion());
     for (final Terminology terminology : getTerminologies().getObjects()) {
       // Mark unpublished current terminologies with "first" release as this
       // release
@@ -279,9 +281,10 @@ public class CreateNewReleaseAlgorithm extends AbstractAlgorithm {
     }
 
     // IF matches this version, remove it
-    if (releaseInfo.getName().equals(getProject().getVersion())) {
+    if (releaseInfo.getVersion().equals(getProcess().getVersion())) {
       logInfo("  Remove release info = " + releaseInfo);
       removeReleaseInfo(releaseInfo.getId());
+      commitClearBegin();
     }
 
     // Cleanup all directories

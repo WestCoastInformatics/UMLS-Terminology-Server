@@ -96,7 +96,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // Execute query to get from concept Ids
         final List<Long> fromConceptIds =
             executeSingleComponentIdQuery(fromConceptQuery, QueryType.LUCENE,
-                getDefaultQueryParams(getProject()), ConceptJpa.class);
+                getDefaultQueryParams(getProject()), ConceptJpa.class, false);
 
         final String toConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:RAB AND atoms.codeId:V-"
@@ -105,7 +105,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         // Execute query to get to concept Ids
         final List<Long> toConceptIds =
             executeSingleComponentIdQuery(toConceptQuery, QueryType.LUCENE,
-                getDefaultQueryParams(getProject()), ConceptJpa.class);
+                getDefaultQueryParams(getProject()), ConceptJpa.class, false);
 
         // Load the to Concept (there can only be one)
         if (toConceptIds.size() != 1) {

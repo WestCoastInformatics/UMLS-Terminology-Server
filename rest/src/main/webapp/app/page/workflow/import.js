@@ -29,7 +29,8 @@ tsApp.controller('ImportModalCtrl', [
     $scope.testQuery = function(binDefinition) {
       $scope.errors = [];
       $scope.messages = [];
-      workflowService.testQuery($scope.selected.project.id, $scope.query, $scope.queryType).then(
+      workflowService.testQuery($scope.selected.project.id, $scope.query, $scope.queryType,
+        $scope.selected.config.queryStyle).then(
       // success
       function(data) {
         $scope.messages.push("Query met validation requirements.");
