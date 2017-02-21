@@ -126,6 +126,14 @@ public class ComponentInfoRelRemapperAlgorithm
         fromComponent.setVersion(
             currentTerminologyVersions.get(fromComponent.getTerminology()));
         updateComponent(fromComponent);
+
+        // Handle ComponentInfoRelationship atom components
+        // Change terminology and version from atom's to project's
+        if (fromComponent instanceof Atom) {
+          fromComponent.setTerminology(getProject().getTerminology());
+          fromComponent.setVersion(getProject().getVersion());
+        }
+        
         updatedComponents.add(fromComponent);
 
         componentInfoRelationship.setFrom(fromComponent);
@@ -138,17 +146,6 @@ public class ComponentInfoRelRemapperAlgorithm
           getComponent(getType(toComponentInfo.getType()),
               toComponentInfo.getTerminologyId(),
               toComponentInfo.getTerminology(), null);
-
-      // Handle ComponentInfoRelationship atom components
-      // Change terminology and version from atom's to project's
-      if (fromComponent instanceof Atom) {
-        fromComponent.setTerminology(getProject().getTerminology());
-        fromComponent.setVersion(getProject().getVersion());
-      }
-      if (toComponent instanceof Atom) {
-        toComponent.setTerminology(getProject().getTerminology());
-        toComponent.setVersion(getProject().getVersion());
-      }
 
       // If to component doesn't exist, mark the relationship as unpublishable
       // (and warn)
@@ -175,6 +172,14 @@ public class ComponentInfoRelRemapperAlgorithm
         toComponent.setVersion(
             currentTerminologyVersions.get(toComponent.getTerminology()));
         updateComponent(toComponent);
+        
+        // Handle ComponentInfoRelationship atom components
+        // Change terminology and version from atom's to project's
+        if (toComponent instanceof Atom) {
+          toComponent.setTerminology(getProject().getTerminology());
+          toComponent.setVersion(getProject().getVersion());
+        }
+        
         updatedComponents.add(toComponent);
 
         componentInfoRelationship.setTo(toComponent);
