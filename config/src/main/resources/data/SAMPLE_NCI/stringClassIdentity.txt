@@ -14010,6 +14010,11 @@
 844192|ENG|PMS2 postmeiotic segregation increased 2 (S. cerevisiae)|
 844282|ENG|PMSL1|
 844283|ENG|PMSL2|
+8445625|ENG|GAIA|
+8445686|ENG|Global Alignment of Immunization Safety Assessment in pregnancy|
+8450590|ENG|Prostate Imaging Reporting and Data System|
+8463268|ENG|NCI HUGO Gene Nomenclature Committee|
+8463270|ENG|NCI-HGNC|
 846724|ENG|PNMA1 gene|
 846725|ENG|PNMA2 gene|
 848231|ENG|PO|

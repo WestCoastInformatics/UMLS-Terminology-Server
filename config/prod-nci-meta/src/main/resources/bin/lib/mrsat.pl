@@ -22,5 +22,5 @@ while(<>) {
   $type =~ s/CUI/CONCEPT/;
   $type =~ s/RUI/RELATIONSHIP/;
   $type =~ s/SDUI/DESCRIPTOR/;
-  print "$id|$terminologyId|$terminology|$componentId|$type|$map{$componentId}|$name|$hashcode\n";
+  print "$id|$terminologyId|$terminology|$componentId|$type|$map{$componentId}|$name|$hashcode|\n";
 }
