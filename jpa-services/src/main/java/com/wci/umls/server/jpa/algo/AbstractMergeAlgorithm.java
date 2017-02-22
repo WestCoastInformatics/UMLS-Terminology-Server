@@ -397,7 +397,7 @@ public abstract class AbstractMergeAlgorithm
     // If LUCENE filter query, returns concept id
     if (filterQueryType == QueryType.LUCENE) {
       final List<Long> filterConceptIds = executeSingleComponentIdQuery(
-          filterQuery, filterQueryType, params, ConceptJpa.class);
+          filterQuery, filterQueryType, params, ConceptJpa.class, false);
 
       // For each returned concept, filter for all of its atoms' ids
       filterAtomIds = new HashSet<>();
@@ -418,7 +418,7 @@ public abstract class AbstractMergeAlgorithm
     else if (filterQueryType == QueryType.SQL
         || filterQueryType == QueryType.JQL) {
       final List<Long[]> filterAtomIdPairArray = executeComponentIdPairQuery(
-          filterQuery, filterQueryType, params, AtomJpa.class);
+          filterQuery, filterQueryType, params, AtomJpa.class, false);
 
       // For each returned atom pair, filter for atomIdPairs in 1,2 or 2,1 order
       filterAtomIdPairs = new HashSet<>();

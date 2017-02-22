@@ -1629,7 +1629,7 @@ public abstract class RootServiceJpa implements RootService {
   @SuppressWarnings("unchecked")
   public List<Long[]> executeComponentIdPairQuery(String query,
     QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz) throws Exception {
+    Class<? extends Component> clazz, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -1728,6 +1728,9 @@ public abstract class RootServiceJpa implements RootService {
         }
       }
     }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
     Logger.getLogger(getClass()).info("  query = " + query);
 
     // Return the result list as a pair of component id longs.
@@ -1771,7 +1774,7 @@ public abstract class RootServiceJpa implements RootService {
   })
   public List<Long> executeSingleComponentIdQuery(String query,
     QueryType queryType, Map<String, String> params,
-    Class<? extends Component> clazz) throws Exception {
+    Class<? extends Component> clazz, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -1784,7 +1787,10 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
-
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
       // Perform search
       final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
           .getIdResults(params.get("terminology"), params.get("version"),
@@ -1891,6 +1897,9 @@ public abstract class RootServiceJpa implements RootService {
     } else {
       throw new Exception("Unsupported query type " + queryType);
     }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
     // Handle special query key-words
     if (params != null) {
       for (final String key : params.keySet()) {
@@ -1932,7 +1941,7 @@ public abstract class RootServiceJpa implements RootService {
   })
   @Override
   public List<Object[]> executeReportQuery(String query, QueryType queryType,
-    Map<String, String> params) throws Exception {
+    Map<String, String> params, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -1945,7 +1954,10 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
-
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
       // Perform search
       final List<ConceptJpa> concepts =
           getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
@@ -1991,6 +2003,9 @@ public abstract class RootServiceJpa implements RootService {
         }
       }
     }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
     Logger.getLogger(getClass()).info("  query = " + query);
 
     // Return the result list
@@ -2004,7 +2019,7 @@ public abstract class RootServiceJpa implements RootService {
   })
   @Override
   public List<Object[]> executeQuery(String query, QueryType queryType,
-    Map<String, String> params) throws Exception {
+    Map<String, String> params, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -2017,6 +2032,10 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
 
       // Perform search
       final List<ConceptJpa> concepts =
@@ -2056,6 +2075,9 @@ public abstract class RootServiceJpa implements RootService {
         }
       }
     }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
     Logger.getLogger(getClass()).info("  query = " + query);
 
     // Return the result list
@@ -2067,7 +2089,8 @@ public abstract class RootServiceJpa implements RootService {
   @Override
   @SuppressWarnings("unchecked")
   public List<Long[]> executeClusteredConceptQuery(String query,
-    QueryType queryType, Map<String, String> params) throws Exception {
+    QueryType queryType, Map<String, String> params, boolean test)
+    throws Exception {
 
     // If query type is not filled out, return an empty List.
     if (ConfigUtility.isEmpty(query)) {
@@ -2080,6 +2103,10 @@ public abstract class RootServiceJpa implements RootService {
     if (queryType == QueryType.LUCENE) {
       final PfsParameter pfs = new PfsParameterJpa();
       pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
 
       // Perform search
       final List<ConceptJpa> concepts =
@@ -2112,7 +2139,7 @@ public abstract class RootServiceJpa implements RootService {
 
     if (query.toUpperCase().matches("SELECT.* CONCEPTID.*FROM.*")) {
       conceptQuery = true;
-    }     
+    }
     if (query.toUpperCase()
         .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
       dualConceptQuery = true;
@@ -2146,6 +2173,9 @@ public abstract class RootServiceJpa implements RootService {
           jpaQuery.setParameter(key, params.get(key));
         }
       }
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
     }
     Logger.getLogger(getClass()).info("  query = " + query);
 

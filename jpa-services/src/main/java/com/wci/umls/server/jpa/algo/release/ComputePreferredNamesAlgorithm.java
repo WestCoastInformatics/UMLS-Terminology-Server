@@ -76,7 +76,8 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c " + "where c.terminology = :terminology "
             + "  and c.version = :version and publishable = true",
-        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class);
+        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
+        false);
     commitClearBegin();
 
     // Iterate through each concept

@@ -221,6 +221,8 @@
             class="ml20 btn btn-xs btn-primary">Add</button>
         </span>
       </div>
+      <button ng-show="selected.process && selected.mode == 'Config'"
+        class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>
       <table class="slim table pointer">
         <thead>
           <tr>

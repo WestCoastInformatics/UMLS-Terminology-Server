@@ -67,7 +67,9 @@ public class PrepareMetamorphoSysAlgorithm extends AbstractAlgorithm {
           p.getProperty("mail.smtp.from"), mailTo,
           "Prepare MetamorphoSys for release. \n\nPut mmsys.zip file into "
               + p.getProperty("source.data.dir") + "/"
-              + getProcess().getInputPath() + "/mr/mmsys.zip",
+              + getProcess().getInputPath() + "/mr/mmsys.zip\n\n"
+              + "  Prepare config/" + getProcess().getVersion()
+              + ", including release.dat and mmsys.prop",
           p);
     } else {
       logInfo("  DO NOT send email");

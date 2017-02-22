@@ -93,6 +93,7 @@ public class WriteRrfMetadataFilesAlgorithm
   private void writeMrrank() throws Exception {
     logInfo("  Write MRRANK data");
 
+    // Make sure termgroups written out exist only for atoms.
     final String queryStr = "select distinct a.terminology, a.termType "
         + "from ConceptJpa c join c.atoms a where c.terminology = :projectTerminology "
         + " and a.publishable = true";

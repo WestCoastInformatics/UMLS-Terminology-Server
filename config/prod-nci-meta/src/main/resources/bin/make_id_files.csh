@@ -64,6 +64,22 @@ perl -ne 'BEGIN {open(X,"xmCuiAui.txt"); while (<X>) { chop; @_=split/\|/; $map{
 /bin/rm -f xmCuiAui.txt
 
 #
+# FIX attribute identity for CODE, CONCEPT, DESCRIPTOR
+#
+# 21446873||CSP|A3690590|ATOM|CSP|DEFINITION|a268d391c7c421c3889bd4abfce4823f|
+/bin/rm -f auiScuiSduiCode.txt a.txt
+cut -d\| -f 8,10,11,14 MRCONSO.RRF | sort -u | sort -t\| -k 1,1 -o auiScuiSduiCode.txt
+perl -ne '@_= split/\|/; print if $_[4] eq "CODE";' attributeIdentity.txt | sort -t\| -k 4,4 |\
+  join -t\| -j1 4 -j2 1 -o 1.1 1.2 1.3 2.4 1.5 1.6 1.7 1.8 1.9 - auiScuiSduiCode.txt > a.txt
+perl -ne '@_= split/\|/; print if $_[4] eq "CONCEPT";' attributeIdentity.txt | sort -t\| -k 4,4 |\
+  join -t\| -j1 4 -j2 1 -o 1.1 1.2 1.3 2.2 1.5 1.6 1.7 1.8 1.9 - auiScuiSduiCode.txt >> a.txt
+perl -ne '@_= split/\|/; print if $_[4] eq "DESCRIPTOR";' attributeIdentity.txt | sort -t\| -k 4,4 |\
+  join -t\| -j1 4 -j2 1 -o 1.1 1.2 1.3 2.3 1.5 1.6 1.7 1.8 1.9 - auiScuiSduiCode.txt >> a.txt
+perl -ne '@_= split/\|/; print if $_[4] eq "ATOM" || $_[4] eq "RELATIONSHIP" ;' attributeIdentity.txt >> a.txt
+sort -u -o attributeIdentity.txt a.txt
+/bin/rm -f auiScuiSduiCode.txt a.txt
+
+#
 # Semantic Type Component Identity
 #  id|conceptTerminologyId|terminology|semanticType
 #

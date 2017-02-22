@@ -2944,17 +2944,17 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       if (queryStyle == QueryStyle.CLUSTER) {
         workflowService.executeClusteredConceptQuery(query, queryType,
-            workflowService.getDefaultQueryParams(project));
+            workflowService.getDefaultQueryParams(project), true);
       }
 
       else if (queryStyle == QueryStyle.REPORT) {
         workflowService.executeReportQuery(query, queryType,
-            workflowService.getDefaultQueryParams(project));
+            workflowService.getDefaultQueryParams(project), true);
       }
 
       else if (queryStyle == QueryStyle.OTHER) {
         workflowService.executeQuery(query, queryType,
-            workflowService.getDefaultQueryParams(project));
+            workflowService.getDefaultQueryParams(project), true);
       }
 
       // websocket - n/a

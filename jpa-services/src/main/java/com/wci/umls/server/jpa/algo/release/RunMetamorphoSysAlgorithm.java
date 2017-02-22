@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -32,6 +34,7 @@ public class RunMetamorphoSysAlgorithm
     public void println(String line) {
       try {
         logInfo("    " + line);
+        commitClearBegin();
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -98,6 +101,7 @@ public class RunMetamorphoSysAlgorithm
 
     // Unzip "path/META/mmsys.zip" into "path/$release/MMSYS"
     logInfo("  Unzip " + pathMeta.getPath() + "/mmsys.zip");
+    commitClearBegin();
     new File(pathRelease, "MMSYS").mkdirs();
     ConfigUtility.unzip(pathMeta.getPath() + "/mmsys.zip",
         pathRelease.getPath() + "/MMSYS");
@@ -105,9 +109,14 @@ public class RunMetamorphoSysAlgorithm
 
     // Write release.dat
     logInfo("  Write release.dat file(s)");
+    commitClearBegin();
     final File mmsysReleaseDat = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/MMSYS/release.dat");
+    final File mmsysReleaseConfigDat =
+        new File(config.getProperty("source.data.dir") + "/"
+            + getProcess().getInputPath() + "/" + getProcess().getVersion()
+            + "/MMSYS/config/" + getProcess().getVersion() + "/release.dat");
     final File metaReleaseDat = new File(config.getProperty("source.data.dir")
         + "/" + getProcess().getInputPath() + "/" + getProcess().getVersion()
         + "/META/release.dat");
@@ -119,21 +128,27 @@ public class RunMetamorphoSysAlgorithm
     data.append("umls.release.name=" + getProcess().getVersion()).append("\n");
     data.append("umls.release.description=Base Release for "
         + getProcess().getVersion()).append("\n");
-    /*SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-    data.append(
-        "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
-        .append("\n");*/
-    data.append(
-        "umls.release.date=").append(getProcess().getVersion() + "01");
-    
+    /*
+     * SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd"); data.append(
+     * "umls.release.date=" + df.format(getProcess().getVersion() + "01"))
+     * .append("\n");
+     */
+    data.append("umls.release.date=").append(getProcess().getVersion() + "01")
+        .append("\n");
+    data.append("nlm.build.date=")
+        .append(new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date()))
+        .append("\n");
+
     // Write release.dat files (top-level and in META)
     FileUtils.fileWrite(releaseDat.getPath(), data.toString());
     FileUtils.fileWrite(metaReleaseDat.getPath(), data.toString());
     FileUtils.fileWrite(mmsysReleaseDat.getPath(), data.toString());
+    FileUtils.fileWrite(mmsysReleaseConfigDat.getPath(), data.toString());
     updateProgress();
 
     // Run "make_config.csh"
     logInfo("  Build MMSYS config files from data");
+    commitClearBegin();
     final String binDir = ConfigUtility.getHomeDirs().get("bin");
     // Assumes "lvg" dir exists at same level as "config"
     final String lvgDir = ConfigUtility.getHomeDirs().get("lvg");
@@ -155,6 +170,7 @@ public class RunMetamorphoSysAlgorithm
 
     // Run metamorphoSys
     logInfo("  Run MetamorphoSys");
+    commitClearBegin();
 
     // Override user configuration settings
     Properties subsetConfig = new Properties();
@@ -221,7 +237,11 @@ public class RunMetamorphoSysAlgorithm
 
     updateProgress();
 
+    // Copy the files MRDOC, MRCOLS, MRFILES, release.dat
+    // TODO
+
     logInfo("Finishing " + getName());
+    commitClearBegin();
   }
 
   /* see superclass */

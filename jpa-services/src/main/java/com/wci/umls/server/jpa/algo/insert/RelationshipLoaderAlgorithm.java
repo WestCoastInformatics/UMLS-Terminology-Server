@@ -25,6 +25,7 @@ import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
@@ -410,6 +411,16 @@ public class RelationshipLoaderAlgorithm
     if (!fromClassIdType.equals(toClassIdType)) {
       relClass = ComponentInfoRelationshipJpa.class;
       newRelationship = new ComponentInfoRelationshipJpa();
+      // Handle ComponentInfoRelationship atom components
+      // Change terminology and version from atom's to project's
+      if (fromComponent instanceof Atom) {
+        fromComponent.setTerminology(getProject().getTerminology());
+        fromComponent.setVersion(getProject().getVersion());
+      }
+      if (toComponent instanceof Atom) {
+        toComponent.setTerminology(getProject().getTerminology());
+        toComponent.setVersion(getProject().getVersion());
+      }
     } else if (fromClassIdType.equals("SOURCE_CUI")) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
@@ -470,11 +481,6 @@ public class RelationshipLoaderAlgorithm
 
     // Compute identity for relationship and its inverse
     // Note: need to pass in the inverse RelType and AdditionalRelType
-    // TESTTEST
-    if (toTermId.equals("257515345")) {
-      System.out.println("TESTTEST - stop here.");
-    }
-    // END TESTTEST
     final String newRelationshipRui = handler.getTerminologyId(newRelationship,
         inverseRelType, inverseAdditionalRelType);
     final String newInverseRelationshipRui = handler.getTerminologyId(

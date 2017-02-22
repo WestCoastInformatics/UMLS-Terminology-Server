@@ -130,7 +130,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // Execute a query to get atom ids
     final List<Long> atomIds = executeSingleComponentIdQuery(query,
-        QueryType.JQL, params, AtomJpa.class);
+        QueryType.JQL, params, AtomJpa.class,false);
 
     for (final Long id : atomIds) {
       final Atom atom = this.getAtom(id);

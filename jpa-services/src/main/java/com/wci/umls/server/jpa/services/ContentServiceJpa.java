@@ -2833,7 +2833,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     params.put("terminology", terminology);
     params.put("version", version);
     return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        ConceptJpa.class);
+        ConceptJpa.class, false);
 
   }
 
@@ -2915,7 +2915,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     params.put("terminology", terminology);
     params.put("version", version);
     return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        DescriptorJpa.class);
+        DescriptorJpa.class, false);
   }
 
   /* see superclass */
@@ -2958,7 +2958,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
     params.put("terminology", terminology);
     params.put("version", version);
     return executeSingleComponentIdQuery(null, QueryType.LUCENE, params,
-        CodeJpa.class);
+        CodeJpa.class, false);
 
   }
 
