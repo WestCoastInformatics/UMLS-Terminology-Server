@@ -18,6 +18,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.meta.IdType;
@@ -125,6 +126,14 @@ public class ComponentInfoRelRemapperAlgorithm
         fromComponent.setVersion(
             currentTerminologyVersions.get(fromComponent.getTerminology()));
         updateComponent(fromComponent);
+
+        // Handle ComponentInfoRelationship atom components
+        // Change terminology and version from atom's to project's
+        if (fromComponent instanceof Atom) {
+          fromComponent.setTerminology(getProject().getTerminology());
+          fromComponent.setVersion(getProject().getVersion());
+        }
+        
         updatedComponents.add(fromComponent);
 
         componentInfoRelationship.setFrom(fromComponent);
@@ -163,6 +172,14 @@ public class ComponentInfoRelRemapperAlgorithm
         toComponent.setVersion(
             currentTerminologyVersions.get(toComponent.getTerminology()));
         updateComponent(toComponent);
+        
+        // Handle ComponentInfoRelationship atom components
+        // Change terminology and version from atom's to project's
+        if (toComponent instanceof Atom) {
+          toComponent.setTerminology(getProject().getTerminology());
+          toComponent.setVersion(getProject().getVersion());
+        }
+        
         updatedComponents.add(toComponent);
 
         componentInfoRelationship.setTo(toComponent);
