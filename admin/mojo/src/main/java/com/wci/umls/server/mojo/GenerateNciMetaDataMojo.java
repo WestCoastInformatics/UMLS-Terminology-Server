@@ -2113,6 +2113,8 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
+    // TODO - add META-REPL2 generated merge
+
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("SAFEREPLACE");
     algoConfig.setDescription("SAFEREPLACE Algorithm");
@@ -2947,9 +2949,33 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add ReloadConceptHistoryAlgorithm
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("RELOADHISTORY");
+    algoConfig.setDescription("RELOADHISTORY Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("RELOADHISTORY algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add FeedbackReleaseAlgorithm
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("FEEDBACKRELEASE");
+    algoConfig.setDescription("FEEDBACKRELEASE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("FEEDBACKRELEASE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
