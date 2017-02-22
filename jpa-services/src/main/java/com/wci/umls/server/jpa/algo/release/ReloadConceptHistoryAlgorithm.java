@@ -6,9 +6,11 @@ package com.wci.umls.server.jpa.algo.release;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -29,6 +31,9 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class ReloadConceptHistoryAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
+
+  /** The mr dir file. */
+  private File mrDirFile = null;
 
   /** The concept created count. */
   private int conceptCreatedCount = 0;
@@ -60,6 +65,17 @@ public class ReloadConceptHistoryAlgorithm
       throw new Exception("Algorithm requires a project to be set");
     }
 
+    // Check the mr directory
+    String mrPath = config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META";
+
+    mrDirFile = new File(mrPath);
+    if (!mrDirFile.exists()) {
+      throw new Exception(
+          "Specified input directory does not exist = " + mrPath);
+    }
+
     return result;
   }
 
@@ -68,6 +84,7 @@ public class ReloadConceptHistoryAlgorithm
    *
    * @throws Exception the exception
    */
+  @SuppressWarnings("unchecked")
   /* see superclass */
   @Override
   public void compute() throws Exception {
@@ -78,11 +95,24 @@ public class ReloadConceptHistoryAlgorithm
 
     fireProgressEvent(0, "Starting");
 
+    // Identify all concepts with concept histories in the DB
+    final Set<String> dbConceptsWithHistories = new HashSet<>();
+
+    final javax.persistence.Query jpaQuery = getEntityManager().createQuery(
+        "select c.terminologyId from ConceptJpa c where c.componentHistories is not empty");
+
+    final List<String> conceptsTerminologyIds = jpaQuery.getResultList();
+
+    for (final String terminologyId : conceptsTerminologyIds) {
+      dbConceptsWithHistories.add(terminologyId);
+    }
+
     //
     // Load the MRCUI.RRF file
     //
     final File path = new File(config.getProperty("source.data.dir") + "/"
-        + getProcess().getInputPath());
+        + getProcess().getInputPath() + "/" + getProcess().getVersion()
+        + "/META");
 
     final List<String> lines =
         loadFileIntoStringList(path, "MRCUI.RRF", null, null);
@@ -94,9 +124,10 @@ public class ReloadConceptHistoryAlgorithm
       final String cui1 = line.substring(0, line.indexOf('|'));
 
       // If this is the first time this CUI has been encountered, initialize its
-      // entry in the map
+      // entry in the map, and remove it from the dbConceptsWithHistories set
       if (cuiHistoryLines.get(cui1) == null) {
         cuiHistoryLines.put(cui1, new ArrayList<>());
+        dbConceptsWithHistories.remove(cui1);
       }
 
       // Add the line to this CUI's entry in the map
@@ -242,6 +273,20 @@ public class ReloadConceptHistoryAlgorithm
 
       // Update the progress
       updateProgress();
+    }
+
+    // Anything concept remaining in the dbConceptsWithHistories map needs to
+    // have its histories removed.
+    for (final String cui : dbConceptsWithHistories) {
+      final Concept concept = getConcept(cui, getProject().getTerminology(),
+          getProject().getVersion(), Branch.ROOT);
+      for (final ComponentHistory cuiHistory : concept.getComponentHistory()) {
+        removeComponentHistory(cuiHistory.getId());
+        componentHistoryDeletedCount++;
+      }
+
+      concept.setComponentHistory(null);
+      updateConcept(concept);
     }
 
     commitClearBegin();

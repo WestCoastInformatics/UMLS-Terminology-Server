@@ -55,7 +55,7 @@ public class FeedbackReleaseAlgorithm
         + "/META";
 
     mrDirFile = new File(mrPath);
-    if (mrDirFile.exists()) {
+    if (!mrDirFile.exists()) {
       throw new Exception(
           "Specified input directory does not exist = " + mrPath);
     }
