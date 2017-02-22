@@ -221,6 +221,10 @@ public class RunMetamorphoSysAlgorithm
 
     updateProgress();
 
+    
+    // Copy the files MRDOC, MRCOLS, MRFILES, release.dat
+    // TODO
+
     logInfo("Finishing " + getName());
   }
 
