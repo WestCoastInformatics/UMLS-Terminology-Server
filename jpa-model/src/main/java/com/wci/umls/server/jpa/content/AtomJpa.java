@@ -99,7 +99,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   Map<String, String> conceptTerminologyIds;
 
   /** The alternate terminology ids. */
-  @ElementCollection()
+  @ElementCollection
   @MapKeyColumn(length = 100)
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;

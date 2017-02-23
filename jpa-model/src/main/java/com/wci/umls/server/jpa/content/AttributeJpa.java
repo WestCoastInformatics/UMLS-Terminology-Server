@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -39,7 +38,7 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   private String value;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @MapKeyColumn(length = 100)
   @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;

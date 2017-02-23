@@ -3481,6 +3481,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       commitClearBegin();
     }
 
+    ids = null;
+
     // NOTE: for efficiency and lack of use cases, we've temporarily
     // suspended the loading of LexicalClass and StringClass objects
 
