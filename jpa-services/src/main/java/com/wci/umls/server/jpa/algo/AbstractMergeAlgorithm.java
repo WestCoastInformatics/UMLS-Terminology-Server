@@ -437,6 +437,7 @@ public abstract class AbstractMergeAlgorithm
     for (final Pair<Long, Long> atomIdPair : atomIdPairs) {
 
       // New Atoms Only Filter
+      // Only filter on 'From' atom (left side of pair)
       if (newAtomsOnly) {
         Long maxAtomIdPreInsertion = null;
         if (getProcess().getExecutionInfo()
@@ -445,8 +446,7 @@ public abstract class AbstractMergeAlgorithm
               getProcess().getExecutionInfo().get("maxAtomIdPreInsertion"));
         }
         if (maxAtomIdPreInsertion != null) {
-          if (atomIdPair.getLeft() <= maxAtomIdPreInsertion
-              || atomIdPair.getRight() <= maxAtomIdPreInsertion) {
+          if (atomIdPair.getLeft() <= maxAtomIdPreInsertion) {
             statsMap.put("atomPairsRemovedByFilters",
                 statsMap.get("atomPairsRemovedByFilters") + 1);
             continue;

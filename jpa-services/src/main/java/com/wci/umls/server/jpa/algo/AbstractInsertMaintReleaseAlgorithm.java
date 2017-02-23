@@ -595,6 +595,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the component
    * @throws Exception the exception
    */
+  @SuppressWarnings("rawtypes")
   public Component getComponent(String type, String terminologyId,
     String terminology, Class<? extends Relationship<?, ?>> relClass)
     throws Exception {
@@ -603,29 +604,47 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingAtomIds(getProject().getTerminology());
       }
-      return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      // Handle lazy init
+      final Atom atom =
+          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      atom.getAlternateTerminologyIds();
+      atom.getConceptTerminologyIds();
+      return atom;
     }
 
     else if (type.equals("SRC_ATOM_ID")) {
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
         cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
       }
-      return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      // Handle lazy init
+      final Atom atom =
+          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      atom.getAlternateTerminologyIds();
+      atom.getConceptTerminologyIds();
+      return atom;
     }
 
     else if (type.equals("SOURCE_AUI")) {
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
-      return getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      // Handle lazy init
+      final Atom atom =
+          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+      atom.getAlternateTerminologyIds();
+      atom.getConceptTerminologyIds();
+      return atom;
     }
 
     else if (type.equals("ATUI")) {
       if (!attributeCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingAttributeIds(getProject().getTerminology());
       }
-      return getComponent(attributeIdCache.get(terminologyId),
-          AttributeJpa.class);
+      // Handle lazy init
+      final Attribute attribute =
+          getComponent(attributeIdCache.get(terminologyId), AttributeJpa.class);
+      attribute.getAlternateTerminologyIds();
+      return attribute;
     }
 
     else if (type.equals("CODE_SOURCE")) {
@@ -648,8 +667,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!definitionCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingDefinitionIds(getProject().getTerminology());
       }
-      return getComponent(definitionIdCache.get(terminologyId),
-          DefinitionJpa.class);
+      // Handle lazy init
+      final Definition definition = getComponent(
+          definitionIdCache.get(terminologyId), DefinitionJpa.class);
+      definition.getAlternateTerminologyIds();
+      return definition;
     }
 
     else if (type.equals("SOURCE_DUI")) {
@@ -666,8 +688,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingRelationshipIds(getProject().getTerminology(),
             terminology);
       }
-
-      return getComponent(relIdCache.get(terminologyId), relClass);
+      // Handle lazy init
+      final Relationship relationship =
+          getComponent(relIdCache.get(terminologyId), relClass);
+      relationship.getAlternateTerminologyIds();
+      return relationship;
     }
 
     else if (type.equals("SRC_REL_ID")) {
@@ -676,8 +701,11 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC",
             terminology);
       }
-
-      return getComponent(relIdCache.get(terminologyId), relClass);
+      // Handle lazy init
+      final Relationship relationship =
+          getComponent(relIdCache.get(terminologyId), relClass);
+      relationship.getAlternateTerminologyIds();
+      return relationship;
     }
 
     else {
@@ -1150,6 +1178,5 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     return referencedTerminologies;
 
   }
-
 
 }
