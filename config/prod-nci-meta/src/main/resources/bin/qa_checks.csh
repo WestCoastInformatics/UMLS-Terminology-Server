@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/tcsh -f
 #
 # Basic MR Checks -> to put into a report.
 #
@@ -592,21 +592,6 @@ perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\
            join -v 1 -t\| -j 1 - MRSTY.uis.c.$$  >> /dev/null
     endif
     rm -f MRSTY.uis.c.$$
-
-    #
-    #  Verify MAPSETSAB count is the same as SAB count in MRREL.SAB
-    #
-    if ($mode != "subset") then
-    echo "    Verify MAPSETSAB in MRREL.SAB"
-    awk -F\| '$18=="CODE"&&$10=="SCUI"&&$17!~/,/&&$13!="XR" {print}' $mrmap | tallyfield.pl '$11,$2' >! MRMAP.mapsetsab.$$
-    awk -F\| '$8=="mapped_to" {print}' $mrrel | tallyfield.pl '$4,$11' >! MRREL.mapsetsab.$$
-    set ct=`join MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$ | grep -v TOTAL | awk '$2!=$3 {print}' | wc -l`
-    if ($ct != 0) then
-	echo "ERROR: REL,MAPSETSAB count differs than REL,SAB count in MRREL"
-        join -v 1 -j 1 MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$ | awk '$2!=$3 {print $1" MRMAP count:"$2" MRREL count:"$3}'
-    endif
-    rm -f MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$
-    endif
 
     #
     #   Verify MAPID unique
@@ -2408,10 +2393,10 @@ else if ($target == "MRSAB") then
     echo "    Verify SRL in MRDOC"
     cut -d\| -f14 $mrsab | sort -u >! mrsab.tmp1.$$
     awk -F\| '$3=="expanded_form"&&$1=="SRL"{print $2}' $mrdoc | sort -u >! mrdoc.tmp1.$$
-    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$`
+    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$ | wc -l`
     if ($ct != 0) then
-        echo "ERROR:  SF not in MRSAB.RSAB"
-	    diff mrsab.tmp1.$$ mrdoc.tmp2.$$
+        echo "ERROR:  SRL not in MRSAB.RSAB"
+	    diff mrsab.tmp1.$$ mrdoc.tmp1.$$
     endif
     rm -f mrsab.tmp1.$$ mrdoc.tmp2.$$
 

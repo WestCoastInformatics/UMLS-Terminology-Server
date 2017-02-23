@@ -238,7 +238,12 @@ public class RunMetamorphoSysAlgorithm
     updateProgress();
 
     // Copy the files MRDOC, MRCOLS, MRFILES, release.dat
-    // TODO
+    for (final String file : new String[] {
+        "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "release.dat"
+    }) {
+      FileUtils.copyFile(new File(pathRelease.getPath() + "/META", file),
+          new File(pathRelease.getPath(), "METASUBSET"));
+    }
 
     logInfo("Finishing " + getName());
     commitClearBegin();
