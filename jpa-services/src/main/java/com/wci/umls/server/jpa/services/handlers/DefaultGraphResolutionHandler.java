@@ -62,7 +62,6 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
         resolveAttributes(member, nullId);
       }
 
-      concept.getLabels().size();
 
       // Attributes
       resolveAttributes(concept, nullId);
@@ -107,7 +106,8 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
       // user annotations -- lazy initialize
       concept.getNotes().size();
-
+      concept.getLabels().size();
+      
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
     }
@@ -182,6 +182,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
         resolve(rel);
       }
 
+      atom.setTreePositions(new ArrayList<>());
       atom.getNotes().size();
 
     } else if (atom == null) {
@@ -257,6 +258,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
       // user annotations -- lazy initialize
       descriptor.getNotes().size();
+      descriptor.getLabels().size();
 
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
@@ -287,6 +289,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
       // user annotations -- lazy initialize
       code.getNotes().size();
+      code.getLabels().size();
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");

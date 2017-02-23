@@ -105,18 +105,19 @@ public class ReportsAtomComparator implements Comparator<Atom> {
       if (a2.getLanguage().equals("ENG") && !a1.getLanguage().equals("ENG")) {
         return 1;
       }
+      // alphabetical languages after ENG
       return a1.getLanguage().compareTo(a2.getLanguage());
     }
     // Compare LUI ranks first
     if (!a1.getLexicalClassId().equals(a2.getLexicalClassId())) {
-      String l2 = luiRanks.get(a2.getLexicalClassId());
-      return l2.compareTo(luiRanks.get(a1.getLexicalClassId()));
+      return luiRanks.get(a2.getLexicalClassId())
+          .compareTo(luiRanks.get(a1.getLexicalClassId()));
     }
 
     // Compare SUI ranks second
     if (!a1.getStringClassId().equals(a2.getStringClassId())) {
-      String s2 = suiRanks.get(a2.getStringClassId());
-      return s2.compareTo(suiRanks.get(a1.getStringClassId()));
+      return suiRanks.get(a2.getStringClassId())
+          .compareTo(suiRanks.get(a1.getStringClassId()));
     }
 
     // If things are STILL equal, compare the ranks
