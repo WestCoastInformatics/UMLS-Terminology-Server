@@ -400,4 +400,3 @@ TTY|VSY|tty_class|synonym|
 TTY|XQ|expanded_form|Alternate name for a qualifier|
 TTY|XQ|tty_class|attribute|
 TTY|XQ|tty_class|synonym|
-RELA|Chromosomal_Location_Of_Wild-type_Gene|expanded_form|Chromosomal Location Of Wild-type Gene|RELA|Chromosomal_Location_Of_Wild-type_Gene|rela_inverse|Allele_Absent_From_Wild-type_Chromosomal_Location|RELA|Gene_Product_Has_Gene_Product_Variant|expanded_form|Gene Product Has Gene Product Variant|RELA|Gene_Product_Has_Gene_Product_Variant|rela_inverse|Gene_Product_Variant_Of_Gene_Product|

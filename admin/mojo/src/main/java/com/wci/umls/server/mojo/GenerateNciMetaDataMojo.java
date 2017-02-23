@@ -1900,15 +1900,15 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for UMLS");
+    processConfig.setDescription("Insertion process for MTH");
     processConfig.setFeedbackEmail(null);
-    processConfig.setName("Insertion process for UMLS");
+    processConfig.setName("Insertion process for MTH");
     processConfig.setProject(project1);
-    processConfig.setTerminology("UMLS");
-    processConfig.setVersion("latest");
+    processConfig.setTerminology("MTH");
+    processConfig.setVersion("2016AB");
     processConfig.setTimestamp(new Date());
     processConfig.setType("Insertion");
-    processConfig.setInputPath("inv/UMLS/insert");
+    processConfig.setInputPath("inv/MTH_2016AB/insert");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
