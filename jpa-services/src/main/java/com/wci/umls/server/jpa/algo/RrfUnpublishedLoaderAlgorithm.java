@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.persistence.Query;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
@@ -83,6 +85,7 @@ public class RrfUnpublishedLoaderAlgorithm
     loadSrcAtomIds();
     loadXrRelationships();
     loadRuiDa();
+    loadUmlscui();
 
     logInfo("Done ...");
 
@@ -519,9 +522,10 @@ public class RrfUnpublishedLoaderAlgorithm
       }
 
       // Try code relationship
-      final List<CodeRelationshipJpa> cdrList = handler.getQueryResults(null,
-          null, Branch.ROOT, "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
-          CodeRelationshipJpa.class, null, new int[1], getEntityManager());
+      final List<CodeRelationshipJpa> cdrList =
+          handler.getQueryResults(null, null, Branch.ROOT,
+              "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
+              CodeRelationshipJpa.class, null, new int[1], getEntityManager());
       if (cdrList.size() == 1) {
         final CodeRelationship rel = cdrList.get(0);
         rel.setTerminologyId(rel.getTerminologyId() + flag);
@@ -535,10 +539,11 @@ public class RrfUnpublishedLoaderAlgorithm
       }
 
       // Try descriptor relationship
-      final List<DescriptorRelationshipJpa> drList = handler.getQueryResults(
-          null, null, Branch.ROOT, "alternateTerminologyIds:\"NCIMTH=" + rui + "\"",
-          null, DescriptorRelationshipJpa.class, null, new int[1],
-          getEntityManager());
+      final List<DescriptorRelationshipJpa> drList =
+          handler.getQueryResults(null, null, Branch.ROOT,
+              "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
+              DescriptorRelationshipJpa.class, null, new int[1],
+              getEntityManager());
       if (drList.size() == 1) {
         final DescriptorRelationship rel = drList.get(0);
         rel.setTerminologyId(rel.getTerminologyId() + flag);
@@ -552,9 +557,10 @@ public class RrfUnpublishedLoaderAlgorithm
       }
 
       // Try atom relationship
-      final List<AtomRelationshipJpa> aList = handler.getQueryResults(null,
-          null, Branch.ROOT, "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
-          AtomRelationshipJpa.class, null, new int[1], getEntityManager());
+      final List<AtomRelationshipJpa> aList =
+          handler.getQueryResults(null, null, Branch.ROOT,
+              "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
+              AtomRelationshipJpa.class, null, new int[1], getEntityManager());
       if (aList.size() == 1) {
         final AtomRelationship rel = aList.get(0);
         rel.setTerminologyId(rel.getTerminologyId() + flag);
@@ -563,11 +569,76 @@ public class RrfUnpublishedLoaderAlgorithm
         // found, go to next case
         continue;
       } else if (aList.size() > 1) {
-        logError(
-            "ERROR: unexpected number of A RUI matches = " + aList.size());
+        logError("ERROR: unexpected number of A RUI matches = " + aList.size());
       }
 
       logError("ERROR: unable to find matching relationship for = " + rui);
+
+    }
+    commitClearBegin();
+    logInfo("    count = " + ct);
+    logInfo("    done.");
+  }
+
+  /**
+   * Load umlscui.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public void loadUmlscui() throws Exception {
+
+    // ==> umlscui.txt <==
+    // R115537943|1|
+    // R107246533|1|
+    // R107246535|1|
+    // R107214084|1|
+    // R107168552|1|
+    // R107274014|1|
+    // R107240012|1|
+
+    // For each RUI, find the relationship and append a ~DA:# terminology id
+    logInfo("  Load UMLSCUI identifiers");
+    setLastModifiedBy("admin");
+    setMolecularActionFlag(false);
+    setLastModifiedFlag(false);
+
+    // Atom -> AUI map
+    // Load alternateTerminologyIds
+    logInfo("  Cache AUI -> AtomId map");
+    final Map<String, Long> auiAtomMap = new HashMap<>();
+    final Query query = getEntityManager().createQuery(
+        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
+            + "where KEY(b) = :terminology and a.publishable=true");
+    query.setParameter("terminology", getProject().getTerminology());
+    final List<Object[]> results2 = query.getResultList();
+    int ct = 0;
+    for (final Object[] result : results2) {
+      final String alternateTerminologyId = result[0].toString();
+      final Long id = Long.valueOf(result[1].toString());
+      auiAtomMap.put(alternateTerminologyId, id);
+      logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+    }
+
+    final String mth = "MTH" + getLatestVersion("MTH");
+    logInfo("  Process umlscui.txt =  " + mth);
+    final List<String> lines = Files.readLines(
+        new File(getInputPath(), "umlscui.txt"), Charset.forName("UTF-8"));
+    ct = 0;
+    for (final String line : lines) {
+      final String[] tokens = FieldedStringTokenizer.split(line, "|");
+      final String aui = tokens[0];
+      final String cui = tokens[1];
+
+      final Long atomId = auiAtomMap.get(aui);
+      // Skip non-existent atoms
+      if (atomId == null) {
+        continue;
+      }
+      final Atom atom = getAtom(auiAtomMap.get(aui));
+      atom.getConceptTerminologyIds().put(mth, cui);
+      updateAtom(atom);
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
 
     }
     commitClearBegin();

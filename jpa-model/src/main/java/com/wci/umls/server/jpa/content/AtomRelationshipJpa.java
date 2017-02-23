@@ -9,9 +9,9 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -57,8 +57,9 @@ public class AtomRelationshipJpa extends AbstractRelationship<Atom, Atom>
   private Atom to;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
-  @Column(nullable = true)
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
   /**

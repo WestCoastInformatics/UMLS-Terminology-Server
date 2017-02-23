@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -56,7 +55,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   private Code to;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
