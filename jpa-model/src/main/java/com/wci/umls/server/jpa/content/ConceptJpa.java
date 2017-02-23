@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -21,6 +21,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -37,6 +39,7 @@ import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
@@ -70,6 +73,10 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @OneToMany(mappedBy = "to", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> inverseRelationships = null;
 
+  /** The tree positions. */
+  @OneToMany(mappedBy = "node", targetEntity = ConceptTreePositionJpa.class)
+  private List<ConceptTreePosition> treePositions = null;
+
   /** The component histories. */
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
   private List<ComponentHistory> componentHistories = null;
@@ -90,7 +97,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(sFetchMode.JOIN)
+  @Fetch(FetchMode.JOIN)
   @JoinColumn(nullable = true)
   private List<String> labels;
 
@@ -147,6 +154,8 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
       relationships = new ArrayList<>(concept.getRelationships());
       semanticTypes = new ArrayList<>(concept.getSemanticTypes());
       members = new ArrayList<>(concept.getMembers());
+      componentHistories = new ArrayList<>(concept.getComponentHistory());
+      treePositions = new ArrayList<>(concept.getTreePositions());
     }
   }
 
@@ -188,11 +197,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.definitions = definitions;
   }
 
-  /**
-   * Returns the relationships.
-   *
-   * @return the relationships
-   */
   @XmlElement(type = ConceptRelationshipJpa.class)
   @Override
   public List<ConceptRelationship> getRelationships() {
@@ -212,14 +216,25 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return inverseRelationships;
   }
 
-  /**
-   * Sets the relationships.
-   *
-   * @param relationships the relationships
-   */
   @Override
   public void setRelationships(List<ConceptRelationship> relationships) {
     this.relationships = relationships;
+
+  }
+
+  @XmlElement(type = ConceptTreePositionJpa.class)
+  @Override
+  public List<ConceptTreePosition> getTreePositions() {
+    if (treePositions == null) {
+      treePositions = new ArrayList<>(1);
+    }
+    return treePositions;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTreePositions(List<ConceptTreePosition> treePositions) {
+    this.treePositions = treePositions;
 
   }
 

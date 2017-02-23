@@ -26,7 +26,6 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       boolean nullId = concept.getId() == null;
       concept.setMembers(new ArrayList<ConceptSubsetMember>());
 
-      concept.getLabels();
 
       // Attributes
       resolveAttributes(concept, nullId);
@@ -60,6 +59,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
 
       // lazy initialization of user annotations
       concept.getNotes().size();
+      concept.getLabels();
 
       // lazy initialization of component history
       concept.getComponentHistory().size();
@@ -79,7 +79,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       atom.getConceptTerminologyIds().keySet();
       atom.getAlternateTerminologyIds().keySet();
       atom.getNotes().size();
-      
+
       // Attributes
       resolveAttributes(atom, nullId);
 
@@ -95,6 +95,7 @@ public class UmlsGraphResolutionHandler extends DefaultGraphResolutionHandler {
       // these are terminology-specific rels
       // they can show when browsing that terminology
       atom.setRelationships(new ArrayList<>());
+      atom.setTreePositions(new ArrayList<>());
 
       // resolve component history
       resolveComponentHistory(atom, nullId);

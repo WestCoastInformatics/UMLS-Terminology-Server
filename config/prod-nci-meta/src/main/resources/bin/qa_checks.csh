@@ -613,20 +613,6 @@ perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\
         echo "ERROR: MRMAP has incorrect sort order"
     endif
 
-	if ($_[8] =~ /^MED(\d\d\d\d)$/) { $year=$1; } \
-	print "$_[0]\n" \
-	  if ($year && $_[9] eq "NLM-MED" && $year >= $y && $_[10] =~ /^\*/)' $mrsat |\
-	sort -u >! mrsat.tmp1.$$
-    perl -ne 'split /\|/; print "$_[0]|$_[2]\n" \
-        if ($_[5] eq "L" || $_[5] eq "LQ" || $_[5] eq "LQB")' $mrcoc |\
-	sort -u >! mrsat.tmp2.$$
-    set ct=`join -t\| -v 1 -j 1 mrsat.tmp1.$$ mrsat.tmp2.$$ | wc -l`
-    if ($ct != 0) then
-        echo "ERROR: CUI in MRSAT with MED attribute not in MRCOC"
-	join -v 1 -t\| -j 1 mrsat.tmp1.$$ mrsat.tmp2.$$ | sed 's/^/  /'
-    endif
-
-
 else if ($target == "MRCONSO") then
 
     #

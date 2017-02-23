@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -17,6 +17,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -24,6 +26,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.content.CodeTreePosition;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
@@ -46,6 +49,10 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> relationships = new ArrayList<>(1);
 
+  /** The treee positions. */
+  @OneToMany(mappedBy = "node", orphanRemoval = true, targetEntity = CodeTreePositionJpa.class)
+  private List<CodeTreePosition> treePositions = new ArrayList<>(1);
+
   /** The inverse relationships. */
   @OneToMany(mappedBy = "to", orphanRemoval = true, targetEntity = CodeRelationshipJpa.class)
   private List<CodeRelationship> inverseRelationships = new ArrayList<>(1);
@@ -57,7 +64,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
   /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(FetchMode.JOIN)
+  @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
 
@@ -80,6 +87,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
 
     if (collectionCopy) {
       relationships = new ArrayList<>(code.getRelationships());
+      treePositions = new ArrayList<>(code.getTreePositions());
     }
   }
 
@@ -107,6 +115,23 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   @Override
   public void setRelationships(List<CodeRelationship> relationships) {
     this.relationships = relationships;
+
+  }
+
+  /* see superclass */
+  @XmlElement(type = CodeTreePositionJpa.class)
+  @Override
+  public List<CodeTreePosition> getTreePositions() {
+    if (treePositions == null) {
+      treePositions = new ArrayList<>(1);
+    }
+    return treePositions;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTreePositions(List<CodeTreePosition> treePositions) {
+    this.treePositions = treePositions;
 
   }
 
