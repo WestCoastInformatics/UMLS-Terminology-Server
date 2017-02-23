@@ -1296,7 +1296,16 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+            + "where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology "
+            + "and c1.id != c2.id and a1.terminology = :terminology "
+            + "and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' "
+            + "and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true "
+            + "and a1.lexicalClassId = a2.lexicalClassId "
+            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) "
+            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
     algoProperties.put("checkNames", null);
     algoProperties.put("newAtomsOnly", "true");
     algoProperties.put("filterQueryType", "LUCENE");
@@ -2003,49 +2012,31 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("PRECOMPUTEDMERGE");
-    algoConfig.setDescription("PRECOMPUTEDMERGE Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("PRECOMPUTEDMERGE algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Set properties for the algorithm
-    Map<String, String> algoProperties = new HashMap<String, String>();
-    algoProperties.put("mergeSet", "MTH-SRC");
-    algoProperties.put("checkNames", "");
-    algoProperties.put("filterQueryType", null);
-    algoProperties.put("filterQuery", null);
-    algoConfig.setProperties(algoProperties);
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("GENERATEDMERGE");
-    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm for META-SR");
     algoConfig.setEnabled(true);
     algoConfig.setName("GENERATEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
-    algoProperties = new HashMap<String, String>();
+    Map<String, String> algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
     algoProperties.put("query",
         "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
-            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
-            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
-            + "a1.terminology = :terminology and a1.version = :version and "
-            + "a1.publishable = true and a2.terminology = :terminology and "
-            + "a2.version != :version and a2.publishable = true");
-    // TODO - figure out and add additional clauses
-    algoProperties.put("checkNames", null);
-    algoProperties.put("newAtomsOnly", "false");
-    algoProperties.put("filterQueryType", "LUCENE");
-    algoProperties.put("filterQuery", "atoms.terminology:NCI");
+            + "ConceptJpa c2 join c2.atoms a2 "
+            + "where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology "
+            + "and c1.id != c2.id "
+            + "and a1.publishable = true and a2.publishable = true "
+            + "and a1.terminology = a2.terminology "
+            + "and a1.version = :version and a2.version != :version "
+            + "and a1.codeId = a2.codeId "
+            + "and a1.stringClassId = a2.stringClassId"
+            + "and a1.termType = a2.termType");
+    algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
+    algoProperties.put("newAtomsOnly", "true");
+    algoProperties.put("filterQueryType", "");
+    algoProperties.put("filterQuery", "");
     algoProperties.put("makeDemotions", "true");
     algoProperties.put("changeStatus", "false");
     algoProperties.put("mergeSet", "META-SR");
@@ -2058,7 +2049,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("GENERATEDMERGE");
-    algoConfig.setDescription("GENERATEDMERGE Algorithm");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm for META-CUI");
     algoConfig.setEnabled(true);
     algoConfig.setName("GENERATEDMERGE algorithm");
     algoConfig.setProcess(processConfig);
@@ -2068,14 +2059,15 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
-            + "ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology "
-            + "and c2.terminology = :projectTerminology and c1.id != c2.id and "
-            + "a1.terminology = :terminology and a1.version = :version and "
-            + "a1.publishable = true and a2.terminology = :terminology and "
-            + "a2.version != :version and a2.publishable = true");
-    // TODO - figure out and add additional clauses
-    algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
+        "select distinct a1.id, a2.id "
+            + "from ConceptJpa c1 join c1.atoms a1 join a1.conceptTerminologyIds cid1, "
+            + "ConceptJpa c2 join c2.atoms a2 join a2.conceptTerminologyIds cid2 "
+            + "where c1.terminology = :projectTerminology "
+            + "and c2.terminology = :projectTerminology and c1.id != c2.id "
+            + "and a1.publishable = true and a2.publishable = true "
+            + "and key(cid1) = :projectTerminology and key(cid2) = :projectTerminology "
+            + "and value(cid1) = value(cid2)");
+    algoProperties.put("checkNames", null);
     algoProperties.put("newAtomsOnly", "true");
     algoProperties.put("filterQueryType", "");
     algoProperties.put("filterQuery", "");
