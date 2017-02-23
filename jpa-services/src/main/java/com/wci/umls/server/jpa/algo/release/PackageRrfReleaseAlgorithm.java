@@ -13,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.codehaus.plexus.util.FileUtils;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -105,10 +106,19 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void reset() throws Exception {
-
     logInfo("Starting RESET " + getName());
-    // n/a
-    logInfo("Finished RESET " + getName()); 
+
+    // Remove the output zip file
+    path = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath());
+    logInfo("  path " + path);
+    
+    filename = getProcess().getVersion() + ".zip";
+    zipFile = new File(path, filename);
+    if (zipFile.exists()) {
+      FileUtils.fileDelete(zipFile.getAbsolutePath());
+    }
+    logInfo("Finished RESET " + getName());
   }
 
   /* see superclass */
