@@ -607,8 +607,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Atom atom =
           getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
-      atom.getAlternateTerminologyIds();
-      atom.getConceptTerminologyIds();
+      if (atom != null) {
+        atom.getAlternateTerminologyIds().size();
+        atom.getConceptTerminologyIds().size();
+      }
       return atom;
     }
 
@@ -619,8 +621,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Atom atom =
           getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
-      atom.getAlternateTerminologyIds();
-      atom.getConceptTerminologyIds();
+      if (atom != null) {
+        atom.getAlternateTerminologyIds().size();
+        atom.getConceptTerminologyIds().size();
+      }
       return atom;
     }
 
@@ -631,8 +635,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Atom atom =
           getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
-      atom.getAlternateTerminologyIds();
-      atom.getConceptTerminologyIds();
+      if (atom != null) {
+        atom.getAlternateTerminologyIds().size();
+        atom.getConceptTerminologyIds().size();
+      }
       return atom;
     }
 
@@ -643,7 +649,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Attribute attribute =
           getComponent(attributeIdCache.get(terminologyId), AttributeJpa.class);
-      attribute.getAlternateTerminologyIds();
+      if (attribute != null) {
+        attribute.getAlternateTerminologyIds().size();
+      }
       return attribute;
     }
 
@@ -670,7 +678,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Definition definition = getComponent(
           definitionIdCache.get(terminologyId), DefinitionJpa.class);
-      definition.getAlternateTerminologyIds();
+      if (definition != null) {
+        definition.getAlternateTerminologyIds().size();
+      }
       return definition;
     }
 
@@ -691,7 +701,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Relationship relationship =
           getComponent(relIdCache.get(terminologyId), relClass);
-      relationship.getAlternateTerminologyIds();
+      if (relationship != null) {
+        relationship.getAlternateTerminologyIds().size();
+      }
       return relationship;
     }
 
@@ -704,7 +716,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       // Handle lazy init
       final Relationship relationship =
           getComponent(relIdCache.get(terminologyId), relClass);
-      relationship.getAlternateTerminologyIds();
+      if (relationship != null) {
+        relationship.getAlternateTerminologyIds().size();
+      }
       return relationship;
     }
 
