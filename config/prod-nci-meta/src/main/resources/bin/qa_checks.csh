@@ -16,7 +16,7 @@ endif
 set dir=$1
 set target=$2
 # generally avoid using "subset" or "submission"
-#set mode=$3
+set mode=XXX
 set prev_released_dir=$3
 
 set ambig_sui=$dir/AMBIGSUI.RRF
@@ -198,14 +198,14 @@ else if ($target == "AMBIG") then
     #   Verify cs_cnt equals the ambiguous SUI count from MRCONSO
     #
     echo "    Verify cs_cnt equals the ambiguous SUI count from MRCONSO"
-    perl -ne 'split /\|/; print "$_[0]|$_[5]\n";' $mrconso |\
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[5]\n";' $mrconso |\
 	sort -t\| -k 2,2 -o MRCONSO.uis.cs.tmp.$$
     join -t\| -j1 2 -j2 2 -o 1.1 2.1 1.2 \
 	MRCONSO.uis.cs.tmp.$$ MRCONSO.uis.cs.tmp.$$ |\
  	awk -F\| '$1!=$2 {print $1"|"$3}' |\
 	sort -u >! MRCONSO.ambig.sui.$$
     set ct=`wc -l MRCONSO.ambig.sui.$$`
-    set cs_cnt=`perl -ne 'chop; split /\|/; @c = split/,/, $_[1]; foreach $c (@c) { print "$_[0]|$c\n";}' $ambig_sui | wc -l`
+    set cs_cnt=`perl -ne 'chop; @_ = split /\|/; @c = split/,/, $_[1]; foreach $c (@c) { print "$_[0]|$c\n";}' $ambig_sui | wc -l`
     if ($ct[1] != $cs_cnt) then
 	echo "ERROR: Ambiguous SUI count from MRCONSO does not match AMBIG.SUI"
 	echo "ERROR:  MRCONSO($ct), AMBIG.SUI($cs_cnt)"
@@ -216,7 +216,7 @@ else if ($target == "AMBIG") then
     #
     echo "    Verify CUI|SUI in MRCONSO.CUI|SUI "
     cut -d\| -f1,6 $mrconso | sort -u >! MRCONSO.uis.cs.$$
-    perl -ne 'chop; split /\|/; @c = split/,/, $_[1]; \
+    perl -ne 'chop; @_ = split /\|/; @c = split/,/, $_[1]; \
 	  foreach $c (@c) { print "$c|$_[0]\n";}' $ambig_sui |\
 	sort -u >! AMBIG.cuisui.$$
     set ct=(`comm -23 AMBIG.cuisui.$$ MRCONSO.uis.cs.$$ | wc -l`)
@@ -239,14 +239,14 @@ else if ($target == "AMBIG") then
     #   Verify cl_cnt equals the ambiguous LUI count from MRCONSO
     #
     echo "    Verify cl_cnt equals the ambiguous LUI count from MRCONSO"
-    perl -ne 'split /\|/; print "$_[0]|$_[3]\n";' $mrconso |\
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[3]\n";' $mrconso |\
 	sort -t\| -k 2,2 -o MRCONSO.uis.cl.tmp.$$
     join -t\| -j1 2 -j2 2 -o 1.1 2.1 1.2 \
 	MRCONSO.uis.cl.tmp.$$ MRCONSO.uis.cl.tmp.$$ |\
 	awk -F\| '$1!=$2 {print $1"|"$3}' |\
 	sort -u >! MRCONSO.ambig.lui.$$
     set ct=(`wc -l MRCONSO.ambig.lui.$$`)
-    set cl_cnt=`perl -ne 'chop; split /\|/; @c = split/,/, $_[1]; foreach $c (@c) { print "$_[0]|$c\n";}' $ambig_lui | wc -l`
+    set cl_cnt=`perl -ne 'chop; @_ = split /\|/; @c = split/,/, $_[1]; foreach $c (@c) { print "$_[0]|$c\n";}' $ambig_lui | wc -l`
     if ($ct[1] != $cl_cnt) then
 	echo "ERROR: Ambiguous LUI count from MRCONSO does not match AMBIG.LUI"
 	echo "ERROR:   MRCONSO($ct), AMBIG.LUI($cl_cnt)"
@@ -257,7 +257,7 @@ else if ($target == "AMBIG") then
     #
     echo "    Verify CUI|LUI in MRCONSO.CUI|LUI"
     cut -d\| -f 1,4 $mrconso | sort -u -T . >! MRCONSO.uis.cl.$$
-    perl -ne 'chop; split /\|/; @c = split/,/, $_[1]; \
+    perl -ne 'chop; @_ = split /\|/; @c = split/,/, $_[1]; \
 	    foreach $c (@c) { print "$c|$_[0]\n";}' $ambig_lui |\
 	sort -u >! AMBIG.cuilui.$$
     set ct=`comm -23 AMBIG.cuilui.$$ MRCONSO.uis.cl.$$ | wc -l`
@@ -336,7 +336,7 @@ endif
     if ($mode != "subset") then
 	echo "    Verify CUI,SAB in in MRCONSO.CUI,SAB"
 	cut -d\| -f1,12 $mrconso | sort -u -o MRCONSO.sabs.$$
-	perl -ne 'split /\|/; print "$_[0]|$_[2]\n";' $mrhist | sort -u -o MRHIST.sabs.$$
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[2]\n";' $mrhist | sort -u -o MRHIST.sabs.$$
 	set ct=(`comm -23 MRHIST.sabs.$$ MRCONSO.sabs.$$ | wc -l`)
 	if ($ct[1] != 0) then
 	    echo "ERROR: CUI,SAB in MRHIST not in MRCONSO"
@@ -396,9 +396,9 @@ else if ($target == "MRMAP") then
     #  MAPRULE,MAPRES,MAPTYPE,MAPATN,MAPATV,CVF
     #
     echo "    Verify field formats"
-perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
+perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; if ($_[12] ne "XR") { print unless ($_[14] =~ /.+/ && $_[16] =~ /.+/ && $_[17] =~ /.+/); } ' $mrmap >! MRMAP.badfields.$$
     #note: this is added to address the SNOMEDCT_US mapping to empty code, may be removed later: begin
-    perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
+    perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\|]*\|[^\|]+\|[^\|]*\|[^\|]+\|[^\|]+\|.*\|\d*\|/; ' MRMAP.badfields.$$ >! tmp.MRMAP.badfields.$$
     awk -F\| '$2!="SNOMEDCT_US"&&$15=="100051"{print}' MRMAP.badfields.$$ >> tmp.MRMAP.badfields.$$
     sort -u tmp.MRMAP.badfields.$$ >! MRMAP.badfields.$$
     rm -f tmp.MRMAP.badfields.$$
@@ -593,20 +593,7 @@ perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\
     endif
     rm -f MRSTY.uis.c.$$
 
-    #
-    #  Verify MAPSETSAB count is the same as SAB count in MRREL.SAB
-    #
-    if ($mode != "subset") then
-    echo "    Verify MAPSETSAB in MRREL.SAB"
-    awk -F\| '$18=="CODE"&&$10=="SCUI"&&$17!~/,/&&$13!="XR" {print}' $mrmap | tallyfield.pl '$11,$2' >! MRMAP.mapsetsab.$$
-    awk -F\| '$8=="mapped_to" {print}' $mrrel | tallyfield.pl '$4,$11' >! MRREL.mapsetsab.$$
-    set ct=`join MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$ | grep -v TOTAL | awk '$2!=$3 {print}' | wc -l`
-    if ($ct != 0) then
-	echo "ERROR: REL,MAPSETSAB count differs than REL,SAB count in MRREL"
-        join -v 1 -j 1 MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$ | awk '$2!=$3 {print $1" MRMAP count:"$2" MRREL count:"$3}'
-    endif
-    rm -f MRMAP.mapsetsab.$$ MRREL.mapsetsab.$$
-    endif
+
 
     #
     #   Verify MAPID unique
@@ -626,19 +613,6 @@ perl -ne 'split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*\|[^\
     sort -c -u $mrmap >> /dev/null
     if ($status != 0) then
         echo "ERROR: MRMAP has incorrect sort order"
-    endif
-
-	if ($_[8] =~ /^MED(\d\d\d\d)$/) { $year=$1; } \
-	print "$_[0]\n" \
-	  if ($year && $_[9] eq "NLM-MED" && $year >= $y && $_[10] =~ /^\*/)' $mrsat |\
-	sort -u >! mrsat.tmp1.$$
-    perl -ne 'split /\|/; print "$_[0]|$_[2]\n" \
-        if ($_[5] eq "L" || $_[5] eq "LQ" || $_[5] eq "LQB")' $mrcoc |\
-	sort -u >! mrsat.tmp2.$$
-    set ct=`join -t\| -v 1 -j 1 mrsat.tmp1.$$ mrsat.tmp2.$$ | wc -l`
-    if ($ct != 0) then
-        echo "ERROR: CUI in MRSAT with MED attribute not in MRCOC"
-	join -v 1 -t\| -j 1 mrsat.tmp1.$$ mrsat.tmp2.$$ | sed 's/^/  /'
     endif
 
 
@@ -930,7 +904,7 @@ endif
     #   Verify min(length(str)) > 0
     #
     echo "    Verify min(length(str)) > 0"
-    perl -ne 'split /\|/; print length($_[14]),"\n";' $mrconso |\
+    perl -ne '@_ = split /\|/; print length($_[14]),"\n";' $mrconso |\
         sort -u -T . -n -o MRCONSO.minmax.$$
     set min_length=`head -1 MRCONSO.minmax.$$`
     if ($min_length == 0) then
@@ -943,8 +917,8 @@ if ($mode == "subset") then
     #   Verify that there is one P|PF per CUI,LAT
     #
     echo "    Verify that there is one [P]|PF per CUI,LAT"
-    set ppf_ct=`perl -ne 'split /\|/; print if $_[6] eq "Y" && $_[2] eq "P" && $_[4] eq "PF"' $mrconso | wc -l`
-    set cuilat_ct=`perl -ne 'split /\|/; print "$_[0]|$_[1]\n"' $mrconso | sort -u | wc -l`
+    set ppf_ct=`perl -ne '@_ = split /\|/; print if $_[6] eq "Y" && $_[2] eq "P" && $_[4] eq "PF"' $mrconso | wc -l`
+    set cuilat_ct=`perl -ne '@_ = split /\|/; print "$_[0]|$_[1]\n"' $mrconso | sort -u | wc -l`
     if ($ppf_ct != $cuilat_ct) then
 	echo "ERROR: The P|PF count ($ppf_ct) does not equal the CUI|LAT ($cuilat_ct) count"
     endif
@@ -986,8 +960,8 @@ if ($mode == "subset") then
     #   Verify that there is one PF SUI per CUI,LUI
     #
     echo "    Verify that there is one PF SUI per CUI,LUI"
-    set pf_ct=`perl -ne 'split /\|/; print "x\n" if $_[6] eq "Y" && $_[4] eq "PF"' $mrconso | wc -l`
-    set cuilui_ct=`perl -ne 'split /\|/; print "$_[0]|$_[3]\n"' $mrconso | sort -u | wc -l`
+    set pf_ct=`perl -ne '@_ = split /\|/; print "x\n" if $_[6] eq "Y" && $_[4] eq "PF"' $mrconso | wc -l`
+    set cuilui_ct=`perl -ne '@_ = split /\|/; print "$_[0]|$_[3]\n"' $mrconso | sort -u | wc -l`
     if ($pf_ct != $cuilui_ct) then
 	echo "ERROR: The S|PF count does not equal the CUI|LUI count"
     endif
@@ -998,7 +972,7 @@ endif
     #   Verify CUI is unique (where tty=PN,sab=NCIMTH)
     #
     echo "    Verify CUI is unique (where tty=PN,sab=NCIMTH)"
-    perl -ne 'split /\|/; print $_[0],"\n" if $_[11] eq "NCIMTH" && $_[12] eq "PN"' $mrconso |\
+    perl -ne '@_ = split /\|/; print $_[0],"\n" if $_[11] eq "NCIMTH" && $_[12] eq "PN"' $mrconso |\
     sort | uniq -d >! MRCONSO.mult.pn.$$
     set ct=(`wc -l MRCONSO.mult.pn.$$`)
     if ($ct[1] != 0) then
@@ -1047,7 +1021,7 @@ endif
     #
     if ($mode != "subset") then
 	echo "    Verify SAB in MRSAB.RSAB"
-	perl -ne 'split /\|/; print "$_[3]\n" if $_[14] != "" && $_[15] != "";' \
+	perl -ne '@_ = split /\|/; print "$_[3]\n" if $_[14] != "" && $_[15] != "";' \
 	    $mrsab | sort -u >! mrsab.rsab.$$
 	cut -d\| -f 12 $mrconso | sort -u >! mrconso.sab.$$
 	set ct=`comm -23 mrsab.rsab.$$ mrconso.sab.$$ | wc -l`
@@ -1061,9 +1035,9 @@ endif
     # Verify SAB|LAT in MRSAB.RSAB,LAT & v.v.
     #
     echo "    Verify MRCONSO.SAB,LAT IN MRSAB.RSAB,LAT"
-    perl -ne 'split /\|/; print "$_[11]|$_[1]\n"' $mrconso |\
+    perl -ne '@_ = split /\|/; print "$_[11]|$_[1]\n"' $mrconso |\
        sort -u >! sab.lat.$$
-    perl -ne 'split /\|/; print "$_[3]|$_[19]\n" if $_[19] ne "";' $mrsab |\
+    perl -ne '@_ = split /\|/; print "$_[3]|$_[19]\n" if $_[19] ne "";' $mrsab |\
 	sort -u >! rsab.lat.$$
     set ct=`diff sab.lat.$$ rsab.lat.$$ | wc -l`
     if ($ct > 0) then
@@ -1382,9 +1356,9 @@ else if ($target == "MRCUI") then
     #  Verify SSTR not in MRCONSO.SUI
     #
     echo "    Verify SSTR not in MRCONSO.SUI"
-    perl -ne 'split /\|/; print "$_[1]|$_[14]\n";' $mrconso |\
+    perl -ne '@_ = split /\|/; print "$_[1]|$_[14]\n";' $mrconso |\
         sort -u -o MRCONSO.latstr.$$
-    set ct=(`cut -d\| -f2,3 $deleted_sui | sort -u | comm -12 - MRCONSO.latstr.$$ | wc -l)`
+    set ct=`cut -d\| -f2,3 $deleted_sui | sort -u | comm -12 - MRCONSO.latstr.$$ | wc -l`
     if ($ct[1] != 0) then
         echo "ERROR: SSTR in MRCONSO.SUI"
 	cut -d\| -f2,3 $deleted_sui | sort -u | comm -12 - MRCONSO.latstr.$$ | sed 's/^/  /'
@@ -1559,10 +1533,10 @@ else if ($target == "MRHIER") then
     #  Verify CUI,AUI,CXN,SAB unique
     #
     echo "    Verify CUI,AUI,CXN,SAB unique"
-    set ct=`perl -ne 'split /\|/; print "$_[0]|$_[1]|$_[2]|$_[4]\n";' $mrhier | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[0]|$_[1]|$_[2]|$_[4]\n";' $mrhier | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI,AUI,CXN,SAB is not unique"
-	perl -ne 'split /\|/; print "$_[0]|$_[1]|$_[2]|$_[4]\n";' $mrhier |\
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[1]|$_[2]|$_[4]\n";' $mrhier |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -1616,7 +1590,7 @@ else if ($target == "MRHIER") then
     #
     echo "    Verify PTR integrity"
     cut -d\| -f 2,5,7 $mrhier | sort -T . -u -o mrhier.1.$$
-    perl -ne 'split /\|/; @f = split /\./, $_[6]; $x = pop @f; $y = join ".", @f; print "$x|$_[4]|$y\n" if $x;' $mrhier | sort -T . -u -o mrhier.2.$$
+    perl -ne '@_ = split /\|/; @f = split /\./, $_[6]; $x = pop @f; $y = join ".", @f; print "$x|$_[4]|$y\n" if $x;' $mrhier | sort -T . -u -o mrhier.2.$$
     # everything in mrhier.2 should be in mrhier.1
     set ct=`comm -13 mrhier.1.$$ mrhier.2.$$ | wc -l`
     if ($ct != 0) then
@@ -1679,10 +1653,10 @@ else if ($target == "MRDEF") then
     #   Verify CUI|ATUI unique
     #
     echo "    Verify CUI|ATUI unique"
-    set ct=`perl -ne 'split /\|/; print "$_[0]|$_[2]\n";' $mrdef | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[0]|$_[2]\n";' $mrdef | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI,ATUI is not unique"
-	perl -ne 'split /\|/; print "$_[0]|$_[2]\n";' $mrdef |\
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[2]\n";' $mrdef |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -1690,10 +1664,10 @@ else if ($target == "MRDEF") then
     #   Verify ATUI unique
     #
     echo "    Verify ATUI unique"
-    set ct=`perl -ne 'split /\|/; print "$_[2]\n";' $mrdef | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[2]\n";' $mrdef | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: ATUI is not unique"
-	perl -ne 'split /\|/; print "$_[2]\n";' $mrdef |\
+	perl -ne '@_ = split /\|/; print "$_[2]\n";' $mrdef |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -1701,7 +1675,7 @@ else if ($target == "MRDEF") then
     #   Verify min(length(DEF))>10
     #
     echo "    Verify min(length(DEF))>10"
-    perl -ne 'split /\|/; print length($_[5]),"\n";' $mrdef |\
+    perl -ne '@_ = split /\|/; print length($_[5]),"\n";' $mrdef |\
         sort -u  -n -o MRDEF.minmax.$$
     set min_length=`head -1 MRDEF.minmax.$$`
     if ($min_length < 10) then
@@ -1714,7 +1688,7 @@ else if ($target == "MRDEF") then
     #
     echo "    Verify CUI in MRCONSO.CUI"
     cut -d\| -f1 $mrconso | sort -u >! MRCONSO.uis.c.$$
-    perl -ne 'split /\|/; print "$_[0]\n"' $mrdef | sort -u >! MRDEF.uis.c.$$
+    perl -ne '@_ = split /\|/; print "$_[0]\n"' $mrdef | sort -u >! MRDEF.uis.c.$$
     set ct=(`comm -23 MRDEF.uis.c.$$ MRCONSO.uis.c.$$ | wc -l`)
     if ($ct[1] != 0) then
         echo "ERROR: CUIs in MRDEF not in MRCONSO"
@@ -2024,7 +1998,7 @@ else if ($target == "MRRANK") then
     # Verify MRSAB.TTYL values in MRRANK.TTY
     #
     echo "    Verify MRSAB.TTYL values in MRRANK.TTY"
-    perl -ne 'split /\|/; foreach $x (split /,/,$_[17]) {print "$_[3]|$x\n";};' $mrsab | sort -u >! mrsab.rsab.tty.$$
+    perl -ne '@_ = split /\|/; foreach $x (split /,/,$_[17]) {print "$_[3]|$x\n";};' $mrsab | sort -u >! mrsab.rsab.tty.$$
     cut -d\| -f 2,3 $mrrank | sort -u >! mrrank.sab.tty.$$
     set ct=`diff mrsab.rsab.tty.$$ mrrank.sab.tty.$$ | wc -l`
     if ($ct > 0) then
@@ -2061,10 +2035,10 @@ else if ($target == "MRRANK") then
     #   Verify SAB|TTY unique
     #
     echo "    Verify SAB|TTY unique"
-    set ct=`perl -ne 'split /\|/; print "$_[1]|$_[2]\n";' $mrrank | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[1]|$_[2]\n";' $mrrank | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: SAB,TTY is not unique"
-	perl -ne 'split /\|/; print "$_[1]|$_[2]\n";' $mrrank |\
+	perl -ne '@_ = split /\|/; print "$_[1]|$_[2]\n";' $mrrank |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -2278,8 +2252,8 @@ else if ($target == "MRREL") then
     #  Verify REL=RB count = REL=RN count
     #
     echo "    Verify REL=RB count = REL=RN count"
-    set rb_cnt=`perl -ne 'split /\|/; print "x\n" if $_[3] eq "RB";' $mrrel | wc -l`
-    set rn_cnt=`perl -ne 'split /\|/; print "x\n" if $_[3] eq "RN";' $mrrel | wc -l`
+    set rb_cnt=`perl -ne '@_ = split /\|/; print "x\n" if $_[3] eq "RB";' $mrrel | wc -l`
+    set rn_cnt=`perl -ne '@_ = split /\|/; print "x\n" if $_[3] eq "RN";' $mrrel | wc -l`
     if ($rb_cnt != $rn_cnt) then
         echo "ERROR: RB count does not match RN count"
 	echo "      RB ($rb_cnt),  RN ($rn_cnt)"
@@ -2289,8 +2263,8 @@ else if ($target == "MRREL") then
     #  Verify REL=PAR count = REL=CHD count
     #
     echo "    Verify REL=PAR count = REL=CHD count"
-    set par_cnt=`perl -ne 'split /\|/; print "x\n" if $_[3] eq "PAR";' $mrrel | wc -l`
-    set chd_cnt=`perl -ne 'split /\|/; print "x\n" if $_[3] eq "CHD";' $mrrel | wc -l`
+    set par_cnt=`perl -ne '@_ = split /\|/; print "x\n" if $_[3] eq "PAR";' $mrrel | wc -l`
+    set chd_cnt=`perl -ne '@_ = split /\|/; print "x\n" if $_[3] eq "CHD";' $mrrel | wc -l`
     if ($par_cnt != $chd_cnt) then
         echo "ERROR: PAR count does not match CHD count"
 	echo "      PAR ($par_cnt),  CHD ($chd_cnt)"
@@ -2382,12 +2356,12 @@ else if ($target == "MRSAB") then
     #
     # Gather counts
     set rcnt=`cat $mrsab | wc -l`
-    set vcui_cnt=`perl -ne 'split /\|/; print "$_[0]\n" if $_[0] ne "";' $mrsab | sort -u | wc -l`;
-    set rcui_cnt=`perl -ne 'split /\|/; print "$_[1]\n";' $mrsab | sort -u | wc -l`;
-    set vsab_cnt=`perl -ne 'split /\|/; print "$_[2]\n";' $mrsab | sort -u | wc -l`;
-    set rsab_cnt=`perl -ne 'split /\|/; print "$_[3]\n";' $mrsab | sort -u | wc -l`;
-    set sf_cnt=`perl -ne 'split /\|/; print "$_[5]\n";' $mrsab | sort -u | wc -l`;
-    set sf_lat_cnt=`perl -ne 'split /\|/; print "$_[5]|$_[19]\n";' $mrsab | sort -u | wc -l`;
+    set vcui_cnt=`perl -ne '@_ = split /\|/; print "$_[0]\n" if $_[0] ne "";' $mrsab | sort -u | wc -l`;
+    set rcui_cnt=`perl -ne '@_ = split /\|/; print "$_[1]\n";' $mrsab | sort -u | wc -l`;
+    set vsab_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n";' $mrsab | sort -u | wc -l`;
+    set rsab_cnt=`perl -ne '@_ = split /\|/; print "$_[3]\n";' $mrsab | sort -u | wc -l`;
+    set sf_cnt=`perl -ne '@_ = split /\|/; print "$_[5]\n";' $mrsab | sort -u | wc -l`;
+    set sf_lat_cnt=`perl -ne '@_ = split /\|/; print "$_[5]|$_[19]\n";' $mrsab | sort -u | wc -l`;
 
 
     #
@@ -2408,10 +2382,10 @@ else if ($target == "MRSAB") then
     echo "    Verify SRL in MRDOC"
     cut -d\| -f14 $mrsab | sort -u >! mrsab.tmp1.$$
     awk -F\| '$3=="expanded_form"&&$1=="SRL"{print $2}' $mrdoc | sort -u >! mrdoc.tmp1.$$
-    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$`
+    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$ | wc -l`
     if ($ct != 0) then
-        echo "ERROR:  SF not in MRSAB.RSAB"
-	    diff mrsab.tmp1.$$ mrdoc.tmp2.$$
+        echo "ERROR:  SRL not in MRSAB.RSAB"
+     diff mrsab.tmp1.$$ mrdoc.tmp1.$$
     endif
     rm -f mrsab.tmp1.$$ mrdoc.tmp2.$$
 
@@ -2426,7 +2400,7 @@ else if ($target == "MRSAB") then
     #
     # Verify VCUI count equals VSAB count (excludes NCIMTH,NLM-MED,SRC)
     #
-	set vsab_cui_cnt=`perl -ne 'split /\|/; print "$_[2]\n" if ($_[2] !~ /^(NCIMTH|NLM-MED|SRC)$/ && $_[21] eq "Y");' $mrsab | sort -u | wc -l`;
+	set vsab_cui_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n" if ($_[2] !~ /^(NCIMTH|NLM-MED|SRC)$/ && $_[21] eq "Y");' $mrsab | sort -u | wc -l`;
     echo "    Verify VCUI count = VSAB count (excludes NCIMTH,NLM-MED,SRC)"
     if ($vcui_cnt != $vsab_cui_cnt) then
         echo "ERROR: VCUI count ($vcui_cnt) != VSAB count ($vsab_cui_cnt) (excludes NCIMTH,NLM-MED,SRC)"
@@ -2446,10 +2420,10 @@ else if ($target == "MRSAB") then
     # Verify RMETA is null or RMETA<IMETA
     #
     echo "    Verify RMETA is null or RMETA less than IMETA"
-    set ct=`perl -ne 'split /\|/; print "IMETA:$_[9], RMETA: $_[10]\n" unless $_[10] eq "" || ($_[10] ge $_[9] && $_[9] ne "")' $mrsab | wc -l `
+    set ct=`perl -ne '@_ = split /\|/; print "IMETA:$_[9], RMETA: $_[10]\n" unless $_[10] eq "" || ($_[10] ge $_[9] && $_[9] ne "")' $mrsab | wc -l `
     if ($ct != 0) then
         echo "ERROR: RMETA must be > IMETA"
-	perl -ne 'split /\|/; print "IMETA:$_[9], RMETA: $_[10]\n" unless $_[10] eq "" || ($_[10] ge $_[9] && $_[9] ne "")' $mrsab | sed 's/^/  /'
+	perl -ne '@_ = split /\|/; print "IMETA:$_[9], RMETA: $_[10]\n" unless $_[10] eq "" || ($_[10] ge $_[9] && $_[9] ne "")' $mrsab | sed 's/^/  /'
     endif
 
     #
@@ -2511,8 +2485,8 @@ endif
     #
     if ($mode != "subset") then
 	echo "    Verify ATNL values in MRSAB.ATN"
-	perl -ne 'split /\|/; foreach $x (split /,/,$_[18]) {print "$_[3]|$x\n" unless $_[3] eq "MEMBERSTATUS";};' $mrsab | sort -u >! mrsab.rsab.atn.$$
-	perl -ne 'split /\|/; print "$_[9]|$_[8]\n";' $mrsat | sort -u >! mrsat.sab.atn.$$
+	perl -ne '@_ = split /\|/; foreach $x (split /,/,$_[18]) {print "$_[3]|$x\n" unless $_[3] eq "MEMBERSTATUS";};' $mrsab | sort -u >! mrsab.rsab.atn.$$
+	perl -ne '@_ = split /\|/; print "$_[9]|$_[8]\n";' $mrsat | sort -u >! mrsat.sab.atn.$$
 	set ct=`comm  -13 mrsab.rsab.atn.$$ mrsat.sab.atn.$$ | wc -l`
 	if ($ct > 0) then
 	    echo "ERROR: MRSAT.RSAB,ATNL does not match MRSAB.SAB,ATNL"
@@ -2561,10 +2535,10 @@ endif
     #   Verify ATUI unique
     #
     echo "    Verify ATUI unique (for non-LT attributes)"
-    set ct=`perl -ne 'split /\|/; print "$_[6]\n" if $_[8] ne "LT"' $mrsat | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[6]\n" if $_[8] ne "LT"' $mrsat | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: ATUI is not unique"
-	perl -ne 'split /\|/; print "$_[6]\n" if $_[8] ne "LT"' $mrsat |\
+	perl -ne '@_ = split /\|/; print "$_[6]\n" if $_[8] ne "LT"' $mrsat |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -2572,8 +2546,8 @@ endif
     #  Verify cls_cnt = cs_cnt
     #
     echo "    Verify cls_cnt = cs_cnt"
-    set cls_cnt=`perl -ne 'split /\|/; print "$_[0]$_[1]$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
-    set cs_cnt=`perl -ne 'split /\|/; print "$_[0]$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
+    set cls_cnt=`perl -ne '@_ = split /\|/; print "$_[0]$_[1]$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
+    set cs_cnt=`perl -ne '@_ = split /\|/; print "$_[0]$_[2]\n" if $_[2]' $mrsat | sort -u | wc -l`
     if ($cls_cnt != $cs_cnt) then
         echo "ERROR: The CUI|LUI|SUI count does not match the CUI|SUI count"
 	echo "        cls_cnt ($cls_cnt)     cs_cnt ($cs_cnt)"
@@ -2583,7 +2557,7 @@ endif
     #  Verify CUI|LUI|SUI in MRCONSO.CUI|LUI|SUI where sui!='' and UI =~ /A*/
     #
     echo "    Verify CUI|LUI|SUI in MRCON.CUI|LUI|SUI where sui!=''"
-    perl -ne 'split /\|/; print "$_[0]|$_[1]|$_[2]\n" if $_[2] && $_[3] =~ /A*/ ' $mrsat |\
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[1]|$_[2]\n" if $_[2] && $_[3] =~ /A*/ ' $mrsat |\
        sort -u >! mrsat.tmp1.$$
     cut -d\| -f 1,4,6 $mrconso | sort -u  >! MRCONSO.uis.cls.$$
     set ct=`comm -23 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
@@ -2597,7 +2571,7 @@ endif
     #  Verify LUI|SUI|AUI|CODE in MRCONSO.LUI|SUI|AUI|CODE where sui!='' and uitype ='AUI'
     #
     echo "    Verify LUI|SUI|AUI|CODE in MRCONSO.LUI|SUI|AUI|CODE where sui!=''"
-    perl -ne 'split /\|/; print "$_[1]|$_[2]|$_[3]|$_[5]\n" if $_[2];' $mrsat |\
+    perl -ne '@_ = split /\|/; print "$_[1]|$_[2]|$_[3]|$_[5]\n" if $_[2];' $mrsat |\
        sort -u >! mrsat.tmp1.$$
     cut -d\| -f 4,6,8,14 $mrconso | sort -u  >! MRCONSO.uis.alsc.$$
     set ct=`comm -23 mrsat.tmp1.$$ MRCONSO.uis.alsc.$$ | wc -l`
@@ -2611,7 +2585,7 @@ endif
     #  Verify CUI in MRCONSO.CUI where SUI=''
     #
     echo "    Verify CUI in MRCONSO.CUI where SUI=''"
-    perl -ne 'split /\|/; print "$_[0]\n" unless $_[2]' $mrsat |\
+    perl -ne '@_ = split /\|/; print "$_[0]\n" unless $_[2]' $mrsat |\
        sort -u >! mrsat.tmp1.$$
     set ct=`join -t\| -j 1 -v 1 mrsat.tmp1.$$ MRCONSO.uis.cls.$$ | wc -l`
     if ($ct != 0) then
@@ -2641,12 +2615,12 @@ endif
     if (1 == 0 && $mode != "subset") then
 	echo "    Verify AM flag matches ambig strings from MRCONSO"
 	# Uppercase strings and only look at ENG
-	perl -ne 'split /\|/; print uc("$_[14]|$_[0]|$_[5]\n") if $_[1] eq "ENG"' $mrconso |\
+	perl -ne '@_ = split /\|/; print uc("$_[14]|$_[0]|$_[5]\n") if $_[1] eq "ENG"' $mrconso |\
 	    sort -t\| -k 1,1 >! MRCONSO.str.$$
 	    join -t\| -j1 1 -j2 1 -o 1.1 1.2 1.3 2.2 2.3 MRCONSO.str.$$ MRCONSO.str.$$ |\
 	awk -F\| '$2!=$4 {print $2"|"$3 }' | sort -u >! mrsat.tmp.$$
 	# extract AM rows from MRSAT
-	perl -ne 'split /\|/; print "$_[0]|$_[2]\n" if $_[8] eq "AM" && $_[9] eq "MTH"' \
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[2]\n" if $_[8] eq "AM" && $_[9] eq "MTH"' \
 	    $mrsat | sort -u >! mrsat.am.$$
 	# count and compare
 	set ct=`diff mrsat.tmp.$$ mrsat.am.$$ | wc -l`
@@ -2662,10 +2636,10 @@ endif
     #   Verify ST attributes are R,U
     #
     echo "    Verify ST attributes are R,U"
-    set ct=`perl -ne 'split /\|/; print if $_[8] eq "ST" && $_[9] eq "MTH" && $_[10] ne "R" && $_[10] ne "U";' $mrsat | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print if $_[8] eq "ST" && $_[9] eq "MTH" && $_[10] ne "R" && $_[10] ne "U";' $mrsat | wc -l`
     if ($ct != 0) then
         echo "ERROR: Invalid ST values"
-        perl -ne 'split /\|/; print if $_[8] eq "ST" && $_[9] eq "MTH" \
+        perl -ne '@_ = split /\|/; print if $_[8] eq "ST" && $_[9] eq "MTH" \
 	    && $_[10] ne "R" && $_[10] ne "U";' $mrsat | sed 's/^/  /'
     endif
 
@@ -2674,7 +2648,7 @@ endif
     #
     echo "    Verify CUI|METAUI in MRCONSO.CUI|AUI where METAUI =~ /^A/"
     cut -d\| -f1,8 $mrconso | sort -u  >! MRCONSO.uis.ca.$$
-    perl -ne 'split /\|/; print "$_[0]|$_[3]\n" if $_[3] =~ /^A/' $mrsat |\
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[3]\n" if $_[3] =~ /^A/' $mrsat |\
        sort -u >! mrsat.tmp1.$$
     set ct=`comm -23  mrsat.tmp1.$$ MRCONSO.uis.ca.$$ | wc -l`
     if ($ct != 0) then
@@ -2688,7 +2662,7 @@ endif
     #
     echo "    Verify CUI|METAUI in MRREL.CUI1|RUI where METAUI =~ /^R/"
     cut -d\| -f1,9 $mrrel | sort -u  >! MRREL.uis.cr.$$
-    perl -ne 'split /\|/; print "$_[0]|$_[3]\n" if $_[3] =~ /^R/' $mrsat |\
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[3]\n" if $_[3] =~ /^R/' $mrsat |\
        sort -u >! mrsat.tmp1.$$
     set ct=`comm -23  mrsat.tmp1.$$ MRREL.uis.cr.$$ | wc -l`
     if ($ct != 0) then
@@ -2748,10 +2722,10 @@ else if ($target == "MRSTY") then
     #   Verify CUI|ATUI unique
     #
     echo "    Verify CUI|ATUI unique"
-    set ct=`perl -ne 'split /\|/; print "$_[0]|$_[4]\n";' $mrsty | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[0]|$_[4]\n";' $mrsty | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI,ATUI is not unique"
-	perl -ne 'split /\|/; print "$_[0]|$_[4]\n";' $mrsty |\
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[4]\n";' $mrsty |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -2759,10 +2733,10 @@ else if ($target == "MRSTY") then
     #   Verify ATUI unique
     #
     echo "    Verify ATUI unique"
-    set ct=`perl -ne 'split /\|/; print "$_[4]\n";' $mrsty | sort | uniq -d | wc -l`
+    set ct=`perl -ne '@_ = split /\|/; print "$_[4]\n";' $mrsty | sort | uniq -d | wc -l`
     if ($ct != 0) then
         echo "ERROR: ATUI is not unique"
-	perl -ne 'split /\|/; print "$_[4]\n";' $mrsty |\
+	perl -ne '@_ = split /\|/; print "$_[4]\n";' $mrsty |\
 	    sort | uniq -d | sed 's/^/  /'
     endif
 
@@ -3010,8 +2984,8 @@ else if ($target == "MRX") then
     #  Verify MRXNS count equals MRXNW count
     #
     echo "    Verify MRXNS count equals MRXNW count"
-    set ns_cnt=`perl -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxns | sort -u | wc -l`
-    set nw_cnt=`perl -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxnw | sort -u | wc -l`
+    set ns_cnt=`perl -ne '@_ = split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxns | sort -u | wc -l`
+    set nw_cnt=`perl -ne '@_ = split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxnw | sort -u | wc -l`
     if ($ns_cnt != $nw_cnt) then
         echo "ERROR: the MRXNS_ENG and MRXNW_ENG line counts do not match"
 	echo "       MRXNS_ENG ($ns_cnt)    MRXNW_ENG ($nw_cnt)"
@@ -3021,8 +2995,8 @@ else if ($target == "MRX") then
     #  Verify CUI|LUI|SUI matches (both directions) with matching language
     #
     echo "    Verify MRCONSO CUI|LUI|SUI in MRXNS_ENG CUI|LUI|SUI"
-    perl -ne 'split /\|/; print "$_[0]|$_[3]|$_[5]\n" if $_[1] eq "ENG";' $mrconso | sort -u >! mrx.tmp2.$$
-    perl -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxns | sort -u >! mrx.tmp1.$$
+    perl -ne '@_ = split /\|/; print "$_[0]|$_[3]|$_[5]\n" if $_[1] eq "ENG";' $mrconso | sort -u >! mrx.tmp2.$$
+    perl -ne '@_ = split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxns | sort -u >! mrx.tmp1.$$
     set null_lui=`comm -13 mrx.tmp1.$$ mrx.tmp2.$$ | cut -d\| -f 2 | sort -u | head -1`
     set ct=`comm -13 mrx.tmp1.$$ mrx.tmp2.$$ | grep -v $null_lui | wc -l`
     if ($ct != 0) then
@@ -3037,7 +3011,7 @@ else if ($target == "MRX") then
     endif
 
     echo "    Verify MRCONSO CUI|LUI|SUI in MRXNW_ENG CUI|LUI|SUI"
-    perl -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxnw | sort -u >! mrx.tmp1.$$
+    perl -ne '@_ = split /\|/; print "$_[2]|$_[3]|$_[4]\n";' $mrxnw | sort -u >! mrx.tmp1.$$
     set ct=`comm -13 mrx.tmp1.$$ mrx.tmp2.$$ | grep -v $null_lui | wc -l`
     if ($ct != 0) then
         echo "ERROR: CUI|LUI|SUI in MRCONSO not in MRXNW_ENG"
@@ -3053,11 +3027,11 @@ else if ($target == "MRX") then
 
     foreach f (`cat mrx.lats.$$`)
         echo "    Verify MRCONSO CUI|LUI|SUI in MRXW_$f CUI|LUI|SUI"
-	setenv LAT=$f
-	perl -ne 'split /\|/; print "$_[0]|$_[3]|$_[5]\n" if $_[1] eq "'$f'" \
+	set LAT=$f
+	perl -ne '@_ = split /\|/; print "$_[0]|$_[3]|$_[5]\n" if $_[1] eq "'$f'" \
 	    && $_[14] !~ /^(=|<=|>=|\+|\+\+|\+\+\+|\+\+\+\+|<|>)$/;' $mrconso |\
 	    sort -u >! mrx.tmp2.$$
-	perl -ne 'split /\|/; print "$_[2]|$_[3]|$_[4]\n";' ${mrxw}_$f.RRF | sort -u >! mrx.tmp1.$$
+	perl -ne '@_ = split /\|/; print "$_[2]|$_[3]|$_[4]\n";' ${mrxw}_$f.RRF | sort -u >! mrx.tmp1.$$
 
 	set ct=`comm -13 mrx.tmp1.$$ mrx.tmp2.$$ | grep -v $null_lui | wc -l`
 	if ($ct != 0) then
