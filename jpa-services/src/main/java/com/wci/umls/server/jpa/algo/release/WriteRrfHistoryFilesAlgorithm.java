@@ -185,36 +185,19 @@ public class WriteRrfHistoryFilesAlgorithm
       atomsMoved.get(lastReleaseCui).add(cui);
     }
 
+    final ConceptHistory history = new ConceptHistory();
+
     // Determine "merge" cases - all keys from atomsMoved where the value is
     // size()==1 and the key is not in currentCuis.
-    final Map<String, String> syCui1Cui2Pairs = new HashMap<>();
     for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       final String lastReleaseCui = entry.getKey();
       if (entry.getValue().size() == 1
           && !currentCuis.contains(lastReleaseCui)) {
         final String cui2 = (String) entry.getValue().toArray()[0];
-        // write an SY row where CUI1 is the last release CUI, and CUI2 is the
-        // single cui in the value.
-        // save these CUI1->CUI2 pairs for later.
-        syCui1Cui2Pairs.put(lastReleaseCui, cui2);
-        final StringBuilder sb = new StringBuilder();
-        // 0 CUI1
-        sb.append(lastReleaseCui).append("|");
-        // 1 VER
-        sb.append(getProcess().getVersion()).append("|");
-        // 2 REL
-        sb.append("SY").append("|");
-        // 3 RELA, 4 MAPREASON
-        sb.append("||");
-        // 5 CUI2
-        sb.append(cui2).append("|");
-        // 6 MAPIN
-        sb.append("Y").append("|");
-        sb.append("\n");
 
-        writerMap.get("MRCUI.RRF").print(sb.toString());
-        writerMap.get("MERGEDCUI.RRF")
-            .print(lastReleaseCui + "|" + cui2 + "|\n");
+        // Add a merge
+        history.addMerge(lastReleaseCui, getProcess().getVersion(), cui2);
+
       }
     }
     // Determine "split" cases - all keys from atomsMoved where the value is
@@ -228,34 +211,12 @@ public class WriteRrfHistoryFilesAlgorithm
           && !currentCuis.contains(lastReleaseCui)) {
         // write RO rows for both "value" CUIs.
         final List<String> values = new ArrayList<>(entry.getValue());
-        final StringBuilder sb = new StringBuilder();
-        // 0 CUI1
-        sb.append(lastReleaseCui).append("|");
-        // 1 VER
-        sb.append(getProcess().getVersion()).append("|");
-        // 2 REL
-        sb.append("RO").append("|");
-        // 3 RELA, 4 MAPREASON
-        sb.append("||");
-        // 5 CUI2
-        sb.append(values.get(0)).append("|");
-        // 6 MAPIN
-        sb.append("Y").append("|");
-        sb.append("\n");
-        // 0 CUI1
-        sb.append(lastReleaseCui).append("|");
-        // 1 VER
-        sb.append(getProcess().getVersion()).append("|");
-        // 2 REL
-        sb.append("RO").append("|");
-        // 3 RELA, 4 MAPREASON
-        sb.append("||");
-        // 5 CUI2
-        sb.append(values.get(1)).append("|");
-        // 6 MAPIN
-        sb.append("Y").append("|");
-        sb.append("\n");
-        writerMap.get("MRCUI.RRF").print(sb.toString());
+
+        // Add bequeathals
+        for (final String cui2 : entry.getValue()) {
+          history.addBequeathal(lastReleaseCui, getProcess().getVersion(), "RO",
+              cui2);
+        }
       }
     }
 
@@ -273,144 +234,86 @@ public class WriteRrfHistoryFilesAlgorithm
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);
 
-      // Skip any concept that doesn't have a real CUI
+      // Skip any concepts never assigned a CUI
       if (c.getId().toString().equals(c.getTerminologyId())) {
         continue;
       }
 
+      // Get bequeathal rels added by editors or insertions
+      final List<ConceptRelationship> bequeathalRels =
+          getCurrentBequeathalRels(c);
+
       // If does not have a component history (e.g. newly dead)
       if (c.getComponentHistory() == null
           || c.getComponentHistory().isEmpty()) {
-        // If no bequeathal rel, -> write out a "DEL" entry to MRCUI
-        final List<ConceptRelationship> bequeathalRels = getBequeathalRels(c);
+
+        // If no bequeathal rel -> add a DEL entry
         if (bequeathalRels.size() == 0) {
-          final StringBuilder sb = new StringBuilder();
-          sb.append(c.getTerminologyId()).append("|");
-          sb.append(getProcess().getVersion()).append("|");
-          sb.append("DEL").append("|");
-          sb.append("|");
-          sb.append("|");
-          sb.append("|");
-          sb.append("|");
-          sb.append("\n");
-          writerMap.get("MRCUI.RRF").print(sb.toString());
-          writerMap.get("DELETEDCUI.RRF")
-              .print(c.getTerminology() + "|" + c.getName() + "|\n");
+
+          history.addDeleted(c.getTerminologyId(), getProcess().getVersion());
+
         }
-        // If bequeathal rel -> write out bequeathal entry for each rel
+        // Otherwise -> add a bequeathal rel entry
         else {
           for (final ConceptRelationship bequeathalRel : bequeathalRels) {
-            final StringBuilder sb = new StringBuilder();
-            sb.append(c.getTerminologyId()).append("|");
-            sb.append(getProcess().getVersion()).append("|");
-            sb.append(bequeathalRel.getRelationshipType().substring(1))
-                .append("|");
-            sb.append("|");
-            sb.append("|");
-            sb.append(bequeathalRel.getTo().getTerminologyId()).append("|");
-            sb.append("Y").append("|");
-            sb.append("\n");
-            writerMap.get("MRCUI.RRF").print(sb.toString());
+            history.addBequeathal(c.getTerminologyId(),
+                getProcess().getVersion(), bequeathalRel.getRelationshipType(),
+                bequeathalRel.getTo().getTerminologyId());
+
           }
         }
-
       }
 
-      // If it has a component history. (e.g.
-      // component.getComponentHistory().size()>0) - i.e. this is a "historical"
-      // concept.
+      // If there is component history, add it
       else if (c.getComponentHistory().size() > 0) {
-        for (final ComponentHistory history : c.getComponentHistory()) {
+        for (final ComponentHistory ch : c.getComponentHistory()) {
           // if DEL -> write out component history as is.
-          if (history.getRelationshipType().equals("DEL")) {
-            final StringBuilder sb = new StringBuilder();
-            // CUI1
-            sb.append(c.getTerminologyId()).append("|");
-            // 1 VER
-            sb.append(history.getVersion()).append("|");
-            // 2 REL
-            sb.append("DEL").append("|");
-            // 3 RELA, 4 MAPREASON, 5 CUI2, 6 MAPIN
-            sb.append("||||");
-            sb.append("\n");
-            writerMap.get("MRCUI.RRF").print(sb.toString());
+          if (ch.getRelationshipType().equals("DEL")) {
+
+            history.addDeleted(c.getTerminologyId(), ch.getVersion());
+
           }
+
           // If SY or R?
-          else if (history.getRelationshipType().equals("SY")
-              || history.getRelationshipType().startsWith("R")) {
+          else if (ch.getRelationshipType().equals("SY")
+              || ch.getRelationshipType().startsWith("R")) {
 
             // if "referenced concept" is publishable, write it out as is
-            final Concept concept = getConcept(
-                history.getReferencedTerminologyId(), history.getTerminology(),
-                history.getVersion(), Branch.ROOT);
-            if (concept != null && concept.isPublishable()) {
-              final StringBuilder sb = new StringBuilder();
-              // CUI1
-              sb.append(c.getTerminologyId()).append("|");
-              // 1 VER
-              sb.append(history.getVersion()).append("|");
-              // 2 REL
-              sb.append(history.getRelationshipType()).append("|");
-              // 3 RELA
-              sb.append(history.getAdditionalRelationshipType()).append("|");
-              // 4 MAPREASON
-              sb.append(history.getReason()).append("|");
-              // 5 CUI2
-              sb.append(history.getReferencedTerminologyId()).append("|");
-              // 6 MAPIN
-              sb.append("Y").append("|");
-              sb.append("\n");
-              writerMap.get("MRCUI.RRF").print(sb.toString());
-            }
-            // If not publishable, check whether the referencedConcept has a
-            // terminologyId matching the CUI1 of SY rows computed above.
-            else {
-              // If so, change the referencedConcept to point to the CUI2
-              // concept.
-              // TODO: (later) deal with CUI2 bequeathed case
-              if (syCui1Cui2Pairs
-                  .containsKey(history.getReferencedTerminologyId())) {
-                StringBuilder sb = new StringBuilder();
-                // CUI1
-                sb.append(c.getTerminologyId()).append("|");
-                // 1 VER
-                sb.append(history.getVersion()).append("|");
-                // 2 REL
-                sb.append(history.getRelationshipType()).append("|");
-                // 3 RELA
-                sb.append(history.getAdditionalRelationshipType()).append("|");
-                // 4 MAPREASON
-                sb.append(history.getReason()).append("|");
-                // 5 CUI2
-                sb.append(
-                    syCui1Cui2Pairs.get(history.getReferencedTerminologyId()))
-                    .append("|");
-                // 6 MAPIN
-                sb.append("|");
-                sb.append("\n");
-                writerMap.get("MRCUI.RRF").print(sb.toString());
-              } else {
-                StringBuilder sb = new StringBuilder();
-                // CUI1
-                sb.append(c.getTerminologyId()).append("|");
-                // 1 VER
-                sb.append(history.getVersion()).append("|");
-                // 2 REL
-                sb.append("DEL").append("|");
-                // 3 RELA, 4 MAPREASON, 5 CUI2, 6 MAPIN
-                sb.append("||||");
-                sb.append("\n");
-                writerMap.get("MRCUI.RRF").print(sb.toString());
+            final Concept concept = getConcept(ch.getReferencedTerminologyId(),
+                ch.getTerminology(), ch.getVersion(), Branch.ROOT);
+
+            if (concept != null) {
+
+              if (ch.getRelationshipType().equals("SY")) {
+                history.addMerge(c.getTerminologyId(), ch.getVersion(),
+                    ch.getReferencedTerminologyId());
+              }
+
+              else {
+                history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
+                    ch.getRelationshipType(), ch.getReferencedTerminologyId());
+
               }
             }
-            // otherwise, don't write a MRCUI entry. (e.g this is a component
-            // history that will go away.)
+
           }
-        } // end for
+        }
       }
 
-      // Periodically log and commit
-      logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+      // TODO: go through concept history and write entries
+      // writerMap.get("MRCUI.RRF").print(sb.toString());
+      // writerMap.get("MERGEDCUI.RRF")
+      // .print(lastReleaseCui + "|" + cui2 + "|\n");
+      // writerMap.get("DELETEDCUI.RRF")
+      // .print(c.getTerminology() + "|" + c.getName() + "|\n");
+      final List<ComponentHistory> list = history.reconcileHistory();
+      int ct = 0;
+      for (final ComponentHistory ch : list) {
+        final StringBuilder sb = new StringBuilder();
+
+        // Periodically log and commit
+        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+      }
 
     }
 
@@ -425,7 +328,7 @@ public class WriteRrfHistoryFilesAlgorithm
    * @return the bequeathal rels
    */
   @SuppressWarnings("static-method")
-  private List<ConceptRelationship> getBequeathalRels(Concept c) {
+  private List<ConceptRelationship> getCurrentBequeathalRels(Concept c) {
     final List<ConceptRelationship> bequeathalRels = new ArrayList<>();
     for (final ConceptRelationship rel : c.getRelationships()) {
       if (rel.getRelationshipType().equals("BRO")
@@ -783,9 +686,6 @@ public class WriteRrfHistoryFilesAlgorithm
     /** The bequeathals. */
     private Map<String, Set<ComponentHistory>> bequeathals = new HashMap<>();
 
-    /** The splits. */
-    // private Map<String, Set<ComponentHistory>> splits = new HashMap<>();
-
     /** The merges. */
     private Map<String, ComponentHistory> merges = new HashMap<>();
 
@@ -833,21 +733,6 @@ public class WriteRrfHistoryFilesAlgorithm
     }
 
     /**
-     * Adds the split.
-     *
-     * @param cui the cui
-     * @param version the version
-     * @param cui2 the cui 2
-     * @throws Exception the exception
-     */
-    public void addSplit(String cui, String version, Set<String> cui2)
-      throws Exception {
-      // TBD, splits not explicitly tracked
-      // They are represented as double-RO bequeathal relationships
-      throw new UnsupportedOperationException();
-    }
-
-    /**
      * Adds the merge.
      *
      * @param cui the cui
@@ -889,47 +774,19 @@ public class WriteRrfHistoryFilesAlgorithm
       return null;
     }
 
-    public List<ComponentHistory> computeHistory() {
+    public List<ComponentHistory> reconcileHistory() {
       final List<ComponentHistory> history = new ArrayList<>();
 
       // Verify that terminologyIds are "not publishable"
+      // Verify that terminologyIds are only in one category "DEL", "SY", or
+      // "RX" - do this completely for all concepts first.
+      // - may need to prioritize if they are in more than one.
       // Verify that referencedTerminologyIds are "publishable"
-      // - if not, map to a "current" thing, othrewe
+      // - if not, map to a "current" thing, or multiple current things through
+      // the recurse function
 
       return history;
     }
-
-    /**
-     * Returns the splits.
-     *
-     * @param version the version
-     * @return the splits
-     */
-    public Map<String, Set<String>> getSplits(String version) {
-      // Calculate cases of bequeathals where there are multiple entries
-      // and they all share a version and have relType = RO
-      final Map<String, Set<String>> map = new HashMap<>();
-      for (final String cui : bequeathals.keySet()) {
-        final Set<ComponentHistory> set = bequeathals.get(cui);
-        // if any have a different version, skip
-        if (set.stream().filter(h -> !h.getVersion().equals(version))
-            .collect(Collectors.toList()).size() > 0) {
-          continue;
-        }
-        // if any have a non-RO relationship type, skip
-        if (set.stream().filter(h -> !h.getRelationshipType().equals("RO"))
-            .collect(Collectors.toList()).size() > 0) {
-          continue;
-        }
-
-        // Otherwise, add them to the result map
-        final Set<String> cui2s = new HashSet<>();
-        cui2s.addAll(set.stream().map(h -> h.getReferencedTerminologyId())
-            .collect(Collectors.toSet()));
-        map.put(cui, cui2s);
-      }
-      return map;
-    }
-
   }
+
 }
