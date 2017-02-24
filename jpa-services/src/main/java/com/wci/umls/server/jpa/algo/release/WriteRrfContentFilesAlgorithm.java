@@ -233,46 +233,10 @@ public class WriteRrfContentFilesAlgorithm
     // }
 
     // Parallelize output
-    final Thread[] threads = new Thread[2];
-    final Exception[] exceptions = new Exception[2];
+    final Thread[] threads = new Thread[1];
+    final Exception[] exceptions = new Exception[1];
 
     Thread t = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          for (final Long conceptId : conceptIds) {
-            final Concept c = getConcept(conceptId);
-            for (final String line : writeMrconso(c)) {
-              writerMap.get("MRCONSO.RRF").print(line);
-            }
-
-            for (final String line : writeMrdef(c)) {
-              writerMap.get("MRDEF.RRF").print(line);
-            }
-
-            for (final String line : writeMrsty(c)) {
-              writerMap.get("MRSTY.RRF").print(line);
-            }
-
-            for (final String line : writeMrrel(c)) {
-              writerMap.get("MRREL.RRF").print(line);
-            }
-
-            for (final String line : writeMrsat(c)) {
-              writerMap.get("MRSAT.RRF").print(line);
-            }
-            updateProgress();
-          }
-        } catch (Exception e) {
-          exceptions[0] = e;
-        }
-
-      }
-    });
-    threads[0] = t;
-    t.start();
-
-    t = new Thread(new Runnable() {
       @Override
       public void run() {
         ContentService service = null;
@@ -289,18 +253,43 @@ public class WriteRrfContentFilesAlgorithm
             }
           }
         } catch (Exception e) {
-          exceptions[1] = e;
+          exceptions[0] = e;
         } finally {
           try {
             service.close();
           } catch (Exception e) {
-            exceptions[1] = e;
+            exceptions[0] = e;
           }
         }
       }
     });
-    threads[1] = t;
+    threads[0] = t;
     t.start();
+
+    // Start writing other files
+    for (final Long conceptId : conceptIds) {
+      final Concept c = getConcept(conceptId);
+      for (final String line : writeMrconso(c)) {
+        writerMap.get("MRCONSO.RRF").print(line);
+      }
+
+      for (final String line : writeMrdef(c)) {
+        writerMap.get("MRDEF.RRF").print(line);
+      }
+
+      for (final String line : writeMrsty(c)) {
+        writerMap.get("MRSTY.RRF").print(line);
+      }
+
+      for (final String line : writeMrrel(c)) {
+        writerMap.get("MRREL.RRF").print(line);
+      }
+
+      for (final String line : writeMrsat(c)) {
+        writerMap.get("MRSAT.RRF").print(line);
+      }
+      updateProgress();
+    }
 
     // Wait for threads
     for (final Thread thread : threads) {
