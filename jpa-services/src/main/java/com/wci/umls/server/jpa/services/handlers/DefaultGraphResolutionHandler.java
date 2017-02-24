@@ -19,7 +19,6 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -62,8 +61,6 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
         resolveAttributes(member, nullId);
       }
 
-      concept.getLabels().size();
-
       // Attributes
       resolveAttributes(concept, nullId);
 
@@ -103,10 +100,12 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
 
       // Relationships
       // default behavior -- require paging of relationships
-      concept.setRelationships(new ArrayList<ConceptRelationship>(0));
+      concept.setRelationships(new ArrayList<>(0));
+      concept.setTreePositions(new ArrayList<>(0));
 
       // user annotations -- lazy initialize
       concept.getNotes().size();
+      concept.getLabels().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -182,6 +181,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
         resolve(rel);
       }
 
+      atom.setTreePositions(new ArrayList<>(0));
       atom.getNotes().size();
 
     } else if (atom == null) {
@@ -254,9 +254,11 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
       // Relationships
       // default behavior -- require paging of relationships
       descriptor.setRelationships(new ArrayList<DescriptorRelationship>(0));
+      descriptor.setTreePositions(new ArrayList<>(0));
 
       // user annotations -- lazy initialize
       descriptor.getNotes().size();
+      descriptor.getLabels().size();
 
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
@@ -284,9 +286,10 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
       // Relationships
       // default behavior -- require paging of relationships
       code.setRelationships(new ArrayList<CodeRelationship>(0));
-
+      code.setTreePositions(new ArrayList<>(0));
       // user annotations -- lazy initialize
       code.getNotes().size();
+      code.getLabels().size();
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");

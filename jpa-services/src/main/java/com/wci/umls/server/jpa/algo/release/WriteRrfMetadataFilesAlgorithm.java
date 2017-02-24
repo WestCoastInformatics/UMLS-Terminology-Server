@@ -218,7 +218,7 @@ public class WriteRrfMetadataFilesAlgorithm
       // Full Update 2014_09_02;Bethesda, MD;National Library of Medicine|
 
       // Get VCUI/RCUI first
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
       String vcui = "";
       String rcui = "";
       SearchResultList results = findConceptSearchResults(

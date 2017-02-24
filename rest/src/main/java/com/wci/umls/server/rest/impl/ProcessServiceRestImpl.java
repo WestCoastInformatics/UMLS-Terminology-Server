@@ -2081,9 +2081,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (Process): /" + processExecutionId + "/log?projectId="
-            + projectId + ", " + query + " for user " + authToken);
+//    Logger.getLogger(getClass()).info(
+//        "RESTful call (Process): /" + processExecutionId + "/log?projectId="
+//            + projectId + ", " + query + " for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2118,10 +2118,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful call (Process): /algo/" + algorithmExecutionId
-            + "/log?projectId=" + projectId + ", " + query + " for user "
-            + authToken);
+    // Logger.getLogger(getClass())
+    // .info("RESTful call (Process): /algo/" + algorithmExecutionId
+    // + "/log?projectId=" + projectId + ", " + query + " for user "
+    // + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");

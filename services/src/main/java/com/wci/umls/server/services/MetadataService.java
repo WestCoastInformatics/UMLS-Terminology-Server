@@ -106,6 +106,15 @@ public interface MetadataService extends ProjectService {
   public String getLatestVersion(String terminology) throws Exception;
 
   /**
+   * Returns the previous version.
+   *
+   * @param terminology the terminology
+   * @return the previous version
+   * @throws Exception the exception
+   */
+  public String getPreviousVersion(String terminology) throws Exception;
+
+  /**
    * Returns the terminology latest versions.
    * 
    * @return the terminology latest versions

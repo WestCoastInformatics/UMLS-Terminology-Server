@@ -9,6 +9,7 @@ import java.util.Map;
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
+import com.wci.umls.server.helpers.HasTreePositions;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
@@ -18,7 +19,8 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public interface Atom extends ComponentHasAttributesAndName,
     ComponentHasDefinitions, ComponentHasRelationships<AtomRelationship>,
-    HasAlternateTerminologyIds, HasMembers<AtomSubsetMember>, HasComponentHistory {
+    HasAlternateTerminologyIds, HasMembers<AtomSubsetMember>,
+    HasComponentHistory, HasTreePositions<AtomTreePosition> {
 
   /**
    * Returns the string class id.

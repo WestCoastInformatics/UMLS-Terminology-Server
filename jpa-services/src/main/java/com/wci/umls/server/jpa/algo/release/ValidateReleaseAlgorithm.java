@@ -1,26 +1,19 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
-
-import org.codehaus.plexus.util.FileUtils;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
-import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 
 /**
  * Algorithm to write the RRF index files.
@@ -29,11 +22,11 @@ public class ValidateReleaseAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
   /** The error flag. */
-  private boolean errorFlag = false;
-  
+  boolean errorFlag = false;
+
   /** Log bridge for collecting output */
   private PrintWriter logBridge = new PrintWriter(new StringWriter()) {
-    
+
     /* see superclass */
     @Override
     public void println(String line) {
@@ -95,17 +88,23 @@ public class ValidateReleaseAlgorithm
     final File path = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath());
     final File pathRelease = new File(path, getProcess().getVersion());
-    
-    final ReleaseInfo previousRelease = getPreviousReleaseInfo(getProcess().getTerminology());
+
+    final ReleaseInfo previousRelease =
+        getPreviousReleaseInfo(getProcess().getTerminology());
     final String binDir = ConfigUtility.getHomeDirs().get("bin");
     final String cmd = binDir + "/qa_checks.csh";
     final String meta = pathRelease.getPath() + "/META";
-    final String prevMeta = config.getProperty("source.data.dir") + "/mr/" + previousRelease.getVersion() + "/META";
-    final String[] targets = {"MRAUI","AMBIG","MRHIST","MRMAP","MRCONSO","MRCUI","MRHIER","MRDEF","MRFILESCOLS","MRRANK","MRREL","MRSAB","MRSAT","MRSTY","MRDOC","MRX"};
+    final String prevMeta = config.getProperty("source.data.dir") + "/mr/"
+        + previousRelease.getVersion() + "/META";
+    final String[] targets = {
+        "MRAUI", "AMBIG", "MRHIST", "MRMAP", "MRCONSO", "MRCUI", "MRHIER",
+        "MRDEF", "MRFILESCOLS", "MRRANK", "MRREL", "MRSAB", "MRSAT", "MRSTY",
+        "MRDOC", "MRX"
+    };
     for (final String target : targets) {
-        ConfigUtility.exec(new String[] {
-        cmd, meta, target, prevMeta
-        }, new String[]{}, false, binDir, logBridge, true);
+      ConfigUtility.exec(new String[] {
+          cmd, meta, target, prevMeta
+      }, new String[] {}, false, binDir, logBridge, true);
     }
     if (errorFlag) {
       throw new Exception("Unexpected qa error.");

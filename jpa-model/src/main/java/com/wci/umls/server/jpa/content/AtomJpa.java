@@ -38,6 +38,7 @@ import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
@@ -87,6 +88,10 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   /** The inverse relationships. */
   @OneToMany(mappedBy = "to", targetEntity = AtomRelationshipJpa.class)
   private List<AtomRelationship> inverseRelationships = null;
+
+  /** The tree positions. */
+  @OneToMany(mappedBy = "node", targetEntity = AtomTreePositionJpa.class)
+  private List<AtomTreePosition> treePositions = null;
 
   /** The component histories. */
   @OneToMany(targetEntity = ComponentHistoryJpa.class)
@@ -195,6 +200,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
     if (collectionCopy) {
       definitions = new ArrayList<>(atom.getDefinitions());
       relationships = new ArrayList<>(atom.getRelationships());
+      treePositions = new ArrayList<>(atom.getTreePositions());
       members = new ArrayList<>(atom.getMembers());
       componentHistories = new ArrayList<>(atom.getComponentHistory());
     }
@@ -243,6 +249,24 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   }
 
   /* see superclass */
+  @XmlElement(type = AtomTreePositionJpa.class)
+  @Override
+  public List<AtomTreePosition> getTreePositions() {
+    if (treePositions == null) {
+      treePositions = new ArrayList<>(1);
+    }
+    return treePositions;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTreePositions(List<AtomTreePosition> treePositions) {
+    this.treePositions = treePositions;
+  }
+
+  /*
+   * see superc /* see superclass
+   */
   @Override
   @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "conceptTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)

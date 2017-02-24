@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -26,10 +26,11 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     implements ComputePreferredNameHandler {
 
   /** The tty rank map. */
-  private Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
+  private static Map<Long, Map<String, String>> ttyRankMap = new HashMap<>();
 
   /** The terminology rank map. */
-  private Map<Long, Map<String, String>> terminologyRankMap = new HashMap<>();
+  private static Map<Long, Map<String, String>> terminologyRankMap =
+      new HashMap<>();
 
   /**
    * Instantiates an empty {@link RrfComputePreferredNameHandler}.
@@ -68,8 +69,8 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
 
   /* see superclass */
   @Override
-  public List<Atom> sortAtoms(Collection<Atom> atoms, PrecedenceList list)
-    throws Exception {
+  public List<Atom> sortAtoms(final Collection<Atom> atoms,
+    final PrecedenceList list) throws Exception {
 
     cacheList(list);
 
@@ -100,6 +101,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @return the rank
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public String getRank(final Atom atom, final PrecedenceList list)
     throws Exception {
 
@@ -144,8 +146,9 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @return the rank
    * @throws Exception the exception
    */
-  public <T extends Relationship<?, ?>> String getRank(T relationship,
-    PrecedenceList list) throws Exception {
+  @SuppressWarnings("static-method")
+  public <T extends Relationship<?, ?>> String getRank(final T relationship,
+    final PrecedenceList list) throws Exception {
     // Bail if no list specified or found
     if (list == null) {
       return "0000000000000000000";
@@ -164,7 +167,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
         terminologyRankMap.get(list.getId());
 
     // compute rank
-    String rank = ""
+    return ""
         + (relationship.getTerminology().equals(list.getTerminology()) ? 1 : 0)
         + (relationship.isPublishable() ? 1 : 0)
         + (relationship.isObsolete() ? 0 : 1)
@@ -172,7 +175,6 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
         + terminologyRanks.get(relationship.getTerminology())
         + (100000000000L - relationship.getId());
 
-    return rank;
   }
 
   /**
@@ -181,6 +183,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
    * @param list the list
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   public void cacheList(PrecedenceList list) throws Exception {
 
     // No list - simply return to try something new
@@ -193,11 +196,11 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
       return;
     }
     // Otherwise, build the TTY map
-    Map<String, String> ttyRanks = list.getTermTypeRankMap();
+    final Map<String, String> ttyRanks = list.getTermTypeRankMap();
     ttyRankMap.put(list.getId(), ttyRanks);
 
     // Otherwise, build the terminology map
-    Map<String, String> terminologyRanks = list.getTerminologyRankMap();
+    final Map<String, String> terminologyRanks = list.getTerminologyRankMap();
     terminologyRankMap.put(list.getId(), terminologyRanks);
 
   }

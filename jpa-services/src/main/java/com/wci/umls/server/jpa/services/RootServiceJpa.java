@@ -25,6 +25,7 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
 
@@ -61,14 +62,12 @@ import com.wci.umls.server.jpa.helpers.LogEntryJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
 import com.wci.umls.server.jpa.helpers.TypeKeyValueListJpa;
-import com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.model.actions.AtomicAction;
 import com.wci.umls.server.model.actions.AtomicActionList;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Component;
-import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.handlers.SearchHandler;
@@ -1678,8 +1677,7 @@ public abstract class RootServiceJpa implements RootService {
           query.substring(0, fromIndex).replaceAll("\\.id", "")
               + query.substring(fromIndex);
 
-      javax.persistence.Query jpaTestQuery =
-          getEntityManager().createQuery(testQuery);
+      Query jpaTestQuery = getEntityManager().createQuery(testQuery);
       jpaTestQuery.setMaxResults(1);
 
       // Handle special query key-words
@@ -2109,17 +2107,18 @@ public abstract class RootServiceJpa implements RootService {
       }
 
       // Perform search
-      final List<ConceptJpa> concepts =
-          new DefaultSearchHandler().getQueryResults(params.get("terminology"),
-              params.get("version"), Branch.ROOT, null, null, ConceptJpa.class,
-              pfs, new int[1], manager);
+      final List<Long> ids =
+          this.getSearchHandler(ConfigUtility.DEFAULT).getIdResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
 
       // Cluster results
       final List<Long[]> results = new ArrayList<>();
-      for (final Concept concept : concepts) {
-        final Long[] result = new Long[2];
-        result[0] = concept.getId();
-        result[1] = concept.getId();
+      for (final Long id : ids) {
+        final Long[] result = new Long[] {
+            id, id
+        };
+
         results.add(result);
       }
       return results;

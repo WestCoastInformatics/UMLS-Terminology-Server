@@ -193,6 +193,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
         if (!ConfigUtility.isEmpty(fields[14])) {
           newAtom.getConceptTerminologyIds().put(getProject().getTerminology(),
               fields[14]);
+          newAtom.getConceptTerminologyIds().put(
+              getProcess().getTerminology() + getProcess().getVersion(),
+              fields[14]);
         }
 
         // Add string and lexical classes to get assign their Ids to the Atom
@@ -214,7 +217,32 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         // If no atom with the same AUI exists, add this new Atom and a concept
         // to put it into.
-        if (oldAtom == null) {
+        // EXCEPTION: if atom exists, and last_release_cui is specified and is
+        // different than existing atom's last release CUI for the previous
+        // terminology's version, also make new atom instead of reusing.
+        boolean makeNewAtom = false;
+        if (oldAtom != null && !ConfigUtility.isEmpty(fields[14])) {
+          final String previousVersion =
+              getPreviousVersion(getProcess().getTerminology());
+          if (previousVersion == null) {
+            logWarn("WARNING - previous version not found for terminology = "
+                + getProcess().getTerminology());
+          } else {
+            final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
+                .get(getProcess().getTerminology() + previousVersion);
+            // All existing atoms should have a last_release_cui. If not found,
+            // warn.
+            if (oldLastReleaseCui == null) {
+              logWarn("WARNING - last release cui not found for atom "
+                  + newAtomAui + " for terminology/version = "
+                  + getProcess().getTerminology() + previousVersion);
+            } else if (!oldLastReleaseCui.equals(fields[14])) {
+              makeNewAtom = true;
+            }
+          }
+        }
+
+        if (oldAtom == null || makeNewAtom) {
           newAtom.getAlternateTerminologyIds()
               .put(getProject().getTerminology(), newAtomAui);
           final Atom newAtom2 = addAtom(newAtom);
@@ -263,16 +291,25 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           // Update conceptTerminologyIds
           final Map<String, String> altConceptIds =
               oldAtom.getConceptTerminologyIds();
-          if (!ConfigUtility.isEmpty(fields[14])
-              && (altConceptIds.get(getProject().getTerminology()) == null
-                  || !altConceptIds.get(getProject().getTerminology())
-                      .equals(fields[14]))) {
-            // save atom's previous release CUI (will handle later)
-            atomPrevCuis.put(oldAtom.getId(),
-                altConceptIds.get(getProject().getTerminology()));
-            oldAtom.getConceptTerminologyIds()
-                .put(getProject().getTerminology(), fields[14]);
+          if (!ConfigUtility.isEmpty(fields[14])) {
+
+            // Set previous release CUI for process terminology/version
+            oldAtom.getConceptTerminologyIds().put(
+                getProcess().getTerminology() + getProcess().getVersion(),
+                fields[14]);
             oldAtomChanged = true;
+
+            // Also update previous release CUI for project terminology, if
+            // needed
+            if (altConceptIds.get(getProject().getTerminology()) == null
+                || !altConceptIds.get(getProject().getTerminology())
+                    .equals(fields[14])) {
+              // save atom's previous release CUI (will handle later)
+              atomPrevCuis.put(oldAtom.getId(),
+                  altConceptIds.get(getProject().getTerminology()));
+              oldAtom.getConceptTerminologyIds()
+                  .put(getProject().getTerminology(), fields[14]);
+            }
           }
 
           // Update the version
@@ -332,7 +369,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             "atoms.conceptTerminologyIds:\"" + getProject().getTerminology()
                 + "=" + prevRelCui + "\"",
             QueryType.LUCENE, getDefaultQueryParams(getProject()),
-            ConceptJpa.class,false);
+            ConceptJpa.class, false);
 
         // If any atom has this CUI, no need to make a placeholder
         if (atomIds.size() > 0) {
