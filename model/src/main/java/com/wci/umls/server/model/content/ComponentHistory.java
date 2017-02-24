@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
@@ -9,18 +9,18 @@ package com.wci.umls.server.model.content;
 public interface ComponentHistory extends Component {
 
   /**
-   * Gets the referenced concept.
+   * Returns the referenced terminology id.
    *
-   * @return the referenced concept
+   * @return the referenced terminology id
    */
-  public Concept getReferencedConcept();
+  public String getReferencedTerminologyId();
 
   /**
-   * Sets the referenced concept.
+   * Sets the referenced terminology id.
    *
-   * @param referencedConcept the new referenced concept
+   * @param referencedTerminologyId the referenced terminology id
    */
-  public void setReferencedConcept(Concept referencedConcept);
+  public void setReferencedTerminologyId(String referencedTerminologyId);
 
   /**
    * Gets the reason.

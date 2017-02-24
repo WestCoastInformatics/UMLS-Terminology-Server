@@ -219,8 +219,7 @@ public class ReloadConceptHistoryAlgorithm
           else if (cui1History.getAssociatedRelease().equals(fields[1])
               && cui1History.getRelationshipType().equals(fields[2])
               && cui1History.getAdditionalRelationshipType().equals(fields[3])
-              && cui1History.getReferencedConcept().getTerminologyId()
-                  .equals(fields[5])) {
+              && cui1History.getReferencedTerminologyId().equals(fields[5])) {
             cui1Histories.remove(cui1History);
             cuiHistoryLines.get(cui1).remove(MRCUIline);
             break;
@@ -258,7 +257,7 @@ public class ReloadConceptHistoryAlgorithm
           if (concept2 == null) {
             throw new Exception("Unexpected dead CUIs " + fields[5]);
           }
-          history.setReferencedConcept(concept2);
+          history.setReferencedTerminologyId(concept2.getTerminologyId());
         }
         history.setRelationshipType(fields[2]);
         history.setAdditionalRelationshipType(fields[3]);
