@@ -2846,6 +2846,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Set<String> lowerNameHashes = concept.getAtoms().stream()
           .map(a -> a.getLowerNameHash()).collect(Collectors.toSet());
 
+      if (lowerNameHashes.isEmpty()) {
+        return new ArrayList<>();
+      }
+
       // Find lower name hashes that are ambiguous (e.g. in other concepts)
       final javax.persistence.Query query = manager.createQuery(
           "select distinct a.lowerNameHash, a.stringClassId from ConceptJpa c join c.atoms a "
@@ -3601,6 +3605,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Set<Long> atomIds = new HashSet<>();
       for (final Atom atom : concept.getAtoms()) {
         atomIds.add(atom.getId());
+      }
+      // If the concept has no atom ids, just put a bogus one so the query works
+      if (atomIds.isEmpty()) {
+        atomIds.add(-1L);
       }
       query.setParameter("atomIds", atomIds);
       results.addAll(query.getResultList());
@@ -4707,6 +4715,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
     // Check for atom tree positions
     final List<String> clauses = concept.getAtoms().stream()
         .map(a -> "nodeId:" + a.getId()).collect(Collectors.toList());
+    if (clauses.isEmpty()) {
+      return new TreePositionListJpa();
+    }
     final TreePositionList atomTrees = findTreePositions(null, null, null,
         Branch.ROOT, ConfigUtility.composeQuery("OR", clauses),
         AtomTreePositionJpa.class, null);

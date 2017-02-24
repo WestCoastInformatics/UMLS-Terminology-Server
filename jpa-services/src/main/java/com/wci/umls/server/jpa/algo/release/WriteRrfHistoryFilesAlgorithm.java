@@ -71,18 +71,22 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
-    setSteps(5);
+    setSteps(6);
     openWriters();
 
+    logInfo("  Write MRAUI.RRF");
     writeMraui();
     updateProgress();
 
+    logInfo("  Write MRCUI.RRF");
     writeMrcui();
     updateProgress();
 
+    logInfo("  Write NCI code file");
     writeNciCodeCuiMap();
     updateProgress();
 
+    logInfo("  Write NCIMETA history file");
     writeHistory();
     updateProgress();
 
