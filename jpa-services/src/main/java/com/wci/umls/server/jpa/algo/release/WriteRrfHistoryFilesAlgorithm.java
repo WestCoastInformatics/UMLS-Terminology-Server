@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
@@ -75,6 +77,30 @@ public class WriteRrfHistoryFilesAlgorithm
 
     closeWriters();
 
+    // sort files
+    final File changeDir = new File(dir, "CHANGE");
+    for (final String writerName : writerMap.keySet()) {
+      File fdir = changeDir;
+      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
+        fdir = dir;
+      }
+      final File inputFile = new File(fdir, writerName);
+      final File outputFile = new File(fdir, writerName + ".sorted");
+      FileSorter.sortFile(inputFile.getAbsolutePath(),
+          outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
+    }
+
+    // move sorted files into orig files
+    for (final String writerName : writerMap.keySet()) {
+      File fdir = changeDir;
+      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
+        fdir = dir;
+      }
+      final File inputFile = new File(fdir, writerName);
+      final File outputFile = new File(fdir, writerName + ".sorted");
+      inputFile.delete();
+      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
+    }
     fireProgressEvent(100, "Finished");
     logInfo("Finished " + getName());
   }
@@ -121,8 +147,8 @@ public class WriteRrfHistoryFilesAlgorithm
     queryStr = "select distinct value(cid), c.terminologyId  "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true " + "and a.publishable = true "
-        + "and key(cid) = :terminology " + "and value(cid) != c.terminologyId";
+        + "and c.publishable = true and a.publishable = true "
+        + "and key(cid) = :terminology";
     query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
@@ -130,6 +156,9 @@ public class WriteRrfHistoryFilesAlgorithm
     for (final Object[] objArray : results) {
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
+      if (lastReleaseCui.equals(cui)) {
+        continue;
+      }
       if (!atomsMoved.containsKey(lastReleaseCui)) {
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
@@ -149,13 +178,18 @@ public class WriteRrfHistoryFilesAlgorithm
         // save these CUI1->CUI2 pairs for later.
         syCui1Cui2Pairs.put(lastReleaseCui, cui2);
         final StringBuilder sb = new StringBuilder();
-        sb.append(lastReleaseCui).append("|"); // 0 CUI1
-        sb.append(getProcess().getVersion()).append("|"); // 1 VER
-        sb.append("SY").append("|"); // 2 REL
-        sb.append("|"); // 3 RELA
-        sb.append("|"); // 4 MAPREASON
-        sb.append(cui2).append("|"); // 5 CUI2
-        sb.append("Y").append("|"); // 6 MAPIN
+        // 0 CUI1
+        sb.append(lastReleaseCui).append("|");
+        // 1 VER
+        sb.append(getProcess().getVersion()).append("|");
+        // 2 REL
+        sb.append("SY").append("|");
+        // 3 RELA, 4 MAPREASON
+        sb.append("||");
+        // 5 CUI2
+        sb.append(cui2).append("|");
+        // 6 MAPIN
+        sb.append("Y").append("|");
         sb.append("\n");
 
         writerMap.get("MRCUI.RRF").print(sb.toString());
@@ -175,21 +209,31 @@ public class WriteRrfHistoryFilesAlgorithm
         // write RO rows for both "value" CUIs.
         final List<String> values = new ArrayList<>(entry.getValue());
         final StringBuilder sb = new StringBuilder();
-        sb.append(lastReleaseCui).append("|"); // 0 CUI1
-        sb.append(getProcess().getVersion()).append("|"); // 1 VER
-        sb.append("RO").append("|"); // 2 REL
-        sb.append("|"); // 3 RELA
-        sb.append("|"); // 4 MAPREASON
-        sb.append(values.get(0)).append("|"); // 5 CUI2
-        sb.append("Y").append("|"); // 6 MAPIN
+        // 0 CUI1
+        sb.append(lastReleaseCui).append("|");
+        // 1 VER
+        sb.append(getProcess().getVersion()).append("|");
+        // 2 REL
+        sb.append("RO").append("|");
+        // 3 RELA, 4 MAPREASON
+        sb.append("||");
+        // 5 CUI2
+        sb.append(values.get(0)).append("|");
+        // 6 MAPIN
+        sb.append("Y").append("|");
         sb.append("\n");
-        sb.append(lastReleaseCui).append("|"); // 0 CUI1
-        sb.append(getProcess().getVersion()).append("|"); // 1 VER
-        sb.append("RO").append("|"); // 2 REL
-        sb.append("|"); // 3 RELA
-        sb.append("|"); // 4 MAPREASON
-        sb.append(values.get(1)).append("|"); // 5 CUI2
-        sb.append("Y").append("|"); // 6 MAPIN
+        // 0 CUI1
+        sb.append(lastReleaseCui).append("|");
+        // 1 VER
+        sb.append(getProcess().getVersion()).append("|");
+        // 2 REL
+        sb.append("RO").append("|");
+        // 3 RELA, 4 MAPREASON
+        sb.append("||");
+        // 5 CUI2
+        sb.append(values.get(1)).append("|");
+        // 6 MAPIN
+        sb.append("Y").append("|");
         sb.append("\n");
         writerMap.get("MRCUI.RRF").print(sb.toString());
       }
@@ -214,7 +258,7 @@ public class WriteRrfHistoryFilesAlgorithm
         continue;
       }
 
-      // IF does not have a component history (e.g. newly dead)
+      // If does not have a component history (e.g. newly dead)
       if (c.getComponentHistory() == null
           || c.getComponentHistory().isEmpty()) {
         // If no bequeathal rel, -> write out a "DEL" entry to MRCUI
@@ -256,17 +300,18 @@ public class WriteRrfHistoryFilesAlgorithm
       // component.getComponentHistory().size()>0) - i.e. this is a "historical"
       // concept.
       else if (c.getComponentHistory().size() > 0) {
-        for (ComponentHistory history : c.getComponentHistory()) {
+        for (final ComponentHistory history : c.getComponentHistory()) {
           // if DEL -> write out component history as is.
           if (history.getRelationshipType().equals("DEL")) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(history.getLastModifiedBy()).append("|"); // CUI1
-            sb.append(history.getVersion()).append("|"); // 1 VER
-            sb.append("DEL").append("|"); // 2 REL
-            sb.append("|");// 3 RELA
-            sb.append("|"); // 4 MAPREASON
-            sb.append("|"); // 5 CUI2
-            sb.append("|"); // 6 MAPIN
+            final StringBuilder sb = new StringBuilder();
+            // CUI1
+            sb.append(c.getTerminologyId()).append("|");
+            // 1 VER
+            sb.append(history.getVersion()).append("|");
+            // 2 REL
+            sb.append("DEL").append("|");
+            // 3 RELA, 4 MAPREASON, 5 CUI2, 6 MAPIN
+            sb.append("||||");
             sb.append("\n");
             writerMap.get("MRCUI.RRF").print(sb.toString());
           }
@@ -276,16 +321,22 @@ public class WriteRrfHistoryFilesAlgorithm
 
             // if "referenced concept" is publishable, write it out as is
             if (history.getReferencedConcept().isPublishable()) {
-              StringBuilder sb = new StringBuilder();
-              sb.append(history.getLastModifiedBy()).append("|"); // CUI1
-              sb.append(history.getVersion()).append("|"); // 1 VER
-              sb.append(history.getRelationshipType()).append("|"); // 2 REL
-              sb.append(history.getAdditionalRelationshipType()).append("|");// 3
-                                                                             // RELA
-              sb.append(history.getReason()).append("|"); // 4 MAPREASON
+              final StringBuilder sb = new StringBuilder();
+              // CUI1
+              sb.append(c.getTerminologyId()).append("|");
+              // 1 VER
+              sb.append(history.getVersion()).append("|");
+              // 2 REL
+              sb.append(history.getRelationshipType()).append("|");
+              // 3 RELA
+              sb.append(history.getAdditionalRelationshipType()).append("|");
+              // 4 MAPREASON
+              sb.append(history.getReason()).append("|");
+              // 5 CUI2
               sb.append(history.getReferencedConcept().getTerminologyId())
-                  .append("|"); // 5 CUI2
-              sb.append("Y").append("|"); // 6 MAPIN
+                  .append("|");
+              // 6 MAPIN
+              sb.append("Y").append("|");
               sb.append("\n");
               writerMap.get("MRCUI.RRF").print(sb.toString());
             }
@@ -298,27 +349,34 @@ public class WriteRrfHistoryFilesAlgorithm
               if (syCui1Cui2Pairs.containsKey(
                   history.getReferencedConcept().getTerminologyId())) {
                 StringBuilder sb = new StringBuilder();
-                sb.append(history.getLastModifiedBy()).append("|"); // CUI1
-                sb.append(history.getVersion()).append("|"); // 1 VER
-                sb.append(history.getRelationshipType()).append("|"); // 2 REL
-                sb.append(history.getAdditionalRelationshipType()).append("|");// 3
-                                                                               // RELA
-                sb.append(history.getReason()).append("|"); // 4 MAPREASON
+                // CUI1
+                sb.append(history.getLastModifiedBy()).append("|");
+                // 1 VER
+                sb.append(history.getVersion()).append("|");
+                // 2 REL
+                sb.append(history.getRelationshipType()).append("|");
+                // 3 RELA
+                sb.append(history.getAdditionalRelationshipType()).append("|");
+                // 4 MAPREASON
+                sb.append(history.getReason()).append("|");
+                // 5 CUI2
                 sb.append(syCui1Cui2Pairs
                     .get(history.getReferencedConcept().getTerminologyId()))
-                    .append("|"); // 5 CUI2
-                sb.append("|"); // 6 MAPIN
+                    .append("|");
+                // 6 MAPIN
+                sb.append("|");
                 sb.append("\n");
                 writerMap.get("MRCUI.RRF").print(sb.toString());
               } else {
                 StringBuilder sb = new StringBuilder();
-                sb.append(history.getLastModifiedBy()).append("|"); // CUI1
-                sb.append(history.getVersion()).append("|"); // 1 VER
-                sb.append("DEL").append("|"); // 2 REL
-                sb.append("|");// 3 RELA
-                sb.append("|"); // 4 MAPREASON
-                sb.append("|"); // 5 CUI2
-                sb.append("|"); // 6 MAPIN
+                // CUI1
+                sb.append(history.getLastModifiedBy()).append("|");
+                // 1 VER
+                sb.append(history.getVersion()).append("|");
+                // 2 REL
+                sb.append("DEL").append("|");
+                // 3 RELA, 4 MAPREASON, 5 CUI2, 6 MAPIN
+                sb.append("||||");
                 sb.append("\n");
                 writerMap.get("MRCUI.RRF").print(sb.toString());
               }
@@ -335,23 +393,6 @@ public class WriteRrfHistoryFilesAlgorithm
     }
 
     updateProgress();
-
-    // sort files
-    for (String writerName : writerMap.keySet()) {
-      File inputFile = new File(dir, writerName);
-      File outputFile = new File(dir, writerName + ".sorted");
-      FileSorter.sortFile(inputFile.getAbsolutePath(),
-          outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
-    }
-
-    // move sorted files into orig files
-    for (String writerName : writerMap.keySet()) {
-
-      File inputFile = new File(dir, writerName);
-      File outputFile = new File(dir, writerName + ".sorted");
-      inputFile.delete();
-      Files.move(outputFile.getAbsoluteFile(), inputFile.getAbsoluteFile());
-    }
 
   }
 
@@ -405,29 +446,31 @@ public class WriteRrfHistoryFilesAlgorithm
     // C0747256 = concept.getTerminologyId() for the concept containing this
     // atom. CUI2
     // Algorithm
-    // Find all atoms where the lastReleaseCui != current CUi, write an entry.
 
     final List<Object[]> results = new ArrayList<>();
 
+    // Find all atoms where the lastReleaseCui != current CUI, write an entry.
     String queryStr = null;
-    queryStr = "select value(aid), value(cid), c.terminologyId  "
+    queryStr = "select value(aid), value(cid) , c.terminologyId "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "join a.alternateTerminologyIds aid "
         + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true " + "and a.publishable = true "
-        + "and key(aid) = :terminology " + "and key(cid) = :terminology "
-        + "and value(cid) != c.terminologyId";
-    final javax.persistence.Query query = manager.createQuery(queryStr);
+        + "and c.publishable = true and a.publishable = true "
+        + "and key(aid) = :terminology and key(cid) = :terminology ";
+    final Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     results.addAll(query.getResultList());
-    for (Object[] objArray : results) {
-      String aui = objArray[0].toString();
-      String lastReleaseCui = objArray[1].toString();
-      String cui = objArray[2].toString();
+    for (final Object[] objArray : results) {
+      final String aui = objArray[0].toString();
+      final String lastReleaseCui = objArray[1].toString();
+      final String cui = objArray[2].toString();
+      if (lastReleaseCui.equals(cui)) {
+        continue;
+      }
 
       // Write an entry for each row.
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
       sb.append(aui).append("|");
       sb.append(lastReleaseCui).append("|");
       sb.append(getProcess().getVersion()).append("|");
@@ -459,15 +502,15 @@ public class WriteRrfHistoryFilesAlgorithm
         new PrintWriter(new FileWriter(new File(dir, "MRAUI.RRF"))));
     writerMap.put("MRCUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCUI.RRF"))));
-    writerMap.put("MRCUI.RRF",
+    writerMap.put("DELETEDCUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDCUI.RRF"))));
-    writerMap.put("MRCUI.RRF",
+    writerMap.put("DELETEDLUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDLUI.RRF"))));
-    writerMap.put("MRCUI.RRF",
+    writerMap.put("DELETEDSUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDSUI.RRF"))));
-    writerMap.put("MRCUI.RRF",
+    writerMap.put("MERGEDCUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "MERGEDCUI.RRF"))));
-    writerMap.put("MRCUI.RRF",
+    writerMap.put("MERGEDSUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "MERGEDSUI.RRF"))));
   }
 

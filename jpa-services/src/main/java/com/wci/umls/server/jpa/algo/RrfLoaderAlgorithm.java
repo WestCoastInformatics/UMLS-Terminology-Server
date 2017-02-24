@@ -1798,7 +1798,7 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       history.setPublishable(true);
       history.setTerminology(getTerminology());
       history.setTerminologyId(fields[0]);
-      history.setVersion(getVersion());
+      history.setVersion(fields[1]);
 
       if (!fields[5].isEmpty()) {
         final Long conceptId = conceptIdMap.get(getTerminology() + fields[5]);

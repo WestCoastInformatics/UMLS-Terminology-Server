@@ -193,7 +193,6 @@ public class WriteRrfContentFilesAlgorithm
 
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);
-      logInfo("CUI = " + c.getTerminologyId());
       for (final String line : writeMrconso(c)) {
         writerMap.get("MRCONSO.RRF").print(line);
       }
