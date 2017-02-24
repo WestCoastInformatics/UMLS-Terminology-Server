@@ -6,7 +6,10 @@ package com.wci.umls.server.jpa.algo.release;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
@@ -28,6 +32,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.Atom;
@@ -102,6 +107,9 @@ public class WriteRrfHistoryFilesAlgorithm
       }
       final File inputFile = new File(fdir, writerName);
       final File outputFile = new File(fdir, writerName + ".sorted");
+      if (outputFile.exists()) {
+        outputFile.delete();
+      }
       FileUtils.removePath(outputFile.getPath());
       FileSorter.sortFile(inputFile.getAbsolutePath(),
           outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
@@ -338,7 +346,10 @@ public class WriteRrfHistoryFilesAlgorithm
               || history.getRelationshipType().startsWith("R")) {
 
             // if "referenced concept" is publishable, write it out as is
-            if (history.getReferencedConcept().isPublishable()) {
+            final Concept concept = getConcept(
+                history.getReferencedTerminologyId(), history.getTerminology(),
+                history.getVersion(), Branch.ROOT);
+            if (concept != null && concept.isPublishable()) {
               final StringBuilder sb = new StringBuilder();
               // CUI1
               sb.append(c.getTerminologyId()).append("|");
@@ -351,8 +362,7 @@ public class WriteRrfHistoryFilesAlgorithm
               // 4 MAPREASON
               sb.append(history.getReason()).append("|");
               // 5 CUI2
-              sb.append(history.getReferencedConcept().getTerminologyId())
-                  .append("|");
+              sb.append(history.getReferencedTerminologyId()).append("|");
               // 6 MAPIN
               sb.append("Y").append("|");
               sb.append("\n");
@@ -364,8 +374,8 @@ public class WriteRrfHistoryFilesAlgorithm
               // If so, change the referencedConcept to point to the CUI2
               // concept.
               // TODO: (later) deal with CUI2 bequeathed case
-              if (syCui1Cui2Pairs.containsKey(
-                  history.getReferencedConcept().getTerminologyId())) {
+              if (syCui1Cui2Pairs
+                  .containsKey(history.getReferencedTerminologyId())) {
                 StringBuilder sb = new StringBuilder();
                 // CUI1
                 sb.append(c.getTerminologyId()).append("|");
@@ -378,8 +388,8 @@ public class WriteRrfHistoryFilesAlgorithm
                 // 4 MAPREASON
                 sb.append(history.getReason()).append("|");
                 // 5 CUI2
-                sb.append(syCui1Cui2Pairs
-                    .get(history.getReferencedConcept().getTerminologyId()))
+                sb.append(
+                    syCui1Cui2Pairs.get(history.getReferencedTerminologyId()))
                     .append("|");
                 // 6 MAPIN
                 sb.append("|");
@@ -636,12 +646,14 @@ public class WriteRrfHistoryFilesAlgorithm
       }
       atomsMoved.get(lastReleaseCui).add(cui);
     }
+
+
     // Determine "split" cases - all keys from atomsMoved where the value is
     // size()>1 and the key is not in current cuis.
     // write RO rows for both "value" CUIs.
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
-    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {      
       final String lastReleaseCui = entry.getKey();
       final Concept lastReleaseConcept =
           getConcept(lastReleaseCui, getProcess().getTerminology(),
@@ -654,7 +666,7 @@ public class WriteRrfHistoryFilesAlgorithm
         final StringBuilder sb = new StringBuilder();
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
-        sb.append("").append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
         Concept concept =
             getConcept(values.get(0), getProcess().getTerminology(),
@@ -664,7 +676,7 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append("\n");
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(getProcess().getVersion()).append("|"); // 1 NAME
-        sb.append("").append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
         concept = getConcept(values.get(1), getProcess().getTerminology(),
             getProcess().getVersion(), Branch.ROOT);
@@ -766,5 +778,179 @@ public class WriteRrfHistoryFilesAlgorithm
   @Override
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
+  }
+  
+  private String convertDate(String inputDate) {
+    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd"); 
+    Date date;
+    try {
+      date = dt.parse(inputDate);
+      SimpleDateFormat dt1 = new SimpleDateFormat("dd-MMM-yyyy");
+      return dt1.format(date);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    } 
+    return "";
+  }
+
+  /**
+   * Local class for managing concept history.
+   */
+  class ConceptHistory {
+
+    /** The deleted cuis. */
+    private Set<ComponentHistory> deleted = new HashSet<>();
+
+    /** The bequeathals. */
+    private Map<String, Set<ComponentHistory>> bequeathals = new HashMap<>();
+
+    /** The splits. */
+    // private Map<String, Set<ComponentHistory>> splits = new HashMap<>();
+
+    /** The merges. */
+    private Map<String, ComponentHistory> merges = new HashMap<>();
+
+    /**
+     * Adds the deleted.
+     *
+     * @param cui the cui
+     * @param version the version
+     */
+    public void addDeleted(String cui, String version) {
+      final ComponentHistory history = new ComponentHistoryJpa();
+      history.setTerminologyId(cui);
+      history.setVersion(version);
+      deleted.add(history);
+    }
+
+    /**
+     * Adds the bequeathal.
+     *
+     * @param cui the cui
+     * @param version the version
+     * @param rel the rel
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
+    public void addBequeathal(String cui, String version, String rel,
+      String cui2) throws Exception {
+      if (!bequeathals.containsKey(cui)) {
+        bequeathals.put(cui, new HashSet<ComponentHistory>());
+      }
+
+      // If there is already a matching concept
+      if (bequeathals.get(cui).stream()
+          .filter(h -> h.getReferencedTerminologyId().equals(cui2))
+          .collect(Collectors.toList()).size() > 0) {
+        throw new Exception("There is already a bequeathal rel between " + cui
+            + " and " + cui2);
+      }
+      final ComponentHistory history = new ComponentHistoryJpa();
+      history.setTerminologyId(cui);
+      history.setVersion(version);
+      history.setRelationshipType(rel);
+      history.setReferencedTerminologyId(cui2);
+      bequeathals.get(cui).add(history);
+    }
+
+    /**
+     * Adds the split.
+     *
+     * @param cui the cui
+     * @param version the version
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
+    public void addSplit(String cui, String version, Set<String> cui2)
+      throws Exception {
+      // TBD, splits not explicitly tracked
+      // They are represented as double-RO bequeathal relationships
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Adds the merge.
+     *
+     * @param cui the cui
+     * @param version the version
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
+    public void addMerge(String cui, String version, String cui2)
+      throws Exception {
+      if (merges.containsKey(cui)) {
+        throw new Exception(
+            "There is already a merge between " + cui + " and " + cui2);
+      }
+      final ComponentHistory history = new ComponentHistoryJpa();
+      merges.put(cui, history);
+    }
+
+    /**
+     * Recurse entries.
+     *
+     * @param history the history
+     * @return the list
+     */
+    public List<ComponentHistory> recurseEntries(ComponentHistory history) {
+      // used when referencedTerminologyId is not publishable,
+      // Look up and generate commensurate "current" history records
+
+      // If CUI2 is DEL, convert to DEL, return 1 row
+
+      // If CUI2 is SY, update CUI2, return 1 row
+
+      // If CUI1 is SY and CUI2 has bequeathal rels, return one updated row for
+      // each rel, update to R.
+
+      // If CUI1 is R. and CUI2 has bequeathal rels, return one updated row for
+      // each rel, update to RO if rels don't match, otherwise use R.
+
+      // if CUI2 is not present, throw an exception
+      return null;
+    }
+
+    public List<ComponentHistory> computeHistory() {
+      final List<ComponentHistory> history = new ArrayList<>();
+
+      // Verify that terminologyIds are "not publishable"
+      // Verify that referencedTerminologyIds are "publishable"
+      // - if not, map to a "current" thing, othrewe
+
+      return history;
+    }
+
+    /**
+     * Returns the splits.
+     *
+     * @param version the version
+     * @return the splits
+     */
+    public Map<String, Set<String>> getSplits(String version) {
+      // Calculate cases of bequeathals where there are multiple entries
+      // and they all share a version and have relType = RO
+      final Map<String, Set<String>> map = new HashMap<>();
+      for (final String cui : bequeathals.keySet()) {
+        final Set<ComponentHistory> set = bequeathals.get(cui);
+        // if any have a different version, skip
+        if (set.stream().filter(h -> !h.getVersion().equals(version))
+            .collect(Collectors.toList()).size() > 0) {
+          continue;
+        }
+        // if any have a non-RO relationship type, skip
+        if (set.stream().filter(h -> !h.getRelationshipType().equals("RO"))
+            .collect(Collectors.toList()).size() > 0) {
+          continue;
+        }
+
+        // Otherwise, add them to the result map
+        final Set<String> cui2s = new HashSet<>();
+        cui2s.addAll(set.stream().map(h -> h.getReferencedTerminologyId())
+            .collect(Collectors.toSet()));
+        map.put(cui, cui2s);
+      }
+      return map;
+    }
+
   }
 }
