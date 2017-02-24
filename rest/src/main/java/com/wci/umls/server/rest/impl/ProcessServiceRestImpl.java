@@ -2273,16 +2273,18 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       try {
         componentIdArrays.addAll(processService.executeComponentIdPairQuery(
-            query, QueryType.valueOf(queryTypeName), params, clazz, false));
+            query, QueryType.valueOf(queryTypeName), params, clazz, true));
       } catch (Exception e) {
+        e.printStackTrace();
         exceptionCount++;
       }
       // Only run single component query if the pairQuery returned an exception
       if (exceptionCount == 1) {
         try {
           componentIds.addAll(processService.executeSingleComponentIdQuery(
-              query, QueryType.valueOf(queryTypeName), params, clazz, false));
+              query, QueryType.valueOf(queryTypeName), params, clazz, true));
         } catch (Exception e) {
+          e.printStackTrace();
           exceptionCount++;
         }
       }

@@ -25,7 +25,6 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
 
@@ -1644,14 +1643,16 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    if (!query.toUpperCase().matches("SELECT.*ID.*,.*ID.*FROM.*")) {
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.*ID.*,.*ID.*FROM.*")) {
       throw new LocalException("Query must be constructed to return two ids");
     }
 
     // if a SQL query, ensure the result ids have been aliased
     // Otherwise it will throw a Hibernate NonUniqueDiscoveredSqlAliasException
-    if (queryType == QueryType.SQL && !query.toUpperCase()
-        .matches("SELECT.*ID[ ]+[^ ]+.*,.*ID[ ]+[^ ]+.*FROM.*")) {
+    if (queryType == QueryType.SQL
+        && !query.toUpperCase().replaceAll("[\\n\\r]", "")
+            .matches("SELECT.*ID[ ]+[^ ]+.*,.*ID[ ]+[^ ]+.*FROM.*")) {
       throw new LocalException("Query must be constructed to return two ids");
     }
 
@@ -1668,46 +1669,8 @@ public abstract class RootServiceJpa implements RootService {
       }
     }
 
-    // For JQL, make a testQuery, removing all instances of .id before "FROM",
-    // so it returns the object, and confirm that object matches the passed-in
-    // class
-    if (queryType == QueryType.JQL) {
-      final int fromIndex = query.toUpperCase().indexOf("FROM");
-      final String testQuery =
-          query.substring(0, fromIndex).replaceAll("\\.id", "")
-              + query.substring(fromIndex);
-
-      Query jpaTestQuery = getEntityManager().createQuery(testQuery);
-      jpaTestQuery.setMaxResults(1);
-
-      // Handle special query key-words
-      if (params != null) {
-        for (final String key : params.keySet()) {
-          if (testQuery.contains(":" + key)) {
-            jpaTestQuery.setParameter(key, params.get(key));
-          }
-        }
-      }
-
-      // check the test query to ensure its returned objects are of the
-      // specified
-      // return class type
-      final List<Object[]> testList = jpaTestQuery.getResultList();
-      if (!testList.isEmpty() && testList.get(0) != null) {
-        final Object returnedObject = testList.get(0)[0];
-        if (returnedObject != null && !(clazz.isInstance(returnedObject))) {
-          throw new LocalException(
-              "Query must be constructed to return ids for specified object type: "
-                  + clazz.getSimpleName());
-        }
-        final Object returnedObject2 = testList.get(0)[1];
-        if (returnedObject2 != null && !(clazz.isInstance(returnedObject2))) {
-          throw new LocalException(
-              "Query must be constructed to return ids for specified object type: "
-                  + clazz.getSimpleName());
-        }
-      }
-    }
+    // Note: return object type-checking was removed, since it could not be
+    // done in a way that could handle every way a query could be written.
 
     // Execute the query
     javax.persistence.Query jpaQuery = null;
@@ -1831,8 +1794,10 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    if (!query.toUpperCase().matches("SELECT.*ID.*FROM.*")
-        || query.toUpperCase().matches("SELECT.*ID.*ID.*FROM.*")) {
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.*ID.*FROM.*")
+        || query.toUpperCase().replaceAll("[\\n\\r]", "")
+            .matches("SELECT.*ID.*ID.*FROM.*")) {
       throw new LocalException(
           "Query must be constructed to return a single id");
     }
@@ -1978,7 +1943,7 @@ public abstract class RootServiceJpa implements RootService {
     }
 
     // check for correct number and type of returned objects
-    if (!query.toUpperCase()
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
         .matches("SELECT.*ITEMID.*ITEMNAME.*VALUE.*FROM.*")) {
       throw new LocalException(
           "Query must be in the form 'SELECT x itemId, y itemName, z value FROM ...'");
@@ -2136,14 +2101,16 @@ public abstract class RootServiceJpa implements RootService {
     boolean dualConceptQuery = false;
     boolean clusterQuery = false;
 
-    if (query.toUpperCase().matches("SELECT.* CONCEPTID.*FROM.*")) {
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CONCEPTID.*FROM.*")) {
       conceptQuery = true;
     }
-    if (query.toUpperCase()
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
         .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
       dualConceptQuery = true;
     }
-    if (query.toUpperCase().matches("SELECT.* CLUSTERID.*FROM.*")) {
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CLUSTERID.*FROM.*")) {
       clusterQuery = true;
     }
 

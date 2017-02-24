@@ -2031,7 +2031,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "and a1.terminology = a2.terminology "
             + "and a1.version = :version and a2.version != :version "
             + "and a1.codeId = a2.codeId "
-            + "and a1.stringClassId = a2.stringClassId"
+            + "and a1.stringClassId = a2.stringClassId "
             + "and a1.termType = a2.termType");
     algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
     algoProperties.put("newAtomsOnly", "true");
