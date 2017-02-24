@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
 
@@ -28,6 +29,7 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
 import com.wci.umls.server.model.content.Atom;
@@ -766,5 +768,100 @@ public class WriteRrfHistoryFilesAlgorithm
   @Override
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /**
+   * Local class for managing concept history.
+   */
+  class ConceptHistory {
+
+    /** The deleted cuis. */
+    private Set<ComponentHistory> deleted = new HashSet<>();
+
+    /** The bequeathals. */
+    private Map<String, Set<ComponentHistory>> bequeathals = new HashMap<>();
+
+    /** The splits. */
+    private Map<String, Set<ComponentHistory>> splits = new HashMap<>();
+
+    /** The merges. */
+    private Map<String, ComponentHistory> merges = new HashMap<>();
+
+    /**
+     * Adds the deleted.
+     *
+     * @param cui the cui
+     * @param version the version
+     */
+    public void addDeleted(String cui, String version) {
+      final ComponentHistory history = new ComponentHistoryJpa();
+      history.setTerminologyId(cui);
+      history.setVersion(version);
+      deleted.add(history);
+    }
+
+    /**
+     * Adds the bequeathal.
+     *
+     * @param cui the cui
+     * @param rel the rel
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
+    public void addBequeathal(String cui, String version, String rel,
+      String cui2) throws Exception {
+      if (!bequeathals.containsKey(cui)) {
+        bequeathals.put(cui, new HashSet<ComponentHistory>());
+      }
+
+      // If there is already a matching concept
+      if (bequeathals.get(cui).stream()
+          .filter(h -> h.getReferencedConcept().equals(cui2))
+          .collect(Collectors.toList()).size() > 0) {
+        throw new Exception("There is already a bequeathal rel between " + cui
+            + " and " + cui2);
+      }
+      final ComponentHistory history = new ComponentHistoryJpa();
+      history.setTerminologyId(cui);
+      history.setVersion(version);
+      history.setRelationshipType(rel);
+      history.setReferencedConcept(cui2);
+      bequeathals.get(cui).add(history);
+    }
+
+    /**
+     * Adds the split.
+     *
+     * @param cui the cui
+     * @param version the version
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
+    public void addSplit(String cui, String version, Set<String> cui2)
+      throws Exception {
+      // TBD, splits not explicitly tracked
+      // They are represented as double-RO bequeathal relationships
+    }
+
+    public void addMerge(String cui, String version, String cui2)
+      throws Exception {
+      if (merges.containsKey(cui)) {
+        throw new Exception(
+            "There is already a merge between " + cui + " and " + cui2);
+      }
+      final ComponentHistory history = new ComponentHistoryJpa();
+      merges.put(cui, history);
+    }
+
+    public Map<String, Set<String>> getSplits(String version) {
+      // Calculate cases of bequeathals where there are multiple entries
+      // and they all share a version and have relType = RO
+      final Map<String, Set<String>> map = new HashMap<>();
+      for (final String cui : bequeathals.keySet()) {
+        final Set<ComponentHistory> set = bequeathals.get(cui);
+      }
+      return null;
+    }
+
   }
 }
