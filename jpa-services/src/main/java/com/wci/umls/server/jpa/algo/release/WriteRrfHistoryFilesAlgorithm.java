@@ -91,12 +91,15 @@ public class WriteRrfHistoryFilesAlgorithm
     // sort files
     final File changeDir = new File(dir, "CHANGE");
     for (final String writerName : writerMap.keySet()) {
-      File fdir = changeDir;
-      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
-        fdir = dir;
+      File fdir = dir;
+      if (writerName.startsWith("MERGED") || writerName.startsWith("DELETED")) {
+        fdir = changeDir;
       }
       final File inputFile = new File(fdir, writerName);
       final File outputFile = new File(fdir, writerName + ".sorted");
+      if (outputFile.exists()) {
+        outputFile.delete();
+      }
       FileUtils.removePath(outputFile.getPath());
       FileSorter.sortFile(inputFile.getAbsolutePath(),
           outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
@@ -104,9 +107,9 @@ public class WriteRrfHistoryFilesAlgorithm
 
     // move sorted files into orig files
     for (final String writerName : writerMap.keySet()) {
-      File fdir = changeDir;
-      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
-        fdir = dir;
+      File fdir = dir;
+      if (writerName.startsWith("MERGED") || writerName.startsWith("DELETED")) {
+        fdir = changeDir;
       }
       final File inputFile = new File(fdir, writerName);
       final File outputFile = new File(fdir, writerName + ".sorted");
@@ -575,15 +578,14 @@ public class WriteRrfHistoryFilesAlgorithm
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     currentCuis.addAll(query.getResultList());
-    
 
     // atoms in different concept than previous release:
     final Map<String, Set<String>> atomsMoved = new HashMap<>();
     queryStr = "select distinct value(cid), c.terminologyId  "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true " + "and a.publishable = true "
-        + "and key(cid) = :terminology " + "and value(cid) != c.terminologyId";
+        + "and c.publishable = true and a.publishable = true "
+        + "and key(cid) = :terminology";
     query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
@@ -591,20 +593,24 @@ public class WriteRrfHistoryFilesAlgorithm
     for (final Object[] objArray : results) {
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
+      if (lastReleaseCui.equals(cui)) {
+        continue;
+      }
       if (!atomsMoved.containsKey(lastReleaseCui)) {
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
       atomsMoved.get(lastReleaseCui).add(cui);
     }
+
+
     // Determine "split" cases - all keys from atomsMoved where the value is
     // size()>1 and the key is not in current cuis.
     // write RO rows for both "value" CUIs.
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
-    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {      
       final String lastReleaseCui = entry.getKey();
-      final Concept lastReleaseConcept = getConcept(lastReleaseCui, getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
-      
+      Concept lastReleaseConcept = getConcept(lastReleaseCui, getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
       if (entry.getValue().size() > 1
           && !currentCuis.contains(lastReleaseCui)) {
         // write RO rows for both "value" CUIs.
