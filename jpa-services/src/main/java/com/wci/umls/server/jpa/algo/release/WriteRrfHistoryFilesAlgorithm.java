@@ -340,7 +340,10 @@ public class WriteRrfHistoryFilesAlgorithm
               || history.getRelationshipType().startsWith("R")) {
 
             // if "referenced concept" is publishable, write it out as is
-            if (history.getReferencedConcept().isPublishable()) {
+            final Concept concept = getConcept(
+                history.getReferencedTerminologyId(), history.getTerminology(),
+                history.getVersion(), Branch.ROOT);
+            if (concept != null && concept.isPublishable()) {
               final StringBuilder sb = new StringBuilder();
               // CUI1
               sb.append(c.getTerminologyId()).append("|");
@@ -353,8 +356,7 @@ public class WriteRrfHistoryFilesAlgorithm
               // 4 MAPREASON
               sb.append(history.getReason()).append("|");
               // 5 CUI2
-              sb.append(history.getReferencedConcept().getTerminologyId())
-                  .append("|");
+              sb.append(history.getReferencedTerminologyId()).append("|");
               // 6 MAPIN
               sb.append("Y").append("|");
               sb.append("\n");
@@ -366,8 +368,8 @@ public class WriteRrfHistoryFilesAlgorithm
               // If so, change the referencedConcept to point to the CUI2
               // concept.
               // TODO: (later) deal with CUI2 bequeathed case
-              if (syCui1Cui2Pairs.containsKey(
-                  history.getReferencedConcept().getTerminologyId())) {
+              if (syCui1Cui2Pairs
+                  .containsKey(history.getReferencedTerminologyId())) {
                 StringBuilder sb = new StringBuilder();
                 // CUI1
                 sb.append(c.getTerminologyId()).append("|");
@@ -380,8 +382,8 @@ public class WriteRrfHistoryFilesAlgorithm
                 // 4 MAPREASON
                 sb.append(history.getReason()).append("|");
                 // 5 CUI2
-                sb.append(syCui1Cui2Pairs
-                    .get(history.getReferencedConcept().getTerminologyId()))
+                sb.append(
+                    syCui1Cui2Pairs.get(history.getReferencedTerminologyId()))
                     .append("|");
                 // 6 MAPIN
                 sb.append("|");
@@ -782,7 +784,7 @@ public class WriteRrfHistoryFilesAlgorithm
     private Map<String, Set<ComponentHistory>> bequeathals = new HashMap<>();
 
     /** The splits. */
-    private Map<String, Set<ComponentHistory>> splits = new HashMap<>();
+    // private Map<String, Set<ComponentHistory>> splits = new HashMap<>();
 
     /** The merges. */
     private Map<String, ComponentHistory> merges = new HashMap<>();
@@ -804,6 +806,7 @@ public class WriteRrfHistoryFilesAlgorithm
      * Adds the bequeathal.
      *
      * @param cui the cui
+     * @param version the version
      * @param rel the rel
      * @param cui2 the cui 2
      * @throws Exception the exception
@@ -816,7 +819,7 @@ public class WriteRrfHistoryFilesAlgorithm
 
       // If there is already a matching concept
       if (bequeathals.get(cui).stream()
-          .filter(h -> h.getReferencedConcept().equals(cui2))
+          .filter(h -> h.getReferencedTerminologyId().equals(cui2))
           .collect(Collectors.toList()).size() > 0) {
         throw new Exception("There is already a bequeathal rel between " + cui
             + " and " + cui2);
@@ -825,7 +828,7 @@ public class WriteRrfHistoryFilesAlgorithm
       history.setTerminologyId(cui);
       history.setVersion(version);
       history.setRelationshipType(rel);
-      history.setReferencedConcept(cui2);
+      history.setReferencedTerminologyId(cui2);
       bequeathals.get(cui).add(history);
     }
 
@@ -841,8 +844,17 @@ public class WriteRrfHistoryFilesAlgorithm
       throws Exception {
       // TBD, splits not explicitly tracked
       // They are represented as double-RO bequeathal relationships
+      throw new UnsupportedOperationException();
     }
 
+    /**
+     * Adds the merge.
+     *
+     * @param cui the cui
+     * @param version the version
+     * @param cui2 the cui 2
+     * @throws Exception the exception
+     */
     public void addMerge(String cui, String version, String cui2)
       throws Exception {
       if (merges.containsKey(cui)) {
@@ -853,14 +865,64 @@ public class WriteRrfHistoryFilesAlgorithm
       merges.put(cui, history);
     }
 
+    public List<ComponentHistory> recurseEntries(ComponentHistory history) {
+      // used when referencedTerminologyId is not publishable,
+      // Look up and generate commensurate "current" history records
+
+      // If CUI2 is DEL, convert to DEL, return 1 row
+
+      // If CUI2 is SY, update CUI2, return 1 row
+
+      // If CUI1 is SY and CUI2 has bequeathal rels, return one updated row for
+      // each rel, update to R.
+
+      // If CUI1 is R. and CUI2 has bequeathal rels, return one updated row for
+      // each rel, update to RO if rels don't match, otherwise use R.
+
+      // if CUI2 is not present, throw an exception
+      return null;
+    }
+
+    public List<ComponentHistory> computeHistory() {
+      final List<ComponentHistory> history = new ArrayList<>();
+
+      // Verify that terminologyIds are "not publishable"
+      // Verify that referencedTerminologyIds are "publishable"
+      // - if not, map to a "current" thing, othrewe
+
+      return history;
+    }
+
+    /**
+     * Returns the splits.
+     *
+     * @param version the version
+     * @return the splits
+     */
     public Map<String, Set<String>> getSplits(String version) {
       // Calculate cases of bequeathals where there are multiple entries
       // and they all share a version and have relType = RO
       final Map<String, Set<String>> map = new HashMap<>();
       for (final String cui : bequeathals.keySet()) {
         final Set<ComponentHistory> set = bequeathals.get(cui);
+        // if any have a different version, skip
+        if (set.stream().filter(h -> !h.getVersion().equals(version))
+            .collect(Collectors.toList()).size() > 0) {
+          continue;
+        }
+        // if any have a non-RO relationship type, skip
+        if (set.stream().filter(h -> !h.getRelationshipType().equals("RO"))
+            .collect(Collectors.toList()).size() > 0) {
+          continue;
+        }
+
+        // Otherwise, add them to the result map
+        final Set<String> cui2s = new HashSet<>();
+        cui2s.addAll(set.stream().map(h -> h.getReferencedTerminologyId())
+            .collect(Collectors.toSet()));
+        map.put(cui, cui2s);
       }
-      return null;
+      return map;
     }
 
   }
