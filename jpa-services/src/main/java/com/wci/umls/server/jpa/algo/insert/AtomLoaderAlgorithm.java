@@ -234,7 +234,7 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
             // warn.
             if (oldLastReleaseCui == null) {
               logWarn("WARNING - last release cui not found for atom "
-                  + oldAtom.getId() + " for terminology/version = "
+                  + newAtomAui + " for terminology/version = "
                   + getProcess().getTerminology() + previousVersion);
             } else if (!oldLastReleaseCui.equals(fields[14])) {
               makeNewAtom = true;
