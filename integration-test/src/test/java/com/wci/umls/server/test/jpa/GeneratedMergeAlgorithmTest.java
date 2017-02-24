@@ -20,6 +20,8 @@ import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.ProjectList;
+import com.wci.umls.server.helpers.QueryStyle;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
 import com.wci.umls.server.jpa.algo.insert.GeneratedMergeAlgorithm;
@@ -153,9 +155,10 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       //
       Properties algoProperties = new Properties();
       algoProperties.put("queryType", "JQL");
-      algoProperties.put("query", "select a1.id, a2.id "
-          + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
-          + "where a1.id in (9999999999) " + "and a2.id in (2,99,5) ");
+      algoProperties.put("query",
+          "select a1.id, a2.id "
+              + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "
+              + "where a1.id in (9999999999) " + "and a2.id in (2,99,5) ");
       algoProperties.put("checkNames", "MGV_A4;MGV_B;MGV_C");
       algoProperties.put("newAtomsOnly", "false");
       algoProperties.put("filterQueryType", "LUCENE");
@@ -169,9 +172,11 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       // Test the queries
       //
       try {
-        Integer result = processServiceRest.testQuery(project.getId(),
-            processConfig.getId(), algoProperties.getProperty("queryType"),
-            algoProperties.getProperty("query"), "ConceptJpa", authToken);
+        Integer result =
+            processServiceRest.testQuery(project.getId(), processConfig.getId(),
+                QueryType.valueOf(algoProperties.getProperty("queryType")),
+                QueryStyle.ID_PAIR, algoProperties.getProperty("query"),
+                "ConceptJpa", authToken);
         assertTrue(result >= 0);
       } catch (Exception e) {
         assertTrue(e.getMessage().startsWith("Query malformed:"));

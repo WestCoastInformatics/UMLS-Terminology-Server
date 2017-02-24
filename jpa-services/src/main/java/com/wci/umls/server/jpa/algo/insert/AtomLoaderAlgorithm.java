@@ -225,14 +225,24 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           final String previousVersion =
               getPreviousVersion(getProcess().getTerminology());
           if (previousVersion == null) {
-            logWarn("WARNING - previous version not found for terminology = "
-                + getProcess().getTerminology());
+            throw new Exception(
+                "WARNING - previous version not found for terminology = "
+                    + getProcess().getTerminology());
           } else {
             final String oldLastReleaseCui = oldAtom.getConceptTerminologyIds()
                 .get(getProcess().getTerminology() + previousVersion);
-            // All existing atoms should have a last_release_cui. If not found,
-            // warn.
-            if (oldLastReleaseCui == null) {
+            final String latestLastReleaseCui = oldAtom
+                .getConceptTerminologyIds().get(getProcess().getTerminology()
+                    + getLatestVersion(getProcess().getTerminology()));
+            // If a last_releas_cui is found for the insertion's terminology and
+            // version, it means this atom was already handled on a previous run
+            // of AtomLoader.
+            if (latestLastReleaseCui != null) {
+              // do nothing
+            }
+            // All other existing atoms should have a last_release_cui. If not
+            // found, warn.
+            else if (oldLastReleaseCui == null) {
               logWarn("WARNING - last release cui not found for atom "
                   + fields[7] + " for terminology/version = "
                   + getProcess().getTerminology() + previousVersion);
