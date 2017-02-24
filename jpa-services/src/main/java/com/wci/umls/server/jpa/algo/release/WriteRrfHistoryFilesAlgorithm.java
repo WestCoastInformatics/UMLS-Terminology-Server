@@ -729,6 +729,9 @@ public class WriteRrfHistoryFilesAlgorithm
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // cleanup
+    dir = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
+        + "META");
     final File changeDir = new File(dir, "CHANGE");
     FileUtils.deleteDirectory(changeDir);
 
