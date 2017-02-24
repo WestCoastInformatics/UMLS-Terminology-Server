@@ -131,7 +131,7 @@ tsApp.controller('AlgorithmModalCtrl', [
         // Success
         function(data) {
           console.debug("This is what is returned in data: " + data);
-          $scope.messages.push('Query is properly formed and returned ' + data + ' results.')
+          $scope.messages.push('Query is properly formed.')
         },
         // Error
         function(data) {
