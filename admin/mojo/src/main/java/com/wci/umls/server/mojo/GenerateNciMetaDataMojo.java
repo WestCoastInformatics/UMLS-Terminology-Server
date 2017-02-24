@@ -2057,16 +2057,21 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoConfig.setTimestamp(new Date());
     // Set properties for the algorithm
     algoProperties = new HashMap<String, String>();
-    algoProperties.put("queryType", "JQL");
+    algoProperties.put("queryType", "SQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id "
-            + "from ConceptJpa c1 join c1.atoms a1 join a1.conceptTerminologyIds cid1, "
-            + "ConceptJpa c2 join c2.atoms a2 join a2.conceptTerminologyIds cid2 "
-            + "where c1.terminology = :projectTerminology "
-            + "and c2.terminology = :projectTerminology and c1.id != c2.id "
-            + "and a1.publishable = true and a2.publishable = true "
-            + "and key(cid1) = :projectTerminology and key(cid2) = :projectTerminology "
-            + "and value(cid1) = value(cid2)");
+        "select a1.id atomId1, a2.id atomId2 "
+            + "from concepts c1, concepts_atoms ca1, atoms a1, AtomJpa_conceptTerminologyIds cid1, "
+            + "concepts c2, concepts_atoms ca2, atoms a2, AtomJpa_conceptTerminologyIds cid2 "
+            + "WHERE c1.terminology = :projectTerminology AND c1.id = ca1.concepts_id "
+            + "AND ca1.atoms_Id = a1.id " + "AND a1.id = cid1.AtomJpa_id "
+            + "AND a1.publishable = true "
+            + "AND cid1.conceptTerminologyIds_KEY = :projectTerminology "
+            + "AND c2.terminology = :projectTerminology AND c2.id = ca2.concepts_id "
+            + "AND ca2.atoms_Id = a2.id " + "AND a2.id = cid2.AtomJpa_id "
+            + "AND a2.publishable = true "
+            + "AND cid2.conceptTerminologyIds_KEY = :projectTerminology "
+            + "AND cid1.conceptTerminologyIds = cid2.conceptTerminologyIds "
+            + "AND c1.id != c2.id");
     algoProperties.put("checkNames", null);
     algoProperties.put("newAtomsOnly", "true");
     algoProperties.put("filterQueryType", "");

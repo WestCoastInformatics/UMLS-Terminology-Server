@@ -31,6 +31,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       processService.newAlgorithmConfig($scope.project.id, selected.process.id,
         selected.algorithmConfigType.key).then(function(data) {
         $scope.algorithm = data;
+        $scope.algorithm.processId = selected.process.id;
         $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
         $scope.algorithm.name = selected.algorithmConfigType.value;
         $scope.description = selected.algorithmConfigType.value + ' ' + (new Date().getTime());
@@ -126,7 +127,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       }
 
       processService
-        .testQuery($scope.project.id, selected.process.id, queryType, queryStyle, query, objectType).then(
+        .testQuery($scope.project.id, $scope.algorithm.processId, queryType, queryStyle, query, objectType).then(
         // Success
         function(data) {
           console.debug("This is what is returned in data: " + data);
