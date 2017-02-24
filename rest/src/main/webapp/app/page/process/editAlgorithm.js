@@ -88,7 +88,7 @@ tsApp.controller('AlgorithmModalCtrl', [
     };
 
     // Test the query to see if it returns any results
-    $scope.testQuery = function(query, fieldName) {
+    $scope.testQuery = function(query, fieldName, queryStyle) {
       $scope.errors = [];
       $scope.messages = [];
       // Guess the query type
@@ -126,7 +126,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       }
 
       processService
-        .testQuery($scope.project.id, selected.process.id, queryType, query, objectType).then(
+        .testQuery($scope.project.id, selected.process.id, queryType, queryStyle, query, objectType).then(
         // Success
         function(data) {
           console.debug("This is what is returned in data: " + data);

@@ -50,6 +50,7 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
+import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.AlgorithmExecutionJpa;
@@ -2081,9 +2082,9 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Query, e.g. 2", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-//    Logger.getLogger(getClass()).info(
-//        "RESTful call (Process): /" + processExecutionId + "/log?projectId="
-//            + projectId + ", " + query + " for user " + authToken);
+    // Logger.getLogger(getClass()).info(
+    // "RESTful call (Process): /" + processExecutionId + "/log?projectId="
+    // + projectId + ", " + query + " for user " + authToken);
 
     if (projectId == null) {
       throw new Exception("Error: project id must be set.");
@@ -2210,7 +2211,8 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
   public Integer testQuery(
     @ApiParam(value = "Project id, e.g. 12345", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Process id, e.g. 12345", required = true) @QueryParam("processId") Long processId,
-    @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryTypeName") String queryTypeName,
+    @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Query Style, e.g. ID_PAIR", required = true) @QueryParam("queryStyle") QueryStyle queryStyle,
     @ApiParam(value = "Query, e.g. select a.id from AtomJpa a", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Object type name, e.g. AtomJpa", required = false) @QueryParam("objectTypeName") String objectTypeName,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -2226,8 +2228,11 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     if (processId == null) {
       throw new Exception("Error: process id must be set.");
     }
-    if (ConfigUtility.isEmpty(queryTypeName)) {
+    if (queryType == null) {
       throw new Exception("Error: query type name must be set.");
+    }
+    if (queryStyle == null) {
+      throw new Exception("Error: query style name must be set.");
     }
     if (ConfigUtility.isEmpty(query)) {
       throw new Exception("Error: query must be set.");
@@ -2243,13 +2248,13 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       // type
       String lobjectTypeName = objectTypeName;
       if (ConfigUtility.isEmpty(objectTypeName)) {
-        if (queryTypeName.equals("LUCENE")) {
+        if (queryType == QueryType.LUCENE) {
           lobjectTypeName = "ConceptJpa";
-        } else if (queryTypeName.equals("SQL") || queryTypeName.equals("JQL")) {
+        } else if (queryType == QueryType.SQL || queryType == QueryType.JQL) {
           lobjectTypeName = "AtomJpa";
         } else {
           throw new LocalException(
-              "Query Type " + queryTypeName + " is unsupported.");
+              "Query Type " + queryType + " is unsupported.");
         }
       }
 
@@ -2259,7 +2264,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       Class clazz = Class.forName(componentPath + lobjectTypeName);
 
       // Generate parameters to pass into query executions
-      Map<String, String> params = new HashMap<>();
+      final Map<String, String> params = new HashMap<>();
       params.put("terminology", process.getTerminology());
       params.put("version", process.getVersion());
       params.put("projectTerminology",
@@ -2269,38 +2274,34 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
 
       final List<Long[]> componentIdArrays = new ArrayList<>();
       final List<Long> componentIds = new ArrayList<>();
-      int exceptionCount = 0;
 
-      try {
-        componentIdArrays.addAll(processService.executeComponentIdPairQuery(
-            query, QueryType.valueOf(queryTypeName), params, clazz, false));
-      } catch (Exception e) {
-        exceptionCount++;
-      }
-      // Only run single component query if the pairQuery returned an exception
-      if (exceptionCount == 1) {
+      if (queryStyle == QueryStyle.ID_PAIR) {
+        try {
+          componentIdArrays.addAll(processService.executeComponentIdPairQuery(
+              query, queryType, params, clazz, true));
+        } catch (Exception e) {
+          throw new LocalException(e.getMessage());
+        }
+      } else if (queryStyle == QueryStyle.ID) {
+
         try {
           componentIds.addAll(processService.executeSingleComponentIdQuery(
-              query, QueryType.valueOf(queryTypeName), params, clazz, false));
+              query, queryType, params, clazz, true));
         } catch (Exception e) {
-          exceptionCount++;
+          throw new LocalException(e.getMessage());
         }
       }
 
-      // If both of the queries threw exceptions, this query was malformed.
-      if (exceptionCount == 2) {
-        throw new LocalException("Query malformed: " + query);
-      }
       // If either of the queries ran successfully, return the number of results
-      else {
-        return !componentIdArrays.isEmpty() ? componentIdArrays.size()
-            : componentIds.size();
-      }
+      return !componentIdArrays.isEmpty() ? componentIdArrays.size()
+          : componentIds.size();
+
+    } catch (Exception e) {
+      handleException(e, "trying to return a new algorithm config");
+      return null;
     } finally {
       processService.close();
       securityService.close();
     }
-
   }
-
 }
