@@ -6,21 +6,17 @@ package com.wci.umls.server.jpa.content;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.model.content.ComponentHistory;
-import com.wci.umls.server.model.content.Concept;
 
 /**
  * JPA-enabled implementation of {@link ComponentHistory}.
@@ -34,10 +30,9 @@ import com.wci.umls.server.model.content.Concept;
 public class ComponentHistoryJpa extends AbstractComponent
     implements ComponentHistory {
 
-  /** The referenced concept. */
-  @ManyToOne(targetEntity = ConceptJpa.class, optional = true)
-  @JoinColumn(nullable = true, name = "referenced_concept_id")
-  private Concept referencedConcept;
+  /** The referenced concept's terminology Id. */
+  @JoinColumn(nullable = true)
+  private String referencedTerminologyId;
 
   /** The reason. */
   @Column(nullable = true, length = 4000)
@@ -69,7 +64,7 @@ public class ComponentHistoryJpa extends AbstractComponent
    */
   public ComponentHistoryJpa(ComponentHistory h) {
     super(h);
-    referencedConcept = h.getReferencedConcept();
+    referencedTerminologyId = h.getReferencedTerminologyId();
     reason = h.getReason();
     relationshipType = h.getRelationshipType();
     additionalRelationshipType = h.getAdditionalRelationshipType();
@@ -77,31 +72,9 @@ public class ComponentHistoryJpa extends AbstractComponent
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
-  public Concept getReferencedConcept() {
-    return referencedConcept;
-  }
-
-  /**
-   * Returns the referenced concept id.
-   *
-   * @return the referenced concept id
-   */
-  public Long getReferencedConceptId() {
-    return referencedConcept == null ? null : referencedConcept.getId();
-  }
-
-  /**
-   * Sets the referenced concept id.
-   *
-   * @param id the referenced concept id
-   */
-  public void setReferencedConceptId(Long id) {
-    if (referencedConcept == null) {
-      referencedConcept = new ConceptJpa();
-    }
-    referencedConcept.setId(id);
+  public void setReferencedTerminologyId(String referencedTerminologyId) {
+    this.referencedTerminologyId = referencedTerminologyId;
   }
 
   /**
@@ -109,98 +82,10 @@ public class ComponentHistoryJpa extends AbstractComponent
    *
    * @return the referenced concept terminology id
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getReferencedConceptTerminologyId() {
-    return referencedConcept == null ? null
-        : referencedConcept.getTerminologyId();
-  }
-
-  /**
-   * Sets the referenced concept terminology id.
-   *
-   * @param terminologyId the referenced concept terminology id
-   */
-  public void setReferencedConceptTerminologyId(String terminologyId) {
-    if (referencedConcept == null) {
-      referencedConcept = new ConceptJpa();
-    }
-    referencedConcept.setTerminologyId(terminologyId);
-  }
-
-  /**
-   * Returns the referenced concept terminology.
-   *
-   * @return the referenced concept terminology
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getReferencedConceptTerminology() {
-    return referencedConcept == null ? null
-        : referencedConcept.getTerminology();
-  }
-
-  /**
-   * Sets the referenced concept terminology.
-   *
-   * @param terminology the referenced concept terminology
-   */
-  public void setReferencedConceptTerminology(String terminology) {
-    if (referencedConcept == null) {
-      referencedConcept = new ConceptJpa();
-    }
-    referencedConcept.setTerminology(terminology);
-  }
-
-  /**
-   * Returns the referenced concept version.
-   *
-   * @return the referenced concept version
-   */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getReferencedConceptVersion() {
-    return referencedConcept == null ? null : referencedConcept.getVersion();
-  }
-
-  /**
-   * Sets the referenced concept version.
-   *
-   * @param version the referenced concept version
-   */
-  public void setReferencedConceptVersion(String version) {
-    if (referencedConcept == null) {
-      referencedConcept = new ConceptJpa();
-    }
-    referencedConcept.setVersion(version);
-  }
-
-  /**
-   * Returns the referenced concept name.
-   *
-   * @return the referenced concept name
-   */
-  @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
-      @Field(name = "referencedConceptNameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  })
-  public String getReferencedConceptName() {
-    return referencedConcept == null ? null : referencedConcept.getName();
-  }
-
-  /**
-   * Sets the referenced concept name.
-   *
-   * @param term the referenced concept name
-   */
-  public void setReferencedConceptName(String term) {
-    if (referencedConcept == null) {
-      referencedConcept = new ConceptJpa();
-    }
-    referencedConcept.setName(term);
-  }
-
-  /* see superclass */
   @Override
-  public void setReferencedConcept(Concept referencedConcept) {
-    this.referencedConcept = referencedConcept;
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getReferencedTerminologyId() {
+    return referencedTerminologyId;
   }
 
   /* see superclass */
@@ -260,8 +145,8 @@ public class ComponentHistoryJpa extends AbstractComponent
     result = prime * result + ((additionalRelationshipType == null) ? 0
         : additionalRelationshipType.hashCode());
     result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-    result = prime * result
-        + ((referencedConcept == null) ? 0 : referencedConcept.hashCode());
+    result = prime * result + ((referencedTerminologyId == null) ? 0
+        : referencedTerminologyId.hashCode());
     result = prime * result
         + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result
@@ -290,10 +175,10 @@ public class ComponentHistoryJpa extends AbstractComponent
         return false;
     } else if (!reason.equals(other.reason))
       return false;
-    if (referencedConcept == null) {
-      if (other.referencedConcept != null)
+    if (referencedTerminologyId == null) {
+      if (other.referencedTerminologyId != null)
         return false;
-    } else if (!referencedConcept.equals(other.referencedConcept))
+    } else if (!referencedTerminologyId.equals(other.referencedTerminologyId))
       return false;
     if (relationshipType == null) {
       if (other.relationshipType != null)
@@ -311,7 +196,7 @@ public class ComponentHistoryJpa extends AbstractComponent
   /* see superclass */
   @Override
   public String toString() {
-    return "ComponentHistoryJpa [referencedConcept=" + referencedConcept
+    return "ComponentHistoryJpa [referencedConcept=" + referencedTerminologyId
         + ", reason=" + reason + ", relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType
         + ", release=" + associatedRelease + "]";

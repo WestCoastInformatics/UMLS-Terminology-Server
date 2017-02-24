@@ -1810,7 +1810,8 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (referencedConcept == null) {
           throw new Exception("Unexpected dead CUIs " + fields[5]);
         }
-        history.setReferencedConcept(referencedConcept);
+        history
+            .setReferencedTerminologyId(referencedConcept.getTerminologyId());
       }
       history.setRelationshipType(fields[2]);
       history.setAdditionalRelationshipType(fields[3]);

@@ -3,7 +3,6 @@
  */
 package com.wci.umls.server.jpa.test.content;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.log4j.Logger;
@@ -13,11 +12,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.CopyConstructorTester;
 import com.wci.umls.server.helpers.EqualsHashcodeTester;
 import com.wci.umls.server.helpers.GetterSetterTester;
-import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.XmlSerializationTester;
 import com.wci.umls.server.jpa.ModelUnitSupport;
 import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
@@ -56,12 +53,6 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
   @Before
   public void setup() throws Exception {
     object = new ComponentHistoryJpa();
-
-    ProxyTester tester = new ProxyTester(new ConceptJpa());
-    c1 = (Concept) tester.createObject(1);
-    c2 = (Concept) tester.createObject(2);
-
-    object.setReferencedConcept(c1);
   }
 
   /**
@@ -73,11 +64,6 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
   public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
-    tester.exclude("referencedConceptId");
-    tester.exclude("referencedConceptTerminology");
-    tester.exclude("referencedConceptVersion");
-    tester.exclude("referencedConceptTerminologyId");
-    tester.exclude("referencedConceptName");
     tester.exclude("type");
     tester.exclude("name");
 
@@ -102,7 +88,7 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
     tester.include("additionalRelationshipType");
     tester.include("reason");
     tester.include("associatedRelease");
-    tester.include("referencedConcept");
+    tester.include("referencedTerminologyId");
 
     tester.proxy(Concept.class, 1, c1);
     tester.proxy(Concept.class, 2, c2);
@@ -182,7 +168,6 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
-    tester.include("referencedConceptName");
     tester.include("reason");
 
     assertTrue(tester.testAnalyzedIndexedFields());
@@ -202,32 +187,9 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
     tester.include("version");
     tester.include("branch");
 
-    tester.include("referencedConceptTerminologyId");
-    tester.include("referencedConceptTerminology");
-    tester.include("referencedConceptVersion");
-    tester.include("referencedConceptNameSort");
+    tester.include("referencedTerminologyId");
 
     assertTrue(tester.testNotAnalyzedIndexedFields());
-
-  }
-
-  /**
-   * Test xml transient fields
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testXmlTransient() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-
-    String xml = ConfigUtility.getStringForGraph(object);
-
-    assertTrue(xml.contains("<referencedConceptTerminologyId>"));
-    assertTrue(xml.contains("<referencedConceptName>"));
-    assertTrue(xml.contains("<referencedConceptTerminology>"));
-    assertTrue(xml.contains("<referencedConceptVersion>"));
-    assertTrue(xml.contains("<referencedConceptId>"));
-    assertFalse(xml.contains("<referencedConcept>"));
 
   }
 

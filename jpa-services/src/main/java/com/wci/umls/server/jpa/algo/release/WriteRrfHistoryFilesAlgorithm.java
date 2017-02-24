@@ -71,18 +71,22 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
-    setSteps(5);
+    setSteps(6);
     openWriters();
 
+    logInfo("  Write MRAUI.RRF");
     writeMraui();
     updateProgress();
 
+    logInfo("  Write MRCUI.RRF");
     writeMrcui();
     updateProgress();
 
+    logInfo("  Write NCI code file");
     writeNciCodeCuiMap();
     updateProgress();
 
+    logInfo("  Write NCIMETA history file");
     writeHistory();
     updateProgress();
 
@@ -730,6 +734,9 @@ public class WriteRrfHistoryFilesAlgorithm
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // cleanup
+    dir = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath() + "/" + getProcess().getVersion() + "/"
+        + "META");
     final File changeDir = new File(dir, "CHANGE");
     FileUtils.deleteDirectory(changeDir);
 
