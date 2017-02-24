@@ -452,7 +452,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
   protected void resolveComponentHistory(Atom component, boolean nullId) {
     component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {
-      history.getReferencedConcept().getTerminologyId();
+      history.getReferencedTerminologyId();
       if (nullId) {
         history.setId(null);
       }
@@ -469,7 +469,7 @@ public class DefaultGraphResolutionHandler extends AbstractConfigurable
   protected void resolveComponentHistory(Concept component, boolean nullId) {
     component.getComponentHistory().size();
     for (final ComponentHistory history : component.getComponentHistory()) {
-      history.getReferencedConcept().getTerminologyId();
+      history.getReferencedTerminologyId();
       if (nullId) {
         history.setId(null);
       }
