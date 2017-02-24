@@ -7,7 +7,7 @@ tsApp.service('processService', [
   'gpService',
   'utilService',
   function($http, $q, Upload, gpService, utilService) {
-    
+
     // add algorithm config
     this.addAlgorithmConfig = function(projectId, processId, algo) {
       console.debug('addAlgorithmConfig', projectId, processId, algo);
@@ -59,7 +59,7 @@ tsApp.service('processService', [
     this.findProcessConfigs = function(projectId, query, pfs) {
       console.debug('findProcessConfig', projectId, query, pfs);
       var deferred = $q.defer();
-      
+
       // Get projects
       gpService.increment();
       $http.post(
@@ -673,8 +673,8 @@ tsApp.service('processService', [
     };
 
     // test a query
-    this.testQuery = function(projectId, processId, queryType, query, objectType) {
-      console.debug('testQuery', queryType, query, objectType);
+    this.testQuery = function(projectId, processId, queryType, queryStyle, query, objectType) {
+      console.debug('testQuery', queryType, queryStyle, query, objectType);
       var deferred = $q.defer();
 
       console.debug('objectType at the processService.js level is: ' + objectType);
@@ -683,20 +683,21 @@ tsApp.service('processService', [
       gpService.increment();
       $http.get(
         processUrl + '/testquery?projectId=' + projectId + '&processId=' + processId
-          + '&queryTypeName=' + queryType + '&query=' + utilService.prepQuery(query)
-          + (objectType ? '&objectTypeName=' + objectType : '')).then(
-      // success
-      function(response) {
-        console.debug('  algo = ', response.data);
-        gpService.decrement();
-        deferred.resolve(response.data);
-      },
-      // error
-      function(response) {
-        utilService.handleError(response);
-        gpService.decrement();
-        deferred.reject(response.data);
-      });
+          + '&queryType=' + queryType + '&queryStyle=' + queryStyle + '&query='
+          + utilService.prepQuery(query) + (objectType ? '&objectTypeName=' + objectType : ''))
+        .then(
+        // success
+        function(response) {
+          console.debug('  algo = ', response.data);
+          gpService.decrement();
+          deferred.resolve(response.data);
+        },
+        // error
+        function(response) {
+          utilService.handleError(response);
+          gpService.decrement();
+          deferred.reject(response.data);
+        });
       return deferred.promise;
     };
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.client;
 
@@ -29,6 +29,8 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
+import com.wci.umls.server.helpers.QueryStyle;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.ProcessExecutionJpa;
@@ -844,9 +846,11 @@ public class ProcessClientRest extends RootClientRest
     return in;
   }
 
+  /* see superclass */
   @Override
-  public Integer testQuery(Long projectId, Long processId, String queryTypeName,
-    String query, String objectTypeName, String authToken) throws Exception {
+  public Integer testQuery(Long projectId, Long processId, QueryType queryType,
+    QueryStyle queryStyle, String query, String objectTypeName,
+    String authToken) throws Exception {
 
     Logger.getLogger(getClass()).debug("Process Client - test query execution");
 
@@ -856,8 +860,8 @@ public class ProcessClientRest extends RootClientRest
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(config.getProperty("base.url")
         + "/process/testquery?projectId=" + projectId + "&processId="
-        + processId + "&queryTypeName=" + queryTypeName + "&query="
-        + URLEncoder.encode(query == null ? "" : query, "UTF-8")
+        + processId + "&queryType=" + queryType + "&queryStyle=" + queryStyle
+        + "&query=" + URLEncoder.encode(query == null ? "" : query, "UTF-8")
         + (objectTypeName == null ? "" : "&objectTypeName=" + objectTypeName));
     final Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -39,7 +39,13 @@ public interface AlgorithmParameter extends HasName {
     DIRECTORY,
 
     /** file type. */
-    FILE;
+    FILE,
+
+    /** The query1. */
+    QUERY_ID,
+
+    /** The query2. */
+    QUERY_ID_PAIR;
   }
 
   /**

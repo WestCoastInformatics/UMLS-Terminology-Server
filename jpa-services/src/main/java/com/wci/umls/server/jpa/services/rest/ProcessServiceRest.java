@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -13,6 +13,8 @@ import com.wci.umls.server.ProcessExecution;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProcessConfigList;
 import com.wci.umls.server.helpers.ProcessExecutionList;
+import com.wci.umls.server.helpers.QueryStyle;
+import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmConfigJpa;
 import com.wci.umls.server.jpa.ProcessConfigJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
@@ -360,14 +362,16 @@ public interface ProcessServiceRest {
    *
    * @param projectId the project id
    * @param processId the process id
-   * @param queryTypeName the query type name
+   * @param queryType the query type
+   * @param queryStyle the query style
    * @param query the query
    * @param objectTypeName the object type name
    * @param authToken the auth token
    * @return the integer
    * @throws Exception the exception
    */
-  public Integer testQuery(Long projectId, Long processId, String queryTypeName,
-    String query, String objectTypeName, String authToken) throws Exception;
+  public Integer testQuery(Long projectId, Long processId, QueryType queryType,
+    QueryStyle queryStyle, String query, String objectTypeName,
+    String authToken) throws Exception;
 
 }

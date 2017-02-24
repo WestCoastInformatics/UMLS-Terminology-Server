@@ -42,16 +42,36 @@
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false" />
         </td>
-        <!-- textarea for a query -->
+        <!-- textarea -->
         <td
           ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') != -1">
           <textarea ng-model="parameter.value" rows="4" class="w80"
             title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
+        </td>
+        <!-- textarea for a query returning an id -->
+        <td
+          ng-show="parameter.type == 'QUERY_ID' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
           <span ng-show="parameter.name.indexOf('Query') != -1">
             <span class="btn btn-xs btn-primary"
-              ng-click="testQuery(parameter.value, parameter.fieldName)">Test</span>
+              ng-click="testQuery(parameter.value, parameter.fieldName,'ID')">Test</span>
+          </span>
+        </td>
+        <!-- textarea for a query returning a pair of ids -->
+        <td
+          ng-show="parameter.type == 'QUERY_ID_PAIR' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+          <span ng-show="parameter.name.indexOf('Query') != -1">
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName, 'ID_PAIR')">Test</span>
           </span>
         </td>
         <!-- normal textarea -->

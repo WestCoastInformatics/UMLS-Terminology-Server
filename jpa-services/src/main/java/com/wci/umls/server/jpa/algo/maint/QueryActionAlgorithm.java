@@ -376,7 +376,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     param = new AlgorithmParameterJpa("Query", "query",
         "A query to perform action only on objects that meet the criteria",
         "e.g. query in format of the query type", 4000,
-        AlgorithmParameter.Type.TEXT, "");
+        AlgorithmParameter.Type.QUERY_ID, "");
     params.add(param);
 
     return params;
