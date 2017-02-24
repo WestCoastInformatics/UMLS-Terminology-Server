@@ -74,7 +74,7 @@ public class WriteRrfContentFilesAlgorithm
   private Map<String, Terminology> termMap = new HashMap<>();
 
   /** The writer map. */
-  private Map<String, PrintWriter> writerMap = new HashMap<>();
+  Map<String, PrintWriter> writerMap = new HashMap<>();
 
   /** The atom concept map. */
   private Map<Long, Long> atomConceptMap = new HashMap<>();
@@ -196,25 +196,154 @@ public class WriteRrfContentFilesAlgorithm
       for (final String line : writeMrconso(c)) {
         writerMap.get("MRCONSO.RRF").print(line);
       }
-
       for (final String line : writeMrdef(c)) {
         writerMap.get("MRDEF.RRF").print(line);
       }
+
       for (final String line : writeMrsty(c)) {
         writerMap.get("MRSTY.RRF").print(line);
       }
+
       for (final String line : writeMrrel(c)) {
         writerMap.get("MRREL.RRF").print(line);
       }
+
       for (final String line : writeMrsat(c)) {
         writerMap.get("MRSAT.RRF").print(line);
       }
       for (final String line : writeMrhier(c)) {
         writerMap.get("MRHIER.RRF").print(line);
       }
-
       updateProgress();
     }
+
+    // // Parallelize output
+    // final Thread[] threads = new Thread[6];
+    // final Exception[] exceptions = new Exception[6];
+    //
+    // Thread t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrconso(c)) {
+    // writerMap.get("MRCONSO.RRF").print(line);
+    // }
+    // }
+    // } catch (Exception e) {
+    // exceptions[0] = e;
+    // }
+    // }
+    // });
+    // threads[0] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrdef(c)) {
+    // writerMap.get("MRDEF.RRF").print(line);
+    // }
+    // }
+    // } catch (Exception e) {
+    // exceptions[1] = e;
+    // }
+    // }
+    // });
+    // threads[1] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrsty(c)) {
+    // writerMap.get("MRSTY.RRF").print(line);
+    // }
+    // }
+    // } catch (Exception e) {
+    // exceptions[2] = e;
+    // }
+    //
+    // }
+    // });
+    // threads[2] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrrel(c)) {
+    // writerMap.get("MRREL.RRF").print(line);
+    // }
+    // }
+    // } catch (Exception e) {
+    // exceptions[3] = e;
+    // }
+    //
+    // }
+    // });
+    // threads[3] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrsat(c)) {
+    // writerMap.get("MRSAT.RRF").print(line);
+    // }
+    // }
+    // } catch (Exception e) {
+    // exceptions[4] = e;
+    // }
+    //
+    // }
+    // });
+    // threads[4] = t;
+    // t.start();
+    //
+    // t = new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // try {
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrhier(c)) {
+    // writerMap.get("MRHIER.RRF").print(line);
+    // }
+    // updateProgress();
+    // }
+    // } catch (Exception e) {
+    // exceptions[5] = e;
+    // }
+    // }
+    // });
+    // threads[5] = t;
+    // t.start();
+    //
+    // // Wait for threads
+    // for (final Thread thread : threads) {
+    // thread.join();
+    // }
+    //
+    // // Report exceptions
+    // for (final Exception e : exceptions) {
+    // if (e != null) {
+    // throw e;
+    // }
+    // }
 
     // close print writers
     closeWriters();
@@ -647,7 +776,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the string
    * @throws Exception the exception
    */
-  private List<String> writeMrconso(Concept c) throws Exception {
+  List<String> writeMrconso(Concept c) throws Exception {
 
     // Field Description
     // 0 CUI
@@ -803,7 +932,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  private List<String> writeMrdef(Concept c) throws Exception {
+  List<String> writeMrdef(Concept c) throws Exception {
 
     // Field Description
     // 0 CUI
@@ -1177,7 +1306,7 @@ public class WriteRrfContentFilesAlgorithm
    * @param c the c
    * @return the list
    */
-  private List<String> writeMrsty(Concept c) {
+  List<String> writeMrsty(Concept c) {
 
     // Field Description
     // 0 CUI Unique identifier of concept
@@ -1226,7 +1355,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  private List<String> writeMrrel(Concept c) throws Exception {
+  List<String> writeMrrel(Concept c) throws Exception {
     // Field description
     // 0 CUI1
     // 1 AUI1
@@ -1616,7 +1745,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  private List<String> writeMrhier(Concept c) throws Exception {
+  List<String> writeMrhier(Concept c) throws Exception {
 
     // Field description
     // 0 CUI
@@ -1927,7 +2056,7 @@ public class WriteRrfContentFilesAlgorithm
    * @return the list
    * @throws Exception the exception
    */
-  private List<String> writeMrsat(Concept c) throws Exception {
+  List<String> writeMrsat(Concept c) throws Exception {
 
     // Field Description
     // 0 CUI

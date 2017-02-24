@@ -2955,6 +2955,8 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
       else if (queryStyle == QueryStyle.OTHER) {
         workflowService.executeQuery(query, queryType,
             workflowService.getDefaultQueryParams(project), true);
+      } else {
+        throw new LocalException("Unexpected query style = " + queryStyle);
       }
 
       // websocket - n/a

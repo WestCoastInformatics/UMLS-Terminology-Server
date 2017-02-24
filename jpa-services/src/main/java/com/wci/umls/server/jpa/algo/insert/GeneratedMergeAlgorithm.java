@@ -302,7 +302,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     param = new AlgorithmParameterJpa("Query", "query",
         "A query to perform action only on objects that meet the criteria",
         "e.g. SELECT a.id, b.id FROM AtomJpa a, AtomJpa b ...", 4000,
-        AlgorithmParameter.Type.TEXT, "");
+        AlgorithmParameter.Type.QUERY_ID_PAIR, "");
     params.add(param);
 
     // Integrity check names
