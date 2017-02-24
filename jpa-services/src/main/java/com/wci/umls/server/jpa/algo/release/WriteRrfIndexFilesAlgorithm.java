@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.io.Files;
@@ -81,8 +82,8 @@ public class WriteRrfIndexFilesAlgorithm
       final Concept c = getConcept(conceptId);
 
       // caching to support only unique rows in output
-      final HashSet<String> seen = new HashSet<>();
-      final HashSet<String> wordsSeen = new HashSet<>();
+      final Set<String> seen = new HashSet<>();
+      final Set<String> wordsSeen = new HashSet<>();
 
       for (final Atom atom : c.getAtoms()) {
         if (atom.isPublishable()) {
@@ -102,7 +103,7 @@ public class WriteRrfIndexFilesAlgorithm
               && !seen.contains("MRXNS" + atom.getStringClassId())
               && !ConfigUtility.isEmpty(normalizedString)) {
 
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
             sb.append("ENG").append("|"); // 0 LAT
             sb.append(normalizedString).append("|"); // 1 NSTR
             sb.append(c.getTerminologyId()).append("|"); // 2 CUI
@@ -117,14 +118,14 @@ public class WriteRrfIndexFilesAlgorithm
                 .split(normalizedString, ConfigUtility.PUNCTUATION)) {
               if (!wordsSeen
                   .contains("MRXNW" + word + atom.getStringClassId())) {
-                sb = new StringBuilder();
-                sb.append("ENG").append("|"); // 0 LAT
-                sb.append(word).append("|"); // 1 WORD
-                sb.append(c.getTerminologyId()).append("|"); // 2 CUI
-                sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-                sb.append(atom.getStringClassId()).append("|"); // 4 SUI
-                sb.append("\n");
-                writerMap.get("MRXNW_ENG.RRF").write(sb.toString());
+                final StringBuilder sb2 = new StringBuilder();
+                sb2.append("ENG").append("|"); // 0 LAT
+                sb2.append(word).append("|"); // 1 WORD
+                sb2.append(c.getTerminologyId()).append("|"); // 2 CUI
+                sb2.append(atom.getLexicalClassId()).append("|"); // 3 LUI
+                sb2.append(atom.getStringClassId()).append("|"); // 4 SUI
+                sb2.append("\n");
+                writerMap.get("MRXNW_ENG.RRF").write(sb2.toString());
                 wordsSeen.add("MRXNW" + word + atom.getStringClassId());
               }
             }
@@ -136,7 +137,7 @@ public class WriteRrfIndexFilesAlgorithm
                 .split(atom.getName(), ConfigUtility.PUNCTUATION)) {
               if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word
                   + atom.getStringClassId())) {
-                StringBuilder sb = new StringBuilder();
+                final StringBuilder sb = new StringBuilder();
                 sb.append(atom.getLanguage()).append("|"); // 0 LAT
                 sb.append(word).append("|"); // 1 WORD
                 sb.append(c.getTerminologyId()).append("|"); // 2 CUI

@@ -18,6 +18,8 @@ import java.util.UUID;
 
 import javax.persistence.Query;
 
+import org.codehaus.plexus.util.FileUtils;
+
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -66,7 +68,7 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
-    setSteps(2);
+    setSteps(4);
     openWriters();
 
     writeMraui();
@@ -86,6 +88,7 @@ public class WriteRrfHistoryFilesAlgorithm
       }
       final File inputFile = new File(fdir, writerName);
       final File outputFile = new File(fdir, writerName + ".sorted");
+      FileUtils.removePath(outputFile.getPath());
       FileSorter.sortFile(inputFile.getAbsolutePath(),
           outputFile.getAbsolutePath(), ConfigUtility.getByteComparator());
     }
@@ -350,7 +353,7 @@ public class WriteRrfHistoryFilesAlgorithm
                   history.getReferencedConcept().getTerminologyId())) {
                 StringBuilder sb = new StringBuilder();
                 // CUI1
-                sb.append(history.getLastModifiedBy()).append("|");
+                sb.append(c.getTerminologyId()).append("|");
                 // 1 VER
                 sb.append(history.getVersion()).append("|");
                 // 2 REL
@@ -370,7 +373,7 @@ public class WriteRrfHistoryFilesAlgorithm
               } else {
                 StringBuilder sb = new StringBuilder();
                 // CUI1
-                sb.append(history.getLastModifiedBy()).append("|");
+                sb.append(c.getTerminologyId()).append("|");
                 // 1 VER
                 sb.append(history.getVersion()).append("|");
                 // 2 REL
