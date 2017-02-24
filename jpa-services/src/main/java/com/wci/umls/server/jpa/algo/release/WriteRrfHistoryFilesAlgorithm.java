@@ -22,12 +22,15 @@ import org.codehaus.plexus.util.FileUtils;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.FileSorter;
 import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.services.handlers.DefaultComputePreferredNameHandler;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -75,6 +78,12 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     writeMrcui();
+    updateProgress();
+    
+    writeNciCodeCuiMap();
+    updateProgress();
+    
+    writeHistory();
     updateProgress();
 
     closeWriters();
@@ -488,6 +497,142 @@ public class WriteRrfHistoryFilesAlgorithm
     }
   }
 
+  private void writeNciCodeCuiMap() throws Exception {
+    // This file maps the NCI concept to it's CUI and the preferred terms of each as well.
+    // Field Description
+    // 0 NCI concept
+    // 1 CUI
+    // 2 NCI PT
+    // 3 CUI PT
+    //
+    // e.g.
+    // C100000|C3272245|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable-Over 12 Hours From Symptom Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable-Over 12 Hours From Symptom Onset|
+    // C100001|C3272246|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable After Successful Full-Dose Thrombolytic Therapy|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable After Successful Full-Dose Thrombolytic Therapy|
+    // C100002|C3272247|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Unstable-Over 12 Hours From Symptom Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Unstable-Over 12 Hours From Symptom Onset|
+    // C100003|C3272248|Percutaneous Mitral Valve Repair|Percutaneous Mitral Valve Repair|
+
+    
+    final List<Object[]> results = new ArrayList<>();
+    DefaultComputePreferredNameHandler handler = new DefaultComputePreferredNameHandler();
+
+    String queryStr = null;
+    queryStr = "select a.id, b.id from ConceptJpa a join a.atoms aa, " + 
+    "ConceptJpa b join b.atoms ba " + 
+    "where aa.id = ba.id and a.terminology='NCI' and aa.termType='PT' and b.terminology=:projectTerminology";
+    final javax.persistence.Query query = manager.createQuery(queryStr);
+    query.setParameter("projectTerminology", getProject().getTerminology());
+    results.addAll(query.getResultList());
+    for (Object[] objArray : results) {
+      final Long id1 = ((Long)(objArray[0])).longValue();
+      final Long id2 = ((Long)(objArray[1])).longValue();
+      final Concept concept1 = this.getConcept(id1);
+      final Concept concept2 = this.getConcept(id2);
+      final Atom preferredAtom1 = handler.sortAtoms(concept1.getAtoms(),getPrecedenceList(getProject().getTerminology(),
+          getProject().getVersion())).get(0);
+      final Atom preferredAtom2 = handler.sortAtoms(concept2.getAtoms(),getPrecedenceList(getProject().getTerminology(),
+          getProject().getVersion())).get(0);
+      
+      // Write an entry for each row.
+      StringBuilder sb = new StringBuilder();
+      sb.append(concept1.getTerminologyId()).append("|");
+      sb.append(concept2.getTerminologyId()).append("|");
+      sb.append(preferredAtom1.getName()).append("|");
+      sb.append(preferredAtom2.getName()).append("|");
+      sb.append("\n");
+      writerMap.get("nci_code_cui_map_" + getProcess().getVersion() + ".dat").print(sb.toString());
+    }
+  }
+  
+  private void writeHistory() throws Exception {
+    // This file maps the NCI concept to it's CUI and the preferred terms of each as well.
+    // Field Description
+    // 0 CUI1
+    // 1 CUI1.name
+    // 2 split or merge or retire
+    // 3 date
+    // 4 CUI2
+    // 5 CUI2.name
+    //
+    // e.g.
+    // # CUI, preferredName, type, dd-MMM-yyy (for $release+01), CUI2,pn
+    // C0000266|Parlodel|split|15-dec-2016|C0546852|Bromocriptine Mesylate
+    // C0000325|20-Methylcholanthrene|split|15-dec-2016|C0025732|20-Methylcholanthrene
+    // C0000473|4-Aminobenzoic Acid|split|15-dec-2016|C0000473|4-Aminobenzoic Acid
+    // C0000530|5'-NUCLEOTIDASE|split|15-dec-2016|C0000530|5'-NUCLEOTIDASE
+    // C0000545|Eicosapentaenoic Acid|split|15-dec-2016|C0000545|Eicosapentaenoic Acid
+    // C0000598|Ticlopidine Hydrochloride|merge|15-dec-2016|C0000598|Ticlopidine Hydrochloride
+    // C0000719|Abbott 46811|split|15-dec-2016|C0887647|Cefsulodin Sodium
+
+   
+    // splits
+    final Set<String> currentCuis = new HashSet<>();
+    String queryStr = null;
+    javax.persistence.Query query = null;
+    queryStr = "select c.terminologyId from ConceptJpa c "
+        + "where c.terminology = :terminology and c.version = :version "
+        + "and c.publishable = true";
+    query = manager.createQuery(queryStr);
+    query.setParameter("terminology", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
+    currentCuis.addAll(query.getResultList());
+    
+
+    // atoms in different concept than previous release:
+    final Map<String, Set<String>> atomsMoved = new HashMap<>();
+    queryStr = "select distinct value(cid), c.terminologyId  "
+        + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
+        + "where c.terminology = :terminology and c.version = :version "
+        + "and c.publishable = true " + "and a.publishable = true "
+        + "and key(cid) = :terminology " + "and value(cid) != c.terminologyId";
+    query = manager.createQuery(queryStr);
+    query.setParameter("terminology", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
+    final List<Object[]> results = query.getResultList();
+    for (final Object[] objArray : results) {
+      final String lastReleaseCui = objArray[0].toString();
+      final String cui = objArray[1].toString();
+      if (!atomsMoved.containsKey(lastReleaseCui)) {
+        atomsMoved.put(lastReleaseCui, new HashSet<>());
+      }
+      atomsMoved.get(lastReleaseCui).add(cui);
+    }
+    // Determine "split" cases - all keys from atomsMoved where the value is
+    // size()>1 and the key is not in current cuis.
+    // write RO rows for both "value" CUIs.
+    // Note: split concept must be merged into third concept in order to meet
+    // !currentCuis requirement
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
+      final String lastReleaseCui = entry.getKey();
+      final Concept lastReleaseConcept = getConcept(lastReleaseCui, getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
+      
+      if (entry.getValue().size() > 1
+          && !currentCuis.contains(lastReleaseCui)) {
+        // write RO rows for both "value" CUIs.
+        final List<String> values = new ArrayList<>(entry.getValue());
+        final StringBuilder sb = new StringBuilder();
+        sb.append(lastReleaseCui).append("|"); // 0 CUI1
+        sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
+        sb.append("").append("|"); // 2 DATE
+        sb.append("split|"); // 3 TYPE
+        Concept concept = getConcept(values.get(0), getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
+        sb.append(values.get(0)).append("|"); // 4 CUI2
+        sb.append(concept.getName()).append("|"); // 5 NAME
+        sb.append("\n");
+        sb.append(lastReleaseCui).append("|"); // 0 CUI1
+        sb.append(getProcess().getVersion()).append("|"); // 1 NAME
+        sb.append("").append("|"); // 2 DATE
+        sb.append("split|"); // 3 TYPE
+        concept = getConcept(values.get(1), getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
+        sb.append(values.get(1)).append("|"); // 4 CUI2
+        sb.append(concept.getName()).append("|"); // 5 NAME
+        sb.append("\n");
+    
+ 
+      writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt").print(sb.toString());
+      }
+      }
+  }
+  
   /**
    * Open writers.
    *
@@ -505,6 +650,10 @@ public class WriteRrfHistoryFilesAlgorithm
         new PrintWriter(new FileWriter(new File(dir, "MRAUI.RRF"))));
     writerMap.put("MRCUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCUI.RRF"))));
+    String fileName = "nci_code_cui_map_" + getProcess().getVersion() + ".dat";
+    writerMap.put(fileName, new PrintWriter(new FileWriter(new File(dir, fileName))));
+    fileName = "NCIMEME_" + getProcess().getVersion() + "_history.txt";
+    writerMap.put(fileName, new PrintWriter(new FileWriter(new File(dir, fileName))));
     writerMap.put("DELETEDCUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDCUI.RRF"))));
     writerMap.put("DELETEDLUI.RRF",
@@ -513,6 +662,8 @@ public class WriteRrfHistoryFilesAlgorithm
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDSUI.RRF"))));
     writerMap.put("MERGEDCUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "MERGEDCUI.RRF"))));
+    writerMap.put("MERGEDLUI.RRF",
+        new PrintWriter(new FileWriter(new File(changeDir, "MERGEDLUI.RRF"))));
     writerMap.put("MERGEDSUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "MERGEDSUI.RRF"))));
   }
