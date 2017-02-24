@@ -6,7 +6,10 @@ package com.wci.umls.server.jpa.algo.release;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -659,7 +662,7 @@ public class WriteRrfHistoryFilesAlgorithm
         final StringBuilder sb = new StringBuilder();
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
-        sb.append("").append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
         Concept concept =
             getConcept(values.get(0), getProcess().getTerminology(),
@@ -669,7 +672,7 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append("\n");
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(getProcess().getVersion()).append("|"); // 1 NAME
-        sb.append("").append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
         concept = getConcept(values.get(1), getProcess().getTerminology(),
             getProcess().getVersion(), Branch.ROOT);
@@ -771,5 +774,18 @@ public class WriteRrfHistoryFilesAlgorithm
   @Override
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
+  }
+  
+  private String convertDate(String inputDate) {
+    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd"); 
+    Date date;
+    try {
+      date = dt.parse(inputDate);
+      SimpleDateFormat dt1 = new SimpleDateFormat("dd-MMM-yyyy");
+      return dt1.format(date);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    } 
+    return "";
   }
 }
