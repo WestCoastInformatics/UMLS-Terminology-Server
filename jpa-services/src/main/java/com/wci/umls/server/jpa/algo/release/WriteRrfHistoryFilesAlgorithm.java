@@ -865,6 +865,12 @@ public class WriteRrfHistoryFilesAlgorithm
       merges.put(cui, history);
     }
 
+    /**
+     * Recurse entries.
+     *
+     * @param history the history
+     * @return the list
+     */
     public List<ComponentHistory> recurseEntries(ComponentHistory history) {
       // used when referencedTerminologyId is not publishable,
       // Look up and generate commensurate "current" history records
