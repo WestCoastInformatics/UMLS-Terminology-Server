@@ -104,7 +104,19 @@ public class WriteRrfContentFilesAlgorithm
   private Map<Long, String> attAtuiMap = new HashMap<>();
 
   /** The rel rui map. */
-  private Map<Long, String> relRuiMap = new HashMap<>();
+  private Map<Long, String> relAtomRuiMap = new HashMap<>();
+
+  /** The rel concept rui map. */
+  private Map<Long, String> relConceptRuiMap = new HashMap<>();
+
+  /** The rel code rui map. */
+  private Map<Long, String> relCodeRuiMap = new HashMap<>();
+
+  /** The rel comp atom rui map. */
+  private Map<Long, String> relCompRuiMap = new HashMap<>();
+
+  /** The rel descriptor rui map. */
+  private Map<Long, String> relDescriptorRuiMap = new HashMap<>();
 
   /** The atom treepos set. */
   private Map<Long, Contents> atomContentsMap = new HashMap<>();
@@ -469,7 +481,7 @@ public class WriteRrfContentFilesAlgorithm
     for (final Object[] result : results4) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
-      relRuiMap.put(id, alternateTerminologyId);
+      relAtomRuiMap.put(id, alternateTerminologyId);
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
     logInfo("  Cache relationship->RUI map (concept rels)");
@@ -482,7 +494,7 @@ public class WriteRrfContentFilesAlgorithm
     for (final Object[] result : results4) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
-      relRuiMap.put(id, alternateTerminologyId);
+      relConceptRuiMap.put(id, alternateTerminologyId);
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
     logInfo("  Cache relationship->RUI map (descriptor rels)");
@@ -495,7 +507,7 @@ public class WriteRrfContentFilesAlgorithm
     for (final Object[] result : results4) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
-      relRuiMap.put(id, alternateTerminologyId);
+      relDescriptorRuiMap.put(id, alternateTerminologyId);
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
     logInfo("  Cache relationship->RUI map (code rels)");
@@ -508,7 +520,7 @@ public class WriteRrfContentFilesAlgorithm
     for (final Object[] result : results4) {
       final Long id = Long.valueOf(result[0].toString());
       final String alternateTerminologyId = result[1].toString();
-      relRuiMap.put(id, alternateTerminologyId);
+      relCodeRuiMap.put(id, alternateTerminologyId);
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
     }
 
@@ -1392,7 +1404,7 @@ public class WriteRrfContentFilesAlgorithm
         }
 
         lines.add(getRelLine(rel, cui1, "", "CUI",
-            rel.getFrom().getTerminologyId(), "", "CUI"));
+            rel.getFrom().getTerminologyId(), "", "CUI", relConceptRuiMap));
       }
     }
 
@@ -1421,9 +1433,10 @@ public class WriteRrfContentFilesAlgorithm
         aui2 = atomAuiMap.get(((Atom) from).getId());
         stype2 = "AUI";
       }
-      relRuiMap.put(rel.getId(),
+      relCompRuiMap.put(rel.getId(),
           rel.getAlternateTerminologyIds().get(getProject().getTerminology()));
-      lines.add(getRelLine(rel, cui1, "", "CUI", null, aui2, stype2));
+      lines.add(
+          getRelLine(rel, cui1, "", "CUI", null, aui2, stype2, relCompRuiMap));
 
     }
 
@@ -1444,7 +1457,8 @@ public class WriteRrfContentFilesAlgorithm
             continue;
           }
           final String aui2 = atomAuiMap.get(r.getFrom().getId());
-          lines.add(getRelLine(r, cui1, aui1, "AUI", null, aui2, "AUI"));
+          lines.add(getRelLine(r, cui1, aui1, "AUI", null, aui2, "AUI",
+              relAtomRuiMap));
         }
       }
 
@@ -1472,9 +1486,10 @@ public class WriteRrfContentFilesAlgorithm
           aui2 = descriptorAuiMap.get(from.getId());
           stype2 = "SDUI";
         }
-        relRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
+        relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
             .get(getProject().getTerminology()));
-        lines.add(getRelLine(rel, cui1, aui1, "AUI", cui2, aui2, stype2));
+        lines.add(getRelLine(rel, cui1, aui1, "AUI", cui2, aui2, stype2,
+            relCompRuiMap));
 
       }
 
@@ -1493,7 +1508,8 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             final String aui2 = conceptAuiMap.get(rel.getFrom().getId());
-            lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, "SCUI"));
+            lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, "SCUI",
+                relConceptRuiMap));
           }
         }
 
@@ -1518,9 +1534,10 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = atomAuiMap.get(((Atom) from).getId());
             stype2 = "AUI";
           }
-          relRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
+          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
               .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, stype2));
+          lines.add(getRelLine(rel, cui1, aui1, "SCUI", null, aui2, stype2,
+              relCompRuiMap));
         }
       }
 
@@ -1535,7 +1552,8 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             final String aui2 = codeAuiMap.get(rel.getFrom().getId());
-            lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, "CODE"));
+            lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, "CODE",
+                relCodeRuiMap));
           }
         }
 
@@ -1562,9 +1580,10 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = descriptorAuiMap.get(from.getId());
             stype2 = "SDUI";
           }
-          relRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
+          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
               .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, stype2));
+          lines.add(getRelLine(rel, cui1, aui1, "CODE", null, aui2, stype2,
+              relCompRuiMap));
 
         }
       }
@@ -1580,7 +1599,8 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             final String aui2 = descriptorAuiMap.get(rel.getFrom().getId());
-            lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, "SDUI"));
+            lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, "SDUI",
+                relDescriptorRuiMap));
           }
         }
 
@@ -1606,9 +1626,10 @@ public class WriteRrfContentFilesAlgorithm
             aui2 = atomAuiMap.get(((Atom) from).getId());
             stype2 = "AUI";
           }
-          relRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
+          relCompRuiMap.put(rel.getId(), rel.getAlternateTerminologyIds()
               .get(getProject().getTerminology()));
-          lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, stype2));
+          lines.add(getRelLine(rel, cui1, aui1, "SDUI", null, aui2, stype2,
+              relCompRuiMap));
         }
       }
     } // end for(Atom... concept.getAtoms())
@@ -1688,10 +1709,12 @@ public class WriteRrfContentFilesAlgorithm
    * @param cui2 the cui 2
    * @param aui2 the aui 2
    * @param stype2 the stype 2
+   * @param relRuiMap the rel rui map
    * @return the rel line
    */
   private String getRelLine(Relationship<?, ?> rel, String cui1, String aui1,
-    String stype1, String cui2, String aui2, String stype2) {
+    String stype1, String cui2, String aui2, String stype2,
+    Map<Long, String> relRuiMap) {
     final StringBuilder sb = new StringBuilder(200);
     // 0 CUI1
     sb.append(cui1).append("|");
@@ -2207,7 +2230,7 @@ public class WriteRrfContentFilesAlgorithm
             // SUI
             sb.append("|");
             // METAUI
-            sb.append(relRuiMap.get(rel.getId())).append("|");
+            sb.append(relAtomRuiMap.get(rel.getId())).append("|");
             // STYPE
             sb.append("RUI").append("|");
             // CODE
@@ -2346,7 +2369,7 @@ public class WriteRrfContentFilesAlgorithm
               sb.append(c.getTerminologyId()).append("|");
               sb.append("|");
               sb.append("|");
-              sb.append(relRuiMap.get(rel.getId())).append("|");
+              sb.append(relConceptRuiMap.get(rel.getId())).append("|");
               sb.append("RUI").append("|");
               sb.append("|");
               final String atui = attAtuiMap.get(attribute.getId());

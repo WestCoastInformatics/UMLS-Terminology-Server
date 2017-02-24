@@ -71,7 +71,7 @@ public class WriteRrfHistoryFilesAlgorithm
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
-    setSteps(4);
+    setSteps(5);
     openWriters();
 
     writeMraui();
@@ -79,10 +79,10 @@ public class WriteRrfHistoryFilesAlgorithm
 
     writeMrcui();
     updateProgress();
-    
+
     writeNciCodeCuiMap();
     updateProgress();
-    
+
     writeHistory();
     updateProgress();
 
@@ -92,7 +92,8 @@ public class WriteRrfHistoryFilesAlgorithm
     final File changeDir = new File(dir, "CHANGE");
     for (final String writerName : writerMap.keySet()) {
       File fdir = changeDir;
-      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
+      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")
+          || writerName.toLowerCase().contains("nci")) {
         fdir = dir;
       }
       final File inputFile = new File(fdir, writerName);
@@ -105,7 +106,8 @@ public class WriteRrfHistoryFilesAlgorithm
     // move sorted files into orig files
     for (final String writerName : writerMap.keySet()) {
       File fdir = changeDir;
-      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")) {
+      if (writerName.equals("MRCUI.RRF") || writerName.equals("MRAUI.RRF")
+          || writerName.toLowerCase().contains("nci")) {
         fdir = dir;
       }
       final File inputFile = new File(fdir, writerName);
@@ -497,8 +499,15 @@ public class WriteRrfHistoryFilesAlgorithm
     }
   }
 
+  /**
+   * Write nci code cui map.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
   private void writeNciCodeCuiMap() throws Exception {
-    // This file maps the NCI concept to it's CUI and the preferred terms of each as well.
+    // This file maps the NCI concept to it's CUI and the preferred terms of
+    // each as well.
     // Field Description
     // 0 NCI concept
     // 1 CUI
@@ -506,32 +515,48 @@ public class WriteRrfHistoryFilesAlgorithm
     // 3 CUI PT
     //
     // e.g.
-    // C100000|C3272245|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable-Over 12 Hours From Symptom Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable-Over 12 Hours From Symptom Onset|
-    // C100001|C3272246|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable After Successful Full-Dose Thrombolytic Therapy|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Stable After Successful Full-Dose Thrombolytic Therapy|
-    // C100002|C3272247|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Unstable-Over 12 Hours From Symptom Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial Infarction-Unstable-Over 12 Hours From Symptom Onset|
-    // C100003|C3272248|Percutaneous Mitral Valve Repair|Percutaneous Mitral Valve Repair|
+    // C100000|C3272245|Percutaneous Coronary Intervention for ST Elevation
+    // Myocardial Infarction-Stable-Over 12 Hours From Symptom
+    // Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial
+    // Infarction-Stable-Over 12 Hours From Symptom Onset|
+    // C100001|C3272246|Percutaneous Coronary Intervention for ST Elevation
+    // Myocardial Infarction-Stable After Successful Full-Dose Thrombolytic
+    // Therapy|Percutaneous Coronary Intervention for ST Elevation Myocardial
+    // Infarction-Stable After Successful Full-Dose Thrombolytic Therapy|
+    // C100002|C3272247|Percutaneous Coronary Intervention for ST Elevation
+    // Myocardial Infarction-Unstable-Over 12 Hours From Symptom
+    // Onset|Percutaneous Coronary Intervention for ST Elevation Myocardial
+    // Infarction-Unstable-Over 12 Hours From Symptom Onset|
+    // C100003|C3272248|Percutaneous Mitral Valve Repair|Percutaneous Mitral
+    // Valve Repair|
 
-    
     final List<Object[]> results = new ArrayList<>();
-    DefaultComputePreferredNameHandler handler = new DefaultComputePreferredNameHandler();
+    DefaultComputePreferredNameHandler handler =
+        new DefaultComputePreferredNameHandler();
 
     String queryStr = null;
-    queryStr = "select a.id, b.id from ConceptJpa a join a.atoms aa, " + 
-    "ConceptJpa b join b.atoms ba " + 
-    "where aa.id = ba.id and a.terminology='NCI' and aa.termType='PT' and b.terminology=:projectTerminology";
+    queryStr = "select a.id, b.id from ConceptJpa a join a.atoms aa, "
+        + "ConceptJpa b join b.atoms ba "
+        + "where aa.id = ba.id and a.terminology='NCI' and aa.termType='PT' and b.terminology=:projectTerminology";
     final javax.persistence.Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());
     for (Object[] objArray : results) {
-      final Long id1 = ((Long)(objArray[0])).longValue();
-      final Long id2 = ((Long)(objArray[1])).longValue();
+      final Long id1 = ((Long) (objArray[0])).longValue();
+      final Long id2 = ((Long) (objArray[1])).longValue();
       final Concept concept1 = this.getConcept(id1);
       final Concept concept2 = this.getConcept(id2);
-      final Atom preferredAtom1 = handler.sortAtoms(concept1.getAtoms(),getPrecedenceList(getProject().getTerminology(),
-          getProject().getVersion())).get(0);
-      final Atom preferredAtom2 = handler.sortAtoms(concept2.getAtoms(),getPrecedenceList(getProject().getTerminology(),
-          getProject().getVersion())).get(0);
-      
+      final Atom preferredAtom1 =
+          handler
+              .sortAtoms(concept1.getAtoms(), getPrecedenceList(
+                  getProject().getTerminology(), getProject().getVersion()))
+              .get(0);
+      final Atom preferredAtom2 =
+          handler
+              .sortAtoms(concept2.getAtoms(), getPrecedenceList(
+                  getProject().getTerminology(), getProject().getVersion()))
+              .get(0);
+
       // Write an entry for each row.
       StringBuilder sb = new StringBuilder();
       sb.append(concept1.getTerminologyId()).append("|");
@@ -539,12 +564,20 @@ public class WriteRrfHistoryFilesAlgorithm
       sb.append(preferredAtom1.getName()).append("|");
       sb.append(preferredAtom2.getName()).append("|");
       sb.append("\n");
-      writerMap.get("nci_code_cui_map_" + getProcess().getVersion() + ".dat").print(sb.toString());
+      writerMap.get("nci_code_cui_map_" + getProcess().getVersion() + ".dat")
+          .print(sb.toString());
     }
   }
-  
+
+  /**
+   * Write history.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
   private void writeHistory() throws Exception {
-    // This file maps the NCI concept to it's CUI and the preferred terms of each as well.
+    // This file maps the NCI concept to it's CUI and the preferred terms of
+    // each as well.
     // Field Description
     // 0 CUI1
     // 1 CUI1.name
@@ -557,13 +590,15 @@ public class WriteRrfHistoryFilesAlgorithm
     // # CUI, preferredName, type, dd-MMM-yyy (for $release+01), CUI2,pn
     // C0000266|Parlodel|split|15-dec-2016|C0546852|Bromocriptine Mesylate
     // C0000325|20-Methylcholanthrene|split|15-dec-2016|C0025732|20-Methylcholanthrene
-    // C0000473|4-Aminobenzoic Acid|split|15-dec-2016|C0000473|4-Aminobenzoic Acid
+    // C0000473|4-Aminobenzoic Acid|split|15-dec-2016|C0000473|4-Aminobenzoic
+    // Acid
     // C0000530|5'-NUCLEOTIDASE|split|15-dec-2016|C0000530|5'-NUCLEOTIDASE
-    // C0000545|Eicosapentaenoic Acid|split|15-dec-2016|C0000545|Eicosapentaenoic Acid
-    // C0000598|Ticlopidine Hydrochloride|merge|15-dec-2016|C0000598|Ticlopidine Hydrochloride
+    // C0000545|Eicosapentaenoic
+    // Acid|split|15-dec-2016|C0000545|Eicosapentaenoic Acid
+    // C0000598|Ticlopidine Hydrochloride|merge|15-dec-2016|C0000598|Ticlopidine
+    // Hydrochloride
     // C0000719|Abbott 46811|split|15-dec-2016|C0887647|Cefsulodin Sodium
 
-   
     // splits
     final Set<String> currentCuis = new HashSet<>();
     String queryStr = null;
@@ -575,15 +610,13 @@ public class WriteRrfHistoryFilesAlgorithm
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     currentCuis.addAll(query.getResultList());
-    
 
-    // atoms in different concept than previous release:
     final Map<String, Set<String>> atomsMoved = new HashMap<>();
     queryStr = "select distinct value(cid), c.terminologyId  "
         + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
         + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true " + "and a.publishable = true "
-        + "and key(cid) = :terminology " + "and value(cid) != c.terminologyId";
+        + "and c.publishable = true and a.publishable = true "
+        + "and key(cid) = :terminology";
     query = manager.createQuery(queryStr);
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
@@ -591,6 +624,9 @@ public class WriteRrfHistoryFilesAlgorithm
     for (final Object[] objArray : results) {
       final String lastReleaseCui = objArray[0].toString();
       final String cui = objArray[1].toString();
+      if (lastReleaseCui.equals(cui)) {
+        continue;
+      }
       if (!atomsMoved.containsKey(lastReleaseCui)) {
         atomsMoved.put(lastReleaseCui, new HashSet<>());
       }
@@ -603,8 +639,10 @@ public class WriteRrfHistoryFilesAlgorithm
     // !currentCuis requirement
     for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       final String lastReleaseCui = entry.getKey();
-      final Concept lastReleaseConcept = getConcept(lastReleaseCui, getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
-      
+      final Concept lastReleaseConcept =
+          getConcept(lastReleaseCui, getProcess().getTerminology(),
+              getProcess().getVersion(), Branch.ROOT);
+
       if (entry.getValue().size() > 1
           && !currentCuis.contains(lastReleaseCui)) {
         // write RO rows for both "value" CUIs.
@@ -614,7 +652,9 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
         sb.append("").append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
-        Concept concept = getConcept(values.get(0), getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
+        Concept concept =
+            getConcept(values.get(0), getProcess().getTerminology(),
+                getProcess().getVersion(), Branch.ROOT);
         sb.append(values.get(0)).append("|"); // 4 CUI2
         sb.append(concept.getName()).append("|"); // 5 NAME
         sb.append("\n");
@@ -622,17 +662,18 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append(getProcess().getVersion()).append("|"); // 1 NAME
         sb.append("").append("|"); // 2 DATE
         sb.append("split|"); // 3 TYPE
-        concept = getConcept(values.get(1), getProcess().getTerminology(), getProcess().getVersion(), Branch.ROOT);
+        concept = getConcept(values.get(1), getProcess().getTerminology(),
+            getProcess().getVersion(), Branch.ROOT);
         sb.append(values.get(1)).append("|"); // 4 CUI2
         sb.append(concept.getName()).append("|"); // 5 NAME
         sb.append("\n");
-    
- 
-      writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt").print(sb.toString());
+
+        writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt")
+            .print(sb.toString());
       }
-      }
+    }
   }
-  
+
   /**
    * Open writers.
    *
@@ -651,9 +692,11 @@ public class WriteRrfHistoryFilesAlgorithm
     writerMap.put("MRCUI.RRF",
         new PrintWriter(new FileWriter(new File(dir, "MRCUI.RRF"))));
     String fileName = "nci_code_cui_map_" + getProcess().getVersion() + ".dat";
-    writerMap.put(fileName, new PrintWriter(new FileWriter(new File(dir, fileName))));
+    writerMap.put(fileName,
+        new PrintWriter(new FileWriter(new File(dir, fileName))));
     fileName = "NCIMEME_" + getProcess().getVersion() + "_history.txt";
-    writerMap.put(fileName, new PrintWriter(new FileWriter(new File(dir, fileName))));
+    writerMap.put(fileName,
+        new PrintWriter(new FileWriter(new File(dir, fileName))));
     writerMap.put("DELETEDCUI.RRF",
         new PrintWriter(new FileWriter(new File(changeDir, "DELETEDCUI.RRF"))));
     writerMap.put("DELETEDLUI.RRF",
@@ -681,7 +724,20 @@ public class WriteRrfHistoryFilesAlgorithm
   @Override
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
-    // n/a
+    // cleanup
+    final File changeDir = new File(dir, "CHANGE");
+    FileUtils.deleteDirectory(changeDir);
+
+    FileUtils.forceDelete(new File(dir, "MRCUI.RRF"));
+    FileUtils.forceDelete(new File(dir, "MRAUI.RRF"));
+
+    final String ncifile =
+        "nci_code_cui_map_" + getProcess().getVersion() + ".dat";
+    FileUtils.forceDelete(new File(dir, ncifile));
+    final String ncimemefile =
+        "NCIMEME_" + getProcess().getVersion() + "_history.txt";
+    FileUtils.forceDelete(new File(dir, ncimemefile));
+
     logInfo("Finished RESET " + getName());
   }
 
