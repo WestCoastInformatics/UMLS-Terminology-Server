@@ -154,7 +154,7 @@ public class GeneratedMergeAlgorithmTest extends IntegrationUnitSupport {
       // Set properties for the algorithm
       //
       Properties algoProperties = new Properties();
-      algoProperties.put("queryType", "JQL");
+      algoProperties.put("queryType", "JPQL");
       algoProperties.put("query",
           "select a1.id, a2.id "
               + "from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 "

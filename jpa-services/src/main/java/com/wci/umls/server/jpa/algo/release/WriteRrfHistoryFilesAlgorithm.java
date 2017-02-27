@@ -233,7 +233,7 @@ public class WriteRrfHistoryFilesAlgorithm
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
             + "and c.terminology = :terminology order by c.terminologyId",
-        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
+        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
 
     int objectCt = 0;
@@ -550,13 +550,12 @@ public class WriteRrfHistoryFilesAlgorithm
       atomsMoved.get(lastReleaseCui).add(cui);
     }
 
-
     // Determine "split" cases - all keys from atomsMoved where the value is
     // size()>1 and the key is not in current cuis.
     // write RO rows for both "value" CUIs.
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
-    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {      
+    for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       final String lastReleaseCui = entry.getKey();
       final Concept lastReleaseConcept =
           getConcept(lastReleaseCui, getProcess().getTerminology(),
@@ -569,7 +568,8 @@ public class WriteRrfHistoryFilesAlgorithm
         final StringBuilder sb = new StringBuilder();
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
-        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2
+                                                                              // DATE
         sb.append("split|"); // 3 TYPE
         Concept concept =
             getConcept(values.get(0), getProcess().getTerminology(),
@@ -579,7 +579,8 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append("\n");
         sb.append(lastReleaseCui).append("|"); // 0 CUI1
         sb.append(getProcess().getVersion()).append("|"); // 1 NAME
-        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2
+                                                                              // DATE
         sb.append("split|"); // 3 TYPE
         concept = getConcept(values.get(1), getProcess().getTerminology(),
             getProcess().getVersion(), Branch.ROOT);
@@ -682,9 +683,16 @@ public class WriteRrfHistoryFilesAlgorithm
   public String getDescription() {
     return ConfigUtility.getNameFromClass(getClass());
   }
-  
+
+  /**
+   * Convert date.
+   *
+   * @param inputDate the input date
+   * @return the string
+   */
+  @SuppressWarnings("static-method")
   private String convertDate(String inputDate) {
-    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd"); 
+    SimpleDateFormat dt = new SimpleDateFormat("yyyyMMdd");
     Date date;
     try {
       date = dt.parse(inputDate);
@@ -692,7 +700,7 @@ public class WriteRrfHistoryFilesAlgorithm
       return dt1.format(date);
     } catch (ParseException e) {
       e.printStackTrace();
-    } 
+    }
     return "";
   }
 
@@ -795,6 +803,11 @@ public class WriteRrfHistoryFilesAlgorithm
       return null;
     }
 
+    /**
+     * Reconcile history.
+     *
+     * @return the list
+     */
     public List<ComponentHistory> reconcileHistory() {
       final List<ComponentHistory> history = new ArrayList<>();
 

@@ -348,17 +348,17 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList findConceptsForGeneralQuery(String query, String jql,
+  public SearchResultList findConceptsForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find concepts " + query + ", " + jql + ", " + pfs);
+        "Content Client - find concepts " + query + ", " + JPQL + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client
         .target(config.getProperty("base.url") + "/content/concept" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+            + "&JPQL=" + URLEncoder.encode(JPQL == null ? "" : JPQL, "UTF-8")
                 .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
@@ -467,16 +467,16 @@ public class ContentClientRest extends RootClientRest
   /* see superclass */
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String query,
-    String jql, PfsParameterJpa pfs, String authToken) throws Exception {
+    String JPQL, PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find descriptors " + query + ", " + jql + ", " + pfs);
+        "Content Client - find descriptors " + query + ", " + JPQL + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client.target(
         config.getProperty("base.url") + "/content/descriptor" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+            + "&JPQL=" + URLEncoder.encode(JPQL == null ? "" : JPQL, "UTF-8")
                 .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);
@@ -585,17 +585,17 @@ public class ContentClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public SearchResultList findCodesForGeneralQuery(String query, String jql,
+  public SearchResultList findCodesForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception {
     Logger.getLogger(getClass()).debug(
-        "Content Client - find codes " + query + ", " + jql + ", " + pfs);
+        "Content Client - find codes " + query + ", " + JPQL + ", " + pfs);
 
     final Client client = ClientBuilder.newClient();
     final WebTarget target = client
         .target(config.getProperty("base.url") + "/content/code" + "?query="
             + URLEncoder.encode(query == null ? "" : query, "UTF-8")
                 .replaceAll("\\+", "%20")
-            + "&jql=" + URLEncoder.encode(jql == null ? "" : jql, "UTF-8")
+            + "&JPQL=" + URLEncoder.encode(JPQL == null ? "" : JPQL, "UTF-8")
                 .replaceAll("\\+", "%20"));
     final String pfsString = ConfigUtility
         .getStringForGraph(pfs == null ? new PfsParameterJpa() : pfs);

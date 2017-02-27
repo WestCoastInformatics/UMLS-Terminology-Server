@@ -367,7 +367,7 @@ public class QueryActionAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
     params.add(param);
 
     param = new AlgorithmParameterJpa("QueryType", "queryType",
-        "The language the query is written in", "e.g. JQL", 200,
+        "The language the query is written in", "e.g. JPQL", 200,
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));
