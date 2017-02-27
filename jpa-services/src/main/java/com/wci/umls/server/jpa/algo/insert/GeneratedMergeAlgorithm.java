@@ -142,8 +142,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       Map<String, String> params = new HashMap<>();
       params.put("terminology", getProcess().getTerminology());
       params.put("version", getProcess().getVersion());
-      params.put("latestTerminologyVersion", getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology()));
-      params.put("previousTerminologyVersion", getPreviousVersion(getProcess().getTerminology()));
+      params.put("latestTerminologyVersion", getProcess().getTerminology() + getProcess().getVersion());
+      params.put("previousTerminologyVersion", getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology()));
       params.put("projectTerminology", getProject().getTerminology());
       params.put("projectVersion", getProject().getVersion());
 
