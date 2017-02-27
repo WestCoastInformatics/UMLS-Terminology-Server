@@ -242,7 +242,7 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
     final List<Long> relIds = executeSingleComponentIdQuery(
         "select r.id from ConceptRelationshipJpa r WHERE r.publishable = true "
             + "and r.terminology = :terminology",
-        QueryType.JQL, getDefaultQueryParams(getProject()),
+        QueryType.JPQL, getDefaultQueryParams(getProject()),
         ConceptRelationshipJpa.class, false);
     commitClearBegin();
 

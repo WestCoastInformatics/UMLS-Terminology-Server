@@ -2250,7 +2250,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       if (ConfigUtility.isEmpty(objectTypeName)) {
         if (queryType == QueryType.LUCENE) {
           lobjectTypeName = "ConceptJpa";
-        } else if (queryType == QueryType.SQL || queryType == QueryType.JQL) {
+        } else if (queryType == QueryType.SQL || queryType == QueryType.JPQL) {
           lobjectTypeName = "AtomJpa";
         } else {
           throw new LocalException(

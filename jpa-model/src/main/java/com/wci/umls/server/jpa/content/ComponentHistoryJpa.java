@@ -5,7 +5,6 @@ package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,7 +30,7 @@ public class ComponentHistoryJpa extends AbstractComponent
     implements ComponentHistory {
 
   /** The referenced concept's terminology Id. */
-  @JoinColumn(nullable = true)
+  @Column(nullable = true)
   private String referencedTerminologyId;
 
   /** The reason. */

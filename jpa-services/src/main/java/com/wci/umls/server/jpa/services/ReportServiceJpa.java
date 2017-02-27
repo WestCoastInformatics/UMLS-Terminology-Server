@@ -1012,7 +1012,7 @@ public class ReportServiceJpa extends HistoryServiceJpa
     return list;
   }
 
-  /* see superclass */
+  /* see superclass */ 
   @Override
   public Report generateReport(Project project, String name, String query,
     QueryType queryType, Class<? extends Component> resultType)

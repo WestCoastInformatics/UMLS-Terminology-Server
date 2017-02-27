@@ -1520,40 +1520,40 @@ public interface ContentService extends MetadataService {
    * Find codes for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
+   * @param JPQLQuery the JPQL query
    * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find concepts for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
+   * @param JPQLQuery the JPQL query
    * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptors for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
+   * @param JPQLQuery the JPQL query
    * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Gets the tree for tree position.

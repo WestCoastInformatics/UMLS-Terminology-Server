@@ -1275,7 +1275,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         + " and tr.superType = super" + " and tr.subType = a "
         + " and tr.superType != tr.subType"
         + (childrenOnly ? " and depth = 1" : "");
-    final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
+    final javax.persistence.Query query = applyPfsToJPQLQuery(queryStr, pfs);
 
     final javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
@@ -1333,7 +1333,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         + " and sub.terminologyId = :terminologyId" + " and tr.subType = sub"
         + " and tr.superType = a " + " and tr.subType != tr.superType"
         + (parentsOnly ? " and depth = 1" : "");
-    final javax.persistence.Query query = applyPfsToJqlQuery(queryStr, pfs);
+    final javax.persistence.Query query = applyPfsToJPQLQuery(queryStr, pfs);
 
     final javax.persistence.Query ctQuery =
         manager.createQuery("select count(*) from "
@@ -2550,7 +2550,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    *
    * @param <T> the
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
+   * @param JPQLQuery the JPQL query
    * @param branch the branch
    * @param pfs the pfs
    * @param clazz the clazz
@@ -2559,7 +2559,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
    */
   @SuppressWarnings("unchecked")
   private <T extends AtomClass> SearchResultList findForGeneralQueryHelper(
-    String luceneQuery, String jqlQuery, String branch, PfsParameter pfs,
+    String luceneQuery, String JPQLQuery, String branch, PfsParameter pfs,
     Class<T> clazz) throws Exception {
     // Prepare results
     final SearchResultList results = new SearchResultListJpa();
@@ -2576,33 +2576,33 @@ public class ContentServiceJpa extends MetadataServiceJpa
       luceneQueryFlag = true;
     }
 
-    boolean jqlQueryFlag = false;
-    final List<T> jqlQueryClasses = new ArrayList<>();
-    if (jqlQuery != null && !jqlQuery.equals("")) {
-      if (!jqlQuery.toLowerCase().startsWith("select"))
+    boolean JPQLQueryFlag = false;
+    final List<T> JPQLQueryClasses = new ArrayList<>();
+    if (JPQLQuery != null && !JPQLQuery.equals("")) {
+      if (!JPQLQuery.toLowerCase().startsWith("select"))
         throw new Exception(
-            "The jql query did not start with the keyword 'select'. "
-                + jqlQuery);
-      if (jqlQuery.contains(";"))
+            "The JPQL query did not start with the keyword 'select'. "
+                + JPQLQuery);
+      if (JPQLQuery.contains(";"))
         throw new Exception(
-            "The jql query must not contain the ';'. " + jqlQuery);
-      javax.persistence.Query hQuery = manager.createQuery(jqlQuery);
+            "The JPQL query must not contain the ';'. " + JPQLQuery);
+      javax.persistence.Query hQuery = manager.createQuery(JPQLQuery);
 
       // Support for this is probably in Mysql 5.7.4
       // See http://mysqlserverteam.com/server-side-select-statement-timeouts/
       // It doesn't work with Mysql 5.6, seems to simply be ignored
       hQuery.setHint("javax.persistence.query.timeout", queryTimeout);
       try {
-        final List<T> jqlResults = hQuery.getResultList();
-        for (final T r : jqlResults) {
-          jqlQueryClasses.add(r);
+        final List<T> JPQLResults = hQuery.getResultList();
+        for (final T r : JPQLResults) {
+          JPQLQueryClasses.add(r);
         }
       } catch (ClassCastException e) {
         throw new Exception(
-            "The jql query returned items of an unexpected type. ", e);
+            "The JPQL query returned items of an unexpected type. ", e);
       }
 
-      jqlQueryFlag = true;
+      JPQLQueryFlag = true;
     }
 
     // Determine whether both query and criteria were used, or just one or the
@@ -2613,14 +2613,14 @@ public class ContentServiceJpa extends MetadataServiceJpa
       classes = luceneQueryClasses;
     }
 
-    if (jqlQueryFlag) {
+    if (JPQLQueryFlag) {
 
       if (luceneQueryFlag) {
         // Intersect the lucene and HQL results
-        classes.retainAll(jqlQueryClasses);
+        classes.retainAll(JPQLQueryClasses);
       } else {
-        // Otherwise, just use jql classes
-        classes = jqlQueryClasses;
+        // Otherwise, just use JPQL classes
+        classes = JPQLQueryClasses;
       }
 
       // Here we know the total size
@@ -3999,10 +3999,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info(
-        "Content Service - find codes " + luceneQuery + "/" + jqlQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
+        "Content Service - find codes " + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
         CodeJpa.class);
   }
 
@@ -4010,10 +4010,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   @Override
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - find concepts "
-        + luceneQuery + "/" + jqlQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
+        + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
         ConceptJpa.class);
   }
 
@@ -4021,10 +4021,10 @@ public class ContentServiceJpa extends MetadataServiceJpa
 
   @Override
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String branch, PfsParameter pfs) throws Exception {
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception {
     Logger.getLogger(getClass()).info("Content Service - find descriptors "
-        + luceneQuery + "/" + jqlQuery + "/");
-    return findForGeneralQueryHelper(luceneQuery, jqlQuery, branch, pfs,
+        + luceneQuery + "/" + JPQLQuery + "/");
+    return findForGeneralQueryHelper(luceneQuery, JPQLQuery, branch, pfs,
         DescriptorJpa.class);
   }
 

@@ -59,7 +59,7 @@ tsApp.controller('BinModalCtrl', [
       $scope.errors = [];
       $scope.messages = [];
       workflowService.testQuery($scope.project.id, binDefinition.query, binDefinition.queryType,
-        $scope.selected.config.queryStyle).then(
+        $scope.config.queryStyle).then(
       // success
       function(data) {
         $scope.testSucceeded = true;

@@ -2941,6 +2941,13 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           "trying to test query", UserRole.AUTHOR);
 
       final Project project = workflowService.getProject(projectId);
+      if (query == null) {
+        throw new LocalException("Unexpected null query");
+      }
+      if (query.endsWith(";")) {
+        throw new LocalException(
+            "Remove semi-colon character from end of query");
+      }
 
       if (queryStyle == QueryStyle.CLUSTER) {
         workflowService.executeClusteredConceptQuery(query, queryType,

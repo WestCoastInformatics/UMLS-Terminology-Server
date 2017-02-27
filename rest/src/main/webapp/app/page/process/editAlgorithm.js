@@ -95,7 +95,7 @@ tsApp.controller('AlgorithmModalCtrl', [
       // Guess the query type
       var queryType = 'LUCENE';
       if (query.match(/select.*from +[^ ]+jpa/i)) {
-        queryType = 'JQL';
+        queryType = 'JPQL';
       } else if (query.match(/select.*/i)) {
         queryType = 'SQL';
       }

@@ -290,12 +290,12 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
-    // Query Type (only support JQL and SQL)
+    // Query Type (only support JPQL and SQL)
     AlgorithmParameter param = new AlgorithmParameterJpa("Query Type",
-        "queryType", "The language the query is written in", "e.g. JQL", 200,
-        AlgorithmParameter.Type.ENUM, QueryType.JQL.toString());
+        "queryType", "The language the query is written in", "e.g. JPQL", 200,
+        AlgorithmParameter.Type.ENUM, QueryType.JPQL.toString());
     param.setPossibleValues(
-        Arrays.asList(QueryType.JQL.toString(), QueryType.SQL.toString()));
+        Arrays.asList(QueryType.JPQL.toString(), QueryType.SQL.toString()));
     params.add(param);
 
     // Query
@@ -328,7 +328,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
     // filter query type
     param = new AlgorithmParameterJpa("Filter Query Type", "filterQueryType",
-        "The language the filter query is written in", "e.g. JQL", 200,
+        "The language the filter query is written in", "e.g. JPQL", 200,
         AlgorithmParameter.Type.ENUM, "");
     param.setPossibleValues(EnumSet.allOf(QueryType.class).stream()
         .map(e -> e.toString()).collect(Collectors.toList()));

@@ -197,7 +197,7 @@ public class QueryActionAlgorithmTest extends IntegrationUnitSupport {
       Properties algoProperties = new Properties();
       algoProperties.put("objectType", "SemanticTypeComponentJpa");
       algoProperties.put("action", "Make Unpublishable");
-      algoProperties.put("queryType", QueryType.JQL.toString());
+      algoProperties.put("queryType", QueryType.JPQL.toString());
       algoProperties.put("query",
           "SELECT s.id FROM SemanticTypeComponentJpa s WHERE s.id > "
               + processExecution.getExecutionInfo()
