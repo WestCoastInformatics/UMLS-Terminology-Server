@@ -2023,17 +2023,21 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     Map<String, String> algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
+        "select a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, "
             + "ConceptJpa c2 join c2.atoms a2 "
             + "where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology "
             + "and c1.id != c2.id "
             + "and a1.publishable = true and a2.publishable = true "
             + "and a1.terminology = a2.terminology "
-            + "and a1.version = :version and a2.version != :version "
+            + "and a1.version != a2.version "
             + "and a1.codeId = a2.codeId "
             + "and a1.stringClassId = a2.stringClassId "
             + "and a1.termType = a2.termType");
-    algoProperties.put("checkNames", "MGV_A4;MGV_SCUI");
+    // Use all checks
+    final Properties properties = ConfigUtility.getConfigProperties();
+    final String validationChecks = properties
+        .getProperty("validation.service.handler").replaceAll(",", ";");
+    algoProperties.put("checkNames", validationChecks);
     algoProperties.put("newAtomsOnly", "true");
     algoProperties.put("filterQueryType", "");
     algoProperties.put("filterQuery", "");
@@ -2110,7 +2114,46 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - add META-REPL2 generated merge
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("GENERATEDMERGE");
+    algoConfig.setDescription("GENERATEDMERGE Algorithm for META-REPL2");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("GENERATEDMERGE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Set properties for the algorithm
+    algoProperties = new HashMap<String, String>();
+    algoProperties.put("queryType", "SQL");
+    algoProperties.put("query",
+        "select a1.id atomId1, a2.id atomId2 "
+            + "from concepts c1, concepts_atoms ca1, atoms a1, AtomJpa_conceptTerminologyIds cid1, "
+            + "concepts c2, concepts_atoms ca2, atoms a2, AtomJpa_conceptTerminologyIds cid2 "
+            + "WHERE c1.terminology = :projectTerminology AND c1.id = ca1.concepts_id "
+            + "AND ca1.atoms_Id = a1.id " + "AND a1.id = cid1.AtomJpa_id "
+            + "AND a1.publishable = true "
+            + "AND cid1.conceptTerminologyIds_KEY = :projectTerminology "
+            + "AND c2.terminology = :projectTerminology AND c2.id = ca2.concepts_id "
+            + "AND ca2.atoms_Id = a2.id " + "AND a2.id = cid2.AtomJpa_id "
+            + "AND a2.publishable = true "
+            + "AND a1.terminology = a2.terminology "
+            + "AND cid2.conceptTerminologyIds_KEY = :projectTerminology "
+            + "AND cid1.conceptTerminologyIds = cid2.conceptTerminologyIds "
+            + "AND c1.id != c2.id");
+    // TODO - check all these
+    algoProperties.put("checkNames", null);
+    algoProperties.put("newAtomsOnly", "true");
+    algoProperties.put("filterQueryType", "");
+    algoProperties.put("filterQuery", "");
+    algoProperties.put("makeDemotions", "true");
+    algoProperties.put("changeStatus", "false");
+    algoProperties.put("mergeSet", "META-REPL2");
+    algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("SAFEREPLACE");
