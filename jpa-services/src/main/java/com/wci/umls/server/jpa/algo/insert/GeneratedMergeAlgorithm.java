@@ -140,8 +140,10 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
 
       // Generate parameters to pass into query executions
       Map<String, String> params = new HashMap<>();
-      params.put("terminology", getTerminology());
-      params.put("version", getVersion());
+      params.put("terminology", getProcess().getTerminology());
+      params.put("version", getProcess().getVersion());
+      params.put("latestTerminologyVersion", getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology()));
+      params.put("previousTerminologyVersion", getPreviousVersion(getProcess().getTerminology()));
       params.put("projectTerminology", getProject().getTerminology());
       params.put("projectVersion", getProject().getVersion());
 

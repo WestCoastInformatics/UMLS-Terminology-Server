@@ -60,9 +60,11 @@ import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.ProcessConfigListJpa;
 import com.wci.umls.server.jpa.helpers.ProcessExecutionListJpa;
+import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.ProcessServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ProcessServiceRest;
+import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.ProcessService;
 import com.wci.umls.server.services.SecurityService;
 import com.wci.umls.server.services.helpers.ProgressEvent;
@@ -2239,6 +2241,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
     }
 
     final ProcessService processService = new ProcessServiceJpa();
+    final MetadataService metadataService = new MetadataServiceJpa();
     try {
       final String userName = authorizeProject(processService, projectId,
           securityService, authToken, "testing a query", UserRole.AUTHOR);
@@ -2267,6 +2270,10 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       final Map<String, String> params = new HashMap<>();
       params.put("terminology", process.getTerminology());
       params.put("version", process.getVersion());
+      params.put("latestTerminologyVersion",
+          process.getTerminology() + process.getVersion());
+      params.put("previousTerminologyVersion", process.getTerminology()
+          + metadataService.getPreviousVersion(process.getTerminology()));
       params.put("projectTerminology",
           processService.getProject(projectId).getTerminology());
       params.put("projectVersion",
@@ -2301,6 +2308,7 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
       return null;
     } finally {
       processService.close();
+      metadataService.close();
       securityService.close();
     }
   }
