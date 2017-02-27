@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -148,15 +149,6 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       }
     }
 
-    // Iterate through terminologies to determine context type
-    logInfo("  Compute siblings");
-    fireProgressEvent(20, "Compute siblings");
-
-    int prevProgress = 0;
-    int startProgress = 20;
-    int totalCt = getCurrentTerminologies().size();
-    int objectCt = 0;
-    int termCt = 0;
     // Sort the terminologies
     Collections.sort(getCurrentTerminologies().getObjects(),
         (t1, t2) -> t1.getTerminology().compareTo(t2.getTerminology()));
@@ -182,95 +174,108 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
         term.setIncludeSiblings(false);
       }
       updateTerminology(term);
+    }
 
-      // Compute RUIs for SIB relationships
-      if (includeSiblings) {
-        setMolecularActionFlag(false);
-        final String type = siblingTypeMap.get(term.getTerminology());
-        final IdType idType = IdType.valueOf(type.toUpperCase());
+    // Iterate through terminologies to determine context type
+    logInfo("  Compute SIB RUIs");
+    fireProgressEvent(20, "Compute siblings");
 
-        final javax.persistence.Query query = manager.createQuery(
-            "select a.node.id, b.node.id, a.additionalRelationshipType from "
-                + type + "TreePositionJpa a, " + type + "TreePositionJpa b "
-                + "where a.ancestorPath = b.ancestorPath "
-                + "  and a.additionalRelationshipType = b.additionalRelationshipType "
-                + "  and a.node.id < b.node.id"
-                + "  and a.terminology = :terminology and b.terminology = :terminology "
-                + "  and a.version = :version and b.version= :version ");
-        query.setParameter("terminology", term.getTerminology());
-        query.setParameter("version", term.getVersion());
-        final List<Object[]> results = query.getResultList();
-        checkCancel();
+    int prevProgress = 0;
+    int startProgress = 20;
+    int totalCt = types.length;
+    int objectCt = 0;
+    int typeCt = 0;
+    // Compute RUIs for SIB relationships
+    for (final String type : types) {
+      logInfo("  Compute SIB RUIs for " + type);
+      setMolecularActionFlag(false);
+      final Set<String> terminologies = siblingTypeMap.keySet().stream()
+          .filter(f -> siblingTypeMap.get(f).equals(type))
+          .collect(Collectors.toSet());
+      final IdType idType = IdType.valueOf(type.toUpperCase());
 
-        for (final Object[] result : results) {
-          final Long fromId = Long.valueOf(result[0].toString());
-          final Long toId = Long.valueOf(result[1].toString());
-          final String addRelType = result[2].toString();
+      final javax.persistence.Query query = manager.createQuery(
+          "select a.node.id, b.node.id, a.additionalRelationshipType, a.terminology from "
+              + type + "TreePositionJpa a, " + type + "TreePositionJpa b "
+              + "where a.ancestorPath = b.ancestorPath "
+              + "  and a.additionalRelationshipType = b.additionalRelationshipType "
+              + "  and a.node.id < b.node.id"
+              + "  and a.terminology = b.terminology "
+              + "  and a.terminology in (:terminologies) "
+              + "  and a.terminology in (select terminology from terminologies where current = true) ");
+      query.setParameter("terminologies", terminologies);
+      final List<Object[]> results = query.getResultList();
+      checkCancel();
 
-          Component from = null;
-          Component to = null;
-          @SuppressWarnings("rawtypes")
-          Relationship newRel = null;
-          if (idType == IdType.ATOM) {
-            newRel = new AtomRelationshipJpa();
-            from = getAtom(fromId);
-            to = getAtom(toId);
-          } else if (idType == IdType.CONCEPT) {
-            newRel = new ConceptRelationshipJpa();
-            from = getConcept(fromId);
-            to = getConcept(toId);
-          } else if (idType == IdType.CODE) {
-            newRel = new CodeRelationshipJpa();
-            from = getCode(fromId);
-            to = getCode(toId);
-          } else if (idType == IdType.DESCRIPTOR) {
-            newRel = new DescriptorRelationshipJpa();
-            from = getDescriptor(fromId);
-            to = getDescriptor(toId);
-          }
+      for (final Object[] result : results) {
+        final Long fromId = Long.valueOf(result[0].toString());
+        final Long toId = Long.valueOf(result[1].toString());
+        final String addRelType = result[2].toString();
+        final String terminology = result[3].toString();
 
-          newRel.setFrom(from);
-          newRel.setTo(to);
-          newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
-          newRel.setTerminology(term.getTerminology());
-          newRel.setVersion(term.getVersion());
-          newRel.setRelationshipType("SIB");
-          newRel.setPublishable(true);
-          newRel.setObsolete(false);
-          newRel.setSuppressible(false);
-          newRel.setGroup(null);
-          newRel.setPublished(true);
-          newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-          newRel.setHierarchical(false);
-          newRel.setAssertedDirection(false);
-          newRel.setInferred(true);
-          newRel.setStated(true);
-          newRel.setTerminologyId("");
-
-          // This is just to assign identifiers
-          final String rui = handler.getTerminologyId(newRel, "SIB",
-              relToInverseMap.get(addRelType));
-          newRel.setTerminologyId(rui);
-
-          // check cancel
-          if (objectCt % RootService.logCt == 0) {
-            checkCancel();
-          }
-
-          logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-
+        Component from = null;
+        Component to = null;
+        @SuppressWarnings("rawtypes")
+        Relationship newRel = null;
+        if (idType == IdType.ATOM) {
+          newRel = new AtomRelationshipJpa();
+          from = getAtom(fromId);
+          to = getAtom(toId);
+        } else if (idType == IdType.CONCEPT) {
+          newRel = new ConceptRelationshipJpa();
+          from = getConcept(fromId);
+          to = getConcept(toId);
+        } else if (idType == IdType.CODE) {
+          newRel = new CodeRelationshipJpa();
+          from = getCode(fromId);
+          to = getCode(toId);
+        } else if (idType == IdType.DESCRIPTOR) {
+          newRel = new DescriptorRelationshipJpa();
+          from = getDescriptor(fromId);
+          to = getDescriptor(toId);
         }
-        commitClearBegin();
 
-        // update progress
-        int progress = (int) ((100.0 - startProgress) * ++termCt / totalCt)
-            + startProgress;
-        if (progress > prevProgress) {
-          fireProgressEvent(progress, "Assigning SIB RUIs");
-          prevProgress = progress;
+        newRel.setFrom(from);
+        newRel.setTo(to);
+        newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
+        newRel.setTerminology(terminology);
+        newRel.setVersion(terminology);
+        newRel.setRelationshipType("SIB");
+        newRel.setPublishable(true);
+        newRel.setObsolete(false);
+        newRel.setSuppressible(false);
+        newRel.setGroup(null);
+        newRel.setPublished(true);
+        newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+        newRel.setHierarchical(false);
+        newRel.setAssertedDirection(false);
+        newRel.setInferred(true);
+        newRel.setStated(true);
+        newRel.setTerminologyId("");
+
+        // This is just to assign identifiers
+        final String rui = handler.getTerminologyId(newRel, "SIB",
+            relToInverseMap.get(addRelType));
+        newRel.setTerminologyId(rui);
+
+        // check cancel
+        if (objectCt % RootService.logCt == 0) {
+          checkCancel();
         }
+
+        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
 
       }
+      commitClearBegin();
+
+      // update progress
+      int progress =
+          (int) ((100.0 - startProgress) * ++typeCt / totalCt) + startProgress;
+      if (progress > prevProgress) {
+        fireProgressEvent(progress, "Assigning SIB RUIs");
+        prevProgress = progress;
+      }
+
     }
     commitClearBegin();
 

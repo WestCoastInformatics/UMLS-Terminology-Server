@@ -32,6 +32,7 @@ import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.jpa.services.helper.ReportsAtomComparator;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomRelationship;
@@ -58,6 +59,7 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.SemanticType;
 import com.wci.umls.server.model.meta.Terminology;
+import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.RootService;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
@@ -203,11 +205,74 @@ public class WriteRrfContentFilesAlgorithm
     // Write AMBIG files
     writeAmbig();
 
+    //
+    // for (final Long conceptId : conceptIds) {
+    // final Concept c = getConcept(conceptId);
+    // for (final String line : writeMrconso(c)) {
+    // writerMap.get("MRCONSO.RRF").print(line);
+    // }
+    // for (final String line : writeMrdef(c)) {
+    // writerMap.get("MRDEF.RRF").print(line);
+    // }
+    //
+    // for (final String line : writeMrsty(c)) {
+    // writerMap.get("MRSTY.RRF").print(line);
+    // }
+    //
+    // for (final String line : writeMrrel(c)) {
+    // writerMap.get("MRREL.RRF").print(line);
+    // }
+    //
+    // for (final String line : writeMrsat(c)) {
+    // writerMap.get("MRSAT.RRF").print(line);
+    // }
+    // for (final String line : writeMrhier(c)) {
+    // writerMap.get("MRHIER.RRF").print(line);
+    // }
+    // updateProgress();
+    // }
+
+    // Parallelize output
+    final Thread[] threads = new Thread[1];
+    final Exception[] exceptions = new Exception[1];
+
+    Thread t = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        ContentService service = null;
+        try {
+          service = new ContentServiceJpa();
+          int ct = 0;
+          for (final Long conceptId : conceptIds) {
+            final Concept c = service.getConcept(conceptId);
+            for (final String line : writeMrhier(c, service)) {
+              writerMap.get("MRHIER.RRF").print(line);
+            }
+            if (ct % RootService.commitCt == 0) {
+              service.commitClearBegin();
+            }
+          }
+        } catch (Exception e) {
+          exceptions[0] = e;
+        } finally {
+          try {
+            service.close();
+          } catch (Exception e) {
+            exceptions[0] = e;
+          }
+        }
+      }
+    });
+    threads[0] = t;
+    t.start();
+
+    // Start writing other files
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);
       for (final String line : writeMrconso(c)) {
         writerMap.get("MRCONSO.RRF").print(line);
       }
+
       for (final String line : writeMrdef(c)) {
         writerMap.get("MRDEF.RRF").print(line);
       }
@@ -223,139 +288,20 @@ public class WriteRrfContentFilesAlgorithm
       for (final String line : writeMrsat(c)) {
         writerMap.get("MRSAT.RRF").print(line);
       }
-      for (final String line : writeMrhier(c)) {
-        writerMap.get("MRHIER.RRF").print(line);
-      }
       updateProgress();
     }
 
-    // // Parallelize output
-    // final Thread[] threads = new Thread[6];
-    // final Exception[] exceptions = new Exception[6];
-    //
-    // Thread t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrconso(c)) {
-    // writerMap.get("MRCONSO.RRF").print(line);
-    // }
-    // }
-    // } catch (Exception e) {
-    // exceptions[0] = e;
-    // }
-    // }
-    // });
-    // threads[0] = t;
-    // t.start();
-    //
-    // t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrdef(c)) {
-    // writerMap.get("MRDEF.RRF").print(line);
-    // }
-    // }
-    // } catch (Exception e) {
-    // exceptions[1] = e;
-    // }
-    // }
-    // });
-    // threads[1] = t;
-    // t.start();
-    //
-    // t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrsty(c)) {
-    // writerMap.get("MRSTY.RRF").print(line);
-    // }
-    // }
-    // } catch (Exception e) {
-    // exceptions[2] = e;
-    // }
-    //
-    // }
-    // });
-    // threads[2] = t;
-    // t.start();
-    //
-    // t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrrel(c)) {
-    // writerMap.get("MRREL.RRF").print(line);
-    // }
-    // }
-    // } catch (Exception e) {
-    // exceptions[3] = e;
-    // }
-    //
-    // }
-    // });
-    // threads[3] = t;
-    // t.start();
-    //
-    // t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrsat(c)) {
-    // writerMap.get("MRSAT.RRF").print(line);
-    // }
-    // }
-    // } catch (Exception e) {
-    // exceptions[4] = e;
-    // }
-    //
-    // }
-    // });
-    // threads[4] = t;
-    // t.start();
-    //
-    // t = new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // try {
-    // for (final Long conceptId : conceptIds) {
-    // final Concept c = getConcept(conceptId);
-    // for (final String line : writeMrhier(c)) {
-    // writerMap.get("MRHIER.RRF").print(line);
-    // }
-    // updateProgress();
-    // }
-    // } catch (Exception e) {
-    // exceptions[5] = e;
-    // }
-    // }
-    // });
-    // threads[5] = t;
-    // t.start();
-    //
-    // // Wait for threads
-    // for (final Thread thread : threads) {
-    // thread.join();
-    // }
-    //
-    // // Report exceptions
-    // for (final Exception e : exceptions) {
-    // if (e != null) {
-    // throw e;
-    // }
-    // }
+    // Wait for threads
+    for (final Thread thread : threads) {
+      thread.join();
+    }
+
+    // Report exceptions
+    for (final Exception e : exceptions) {
+      if (e != null) {
+        throw e;
+      }
+    }
 
     // close print writers
     closeWriters();
@@ -1765,10 +1711,11 @@ public class WriteRrfContentFilesAlgorithm
    * Write mrhier.
    *
    * @param c the c
+   * @param service the service
    * @return the list
    * @throws Exception the exception
    */
-  List<String> writeMrhier(Concept c) throws Exception {
+  List<String> writeMrhier(Concept c, ContentService service) throws Exception {
 
     // Field description
     // 0 CUI
@@ -1831,7 +1778,7 @@ public class WriteRrfContentFilesAlgorithm
             }
             ptr.append(paui);
             if (root == null) {
-              final Atom atom2 = getAtom(Long.valueOf(atomId));
+              final Atom atom2 = service.getAtom(Long.valueOf(atomId));
               root = atom2.getName();
             }
           }
@@ -1875,7 +1822,8 @@ public class WriteRrfContentFilesAlgorithm
       final Long cId = atomConceptMap.get(atom.getId());
       if (conceptContentsMap.containsKey(cId)
           && conceptContentsMap.get(cId).hasTreePositions()) {
-        final Concept scui = getConcept(atomConceptMap.get(atom.getId()));
+        final Concept scui =
+            service.getConcept(atomConceptMap.get(atom.getId()));
         for (final ConceptTreePosition treepos : scui.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
@@ -1893,7 +1841,8 @@ public class WriteRrfContentFilesAlgorithm
 
             ptr.append(paui);
             if (root == null) {
-              final Concept concept2 = getConcept(Long.valueOf(conceptId));
+              final Concept concept2 =
+                  service.getConcept(Long.valueOf(conceptId));
               root = concept2.getName();
             }
           }
@@ -1940,7 +1889,7 @@ public class WriteRrfContentFilesAlgorithm
       if (descriptorContentsMap.containsKey(dId)
           && descriptorContentsMap.get(dId).hasTreePositions()) {
         final Descriptor sdui =
-            getDescriptor(atomDescriptorMap.get(atom.getId()));
+            service.getDescriptor(atomDescriptorMap.get(atom.getId()));
         for (final DescriptorTreePosition treepos : sdui.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
@@ -1959,7 +1908,7 @@ public class WriteRrfContentFilesAlgorithm
             ptr.append(paui);
             if (root == null) {
               final Descriptor descriptor2 =
-                  getDescriptor(Long.valueOf(descriptorId));
+                  service.getDescriptor(Long.valueOf(descriptorId));
               root = descriptor2.getName();
             }
           }
@@ -2007,7 +1956,7 @@ public class WriteRrfContentFilesAlgorithm
       if (codeContentsMap.containsKey(cdId)
           && codeContentsMap.get(cdId).hasTreePositions()) {
 
-        final Code code = getCode(atomCodeMap.get(atom.getId()));
+        final Code code = service.getCode(atomCodeMap.get(atom.getId()));
         for (final CodeTreePosition treepos : code.getTreePositions()) {
 
           final StringBuilder ptr = new StringBuilder(200);
@@ -2024,7 +1973,7 @@ public class WriteRrfContentFilesAlgorithm
             }
             ptr.append(paui);
             if (root == null) {
-              final Code code2 = getCode(Long.valueOf(codeId));
+              final Code code2 = service.getCode(Long.valueOf(codeId));
               root = code2.getName();
             }
           }
