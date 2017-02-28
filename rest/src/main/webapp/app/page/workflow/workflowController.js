@@ -214,6 +214,39 @@ tsApp.controller('WorkflowCtrl', [
         });
       }
     }
+    
+    // Return report type list
+    $scope.getReportTypeList = function() {     
+        var configs =  $scope.lists.configs.filter(function(item) {
+          return item.queryStyle == 'REPORT';
+        });
+        var reportTypes = [];
+        for (var i = 0; i<configs.length; i++) {
+          for (var j = 0; j<configs[i].workflowBinDefinitions.length; j++) {
+            reportTypes.push(configs[i].workflowBinDefinitions[j]);
+          }
+        }
+        return reportTypes;
+    }
+    
+    // the report type is a workflowBinDefinition on a WorkflowConfig that has QueryStyle.REPORT
+    $scope.findReports = function(reportType) {
+      reportService.findReportsByName($scope.selected.project.id, reportType.name, null).then(
+       // Success
+        function(data) {
+        $scope.selected.reports = data;
+      });
+    }
+    
+    $scope.generateReport = function() {
+      reportService.generateReport($scope.selected.project.id, $scope.selected.reportType.name, $scope.selected.reportType, 
+        $scope.selected.reportType.queryType, 'CONCEPT').then(
+       // Success
+       function(data) {
+        $scope.selected.report = data;
+      });
+    }
+    
     // Retrieve all projects
     $scope.getConfigs = function() {
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(
