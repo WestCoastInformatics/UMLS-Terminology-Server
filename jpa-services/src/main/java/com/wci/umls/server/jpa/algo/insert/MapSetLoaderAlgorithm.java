@@ -721,7 +721,7 @@ public class MapSetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Execute a query to get mapSet Ids
     final List<Long> mapSetIds =
-        executeSingleComponentIdQuery(query, QueryType.JQL,
+        executeSingleComponentIdQuery(query, QueryType.JPQL,
             getDefaultQueryParams(getProject()), MapSetJpa.class, false);
 
     for (final Long id : mapSetIds) {

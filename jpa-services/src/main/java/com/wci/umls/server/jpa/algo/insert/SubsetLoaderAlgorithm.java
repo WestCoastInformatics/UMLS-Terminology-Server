@@ -488,7 +488,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Execute a query to get Atom Subset Ids
     final List<Long> atomSubsetIds =
-        executeSingleComponentIdQuery(query, QueryType.JQL,
+        executeSingleComponentIdQuery(query, QueryType.JPQL,
             getDefaultQueryParams(getProject()), AtomSubsetJpa.class, false);
 
     for (final Long id : atomSubsetIds) {
@@ -504,7 +504,7 @@ public class SubsetLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
     // Execute a query to get Concept Subset Ids
     final List<Long> conceptSubsetIds =
-        executeSingleComponentIdQuery(query, QueryType.JQL,
+        executeSingleComponentIdQuery(query, QueryType.JPQL,
             getDefaultQueryParams(getProject()), ConceptSubsetJpa.class, false);
 
     for (final Long id : conceptSubsetIds) {

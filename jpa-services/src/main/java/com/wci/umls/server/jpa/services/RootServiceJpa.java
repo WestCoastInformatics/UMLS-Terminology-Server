@@ -329,7 +329,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the javax.persistence. query
    * @throws Exception the exception
    */
-  public javax.persistence.Query applyPfsToJqlQuery(final String queryStr,
+  public javax.persistence.Query applyPfsToJPQLQuery(final String queryStr,
     final PfsParameter pfs) throws Exception {
     final StringBuilder localQueryStr = new StringBuilder();
     localQueryStr.append(queryStr);
@@ -338,7 +338,7 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null) {
       if (pfs.getQueryRestriction() != null
           && !pfs.getQueryRestriction().equals("")) {
-        throw new Exception("Query restriction not supported for JQL queries");
+        throw new Exception("Query restriction not supported for JPQL queries");
       }
 
       if (pfs.getActiveOnly()) {
@@ -1636,10 +1636,32 @@ public abstract class RootServiceJpa implements RootService {
     // Validate parameters and query
     validateQueryAndParams(query, queryType, params);
 
-    // Only JQL and SQL queries are legal
-    if (queryType != QueryType.JQL && queryType != QueryType.SQL) {
-      throw new Exception(
-          "Only SQL and JQL type queries can be sent to executeComponentIdPairQuery");
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+      // Perform search
+      final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
+          .getIdResults(params.get("terminology"), params.get("version"),
+              Branch.ROOT, null, null, clazz, pfs, new int[1], manager);
+
+      // Return the result list as arrays of component ids
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long id : components) {
+        results.add(new Long[] {
+            id, id
+        });
+      }
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
     }
 
     // check for correct number and type of returned objects
@@ -1676,7 +1698,7 @@ public abstract class RootServiceJpa implements RootService {
     javax.persistence.Query jpaQuery = null;
     if (queryType == QueryType.SQL) {
       jpaQuery = this.getEntityManager().createNativeQuery(query);
-    } else if (queryType == QueryType.JQL) {
+    } else if (queryType == QueryType.JPQL) {
       jpaQuery = this.getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -1766,8 +1788,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("PROGRAM queries not yet supported");
     }
 
-    // Handle SQL and JQL queries here
-    // Check for JQL/SQL errors
+    // Handle SQL and JPQL queries here
+    // Check for JPQL/SQL errors
     // ensure that query begins with SELECT (i.e. prevent injection
     // problems)
     if (!query.toUpperCase().startsWith("SELECT")) {
@@ -1815,10 +1837,10 @@ public abstract class RootServiceJpa implements RootService {
       }
     }
 
-    // For JQL, make a testQuery, removing all instances of .id before "FROM",
+    // For JPQL, make a testQuery, removing all instances of .id before "FROM",
     // so it returns the object, and confirm that object matches the passed-in
     // class
-    if (queryType == QueryType.JQL) {
+    if (queryType == QueryType.JPQL) {
       final int fromIndex = query.toUpperCase().indexOf("FROM");
       final String testQuery =
           query.substring(0, fromIndex).replaceAll("\\.id", "")
@@ -1855,7 +1877,7 @@ public abstract class RootServiceJpa implements RootService {
     javax.persistence.Query jpaQuery = null;
     if (queryType == QueryType.SQL) {
       jpaQuery = this.getEntityManager().createNativeQuery(query);
-    } else if (queryType == QueryType.JQL) {
+    } else if (queryType == QueryType.JPQL) {
       jpaQuery = this.getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -1953,7 +1975,7 @@ public abstract class RootServiceJpa implements RootService {
     javax.persistence.Query jpaQuery = null;
     if (queryType == QueryType.SQL) {
       jpaQuery = this.getEntityManager().createNativeQuery(query);
-    } else if (queryType == QueryType.JQL) {
+    } else if (queryType == QueryType.JPQL) {
       jpaQuery = this.getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2025,7 +2047,7 @@ public abstract class RootServiceJpa implements RootService {
     javax.persistence.Query jpaQuery = null;
     if (queryType == QueryType.SQL) {
       jpaQuery = this.getEntityManager().createNativeQuery(query);
-    } else if (queryType == QueryType.JQL) {
+    } else if (queryType == QueryType.JPQL) {
       jpaQuery = this.getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2094,8 +2116,8 @@ public abstract class RootServiceJpa implements RootService {
       throw new Exception("PROGRAM queries not yet supported");
     }
 
-    // Handle SQL and JQL queries here
-    // Check for JQL/SQL errors
+    // Handle SQL and JPQL queries here
+    // Check for JPQL/SQL errors
 
     boolean conceptQuery = false;
     boolean dualConceptQuery = false;
@@ -2128,7 +2150,7 @@ public abstract class RootServiceJpa implements RootService {
     javax.persistence.Query jpaQuery = null;
     if (queryType == QueryType.SQL) {
       jpaQuery = getEntityManager().createNativeQuery(query);
-    } else if (queryType == QueryType.JQL) {
+    } else if (queryType == QueryType.JPQL) {
       jpaQuery = getEntityManager().createQuery(query);
     } else {
       throw new Exception("Unsupported query type " + queryType);
@@ -2313,8 +2335,8 @@ public abstract class RootServiceJpa implements RootService {
             "Execute query should be passed params with the key 'version'"
                 + params);
       }
-      // Handle SQL and JQL queries here
-      // Check for JQL/SQL errors
+      // Handle SQL and JPQL queries here
+      // Check for JPQL/SQL errors
       // ensure that query begins with SELECT (i.e. prevent injection
       // problems)
       if (!query.toUpperCase().startsWith("SELECT")) {

@@ -36,6 +36,11 @@ public abstract class AbstractMergeAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
+   * The concept-pairs that have gone through the merging process
+   */
+  private Set<String> conceptPairs = new HashSet<>();
+
+  /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.
    *
    * @throws Exception the exception
@@ -97,6 +102,15 @@ public abstract class AbstractMergeAlgorithm
       fromAtom = getAtom(atomId2);
       toConcept = concept;
       toAtom = getAtom(atomId);
+    }
+
+    // If this concept pair has already had a merge attempted on it, don't try
+    // it again
+    if (conceptPairs.contains(fromConcept.getId() + "|" + toConcept.getId())) {
+      return;
+    } else {
+      conceptPairs.add(fromConcept.getId() + "|" + toConcept.getId());
+      statsMap.put("conceptPairs", conceptPairs.size());
     }
 
     // If Atoms are in the same concept, DON'T perform merge, and log that the
@@ -389,7 +403,7 @@ public abstract class AbstractMergeAlgorithm
     }
 
     // Run the filters, and save the unique atomIds/atomIdPairs to sets
-    // SQL/JQL queries will populate filterAtomIdPairs set
+    // SQL/JPQL queries will populate filterAtomIdPairs set
     // LUCENE queries will populate the filterAtomIds set
     Set<Pair<Long, Long>> filterAtomIdPairs = null;
     Set<Long> filterAtomIds = null;
@@ -414,9 +428,9 @@ public abstract class AbstractMergeAlgorithm
       throw new Exception("PROGRAM queries not yet supported");
     }
 
-    // If JQL/SQL filter query, returns atom1,atom2 Id pairs
+    // If JPQL/SQL filter query, returns atom1,atom2 Id pairs
     else if (filterQueryType == QueryType.SQL
-        || filterQueryType == QueryType.JQL) {
+        || filterQueryType == QueryType.JPQL) {
       final List<Long[]> filterAtomIdPairArray = executeComponentIdPairQuery(
           filterQuery, filterQueryType, params, AtomJpa.class, false);
 
@@ -454,7 +468,7 @@ public abstract class AbstractMergeAlgorithm
         }
       }
 
-      // Check SQL/JQL filter atom id pairs, if any
+      // Check SQL/JPQL filter atom id pairs, if any
       if (filterAtomIdPairs != null) {
         if (filterAtomIdPairs.contains(atomIdPair)) {
           statsMap.put("atomPairsRemovedByFilters",

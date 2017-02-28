@@ -198,7 +198,7 @@ public class WriteRrfContentFilesAlgorithm
             + "where c.terminology = :terminology "
             + "  and c.version = :version and a.publishable = true "
             + "  and c.publishable = true order by c.terminologyId",
-        QueryType.JQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
+        QueryType.JPQL, getDefaultQueryParams(getProject()), ConceptJpa.class,
         false);
     commitClearBegin();
     setSteps(conceptIds.size());
@@ -498,7 +498,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo(
         "  Determine preferred atoms for all concepts, and cache concept->AUI maps");
     final List<Long> conceptIds = executeSingleComponentIdQuery(
-        "select c.id from ConceptJpa c where publishable = true", QueryType.JQL,
+        "select c.id from ConceptJpa c where publishable = true", QueryType.JPQL,
         getDefaultQueryParams(getProject()), ConceptJpa.class, false);
     commitClearBegin();
     ct = 0;
@@ -527,7 +527,7 @@ public class WriteRrfContentFilesAlgorithm
         "  Determine preferred atoms for all descriptors, and cache descriptor->AUI maps");
     final List<Long> descriptorIds = executeSingleComponentIdQuery(
         "select d.id from DescriptorJpa d where publishable = true",
-        QueryType.JQL, getDefaultQueryParams(getProject()), DescriptorJpa.class,
+        QueryType.JPQL, getDefaultQueryParams(getProject()), DescriptorJpa.class,
         false);
     commitClearBegin();
     ct = 0;
@@ -545,7 +545,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo(
         "  Determine preferred atoms for all codes, and cache code->AUI maps");
     final List<Long> codeIds = executeSingleComponentIdQuery(
-        "select c.id from CodeJpa c where publishable = true", QueryType.JQL,
+        "select c.id from CodeJpa c where publishable = true", QueryType.JPQL,
         getDefaultQueryParams(getProject()), CodeJpa.class, false);
     commitClearBegin();
     ct = 0;

@@ -1133,7 +1133,7 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
         .debug("Content Service - get concept id -> worklist name map "
             + project.getId());
     final String epoch = getCurrentWorkflowEpoch(project).getName();
-    // TODO: Make this JQL query
+    // TODO: Make this JPQL query
     final javax.persistence.Query query = manager.createNativeQuery(
         "select distinct toc.origConceptIds, w.name from worklists w, tracking_records t, "
             + "worklists_tracking_records wt, orig_concept_ids toc "

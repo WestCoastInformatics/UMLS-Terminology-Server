@@ -511,6 +511,22 @@ public class RemoveTerminologyAlgorithm extends AbstractAlgorithm {
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
     }
     commitClearBegin();
+    
+    // Remove last release CUIs from atoms
+    logInfo("  Remove last release CUIs");
+    query = manager.createQuery(
+        "SELECT a.id FROM AtomJpa a where KEY(a.conceptTerminologyIds) = :terminologyVersion");
+    query.setParameter("terminologyVersion", terminology + version);
+    ct = 0;
+    for (final Long id : (List<Long>) query.getResultList()) {
+      Atom atom = getAtom(id);
+      atom.getConceptTerminologyIds().remove(terminology + version);
+      updateAtom(atom);
+
+      logAndCommit(++ct, RootService.logCt, RootService.commitCt);
+    }
+    commitClearBegin();
+
     //
     // query = manager.createQuery(
     // "SELECT a.id FROM AtomRelationshipJpa a WHERE terminology = :terminology
