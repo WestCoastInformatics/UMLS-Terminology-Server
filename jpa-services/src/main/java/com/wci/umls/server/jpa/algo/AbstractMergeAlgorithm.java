@@ -36,9 +36,9 @@ public abstract class AbstractMergeAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
-   * The concept-pairs that have already gone through the merging process
+   * The concept-pairs that have gone through the merging process
    */
-  private Set<String> conceptsAlreadyMerged = new HashSet<>();
+  private Set<String> conceptPairs = new HashSet<>();
 
   /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.
@@ -106,11 +106,11 @@ public abstract class AbstractMergeAlgorithm
 
     // If this concept pair has already had a merge attempted on it, don't try
     // it again
-    if (conceptsAlreadyMerged
-        .contains(fromConcept.getId() + "|" + toConcept.getId())) {
+    if (conceptPairs.contains(fromConcept.getId() + "|" + toConcept.getId())) {
       return;
     } else {
-      conceptsAlreadyMerged.add(fromConcept.getId() + "|" + toConcept.getId());
+      conceptPairs.add(fromConcept.getId() + "|" + toConcept.getId());
+      statsMap.put("conceptPairs", conceptPairs.size());
     }
 
     // If Atoms are in the same concept, DON'T perform merge, and log that the

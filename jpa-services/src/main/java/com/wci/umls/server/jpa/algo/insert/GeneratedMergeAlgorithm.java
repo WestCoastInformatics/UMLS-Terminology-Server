@@ -187,6 +187,8 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
           + statsMap.get("atomPairsRemovedByFilters"));
       logInfo("  atom pairs remaining after filters count = "
           + statsMap.get("atomPairsRemainingAfterFilters"));
+      logInfo("  unique concept-pair merges attempted = "
+          + statsMap.get("conceptPairs"));
       logInfo("  merges successfully performed count = "
           + statsMap.get("successfulMerges"));
       logInfo("  unsuccessful merges count = "
