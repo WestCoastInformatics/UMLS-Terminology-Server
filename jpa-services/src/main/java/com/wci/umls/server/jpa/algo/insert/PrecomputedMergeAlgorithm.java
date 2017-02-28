@@ -289,7 +289,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           + statsMap.get("successfulMerges"));
       logInfo("  unsuccessful merges count = "
           + statsMap.get("unsuccessfulMerges"));
-      if (makeDemotions) {
+      if (makeDemotions != null && makeDemotions) {
         logInfo("  demotions successfully created count = "
             + statsMap.get("successfulDemotions"));
         logInfo("  attempted demotion unsuccessful count = "
