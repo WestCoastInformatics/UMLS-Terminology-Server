@@ -11,6 +11,7 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.report.Report;
 import com.wci.umls.server.model.report.ReportList;
 
@@ -110,7 +111,9 @@ public interface ReportService extends HistoryService {
    * @throws Exception the exception
    */
   public Report generateReport(Project project, String name, String query,
-    QueryType queryType, Class<? extends Component> resultType)
+    QueryType queryType, IdType resultType)
     throws Exception;
+
+  public void handleLazyInit(Report report);
 
 }

@@ -671,6 +671,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           ConceptJpa.class);
     }
 
+    else if (type.equals("CUI")) {
+      if (!conceptCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingConceptIds(getProject().getTerminology());
+      }
+      return getComponent(conceptIdCache.get(terminologyId + getProject().getTerminology()),
+          ConceptJpa.class);
+    }
+
     else if (type.equals("DEFINITION")) {
       if (!definitionCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingDefinitionIds(getProject().getTerminology());

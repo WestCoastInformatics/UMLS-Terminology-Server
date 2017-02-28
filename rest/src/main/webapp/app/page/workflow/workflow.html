@@ -209,6 +209,24 @@
     </uib-accordion-heading>
     <div worklists-table type="Worklist" selected="selected" lists="lists"
       user="user"></div>
-    </uib-accordion-group></uib-accordion>
+    </uib-accordion-group>
+    <uib-accordion-group
+      is-open="groups[0].open" ng-click="saveAccordionStatus()">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Reports">Reports</span>
+    </h5>
+    </uib-accordion-heading>
+      <select ng-model="selected.reportType"
+          ng-show="lists.configs.length > 1"
+          ng-options="def as def.name for def in getReportTypeList()"
+          ng-change="setReportType(selected.reportType);"></select>
+      
+      <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate Report</button>
+      <table ng-repeat="report in selected.reports">
+      
+      </table>   
+    </uib-accordion-group>
+    </uib-accordion>
   </div>
 </div>

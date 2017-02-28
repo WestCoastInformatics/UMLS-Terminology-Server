@@ -3,6 +3,14 @@
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.WorkflowBinDefinitionList;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.report.Report;
+import com.wci.umls.server.model.report.ReportList;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+
 /**
  * The Interface ReportServiceRest.
  */
@@ -42,4 +50,53 @@ public interface ReportServiceRest {
    */
   public String getDescriptorReport(Long projectId, Long descriptorId, String authToken)
     throws Exception;
+
+  /**
+   * Find report definitions.
+   *
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the workflow bin definition list
+   * @throws Exception the exception
+   */
+  public WorkflowBinDefinitionList findReportDefinitions(Long projectId, 
+    String authToken) throws Exception;
+
+  /**
+   * Find reports.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the report list
+   * @throws Exception the exception
+   */
+  public ReportList findReports(Long projectId, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the report.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @return the report
+   * @throws Exception the exception
+   */
+  public Report getReport(Long id, String authToken) throws Exception;
+
+  /**
+   * Generate report.
+   *
+   * @param id the id
+   * @param name the name
+   * @param query the query
+   * @param queryType the query type
+   * @param resultType the result type
+   * @param authToken the auth token
+   * @return the report
+   * @throws Exception the exception
+   */
+  public Report generateReport(Long id, String name,
+    String query, QueryType queryType,
+    IdType resultType, String authToken) throws Exception;
 }
