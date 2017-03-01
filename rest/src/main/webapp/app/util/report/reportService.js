@@ -49,5 +49,84 @@ tsApp.service('reportService', [
 
     };
 
+    // find report definitions
+    this.findReportDefinitions = function(projectId) {
+      console.debug('findReportDefinitions');
+      var deferred = $q.defer();
+
+      // Assign user to project
+      gpService.increment();
+      $http.get(
+        projectUrl + '/definitions?projectId=' + projectId).then(
+      // success
+      function(response) {
+        console.debug('  report definitions = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
+    // Finds reports as a list
+    this.findReportsByName = function(projectId, name, pfs) {
+
+      console.debug('findReports', projectId, name, pfs);
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(reportUrl + '/find?projectId=' + projectId + '&query=' + utilService.prepQuery('name:"' + name + '"'),
+        utilService.prepPfs(pfs)).then(
+      // success
+      function(response) {
+        console.debug('  reports = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    // Generates a report
+    this.generateReport = function(projectId, name, query, queryType, resultType) {
+
+      console.debug('generateReport', projectId, query, pfs);
+      // Setup deferred
+      var deferred = $q.defer();
+
+      // Make POST call
+      gpService.increment();
+      $http.post(reportUrl + '/generate/' + projectId + '?name=' + name + '&query=' + 
+          utilService.prepQuery(query) + '&queryType=' + queryType + '&resultType=' + resultType).then(
+      // success
+      function(response) {
+        console.debug('  report = ', response.data);
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+
+      return deferred.promise;
+    };
+
+    
     // end
   } ]);
