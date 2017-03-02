@@ -31,7 +31,7 @@ public class ComponentHistoryJpa extends AbstractComponent
     implements ComponentHistory {
 
   /** The referenced concept's terminology Id. */
-  @JoinColumn(nullable = true)
+  @Column(nullable = true)
   private String referencedTerminologyId;
 
   /** The reason. */
