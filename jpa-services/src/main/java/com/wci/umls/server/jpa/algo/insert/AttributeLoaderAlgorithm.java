@@ -102,11 +102,11 @@ public class AttributeLoaderAlgorithm
 
       //
       // Load the attributes.src file, skipping SEMANTIC_TYPE, CONTEXT,
-      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM
+      // SUBSET_MEMBER, XMAP, XMAPTO, XMAPFROM, UMLSCUI
       //
       final List<String> lines = loadFileIntoStringList(getSrcDirFile(),
           "attributes.src", null,
-          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM)(.*)");
+          "(.*)(SEMANTIC_TYPE|CONTEXT|SUBSET_MEMBER|XMAP|XMAPTO|XMAPFROM|UMLSCUI)(.*)");
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());

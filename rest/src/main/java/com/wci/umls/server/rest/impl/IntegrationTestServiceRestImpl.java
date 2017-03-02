@@ -323,9 +323,15 @@ public class IntegrationTestServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "get attribute",
           UserRole.ADMINISTRATOR);
 
-      return contentService.getAttribute(attributeId);
-
-    } catch (Exception e) {
+      Attribute newAttribute = contentService.getAttribute(attributeId);
+      if (newAttribute == null) {
+        return null;
+      } else {
+        // Handle lazy init
+        newAttribute.getAlternateTerminologyIds().size();
+        return newAttribute;
+      }
+   } catch (Exception e) {
 
       handleException(e, "trying to get an attribute");
     } finally {

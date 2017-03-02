@@ -400,3 +400,1526 @@ TTY|VSY|tty_class|synonym|
 TTY|XQ|expanded_form|Alternate name for a qualifier|
 TTY|XQ|tty_class|attribute|
 TTY|XQ|tty_class|synonym|
+ATN|AAL_TERM|expanded_form|AAL term|
+ATN|ADDED_MEANING|expanded_form|Additional descriptive information|
+ATN|AMBIGUITY_FLAG|expanded_form|Source atom ambiguity flag|
+ATN|AMT|expanded_form|AOT uses MeSH term|
+ATN|ANADA|expanded_form|Abbreviated New Animal Drug application number for the generic drug for MTHSPL|
+ATN|ANATOMICAL_COORDINATE|expanded_form|Anatomical coordinate|
+ATN|ANDA|expanded_form|Abbreviated New (Generic) Drug application number for the MTHSPL drug|
+ATN|ANSWER_CODE_SYSTEM|expanded_form|Answer code system|
+ATN|ANSWER_CODE|expanded_form|Answer code|
+ATN|ANSWER_LIST_ID|expanded_form|Answer list ID|
+ATN|ANSWER_LIST_NAME|expanded_form|Answer list name|
+ATN|ASK_AT_ORDER_ENTRY|expanded_form|Ask at Order Entry (AOE) observations for a clinical observation or laboratory test|
+ATN|ASSOC_OBSERVATIONS|expanded_form|Associated observations|
+ATN|AUTHORITY|expanded_form|Authority|
+ATN|BLA|expanded_form|Therapeutic Biologic Applications number for the MTHSPL drug|
+ATN|CCDS_ID|expanded_form|CCDS ID|
+ATN|CELL_APPENDAGE_TYPE|expanded_form|Cell appendage type|
+ATN|CFR|expanded_form|Code of Federal Regulation Number (e.g. 862.3220, 892.1610)|
+ATN|CHANGE_REASON_PUBLIC|expanded_form|Detailed explanation about special changes to the term over time.|
+ATN|CHROMOSOME_PAIRS_PER_NUCLEUS|expanded_form|Chromosome pairs per nucleus|
+ATN|CMA_LABEL|expanded_form|Center for Morphological Analysis|
+ATN|COATING|expanded_form|FDA Structured Product Label imprint attribute for coating|
+ATN|CODE_ALSO|expanded_form|Instructs that 2 codes may be required to fully describe a condition but the sequencing of the two codes is discretionary, depending on the severity of the conditions and the reason for the encounter.|
+ATN|CODE_FIRST|expanded_form|Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology. ICD-10-CM has a coding convention that requires the underlying condition be sequenced first followed by the manifestation. Wherever such a combination exists there is a "code first" note at the manifestation code. These instructional notes indicate the proper sequencing order of the codes, etiology followed by manifestation. In most cases the manifestation codes will have in the code title, "in diseases classified elsewhere." Codes with this title are a component of the etiology/manifestation convention. The code title indicates that it is a manifestation code. "In diseases classified elsewhere" codes are never permitted to be used as first listed or principle diagnosis codes. They must be used in conjunction with an underlying condition code and they must be listed following the underlying condition.|
+ATN|COLORTEXT|expanded_form|FDA Structured Product Label imprint attribute for color text|
+ATN|COLOR|expanded_form|FDA Structured Product Label imprint attribute for color|
+ATN|COMMENT|expanded_form|Comment|
+ATN|COMMON_ORDER_RANK|expanded_form|Ranking of approximately 300 common orders performed by laboratories in USA|
+ATN|COMMON_SI_TEST_RANK|expanded_form|Corresponding SI terms for 2000 common tests performed by laboratories in USA|
+ATN|COMMON_TEST_RANK|expanded_form|Numeric ranking of approximately 2,000 common tests performed by hospitals|
+ATN|CONDITIONAL_NADA|expanded_form|Conditional Nada|
+ATN|CONSUMER_NAME|expanded_form|An experimental (beta) consumer friendly name|
+ATN|COPYRIGHT|expanded_form|Copyright|
+ATN|CYTOGENETIC_LOCATION|expanded_form|Cytogenetic location of the gene|
+ATN|DATE_CREATED|expanded_form|Date created|
+ATN|DATE_LAST_MODIFIED|expanded_form|Date last modified|
+ATN|DATE_NAME_CHANGED|expanded_form|Date name changed|
+ATN|DATE_SYMBOL_CHANGED|expanded_form|Date symbol changed|
+ATN|DAYS_POST_FERTILIZATION|expanded_form|Days post fertilization|
+ATN|DA|expanded_form|Metathesaurus Date of entry - YYYYMMDD, e.g., 19920830 - date of entry of the concept into the Metathesaurus. |
+ATN|DB_XR_ID|expanded_form|Database cross-reference ID|
+ATN|DCSA|expanded_form|Controlled Substance Act designation code (e.g. 0,2,3n)|
+ATN|DDF|expanded_form|Drug Doseform (e.g. chewable tablet)|
+ATN|DEVTYPE|expanded_form|Device Type|
+ATN|DID|expanded_form|Descriptor Identifier|
+ATN|DIMENSION|expanded_form|Dimension code|
+ATN|DISJOINT_FROM|expanded_form|Disjoint from|
+ATN|DIV|expanded_form|NCBI Division/Phyla (e.g. DIV[NCBI]Viruses)|
+ATN|DM_SPL_ID|expanded_form|DailyMed internal identifier for MTHSPL atom|
+ATN|DOCUMENT_SECTION|expanded_form|Classification of whether this LOINC code can be used a full document, a section of a document, or both.|
+ATN|DRUG_CLASS_TYPE|expanded_form|VA Drug class type - Values can be "Major","Minor","Sub Class", or "0","1","2" respectively|
+ATN|ENA|expanded_form|International Nucleotide Sequence Database Collaboration accession number(s)|
+ATN|ENSEMBLGENE_ID|expanded_form|Ensembl gene ID|
+ATN|ENTREZGENE_ID|expanded_form|EntrezGene ID|
+ATN|EPONYM|expanded_form|Eponym|
+ATN|EXAMPLE_UCUM_UNITS|expanded_form|The Unified Code for Units of Measure (UCUM)|
+ATN|EXAMPLE_UNITS|expanded_form|Example units|
+ATN|EXCLUDES1|expanded_form|A pure excludes. It means "NOT CODED HERE!" Indicates that the code excluded should never be used at the same time as the code above the Excludes1 note. Used for when two conditions cannot occur together, such as a congenital form versus an acquired form of the same condition.|
+ATN|EXCLUDES2|expanded_form|Represents "Not included here". Indicates that the condition excluded is not part of the condition it is excluded from but a patient may have both conditions at the same time. When an Excludes2 note appears under a code it is acceptable to use both the code and the excluded code together.|
+ATN|EXCLUDE_DI_CHECK|expanded_form|Exclude drug interaction check|
+ATN|EXEMPT_DEVICE|expanded_form|Exempt Device|
+ATN|EXTERNALLY_DEFINED_CODE_SYSTEM|expanded_form|Externally defined answer list code system|
+ATN|EXTERNALLY_DEFINED|expanded_form|Externall defined|
+ATN|EXTERNAL_COPYRIGHT_LINK|expanded_form|External copyright link|
+ATN|EXTERNAL_LIST_LINK|expanded_form|Link to external list|
+ATN|EZ|expanded_form|Enzyme Commission Number - International Union of Biochemists Enzyme Commission number for an enzyme concept.|
+ATN|FDA_UNII_CODE|expanded_form|FDA UNII Code|
+ATN|FREESURFER_TERM|expanded_form|Freesurfer term|
+ATN|GENELOCUS|expanded_form|Gene Locus|
+ATN|GENESYMBOL|expanded_form|Gene Symbol|
+ATN|GENE_FAM_DESC|expanded_form|Gene family description|
+ATN|GENE_FAM_ID|expanded_form|ID used to designate a gene family or group|
+ATN|GESTATION_AGE_WEEKS|expanded_form|Gestation Age Weeeks|
+ATN|GLOBAL_ID_CODE_SYSTEM|expanded_form|Global ID code system|
+ATN|GLOBAL_ID|expanded_form|Global ID|
+ATN|GO_COMMENT|expanded_form|GO Comment field data|
+ATN|GO_NAMESPACE|expanded_form|Go Namespace field data|
+ATN|GO_SUBSET|expanded_form|Go Subset field data|
+ATN|GXR|expanded_form|GO Cross Reference to external databases (e.g. MetaCyc:TRNA-CHARGING-PWY)|
+ATN|HAC|expanded_form|HCPCS action code - code denoting the change made to a procedure or modifier code within the HCPCS system.|
+ATN|HAD|expanded_form|HCPCS Action Effective Date - effective date of action to a procedure or modifier code.|
+ATN|HAQ|expanded_form|HCPCS Anesthesia Base Unit Quantity - base unit represents the level of intensity for anesthesia procedure services that reflects all activities except time.|
+ATN|HAS_BOUNDARY|expanded_form|Has boundary|
+ATN|HAS_DIMENSION|expanded_form|Has dimension|
+ATN|HAS_DIRECT_CELL_LAYER|expanded_form|Has direct cell layer|
+ATN|HAS_DIRECT_PLOIDY|expanded_form|Has direct ploidy|
+ATN|HAS_DIRECT_SHAPE_TYPE|expanded_form|Has direct shape type|
+ATN|HAS_INHERENT_3D_SHAPE|expanded_form|has inherent 3d shape|
+ATN|HAS_MASS|expanded_form|Has mass|
+ATN|HBT|expanded_form|HCPCS Berenson-Eggers Type of Service Code - BETOS for the procedure code based on generally agreed upon clinically meaningful groupings of procedures and services.|
+ATN|HCC|expanded_form|HCPCS Coverage Code - code denoting Medicare coverage status. There are two subelements separated by "=".|
+ATN|HCD|expanded_form|HCPCS Code Added Date - year the HCPCS code was added to the HCFA Common Procedure Coding System.|
+ATN|HIR|expanded_form|HCPCS Coverage Issues Manual Reference Section Number - number identifying the Reference Section of the Coverage Issues Manual.|
+ATN|HL7AI|expanded_form|HL7 approved indicator|
+ATN|HL7AP|expanded_form|HL7 associated concept property|
+ATN|HL7AR|expanded_form|HL7 package artifact|
+ATN|HL7AT|expanded_form|HL7 applies to|
+ATN|HL7BR|expanded_form|HL7 binding realm name|
+ATN|HL7CC|expanded_form|HL7 complete codes indicator|
+ATN|HL7CD|expanded_form|HL7 conductible|
+ATN|HL7CI|expanded_form|HL7 package combined Id|
+ATN|HL7CO|expanded_form|HL7 contributor|
+ATN|HL7CP|expanded_form|HL7 copyright owner|
+ATN|HL7CSC|expanded_form|HL7 conceptual space for class code|
+ATN|HL7CST|expanded_form|HL7 coding strength|
+ATN|HL7CS|expanded_form|HL7 code status|
+ATN|HL7CY|expanded_form|HL7 copyright years|
+ATN|HL7DC|expanded_form|HL7 is document characteristic|
+ATN|HL7DH|expanded_form|HL7 default handling code|
+ATN|HL7DI|expanded_form|HL7 deprecation info|
+ATN|HL7DK|expanded_form|HL7 definition kind|
+ATN|HL7DV|expanded_form|HL7 default value|
+ATN|HL7ED|expanded_form|HL7 effective date|
+ATN|HL7HA|expanded_form|HL7 how applies|
+ATN|HL7HI|expanded_form|HL7 history item|
+ATN|HL7ID|expanded_form|HL7 internal Id|
+ATN|HL7II|expanded_form|HL7 is immutable|
+ATN|HL7IM|expanded_form|HL7 is mandatory indicator|
+ATN|HL7IN|expanded_form|HL7 inverse name|
+ATN|HL7IR|expanded_form|HL7 inverse relationship|
+ATN|HL7IS|expanded_form|HL7 is selectable|
+ATN|HL7LT|expanded_form|HL7 license terms|
+ATN|HL7MI|expanded_form|HL7 maintained indicator|
+ATN|HL7MN|expanded_form|HL7 vocabulary model name|
+ATN|HL7NA|expanded_form|HL7 is navigable|
+ATN|HL7NO|expanded_form|HL7 notation|
+ATN|HL7OAN|expanded_form|HL7 other annotation|
+ATN|HL7OA|expanded_form|HL7 owning affiliate|
+ATN|HL7OD|expanded_form|HL7 OID|
+ATN|HL7OI|expanded_form|HL7 open issue|
+ATN|HL7PK|expanded_form|HL7 package kind|
+ATN|HL7PL|expanded_form|HL7 preferred for language|
+ATN|HL7PR|expanded_form|HL7 package root|
+ATN|HL7PV|expanded_form|HL7 publisher version Id|
+ATN|HL7RA|expanded_form|HL7 rendering application|
+ATN|HL7RD|expanded_form|HL7 release date|
+ATN|HL7RF|expanded_form|HL7 reflexivity|
+ATN|HL7RG|expanded_form|HL7 responsible group organization name|
+ATN|HL7RK|expanded_form|HL7 relationship kind|
+ATN|HL7RN|expanded_form|HL7 package realm namespace|
+ATN|HL7RT|expanded_form|HL7 rendering time|
+ATN|HL7SCS|expanded_form|HL7 supported code system|
+ATN|HL7SL|expanded_form|HL7 supported language|
+ATN|HL7SV|expanded_form|HL7 schema version|
+ATN|HL7SY|expanded_form|HL7 symmetry|
+ATN|HL7TI|expanded_form|HL7 title|
+ATN|HL7TR|expanded_form|HL7 transitive|
+ATN|HL7TY|expanded_form|HL7 property type|
+ATN|HL7VC|expanded_form|HL7 value set content|
+ATN|HL7VD|expanded_form|HL7 version date|
+ATN|HL7VE|expanded_form|HL7 package version|
+ATN|HL7VP|expanded_form|HL7 versioning policy|
+ATN|HL7XN|expanded_form|HL7 xml namespace|
+ATN|HL7_ATTACHMENT_STRUCTURE|expanded_form|HL7 attachment structure|
+ATN|HL7_FIELD_SUBFIELD_ID|expanded_form|A value which indicates the content should be delivered in the named field/subfield of the HL7 message. When NULL, the data should be sent in an OBX segment with this LOINC code stored in OBX-3 and with the value in the OBX-5|
+ATN|HLC|expanded_form|HCPCS Lab Certification Code - code used to classify laboratory procedures according to the specialty certification categories listed by CMS(formerly HCFA).|
+ATN|HMP|expanded_form|HCPCS Multiple Pricing Indicator Code - code used to identify instances where a procedure could be priced.|
+ATN|HMR|expanded_form|HCPCS Medicare Carriers Manual reference section number - number identifying a section of the Medicare Carriers Manual.|
+ATN|HN|expanded_form|History Note - for MeSH history notes, the year when the current form of the MeSH term was established as a major and/or minor descriptor.|
+ATN|HPD|expanded_form|HCPCS ASC payment group effective date - date the procedure is assigned to the ASC payment group.|
+ATN|HPG|expanded_form|HCPCS ASC payment group code which represents the dollar amount of the facility charge payable by Medicare for the procedure.|
+ATN|HPI|expanded_form|HCPCS Pricing Indicator Code - used to identify the appropriate methodology for developing unique pricing amounts under Part B.|
+ATN|HPN|expanded_form|HCPCS processing note number identifying the processing note contained in Appendix A of the HCPCS Manual.|
+ATN|HPO_COMMENT|expanded_form|HPO Comment|
+ATN|HSN|expanded_form|HCPCS Statute Number identifying statute reference for coverage or noncoverage of procedure or service.|
+ATN|HTD|expanded_form|HCPCS Termination Date - last date for which a procedure or code may be used by Medicare Providers.|
+ATN|HTS|expanded_form|HCPCS Type of Service Code - carrier assigned HCFA Type of Service which describes the particular kind(s) of service represented by the procedure code.|
+ATN|HXR|expanded_form|HCPCS Cross reference code - an explicit reference crosswalking a deleted code or a code that is not valid for Medicare to a valid current code (or range of codes).|
+ATN|ICA|expanded_form|ICD Additional Codes Note - an ICD-9-CM instruction to signal the coder that an additional code should be used if the information is available to provide a more complete picture of that diagnoses or procedure.|
+ATN|ICC|expanded_form|ICD Code Also Note - an ICD-9-CM instruction to signal the coder to code additional information.|
+ATN|ICE|expanded_form|ICD Entry Term (e.g. Diarrhea:{dysenteric; epidemic}; Infectious diarrheal disease)|
+ATN|ICF|expanded_form|ICD Fifth-digit Code Note - instruction to coders indicating use of a fifth-digit code.|
+ATN|ICN|expanded_form|ICD Note - instruction providing additional coding information.|
+ATN|IEEE_CF_CODE10|expanded_form|IEEE CF Code10|
+ATN|IEEE_DESCRIPTION|expanded_form|IEEE description|
+ATN|IEEE_DIM|expanded_form|IEEE DIM|
+ATN|IEEE_REFID|expanded_form|IEEE REF ID|
+ATN|IEEE_UOM_UCUM|expanded_form|IEEE UOM UCUM|
+ATN|IMPRINT_CODE|expanded_form|Imprint Code|
+ATN|INTERPRETIVE_STATEMENT|expanded_form|Interpretive Statement|
+ATN|IPX|expanded_form|ICD10 code related to an ICPC code - a + indicates that the ICD10 code is broader than the ICPC code; a - indicates that the ICD10 code is narrower than the ICPC code. |
+ATN|JHU_DTI-81|expanded_form|JHU DTI-81|
+ATN|JHU_WHITE_MATTER_TRACTOGRAPHY_ATLAS|expanded_form|JHU white matter tractography atlas|
+ATN|LABELER|expanded_form|FDA Structured Product Label Manufacturer/Distributor/Supplier name|
+ATN|LABEL_TYPE|expanded_form|DailyMed label type|
+ATN|LANGUAGE|expanded_form|Language|
+ATN|LATERALITY|expanded_form|Laterality|
+ATN|LCD|expanded_form|LOINC CDISC common tests|
+ATN|LCL|expanded_form|LOINC Class - arbitrary classification of terms in LOINC designed to assist LOINC development and to group related observations together (e.g. ABXBACT = Antibiotic susceptibility)|
+ATN|LCN|expanded_form|LOINC Classtype - 1 = Laboratory Class; 2 = Clinical Class; 3 = Claims Attachment; 4 = Surveys|
+ATN|LCS|expanded_form|LOINC status - valid values are "ACTIVE," "TRIAL," "DISCOURAGED," "DEPRECATED." For "DEPRECATED" or "DISCOURAGED" concepts, the term that should now be used may appear in the LMP element.|
+ATN|LCT|expanded_form|LOINC Change Type Code - type of change made to a LOINC term.|
+ATN|LEA|expanded_form|LOINC Example Answers - for some tests and measurements, LOINC has supplied examples of valid answers. These values differ from those in the ANSWERLIST field because that details possible values for nominal scale terms.|
+ATN|LEGALLY_MARKETED_UNAPPROVED_NEW_ANIMAL_DRUGS_FOR_MINOR_SPECIES|expanded_form|Legally Marketed Unapproved New Animal Drugs for Minor Species|
+ATN|LEVEL|expanded_form|RXNORM: Specifies the type of drug concepts - Values can be "Ingredient", "VA Class", or "VA Product"; ICF: hierarchical level number|
+ATN|LFO|expanded_form|LOINC Formula - regression equation details for many OB.US calculated terms.|
+ATN|LLR|expanded_form|LOINC Date Last Changed YYYYMMDD - date the LOINC term was last changed|
+ATN|LMP|expanded_form|LOINC Map to Code of the term that has superseded a term with a LCS value of DEPRECATED.|
+ATN|LOCUS_GROUP|expanded_form|Locus group|
+ATN|LOCUS_SPECIFIC_DB_XR|expanded_form|Locus specific database cross-reference|
+ATN|LOCUS_TYPE|expanded_form|Locus Type|
+ATN|LOINC_COMPONENT|expanded_form|LOINC component|
+ATN|LOINC_METHOD_TYP|expanded_form|LOINC method type|
+ATN|LOINC_PROPERTY|expanded_form|LOINC property|
+ATN|LOINC_SCALE_TYP|expanded_form|LOINC scale type|
+ATN|LOINC_SCORE|expanded_form|A numeric score associated with a LOINC answer ('LA') concept.|
+ATN|LOINC_SYSTEM|expanded_form|LOINC system|
+ATN|LOINC_TIME_ASPECT|expanded_form|LOINC time aspect|
+ATN|LOR|expanded_form|LOINC ORDER_OBS field. Defines term as order only, observation only, or both. Values are: BOTH OBSERVATION ORDER. A fourth category, Subset, is used for terms that are subsets of a panel but do not represent a package that is known to be orderable.|
+ATN|LQS|expanded_form|Survey Question Source|
+ATN|LQT|expanded_form|Survey Question Text|
+ATN|LRN2|expanded_form|Related names 2|
+ATN|LSP|expanded_form|LOINC Species code|
+ATN|LSU|expanded_form|Submitted Units|
+ATN|LT|expanded_form|Indicates if a chemicals or medical device is a tradename (present in older versions of the Metathesaurus and was discontinued, then brought back starting in 2002AD)|
+ATN|LUR|expanded_form|Units required when used as OBX segment - a Y/N field that indicates that units are required when this LOINC is included as an OBX segment in a HIPAA attachment|
+ATN|MANUFACTURER_STATUS|expanded_form|Manufacturer Status|
+ATN|MAPPED_UCSC_ID|expanded_form|UCSC ID (mapped data)|
+ATN|MARKETING_CATEGORY|expanded_form|Marketing category|
+ATN|MARKETING_EFFECTIVE_TIME_HIGH|expanded_form|The date the MTHSPL drug became active|
+ATN|MARKETING_EFFECTIVE_TIME_LOW|expanded_form|The date the MTHSPL drug became completed|
+ATN|MARKETING_STATUS|expanded_form|The Marketing Status of the MTHSPL drug|
+ATN|MESH_DEFINITION|expanded_form|MeSH definition for MeSH main heading|
+ATN|MESH_DUI|expanded_form|The MeSH descriptor unique identifier to which the given NDFRT term maps|
+ATN|MESH_NAME|expanded_form|MeSH name|
+ATN|MESH_UI|expanded_form|The MeSH Unique Identifier to which the given NDFRT term maps|
+ATN|MGD_ID|expanded_form|MGD ID|
+ATN|MIMTYPEMEANING|expanded_form|OMIM MimType Meaning|
+ATN|MIMTYPEVALUE|expanded_form|OMIM MimType Value|
+ATN|MIMTYPE|expanded_form|OMIM Entry Type|
+ATN|MOVED_FROM|expanded_form|Moved from|
+ATN|MP_GROUP_URL|expanded_form|MEDLINEPLUS group URL|
+ATN|MP_HEALTH_TOPIC_URL|expanded_form|MEDLINEPLUS health topic URL|
+ATN|MP_OTHER_LANGUAGE_URL|expanded_form|MEDLINEPLUS health topic other-language URL|
+ATN|MP_PRIMARY_INSTITUTE_URL|expanded_form|MEDLINEPLUS health topic primary-institute URL|
+ATN|MR|expanded_form|Major revision date YYYYMMDD - date the Metathesaurus entry for the concept underwent any revision in content. |
+ATN|MSC|expanded_form|Minimal Standard (Terminology) Class|
+ATN|MSP|expanded_form|SPN Medical Specialty Panel (responsible for reviewing the product). |
+ATN|NADA|expanded_form|New Animal Drug Application number for MTHSPL drug|
+ATN|NDA_AUTHORIZED_GENERIC|expanded_form|New Drug Application number for authorized generic MTHSPL drug|
+ATN|NDA|expanded_form|New Drug Application number for MTHSPL drug|
+ATN|NDC|expanded_form|National Drug Code corresponding to a clinical drug (e.g. 000023082503)|
+ATN|NDFRT_KIND|expanded_form|NDFRT kind|
+ATN|NDF_TRANSMIT_TO_CMOP|expanded_form|NDF Transmit to Consolidated Mail Outpatient Pharmacy (CMOP)|
+ATN|NDF_UNITS|expanded_form|NDF units|
+ATN|NEUROLEX_ID|expanded_form|Neurolex ID|
+ATN|NFI|expanded_form|National formulary indicator - "YES" or "NO" indicating whether a drug is in the VA's National Formulary|
+ATN|NF_INACTIVATE|expanded_form|National Formulary Inactivation Date - the date a drug was removed from the VA's National Formulary|
+ATN|NF_NAME|expanded_form|National Formulary Name|
+ATN|NUI|expanded_form|NDFRT numerical unique identifier|
+ATN|OID|expanded_form|Answer list OID|
+ATN|OMIM_ID|expanded_form|OMIM ID|
+ATN|ORDER_NO|expanded_form|Order number|
+ATN|ORIG_CODE|expanded_form|Original code associated with this string|
+ATN|ORIG_SOURCE|expanded_form|Original source associated with this string|
+ATN|OTC_MONOGRAPH_FINAL|expanded_form|FDA Structured Product Label OTC monograph status|
+ATN|OTC_MONOGRAPH_NOT_FINAL|expanded_form|FDA Structured Product Label OTC monograph status|
+ATN|OUTDATED_MEANING|expanded_form|Outdated Meaning|
+ATN|PANEL_TYPE|expanded_form|Panel type|
+ATN|PARENT_CLASS|expanded_form|VA Internal entry number of the parent class|
+ATN|PARTITION|expanded_form|Partition|
+ATN|PART_TYPE|expanded_form|Part type|
+ATN|PDC|expanded_form|SPN Product Device Class (level of CDRH regulation: class 1, 2, or 3). |
+ATN|PHYSICAL_STATE|expanded_form|Physical state|
+ATN|PMID|expanded_form|Pubmed ID|
+ATN|POLARITY|expanded_form|Polarity|
+ATN|PRC|expanded_form|Product Third Party Review Code from SPN. |
+ATN|PREMARKET_APPLICATION|expanded_form|Premarket Application|
+ATN|PREMARKET_NOTIFICATION|expanded_form|FDA Structured Product Label premarket notification|
+ATN|PREV_NAME|expanded_form|Previous name|
+ATN|PREV_SYMBOL|expanded_form|Previous symbol|
+ATN|PTR|expanded_form|SPN Product Tier (level of CDRH triage: 1, 2, 3, or E{xempt}). |
+ATN|RADLEX_ID|expanded_form|RadLex ID|
+ATN|RANK|expanded_form|NCBI Rank (e.g. RANK[NCBI]species)|
+ATN|REFERENCE|expanded_form|Reference|
+ATN|REFSEQ_ID|expanded_form|RefSeq ID|
+ATN|REF|expanded_form|References or citations related to a given atom or concept.|
+ATN|RETIRED_CODE|expanded_form|Previous/Retired Code|
+ATN|RGD_ID|expanded_form|Rat genome database gene ID|
+ATN|RXAUI|expanded_form|RxNorm atom identifier for the atom it is connected to|
+ATN|RXCUI|expanded_form|RxNorm concept identifier for the atom this is connected to|
+ATN|RXN_ACTIVATED|expanded_form|Date the RxNorm atom was reactivated|
+ATN|RXN_AVAILABLE_STRENGTH|expanded_form|Available drug strengths listed in the order of ingredients from the drug|
+ATN|RXN_BN_CARDINALITY|expanded_form|Cardinality of RxNorm Brand Name Atom|
+ATN|RXN_HUMAN_DRUG|expanded_form|Drug available for use in Humans|
+ATN|RXN_IN_EXPRESSED_FLAG|expanded_form|Strength Expressed As Precise Flag|
+ATN|RXN_OBSOLETED|expanded_form|Date the RxNorm atom became obsolete|
+ATN|RXN_QUALITATIVE_DISTINCTION|expanded_form|RXN Qualitative Distinction|
+ATN|RXN_QUANTITY|expanded_form|Normal Form quantity factor|
+ATN|RXN_STRENGTH|expanded_form|Strength plus unit of SCDC|
+ATN|RXN_VET_DRUG|expanded_form|Drug available for use in animals|
+ATN|RXTERM_FORM|expanded_form|The RxTerm dose form name for this drug|
+ATN|SCORE|expanded_form|FDA Structured Product Label imprint attribute for score|
+ATN|SEQ_NO|expanded_form|Sequence number|
+ATN|SHAPETEXT|expanded_form|FDA Structured Product Label imprint attribute for shape text|
+ATN|SHAPE|expanded_form|FDA Structured Product Label imprint attribute for shape|
+ATN|SID|expanded_form|Secondary GO ID (e.g. GO:0020034)|
+ATN|SIZE|expanded_form|FDA Structured Product Label imprint attribute for size|
+ATN|SNGL_OR_MULT_SRC_PRD|expanded_form|Single or multi-source product|
+ATN|SNOMED_CHILD|expanded_form|SNOMED CHILD|
+ATN|SNOMED_CID|expanded_form|SNOMED-CT concept ID mapping for NDFRT disease name term|
+ATN|SNOMED_PARENT|expanded_form|SNOMED PARENT|
+ATN|SOS|expanded_form|Scope Statement|
+ATN|SPECIES|expanded_form|Species|
+ATN|SPL_SET_ID|expanded_form|FDA Structured Product Label SET_ID code|
+ATN|STATE_OF_DETERMINATION|expanded_form|State of determination|
+ATN|STATUS_REASON|expanded_form|Classification of the reason for concept status in LOINC|
+ATN|STATUS_TEXT|expanded_form|Explanation of concept status in narrative text in LOINC|
+ATN|STRENGTH|expanded_form|NDF strength|
+ATN|ST|expanded_form|Concept Attributes Status - valid values: R Reviewed, U Unreviewed |
+ATN|SUBSEQUENT_TEXT_PROMPT|expanded_form|Subsequent text prompt|
+ATN|SWP|expanded_form|Swiss Protein Number|
+ATN|SYCODE|expanded_form|Synonym Code|
+ATN|SYMBOL|expanded_form|FDA Structured Product Label imprint attribute for symbol|
+ATN|SYN_QUALIFIER|expanded_form|Synonym qualifier|
+ATN|TALAIRACH_TERM|expanded_form|Talairach Term|
+ATN|TA_ID|expanded_form|TAID|
+ATN|TERM_STATUS|expanded_form|Term Status|
+ATN|TOP_2000_LAB_RESULTS_SI|expanded_form|Top 2000 lab results SI|
+ATN|TOP_2000_LAB_RESULTS_US|expanded_form|Top 2000 lab results US|
+ATN|TRANSLATION|expanded_form|Translated name of the neuroanatomical structure|
+ATN|UNAPPROVED_DRUG_OTHER|expanded_form|Marketing category unapproved_drug_other for MTHSPL atom|
+ATN|UNAPPROVED_HOMEOPATHIC|expanded_form|Unapproved Homeopathic|
+ATN|UNAPPROVED_MEDICAL_GAS|expanded_form|Unapproved Medical Gas|
+ATN|UNITS_AND_RANGE|expanded_form|Units and range|
+ATN|UNIVERSAL_LAB_ORDERS_VALUE_SET|expanded_form|A value of "TRUE" indicates that the LOINC NUM is a member of the LOINC Universal Lab Orders Value Set|
+ATN|USE_ADDITIONAL|expanded_form|Certain conditions have both an underlying etiology and multiple body system manifestations due to the underlying etiology. ICD-10-CM has a coding convention that requires the underlying condition be sequenced first followed by the manifestation. Wherever such a combination exists there is a "use additional code" note at the etiology code. These instructional notes indicate the proper sequencing order of the codes, etiology followed by manifestation. In most cases the manifestation codes will have in the code title, "in diseases classified elsewhere." Codes with this title are a component of the etiology/ manifestation convention. The code title indicates that it is a manifestation code. "In diseases classified elsewhere" codes are never permitted to be used as first listed or principle diagnosis codes. They must be used in conjunction with an underlying condition code and they must be listed following the underlying condition.|
+ATN|UWT|expanded_form|A semantic type provided from terms from the University of Washington Digital Anatomist |
+ATN|VACCINE_STATUS|expanded_form|Vaccine status. CVX codes for inactive vaccines allow transmission of historical immunization records.|
+ATN|VAC|expanded_form|VA Class - the code of an NDF/HT drug class name (e.g. AM110)|
+ATN|VANDF_RECORD|expanded_form|Concatenated triple of VANDF file number, VANDF file IEN, VANDF file record status|
+ATN|VA_CLASS_NAME|expanded_form|VA class name|
+ATN|VA_DISPENSE_UNIT|expanded_form|VA dispense unit|
+ATN|VA_GENERIC_NAME|expanded_form|VA generic name|
+ATN|VA_IEN|expanded_form|VA individual entry number|
+ATN|VEGA_ID|expanded_form|VEGA ID|
+ATN|VIEW|expanded_form|View|
+ATN|VMO|expanded_form|VA CMOP (central mail - order pharmacy) ID|
+ATN|VUID|expanded_form|VHA unique identifier assigned to the product|
+CXTY|FULL-MULTIPLE|expanded_form|Full contexts, multiple tree positions|
+CXTY|FULL-NOSIB-IGNORE-RELA|expanded_form|Full contexts, no siblings, RELA not used when computing ancestors/descendants|
+CXTY|FULL-NOSIB-MULTIPLE-IGNORE-RELA|expanded_form|Full contexts, no siblings, multiple tree positions, RELA not used when computing ancestors/descendants|
+CXTY|FULL-NOSIB-MULTIPLE|expanded_form|Full contexts, no siblings, multiple tree positions|
+CXTY|FULL-NOSIB|expanded_form|Full contexts, no siblings|
+CXTY|FULL|expanded_form|Full contexts|
+FROMTYPE|CODE|expanded_form|Unique Identifier or code for string in source|
+FROMTYPE|CUI|expanded_form|Concept unique identifier|
+FROMTYPE|SCUI|expanded_form|Source asserted concept unique identifier|
+FROMTYPE|SDUI|expanded_form|Source asserted descriptor identifier|
+LAT|BAQ|expanded_form|Basque|
+LAT|CHI|expanded_form|Chinese|
+LAT|CZE|expanded_form|Czech|
+LAT|DAN|expanded_form|Danish|
+LAT|DUT|expanded_form|Dutch|
+LAT|ENG|expanded_form|English|
+LAT|EST|expanded_form|Estonian|
+LAT|FIN|expanded_form|Finnish|
+LAT|FRE|expanded_form|French|
+LAT|GER|expanded_form|German|
+LAT|GRE|expanded_form|Greek|
+LAT|HEB|expanded_form|Hebrew|
+LAT|HUN|expanded_form|Hungarian|
+LAT|ITA|expanded_form|Italian|
+LAT|JPN|expanded_form|Japanese|
+LAT|KOR|expanded_form|Korean|
+LAT|LAV|expanded_form|Latvian|
+LAT|NOR|expanded_form|Norwegian|
+LAT|POL|expanded_form|Polish|
+LAT|POR|expanded_form|Portuguese|
+LAT|RUS|expanded_form|Russian|
+LAT|SCR|expanded_form|Croatian|
+LAT|SPA|expanded_form|Spanish|
+LAT|SWE|expanded_form|Swedish|
+LAT|TUR|expanded_form|Turkish|
+MAPATN||expanded_form|Empty attribute name|
+RELA|116676008|snomedct_rela_mapping|has_associated_morphology|
+RELA|116678009|snomedct_rela_mapping|has_measured_component|
+RELA|116680003|snomedct_rela_mapping|isa|
+RELA|116683001|snomedct_rela_mapping|has_associated_function|
+RELA|116686009|snomedct_rela_mapping|has_specimen|
+RELA|118168003|snomedct_rela_mapping|has_specimen_source_morphology|
+RELA|118169006|snomedct_rela_mapping|has_specimen_source_topography|
+RELA|118170007|snomedct_rela_mapping|has_specimen_source_identity|
+RELA|118171006|snomedct_rela_mapping|has_specimen_procedure|
+RELA|123005000|snomedct_rela_mapping|part_of|
+RELA|127489000|snomedct_rela_mapping|has_active_ingredient|
+RELA|131195008|snomedct_rela_mapping|has_subject_of_information|
+RELA|149016008|snomedct_rela_mapping|may_be_a|
+RELA|159083000|snomedct_rela_mapping|was_a|
+RELA|168666000|snomedct_rela_mapping|same_as|
+RELA|246075003|snomedct_rela_mapping|has_causative_agent|
+RELA|246090004|snomedct_rela_mapping|has_associated_finding|
+RELA|246093002|snomedct_rela_mapping|has_component|
+RELA|246100006|snomedct_rela_mapping|has_onset|
+RELA|246112005|snomedct_rela_mapping|has_severity|
+RELA|246267002|snomedct_rela_mapping|has_location|
+RELA|246454002|snomedct_rela_mapping|occurs_in|
+RELA|246456000|snomedct_rela_mapping|has_episodicity|
+RELA|246513007|snomedct_rela_mapping|has_revision_status|
+RELA|255234002|snomedct_rela_mapping|occurs_after|
+RELA|258214002|snomedct_rela_mapping|has_stage|
+RELA|260507000|snomedct_rela_mapping|has_access|
+RELA|260669005|snomedct_rela_mapping|has_approach|
+RELA|260686004|snomedct_rela_mapping|has_method|
+RELA|260858005|snomedct_rela_mapping|has_extent|
+RELA|260870009|snomedct_rela_mapping|has_priority|
+RELA|260908002|snomedct_rela_mapping|has_course|
+RELA|261583007|snomedct_rela_mapping|uses|
+RELA|263502005|snomedct_rela_mapping|has_clinical_course|
+RELA|263535000|snomedct_rela_mapping|has_communication_with_wound|
+RELA|26421000009105|snomedct_rela_mapping|has_life_circumstance|
+RELA|26431000009107|snomedct_rela_mapping|has_physiologic_state|
+RELA|272741003|snomedct_rela_mapping|has_laterality|
+RELA|308489006|snomedct_rela_mapping|has_pathological_process|
+RELA|30951000009108|snomedct_rela_mapping|includes_sub_specimen|
+RELA|309824003|snomedct_rela_mapping|has_instrumentation|
+RELA|363589002|snomedct_rela_mapping|has_associated_procedure|
+RELA|363698007|snomedct_rela_mapping|has_finding_site|
+RELA|363699004|snomedct_rela_mapping|has_direct_device|
+RELA|363700003|snomedct_rela_mapping|has_direct_morphology|
+RELA|363701004|snomedct_rela_mapping|has_direct_substance|
+RELA|363702006|snomedct_rela_mapping|has_focus|
+RELA|363703001|snomedct_rela_mapping|has_intent|
+RELA|363704007|snomedct_rela_mapping|has_procedure_site|
+RELA|363705008|snomedct_rela_mapping|has_definitional_manifestation|
+RELA|363708005|snomedct_rela_mapping|temporally_follows|
+RELA|363709002|snomedct_rela_mapping|has_indirect_morphology|
+RELA|363710007|snomedct_rela_mapping|has_indirect_device|
+RELA|363713009|snomedct_rela_mapping|has_interpretation|
+RELA|363714003|snomedct_rela_mapping|interprets|
+RELA|363715002|snomedct_rela_mapping|has_associated_etiologic_finding|
+RELA|367346004|snomedct_rela_mapping|measures|
+RELA|370124000|snomedct_rela_mapping|replaced_by|
+RELA|370125004|snomedct_rela_mapping|moved_to|
+RELA|370127007|snomedct_rela_mapping|has_access_instrument|
+RELA|370129005|snomedct_rela_mapping|has_measurement_method|
+RELA|370130000|snomedct_rela_mapping|has_property|
+RELA|370131001|snomedct_rela_mapping|has_recipient_category|
+RELA|370132008|snomedct_rela_mapping|has_scale_type|
+RELA|370133003|snomedct_rela_mapping|has_specimen_substance|
+RELA|370134009|snomedct_rela_mapping|has_time_aspect|
+RELA|370135005|snomedct_rela_mapping|has_pathological_process|
+RELA|401336002|snomedct_rela_mapping|has_subject_of_information|
+RELA|401337006|snomedct_rela_mapping|interprets|
+RELA|401338001|snomedct_rela_mapping|temporally_follows|
+RELA|405813007|snomedct_rela_mapping|has_direct_procedure_site|
+RELA|405814001|snomedct_rela_mapping|has_indirect_procedure_site|
+RELA|405815000|snomedct_rela_mapping|has_procedure_device|
+RELA|405816004|snomedct_rela_mapping|has_procedure_morphology|
+RELA|408729009|snomedct_rela_mapping|has_finding_context|
+RELA|408730004|snomedct_rela_mapping|has_procedure_context|
+RELA|408731000|snomedct_rela_mapping|has_temporal_context|
+RELA|408732007|snomedct_rela_mapping|has_subject_relationship_context|
+RELA|410675002|snomedct_rela_mapping|has_route_of_administration|
+RELA|411116001|snomedct_rela_mapping|has_dose_form|
+RELA|418775008|snomedct_rela_mapping|has_finding_method|
+RELA|419066007|snomedct_rela_mapping|has_finding_informer|
+RELA|424226004|snomedct_rela_mapping|uses_device|
+RELA|424244007|snomedct_rela_mapping|uses_energy|
+RELA|424361007|snomedct_rela_mapping|uses_substance|
+RELA|424876005|snomedct_rela_mapping|has_surgical_approach|
+RELA|425391005|snomedct_rela_mapping|uses_access_device|
+RELA|42752001|snomedct_rela_mapping|due_to|
+RELA|47429007|snomedct_rela_mapping|associated_with|
+RELA|900000000000523009|snomedct_rela_mapping|possibly_equivalent_to|
+RELA|900000000000524003|snomedct_rela_mapping|moved_to|
+RELA|900000000000525002|snomedct_rela_mapping|moved_from|
+RELA|900000000000526001|snomedct_rela_mapping|replaced_by|
+RELA|900000000000527005|snomedct_rela_mapping|same_as|
+RELA|900000000000528000|snomedct_rela_mapping|was_a|
+RELA|900000000000530003|snomedct_rela_mapping|has_alternative|
+RELA|900000000000531004|snomedct_rela_mapping|refers_to|
+RELA|active_ingredient_of|expanded_form|Active ingredient of|
+RELA|active_ingredient_of|rela_inverse|has_active_ingredient|
+RELA|active_metabolites_of|expanded_form|Active metabolites of|
+RELA|active_metabolites_of|rela_inverse|has_active_metabolites|
+RELA|active_moiety_of|expanded_form|Active Moiety of|
+RELA|active_moiety_of|rela_inverse|has_active_moiety|
+RELA|adheres_to|expanded_form|Adheres to|
+RELA|adheres_to|rela_inverse|has_adherent|
+RELA|adjacent_to|expanded_form|Adjacent to|
+RELA|adjacent_to|rela_inverse|adjacent_to|
+RELA|afferent_to|expanded_form|Afferent to|
+RELA|afferent_to|rela_inverse|efferent_to|
+RELA|alias_of|expanded_form|Alias_of|
+RELA|alias_of|rela_inverse|has_alias|
+RELA|allelic_variant_of|expanded_form|Allelic Variant of|
+RELA|allelic_variant_of|rela_inverse|has_allelic_variant|
+RELA|analyzed_by|expanded_form|Analyzed by|
+RELA|analyzed_by|rela_inverse|analyzes|
+RELA|analyzes|expanded_form|Analyzes|
+RELA|analyzes|rela_inverse|analyzed_by|
+RELA|anatomical_entity_observed_in|expanded_form|anatomical entity observed in|
+RELA|anatomical_entity_observed_in|rela_inverse|has_observed_anatomical_entity|
+RELA|answer_to|expanded_form|answer to|
+RELA|answer_to|rela_inverse|has_answer|
+RELA|anterior_to|expanded_form|anterior to|
+RELA|anterior_to|rela_inverse|posterior_to|
+RELA|approximately_mapped_from|expanded_form|Approximately Mapped from|
+RELA|approximately_mapped_from|rela_inverse|approximately_mapped_to|
+RELA|approximately_mapped_to|expanded_form|Approximately Mapped to|
+RELA|approximately_mapped_to|rela_inverse|approximately_mapped_from|
+RELA|arterial_supply_of|expanded_form|Arterial supply of|
+RELA|arterial_supply_of|rela_inverse|has_arterial_supply|
+RELA|articulates_with|expanded_form|Articulates with|
+RELA|articulates_with|rela_inverse|articulates_with|
+RELA|associated_with|expanded_form|Associated with|
+RELA|associated_with|rela_inverse|associated_with|
+RELA|attaches_to|expanded_form|Attaches to|
+RELA|attaches_to|rela_inverse|receives_attachment_from|
+RELA|bounded_by|expanded_form|Bounded by|
+RELA|bounded_by|rela_inverse|bounds|
+RELA|bounds|expanded_form|Bounds|
+RELA|bounds|rela_inverse|bounded_by|
+RELA|branch_of|expanded_form|Branch of|
+RELA|branch_of|rela_inverse|has_branch|
+RELA|chemical_structure_of|expanded_form|Chemical structure of|
+RELA|chemical_structure_of|rela_inverse|has_chemical_structure|
+RELA|class_code_classified_by|expanded_form|Class code classified by|
+RELA|class_code_classified_by|rela_inverse|classifies_class_code|
+RELA|classified_as|expanded_form|Classified as|
+RELA|classified_as|rela_inverse|classifies|
+RELA|classifies_class_code|expanded_form|Classifies class code|
+RELA|classifies_class_code|rela_inverse|class_code_classified_by|
+RELA|classifies|expanded_form|Classifies|
+RELA|classifies|rela_inverse|classified_as|
+RELA|common_name_of|expanded_form|common name of|
+RELA|common_name_of|rela_inverse|has_common_name|
+RELA|component_of|expanded_form|Component of|
+RELA|component_of|rela_inverse|has_component|
+RELA|conceptual_part_of|expanded_form|Conceptual part of|
+RELA|conceptual_part_of|rela_inverse|has_conceptual_part|
+RELA|connected_to|expanded_form|connected to|
+RELA|connected_to|rela_inverse|connected_to|
+RELA|connection_type_of|expanded_form|connection type of|
+RELA|connection_type_of|rela_inverse|has_connection_type|
+RELA|consider_from|expanded_form|Consider from|
+RELA|consider_from|rela_inverse|consider|
+RELA|consider|expanded_form|Consider|
+RELA|consider|rela_inverse|consider_from|
+RELA|consists_of|expanded_form|Consists of|
+RELA|consists_of|rela_inverse|constitutes|
+RELA|constitutes|expanded_form|Constitutes|
+RELA|constitutes|rela_inverse|consists_of|
+RELA|constitutional_part_of|expanded_form|Constitutional part of|
+RELA|constitutional_part_of|rela_inverse|has_constitutional_part|
+RELA|contained_in|expanded_form|Contained in|
+RELA|contained_in|rela_inverse|contains|
+RELA|contains|expanded_form|Contains|
+RELA|contains|rela_inverse|contained_in|
+RELA|context_binding_of|expanded_form|Context binding of|
+RELA|context_binding_of|rela_inverse|has_context_binding|
+RELA|continuation_branch_of|expanded_form|Continuation branch of|
+RELA|continuation_branch_of|rela_inverse|has_continuation_branch|
+RELA|continuous_distally_with|expanded_form|continuous distally with|
+RELA|continuous_distally_with|rela_inverse|continuous_proximally_with|
+RELA|continuous_proximally_with|expanded_form|continuous proximally with|
+RELA|continuous_proximally_with|rela_inverse|continuous_distally_with|
+RELA|continuous_with|expanded_form|Continuous with|
+RELA|continuous_with|rela_inverse|continuous_with|
+RELA|contraindicated_with_disease|expanded_form|Contraindicated with disease|
+RELA|contraindicated_with_disease|rela_inverse|has_contraindicated_drug|
+RELA|contraindicating_class_of|expanded_form|Contraindicating class of|
+RELA|contraindicating_class_of|rela_inverse|has_contraindicating_class|
+RELA|contraindicating_mechanism_of_action_of|expanded_form|Contraindicating mechanism of action of|
+RELA|contraindicating_mechanism_of_action_of|rela_inverse|has_contraindicating_mechanism_of_action|
+RELA|contraindicating_physiologic_effect_of|expanded_form|Contraindicating physiologic effect of|
+RELA|contraindicating_physiologic_effect_of|rela_inverse|has_contraindicating_physiologic_effect|
+RELA|degree_of|expanded_form|Degree of|
+RELA|degree_of|rela_inverse|has_degree|
+RELA|derives_from|expanded_form|derives from|
+RELA|derives_from|rela_inverse|derives|
+RELA|derives|expanded_form|derives|
+RELA|derives|rela_inverse|derives_from|
+RELA|development_type_of|expanded_form|development type of|
+RELA|development_type_of|rela_inverse|has_development_type|
+RELA|developmental_stage_of|expanded_form|developmental stage of|
+RELA|developmental_stage_of|rela_inverse|has_developmental_stage|
+RELA|develops_from|expanded_form|Develops from|
+RELA|develops_from|rela_inverse|gives_rise_to|
+RELA|diagnosed_by|expanded_form|Diagnosed by|
+RELA|diagnosed_by|rela_inverse|diagnoses|
+RELA|diagnoses|expanded_form|Diagnoses|
+RELA|diagnoses|rela_inverse|diagnosed_by|
+RELA|direct_anterior_to|expanded_form|direct anterior to|
+RELA|direct_anterior_to|rela_inverse|direct_posterior_to|
+RELA|direct_anteroinferior_to|expanded_form|direct anteroinferior to|
+RELA|direct_anteroinferior_to|rela_inverse|direct_posterosuperior_to|
+RELA|direct_anterolateral_to|expanded_form|direct anterolateral to|
+RELA|direct_anterolateral_to|rela_inverse|direct_posteromedial_to|
+RELA|direct_anteromedial_to|expanded_form|direct anteromedial to|
+RELA|direct_anteromedial_to|rela_inverse|direct_posterolateral_to|
+RELA|direct_anterosuperior_to|expanded_form|direct anterosuperior to|
+RELA|direct_anterosuperior_to|rela_inverse|direct_posteroinferior_to|
+RELA|direct_cell_shape_of|expanded_form|direct cell shape of|
+RELA|direct_cell_shape_of|rela_inverse|has_direct_cell_shape|
+RELA|direct_constitution_part_of|expanded_form|direct constitution_part of|
+RELA|direct_constitution_part_of|rela_inverse|has_direct_constitution_part|
+RELA|direct_continuous_with|expanded_form|direct continuous with|
+RELA|direct_continuous_with|rela_inverse|direct_continuous_with|
+RELA|direct_distal_to|expanded_form|direct distal to|
+RELA|direct_distal_to|rela_inverse|direct_proximal_to|
+RELA|direct_inferior_to|expanded_form|direct inferior to|
+RELA|direct_inferior_to|rela_inverse|direct_superior_to|
+RELA|direct_inferolateral_to|expanded_form|direct inferolateral to|
+RELA|direct_inferolateral_to|rela_inverse|direct_superomedial_to|
+RELA|direct_inferomedial_to|expanded_form|direct inferomedial to|
+RELA|direct_inferomedial_to|rela_inverse|direct_superolateral_to|
+RELA|direct_lateral_to|expanded_form|direct lateral to|
+RELA|direct_lateral_to|rela_inverse|direct_medial_to|
+RELA|direct_left_of|expanded_form|direct left of|
+RELA|direct_left_of|rela_inverse|direct_right_of|
+RELA|direct_medial_to|expanded_form|direct medial to|
+RELA|direct_medial_to|rela_inverse|direct_lateral_to|
+RELA|direct_part_of|expanded_form|direct part of|
+RELA|direct_part_of|rela_inverse|has_direct_part|
+RELA|direct_posterior_to|expanded_form|direct posterior to|
+RELA|direct_posterior_to|rela_inverse|direct_anterior_to|
+RELA|direct_posteroinferior_to|expanded_form|direct posteroinferior to|
+RELA|direct_posteroinferior_to|rela_inverse|direct_anterosuperior_to|
+RELA|direct_posterolateral_to|expanded_form|direct posterolateral to|
+RELA|direct_posterolateral_to|rela_inverse|direct_anteromedial_to|
+RELA|direct_posteromedial_to|expanded_form|direct posteromedial to|
+RELA|direct_posteromedial_to|rela_inverse|direct_anterolateral_to|
+RELA|direct_posterosuperior_to|expanded_form|direct posterosuperior to|
+RELA|direct_posterosuperior_to|rela_inverse|direct_anteroinferior_to|
+RELA|direct_proximal_to|expanded_form|direct proximal to|
+RELA|direct_proximal_to|rela_inverse|direct_distal_to|
+RELA|direct_regional_part_of|expanded_form|direct regional part of|
+RELA|direct_regional_part_of|rela_inverse|has_direct_regional_part|
+RELA|direct_right_of|expanded_form|direct right of|
+RELA|direct_right_of|rela_inverse|direct_left_of|
+RELA|direct_superior_to|expanded_form|direct superior to|
+RELA|direct_superior_to|rela_inverse|direct_inferior_to|
+RELA|direct_superolateral_to|expanded_form|direct superolateral to|
+RELA|direct_superolateral_to|rela_inverse|direct_inferomedial_to|
+RELA|direct_superomedial_to|expanded_form|direct superomedial to|
+RELA|direct_superomedial_to|rela_inverse|direct_inferolateral_to|
+RELA|distal_to|expanded_form|distal to|
+RELA|distal_to|rela_inverse|proximal_to|
+RELA|dose_form_of|expanded_form|Dose form of|
+RELA|dose_form_of|rela_inverse|has_dose_form|
+RELA|doseformgroup_of|expanded_form|Dose form group of|
+RELA|doseformgroup_of|rela_inverse|has_doseformgroup|
+RELA|drains_into|expanded_form|drains into|
+RELA|drains_into|rela_inverse|receives_drainage_from|
+RELA|effect_may_be_inhibited_by|expanded_form|Effect may be inhibited by|
+RELA|effect_may_be_inhibited_by|rela_inverse|may_inhibit_effect_of|
+RELA|efferent_to|expanded_form|Efferent to|
+RELA|efferent_to|rela_inverse|afferent_to|
+RELA|ends_during|expanded_form|Ends during|
+RELA|ends_during|rela_inverse|inverse_ends_during|
+RELA|evaluation_of|expanded_form|Evaluation of|
+RELA|evaluation_of|rela_inverse|has_evaluation|
+RELA|exhibited_by|expanded_form|Exhibited by|
+RELA|exhibited_by|rela_inverse|exhibits|
+RELA|exhibits|expanded_form|Exhibits|
+RELA|exhibits|rela_inverse|exhibited_by|
+RELA|expanded_form_of|expanded_form|Expanded form of|
+RELA|expanded_form_of|rela_inverse|has_expanded_form|
+RELA|external_to|expanded_form|external to|
+RELA|external_to|rela_inverse|internal_to|
+RELA|form_of|expanded_form|Form of|
+RELA|form_of|rela_inverse|has_form|
+RELA|formed_by|expanded_form|formed by|
+RELA|formed_by|rela_inverse|forms|
+RELA|forms|expanded_form|forms|
+RELA|forms|rela_inverse|formed_by|
+RELA|full_grown_phenotype_of|expanded_form|full grown phenotype of|
+RELA|full_grown_phenotype_of|rela_inverse|has_full_grown_phenotype|
+RELA|fuses_with|expanded_form|fuses with|
+RELA|fuses_with|rela_inverse|fuses_with|
+RELA|fusion_of|expanded_form|fusion of|
+RELA|fusion_of|rela_inverse|has_fusion|
+RELA|germ_origin_of|expanded_form|Germ origin of|
+RELA|germ_origin_of|rela_inverse|has_germ_origin|
+RELA|gives_rise_to|expanded_form|Gives rise to|
+RELA|gives_rise_to|rela_inverse|develops_from|
+RELA|happens_during|expanded_form|Happens during|
+RELA|happens_during|rela_inverse|inverse_happens_during|
+RELA|has_active_ingredient|expanded_form|Has active ingredient|
+RELA|has_active_ingredient|rela_inverse|active_ingredient_of|
+RELA|has_active_metabolites|expanded_form|Has active metabolites|
+RELA|has_active_metabolites|rela_inverse|active_metabolites_of|
+RELA|has_active_moiety|expanded_form|Has Active Moiety|
+RELA|has_active_moiety|rela_inverse|active_moiety_of|
+RELA|has_adherent|expanded_form|Has adherent|
+RELA|has_adherent|rela_inverse|adheres_to|
+RELA|has_alias|expanded_form|Has alias|
+RELA|has_alias|rela_inverse|alias_of|
+RELA|has_allelic_variant|expanded_form|Has allelic variant|
+RELA|has_allelic_variant|rela_inverse|allelic_variant_of|
+RELA|has_answer|expanded_form|has answer|
+RELA|has_answer|rela_inverse|answer_to|
+RELA|has_arterial_supply|expanded_form|Has arterial supply|
+RELA|has_arterial_supply|rela_inverse|arterial_supply_of|
+RELA|has_branch|expanded_form|Has branch|
+RELA|has_branch|rela_inverse|branch_of|
+RELA|has_chemical_structure|expanded_form|Has chemical structure|
+RELA|has_chemical_structure|rela_inverse|chemical_structure_of|
+RELA|has_common_name|expanded_form|Has common name|
+RELA|has_common_name|rela_inverse|common_name_of|
+RELA|has_component|expanded_form|Has component|
+RELA|has_component|rela_inverse|component_of|
+RELA|has_conceptual_part|expanded_form|Has conceptual part|
+RELA|has_conceptual_part|rela_inverse|conceptual_part_of|
+RELA|has_connection_type|expanded_form|has connection type|
+RELA|has_connection_type|rela_inverse|connection_type_of|
+RELA|has_constitutional_part|expanded_form|Has constitutional part|
+RELA|has_constitutional_part|rela_inverse|constitutional_part_of|
+RELA|has_context_binding|expanded_form|Has context binding|
+RELA|has_context_binding|rela_inverse|context_binding_of|
+RELA|has_continuation_branch|expanded_form|Has continuation branch|
+RELA|has_continuation_branch|rela_inverse|continuation_branch_of|
+RELA|has_contraindicated_drug|expanded_form|Has contraindicated drug|
+RELA|has_contraindicated_drug|rela_inverse|contraindicated_with_disease|
+RELA|has_contraindicating_class|expanded_form|Has contraindicating class|
+RELA|has_contraindicating_class|rela_inverse|contraindicating_class_of|
+RELA|has_contraindicating_mechanism_of_action|expanded_form|Has contraindicating mechanism of action|
+RELA|has_contraindicating_mechanism_of_action|rela_inverse|contraindicating_mechanism_of_action_of|
+RELA|has_contraindicating_physiologic_effect|expanded_form|Has contraindicating physiologic effect|
+RELA|has_contraindicating_physiologic_effect|rela_inverse|contraindicating_physiologic_effect_of|
+RELA|has_degree|expanded_form|Has degree|
+RELA|has_degree|rela_inverse|degree_of|
+RELA|has_development_type|expanded_form|has development type|
+RELA|has_development_type|rela_inverse|development_type_of|
+RELA|has_developmental_stage|expanded_form|has developmental stage|
+RELA|has_developmental_stage|rela_inverse|developmental_stage_of|
+RELA|has_direct_cell_shape|expanded_form|has direct cell shape|
+RELA|has_direct_cell_shape|rela_inverse|direct_cell_shape_of|
+RELA|has_direct_constitution_part|expanded_form|has direct constitution part|
+RELA|has_direct_constitution_part|rela_inverse|direct_constitution_part_of|
+RELA|has_direct_part|expanded_form|has direct part|
+RELA|has_direct_part|rela_inverse|direct_part_of|
+RELA|has_direct_regional_part|expanded_form|has direct regional part|
+RELA|has_direct_regional_part|rela_inverse|direct_regional_part_of|
+RELA|has_dose_form|expanded_form|Has dose form|
+RELA|has_dose_form|rela_inverse|dose_form_of|
+RELA|has_doseformgroup|expanded_form|Has dose form group|
+RELA|has_doseformgroup|rela_inverse|doseformgroup_of|
+RELA|has_evaluation|expanded_form|Has evaluation|
+RELA|has_evaluation|rela_inverse|evaluation_of|
+RELA|has_expanded_form|expanded_form|Has expanded form|
+RELA|has_expanded_form|rela_inverse|expanded_form_of|
+RELA|has_form|expanded_form|Has form|
+RELA|has_form|rela_inverse|form_of|
+RELA|has_full_grown_phenotype|expanded_form|has full grown phenotype|
+RELA|has_full_grown_phenotype|rela_inverse|full_grown_phenotype_of|
+RELA|has_fusion|expanded_form|has fusion|
+RELA|has_fusion|rela_inverse|fusion_of|
+RELA|has_germ_origin|expanded_form|Has germ origin|
+RELA|has_germ_origin|rela_inverse|germ_origin_of|
+RELA|has_inactive_ingredient|expanded_form|Has Inactive Ingredient|
+RELA|has_inactive_ingredient|rela_inverse|inactive_ingredient_of|
+RELA|has_ingredients|expanded_form|Has ingredients|
+RELA|has_ingredients|rela_inverse|ingredients_of|
+RELA|has_ingredient|expanded_form|Has ingredient|
+RELA|has_ingredient|rela_inverse|ingredient_of|
+RELA|has_inherent_3d_shape|expanded_form|Has inherent 3-D shape|
+RELA|has_inherent_3d_shape|rela_inverse|inherent_3d_shape_of|
+RELA|has_inheritance_type|expanded_form|Has inheritance type|
+RELA|has_inheritance_type|rela_inverse|inheritance_type_of|
+RELA|has_insertion|expanded_form|has insertion|
+RELA|has_insertion|rela_inverse|insertion_of|
+RELA|has_location|expanded_form|Has location|
+RELA|has_location|rela_inverse|location_of|
+RELA|has_lymphatic_drainage|expanded_form|Has lymphatic drainage|
+RELA|has_lymphatic_drainage|rela_inverse|lymphatic_drainage_of|
+RELA|has_manifestation|expanded_form|Has manifestation|
+RELA|has_manifestation|rela_inverse|manifestation_of|
+RELA|has_mechanism_of_action|expanded_form|Has mechanism of action|
+RELA|has_mechanism_of_action|rela_inverse|mechanism_of_action_of|
+RELA|has_member|expanded_form|Has member|
+RELA|has_member|rela_inverse|member_of|
+RELA|has_method|expanded_form|Has method|
+RELA|has_method|rela_inverse|method_of|
+RELA|has_multi_level_category|expanded_form|Has multi-level category|
+RELA|has_multi_level_category|rela_inverse|has_single_level_category|
+RELA|has_muscle_insertion|expanded_form|Has muscle insertion|
+RELA|has_muscle_insertion|rela_inverse|muscle_insertion_of|
+RELA|has_muscle_origin|expanded_form|Has muscle origin|
+RELA|has_muscle_origin|rela_inverse|muscle_origin_of|
+RELA|has_nerve_supply|expanded_form|Has nerve supply|
+RELA|has_nerve_supply|rela_inverse|nerve_supply_of|
+RELA|has_observed_anatomical_entity|expanded_form|has observed anatomical entity|
+RELA|has_observed_anatomical_entity|rela_inverse|anatomical_entity_observed_in|
+RELA|has_occurrence|expanded_form|Has occurrence|
+RELA|has_occurrence|rela_inverse|occurs_in|
+RELA|has_origin|expanded_form|Has origin|
+RELA|has_origin|rela_inverse|origin_of|
+RELA|has_owning_affiliate|expanded_form|Has owning affiliate|
+RELA|has_owning_affiliate|rela_inverse|owning_affiliate_of|
+RELA|has_owning_section|expanded_form|Has owning section|
+RELA|has_owning_section|rela_inverse|owning_section_of|
+RELA|has_owning_subsection|expanded_form|Has owning subsection|
+RELA|has_owning_subsection|rela_inverse|owning_subsection_of|
+RELA|has_part|expanded_form|Has part|
+RELA|has_part|rela_inverse|part_of|
+RELA|has_pharmacokinetics|expanded_form|Has pharmacokinetics|
+RELA|has_pharmacokinetics|rela_inverse|pharmacokinetics_of|
+RELA|has_phenotype|expanded_form|Has phenotype|
+RELA|has_phenotype|rela_inverse|phenotype_of|
+RELA|has_physiologic_effect|expanded_form|Has physiologic effect|
+RELA|has_physiologic_effect|rela_inverse|physiologic_effect_of|
+RELA|has_precise_ingredient|expanded_form|Has precise ingredient|
+RELA|has_precise_ingredient|rela_inverse|precise_ingredient_of|
+RELA|has_primary_segmental_supply|expanded_form|Has primary segmental supply|
+RELA|has_primary_segmental_supply|rela_inverse|primary_segmental_supply_of|
+RELA|has_print_name|expanded_form|Has print name|
+RELA|has_print_name|rela_inverse|print_name_of|
+RELA|has_product_component|expanded_form|Has product component|
+RELA|has_product_component|rela_inverse|product_component_of|
+RELA|has_projection|expanded_form|has projection|
+RELA|has_projection|rela_inverse|receives_projection|
+RELA|has_quantified_form|expanded_form|Has quantified form|
+RELA|has_quantified_form|rela_inverse|quantified_form_of|
+RELA|has_regional_part|expanded_form|Has regional part|
+RELA|has_regional_part|rela_inverse|regional_part_of|
+RELA|has_related_developmental_entity|expanded_form|has related developmental entity|
+RELA|has_related_developmental_entity|rela_inverse|related_developmental_entity_of|
+RELA|has_result|expanded_form|Has result|
+RELA|has_result|rela_inverse|result_of|
+RELA|has_secondary_segmental_supply|expanded_form|Has secondary segmental supply|
+RELA|has_secondary_segmental_supply|rela_inverse|secondary_segmental_supply_of|
+RELA|has_segmental_composition|expanded_form|Has segmental composition|
+RELA|has_segmental_composition|rela_inverse|segmental_composition_of|
+RELA|has_segmental_supply|expanded_form|Has segmental supply|
+RELA|has_segmental_supply|rela_inverse|segmental_supply_of|
+RELA|has_single_level_category|expanded_form|Has single level category|
+RELA|has_single_level_category|rela_inverse|has_multi_level_category|
+RELA|has_supported_concept_property|expanded_form|Has supported concept property|
+RELA|has_supported_concept_property|rela_inverse|supported_concept_property_in|
+RELA|has_supported_concept_relationship|expanded_form|Has supported concept relationship|
+RELA|has_supported_concept_relationship|rela_inverse|supported_concept_relationship_in|
+RELA|has_therapeutic_class|expanded_form|Has therapeutic class|
+RELA|has_therapeutic_class|rela_inverse|therapeutic_class_of|
+RELA|has_tradename|expanded_form|Has tradename|
+RELA|has_tradename|rela_inverse|tradename_of|
+RELA|has_tributary|expanded_form|Has tributary|
+RELA|has_tributary|rela_inverse|tributary_of|
+RELA|has_venous_drainage|expanded_form|Has venous drainage|
+RELA|has_venous_drainage|rela_inverse|venous_drainage_of|
+RELA|has_version|expanded_form|Has version|
+RELA|has_version|rela_inverse|version_of|
+RELA|homonym_for|expanded_form|Homonym for|
+RELA|homonym_for|rela_inverse|homonym_of|
+RELA|homonym_of|expanded_form|Homonym of|
+RELA|homonym_of|rela_inverse|homonym_for|
+RELA|inactive_ingredient_of|expanded_form|Inactive Ingredient Of|
+RELA|inactive_ingredient_of|rela_inverse|has_inactive_ingredient|
+RELA|included_in|expanded_form|included_in|
+RELA|included_in|rela_inverse|includes|
+RELA|includes|expanded_form|includes|
+RELA|includes|rela_inverse|included_in|
+RELA|induced_by|expanded_form|Induced by|
+RELA|induced_by|rela_inverse|induces|
+RELA|induces|expanded_form|Induces|
+RELA|induces|rela_inverse|induced_by|
+RELA|inferior_to|expanded_form|inferior to|
+RELA|inferior_to|rela_inverse|superior_to|
+RELA|ingredient_of|expanded_form|Ingredient of|
+RELA|ingredient_of|rela_inverse|has_ingredient|
+RELA|ingredients_of|expanded_form|Ingredients of|
+RELA|ingredients_of|rela_inverse|has_ingredients|
+RELA|inherent_3d_shape_of|expanded_form|Inherent 3-D shape of|
+RELA|inherent_3d_shape_of|rela_inverse|has_inherent_3d_shape|
+RELA|inheritance_type_of|expanded_form|Inheritance type of|
+RELA|inheritance_type_of|rela_inverse|has_inheritance_type|
+RELA|insertion_of|expanded_form|insertion of|
+RELA|insertion_of|rela_inverse|has_insertion|
+RELA|internal_to|expanded_form|internal to|
+RELA|internal_to|rela_inverse|external_to|
+RELA|inverse_ends_during|expanded_form|Inverse ends during|
+RELA|inverse_ends_during|rela_inverse|ends_during|
+RELA|inverse_happens_during|expanded_form|Inverse happens during|
+RELA|inverse_happens_during|rela_inverse|happens_during|
+RELA|inverse_isa|expanded_form|Inverse is a|
+RELA|inverse_isa|rela_inverse|isa|
+RELA|isa|expanded_form|Is a|
+RELA|isa|rela_inverse|inverse_isa|
+RELA|larger_than|expanded_form|Larger Than|
+RELA|larger_than|rela_inverse|smaller_than|
+RELA|lateral_to|expanded_form|lateral to|
+RELA|lateral_to|rela_inverse|medial_to|
+RELA|left_lateral_to|expanded_form|left lateral to|
+RELA|left_lateral_to|rela_inverse|right_medial_to|
+RELA|left_medial_to|expanded_form|left medial to|
+RELA|left_medial_to|rela_inverse|right_lateral_to|
+RELA|location_of|expanded_form|Location of|
+RELA|location_of|rela_inverse|has_location|
+RELA|lymphatic_drainage_of|expanded_form|Lymphatic drainage of|
+RELA|lymphatic_drainage_of|rela_inverse|has_lymphatic_drainage|
+RELA|manifestation_of|expanded_form|Manifestation of|
+RELA|manifestation_of|rela_inverse|has_manifestation|
+RELA|manufactured_by|expanded_form|manufactured by|
+RELA|manufactured_by|rela_inverse|manufactures|
+RELA|manufactures|expanded_form|manufactures|
+RELA|manufactures|rela_inverse|manufactured_by|
+RELA|mapped_from|expanded_form|Mapped from|
+RELA|mapped_from|rela_inverse|mapped_to|
+RELA|mapped_to|expanded_form|Mapped to|
+RELA|mapped_to|rela_inverse|mapped_from|
+RELA|may_be_diagnosed_by|expanded_form|May be diagnosed by|
+RELA|may_be_diagnosed_by|rela_inverse|may_diagnose|
+RELA|may_be_prevented_by|expanded_form|May be prevented by|
+RELA|may_be_prevented_by|rela_inverse|may_prevent|
+RELA|may_be_qualified_by|expanded_form|May be qualified by|
+RELA|may_be_qualified_by|rela_inverse|may_qualify|
+RELA|may_be_treated_by|expanded_form|May be treated by|
+RELA|may_be_treated_by|rela_inverse|may_treat|
+RELA|may_diagnose|expanded_form|May diagnose|
+RELA|may_diagnose|rela_inverse|may_be_diagnosed_by|
+RELA|may_inhibit_effect_of|expanded_form|May inhibit effect of|
+RELA|may_inhibit_effect_of|rela_inverse|effect_may_be_inhibited_by|
+RELA|may_prevent|expanded_form|May prevent|
+RELA|may_prevent|rela_inverse|may_be_prevented_by|
+RELA|may_qualify|expanded_form|May qualify|
+RELA|may_qualify|rela_inverse|may_be_qualified_by|
+RELA|may_treat|expanded_form|May treat|
+RELA|may_treat|rela_inverse|may_be_treated_by|
+RELA|measured_by|expanded_form|Measured by|
+RELA|measured_by|rela_inverse|measures|
+RELA|measures|expanded_form|Measures|
+RELA|measures|rela_inverse|measured_by|
+RELA|mechanism_of_action_of|expanded_form|Mechanism of action of|
+RELA|mechanism_of_action_of|rela_inverse|has_mechanism_of_action|
+RELA|medial_to|expanded_form|medial to|
+RELA|medial_to|rela_inverse|lateral_to|
+RELA|member_of|expanded_form|Member of|
+RELA|member_of|rela_inverse|has_member|
+RELA|merges_with|expanded_form|merges with|
+RELA|merges_with|rela_inverse|merges_with|
+RELA|metabolic_site_of|expanded_form|Metabolic site of|
+RELA|metabolic_site_of|rela_inverse|site_of_metabolism|
+RELA|method_of|expanded_form|Method of|
+RELA|method_of|rela_inverse|has_method|
+RELA|mth_expanded_form_of|expanded_form|MTH expanded form of|
+RELA|mth_expanded_form_of|rela_inverse|mth_has_expanded_form|
+RELA|mth_has_expanded_form|expanded_form|MTH has expanded form|
+RELA|mth_has_expanded_form|rela_inverse|mth_expanded_form_of|
+RELA|muscle_insertion_of|expanded_form|Muscle insertion of|
+RELA|muscle_insertion_of|rela_inverse|has_muscle_insertion|
+RELA|muscle_origin_of|expanded_form|Muscle origin of|
+RELA|muscle_origin_of|rela_inverse|has_muscle_origin|
+RELA|negatively_regulated_by|expanded_form|Negatively regulated by|
+RELA|negatively_regulated_by|rela_inverse|negatively_regulates|
+RELA|negatively_regulates|expanded_form|Negatively regulates|
+RELA|negatively_regulates|rela_inverse|negatively_regulated_by|
+RELA|nerve_supply_of|expanded_form|Nerve supply of|
+RELA|nerve_supply_of|rela_inverse|has_nerve_supply|
+RELA|occurs_in|expanded_form|Occurs in|
+RELA|occurs_in|rela_inverse|has_occurrence|
+RELA|origin_of|expanded_form|Origin of|
+RELA|origin_of|rela_inverse|has_origin|
+RELA|owning_affiliate_of|expanded_form|Owning affiliate of|
+RELA|owning_affiliate_of|rela_inverse|has_owning_affiliate|
+RELA|owning_section_of|expanded_form|Owning section of|
+RELA|owning_section_of|rela_inverse|has_owning_section|
+RELA|owning_subsection_of|expanded_form|Owning subsection of|
+RELA|owning_subsection_of|rela_inverse|has_owning_subsection|
+RELA|part_of|expanded_form|Part of|
+RELA|part_of|rela_inverse|has_part|
+RELA|pharmacokinetics_of|expanded_form|Pharmacokinetics of|
+RELA|pharmacokinetics_of|rela_inverse|has_pharmacokinetics|
+RELA|phenotype_of|expanded_form|Phenotype of|
+RELA|phenotype_of|rela_inverse|has_phenotype|
+RELA|physiologic_effect_of|expanded_form|Physiologic effect of|
+RELA|physiologic_effect_of|rela_inverse|has_physiologic_effect|
+RELA|positively_regulated_by|expanded_form|Positively regulated by|
+RELA|positively_regulated_by|rela_inverse|positively_regulates|
+RELA|positively_regulates|expanded_form|Positively regulates|
+RELA|positively_regulates|rela_inverse|positively_regulated_by|
+RELA|posterior_to|expanded_form|posterior to|
+RELA|posterior_to|rela_inverse|anterior_to|
+RELA|precise_ingredient_of|expanded_form|Precise ingredient of|
+RELA|precise_ingredient_of|rela_inverse|has_precise_ingredient|
+RELA|primary_segmental_supply_of|expanded_form|Primary segmental supply of|
+RELA|primary_segmental_supply_of|rela_inverse|has_primary_segmental_supply|
+RELA|print_name_of|expanded_form|Print name of|
+RELA|print_name_of|rela_inverse|has_print_name|
+RELA|product_component_of|expanded_form|Product component of|
+RELA|product_component_of|rela_inverse|has_product_component|
+RELA|projects_from|expanded_form|projects from|
+RELA|projects_from|rela_inverse|projects_to|
+RELA|projects_to|expanded_form|projects to|
+RELA|projects_to|rela_inverse|projects_from|
+RELA|proximal_to|expanded_form|proximal to|
+RELA|proximal_to|rela_inverse|distal_to|
+RELA|quantified_form_of|expanded_form|Quantified form of|
+RELA|quantified_form_of|rela_inverse|has_quantified_form|
+RELA|receives_attachment_from|expanded_form|receives attachment from|
+RELA|receives_attachment_from|rela_inverse|attaches_to|
+RELA|receives_drainage_from|expanded_form|receives drainage from|
+RELA|receives_drainage_from|rela_inverse|drains_into|
+RELA|receives_input_from|expanded_form|Receives input from|
+RELA|receives_input_from|rela_inverse|sends_output_to|
+RELA|receives_projection|expanded_form|receives projection|
+RELA|receives_projection|rela_inverse|has_projection|
+RELA|reformulated_to|expanded_form|Reformulated to|
+RELA|reformulated_to|rela_inverse|reformulation_of|
+RELA|reformulation_of|expanded_form|Reformulation of|
+RELA|reformulation_of|rela_inverse|reformulated_to|
+RELA|regional_part_of|expanded_form|Regional part of|
+RELA|regional_part_of|rela_inverse|has_regional_part|
+RELA|regulated_by|expanded_form|Regulated by|
+RELA|regulated_by|rela_inverse|regulates|
+RELA|regulates|expanded_form|Regulates|
+RELA|regulates|rela_inverse|regulated_by|
+RELA|related_developmental_entity_of|expanded_form|related developmental entity of|
+RELA|related_developmental_entity_of|rela_inverse|has_related_developmental_entity|
+RELA|related_object|expanded_form|related object|
+RELA|related_object|rela_inverse|related_object|
+RELA|related_to|expanded_form|Is Related to|
+RELA|related_to|rela_inverse|related_to|
+RELA|replaced_by|expanded_form|Replaced by|
+RELA|replaced_by|rela_inverse|replaces|
+RELA|replaces|expanded_form|Replaces|
+RELA|replaces|rela_inverse|replaced_by|
+RELA|result_of|expanded_form|Result of|
+RELA|result_of|rela_inverse|has_result|
+RELA|right_lateral_to|expanded_form|right lateral to|
+RELA|right_lateral_to|rela_inverse|left_medial_to|
+RELA|right_medial_to|expanded_form|right medial to|
+RELA|right_medial_to|rela_inverse|left_lateral_to|
+RELA|secondary_segmental_supply_of|expanded_form|Secondary segmental supply of|
+RELA|secondary_segmental_supply_of|rela_inverse|has_secondary_segmental_supply|
+RELA|see_from|expanded_form|See from|
+RELA|see_from|rela_inverse|see|
+RELA|see|expanded_form|See|
+RELA|see|rela_inverse|see_from|
+RELA|segmental_composition_of|expanded_form|Segmental composition of|
+RELA|segmental_composition_of|rela_inverse|has_segmental_composition|
+RELA|segmental_supply_of|expanded_form|Segmental supply of|
+RELA|segmental_supply_of|rela_inverse|has_segmental_supply|
+RELA|sends_output_to|expanded_form|Sends output to|
+RELA|sends_output_to|rela_inverse|receives_input_from|
+RELA|sib_in_branch_of|expanded_form|Sibling in branch of|
+RELA|sib_in_branch_of|rela_inverse|sib_in_branch_of|
+RELA|sib_in_isa|expanded_form|Sibling in is a|
+RELA|sib_in_isa|rela_inverse|sib_in_isa|
+RELA|sib_in_part_of|expanded_form|Sibling in part of|
+RELA|sib_in_part_of|rela_inverse|sib_in_part_of|
+RELA|sib_in_tributary_of|expanded_form|Sibling in tributary of|
+RELA|sib_in_tributary_of|rela_inverse|sib_in_tributary_of|
+RELA|site_of_metabolism|expanded_form|Site of metabolism|
+RELA|site_of_metabolism|rela_inverse|metabolic_site_of|
+RELA|smaller_than|expanded_form|Smaller Than|
+RELA|smaller_than|rela_inverse|larger_than|
+RELA|superior_to|expanded_form|superior to|
+RELA|superior_to|rela_inverse|inferior_to|
+RELA|supported_concept_property_in|expanded_form|Supported concept property in|
+RELA|supported_concept_property_in|rela_inverse|has_supported_concept_property|
+RELA|supported_concept_relationship_in|expanded_form|Supported concept relationship in|
+RELA|supported_concept_relationship_in|rela_inverse|has_supported_concept_relationship|
+RELA|surrounded_by|expanded_form|Surrounded by|
+RELA|surrounded_by|rela_inverse|surrounds|
+RELA|surrounds|expanded_form|Surrounds|
+RELA|surrounds|rela_inverse|surrounded_by|
+RELA|therapeutic_class_of|expanded_form|Therapeutic class of|
+RELA|therapeutic_class_of|rela_inverse|has_therapeutic_class|
+RELA|tradename_of|expanded_form|Tradename of|
+RELA|tradename_of|rela_inverse|has_tradename|
+RELA|transforms_from|expanded_form|transforms from|
+RELA|transforms_from|rela_inverse|transforms_into|
+RELA|transforms_into|expanded_form|transforms into|
+RELA|transforms_into|rela_inverse|transforms_from|
+RELA|treated_by|expanded_form|Treated by|
+RELA|treated_by|rela_inverse|treats|
+RELA|treats|expanded_form|Treats|
+RELA|treats|rela_inverse|treated_by|
+RELA|tributary_of|expanded_form|Tributary of|
+RELA|tributary_of|rela_inverse|has_tributary|
+RELA|used_by|expanded_form|Used by|
+RELA|used_by|rela_inverse|uses|
+RELA|used_for|expanded_form|Used for|
+RELA|used_for|rela_inverse|use|
+RELA|uses|expanded_form|Uses|
+RELA|uses|rela_inverse|used_by|
+RELA|use|expanded_form|Use|
+RELA|use|rela_inverse|used_for|
+RELA|venous_drainage_of|expanded_form|Venous drainage of|
+RELA|venous_drainage_of|rela_inverse|has_venous_drainage|
+RELA|version_of|expanded_form|Version of|
+RELA|version_of|rela_inverse|has_version|
+RELA||expanded_form|Empty relationship attribute|
+RELA||rela_inverse||
+REL|116676008|snomedct_rel_mapping|RO|
+REL|116678009|snomedct_rel_mapping|RO|
+REL|116680003|snomedct_rel_mapping|CHD|
+REL|116683001|snomedct_rel_mapping|RO|
+REL|116686009|snomedct_rel_mapping|RO|
+REL|118168003|snomedct_rel_mapping|RO|
+REL|118169006|snomedct_rel_mapping|RO|
+REL|118170007|snomedct_rel_mapping|RO|
+REL|118171006|snomedct_rel_mapping|RO|
+REL|123005000|snomedct_rel_mapping|RN|
+REL|127489000|snomedct_rel_mapping|RO|
+REL|131195008|snomedct_rel_mapping|RO|
+REL|149016008|snomedct_rel_mapping|RO|
+REL|159083000|snomedct_rel_mapping|RN|
+REL|168666000|snomedct_rel_mapping|SY|
+REL|246075003|snomedct_rel_mapping|RO|
+REL|246090004|snomedct_rel_mapping|RO|
+REL|246093002|snomedct_rel_mapping|RO|
+REL|246100006|snomedct_rel_mapping|RO|
+REL|246112005|snomedct_rel_mapping|RO|
+REL|246267002|snomedct_rel_mapping|RO|
+REL|246454002|snomedct_rel_mapping|RO|
+REL|246456000|snomedct_rel_mapping|RO|
+REL|246513007|snomedct_rel_mapping|RO|
+REL|255234002|snomedct_rel_mapping|RO|
+REL|258214002|snomedct_rel_mapping|RO|
+REL|260507000|snomedct_rel_mapping|RO|
+REL|260669005|snomedct_rel_mapping|RO|
+REL|260686004|snomedct_rel_mapping|RO|
+REL|260858005|snomedct_rel_mapping|RO|
+REL|260870009|snomedct_rel_mapping|RO|
+REL|260908002|snomedct_rel_mapping|RO|
+REL|261583007|snomedct_rel_mapping|RO|
+REL|263502005|snomedct_rel_mapping|RO|
+REL|263535000|snomedct_rel_mapping|RO|
+REL|26421000009105|snomedct_rel_mapping|RO|
+REL|26431000009107|snomedct_rel_mapping|RO|
+REL|272741003|snomedct_rel_mapping|RO|
+REL|308489006|snomedct_rel_mapping|RO|
+REL|30951000009108|snomedct_rel_mapping|RO|
+REL|309824003|snomedct_rel_mapping|RO|
+REL|363589002|snomedct_rel_mapping|RO|
+REL|363698007|snomedct_rel_mapping|RO|
+REL|363699004|snomedct_rel_mapping|RO|
+REL|363700003|snomedct_rel_mapping|RO|
+REL|363701004|snomedct_rel_mapping|RO|
+REL|363702006|snomedct_rel_mapping|RO|
+REL|363703001|snomedct_rel_mapping|RO|
+REL|363704007|snomedct_rel_mapping|RO|
+REL|363705008|snomedct_rel_mapping|RO|
+REL|363708005|snomedct_rel_mapping|RO|
+REL|363709002|snomedct_rel_mapping|RO|
+REL|363710007|snomedct_rel_mapping|RO|
+REL|363713009|snomedct_rel_mapping|RO|
+REL|363714003|snomedct_rel_mapping|RO|
+REL|363715002|snomedct_rel_mapping|RO|
+REL|367346004|snomedct_rel_mapping|RO|
+REL|370124000|snomedct_rel_mapping|RO|
+REL|370125004|snomedct_rel_mapping|RO|
+REL|370127007|snomedct_rel_mapping|RO|
+REL|370129005|snomedct_rel_mapping|RO|
+REL|370130000|snomedct_rel_mapping|RO|
+REL|370131001|snomedct_rel_mapping|RO|
+REL|370132008|snomedct_rel_mapping|RO|
+REL|370133003|snomedct_rel_mapping|RO|
+REL|370134009|snomedct_rel_mapping|RO|
+REL|370135005|snomedct_rel_mapping|RO|
+REL|401336002|snomedct_rel_mapping|RO|
+REL|401337006|snomedct_rel_mapping|RO|
+REL|401338001|snomedct_rel_mapping|RO|
+REL|405813007|snomedct_rel_mapping|RO|
+REL|405814001|snomedct_rel_mapping|RO|
+REL|405815000|snomedct_rel_mapping|RO|
+REL|405816004|snomedct_rel_mapping|RO|
+REL|408729009|snomedct_rel_mapping|RO|
+REL|408730004|snomedct_rel_mapping|RO|
+REL|408731000|snomedct_rel_mapping|RO|
+REL|408732007|snomedct_rel_mapping|RO|
+REL|410675002|snomedct_rel_mapping|RO|
+REL|411116001|snomedct_rel_mapping|RO|
+REL|418775008|snomedct_rel_mapping|RO|
+REL|419066007|snomedct_rel_mapping|RO|
+REL|424226004|snomedct_rel_mapping|RO|
+REL|424244007|snomedct_rel_mapping|RO|
+REL|424361007|snomedct_rel_mapping|RO|
+REL|424876005|snomedct_rel_mapping|RO|
+REL|425391005|snomedct_rel_mapping|RO|
+REL|42752001|snomedct_rel_mapping|RO|
+REL|47429007|snomedct_rel_mapping|RO|
+REL|900000000000523009|snomedct_rel_mapping|RO|
+REL|900000000000524003|snomedct_rel_mapping|RO|
+REL|900000000000525002|snomedct_rel_mapping|RO|
+REL|900000000000526001|snomedct_rel_mapping|RO|
+REL|900000000000527005|snomedct_rel_mapping|SY|
+REL|900000000000528000|snomedct_rel_mapping|RN|
+REL|900000000000530003|snomedct_rel_mapping|RN|
+REL|900000000000531004|snomedct_rel_mapping|RN|
+REL|CHD|expanded_form|has child relationship in a Metathesaurus source vocabulary |
+REL|CHD|rel_inverse|PAR|
+REL|DEL|expanded_form|Deleted concept|
+REL|PAR|expanded_form|has parent relationship in a Metathesaurus source vocabulary |
+REL|PAR|rel_inverse|CHD|
+REL|RB|expanded_form|has a broader relationship|
+REL|RB|rel_inverse|RN|
+REL|RN|expanded_form|has a narrower relationship|
+REL|RN|rel_inverse|RB|
+REL|RO|expanded_form|has relationship other than synonymous, narrower, or broader|
+REL|RO|rel_inverse|RO|
+REL|RQ|expanded_form|related and possibly synonymous.|
+REL|RQ|rel_inverse|RQ|
+REL|RU|expanded_form|Related, unspecified|
+REL|RU|rel_inverse|RU|
+REL|SIB|expanded_form|has sibling relationship in a Metathesaurus source vocabulary.|
+REL|SIB|rel_inverse|SIB|
+REL|SUBX|expanded_form|Concept removed from current subset|
+REL|SY|expanded_form|source asserted synonymy.|
+REL|SY|rel_inverse|SY|
+REL|XR|expanded_form|Not related, no mapping|
+REL|XR|rel_inverse|XR|
+REL||expanded_form|Empty relationship|
+SRL|0|expanded_form|No additional restrictions; general terms of the license agreement apply.|
+SRL|0|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html|
+SRL|1|expanded_form|General terms + additional restrictions in category 12.1|
+SRL|1|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category1|
+SRL|2|expanded_form|General terms + additional restrictions in category 12.2|
+SRL|2|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category2|
+SRL|3|expanded_form|General terms + additional restrictions in category 12.3|
+SRL|3|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category3|
+SRL|4|expanded_form|General terms + additional restrictions in category 12.4|
+SRL|4|uri|https://uts.nlm.nih.gov/help/license/licensecategoryhelp.html#category4|
+SRL|9|expanded_form|General terms + SNOMED CT Affiliate License in Appendix 2|
+SRL|9|uri|https://uts.nlm.nih.gov/help/license/licensecategoryihtsdohelp.html|
+STT|PF|expanded_form|Preferred form of term |
+STT|VCW|expanded_form|Case and word-order variant of the preferred form|
+STT|VC|expanded_form|Case variant of the preferred form|
+STT|VO|expanded_form|Variant of the preferred form|
+STT|VW|expanded_form|Word-order variant of the preferred form|
+STYPE1|AUI|expanded_form|Atom identifier|
+STYPE1|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE1|CUI|expanded_form|Concept unique identifier|
+STYPE1|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE1|SDUI|expanded_form|Source asserted descriptor identifier|
+STYPE2|AUI|expanded_form|Atom identifier|
+STYPE2|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE2|CUI|expanded_form|Concept unique identifier|
+STYPE2|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE2|SDUI|expanded_form|Source asserted descriptor identifier|
+STYPE|AUI|expanded_form|Atom identifier|
+STYPE|CODE|expanded_form|Unique Identifier or code for string in source|
+STYPE|RUI|expanded_form|Relationship identifier|
+STYPE|SCUI|expanded_form|Source asserted concept unique identifier|
+STYPE|SDUI|expanded_form|Source asserted descriptor identifier|
+SUPPRESS|E|expanded_form|Suppressible due to editor decision|
+SUPPRESS|N|expanded_form|Not suppressible|
+SUPPRESS|O|expanded_form|Obsolete, SAB,TTY may be independently suppressible|
+SUPPRESS|Y|expanded_form|Suppressible due to SAB,TTY|
+SUPPRESS||expanded_form|Suppressibility not yet assigned by the UMLS|
+TOTYPE|BOOLEAN_EXPRESSION_CODE|expanded_form|Boolean expression of CODE values|
+TOTYPE|BOOLEAN_EXPRESSION_STR|expanded_form|Boolean expression of STR values|
+TOTYPE|CODE|expanded_form|Unique Identifier or code for string in source|
+TOTYPE|SCUI|expanded_form|Source asserted concept unique identifier|
+TOTYPE|SDUI|expanded_form|Source asserted descriptor identifier|
+TOTYPE||expanded_form|No type, used for XR mappings.|
+TS|P|expanded_form|Preferred LUI of the CUI|
+TS|S|expanded_form|Non-Preferred LUI of the CUI|
+TS|p|expanded_form|Preferred LUI of the CUI, suppressible (only used in ORF MRCON)|
+TS|s|expanded_form|Non-Preferred LUI of the CUI, suppressible (only used in ORF MRCON)|
+TTY|AB|expanded_form|Abbreviation in any source vocabulary|
+TTY|AB|tty_class|abbreviation|
+TTY|ACR|expanded_form|Acronym|
+TTY|ACR|tty_class|abbreviation|
+TTY|AM|expanded_form|Short form of modifier|
+TTY|AM|tty_class|abbreviation|
+TTY|AM|tty_class|attribute|
+TTY|AUN|expanded_form|Authority name|
+TTY|AUN|tty_class|synonym|
+TTY|BN|expanded_form|Fully-specified drug brand name that can not be prescribed|
+TTY|BN|tty_class|preferred|
+TTY|BPCK|expanded_form|Branded Drug Delivery Device|
+TTY|BPCK|tty_class|preferred|
+TTY|BR|expanded_form|Binding realm|
+TTY|BR|tty_class|preferred|
+TTY|CC|expanded_form|Trimmed ICPC component process|
+TTY|CC|tty_class|preferred|
+TTY|CDO|expanded_form|Concept domain|
+TTY|CDO|tty_class|preferred|
+TTY|CD|expanded_form|Clinical Drug|
+TTY|CD|tty_class|preferred|
+TTY|CMN|expanded_form|Common name|
+TTY|CMN|tty_class|preferred|
+TTY|CN|expanded_form|LOINC official component name|
+TTY|CN|tty_class|preferred|
+TTY|CO|expanded_form|Component name (these are hierarchical terms, as opposed to the LOINC component names which are analytes)|
+TTY|CO|tty_class|hierarchical|
+TTY|CPR|expanded_form|Concept property|
+TTY|CPR|tty_class|preferred|
+TTY|CP|expanded_form|ICPC component process (in original form)|
+TTY|CP|tty_class|preferred|
+TTY|CR|expanded_form|Concept relationship|
+TTY|CR|tty_class|preferred|
+TTY|CSY|expanded_form|Code system|
+TTY|CSY|tty_class|preferred|
+TTY|CS|expanded_form|Short component process in ICPC, i.e. include some abbreviations|
+TTY|CS|tty_class|abbreviation|
+TTY|CX|expanded_form|Component, with abbreviations expanded.|
+TTY|CX|tty_class|expanded|
+TTY|CX|tty_class|preferred|
+TTY|DE|expanded_form|Descriptor|
+TTY|DE|tty_class|preferred|
+TTY|DFG|expanded_form|Dose Form Group|
+TTY|DFG|tty_class|preferred|
+TTY|DF|expanded_form|Dose Form|
+TTY|DF|tty_class|preferred|
+TTY|DI|expanded_form|Disease name|
+TTY|DI|tty_class|preferred|
+TTY|DP|expanded_form|Drug Product|
+TTY|DP|tty_class|preferred|
+TTY|DS|expanded_form|Short form of descriptor|
+TTY|DS|tty_class|abbreviation|
+TTY|DT|expanded_form|Definitional term, present in the Metathesaurus because of its connection to a Dorland's definition or to a definition created especially for the Metathesaurus|
+TTY|DT|tty_class|other|
+TTY|EQ|expanded_form|Equivalent name|
+TTY|EQ|tty_class|synonym|
+TTY|ES|expanded_form|Short form of entry term|
+TTY|ES|tty_class|abbreviation|
+TTY|ES|tty_class|entry_term|
+TTY|ETAL|expanded_form|Entry Term Alias|
+TTY|ETAL|tty_class|entry_term|
+TTY|ET|expanded_form|Entry term|
+TTY|ET|tty_class|entry_term|
+TTY|EX|expanded_form|Expanded form of entry term|
+TTY|EX|tty_class|entry_term|
+TTY|EX|tty_class|expanded|
+TTY|FI|expanded_form|Finding name|
+TTY|FI|tty_class|preferred|
+TTY|FN|expanded_form|Full form of descriptor|
+TTY|FN|tty_class|preferred|
+TTY|GPCK|expanded_form|Generic Drug Delivery Device|
+TTY|GPCK|tty_class|preferred|
+TTY|GT|expanded_form|Glossary term|
+TTY|GT|tty_class|entry_term|
+TTY|HC|expanded_form|Hierarchical class|
+TTY|HC|tty_class|hierarchical|
+TTY|HS|expanded_form|Short or alternate version of hierarchical term|
+TTY|HS|tty_class|abbreviation|
+TTY|HS|tty_class|hierarchical|
+TTY|HT|expanded_form|Hierarchical term|
+TTY|HT|tty_class|hierarchical|
+TTY|HT|tty_class|preferred|
+TTY|HX|expanded_form|Expanded version of short hierarchical term|
+TTY|HX|tty_class|expanded|
+TTY|HX|tty_class|hierarchical|
+TTY|IN|expanded_form|Name for an ingredient|
+TTY|IN|tty_class|preferred|
+TTY|IS|expanded_form|Obsolete Synonym|
+TTY|IS|tty_class|obsolete|
+TTY|IS|tty_class|synonym|
+TTY|LA|expanded_form|LOINC answer|
+TTY|LA|tty_class|preferred|
+TTY|LC|expanded_form|Long common name|
+TTY|LC|tty_class|preferred|
+TTY|LN|expanded_form|LOINC official fully specified name|
+TTY|LN|tty_class|preferred|
+TTY|LO|expanded_form|Obsolete official fully specified name|
+TTY|LO|tty_class|obsolete|
+TTY|LS|expanded_form|Expanded system/sample type (The expanded version was created for the Metathesaurus and includes the full name of some abbreviations.)|
+TTY|LS|tty_class|expanded|
+TTY|MD|expanded_form|CCS multi-level diagnosis categories|
+TTY|MD|tty_class|preferred|
+TTY|MIN|expanded_form|name for a multi-ingredient|
+TTY|MIN|tty_class|preferred|
+TTY|MP|expanded_form|Preferred names of modifiers|
+TTY|MP|tty_class|attribute|
+TTY|MTH_ACR|expanded_form|MTH acronym|
+TTY|MTH_ACR|tty_class|abbreviation|
+TTY|MTH_CN|expanded_form|MTH Component, with abbreviations expanded.|
+TTY|MTH_CN|tty_class|expanded|
+TTY|MTH_CN|tty_class|preferred|
+TTY|MTH_ET|expanded_form|Metathesaurus entry term|
+TTY|MTH_ET|tty_class|entry_term|
+TTY|MTH_HX|expanded_form|MTH Hierarchical term expanded|
+TTY|MTH_HX|tty_class|hierarchical|
+TTY|MTH_IS|expanded_form|Metathesaurus-supplied form of obsolete synonym|
+TTY|MTH_IS|tty_class|obsolete|
+TTY|MTH_IS|tty_class|synonym|
+TTY|MTH_LN|expanded_form|MTH Official fully specified name with expanded abbreviations|
+TTY|MTH_LN|tty_class|expanded|
+TTY|MTH_LN|tty_class|preferred|
+TTY|MTH_LO|expanded_form|MTH Expanded LOINC obsolete fully specified name|
+TTY|MTH_LO|tty_class|expanded|
+TTY|MTH_LO|tty_class|obsolete|
+TTY|MTH_LO|tty_class|synonym|
+TTY|MTH_OET|expanded_form|Metathesaurus obsolete entry term|
+TTY|MTH_OET|tty_class|entry_term|
+TTY|MTH_OET|tty_class|obsolete|
+TTY|MTH_OP|expanded_form|Metathesaurus obsolete preferred term|
+TTY|MTH_OP|tty_class|obsolete|
+TTY|MTH_OP|tty_class|preferred|
+TTY|MTH_PT|expanded_form|Metathesaurus preferred term|
+TTY|MTH_PT|tty_class|expanded|
+TTY|MTH_PT|tty_class|preferred|
+TTY|MTH_RXN_CD|expanded_form|RxNorm Created CD|
+TTY|MTH_RXN_CD|tty_class|preferred|
+TTY|MTH_RXN_DP|expanded_form|RxNorm Created DP|
+TTY|MTH_RXN_DP|tty_class|preferred|
+TTY|MTH_RXN_RHT|expanded_form|RxNorm Created reference hierarchy term|
+TTY|MTH_RXN_RHT|tty_class|preferred|
+TTY|MTH_SY|expanded_form|MTH Designated synonym|
+TTY|MTH_SY|tty_class|synonym|
+TTY|MV|expanded_form|Multi-level procedure category|
+TTY|MV|tty_class|preferred|
+TTY|NA|expanded_form|Name aliases|
+TTY|NA|tty_class|preferred|
+TTY|NPT|expanded_form|HL7 non-preferred for language term|
+TTY|NPT|tty_class|synonym|
+TTY|NP|expanded_form|Non-preferred term|
+TTY|NP|tty_class|synonym|
+TTY|NS|expanded_form|Short form of non-preferred term|
+TTY|NS|tty_class|abbreviation|
+TTY|NS|tty_class|synonym|
+TTY|NX|expanded_form|Expanded form of non-preferred term|
+TTY|NX|tty_class|expanded|
+TTY|NX|tty_class|synonym|
+TTY|OAM|expanded_form|Obsolete Modifier Abbreviation|
+TTY|OAM|tty_class|abbreviation|
+TTY|OAM|tty_class|attribute|
+TTY|OAM|tty_class|obsolete|
+TTY|OA|expanded_form|Obsolete abbreviation|
+TTY|OA|tty_class|abbreviation|
+TTY|OA|tty_class|obsolete|
+TTY|OET|expanded_form|Obsolete entry term|
+TTY|OET|tty_class|entry_term|
+TTY|OET|tty_class|obsolete|
+TTY|OLC|expanded_form|Obsolete Long common name|
+TTY|OLC|tty_class|obsolete|
+TTY|OM|expanded_form|Obsolete modifiers in HCPCS|
+TTY|OM|tty_class|attribute|
+TTY|OM|tty_class|obsolete|
+TTY|ONP|expanded_form|Obsolete non-preferred for language term|
+TTY|ONP|tty_class|obsolete|
+TTY|ONP|tty_class|synonym|
+TTY|OOSN|expanded_form|Obsolete official short name|
+TTY|OOSN|tty_class|obsolete|
+TTY|OP|expanded_form|Obsolete preferred name|
+TTY|OP|tty_class|obsolete|
+TTY|OP|tty_class|preferred|
+TTY|OSN|expanded_form|Official short name|
+TTY|OSN|tty_class|abbreviation|
+TTY|OSN|tty_class|preferred|
+TTY|PC|expanded_form|Preferred "trimmed term" in ICPC|
+TTY|PC|tty_class|preferred|
+TTY|PHENO_ET|expanded_form|Phenotype entry term|
+TTY|PHENO_ET|tty_class|entry_term|
+TTY|PHENO|expanded_form|Phenotype|
+TTY|PHENO|tty_class|preferred|
+TTY|PIN|expanded_form|Name from a precise ingredient|
+TTY|PIN|tty_class|preferred|
+TTY|PN|expanded_form|Metathesaurus preferred name|
+TTY|PN|tty_class|preferred|
+TTY|PSN|expanded_form|Prescribable Names|
+TTY|PSN|tty_class|preferred|
+TTY|PS|expanded_form|Short forms that needed full specification|
+TTY|PS|tty_class|abbreviation|
+TTY|PTAV|expanded_form|Preferred Allelic Variant|
+TTY|PTAV|tty_class|preferred|
+TTY|PTCS|expanded_form|Preferred Clinical Synopsis|
+TTY|PTCS|tty_class|preferred|
+TTY|PT|expanded_form|Designated preferred name|
+TTY|PT|tty_class|preferred|
+TTY|PX|expanded_form|Expanded preferred terms (pair with PS)|
+TTY|PX|tty_class|expanded|
+TTY|PX|tty_class|preferred|
+TTY|RAB|expanded_form|Root abbreviation|
+TTY|RAB|tty_class|abbreviation|
+TTY|RHT|expanded_form|Root hierarchical term|
+TTY|RHT|tty_class|hierarchical|
+TTY|RPT|expanded_form|Root preferred term|
+TTY|RPT|tty_class|preferred|
+TTY|RSY|expanded_form|Root synonym|
+TTY|RSY|tty_class|synonym|
+TTY|RT|expanded_form|Term that is related to, but often considered non-synonymous with, the preferred term|
+TTY|RT|tty_class|other|
+TTY|SBDC|expanded_form|Semantic Branded Drug Component|
+TTY|SBDC|tty_class|preferred|
+TTY|SBDF|expanded_form|Semantic branded drug and form|
+TTY|SBDF|tty_class|preferred|
+TTY|SBDG|expanded_form|Semantic branded drug group|
+TTY|SBDG|tty_class|preferred|
+TTY|SBD|expanded_form|Semantic branded drug|
+TTY|SBD|tty_class|preferred|
+TTY|SCDC|expanded_form|Semantic Drug Component|
+TTY|SCDC|tty_class|preferred|
+TTY|SCDF|expanded_form|Semantic clinical drug and form|
+TTY|SCDF|tty_class|preferred|
+TTY|SCDG|expanded_form|Semantic clinical drug group|
+TTY|SCDG|tty_class|preferred|
+TTY|SCD|expanded_form|Semantic Clinical Drug|
+TTY|SCD|tty_class|preferred|
+TTY|SCN|expanded_form|Scientific name|
+TTY|SCN|tty_class|preferred|
+TTY|SC|expanded_form|Special Category term|
+TTY|SC|tty_class|other|
+TTY|SD|expanded_form|CCS single-level diagnosis categories|
+TTY|SD|tty_class|preferred|
+TTY|SP|expanded_form|CCS single-level procedure categories|
+TTY|SP|tty_class|preferred|
+TTY|SSN|expanded_form|Source short name, used in the UMLS Knowledge Source Server|
+TTY|SSN|tty_class|abbreviation|
+TTY|SU|expanded_form|Active Substance|
+TTY|SU|tty_class|preferred|
+TTY|SYN|expanded_form|Designated alias|
+TTY|SYN|tty_class|synonym|
+TTY|SY|expanded_form|Designated synonym|
+TTY|SY|tty_class|synonym|
+TTY|TMSY|expanded_form|Tall Man synonym|
+TTY|TMSY|tty_class|synonym|
+TTY|UAUN|expanded_form|Unique authority name|
+TTY|UAUN|tty_class|synonym|
+TTY|UCN|expanded_form|Unique common name|
+TTY|UCN|tty_class|preferred|
+TTY|UE|expanded_form|Unique equivalent name|
+TTY|UE|tty_class|synonym|
+TTY|USN|expanded_form|Unique scientific name|
+TTY|USN|tty_class|preferred|
+TTY|USY|expanded_form|Unique synonym|
+TTY|USY|tty_class|synonym|
+TTY|VAB|expanded_form|Versioned abbreviation|
+TTY|VAB|tty_class|abbreviation|
+TTY|VPT|expanded_form|Versioned preferred term|
+TTY|VPT|tty_class|preferred|
+TTY|VSY|expanded_form|Versioned synonym|
+TTY|VSY|tty_class|synonym|
+TTY|VS|expanded_form|Value Set|
+TTY|VS|tty_class|preferred|
+TTY|XD|expanded_form|Expanded descriptor in AOD|
+TTY|XD|tty_class|expanded|
+TTY|XD|tty_class|preferred|

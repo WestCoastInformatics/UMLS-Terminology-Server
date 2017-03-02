@@ -205,7 +205,7 @@ public class MetadataLoaderAlgorithm
               .indexOf(lowTermGroup) == highTermGroups.indexOf(lowTermGroup))) {
         validationResult.addError("termgroups.src high term group "
             + highTermGroups.get(lowTermGroups.indexOf(lowTermGroup))
-            + " cannot be entered into precedence list: associated low term group not found in precedence list or termgroups.src.");
+            + " cannot be entered into precedence list: associated low term group " + lowTermGroup + " not found in precedence list or termgroups.src.");
       }
     }
 
