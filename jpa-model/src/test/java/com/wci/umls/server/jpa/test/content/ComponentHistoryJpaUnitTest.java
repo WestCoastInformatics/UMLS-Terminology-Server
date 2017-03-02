@@ -32,12 +32,6 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
   /** The model object to test. */
   private ComponentHistoryJpa object;
 
-  /** The fixture c1. */
-  private Concept c1;
-
-  /** The fixture c2. */
-  private Concept c2;
-
   /**
    * Setup class.
    */
@@ -90,9 +84,6 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
     tester.include("associatedRelease");
     tester.include("referencedTerminologyId");
 
-    tester.proxy(Concept.class, 1, c1);
-    tester.proxy(Concept.class, 2, c2);
-
     assertTrue(tester.testIdentityFieldEquals());
     assertTrue(tester.testNonIdentityFieldEquals());
     assertTrue(tester.testIdentityFieldNotEquals());
@@ -110,8 +101,7 @@ public class ComponentHistoryJpaUnitTest extends ModelUnitSupport {
   public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
-    tester.proxy(Concept.class, 1, c1);
-    tester.proxy(Concept.class, 2, c2);
+
     assertTrue(tester.testCopyConstructor(ComponentHistory.class));
   }
 

@@ -192,6 +192,9 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       final Set<String> terminologies = siblingTypeMap.keySet().stream()
           .filter(f -> siblingTypeMap.get(f).equals(type))
           .collect(Collectors.toSet());
+      if (terminologies.isEmpty()) {
+        continue;
+      }
       final IdType idType = IdType.valueOf(type.toUpperCase());
 
       final javax.persistence.Query query = manager.createQuery(
@@ -202,7 +205,7 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
               + "  and a.node.id < b.node.id"
               + "  and a.terminology = b.terminology "
               + "  and a.terminology in (:terminologies) "
-              + "  and a.terminology in (select terminology from terminologies where current = true) ");
+              + "  and a.terminology in (select terminology from TerminologyJpa where current = true) ");
       query.setParameter("terminologies", terminologies);
       final List<Object[]> results = query.getResultList();
       checkCancel();

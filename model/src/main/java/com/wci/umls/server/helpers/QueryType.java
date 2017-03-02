@@ -8,8 +8,8 @@ package com.wci.umls.server.helpers;
  */
 public enum QueryType {
 
-  /** The jql type. */
-  JQL,
+  /** The JPQL type. */
+  JPQL,
 
   /** The sql type. */
   SQL,

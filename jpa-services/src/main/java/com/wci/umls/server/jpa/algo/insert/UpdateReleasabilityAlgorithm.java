@@ -156,7 +156,7 @@ public class UpdateReleasabilityAlgorithm
 
           queryAction.setObjectTypeClass(clazz);
           queryAction.setAction("Make Unpublishable");
-          queryAction.setQueryType(QueryType.JQL);
+          queryAction.setQueryType(QueryType.JPQL);
           queryAction.setQuery(query);
 
           queryAction.setTransactionPerOperation(false);

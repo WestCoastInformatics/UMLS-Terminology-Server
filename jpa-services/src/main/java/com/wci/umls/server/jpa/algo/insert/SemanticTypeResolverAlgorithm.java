@@ -130,7 +130,7 @@ public class SemanticTypeResolverAlgorithm
       params.put("projectVersion", getProject().getVersion());
 
       List<Long> conceptIdArray = executeSingleComponentIdQuery(query,
-          QueryType.JQL, params, ConceptJpa.class, false);
+          QueryType.JPQL, params, ConceptJpa.class, false);
 
       setSteps(conceptIdArray.size());
 

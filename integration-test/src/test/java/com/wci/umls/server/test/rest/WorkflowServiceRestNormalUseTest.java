@@ -331,19 +331,19 @@ public class WorkflowServiceRestNormalUseTest extends WorkflowServiceRestTest {
     defn = (WorkflowBinDefinitionJpa) workflowService
         .addWorkflowBinDefinition(projectId, null, defn, authToken);
 
-    // Add a required JQL bin definition
+    // Add a required JPQL bin definition
     Logger.getLogger(getClass())
-        .info("  Add required JQL bin definition - cid");
+        .info("  Add required JPQL bin definition - cid");
     defn = new WorkflowBinDefinitionJpa();
-    defn.setName("testJQL");
-    defn.setDescription("Test JQL.");
+    defn.setName("testJPQL");
+    defn.setDescription("Test JPQL.");
     defn.setQuery("select a.id as conceptId from ConceptJpa a "
         + "where a.terminology = :terminology "
         + "  and a.workflowStatus = 'NEEDS_REVIEW'");
     defn.setEditable(true);
     defn.setEnabled(true);
     defn.setRequired(true);
-    defn.setQueryType(QueryType.JQL);
+    defn.setQueryType(QueryType.JPQL);
     defn.setWorkflowConfig(config);
     defn = (WorkflowBinDefinitionJpa) workflowService
         .addWorkflowBinDefinition(projectId, null, defn, authToken);

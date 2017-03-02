@@ -22,6 +22,13 @@ create index x_ctr_t on concept_tree_positions (terminology);
 create index x_dtr_t on descriptor_tree_positions (terminology);
 create index x_cdtr_t on code_tree_positions (terminology);
 
+-- Create indexes on relationships
+create index x_ar_t on atom_relationships (terminology);
+create index x_cr_t on concept_relationships(terminology);
+create index x_dr_t on descriptor_relationships (terminology);
+create index x_cdr_t on code_tree_relationships (terminology);
+
+
 -- Views for making it easier to query in a MEME4 kind of way
 create view classes_m4 as select a.id atom_d, a.name, a.terminology, a.version, a.publishable, a.stringClassId sui, a.lexicalClassId lui,  a.codeId code, a.conceptId scui, a.descriptorId sdui, c.id concept_id from atoms a, concepts_atoms b, concepts c where c.terminology = 'NCIMTH'   and atoms_id = a.id and concepts_id = c.id;
 create view auis_m4 as select a.id atom_id, b.alternateTerminologyIds aui from atoms a, AtomJpa_alternateTerminologyIds b where a.id = b.AtomJpa_id   and b.alternateTerminologyIds_KEY = 'NCIMTH';

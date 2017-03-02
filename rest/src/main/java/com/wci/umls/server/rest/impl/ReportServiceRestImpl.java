@@ -3,9 +3,13 @@
  */
 package com.wci.umls.server.rest.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -17,14 +21,29 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.Project;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.helpers.QueryStyle;
+import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.WorkflowBinDefinitionList;
+import com.wci.umls.server.jpa.ProjectJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.WorkflowBinDefinitionListJpa;
+import com.wci.umls.server.jpa.report.ReportJpa;
+import com.wci.umls.server.jpa.report.ReportListJpa;
 import com.wci.umls.server.jpa.services.ReportServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
+import com.wci.umls.server.jpa.services.WorkflowServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ReportServiceRest;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
+import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.model.report.Report;
+import com.wci.umls.server.model.report.ReportList;
+import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
+import com.wci.umls.server.model.workflow.WorkflowConfig;
 import com.wci.umls.server.services.ReportService;
 import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.WorkflowService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -70,7 +89,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Report): /report " + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /report " + projectId);
 
     final ReportService reportService = new ReportServiceJpa();
     try {
@@ -176,6 +196,144 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
 
     } catch (Exception e) {
       handleException(e, "trying to get code report");
+      return null;
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/definitions")
+  @ApiOperation(value = "Find report definitions", notes = "Find report definitions")
+  public WorkflowBinDefinitionList findReportDefinitions(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /definitions" + " " + projectId);
+
+    final WorkflowService workflowService = new WorkflowServiceJpa();
+    try {
+      authorizeProject(workflowService, projectId, securityService, authToken,
+          "get report definitions", UserRole.AUTHOR);
+
+      Project project = workflowService.getProject(projectId);
+      final List<WorkflowConfig> configs =
+          workflowService.getWorkflowConfigs(project);
+
+      List<WorkflowBinDefinition> reportDefinitions = new ArrayList<>();
+      for (WorkflowConfig config : configs) {
+        if (config.getQueryStyle() == QueryStyle.REPORT) {
+          reportDefinitions.addAll(config.getWorkflowBinDefinitions());
+        }
+      }
+
+      for (WorkflowBinDefinition definition : reportDefinitions) {
+        if (definition != null) {
+          verifyProject(definition.getWorkflowConfig(), projectId);
+          workflowService.handleLazyInit(definition);
+        }
+      }
+      // websocket - n/a
+
+      WorkflowBinDefinitionList list = new WorkflowBinDefinitionListJpa();
+      list.setObjects(reportDefinitions);
+      list.setTotalCount(reportDefinitions.size());
+      return list;
+
+    } catch (Exception e) {
+      handleException(e, "trying to get a report definition");
+    } finally {
+      workflowService.close();
+      securityService.close();
+    }
+    return null;
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/find")
+  @ApiOperation(value = "Finds reports", notes = "Finds reports for the specified query", response = ReportListJpa.class)
+  public ReportList findReports(
+    @ApiParam(value = "Project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query", required = false) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /find, " + query + " " + pfs);
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find reports", UserRole.VIEWER);
+      final Project project = reportService.getProject(projectId);
+      return reportService.findReports(project, query, pfs);
+    } catch (Exception e) {
+      handleException(e, "trying to find reports ");
+      return null;
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  @GET
+  @Path("/{id}")
+  @ApiOperation(value = "Get report for id", notes = "Gets the report for the specified id", response = ProjectJpa.class)
+  public Report getReport(
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Project): /" + id);
+
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "get the report",
+          UserRole.VIEWER);
+      final Report report = reportService.getReport(id);
+      reportService.handleLazyInit(report);
+      return report;
+    } catch (Exception e) {
+      handleException(e, "trying to get a report");
+      return null;
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @GET
+  @Path("/generate/{id}")
+  @ApiOperation(value = "Generates a report", notes = "Generates a report", response = ReportJpa.class)
+  public Report generateReport(
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Name", required = false) @QueryParam("name") String name,
+    @ApiParam(value = "Query", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
+    @ApiParam(value = "Object type name, e.g. AtomJpa", required = false) @QueryParam("resultType") IdType resultType,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
+
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "generate the report",
+          UserRole.VIEWER);
+
+      final Project project = reportService.getProject(id);
+      final Report report = reportService.generateReport(project, name, query,
+          queryType, resultType);
+      return report;
+    } catch (Exception e) {
+      handleException(e, "trying to generate a report");
       return null;
     } finally {
       reportService.close();

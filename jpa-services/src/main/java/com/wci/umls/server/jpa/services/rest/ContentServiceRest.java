@@ -87,13 +87,13 @@ public interface ContentServiceRest {
    * Find concepts for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForGeneralQuery(String query, String jql,
+  public SearchResultList findConceptsForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -264,14 +264,14 @@ public interface ContentServiceRest {
    * Find descriptors for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String query,
-    String jql, PfsParameterJpa pfs, String authToken) throws Exception;
+    String JPQL, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -350,13 +350,13 @@ public interface ContentServiceRest {
    * Find codes for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForGeneralQuery(String query, String jql,
+  public SearchResultList findCodesForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**

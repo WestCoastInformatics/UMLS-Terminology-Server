@@ -297,7 +297,7 @@
           <tr>
             <td colspan="2">
               <b>Terminology</b> <select ng-model="selectedTerminology"
-                ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies"></select>
+                ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies | orderBy:'rootTerminologyAbbreviation'"></select>
               <i ng-click="openEditRootTerminologyModal(selectedTerminology)"
                 title="Edit root {{selectedTerminology.terminology}}"
                 class="noul glyphicon glyphicon-pencil"></i> &nbsp;

@@ -419,7 +419,7 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final StringList list = new StringList();
       list.setTotalCount(3);
-      list.getObjects().add(QueryType.JQL.toString());
+      list.getObjects().add(QueryType.JPQL.toString());
       list.getObjects().add(QueryType.SQL.toString());
       list.getObjects().add(QueryType.LUCENE.toString());
       list.getObjects().add(QueryType.PROGRAM.toString());

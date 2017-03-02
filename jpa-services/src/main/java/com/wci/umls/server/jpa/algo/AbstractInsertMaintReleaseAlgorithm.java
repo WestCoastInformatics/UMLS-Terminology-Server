@@ -671,6 +671,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           ConceptJpa.class);
     }
 
+    else if (type.equals("CUI")) {
+      if (!conceptCachedTerms.contains(getProject().getTerminology())) {
+        cacheExistingConceptIds(getProject().getTerminology());
+      }
+      return getComponent(
+          conceptIdCache.get(terminologyId + getProject().getTerminology()),
+          ConceptJpa.class);
+    }
+
     else if (type.equals("DEFINITION")) {
       if (!definitionCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingDefinitionIds(getProject().getTerminology());
@@ -1056,10 +1065,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         return string;
       case "RT":
         return "RO";
+      case "BRT":
+        return "BRO";
       case "NT":
         return "RN";
       case "BT":
         return "RB";
+      case "BBT":
+        return "BRB";
       case "RT?":
         return "RQ";
       case "SFO/LFO":
