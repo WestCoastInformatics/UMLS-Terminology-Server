@@ -337,11 +337,12 @@
           class="glyphicon glyphicon-share noul glyphicon-muted"></i>
         &nbsp;&nbsp;
         <!-- Notes controls -->
-        <i ng-show="selected.component.notes.length > 0" ng-click="viewNotes()"
-          title="View, Add, or Remove Notes"
+        <i ng-show="selected.component.notes.length > 0 && !isGuestUser()"
+          ng-click="viewNotes()" title="View, Add, or Remove Notes"
           class="glyphicon glyphicon-tags noul glyphicon-muted"></i>
-        <i ng-show="selected.component.notes.length == 0" ng-click="viewNotes()"
-          title="Add Notes" class="glyphicon glyphicon-tag glyphicon-muted"></i>
+        <i ng-show="selected.component.notes.length == 0 && !isGuestUser()"
+          ng-click="viewNotes()" title="Add Notes"
+          class="glyphicon glyphicon-tag glyphicon-muted"></i>
         &nbsp;&nbsp;
         <!-- Favorite control -->
         <i ng-show="!isFavorite && !isGuestUser()"
