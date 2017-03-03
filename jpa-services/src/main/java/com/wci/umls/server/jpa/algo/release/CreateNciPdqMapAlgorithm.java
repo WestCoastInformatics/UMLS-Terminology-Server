@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.persistence.Query;
 
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
@@ -130,12 +131,20 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
 
     // Execute a query to get atom ids
     final List<Long> atomIds = executeSingleComponentIdQuery(query,
-        QueryType.JPQL, params, AtomJpa.class,false);
+        QueryType.JPQL, params, AtomJpa.class, false);
 
     for (final Long id : atomIds) {
       final Atom atom = this.getAtom(id);
       atom.setPublishable(false);
       updateAtom(atom);
+
+      // Need to update the concept as well otherwise the index does not get
+      // updated.
+      // ASSUME there is a matching project concept
+      final Concept concept = this.findConcepts(getProject().getTerminology(),
+          getProject().getVersion(), Branch.ROOT, "atoms.id:" + atom.getId(),
+          null).getObjects().get(0);
+      updateConcept(concept);
 
       // make the project concept unpublishable - e.g. MatrixInitializer at end
       // of "pre production"
@@ -153,7 +162,7 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
     for (final MapSet mapset : mapsets) {
       mapset.setPublishable(false);
       updateMapSet(mapset);
-      // TODO: should we cascade this publishable setting?? TBD
+      // Q: should we cascade this publishable setting?? NO
     }
 
     //

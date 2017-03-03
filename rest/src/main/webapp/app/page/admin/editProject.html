@@ -101,7 +101,7 @@
               title="Automations enabled.">
           </td>
         </tr>
-        
+
         <tr>
           <td>
             <b>Workflow path</b>
@@ -116,10 +116,11 @@
       </table>
     </div>
   </div>
-  <span ng-show="action == 'Add'"
-        style="display: block;" class="alert alert-danger">Validation checks and precedence list order must be edited through the Edit Project interface. After adding the project, click on the Edit (pencil) icon in the Projects list.</span>
-  <uib-accordion ng-show="action == 'Edit'">
-  <uib-accordion-group>
+  <span ng-show="action == 'Add'" style="display: block;"
+    class="alert alert-danger">Validation checks and precedence list
+    order must be edited through the Edit Project interface. After adding the
+    project, click on the Edit (pencil) icon in the Projects list.</span>
+  <uib-accordion ng-show="action == 'Edit'"> <uib-accordion-group>
   <uib-accordion-heading>Validation Checks</uib-accordion-heading>
   <div class="row">
     <div class="col-md-6 col-xs-12">
@@ -163,48 +164,43 @@
       </table>
     </div>
   </div>
-  </uib-accordion-group>
-  <uib-accordion-group>
-  <uib-accordion-heading>Validation Data</uib-accordion-heading>
+  </uib-accordion-group> <uib-accordion-group> <uib-accordion-heading>Validation
+  Data</uib-accordion-heading>
   <div>
     <span style="float: right;">
-      <button ng-click="openAddValidationCheckModal()" title="Add validation check"
-        class="btn btn-xs btn-primary">Add</button>
+      <button ng-click="openAddValidationCheckModal()"
+        title="Add validation check" class="btn btn-xs btn-primary">Add</button>
     </span>
   </div>
   <table class="slim table">
-        <thead>
-          <tr>
-            <th class="col-md-6 col-xs-6">Validation Check</th>
-            <th class="col-md-3 col-xs-3">Value 1</th>
-            <th class="col-md-2 col-xs-2">Value 2</th>
-            <th class="col-md-1 col-xs-1"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="check in project.validationData | orderBy">
-            <td>{{check.type}}</td>
-            <td>{{check.key}}</td>
-            <td>{{check.value}}</td>
-            <td>
-              <i ng-click="removeValidationCheck(check)"
-                title="Remove validation check from project"
-                class="noul glyphicon glyphicon-trash"></i>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-  </uib-accordion-group>
-  
-  <uib-accordion-group>
-  <uib-accordion-heading>Precedence List</uib-accordion-heading>
-    <div edit-precedence selected="selected" lists="lists" callbacks="callbacks"></div>
-  </uib-accordion-group>
-  
-  </uib-accordion>
-  
-  
-    
+    <thead>
+      <tr>
+        <th class="col-md-6 col-xs-6">Validation Check</th>
+        <th class="col-md-3 col-xs-3">Value 1</th>
+        <th class="col-md-2 col-xs-2">Value 2</th>
+        <th class="col-md-1 col-xs-1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="data in project.validationData | orderBy">
+        <td>{{data.type}}</td>
+        <td>{{data.key}}</td>
+        <td>{{data.value}}</td>
+        <td>
+          <i ng-click="removeValidationData(data)"
+            title="Remove validation check data"
+            class="noul glyphicon glyphicon-trash"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </uib-accordion-group> <uib-accordion-group> <uib-accordion-heading>Precedence
+  List</uib-accordion-heading>
+  <div edit-precedence selected="selected" lists="lists" callbacks="callbacks"></div>
+  </uib-accordion-group> </uib-accordion>
+
+
+
   <!-- Errors -->
   <div class="row">
     <div class="col-md-12 col-xs-12">

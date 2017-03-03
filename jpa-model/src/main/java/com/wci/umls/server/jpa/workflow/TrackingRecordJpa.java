@@ -130,7 +130,7 @@ public class TrackingRecordJpa implements TrackingRecord {
   private WorkflowStatus workflowStatus;
 
   /** The indexed data. */
-  @Column(nullable = true, length=4000)
+  @Column(nullable = true, length = 4000)
   private String indexedData;
 
   /** The finished. */

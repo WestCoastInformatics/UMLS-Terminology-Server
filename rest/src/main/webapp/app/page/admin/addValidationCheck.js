@@ -1,15 +1,12 @@
 // Add validation check modal controller
-tsApp.controller('AddValidationCheckModalCtrl', [
-  '$scope',
-  '$uibModalInstance',
-  'utilService',
-  'projectService',
-  'project',
-  function($scope, $uibModalInstance, utilService, projectService, project) {
-
+tsApp.controller('AddValidationCheckModalCtrl', [ '$scope', '$uibModalInstance', 'utilService',
+  'projectService', 'project', 'validationChecks',
+  function($scope, $uibModalInstance, utilService, projectService, project, validationChecks) {
+    console.debug('Add validation check modal', validationChecks);
     // Scope variables
     $scope.typeKeyValue = {};
     $scope.project = project;
+    $scope.validationChecks = validationChecks;
     $scope.errors = [];
 
     // Add type key value

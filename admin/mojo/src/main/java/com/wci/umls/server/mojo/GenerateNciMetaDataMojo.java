@@ -294,7 +294,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     metadataService = new MetadataServiceRestImpl();
     list =
         (PrecedenceListJpa) metadataService.addPrecedenceList(list, authToken);
-    project1.setPrecedenceList(list);
+    project1.setPrecedenceListId(list.getId());
 
     // Add project
     project1 = (ProjectJpa) project.addProject(project1, authToken);
@@ -312,45 +312,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       project.assignUserToProject(projectId, inits, UserRole.valueOf(role),
           authToken);
     }
-
-    // Create and set up a process and algorithm configuration for testing
-    ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Process for testing use");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Test Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(terminology);
-    processConfig.setVersion(version);
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("WAIT");
-    algoConfig.setDescription("Algorithm for testing use");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("Test WAIT algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-
-    // Create and set required algorithm properties
-    Map<String, String> algoProperties = new HashMap<String, String>();
-    algoProperties.put("num", "10");
-    algoConfig.setProperties(algoProperties);
-
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    processConfig.getSteps().add(algoConfig);
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-    process = new ProcessServiceRestImpl();
 
     //
     // Create and set up process and algorithm configurations
@@ -603,7 +564,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("ncithesaurus");
     definition.setDescription("NCI Thesaurus.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
+    definition.setQuery("select distinct a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
         + "  and a.terminology = :terminology and c.terminology='NCI' "
@@ -622,7 +583,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("snomedct_us");
     definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
+    definition.setQuery("select distinct a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
         + "  and a.terminology = :terminology and c.terminology='SNOMEDCT_US' "
@@ -641,12 +602,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("leftovers");
     definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setQuery("workflowStatus:NEEDS_REVIEW");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
+    definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
@@ -1045,7 +1005,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for NCI");
+    processConfig.setDescription("NCI Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for NCI");
     processConfig.setProject(project1);
@@ -1473,7 +1433,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for SNOMEDCT_US");
+    processConfig.setDescription("SNOMEDCT_US Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for SNOMEDCT_US");
     processConfig.setProject(project1);
@@ -1912,7 +1872,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for MTH");
+    processConfig.setDescription("UMLS (MTH) Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for MTH");
     processConfig.setProject(project1);
@@ -2075,36 +2035,26 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("queryType", "SQL");
     algoProperties.put("query",
         "SELECT a1.atomId atomId1, a2.atomId atomId2 From (SELECT  "
-            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId " 
-            + "FROM "
-            + "    concepts c, " 
-            + "    concepts_atoms ca, " 
-            + "    atoms a, "
-            + "    AtomJpa_conceptTerminologyIds cid " 
-            + "WHERE "
-            + "    c.terminology = :projectTerminology "
+            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId "
+            + "FROM " + "    concepts c, " + "    concepts_atoms ca, "
+            + "    atoms a, " + "    AtomJpa_conceptTerminologyIds cid "
+            + "WHERE " + "    c.terminology = :projectTerminology "
             + "        AND c.id = ca.concepts_id "
             + "        AND ca.atoms_Id = a.id "
             + "        AND a.id = cid.AtomJpa_id "
             + "        AND a.publishable = TRUE "
             + "        AND cid.conceptTerminologyIds_KEY = :latestTerminologyVersion) "
-            + "        a1, " 
-            + "        (SELECT  "
-            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId " 
-            + "FROM "
-            + "    concepts c, " 
-            + "    concepts_atoms ca, " 
-            + "    atoms a, "
-            + "    AtomJpa_conceptTerminologyIds cid " 
-            + "WHERE "
-            + "    c.terminology = :projectTerminology "
+            + "        a1, " + "        (SELECT  "
+            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId "
+            + "FROM " + "    concepts c, " + "    concepts_atoms ca, "
+            + "    atoms a, " + "    AtomJpa_conceptTerminologyIds cid "
+            + "WHERE " + "    c.terminology = :projectTerminology "
             + "        AND c.id = ca.concepts_id "
             + "        AND ca.atoms_Id = a.id "
             + "        AND a.id = cid.AtomJpa_id "
             + "        AND a.publishable = TRUE "
             + "        AND cid.conceptTerminologyIds_KEY = :previousTerminologyVersion) "
-            + "        a2 " 
-            + "WHERE a1.CUI = a2.CUI "
+            + "        a2 " + "WHERE a1.CUI = a2.CUI "
             + "AND a1.conceptId != a2.conceptId");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
@@ -2923,11 +2873,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
+    // validate
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("NCIMETA");
-    algoConfig.setDescription("NCIMETA Algorithm");
+    algoConfig.setAlgorithmKey("VALIDATERELEASE");
+    algoConfig.setDescription("VALIDATERLEEASE Algorithm");
     algoConfig.setEnabled(true);
-    algoConfig.setName("NCIMETA algorithm");
+    algoConfig.setName("VALIDATE RELEASE algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
@@ -2937,9 +2888,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add ValidateReleaseAlgorithm
-
-    // TODO - once it's available, add RunMetamorphoSysAlgorithm
+    // RunMetamorphoSysAlgorithm
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("RUNMMSYS");
     algoConfig.setDescription("RUNMMSYS Algorithm");
@@ -3049,7 +2998,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("ProdMid Cleanup Process");
+    processConfig.setDescription("Prod-Mid Cleanup Process");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("ProdMid Cleanup Process");
     processConfig.setProject(project1);
@@ -3266,39 +3215,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // This will make two processes, one Insertion, and one Maintenance
     ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Remap Component Info Relationships Process");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Remap Component Info Relationships Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
-    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("COMPINFORELREMAPPER algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-
-    // Now for the Maintenance one
-    process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Remap Component Info Relationships Process");

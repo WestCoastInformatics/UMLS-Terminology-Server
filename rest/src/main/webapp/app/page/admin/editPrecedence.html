@@ -4,6 +4,12 @@
   <td>
 
     <!--  precedence table -->
+    <div>
+      <span style="float: right;">
+        <button ng-click="updatePrecedenceList()" title="Save precedence order"
+          class="btn btn-xs btn-primary">Save</button>
+      </span>
+    </div>
     <div style="overflow-y: scroll; width: 100%; height: 400px">
       <table class="yscroll slim table">
         <tr ng-repeat="entry in pagedPrecedenceList.data"

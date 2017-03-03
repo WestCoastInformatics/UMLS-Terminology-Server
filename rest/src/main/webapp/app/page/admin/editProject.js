@@ -11,11 +11,10 @@ tsApp.controller('EditProjectModalCtrl', [
   'selected',
   'lists',
   'user',
-  'validationChecks',
   'action',
   'project',
   function($scope, $uibModalInstance, $uibModal, securityService, utilService, metadataService,
-    projectService, workflowService, selected, lists, user, validationChecks, action, project) {
+    projectService, workflowService, selected, lists, user, action, project) {
 
     // Scope variables
     $scope.action = action;
@@ -28,7 +27,6 @@ tsApp.controller('EditProjectModalCtrl', [
     $scope.selected = selected;
     $scope.lists = lists;
     $scope.user = user;
-    $scope.validationChecks = validationChecks;
     $scope.availableChecks = [];
     $scope.selectedChecks = [];
     $scope.languages = [];
@@ -97,21 +95,20 @@ tsApp.controller('EditProjectModalCtrl', [
       });
 
     }
-    
-    $scope.removeValidationCheck = function(check) {
+
+    $scope.removeValidationData = function(data) {
+      console.debug('bacxxx', data);
       var index = 0;
-      for (var i=0; project.validationData.length; i++) {
-        if (project.validationData[i].type == check.type &&
-            project.validationData[i].key == check.key &&
-            project.validationData[i].value == check.value) {
-          // remove this check
+      for (var i = 0; project.validationData.length; i++) {
+        if (project.validationData[i].type == data.type
+          && project.validationData[i].key == data.key
+          && project.validationData[i].value == data.value) {
+          // remove this data
           index = i;
           break;
         }
       }
       project.validationData.splice(index, 1);
-      projectService.updateProject(project);
-      
     }
 
     // Add the project
@@ -125,9 +122,9 @@ tsApp.controller('EditProjectModalCtrl', [
 
       // Connect validation checks
       project.validationChecks = [];
-      for (var i = 0; i < $scope.validationChecks.length; i++) {
-        if ($scope.selectedChecks.indexOf($scope.validationChecks[i].value) != -1) {
-          project.validationChecks.push($scope.validationChecks[i].key);
+      for (var i = 0; i < $scope.lists.validationChecks.length; i++) {
+        if ($scope.selectedChecks.indexOf($scope.lists.validationChecks[i].value) != -1) {
+          project.validationChecks.push($scope.lists.validationChecks[i].key);
         }
       }
 
@@ -187,6 +184,11 @@ tsApp.controller('EditProjectModalCtrl', [
         resolve : {
           project : function() {
             return $scope.project;
+          },
+          validationChecks : function() {
+            return $scope.lists.validationChecks.map(function(item) {
+              return item.value
+            });
           }
         }
       });
@@ -194,43 +196,47 @@ tsApp.controller('EditProjectModalCtrl', [
       modalInstance.result.then(
       // Success
       function(data) {
-        
+
       });
 
     };
 
-
-
-    
     //
     // INITIALIZE
     //
 
     // Configure validation checks
-    if (project) {  
+    if (project) {
       // Attach validation checks
-      for (var i = 0; i < $scope.validationChecks.length; i++) {
-        if (project.validationChecks.indexOf($scope.validationChecks[i].key) > -1) {
-          $scope.selectedChecks.push($scope.validationChecks[i].value);
-        } else {
-          $scope.availableChecks.push($scope.validationChecks[i].value);
-        }
-      }
+      $scope.availableChecks = $scope.lists.validationChecks.filter(function(item) {
+        return project.validationChecks.indexOf(item.key) == -1
+      }).map(function(item) {
+        return item.value;
+      });
+      $scope.selectedChecks = $scope.lists.validationChecks.filter(function(item) {
+        return project.validationChecks.indexOf(item.key) != -1
+      }).map(function(item) {
+        return item.value;
+      });
       $scope.setTerminology(project.terminology);
-    } else {  
+    } else {
       // Wire default validation check 'on' by default
-      for (var i = 0; i < $scope.validationChecks.length; i++) {
-        if ($scope.validationChecks[i].value.startsWith('Default')) {
-          $scope.selectedChecks.push($scope.validationChecks[i].value);
-        } else {
-          $scope.availableChecks.push($scope.validationChecks[i].value);
-        }
-      }
+      $scope.availableChecks = $scope.lists.validationChecks.filter(function(item) {
+        return !item.value.startsWith('Default');
+      }).map(function(item) {
+        return item.value;
+      });
+      $scope.selectedChecks = $scope.lists.validationChecks.filter(function(item) {
+        return item.value.startsWith('Default');
+      }).map(function(item) {
+        return item.value;
+      });
+
     }
     if (action == 'Add') {
       $scope.project.editingEnabled = true;
     }
-    
+
     if (action == 'Edit') {
       metadataService.getPrecedenceListById($scope.project.precedenceListId).then(
       // Success
@@ -238,9 +244,8 @@ tsApp.controller('EditProjectModalCtrl', [
         $scope.lists.precedenceList = data;
       });
     }
-    
-    workflowService.getWorkflowPaths().then(
-      function(data) {
+
+    workflowService.getWorkflowPaths().then(function(data) {
       $scope.workflowPaths = data.strings;
       if ($scope.workflowPaths.length == 1) {
         $scope.project.workflowPath = $scope.workflowPaths[0];

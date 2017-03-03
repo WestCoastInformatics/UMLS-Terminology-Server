@@ -1943,7 +1943,6 @@ public class ProcessServiceRestImpl extends RootServiceRestImpl
             processExecution.setFinishDate(new Date());
             processService.updateProcessExecution(processExecution);
             processService.saveLogToFile(projectId, processExecution);
-            processService.close();
 
             // Mark process as finished
             // Note: do not remove process from the map. Will stay in at 100%

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.rest;
 
@@ -9,7 +9,6 @@ import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.report.Report;
 import com.wci.umls.server.model.report.ReportList;
-import com.wci.umls.server.model.workflow.WorkflowBinDefinition;
 
 /**
  * The Interface ReportServiceRest.
@@ -25,8 +24,8 @@ public interface ReportServiceRest {
    * @return the concept report
    * @throws Exception the exception
    */
-  public String getConceptReport(Long projectId, Long conceptId, String authToken)
-    throws Exception;
+  public String getConceptReport(Long projectId, Long conceptId,
+    String authToken) throws Exception;
 
   /**
    * Returns the code report.
@@ -37,7 +36,8 @@ public interface ReportServiceRest {
    * @return the code report
    * @throws Exception the exception
    */
-  public String getCodeReport(Long projectId, Long codeId, String authToken) throws Exception;
+  public String getCodeReport(Long projectId, Long codeId, String authToken)
+    throws Exception;
 
   /**
    * Returns the descriptor report.
@@ -48,8 +48,8 @@ public interface ReportServiceRest {
    * @return the descriptor report
    * @throws Exception the exception
    */
-  public String getDescriptorReport(Long projectId, Long descriptorId, String authToken)
-    throws Exception;
+  public String getDescriptorReport(Long projectId, Long descriptorId,
+    String authToken) throws Exception;
 
   /**
    * Find report definitions.
@@ -59,20 +59,21 @@ public interface ReportServiceRest {
    * @return the workflow bin definition list
    * @throws Exception the exception
    */
-  public WorkflowBinDefinitionList findReportDefinitions(Long projectId, 
+  public WorkflowBinDefinitionList findReportDefinitions(Long projectId,
     String authToken) throws Exception;
 
   /**
    * Find reports.
    *
+   * @param projectId the project id
    * @param query the query
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the report list
    * @throws Exception the exception
    */
-  public ReportList findReports(Long projectId, String query, PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public ReportList findReports(Long projectId, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Gets the report.
@@ -87,7 +88,7 @@ public interface ReportServiceRest {
   /**
    * Generate report.
    *
-   * @param id the id
+   * @param projectId the id
    * @param name the name
    * @param query the query
    * @param queryType the query type
@@ -96,9 +97,8 @@ public interface ReportServiceRest {
    * @return the report
    * @throws Exception the exception
    */
-  public Report generateReport(Long id, String name,
-    String query, QueryType queryType,
-    IdType resultType, String authToken) throws Exception;
+  public Report generateReport(Long projectId, String name, String query,
+    QueryType queryType, IdType resultType, String authToken) throws Exception;
 
   /**
    * Remove report.

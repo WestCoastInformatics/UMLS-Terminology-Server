@@ -226,7 +226,8 @@
               ng-repeat="searchResult in searchResults.results"
               ng-click="getComponent({ id: searchResult.id, type :selected.metadata.terminology.organizingClassType, 
               terminologyId : searchResult.terminologyId, terminology : searchResult.terminology, 
-              version :searchResult.version})">
+              version :searchResult.version})"
+              class="pointer">
               <td class="col-md-4 col-xs-4">
                 <span>
                   <i ng-class="getColorForScore(searchResult.score)">&#9679;</i>
@@ -348,8 +349,9 @@
           class="glyphicon glyphicon-heart-empty noul glyphicon-muted"></i>
         <i ng-show="isFavorite  && !isGuestUser()"
           ng-click="toggleFavorite(selected.component)" title="Remove favorites"
-          class="glyphicon glyphicon-heart noul glyphicon-muted"></i>&nbsp;&nbsp;
-          <!-- Simple Edit control -->
+          class="glyphicon glyphicon-heart noul glyphicon-muted"></i>
+        &nbsp;&nbsp;
+        <!-- Simple Edit control -->
         <i ng-show="callbacks.canEdit() && !callbacks.isEditingEnabled()"
           ng-click="callbacks.enableEditing()" title="Enable editing"
           class="glyphicon glyphicon-pencil noul glyphicon-muted"></i>

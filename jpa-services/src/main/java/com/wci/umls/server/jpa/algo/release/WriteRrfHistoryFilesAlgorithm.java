@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,20 +72,41 @@ public class WriteRrfHistoryFilesAlgorithm
   }
 
   /* see superclass */
+  @SuppressWarnings("unchecked")
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
     fireProgressEvent(0, "Starting");
 
-    setSteps(6);
+    setSteps(7);
     openWriters();
+
+    logInfo("  Determine current CUIs");
+    final Set<String> currentCuis = new HashSet<>();
+    Query query =
+        manager.createQuery("select c.terminologyId from ConceptJpa c "
+            + "where c.terminology = :terminology and c.version = :version "
+            + "and c.publishable = true");
+    query.setParameter("terminology", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
+    currentCuis.addAll(query.getResultList());
+    updateProgress();
+
+    logInfo("  Determine previously released CUIs");
+    final Set<String> previousCuis = new HashSet<>();
+    query = manager.createQuery("select distinct value(cid) "
+        + "from AtomJpa a join a.conceptTerminologyIds cid "
+        + "where key(cid) = :terminology");
+    query.setParameter("terminology", getProject().getTerminology());
+    previousCuis.addAll(query.getResultList());
+    updateProgress();
 
     logInfo("  Write MRAUI.RRF");
     writeMraui();
     updateProgress();
 
     logInfo("  Write MRCUI.RRF");
-    writeMrcui();
+    writeMrcui(previousCuis, currentCuis);
     updateProgress();
 
     logInfo("  Write NCI code file");
@@ -92,7 +114,7 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write NCIMETA history file");
-    writeHistory();
+    writeHistory(currentCuis);
     updateProgress();
 
     closeWriters();
@@ -134,48 +156,33 @@ public class WriteRrfHistoryFilesAlgorithm
   /**
    * Write mrcui.
    *
+   * @param previousCuis the previous cuis
+   * @param currentCuis the current cuis
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void writeMrcui() throws Exception {
+  private void writeMrcui(Set<String> previousCuis, Set<String> currentCuis)
+    throws Exception {
 
-    // 0 CUI1 Unique identifier for first concept - Retired CUI - was present in
-    // some prior release, but is currently missing
-    // 1 VER The last release version in which CUI1 was a valid CUI
-    // 2 REL Relationship
-    // 3 RELA Relationship attribute
-    // 4 MAPREASON Reason for mapping
-    // 5 CUI2 Unique identifier for second concept - the current CUI that CUI1
-    // most closely maps to
-    // 6 MAPIN Is this map in current subset? Values of Y, N, or null.
-    // MetamorphoSys generates the Y or N to indicate whether the CUI2 concept
-    // is or is not present in the subset. The null value is for rows where the
-    // CUI1 was not present to begin with (i.e., REL=DEL).
-    // e.g.
+    // 0 CUI1
+    // 1 VER
+    // 2 REL
+    // 3 RELA
+    // 4 MAPREASON
+    // 5 CUI2
+    // 6 MAPIN
     // C0000401|1993AA|DEL|||||
     // C0000431|2013AB|RB|||C1394823|Y|
     // C0000703|1993AA|SY|||C0002691|Y|
-    // Algorithm
 
-    final Set<String> currentCuis = new HashSet<>();
-    String queryStr = null;
-    javax.persistence.Query query = null;
-    queryStr = "select c.terminologyId from ConceptJpa c "
-        + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true";
-    query = manager.createQuery(queryStr);
-    query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getVersion());
-    currentCuis.addAll(query.getResultList());
-
-    // atoms in different concept than previous release:
+    // Atoms that moved from the previous release
     final Map<String, Set<String>> atomsMoved = new HashMap<>();
-    queryStr = "select distinct value(cid), c.terminologyId  "
-        + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
-        + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true and a.publishable = true "
-        + "and key(cid) = :terminology";
-    query = manager.createQuery(queryStr);
+    final Query query =
+        manager.createQuery("select distinct value(cid), c.terminologyId  "
+            + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
+            + "where c.terminology = :terminology and c.version = :version "
+            + "and c.publishable = true and a.publishable = true "
+            + "and key(cid) = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
@@ -191,6 +198,7 @@ public class WriteRrfHistoryFilesAlgorithm
       atomsMoved.get(lastReleaseCui).add(cui);
     }
 
+    // Start tracking history
     final ConceptHistory history = new ConceptHistory();
 
     // Determine "merge" cases - all keys from atomsMoved where the value is
@@ -206,6 +214,7 @@ public class WriteRrfHistoryFilesAlgorithm
 
       }
     }
+
     // Determine "split" cases - all keys from atomsMoved where the value is
     // size()>1 and the key is not in current cuis.
     // write RO rows for both "value" CUIs.
@@ -215,10 +224,7 @@ public class WriteRrfHistoryFilesAlgorithm
       final String lastReleaseCui = entry.getKey();
       if (entry.getValue().size() > 1
           && !currentCuis.contains(lastReleaseCui)) {
-        // write RO rows for both "value" CUIs.
-        final List<String> values = new ArrayList<>(entry.getValue());
-
-        // Add bequeathals
+        // write RO rows for all "value" CUIs.
         for (final String cui2 : entry.getValue()) {
           history.addBequeathal(lastReleaseCui, getProcess().getVersion(), "RO",
               cui2);
@@ -228,8 +234,8 @@ public class WriteRrfHistoryFilesAlgorithm
 
     updateProgress();
 
-    // Unpublishable concepts get DEL/bequeathal
-    // because unpublishable/unpublished concepts have been removed.
+    // Look for bequeathal rels or historical component history info among
+    // unpublishable concepts
     final List<Long> conceptIds = executeSingleComponentIdQuery(
         "select c.id from ConceptJpa c where c.publishable = false "
             + "and c.terminology = :terminology order by c.terminologyId",
@@ -275,7 +281,6 @@ public class WriteRrfHistoryFilesAlgorithm
         for (final ComponentHistory ch : c.getComponentHistory()) {
           // if DEL -> write out component history as is.
           if (ch.getRelationshipType().equals("DEL")) {
-
             history.addDeleted(c.getTerminologyId(), ch.getVersion());
 
           }
@@ -306,24 +311,45 @@ public class WriteRrfHistoryFilesAlgorithm
         }
       }
 
-      // TODO: go through concept history and write entries
-      // writerMap.get("MRCUI.RRF").print(sb.toString());
-      // writerMap.get("MERGEDCUI.RRF")
-      // .print(lastReleaseCui + "|" + cui2 + "|\n");
-      // writerMap.get("DELETEDCUI.RRF")
-      // .print(c.getTerminology() + "|" + c.getName() + "|\n");
-      final List<ComponentHistory> list = history.reconcileHistory();
-      int ct = 0;
-      for (final ComponentHistory ch : list) {
-        final StringBuilder sb = new StringBuilder();
+      logAndCommit(objectCt++, RootService.logCt, RootService.commitCt);
+    }
 
-        // Periodically log and commit
-        logAndCommit(ct++, RootService.logCt, RootService.commitCt);
+    //
+    // Go through all built up concept history
+    //
+    logInfo("  Historical CUIs = " + history.getTerminologyIds().size());
+    for (final String cui : history.getTerminologyIds()) {
+
+      // Get facts
+      final Set<ComponentHistory> facts =
+          history.getFacts(cui, previousCuis, currentCuis);
+      System.out.println("  " + cui + " = " + facts);
+      // Write these entries out
+      for (final ComponentHistory fact : facts) {
+        // C1584235|201508|RO|||C0000294|Y|
+        final StringBuilder sb = new StringBuilder();
+        sb.append(fact.getTerminologyId()).append("|");
+        sb.append(fact.getAssociatedRelease()).append("|");
+        sb.append(fact.getRelationshipType()).append("|||");
+        sb.append(fact.getReferencedTerminologyId() == null ? ""
+            : fact.getReferencedTerminologyId()).append("|");
+        sb.append("Y|\n");
+        writerMap.get("MCUI.RRF").print(sb.toString());
+        if (fact.getRelationshipType().equals("SY")) {
+          writerMap.get("MERGEDCUI.RRF").println(fact.getTerminologyId() + "|"
+              + fact.getReferencedTerminologyId() + "|\n");
+        }
+        if (fact.getRelationshipType().equals("DEL")) {
+          writerMap.get("DELETEDCUI.RRF")
+              .println(fact.getTerminologyId() + "|"
+                  + getConcept(fact.getTerminologyId(),
+                      getProject().getTerminology(), getProject().getVersion(),
+                      Branch.ROOT).getName()
+                  + "|\n");
+        }
       }
 
     }
-
-    updateProgress();
 
   }
 
@@ -353,30 +379,19 @@ public class WriteRrfHistoryFilesAlgorithm
    */
   @SuppressWarnings("unchecked")
   private void writeMraui() throws Exception {
-    // This file records the movement of Atom Unique Identifiers (AUIs) from a
-    // concept (CUI1)
-    // in one version of the Metathesaurus to a concept (CUI2) in the next
-    // version (VER) of
-    // the Metathesaurus. The file is historical.
-    // Field Description
+
     // 0 AUI1
     // 1 CUI1
-    // 2 VER version in which this change to the AUI first occurred
+    // 2 VER
     // 3 REL
     // 4 RELA
     // 5 MAPREASON
     // 6 AUI2
-    // 7 CUI2 the current CUI that CUI1 most closely maps to
-    // 8 MAPIN is AUI2 in current subset
+    // 7 CUI2
+    // 8 MAPIN
     //
     // e.g.
     // A0009348|C0030499|201604|||move|A0009348|C0747256|Y|
-    // atom->alternateTerminologyIds(project.terminolgy) -> A0009348 AUI1
-    // atom->conceptTerminologyIds(project.terminolgy) -> C0030499 (aka "last
-    // release cui").CUI1
-    // C0747256 = concept.getTerminologyId() for the concept containing this
-    // atom. CUI2
-    // Algorithm
 
     final List<Object[]> results = new ArrayList<>();
 
@@ -452,10 +467,11 @@ public class WriteRrfHistoryFilesAlgorithm
         new DefaultComputePreferredNameHandler();
 
     String queryStr = null;
-    queryStr = "select a.id, b.id from ConceptJpa a join a.atoms aa, "
-        + "ConceptJpa b join b.atoms ba "
-        + "where aa.id = ba.id and a.terminology='NCI' and aa.termType='PT' and b.terminology=:projectTerminology";
-    final javax.persistence.Query query = manager.createQuery(queryStr);
+    queryStr = "select distinct a.id, b.id "
+        + "from ConceptJpa a join a.atoms aa, ConceptJpa b join b.atoms ba "
+        + "where aa.id = ba.id and a.terminology = 'NCI' "
+        + "  and aa.termType = 'PT' and b.terminology = :projectTerminology";
+    final Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());
     for (Object[] objArray : results) {
@@ -489,10 +505,11 @@ public class WriteRrfHistoryFilesAlgorithm
   /**
    * Write history.
    *
+   * @param currentCuis the current cuis
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void writeHistory() throws Exception {
+  private void writeHistory(Set<String> currentCuis) throws Exception {
     // This file maps the NCI concept to it's CUI and the preferred terms of
     // each as well.
     // Field Description
@@ -517,24 +534,14 @@ public class WriteRrfHistoryFilesAlgorithm
     // C0000719|Abbott 46811|split|15-dec-2016|C0887647|Cefsulodin Sodium
 
     // splits
-    final Set<String> currentCuis = new HashSet<>();
-    String queryStr = null;
-    javax.persistence.Query query = null;
-    queryStr = "select c.terminologyId from ConceptJpa c "
-        + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true";
-    query = manager.createQuery(queryStr);
-    query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getVersion());
-    currentCuis.addAll(query.getResultList());
 
     final Map<String, Set<String>> atomsMoved = new HashMap<>();
-    queryStr = "select distinct value(cid), c.terminologyId  "
-        + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
-        + "where c.terminology = :terminology and c.version = :version "
-        + "and c.publishable = true and a.publishable = true "
-        + "and key(cid) = :terminology";
-    query = manager.createQuery(queryStr);
+    Query query =
+        manager.createQuery("select distinct value(cid), c.terminologyId  "
+            + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
+            + "where c.terminology = :terminology and c.version = :version "
+            + "and c.publishable = true and a.publishable = true "
+            + "and key(cid) = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     query.setParameter("version", getProject().getVersion());
     final List<Object[]> results = query.getResultList();
@@ -710,117 +717,257 @@ public class WriteRrfHistoryFilesAlgorithm
   class ConceptHistory {
 
     /** The deleted cuis. */
-    private Set<ComponentHistory> deleted = new HashSet<>();
+    private Map<String, Set<ComponentHistory>> factMap = new HashMap<>();
 
-    /** The bequeathals. */
-    private Map<String, Set<ComponentHistory>> bequeathals = new HashMap<>();
+    /**
+     * Returns the terminology ids.
+     *
+     * @return the terminology ids
+     */
+    public List<String> getTerminologyIds() {
+      final List<String> facts = new ArrayList<>(factMap.keySet());
+      Collections.sort(facts);
+      return facts;
+    }
 
-    /** The merges. */
-    private Map<String, ComponentHistory> merges = new HashMap<>();
+    /**
+     * Returns the facts for the specified concept.
+     *
+     * @param cui the cui
+     * @param currentCuis the current cuis
+     * @param previousCuis the previous cuis
+     * @return the facts
+     * @throws Exception the exception
+     */
+    public Set<ComponentHistory> getFacts(String cui, Set<String> currentCuis,
+      Set<String> previousCuis) throws Exception {
+
+      // If the CUI is current, there are no entries
+      if (currentCuis.contains(cui)) {
+        System.out.println("    CURRENT CUI");
+        return new HashSet<>(0);
+      }
+
+      // If the CUI1 was not a prior CUI, there are no entries
+      if (!previousCuis.contains(cui)) {
+        System.out.println("    NON PRIOR CUI");
+        return new HashSet<>(0);
+
+      }
+
+      final Set<ComponentHistory> facts = factMap.get(cui);
+      System.out.println("    raw = " + facts);
+      // All facts either have a blank CUI2 or a CUI2 that is alive.
+      boolean validCui2 = facts.stream()
+          .filter(item -> item.getReferencedTerminologyId() != null
+              && !currentCuis.contains(item.getReferencedTerminologyId()))
+          .collect(Collectors.toSet()).size() == 0;
+      final Set<String> releases = facts.stream()
+          .map(item -> item.getAssociatedRelease()).collect(Collectors.toSet());
+      final Set<String> relTypes =
+          facts.stream().map(item -> item.getRelationshipType().substring(0, 1))
+              .collect(Collectors.toSet());
+      final Set<ComponentHistory> delFacts = facts.stream()
+          .filter(item -> item.getRelationshipType().equals("DEL"))
+          .collect(Collectors.toSet());
+      final Set<ComponentHistory> syFacts =
+          facts.stream().filter(item -> item.getRelationshipType().equals("SY"))
+              .collect(Collectors.toSet());
+      final Set<ComponentHistory> relFacts = facts.stream()
+          .filter(item -> item.getRelationshipType().startsWith("R"))
+          .collect(Collectors.toSet());
+
+      // If there are facts from multiple releases, throw an error, this
+      // shouldn't happen
+      if (releases.size() > 1) {
+        throw new Exception(
+            "Unexpected facts from multiple releases = " + releases);
+      }
+
+      // Handle simpler cases
+      if (validCui2) {
+
+        //
+        // If there is a single entry, return it
+        //
+        if (facts.size() == 1) {
+          return facts;
+        }
+
+        //
+        // If there are multiple RO entries, return them
+        //
+        if (relTypes.size() != 1 && relTypes.iterator().next().equals("R")) {
+          return facts;
+        }
+
+        //
+        // Otherwise, favor SY, then R, then DEL
+        //
+        if (syFacts.size() == 1) {
+          return syFacts;
+        } else if (relFacts.size() > 0) {
+          return relFacts;
+        } else if (delFacts.size() == 1) {
+          return delFacts;
+        } else {
+          throw new Exception("Unexpected combination of facts = " + facts);
+        }
+      }
+
+      // Handle complex cases where there is a dead CUI2
+      else {
+        // Expect these to be not the current release
+        if (releases.iterator().next().equals(getProcess().getVersion())) {
+          throw new Exception(
+              "Unexpected dead CUI2 cases with current version = " + facts);
+        }
+
+        //
+        // SY -> dead CUI2
+        //
+        if (syFacts.size() == 1) {
+          final Set<ComponentHistory> cui2Facts =
+              getFacts(syFacts.iterator().next().getReferencedTerminologyId(),
+                  previousCuis, currentCuis);
+
+          // If single SY, then just update CUI2 and return
+          if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
+              .getRelationshipType().equals("SY")) {
+            syFacts.iterator().next().setReferencedTerminologyId(
+                cui2Facts.iterator().next().getReferencedTerminologyId());
+            return syFacts;
+          }
+
+        }
+
+        //
+        // R -> dead CUI2
+        //
+        else if (syFacts.size() == 0 && delFacts.size() == 0
+            && relFacts.size() > 0) {
+          final Set<ComponentHistory> newFacts = new HashSet<>();
+          for (final ComponentHistory fact : relFacts) {
+            final Set<ComponentHistory> cui2Facts =
+                getFacts(syFacts.iterator().next().getReferencedTerminologyId(),
+                    previousCuis, currentCuis);
+
+            // If single SY, then just update CUI2 and add to newFacts
+            if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
+                .getRelationshipType().equals("SY")) {
+              fact.setReferencedTerminologyId(
+                  cui2Facts.iterator().next().getReferencedTerminologyId());
+              newFacts.add(fact);
+            }
+
+            // If DEL, then skip
+            else if (cui2Facts.size() == 1 && cui2Facts.iterator().next()
+                .getRelationshipType().equals("SY")) {
+              continue;
+            }
+
+            // If R, then replicate input to output
+            // Keep REL if they match, otherwise use RO
+            else if (cui2Facts.size() > 0 && cui2Facts.iterator().next()
+                .getRelationshipType().startsWith("R")) {
+              for (final ComponentHistory cui2RelFact : cui2Facts) {
+                // if we encounter a non-R thing,fail
+                if (!cui2RelFact.getRelationshipType().startsWith("R")) {
+                  throw new Exception(
+                      "Unexpected mixture of R and non-R = " + cui2Facts);
+                }
+                final ComponentHistory newFact = new ComponentHistoryJpa();
+                newFact.setTerminologyId(cui);
+                newFact.setAssociatedRelease(fact.getAssociatedRelease());
+                newFact.setRelationshipType(cui2RelFact.getRelationshipType()
+                    .equals(fact.getRelationshipType())
+                        ? fact.getRelationshipType() : "RO");
+                newFact.setReferencedTerminologyId(
+                    cui2RelFact.getReferencedTerminologyId());
+                newFacts.add(newFact);
+              }
+            }
+          }
+          return newFacts;
+        }
+
+        //
+        // Otherwise, fail
+        //
+        else {
+          throw new Exception(
+              "Unexpected state of facts from prior version = " + facts);
+        }
+
+      }
+
+      return new HashSet<>();
+
+    }
 
     /**
      * Adds the deleted.
      *
      * @param cui the cui
-     * @param version the version
+     * @param release the release
      */
-    public void addDeleted(String cui, String version) {
+    public void addDeleted(String cui, String release) {
+      System.out.println("DEL " + cui + ", " + release);
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
-      history.setVersion(version);
-      deleted.add(history);
+      history.setVersion(release);
+      if (!factMap.containsKey(cui)) {
+        factMap.put(cui, new HashSet<>());
+      }
+      factMap.get(cui).add(history);
     }
 
     /**
      * Adds the bequeathal.
      *
      * @param cui the cui
-     * @param version the version
+     * @param release the version
      * @param rel the rel
      * @param cui2 the cui 2
      * @throws Exception the exception
      */
-    public void addBequeathal(String cui, String version, String rel,
+    public void addBequeathal(String cui, String release, String rel,
       String cui2) throws Exception {
-      if (!bequeathals.containsKey(cui)) {
-        bequeathals.put(cui, new HashSet<ComponentHistory>());
-      }
-
-      // If there is already a matching concept
-      if (bequeathals.get(cui).stream()
-          .filter(h -> h.getReferencedTerminologyId().equals(cui2))
-          .collect(Collectors.toList()).size() > 0) {
-        throw new Exception("There is already a bequeathal rel between " + cui
-            + " and " + cui2);
-      }
+      System.out.println(
+          "BEQUEATHAL " + cui + ", " + release + ", " + rel + ", " + cui2);
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
-      history.setVersion(version);
+      history.setAssociatedRelease(release);
       history.setRelationshipType(rel);
       history.setReferencedTerminologyId(cui2);
-      bequeathals.get(cui).add(history);
+      if (!factMap.containsKey(cui)) {
+        factMap.put(cui, new HashSet<>());
+      }
+      factMap.get(cui).add(history);
     }
 
     /**
      * Adds the merge.
      *
      * @param cui the cui
-     * @param version the version
+     * @param release the release
      * @param cui2 the cui 2
      * @throws Exception the exception
      */
-    public void addMerge(String cui, String version, String cui2)
+    public void addMerge(String cui, String release, String cui2)
       throws Exception {
-      if (merges.containsKey(cui)) {
-        throw new Exception(
-            "There is already a merge between " + cui + " and " + cui2);
-      }
+      System.out.println("SY " + cui + ", " + release + ", " + cui2);
       final ComponentHistory history = new ComponentHistoryJpa();
-      merges.put(cui, history);
+      history.setTerminologyId(cui);
+      history.setAssociatedRelease(release);
+      history.setRelationshipType("SY");
+      history.setReferencedTerminologyId(cui2);
+      if (!factMap.containsKey(cui)) {
+        factMap.put(cui, new HashSet<>());
+      }
+      factMap.get(cui).add(history);
     }
 
-    /**
-     * Recurse entries.
-     *
-     * @param history the history
-     * @return the list
-     */
-    public List<ComponentHistory> recurseEntries(ComponentHistory history) {
-      // used when referencedTerminologyId is not publishable,
-      // Look up and generate commensurate "current" history records
-
-      // If CUI2 is DEL, convert to DEL, return 1 row
-
-      // If CUI2 is SY, update CUI2, return 1 row
-
-      // If CUI1 is SY and CUI2 has bequeathal rels, return one updated row for
-      // each rel, update to R.
-
-      // If CUI1 is R. and CUI2 has bequeathal rels, return one updated row for
-      // each rel, update to RO if rels don't match, otherwise use R.
-
-      // if CUI2 is not present, throw an exception
-      return null;
-    }
-
-    /**
-     * Reconcile history.
-     *
-     * @return the list
-     */
-    public List<ComponentHistory> reconcileHistory() {
-      final List<ComponentHistory> history = new ArrayList<>();
-
-      // Verify that terminologyIds are "not publishable"
-      // Verify that terminologyIds are only in one category "DEL", "SY", or
-      // "RX" - do this completely for all concepts first.
-      // - may need to prioritize if they are in more than one.
-      // Verify that referencedTerminologyIds are "publishable"
-      // - if not, map to a "current" thing, or multiple current things through
-      // the recurse function
-
-      return history;
-    }
   }
 
 }

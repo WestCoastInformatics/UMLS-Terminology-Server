@@ -55,10 +55,11 @@ tsApp.controller('WorkflowCtrl', [
       recordTypes : workflowService.getRecordTypes()
     }
 
-    // Accordion Groups
+    // Accordion Groups open status
     $scope.groups = [ {
-      title : "Bins",
       open : true
+    }, {
+      open : false
     }, {
       open : false
     }, {
@@ -234,22 +235,23 @@ tsApp.controller('WorkflowCtrl', [
         });
       }
     }
-    
+
     // Return report type list
-    $scope.getReportTypeList = function() {     
-        var configs =  $scope.lists.configs.filter(function(item) {
-          return item.queryStyle == 'REPORT';
-        });
-        var reportTypes = [];
-        for (var i = 0; i<configs.length; i++) {
-          for (var j = 0; j<configs[i].workflowBinDefinitions.length; j++) {
-            reportTypes.push(configs[i].workflowBinDefinitions[j]);
-          }
+    $scope.getReportTypeList = function() {
+      var configs = $scope.lists.configs.filter(function(item) {
+        return item.queryStyle == 'REPORT';
+      });
+      var reportTypes = [];
+      for (var i = 0; i < configs.length; i++) {
+        for (var j = 0; j < configs[i].workflowBinDefinitions.length; j++) {
+          reportTypes.push(configs[i].workflowBinDefinitions[j]);
         }
-        return reportTypes;
+      }
+      return reportTypes;
     }
-    
-    // the report type is a workflowBinDefinition on a WorkflowConfig that has QueryStyle.REPORT
+
+    // the report type is a workflowBinDefinition on a WorkflowConfig that has
+    // QueryStyle.REPORT
     // This needs to be a function so it can be scoped properly for the
     // pager
     $scope.findPagedReports = function() {
@@ -266,15 +268,15 @@ tsApp.controller('WorkflowCtrl', [
       };
       
       reportService.findReportsByName($scope.selected.project.id, $scope.selected.reportType.name, pfs).then(
-       // Success
-        function(data) {
+      // Success
+      function(data) {
         $scope.selected.reports = data;
         $scope.selected.reports.totalCount = data.totalCount;
         $scope.pagedResults = null;
         $scope.resetResultPaging();
       });
     }
-    
+
     // generate report
     $scope.generateReport = function() {
       reportService.generateReport($scope.selected.project.id, $scope.selected.reportType.name, $scope.selected.reportType.query, 
@@ -284,7 +286,7 @@ tsApp.controller('WorkflowCtrl', [
         $scope.selected.report = data;
       });
     }
-    
+
     // delete report
     $scope.deleteReport = function(report) {
       reportService.removeReport(report.id).then(

@@ -90,7 +90,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Report): /report " + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /report " + projectId);
 
     final ReportService reportService = new ReportServiceJpa();
     try {
@@ -202,7 +203,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -230,7 +231,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           reportDefinitions.addAll(config.getWorkflowBinDefinitions());
         }
       }
-      
+
       for (WorkflowBinDefinition definition : reportDefinitions) {
         if (definition != null) {
           verifyProject(definition.getWorkflowConfig(), projectId);
@@ -238,7 +239,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
         }
       }
       // websocket - n/a
-      
+
       WorkflowBinDefinitionList list = new WorkflowBinDefinitionListJpa();
       list.setObjects(reportDefinitions);
       list.setTotalCount(reportDefinitions.size());
@@ -253,7 +254,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     return null;
 
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -266,12 +267,12 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Report): /find, " + query + " " + pfs);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /find, " + query + " " + pfs);
     final ReportService reportService = new ReportServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "find reports",
-          UserRole.VIEWER);
-      Project project = reportService.getProject(projectId);
+      authorizeApp(securityService, authToken, "find reports", UserRole.VIEWER);
+      final Project project = reportService.getProject(projectId);
       ReportList list = reportService.findReports(project, query, pfs);
       
       for (Report report : list.getObjects()) {
@@ -348,20 +349,20 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-  
+
   @Override
   @GET
-  @Path("/generate/{id}")
+  @Path("/generate/{projectId}")
   @ApiOperation(value = "Generates a report", notes = "Generates a report", response = ReportJpa.class)
   public Report generateReport(
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
     @ApiParam(value = "Name", required = false) @QueryParam("name") String name,
     @ApiParam(value = "Query", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
     @ApiParam(value = "Object type name, e.g. AtomJpa", required = false) @QueryParam("resultType") IdType resultType,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-      Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
+    Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
 
       final ReportService reportService = new ReportServiceJpa();
       try {
