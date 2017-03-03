@@ -30,6 +30,7 @@ tsApp.controller('BinModalCtrl', [
     $scope.queryTypes = lists.queryTypes
     $scope.errors = [];
     $scope.messages = [];
+    $scope.allowSave = true;
 
     if ($scope.action == 'Edit' || $scope.action == 'Clone') {
       workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
@@ -40,6 +41,10 @@ tsApp.controller('BinModalCtrl', [
         });
     }
 
+    // Turn allow save off when query changed
+    $scope.queryChanged = function() {
+      $allowSave = false;
+    }
     // get position after bin
     $scope.positionAfterBin = function(bin) {
       workflowService.getWorkflowBinDefinition($scope.project.id, bin.name, $scope.config.type)
@@ -62,12 +67,12 @@ tsApp.controller('BinModalCtrl', [
         $scope.config.queryStyle).then(
       // success
       function(data) {
-        $scope.testSucceeded = true;
+        $scope.allowSave = true;
         $scope.messages.push("Query met validation requirements.");
       },
       // Error
       function(data) {
-        $scope.testSucceeded = false;
+        $scope.allowSave = false;
         utilService.handleDialogError($scope.errors, data);
       });
     }
@@ -100,6 +105,7 @@ tsApp.controller('BinModalCtrl', [
       } else if (action == 'Add') {
         definition.workflowConfigId = $scope.config.id;
         definition.enabled = true;
+        definition.editable = true;
         workflowService.addWorkflowBinDefinition($scope.project.id, definition,
           $scope.positionAfterDef ? $scope.positionAfterDef.id : null).then(
         // Success - add definition
