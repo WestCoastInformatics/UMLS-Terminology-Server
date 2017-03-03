@@ -311,10 +311,10 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @GET
-  @Path("/generate/{id}")
+  @Path("/generate/{projectId}")
   @ApiOperation(value = "Generates a report", notes = "Generates a report", response = ReportJpa.class)
   public Report generateReport(
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
     @ApiParam(value = "Name", required = false) @QueryParam("name") String name,
     @ApiParam(value = "Query", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
@@ -328,7 +328,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "generate the report",
           UserRole.VIEWER);
 
-      final Project project = reportService.getProject(id);
+      final Project project = reportService.getProject(projectId);
       final Report report = reportService.generateReport(project, name, query,
           queryType, resultType);
       return report;

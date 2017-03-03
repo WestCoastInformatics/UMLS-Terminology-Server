@@ -44,13 +44,13 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getConceptReport(Long projectId, Long conceptId, String authToken)
-    throws Exception {
+  public String getConceptReport(Long projectId, Long conceptId,
+    String authToken) throws Exception {
 
     validateNotEmpty(conceptId, "conceptId");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(
-        config.getProperty("base.url") + "/report/concept/" + conceptId + "?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/report/concept/" + conceptId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -72,13 +72,13 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getDescriptorReport(Long projectId, Long descriptorId, String authToken)
-    throws Exception {
+  public String getDescriptorReport(Long projectId, Long descriptorId,
+    String authToken) throws Exception {
 
     validateNotEmpty(descriptorId, "descriptorId");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(
-        config.getProperty("base.url") + "/report/descriptor/" + descriptorId + "?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/report/descriptor/" + descriptorId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -100,12 +100,13 @@ public class ReportClientRest extends RootClientRest
 
   /* see superclass */
   @Override
-  public String getCodeReport(Long projectId, Long codeId, String authToken) throws Exception {
+  public String getCodeReport(Long projectId, Long codeId, String authToken)
+    throws Exception {
 
     validateNotEmpty(codeId, "codeId");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/report/code/" + codeId + "?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/report/code/" + codeId + "?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -128,11 +129,11 @@ public class ReportClientRest extends RootClientRest
   @Override
   public WorkflowBinDefinitionList findReportDefinitions(Long projectId,
     String authToken) throws Exception {
-    
+
     validateNotEmpty(projectId, "projectId");
     Client client = ClientBuilder.newClient();
-    WebTarget target = client
-        .target(config.getProperty("base.url") + "/report/definitions?projectId=" + projectId);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/report/definitions?projectId=" + projectId);
     Response response = target.request(MediaType.TEXT_PLAIN)
         .header("Authorization", authToken).get();
     if (response.getStatus() == 204) {
@@ -149,10 +150,10 @@ public class ReportClientRest extends RootClientRest
       throw new Exception(response.toString());
     }
 
-    WorkflowBinDefinitionList list =
-        ConfigUtility.getGraphForString(resultString, WorkflowBinDefinitionList.class);
+    WorkflowBinDefinitionList list = ConfigUtility
+        .getGraphForString(resultString, WorkflowBinDefinitionList.class);
     return list;
-    
+
   }
 
   @Override
@@ -206,15 +207,16 @@ public class ReportClientRest extends RootClientRest
   }
 
   @Override
-  public Report generateReport(Long id, String name, String query,
+  public Report generateReport(Long projectId, String name, String query,
     QueryType queryType, IdType resultType, String authToken) throws Exception {
-    Logger.getLogger(getClass()).debug("Report Client - generate report " + id);
-    validateNotEmpty(id, "id");
+    Logger.getLogger(getClass())
+        .debug("Report Client - generate report " + projectId);
+    validateNotEmpty(projectId, "projectId");
 
     Client client = ClientBuilder.newClient();
-    WebTarget target =
-        client.target(config.getProperty("base.url") + "/report/generate/" + id + "?name=" + name + "&query=" + query +
-            "&queryType=" + queryType + "&resultType=" + resultType);
+    WebTarget target = client.target(config.getProperty("base.url")
+        + "/report/generate/" + projectId + "?name=" + name + "&query=" + query
+        + "&queryType=" + queryType + "&resultType=" + resultType);
     Response response = target.request(MediaType.APPLICATION_XML)
         .header("Authorization", authToken).get();
 

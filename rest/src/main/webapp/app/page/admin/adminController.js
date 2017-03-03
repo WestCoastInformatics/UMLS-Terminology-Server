@@ -428,9 +428,6 @@ tsApp
               project : function() {
                 return null;
               },
-              validationChecks : function() {
-                return $scope.lists.validationChecks;
-              },
               action : function() {
                 return 'Add';
               }
@@ -467,9 +464,6 @@ tsApp
               },
               project : function() {
                 return lproject;
-              },
-              validationChecks : function() {
-                return $scope.lists.validationChecks;
               },
               action : function() {
                 return 'Edit';

@@ -313,45 +313,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           authToken);
     }
 
-    // Create and set up a process and algorithm configuration for testing
-    ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Process for testing use");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Test Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(terminology);
-    processConfig.setVersion(version);
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("WAIT");
-    algoConfig.setDescription("Algorithm for testing use");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("Test WAIT algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-
-    // Create and set required algorithm properties
-    Map<String, String> algoProperties = new HashMap<String, String>();
-    algoProperties.put("num", "10");
-    algoConfig.setProperties(algoProperties);
-
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    processConfig.getSteps().add(algoConfig);
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-    process = new ProcessServiceRestImpl();
-
     //
     // Create and set up process and algorithm configurations
     //
@@ -1045,7 +1006,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for NCI");
+    processConfig.setDescription("NCI Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for NCI");
     processConfig.setProject(project1);
@@ -1473,7 +1434,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for SNOMEDCT_US");
+    processConfig.setDescription("SNOMEDCT_US Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for SNOMEDCT_US");
     processConfig.setProject(project1);
@@ -1912,7 +1873,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for MTH");
+    processConfig.setDescription("UMLS (MTH) Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for MTH");
     processConfig.setProject(project1);
@@ -3039,7 +3000,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("ProdMid Cleanup Process");
+    processConfig.setDescription("Prod-Mid Cleanup Process");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("ProdMid Cleanup Process");
     processConfig.setProject(project1);
@@ -3256,39 +3217,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // This will make two processes, one Insertion, and one Maintenance
     ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Remap Component Info Relationships Process");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Remap Component Info Relationships Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
-    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("COMPINFORELREMAPPER algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-
-    // Now for the Maintenance one
-    process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Remap Component Info Relationships Process");
