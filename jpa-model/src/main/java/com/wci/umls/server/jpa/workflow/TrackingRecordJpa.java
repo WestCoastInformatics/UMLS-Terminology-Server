@@ -359,7 +359,11 @@ public class TrackingRecordJpa implements TrackingRecord {
   /* see superclass */
   @Override
   public void setIndexedData(String indexedData) {
-    this.indexedData = indexedData;
+    if (indexedData.length() > 4000) {
+      this.indexedData = indexedData.substring(0, 3999);
+    } else {
+      this.indexedData = indexedData;
+    }
   }
 
   /* see superclass */

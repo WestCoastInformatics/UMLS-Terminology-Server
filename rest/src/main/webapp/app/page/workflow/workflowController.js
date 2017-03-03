@@ -40,7 +40,8 @@ tsApp.controller('WorkflowCtrl', [
       refreshCt : 0,
       terminology : null,
       metadata : null,
-      epoch : null
+      epoch : null,
+      report : null
     };
 
     // Lists
@@ -99,7 +100,6 @@ tsApp.controller('WorkflowCtrl', [
     }
     $scope.resetRecordPaging();
 
-    // Paging parameters
     $scope.resetBinPaging = function() {
       $scope.paging['bins'] = utilService.getPaging();
       $scope.paging['bins'].sortField = 'rank';
@@ -108,6 +108,26 @@ tsApp.controller('WorkflowCtrl', [
       };
     }
     $scope.resetBinPaging();
+    
+    $scope.resetReportPaging = function() {
+      $scope.paging['reports'] = utilService.getPaging();
+      $scope.paging['reports'].sortField = 'lastModified';
+      $scope.paging['reports'].sortAscending = false;
+      $scope.paging['reports'].disableFilter = true;
+      $scope.paging['reports'].callbacks = {
+        getPagedList : findPagedReports
+      };
+    }
+    $scope.resetReportPaging();
+    
+    $scope.resetResultPaging = function() {
+      $scope.paging['results'] = utilService.getPaging();
+      $scope.paging['results'].sortField = 'value';
+      $scope.paging['results'].callbacks = {
+        getPagedList : getPagedResults
+      };
+    }
+    $scope.resetResultPaging();
 
     // Set the workflow config
     $scope.setConfig = function(config) {
@@ -232,23 +252,110 @@ tsApp.controller('WorkflowCtrl', [
 
     // the report type is a workflowBinDefinition on a WorkflowConfig that has
     // QueryStyle.REPORT
-    $scope.findReports = function(reportType) {
-      reportService.findReportsByName($scope.selected.project.id, reportType.name, null).then(
+    // This needs to be a function so it can be scoped properly for the
+    // pager
+    $scope.findPagedReports = function() {
+      findPagedReports();
+    };
+    function findPagedReports() {
+
+      var pfs = {
+        startIndex : ($scope.paging['reports'].page - 1) * $scope.paging['reports'].pageSize,
+        maxResults : $scope.paging['reports'].pageSize,
+        sortField : $scope.paging['reports'].sortField,
+        ascending : $scope.paging['reports'].sortAscending,
+        queryRestriction : $scope.paging['reports'].filter ? $scope.paging['reports'].filter : ''
+      };
+      
+      reportService.findReportsByName($scope.selected.project.id, $scope.selected.reportType.name, pfs).then(
       // Success
       function(data) {
         $scope.selected.reports = data;
+        $scope.selected.reports.totalCount = data.totalCount;
+        $scope.pagedResults = null;
+        $scope.resetResultPaging();
       });
     }
 
+    // generate report
     $scope.generateReport = function() {
-      reportService.generateReport($scope.selected.project.id, $scope.selected.reportType.name,
-        $scope.selected.reportType, $scope.selected.reportType.queryType, 'CONCEPT').then(
-      // Success
-      function(data) {
+      reportService.generateReport($scope.selected.project.id, $scope.selected.reportType.name, $scope.selected.reportType.query, 
+        $scope.selected.reportType.queryType, 'CONCEPT').then(
+       // Success
+       function(data) {
         $scope.selected.report = data;
       });
     }
 
+    // delete report
+    $scope.deleteReport = function(report) {
+      reportService.removeReport(report.id).then(
+       // Success
+       function(data) {
+        $scope.findPagedReports();
+      });
+    }
+    
+    //
+    $scope.setSelectedReport = function(report) {
+      $scope.selected.report = report;
+      // split result stys to they can be displayed in a list
+      for (var i = 0; i<report.results.length; i++) {
+        var value = $scope.selected.report.results[i].value;
+        $scope.selected.report.results[i].valueArray = value.split('@');
+      }
+
+      $scope.getPagedResults();
+    }
+   
+    // This needs to be a function so it can be scoped properly for the
+    // pager
+    $scope.getPagedResults = function() {
+      getPagedResults();
+    };
+    function getPagedResults() {
+      $scope.pagedResults = utilService.getPagedArray($scope.selected.report.results,
+        $scope.paging['results']);
+    }
+    
+    // create a new checklist from report results
+    $scope.computeChecklist = function(result) {
+      var query = 'select distinct itemId conceptId, itemId clusterId from report_result_items a, ' +
+        ' report_results b where b.report_id = ' + $scope.selected.report.id  + ' and b.id = ' + result.id +
+        ' and a.result_id = b.id';
+      
+      var name = $scope.selected.reportType.name.replace(/\s/g, '_');
+      var fullName = 'chk_' + name + '_' + result.id;
+      workflowService.computeChecklist($scope.selected.project.id, query, 
+        'SQL', fullName, null).then(
+      // Success
+      function(data) {
+        window.alert("Checklist created " + fullName + ".");
+      },
+      // Error
+      function(data) {
+        $scope.errors[0] = data;
+        utilService.clearError();
+      });
+    }
+    
+    // Table sorting mechanism
+    $scope.setSortField = function(table, field, object) {
+      utilService.setSortField(table, field, $scope.paging);
+
+      // retrieve the correct table
+      if (table === 'results') {
+        $scope.getPagedResults();
+      }
+      
+    };
+
+    // Return up or down sort chars if sorted
+    $scope.getSortIndicator = function(table, field) {
+      return utilService.getSortIndicator(table, field, $scope.paging);
+    };
+    
+    
     // Retrieve all projects
     $scope.getConfigs = function() {
       workflowService.getWorkflowConfigs($scope.selected.project.id).then(

@@ -986,10 +986,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       clustersEncountered.add(result[0]);
 
       // Keep only prescribed range from the query
-      if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
+      /*if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
           || clustersEncountered.size() > localPfs.getMaxResults()) {
         continue;
-      }
+      }*/  // TODO remove
 
       if (!entries.containsKey(result[0])) {
         entries.put(result[0], new ArrayList<>());
@@ -1015,9 +1015,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
         record.getComponentIds().addAll(concept.getAtoms().stream()
-            .map(a -> a.getId()).collect(Collectors.toSet()));
+            .map(a -> a.getId()).collect(Collectors.toSet())); 
+        if (!record.getOrigConceptIds().contains(concept.getId())) {
+          sb.append(concept.getName()).append(" ");
+        }
         record.getOrigConceptIds().add(concept.getId());
-        sb.append(concept.getName()).append(" ");
+       
       }
 
       record.setIndexedData(sb.toString());
