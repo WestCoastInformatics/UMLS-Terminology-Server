@@ -2873,11 +2873,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
+    // validate
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("NCIMETA");
-    algoConfig.setDescription("NCIMETA Algorithm");
+    algoConfig.setAlgorithmKey("VALIDATERELEASE");
+    algoConfig.setDescription("VALIDATERLEEASE Algorithm");
     algoConfig.setEnabled(true);
-    algoConfig.setName("NCIMETA algorithm");
+    algoConfig.setName("VALIDATE RELEASE algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
@@ -2887,9 +2888,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add ValidateReleaseAlgorithm
-
-    // TODO - once it's available, add RunMetamorphoSysAlgorithm
+    // RunMetamorphoSysAlgorithm
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("RUNMMSYS");
     algoConfig.setDescription("RUNMMSYS Algorithm");
