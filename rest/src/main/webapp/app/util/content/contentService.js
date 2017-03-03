@@ -1,44 +1,33 @@
 // Content Service
+var contentUrl = 'content';
 tsApp
   .service(
     'contentService',
     [
       '$http',
       '$q',
+      '$window',
       'gpService',
       'utilService',
       'tabService',
       'metadataService',
-      function($http, $q, gpService, utilService, tabService, metadataService) {
-        console.debug("configure contentService");
+      function($http, $q, $window, gpService, utilService, tabService, metadataService) {
 
-        // Initialize
         var metadata = metadataService.getModel();
 
-        // global history, used for main content view
+        // Shared data model for history
         var history = {
           // the components stored
           components : [],
-
           // the index of the currently viewed component
-          index : -1
+          index : -1,
+          pageSize : 5
         };
 
-        // Default page sizes object
-        var pageSizes = {
-          general : 10,
-          rels : 10,
-          roots : 125,
-          trees : 5,
-          search : 10,
-          sibling : 10,
-          filter : 5,
-          sort : 1
-        };
-
-        // Default search results object
+        // Shared data model for search params
         var searchParams = {
           page : 1,
+          pageSize : 10,
           query : null,
           expression : null,
           advancedMode : false,
@@ -58,16 +47,9 @@ tsApp
           }
         };
 
-        // the last search params saved by a controller or service
+        // prior search results
         var lastSearchParams = null;
-
-        // the last component saved by a controller or service
         var lastComponent = null;
-
-        // Get new copy of default page sizes
-        this.getPageSizes = function() {
-          return angular.copy(pageSizes);
-        };
 
         // Get new copy of default search parameters
         this.getSearchParams = function() {
@@ -127,11 +109,12 @@ tsApp
 
         ];
 
+        // Returns the expression types
         this.getExpressions = function() {
           return expressions;
         };
 
-        // Autocomplete function
+        // Get autocomplete results
         this.autocomplete = function(searchTerms, autocompleteUrl) {
 
           // Setup deferred
@@ -145,7 +128,7 @@ tsApp
 
             // NO GLASS PANE
             // Make GET call
-            $http.get(autocompleteUrl + encodeURIComponent(searchTerms)).then(
+            $http.get(contentUrl + '/' + autocompleteUrl + encodeURIComponent(searchTerms)).then(
             // success
             function(response) {
               deferred.resolve(response.data.strings);
@@ -160,50 +143,52 @@ tsApp
           return deferred.promise;
         };
 
-        // Get the component from a component wrapper
-        // where wrapper is at minimum { type: ..., terminology: ..., version:
+        // Get the component from a component
+        // where component is at minimum { id: ..., type: ..., terminology: ...,
+        // version:
         // ..., terminologyId: ...}
         // Search results and components can be passed directly
-        this.getComponent = function(wrapper) {
-
-          console.debug('getComponent', wrapper);
+        this.getComponent = function(component, projectId) {
+          console.debug('getComponent', component, projectId);
 
           var deferred = $q.defer();
 
           // check prereqs
-          if (!wrapper.type || !wrapper.terminologyId || !wrapper.terminology || !wrapper.version) {
+          if (!(component.type && component.id)
+            && !(component.type && component.terminologyId && component.terminology && component.version)) {
             utilService.setError('Component object not fully specified');
             deferred.reject('Component object not fully specified');
-          } else {
+            return;
+          }
 
-            // the component object to be returned
-            var component = {};
+          // Make GET call
+          gpService.increment();
 
-            // Make GET call
-            gpService.increment();
+          // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
 
-            // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
-            // path
-            $http.get(
-              contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-                + wrapper.version + "/" + wrapper.terminologyId).then(
-              // success
-              function(response) {
-                var data = response.data;
+          // compose the URL, if the version is specified use terminologyId,
+          // otherwise use "id"
+          var url = component.version ? contentUrl + '/' + component.type.toLowerCase() + "/"
+            + component.terminology + "/" + component.version + "/" + component.terminologyId
+            : contentUrl + '/' + component.type.toLowerCase() + "/" + component.id;
 
-                if (!data) {
-                  deferred.reject('Could not retrieve ' + wrapper.type + ' data for '
-                    + wrapper.terminologyId + '/' + wrapper.terminology + '/' + wrapper.version);
-                } else {
+          $http.get(url + (projectId ? '?projectId=' + projectId : '')).then(
+            // success
+            function(response) {
+              var data = response.data;
+              if (!data) {
+                deferred
+                  .reject('Could not retrieve ' + component.type + ' data for '
+                    + component.terminologyId + '/' + component.terminology + '/'
+                    + component.version);
+              } else {
 
-                  // Set the type of the returned component
-                  data.type = wrapper.type;
+                // Set the type of the returned component
+                data.type = component.type;
 
-                  // cycle over all atoms for pre-processing
+                // cycle over all atoms for pre-processing
+                if (component.type != 'ATOM') {
                   for (var i = 0; i < data.atoms.length; i++) {
-
-                    // assign expandable content flag
-                    data.atoms[i].hasContent = atomHasContent(data.atoms[i]);
 
                     // push any definitions up to top level
                     for (var j = 0; j < data.atoms[i].definitions.length; j++) {
@@ -222,18 +207,18 @@ tsApp
                       data.definitions.push(definition);
                     }
                   }
-
                 }
 
-                gpService.decrement();
-                deferred.resolve(data);
-              }, function(response) {
-                utilService.handleError(response);
-                gpService.decrement();
-                deferred.reject(response.data);
-              });
+              }
 
-          }
+              gpService.decrement();
+              deferred.resolve(data);
+            }, function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
           return deferred.promise;
         };
 
@@ -242,24 +227,33 @@ tsApp
         // NOTE: Currently only set in contentController.js
         //
 
+        // Sets last search params
         this.setLastSearchParams = function(searchParams) {
           this.searchParams = searchParams;
         };
 
+        // Gets last search params
         this.getLastSearchParams = function() {
           return this.searchParams;
         };
 
+        // Sets last component
         this.setLastComponent = function(component) {
           this.lastComponent = component;
         };
 
+        // Gets last component
         this.getLastComponent = function() {
           return this.lastComponent;
         };
 
         // add a component history entry
-        this.addComponentToHistory = function(terminologyId, terminology, version, type, name) {
+        this.addComponentToHistory = function(component) {
+          var terminologyId = component.terminologyId;
+          var terminology = component.terminology;
+          var version = component.version;
+          var type = component.type;
+          var name = component.name;
 
           // if history exists
           if (history && history.index != -1) {
@@ -303,18 +297,19 @@ tsApp
 
         // Retrieve a component from history based on the index
         this.getComponentFromHistory = function(index) {
+          console.debug('getComponentFromHistory', index);
           var deferred = $q.defer();
 
           if (index < 0 || index > history.components.length) {
             deferred.reject('Invalid history index: ' + index);
           } else {
 
-            // extract wrapper object
-            var wrapper = history.components[index];
+            // extract component object
+            var component = history.components[index];
 
             // set the index and get the component from history
             // information
-            this.getComponent(wrapper).then(function(data) {
+            this.getComponent(component).then(function(data) {
               // set the index and return
               history.index = index;
               deferred.resolve(data);
@@ -324,7 +319,7 @@ tsApp
         };
 
         // Helper function for determining if an atom has content
-        function atomHasContent(atom) {
+        this.atomHasContent = function(atom) {
           if (!atom)
             return false;
           if (atom.attributes.length > 0)
@@ -337,9 +332,8 @@ tsApp
         }
 
         // Gets the tree for the specified component
-        this.getTree = function(wrapper, startIndex) {
-
-          console.debug('getTree', wrapper, startIndex);
+        this.getTree = function(component, startIndex) {
+          console.debug('getTree', component, startIndex);
 
           if (startIndex === undefined) {
             startIndex = 0;
@@ -356,10 +350,15 @@ tsApp
           };
 
           // Make post call
+          var url = null;
+          if (component.type === 'ATOM') {
+            url = contentUrl + '/atom/' + component.id + '/trees'
+          } else {
+            url = contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminology
+              + '/' + component.version + '/' + component.terminologyId + '/trees'
+          }
           gpService.increment();
-          $http.post(
-            contentUrl + wrapper.type.toLowerCase() + '/' + wrapper.terminology + '/'
-              + wrapper.version + '/' + wrapper.terminologyId + '/trees', pfs).then(
+          $http.post(url, pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -377,15 +376,15 @@ tsApp
 
         // Get child trees for the tree (and start index)
         this.getChildTrees = function(tree, type, startIndex) {
-
           console.debug('getChildTrees', tree, type, startIndex);
+
           // Set up deferred
           var deferred = $q.defer();
 
           // PFS
           var pfs = {
             startIndex : startIndex,
-            maxResults : pageSizes.general,
+            maxResults : 10,
             sortField : 'nodeName',
             queryRestriction : null
           };
@@ -394,9 +393,14 @@ tsApp
 
           // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
           // path
-          $http.post(
-            contentUrl + type.toLowerCase() + '/' + tree.terminology + '/' + tree.version + '/'
-              + tree.nodeTerminologyId + '/trees/children', pfs).then(
+          var url = null;
+          if (type === 'ATOM') {
+            url = contentUrl + '/atom/' + tree.nodeId + '/trees/children'
+          } else {
+            url = contentUrl + '/' + type.toLowerCase() + '/' + tree.terminology + '/'
+              + tree.version + '/' + tree.nodeTerminologyId + '/trees/children'
+          }
+          $http.post(url, pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -414,15 +418,18 @@ tsApp
         };
 
         // Gets the tree roots for the specified params
-        this.getTreeRoots = function(type, terminology, version, page) {
+        this.getTreeRoots = function(type, terminology, version) {
+          console.debug('getTreeRoots', type, terminology, version);
+
           // Setup deferred
           var deferred = $q.defer();
 
-          // PFS
-          // construct the pfs
+          // PFS - large page size to hopefully read them all except in
+          // degenerate cases
+          var pageSize = 30;
           var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.roots,
+            startIndex : 0,
+            maxResults : pageSize,
             sortField : metadata.treeSortField,
             queryRestriction : null
           };
@@ -433,8 +440,8 @@ tsApp
           // NOTE: Must lower case the type (e.g. CONCEPT -> concept) for the
           // path
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees/roots",
-            pfs).then(
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version
+              + "/trees/roots", pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -450,20 +457,42 @@ tsApp
           return deferred.promise;
         };
 
-        // Finds components as a list
-        this.findComponentsAsList = function(queryStr, type, terminology, version, page,
-          searchParams) {
+        this.getConceptsForQuery = function(queryStr, terminology, version, projectId, pfs) {
+          console.debug('getConcepts', queryStr, terminology, version, pfs);
 
-          console.debug('findComponentsAsList', queryStr, type, terminology, version, page);
+          var deferred = $q.defer();
+          gpService.increment();
+          $http.post(
+            contentUrl + '/concept/' + terminology + '/' + version + '/get?query='
+              + encodeURIComponent(utilService.cleanQuery(queryStr))
+              + (projectId ? '&projectId=' + projectId : ''), pfs).then(
+          // success
+          function(response) {
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+          return deferred.promise;
+        }
+
+        // Finds components as a list
+        this.findComponentsAsList = function(queryStr, type, terminology, version, searchParams) {
+          console.debug('findComponentsAsList', queryStr, type, terminology, version, searchParams);
 
           // Setup deferred
           var deferred = $q.defer();
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * pageSizes.general,
-            maxResults : pageSizes.general,
-            sortField : null,
+            startIndex : (searchParams.page - 1) * searchParams.pageSize,
+            maxResults : searchParams.pageSize,
+            sortField : searchParams.sortField,
+            ascending : searchParams.sortAscending,
             expression : searchParams && searchParams.expression ? searchParams.expression.value
               : null,
             queryRestriction : "(suppressible:false^20.0 OR suppressible:true) AND (atoms.suppressible:false^20.0 OR atoms.suppressible:true)"
@@ -501,7 +530,7 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "?query="
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version + "?query="
               + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
@@ -519,16 +548,16 @@ tsApp
         };
 
         // Finds components as a tree
-        this.findComponentsAsTree = function(queryStr, type, terminology, version, page,
-          semanticType) {
+        this.findComponentsAsTree = function(queryStr, type, terminology, version, searchParams) {
+          console.debug('findComponentsAsTree', queryStr, type, terminology, version, searchParams);
 
           // Setup deferred
           var deferred = $q.defer();
 
           // PFS
           var pfs = {
-            startIndex : (page - 1) * pageSizes.trees,
-            maxResults : pageSizes.trees,
+            startIndex : (searchParams.page - 1) * searchParams.pageSize,
+            maxResults : searchParams.pageSize,
             sortField : metadata.treeSortField,
             queryRestriction : null
           };
@@ -536,13 +565,12 @@ tsApp
           // check parameters for advanced mode
           if (searchParams.advancedMode) {
 
-            if (semanticType) {
+            if (searchParams.semanticType) {
               pfs.queryRestriction = "ancestorPath:" + semanticType.replace("~", "\\~") + "*";
             }/*
-               * if (searchParams.semanticType) { pfs.queryRestriction += " AND
-               * semanticTypes.semanticType:\"" + searchParams.semanticType +
-               * "\""; }
-               */
+                           * if (searchParams.semanticType) { pfs.queryRestriction += " AND
+                           * semanticTypes.semanticType:\"" + searchParams.semanticType + "\""; }
+                           */
 
             if (searchParams.matchTerminology) {
               pfs.queryRestriction += " AND atoms.terminology:\"" + searchParams.matchTerminology
@@ -561,8 +589,8 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + type.toLowerCase() + "/" + terminology + "/" + version + "/trees?query="
-              + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
+            contentUrl + '/' + type.toLowerCase() + "/" + terminology + "/" + version
+              + "/trees?query=" + encodeURIComponent(utilService.cleanQuery(queryStr)), pfs).then(
           // success
           function(response) {
             gpService.decrement();
@@ -578,52 +606,85 @@ tsApp
           return deferred.promise;
         };
 
-        // Handle paging of relationships (requires content service
-        // call).
-        this.findRelationships = function(wrapper, page, parameters) {
+        // Find relationships for query
+        this.findRelationshipsForQuery = function(component, query, pfs) {
+          console.debug('find relationships', component, query, pfs);
 
-          console.debug('findRelationships', wrapper, page, parameters);
+          var type = component.type;
+          var terminology = component.terminology;
+          var version = component.version;
+          var terminologyId = component.terminologyId;
+
+          // Setup deferred
           var deferred = $q.defer();
 
-          if (parameters)
+          // Make POST call
+          gpService.increment();
+          $http.post(
+            contentUrl + '/' + type.toLowerCase() + '/' + terminology + '/' + version + '/'
+              + terminologyId + '/relationships?query='
+              + (query != '' && query != null ? '&query=' + query : ''), utilService.prepPfs(pfs))
+            .then(
+            // success
+            function(response) {
+              console.debug('  rels = ', response.data);
+              gpService.decrement();
+              deferred.resolve(response.data);
+            },
+            // error
+            function(response) {
+              utilService.handleError(response);
+              gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        };
+
+        // Handle paging of relationships (requires content service
+        // call).
+        this.findRelationships = function(component, paging) {
+          console.debug('findRelationships', component, paging);
+          var deferred = $q.defer();
+
+          if (paging) {
 
             var pfs = {
-              startIndex : (page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
-                'relationshipType' ],
-              ascending : parameters.sortAscending,
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortFields : paging.sortFields ? paging.sortFields : [ 'group', 'relationshipType' ],
+              ascending : paging.sortAscending,
               queryRestriction : null
-            // constructed from filters
             };
+          }
 
           // Show only inferred rels for now
           // construct query restriction if needed
           var qr = '';
-          if (!parameters.showSuppressible) {
+          if (!paging.showSuppressible) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'suppressible:false';
           }
-          if (!parameters.showObsolete) {
+          if (!paging.showObsolete) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'obsolete:false';
           }
-          if (parameters.showInferred) {
+          if (paging.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'inferred:true';
           }
-          if (!parameters.showInferred) {
+          if (!paging.showInferred) {
             qr = qr + (qr.length > 0 ? ' AND ' : '') + 'stated:true';
           }
           pfs.queryRestriction = qr;
 
           // For description logic sources, simply read all rels.
           // That way we ensure all "groups" are represented.
-          if (metadata.terminology.descriptionLogicTerminology) {
+          if (metadata.terminology && metadata.terminology.descriptionLogicTerminology) {
             pfs.startIndex = -1;
             pfs.maxResults = 1000000;
           } else {
-            pfs.maxResults = pageSizes.general;
+            pfs.maxResults = paging.pageSize;
           }
 
-          var query = parameters.text;
+          var query = paging.text;
 
           // Add wildcard to allow better matching from basic search
           // NOTE: searching for "a"* is interpreted by lucene as a
@@ -637,8 +698,8 @@ tsApp
           // path
           gpService.increment();
           $http.post(
-            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-              + wrapper.version + "/" + wrapper.terminologyId + "/relationships?query="
+            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+              + component.version + "/" + component.terminologyId + "/relationships?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
@@ -653,22 +714,112 @@ tsApp
 
         // Handle paging of relationships (requires content service
         // call).
-        this.findDeepRelationships = function(wrapper, page, parameters) {
+        this.findDeepRelationships = function(component, inverseFlag, includeConceptRels,
+          preferredOnly, includeSelfReferential, paging) {
+          console.debug('findDeepRelationships', component, inverseFlag, includeConceptRels,
+            preferredOnly, includeSelfReferential, paging);
 
           var deferred = $q.defer();
 
-          if (wrapper.type.toLowerCase() !== 'concept') {
-            defer.reject('Deep relationships cannot be retrieved for type previs ' + prefix);
+          if (component.type.toLowerCase() !== 'concept') {
+            utilService.handleError({
+              data : 'Deep relationships cannot be retrieved for type ' + component.type
+            });
+            deferred.reject();
           }
 
-          if (parameters) {
+          var sortField = paging.sortField;
+          var sortFields = null;
+          if (paging.sortFields) {
+            sortField = null;
+            sortFields = paging.sortFields;
+          } else if (!sortField) {
+            sortFields = [ 'group', 'relationshipType' ];
+          }
+
+          if (paging) {
 
             var pfs = {
-              startIndex : (page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortFields : parameters.sortFields ? parameters.sortFields : [ 'group',
-                'relationshipType' ],
-              ascending : parameters.sortAscending,
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              ascending : paging.sortAscending,
+
+              // NOTE: Deep relationships do not support query restrictions,
+              // instead using
+              // text filter as only query parameter
+              queryRestriction : null
+            };
+          }
+
+          if (pfs.sortFields) {
+            pfs.sortFields = sortFields;
+          } else {
+            pfs.sortField = sortField;
+          }
+          if (!paging.showSuppressible) {
+            pfs.queryRestriction = "suppressible:false";
+          }
+
+          // set filter/query; unlike relationships, does not require * for
+          // filtering
+          var query = paging.filter
+
+          // do not use glass pane, produces additional user lag on initial
+          // concept load
+          // i.e. retrieve concept, THEN get deep relationships
+          // gpService.increment();
+          $http
+            .post(
+              contentUrl
+                + '/'
+                + component.type.toLowerCase()
+                + "/"
+                + component.terminology
+                + "/"
+                + component.version
+                + "/"
+                + component.terminologyId
+                + "/relationships/deep?query="
+                + encodeURIComponent(utilService.cleanQuery(query))
+                + (inverseFlag != null && inverseFlag != '' ? '&inverseFlag=' + inverseFlag : '')
+                + (includeConceptRels != null && includeConceptRels != '' ? '&includeConceptRels='
+                  + includeConceptRels : '')
+                + (preferredOnly != null && preferredOnly != '' ? '&preferredOnly=' + preferredOnly
+                  : '')
+                + (includeSelfReferential != null && includeSelfReferential != '' ? '&includeSelfReferential='
+                  + includeSelfReferential
+                  : ''), pfs).then(function(response) {
+              deferred.resolve(response.data);
+            }, function(response) {
+              utilService.handleError(response);
+              // gpService.decrement();
+              deferred.reject(response.data);
+            });
+
+          return deferred.promise;
+        };
+
+        // Handle paging of tree positions (requires content service
+        // call).
+        this.findDeepTreePositions = function(component, paging) {
+          console.debug('findDeepTreePositions', component, paging);
+
+          var deferred = $q.defer();
+
+          if (component.type.toLowerCase() !== 'concept') {
+            utilService.handleError({
+              data : 'Deep tree positions cannot be retrieved for type ' + component.type
+            });
+            deferred.reject();
+          }
+
+          if (paging) {
+
+            var pfs = {
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortFields : paging.sortFields ? paging.sortFields : [ 'terminology' ],
+              ascending : paging.sortAscending,
 
               // NOTE: Deep relationships do not support query restrictions,
               // instead using
@@ -679,17 +830,16 @@ tsApp
 
           // set filter/query; unlike relationships, does not require * for
           // filtering
-          var query = parameters.text;
+          var query = paging.text;
 
           // do not use glass pane, produces additional user lag on initial
           // concept load
-          // i.e. retrieve concept, THEN get deep relationships
+          // i.e. retrieve concept, THEN get deep tree positions
           // gpService.increment();
           $http.post(
-            contentUrl + wrapper.type.toLowerCase() + "/" + wrapper.terminology + "/"
-              + wrapper.version + "/" + wrapper.terminologyId + "/relationships/deep?query="
+            contentUrl + '/' + component.type.toLowerCase() + "/" + component.terminology + "/"
+              + component.version + "/" + component.terminologyId + "/treePositions/deep?query="
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
-            // gpService.decrement();
             deferred.resolve(response.data);
           }, function(response) {
             utilService.handleError(response);
@@ -700,7 +850,9 @@ tsApp
           return deferred.promise;
         };
 
+        // function for testing whether a query is a valid expression
         this.isExpressionConstraintLanguage = function(terminology, version, query) {
+          console.debug('isExpressionConstraintLanguage', terminology, version, query);
           var deferred = $q.defer();
           if (!query || query.length == 0) {
             deferred.reject('Cannot check empty query for expressions');
@@ -719,17 +871,18 @@ tsApp
             });
         };
 
-        this.addComponentNote = function(wrapper, note) {
+        // Add a component note
+        this.addComponentNote = function(component, note) {
+          console.debug('addComponentNote', component, note);
           var deferred = $q.defer();
-          if (!wrapper || !note) {
+          if (!component || !note) {
             deferred.reject('Concept id and note must be specified');
           } else {
 
             gpService.increment();
             $http.post(
-              contentUrl + wrapper.type.toLowerCase() + '/note/' + wrapper.terminology + '/'
-                + wrapper.version + '/' + wrapper.terminologyId + '/add', note).then(
-              function(response) {
+              contentUrl + '/' + component.type.toLowerCase() + '/' + component.id + '/note', note)
+              .then(function(response) {
                 gpService.decrement();
                 deferred.resolve(response.data);
               }, function(response) {
@@ -743,24 +896,26 @@ tsApp
           }
         };
 
-        this.removeComponentNote = function(wrapper, noteId) {
+        // Remove component note
+        this.removeComponentNote = function(component, noteId) {
+          console.debug('removeComponentNote', component, noteId);
           var deferred = $q.defer();
-          if (!wrapper || !noteId) {
-            deferred.reject('Component wrapper (minimum type) and note id must be specified');
+          if (!component || !noteId) {
+            deferred.reject('Component component (minimum type) and note id must be specified');
           } else {
 
             gpService.increment();
-            $http['delete']
-              (contentUrl + wrapper.type.toLowerCase() + '/note/' + noteId + '/remove').then(
-                function(response) {
-                  gpService.decrement();
-                  deferred.resolve(response.data);
-                }, function(response) {
-                  utilService.handleError(response);
-                  gpService.decrement();
-                  // return the original concept without additional annotation
-                  deferred.reject();
-                });
+            $http['delete'](contentUrl + '/' + component.type.toLowerCase() + '/note/' + noteId)
+              .then(function(response) {
+                console.debug('  successful remove note');
+                gpService.decrement();
+                deferred.resolve(response.data);
+              }, function(response) {
+                utilService.handleError(response);
+                gpService.decrement();
+                // return the original concept without additional annotation
+                deferred.reject();
+              });
 
             return deferred.promise;
           }
@@ -771,45 +926,51 @@ tsApp
         // parallel to uses in component report elements (atoms,
         // relationships...)
         // instead of the getSearchParams structure for standard queries
-        this.getUserFavorites = function(parameters) {
-          console.debug('get user favorites', parameters);
+        this.getUserFavorites = function(paging) {
+          console.debug('get user favorites', paging);
           var deferred = $q.defer();
-          if (!parameters) {
-            deferred.reject('Parameters must be specified');
+          if (!paging) {
+            deferred.reject('Paging must be specified');
           } else {
 
             var pfs = {
-              startIndex : (parameters.page - 1) * pageSizes.general,
-              maxResults : pageSizes.general,
-              sortField : parameters.sortField ? parameters.sortField : 'lastModified',
-              queryRestriction : parameters.filter,
-              ascending : parameters.sortAscending
+              startIndex : (paging.page - 1) * paging.pageSize,
+              maxResults : paging.pageSize,
+              sortField : paging.sortField ? paging.sortField : 'lastModified',
+              queryRestriction : paging.filter,
+              ascending : paging.sortAscending
             };
 
             gpService.increment();
-            $http.post(contentUrl + '/favorites', pfs).then(function(response) {
+            $http.post(contentUrl + '/favorites', pfs).then(
+            // Success
+            function(response) {
+              console.debug('  user favorites = ', response.data);
+
               gpService.decrement();
               deferred.resolve(response.data);
-            }, function(response) {
+            },
+            // Failure
+            function(response) {
               utilService.handleError(response);
               gpService.decrement();
               // return the original concept without additional annotation
               deferred.reject();
             });
-
           }
           return deferred.promise;
         };
 
-        this.getComponentsWithNotesForUser = function(query, parameters) {
-          console.debug('get components with notes', query, parameters);
+        // Get components with notes
+        this.getComponentsWithNotesForUser = function(query, paging) {
+          console.debug('get components with notes', query, paging);
           var deferred = $q.defer();
 
           var pfs = {
-            startIndex : (parameters.page - 1) * parameters.pageSize,
-            maxResults : parameters.pageSize,
-            sortField : parameters.sortField ? parameters.sortField : 'name',
-            ascending : parameters.sortAscending
+            startIndex : (paging.page - 1) * paging.pageSize,
+            maxResults : paging.pageSize,
+            sortField : paging.sortField ? paging.sortField : 'name',
+            ascending : paging.sortAscending
           };
 
           if (query && !query.endsWith("*")) {
@@ -818,7 +979,7 @@ tsApp
 
           gpService.increment();
           $http.post(
-            contentUrl + 'component/notes?query='
+            contentUrl + '/component/notes?query='
               + encodeURIComponent(utilService.cleanQuery(query)), pfs).then(function(response) {
             gpService.decrement();
             deferred.resolve(response.data);
@@ -833,7 +994,7 @@ tsApp
         };
 
         /**
-         * Callback functions needed by directives NOTE: getComponent and
+         * Callbacks functions needed by directives NOTE: getComponent and
          * getComponentForTree deliberately excluded as each view should
          * interact with the content service directly for history and other
          * considerations
@@ -847,4 +1008,180 @@ tsApp
 
         // end
 
+        // function for getting concept
+        this.getConcept = function(conceptId, projectId) {
+          return this.getComponent({
+            id : conceptId,
+            type : 'CONCEPT'
+          }, projectId);
+        };
+
+        // function for getting atom
+        this.getAtom = function(atomId, projectId) {
+          return this.getComponent({
+            id : atomId,
+            type : 'ATOM'
+          }, projectId);
+        };
+
+        // get mapsets
+        this.getMapSets = function(terminology, version) {
+          console.debug('getMapSets', terminology, version);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.get(contentUrl + '/mapset/all/' + terminology + '/' + version).then(
+          // success
+          function(response) {
+            console.debug('  mapsets =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
+        // Find mappings
+        this.findMappings = function(component, pfs) {
+          console.debug('findMappings', component, pfs);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/' + component.type.toLowerCase() + '/' + component.terminologyId + '/'
+              + component.terminology + '/' + component.version + '/mappings', pfs).then(
+          // success
+          function(response) {
+            console.debug('  mappings =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
+        // validate concept
+        this.validateConcept = function(projectId, concept, checkId) {
+          console.debug('validateConcept', projectId, concept, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concept?projectId=' + projectId
+              + (checkId ? 'checkId=' + checkId : ''), concept).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+        
+        // validate concept
+        this.validateConcepts = function(projectId, conceptIds, checkId) {
+          console.debug('validateConcepts', projectId, conceptIds, checkId);
+          // Setup deferred
+          var deferred = $q.defer();
+
+          // Make POST call
+          gpService.increment();
+
+          $http.post(
+            contentUrl + '/validate/concepts?projectId=' + projectId
+              + (checkId ? '&checkId=' + checkId : ''), conceptIds).then(
+          // success
+          function(response) {
+            console.debug('  validation results =', response.data);
+            gpService.decrement();
+            deferred.resolve(response.data);
+          },
+          // error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+            deferred.reject(response.data);
+          });
+
+          return deferred.promise;
+        }
+
+        // Popout component into new window
+        this.popout = function(component) {
+          var currentUrl = window.location.href;
+          var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+          // TODO; don't hardcode this - maybe "simple" should be a parameter
+          var newUrl = baseUrl + '/content/simple/' + component.type + '/' + component.terminology
+            + '/' + component.version + '/' + component.terminologyId;
+          var title = 'Component-' + component.terminology + '/' + component.version + ', '
+            + component.terminologyId;
+          var newWindow = $window.open(newUrl, title, 'width=950,height=600,scrollbars=yes');
+          newWindow.document.title = title;
+          newWindow.focus();
+
+        };
+
+        // Gets the tree for the specified component
+        this.exportTerminologySimple = function(terminology, version) {
+          console.debug('exportTerminologySimple', terminology, version);
+
+          // Make post call
+          gpService.increment();
+          $http.get(
+            contentUrl + '/terminology/export/simple?terminology=' + terminology + '&version='
+              + version).then(
+          // Success
+          function(response) {
+            var blob = new Blob([ response.data ], {
+              type : ''
+            });
+
+            // fake a file URL and download it
+            var fileURL = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = fileURL;
+            a.target = '_blank';
+            a.download = terminology + '_' + version + '.txt';
+            document.body.appendChild(a);
+            gpService.decrement();
+            a.click();
+            window.URL.revokeObjectURL(fileURL);
+
+          },
+          // Error
+          function(response) {
+            utilService.handleError(response);
+            gpService.decrement();
+          });
+
+        };
+        // end
       } ]);

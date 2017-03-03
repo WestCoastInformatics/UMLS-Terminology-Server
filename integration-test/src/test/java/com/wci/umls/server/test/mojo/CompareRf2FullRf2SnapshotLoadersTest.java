@@ -72,7 +72,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     Properties p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     DefaultInvoker invoker = new DefaultInvoker();
@@ -88,7 +88,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("Reindex"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -104,7 +104,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("RF2-full"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "SNOMEDCT");
     p.setProperty("version", "latest");
@@ -133,7 +133,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -149,7 +149,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("Reindex"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -165,7 +165,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("RF2-snapshot"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "SNOMEDCT");
     p.setProperty("version", "latest");
@@ -206,7 +206,7 @@ public class CompareRf2FullRf2SnapshotLoadersTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.rf2"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();

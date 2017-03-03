@@ -22,9 +22,9 @@ public class ProjectRoleMapAdapter extends
   @Override
   public Map<Project, UserRole> unmarshal(HashMap<Long, String> v)
     throws Exception {
-    HashMap<Project, UserRole> map = new HashMap<Project, UserRole>();
+    final HashMap<Project, UserRole> map = new HashMap<Project, UserRole>();
 
-    for (Map.Entry<Long, String> entry : v.entrySet()) {
+    for (final Map.Entry<Long, String> entry : v.entrySet()) {
       Project project = new ProjectJpa();
       project.setId(entry.getKey());
       map.put(project, UserRole.valueOf(entry.getValue()));
@@ -36,9 +36,9 @@ public class ProjectRoleMapAdapter extends
   @Override
   public HashMap<Long, String> marshal(Map<Project, UserRole> v)
     throws Exception {
-    HashMap<Long, String> map = new HashMap<Long, String>();
+    final HashMap<Long, String> map = new HashMap<Long, String>();
 
-    for (Map.Entry<Project, UserRole> entry : v.entrySet()) {
+    for (final Map.Entry<Project, UserRole> entry : v.entrySet()) {
       map.put(entry.getKey().getId(), entry.getValue().toString());
     }
     return map;

@@ -67,7 +67,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/gene/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-gene clean install
+mvn -Drun.config.label=gene -Dconfig.artifactId=term-server-config-prod-gene clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/gene-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/gene-server-rest

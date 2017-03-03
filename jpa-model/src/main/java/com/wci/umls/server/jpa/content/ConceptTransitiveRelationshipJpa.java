@@ -52,11 +52,11 @@ public class ConceptTransitiveRelationshipJpa extends
    * parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public ConceptTransitiveRelationshipJpa(
-      ConceptTransitiveRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+      ConceptTransitiveRelationship relationship, boolean collectionCopy) {
+    super(relationship, collectionCopy);
     superType = relationship.getSuperType();
     subType = relationship.getSubType();
   }

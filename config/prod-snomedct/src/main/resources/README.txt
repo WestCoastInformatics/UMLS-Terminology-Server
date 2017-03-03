@@ -1,21 +1,3 @@
-
-REDEPLOY INSTRUCTIONS
-
-cd ~/snomed/code
-git pull
-mvn -Dconfig.artifactId=term-server-config-prod-snomedct clean install
-
-/bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/snomed-server-rest
-/bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest
-/bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest.war
-/bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war
-
-a.terminology.tools:/home/ec2-tomcat/snomed:ec2-tomcat% /opt/maint/getMaintHtml.sh start snomed
-Action = start
-Type = snomed
-a.terminology.tools:/home/ec2-tomcat/snomed:ec2-tomcat% cat RE
-README.txt~  README.txt
-a.terminology.tools:/home/ec2-tomcat/snomed:ec2-tomcat% cat README.txt
 SETUP
 
 mkdir ~/snomed
@@ -37,7 +19,7 @@ unzip ~/snomed/code/config/prod-snomedct/target/term*.zip -d config
 ln -s config/bin
 
 # Create database
-echo "CREATE database snomeddb CHARACTER SET utf8 default collate utf8_unicode_ci;" | mysqls
+echo "CREATE database snomeddb CHARACTER SET utf8 default collate utf8_bin;" | mysqls
 
 # Check QA after the load
 cd ~/snomed/code/admin/qa
@@ -59,18 +41,18 @@ RELOADING DATA
 
 # deploy data
 cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomed-sql.zip
-unzip snomed-sql.zip
+wget https://wci1.s3.amazonaws.com/TermServer/snomed.sql.gz
 mysqls < ~/snomed/code/admin/mojo/src/main/resources/truncate_all.sql
-mysqls < snomed.sql
+cat snomed.sql.gz | gunzip -c | mysqls &
+wait
 mysqls < ~/fixWindowsExportData.sql
-/bin/rm ~/snomed/data/snomed.sql
+/bin/rm ~/snomed/data/snomed.sql.gz
 
 # deploy indexes
 cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomed-indexes.zip
+wget https://wci1.s3.amazonaws.com/TermServer/snomedct-indexes.zip
 /bin/rm -rf /var/lib/tomcat8/indexes/snomedct/*
-unzip snomed-indexes.zip -d /var/lib/tomcat8/indexes
+unzip snomedct-indexes.zip -d /var/lib/tomcat8/indexes
 
 # Deploy and remove maintenance page
 /bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war
@@ -88,4 +70,3 @@ mvn -Dconfig.artifactId=term-server-config-prod-snomedct clean install
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest.war
 /bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war
-

@@ -6,6 +6,7 @@
  */
 package com.wci.umls.server.test.rest;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,12 +53,12 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCasesRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testAddRemoveProject() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
-    ProjectList projectList = projectService.getProjects(adminAuthToken);
-    Assert.assertTrue(projectList.getCount() > 0);
+    ProjectList projectList = projectService.findProjects(null, null, adminAuthToken);
+    Assert.assertTrue(projectList.size() > 0);
     ProjectJpa project = (ProjectJpa) projectList.getObjects().get(0);
 
     /*
@@ -74,9 +75,10 @@ public class ProjectServiceRestEdgeCasesTest extends ProjectServiceRestTest {
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
 
-    project2.setDescription("Sample");
+    project2.setDescription("Sample " + new Date().getTime());
     project2.setName("Sample");
-    project2.setTerminology("UMLS");
+    project2.setTerminology("MTH");
+    project2.setWorkflowPath("DEFAULT");
 
     project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
 

@@ -26,15 +26,16 @@ public class SearchHandlerTest {
   @Test
   public void testQuery() throws Exception {
     // instantiate content service
-    ContentService contentService = new ContentServiceJpa();
+    final ContentService contentService = new ContentServiceJpa();
 
-    SearchResultList c =
-        contentService.findConceptsForQuery("SNOMEDCT_US", "20140731",
+    final SearchResultList c =
+        contentService.findConceptSearchResults("SNOMEDCT_US", "20140731",
             Branch.ROOT, "\"Dermoid\" tumor", new PfsParameterJpa());
 
-    for (SearchResult sr : c.getObjects()) {
+    for (final SearchResult sr : c.getObjects()) {
       Logger.getLogger(getClass()).info("  sr.getValue() " + sr.getValue());
     }
+    
   }
 
 }

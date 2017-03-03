@@ -1,27 +1,36 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -53,8 +62,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
+import org.hibernate.mapping.Collection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -63,6 +76,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.google.common.primitives.UnsignedBytes;
+import com.wci.umls.server.model.content.Component;
 
 /**
  * Utility class for interacting with the configuration, serializing to JSON/XML
@@ -76,21 +91,33 @@ public class ConfigUtility {
   /** The Constant ATOMCLASS (search handler for atoms). */
   public final static String ATOMCLASS = "ATOMCLASS";
 
-  /** The date format. */
-  public final static FastDateFormat DATE_FORMAT = FastDateFormat
-      .getInstance("yyyyMMdd");
+  /** The date format. - legacy */
+  public final static FastDateFormat DATE_FORMAT =
+      FastDateFormat.getInstance("yyyyMMdd");
+
+  /** The Constant DATE_YYYYMMDD. */
+  public final static FastDateFormat DATE_YYYYMMDD =
+      FastDateFormat.getInstance("yyyyMMdd");
 
   /** The Constant DATE_FORMAT2. */
-  public final static FastDateFormat DATE_FORMAT2 = FastDateFormat
-      .getInstance("yyyy_MM_dd");
+  public final static FastDateFormat DATE_YYYY_MM_DD =
+      FastDateFormat.getInstance("yyyy_MM_dd");
 
   /** The Constant DATE_FORMAT3. */
-  public final static FastDateFormat DATE_FORMAT3 = FastDateFormat
-      .getInstance("yyyy");
+  public final static FastDateFormat DATE_YYYY =
+      FastDateFormat.getInstance("yyyy");
 
   /** The Constant DATE_FORMAT4. */
-  public final static FastDateFormat DATE_FORMAT4 = FastDateFormat
-      .getInstance("yyyy-MM-dd hh:mm:ss");
+  public final static FastDateFormat DATE_FORMAT4 =
+      FastDateFormat.getInstance("yyyy-MM-dd hh:mm:ss");
+
+  /** The Constant DATE_FORMAT5. */
+  public final static FastDateFormat DATE_FORMAT5 =
+      FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+  /** The Constant DATE_FORMAT4. */
+  public final static FastDateFormat DATE_YYYYMMDDHHMMSS =
+      FastDateFormat.getInstance("yyyyMMddhhmmss");
 
   /** The Constant PUNCTUATION. */
   public final static String PUNCTUATION =
@@ -107,8 +134,8 @@ public class ConfigUtility {
   private static Transformer transformer;
 
   /** The date format. */
-  public final static FastDateFormat format = FastDateFormat
-      .getInstance("yyyyMMdd");
+  public final static FastDateFormat format =
+      FastDateFormat.getInstance("yyyyMMdd");
 
   static {
     try {
@@ -116,8 +143,8 @@ public class ConfigUtility {
       transformer = factory.newTransformer();
       // Indent output.
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      transformer.setOutputProperty(
-          "{http://xml.apache.org/xslt}indent-amount", "4");
+      transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
+          "4");
       // Skip XML declaration header.
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
     } catch (TransformerConfigurationException e) {
@@ -138,9 +165,8 @@ public class ConfigUtility {
     try {
       // Attempt to logout to verify service is up (this works like a "ping").
       Client client = ClientBuilder.newClient();
-      WebTarget target =
-          client.target(config.getProperty("base.url")
-              + "/security/logout/dummy");
+      WebTarget target = client
+          .target(config.getProperty("base.url") + "/security/logout/dummy");
 
       Response response = target.request(MediaType.APPLICATION_JSON).get();
       if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
@@ -205,12 +231,12 @@ public class ConfigUtility {
         label = candidateLabel;
       }
     } else {
-      Logger.getLogger(ConfigUtility.class.getName()).info(
-          "  label.prop resource cannot be found, using default");
+      Logger.getLogger(ConfigUtility.class.getName())
+          .info("  label.prop resource cannot be found, using default");
 
     }
-    Logger.getLogger(ConfigUtility.class.getName()).info(
-        "  run.config.label = " + label);
+    Logger.getLogger(ConfigUtility.class.getName())
+        .info("  run.config.label = " + label);
 
     return label;
   }
@@ -232,8 +258,8 @@ public class ConfigUtility {
    * @throws Exception the exception
    */
   public static String getLocalConfigFolder() throws Exception {
-    return System.getProperty("user.home") + "/.term-server/"
-        + getConfigLabel() + "/";
+    return System.getProperty("user.home") + "/.term-server/" + getConfigLabel()
+        + "/";
   }
 
   /**
@@ -253,8 +279,8 @@ public class ConfigUtility {
       // Default setups do not require this.
       String configFileName = System.getProperty("run.config." + label);
       if (configFileName != null) {
-        Logger.getLogger(ConfigUtility.class.getName()).info(
-            "  run.config." + label + " = " + configFileName);
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("  run.config." + label + " = " + configFileName);
         config = new Properties();
         FileReader in = new FileReader(new File(configFileName));
         config.load(in);
@@ -262,8 +288,8 @@ public class ConfigUtility {
       } else {
         InputStream is =
             ConfigUtility.class.getResourceAsStream("/config.properties");
-        Logger.getLogger(ConfigUtility.class.getName()).info(
-            "Cannot find run.config." + label
+        Logger.getLogger(ConfigUtility.class.getName())
+            .info("Cannot find run.config." + label
                 + ", looking for config.properties in the classpath");
         if (is != null) {
           config = new Properties();
@@ -280,9 +306,79 @@ public class ConfigUtility {
         }
       }
 
-      Logger.getLogger(ConfigUtility.class).info("  properties = " + config);
+      Logger.getLogger(ConfigUtility.class).debug("  properties = " + config);
     }
     return config;
+  }
+
+  /**
+   * Clear config properties.
+   *
+   * @throws Exception the exception
+   */
+  public static void clearConfigProperties() throws Exception {
+    config = null;
+  }
+
+  /**
+   * Returns the ui config properties.
+   *
+   * @return the ui config properties
+   * @throws Exception the exception
+   */
+  public static Properties getUiConfigProperties() throws Exception {
+    final Properties config = getConfigProperties();
+    // use "deploy.*" and "site.*" and "base.url" properties
+    final Properties p = new Properties();
+    for (final Object prop : config.keySet()) {
+      final String str = prop.toString();
+
+      if (str.startsWith("deploy.") || str.equals("base.url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+
+      if (str.startsWith("security") && str.contains("url")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+
+      if (str.contains("enabled")) {
+        p.put(prop, config.getProperty(prop.toString()));
+      }
+    }
+    return p;
+
+  }
+
+  /**
+   * Returns the home dirs of the operating environment.
+   *
+   * @return the home dirs
+   * @throws Exception the exception
+   */
+  public static Map<String, String> getHomeDirs() throws Exception {
+    final Map<String, String> map = new HashMap<>();
+
+    final String label = getConfigLabel();
+    String configFile = System.getProperty("run.config." + label);
+    if (configFile == null) {
+      java.net.URL url = ConfigUtility.class.getResource("/config.properties");
+      if (url != null) {
+        configFile = url.getPath();
+      } else if (new File(getLocalConfigFile()).exists()) {
+        configFile = getLocalConfigFile();
+      }
+    }
+
+    // The "configFile" is presumed to be in the $home/config directory.
+    final String dir = FilenameUtils.separatorsToUnix(new File(configFile).getParentFile().getParent());
+    
+    for (final String f : new String[] {
+        "bin", "config", "data", "lvg"
+    }) {
+      map.put(f, dir + "/" + f);
+    }
+
+    return map;
   }
 
   /**
@@ -349,18 +445,18 @@ public class ConfigUtility {
         ConfigUtility.newHandlerInstance(handlerName, handlerClass, type);
 
     // Look up and build properties
-    Properties handlerProperties = new Properties();
+    final Properties handlerProperties = new Properties();
     handlerProperties.setProperty("security.handler", handlerName);
 
-    for (Object key : config.keySet()) {
+    for (final Object key : config.keySet()) {
       // Find properties like "metadata.service.handler.SNOMED.class"
       if (key.toString().startsWith(property + "." + handlerName + ".")) {
-        String shortKey =
-            key.toString().substring(
-                (property + "." + handlerName + ".").length());
-        Logger.getLogger(ConfigUtility.class).debug(
-            " property " + shortKey + " = "
-                + config.getProperty(key.toString()));
+        String shortKey = key.toString()
+            .substring((property + "." + handlerName + ".").length());
+        if (!property.contains("password")) {
+          Logger.getLogger(ConfigUtility.class).debug(" property " + shortKey
+              + " = " + config.getProperty(key.toString()));
+        }
         handlerProperties.put(shortKey, config.getProperty(key.toString()));
       }
     }
@@ -380,6 +476,9 @@ public class ConfigUtility {
   @SuppressWarnings("unchecked")
   public static <T> T getGraphForString(String xml, Class<T> graphClass)
     throws JAXBException {
+    if (ConfigUtility.isEmpty(xml)) {
+      return null;
+    }
     JAXBContext context = JAXBContext.newInstance(graphClass);
     Unmarshaller unmarshaller = context.createUnmarshaller();
     return (T) unmarshaller.unmarshal(new StreamSource(new StringReader(xml)));
@@ -396,6 +495,9 @@ public class ConfigUtility {
    */
   public static <T> T getGraphForJson(String json, Class<T> graphClass)
     throws Exception {
+    if (ConfigUtility.isEmpty(json)) {
+      return null;
+    }
     InputStream in =
         new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     ObjectMapper mapper = new ObjectMapper();
@@ -412,6 +514,7 @@ public class ConfigUtility {
    * <pre>
    *   List&lt;ConceptJpa&gt; list = ConfigUtility.getGraphForJson(str, new TypeReference&lt;List&lt;ConceptJpa&gt;&gt;{});
    * </pre>
+   * 
    * @param <T> the
    * @param json the json
    * @param typeRef the type ref
@@ -420,6 +523,9 @@ public class ConfigUtility {
    */
   public static <T> T getGraphForJson(String json, TypeReference<T> typeRef)
     throws Exception {
+    if (ConfigUtility.isEmpty(json)) {
+      return null;
+    }
     InputStream in =
         new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
     ObjectMapper mapper = new ObjectMapper();
@@ -443,8 +549,8 @@ public class ConfigUtility {
   @SuppressWarnings("resource")
   public static <T> T getGraphForFile(File file, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
-    return getGraphForString(new Scanner(file, "UTF-8").useDelimiter("\\A")
-        .next(), graphClass);
+    return getGraphForString(
+        new Scanner(file, "UTF-8").useDelimiter("\\A").next(), graphClass);
   }
 
   /**
@@ -460,8 +566,8 @@ public class ConfigUtility {
   @SuppressWarnings("resource")
   public static <T> T getGraphForStream(InputStream in, Class<T> graphClass)
     throws FileNotFoundException, JAXBException {
-    return getGraphForString(new Scanner(in, "UTF-8").useDelimiter("\\A")
-        .next(), graphClass);
+    return getGraphForString(
+        new Scanner(in, "UTF-8").useDelimiter("\\A").next(), graphClass);
   }
 
   /**
@@ -546,8 +652,8 @@ public class ConfigUtility {
    * @throws TransformerException the transformer exception
    * @throws ParserConfigurationException the parser configuration exception
    */
-  public static String getStringForNode(Node root) throws TransformerException,
-    ParserConfigurationException {
+  public static String getStringForNode(Node root)
+    throws TransformerException, ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     Document document = builder.newDocument();
@@ -675,7 +781,7 @@ public class ConfigUtility {
    */
   static public boolean deleteDirectory(File path) {
     if (path.exists()) {
-      File[] files = path.listFiles();
+      final File[] files = path.listFiles();
       for (int i = 0; i < files.length; i++) {
         if (files[i].isDirectory()) {
           deleteDirectory(files[i]);
@@ -695,18 +801,17 @@ public class ConfigUtility {
    * @param recipients the recipients
    * @param body the body
    * @param details the details
-   * @param authFlag the auth flag
    * @throws Exception the exception
    */
   public static void sendEmail(String subject, String from, String recipients,
-    String body, Properties details, boolean authFlag) throws Exception {
+    String body, Properties details) throws Exception {
     // avoid sending mail if disabled
     if ("false".equals(details.getProperty("mail.enabled"))) {
       // do nothing
       return;
     }
     Session session = null;
-    if (authFlag) {
+    if ("true".equals(config.get("mail.smtp.auth"))) {
       Authenticator auth = new SMTPAuthenticator();
       session = Session.getInstance(details, auth);
     } else {
@@ -721,9 +826,10 @@ public class ConfigUtility {
     }
     msg.setSubject(subject);
     msg.setFrom(new InternetAddress(from));
-    String[] recipientsArray = recipients.split(";");
-    for (String recipient : recipientsArray) {
-      msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+    final String[] recipientsArray = recipients.split(";");
+    for (final String recipient : recipientsArray) {
+      msg.addRecipient(Message.RecipientType.TO,
+          new InternetAddress(recipient));
     }
     Transport.send(msg);
   }
@@ -770,9 +876,8 @@ public class ConfigUtility {
   public static <T> void reflectionSort(List<T> classes, Class<T> clazz,
     String sortField) throws Exception {
 
-    final Method getMethod =
-        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-            + sortField.substring(1));
+    final Method getMethod = clazz.getMethod("get"
+        + sortField.substring(0, 1).toUpperCase() + sortField.substring(1));
     if (getMethod.getReturnType().isAssignableFrom(Comparable.class)) {
       throw new Exception("Referenced sort field is not comparable");
     }
@@ -852,7 +957,7 @@ public class ConfigUtility {
    */
   public static String getIndentForLevel(int level) {
 
-    StringBuilder sb = new StringBuilder().append("  ");
+    final StringBuilder sb = new StringBuilder().append("  ");
     for (int i = 0; i < level; i++) {
       sb.append("  ");
     }
@@ -901,11 +1006,11 @@ public class ConfigUtility {
    * Gets the base index directory.
    *
    * @return the base index directory
-   * @throws Exception
+   * @throws Exception the exception
    */
   public static String getBaseIndexDirectory() throws Exception {
-    return getConfigProperties().getProperty(
-        "hibernate.search.default.indexBase");
+    return getConfigProperties()
+        .getProperty("hibernate.search.default.indexBase");
   }
 
   /**
@@ -963,18 +1068,402 @@ public class ConfigUtility {
   }
 
   /**
-   * Get the lucene max boolean clause count
+   * Get the lucene max boolean clause count.
+   *
    * @return the max clause count
-   * @throws Exception
-   * @throws NumberFormatException
+   * @throws NumberFormatException the number format exception
+   * @throws Exception the exception
    */
-  public static int getLuceneMaxClauseCount() throws NumberFormatException,
-    Exception {
-    if (!getConfigProperties().containsKey("hibernate.search.max.clause.count")) {
+  public static int getLuceneMaxClauseCount()
+    throws NumberFormatException, Exception {
+    if (!getConfigProperties()
+        .containsKey("hibernate.search.max.clause.count")) {
       return 100000;
     }
-    return Integer.valueOf(getConfigProperties().getProperty(
-        "hibernate.search.max.clause.count"));
+    return Integer.valueOf(
+        getConfigProperties().getProperty("hibernate.search.max.clause.count"));
   }
 
+  /**
+   * Indicates whether or not a string is empty.
+   *
+   * @param str the str
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public static boolean isEmpty(String str) {
+    return str == null || str.isEmpty();
+  }
+
+  /**
+   * Returns the md5.
+   *
+   * @param str the str
+   * @return the static string
+   */
+  public static String getMd5(String str) {
+    return DigestUtils.md5Hex(str);
+  }
+
+  /**
+   * Returns the upload dir.
+   *
+   * @return the upload dir
+   * @throws Exception the exception
+   */
+  public static String getUploadDir() throws Exception {
+    if (ConfigUtility.getConfigProperties().containsKey("source.data.dir")) {
+      return ConfigUtility.getConfigProperties().getProperty("source.data.dir");
+    }
+    throw new Exception(
+        "Unknown upload dir, source.data.dir not set in config file");
+  }
+
+  /**
+   * Compose url.
+   *
+   * @param clauses the clauses
+   * @return the string
+   * @throws Exception the exception
+   */
+  public static String composeUrl(Map<String, String> clauses)
+    throws Exception {
+    final StringBuilder sb = new StringBuilder();
+    for (final String key : clauses.keySet()) {
+      if (ConfigUtility.isEmpty(clauses.get(key))) {
+        continue;
+      }
+      if (sb.length() > 1) {
+        sb.append("&");
+      }
+      sb.append(key).append("=");
+      final String value = clauses.get(key);
+      if (value.matches("^[0-9a-zA-Z\\-\\.]*$")) {
+        sb.append(value);
+      } else {
+        sb.append(URLEncoder.encode(value, "UTF-8").replaceAll("\\+", "%20"));
+      }
+    }
+    return (sb.length() > 0 ? "?" + sb.toString() : "");
+  }
+
+  /**
+   * Compose query from a list of possibly empty/null clauses and an operator
+   * (typically OR or AND).
+   *
+   * @param operator the operator
+   * @param clauses the clauses
+   * @return the string
+   */
+  public static String composeQuery(String operator, List<String> clauses) {
+    final StringBuilder sb = new StringBuilder();
+    if (operator.equals("OR")) {
+      sb.append("(");
+    }
+    for (final String clause : clauses) {
+      if (ConfigUtility.isEmpty(clause)) {
+        continue;
+      }
+      if (sb.length() > 0 && !operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      if (sb.length() > 1 && operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      sb.append(clause);
+    }
+    if (operator.equals("OR")) {
+      sb.append(")");
+    }
+    if (operator.equals("OR") && sb.toString().equals("()")) {
+      return "";
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Compose query.
+   *
+   * @param operator the operator
+   * @param clauses the clauses
+   * @return the string
+   */
+  public static String composeQuery(String operator, String... clauses) {
+    final StringBuilder sb = new StringBuilder();
+    if (operator.equals("OR")) {
+      sb.append("(");
+    }
+    for (final String clause : clauses) {
+      if (ConfigUtility.isEmpty(clause)) {
+        continue;
+      }
+      if (sb.length() > 0 && !operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+      if (sb.length() > 1 && operator.equals("OR")) {
+        sb.append(" ").append(operator).append(" ");
+      }
+
+      sb.append(clause);
+    }
+    if (operator.equals("OR")) {
+      sb.append(")");
+    }
+    if (operator.equals("OR") && sb.toString().equals("()")) {
+      return "";
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Compose clause.
+   *
+   * @param fieldName the field name
+   * @param fieldValue the field value
+   * @param escapeValue - whether the value can have characters that need to be
+   *          escaped
+   * @return the string
+   * @throws Exception the exception
+   */
+  public static String composeClause(String fieldName, String fieldValue,
+    boolean escapeValue) throws Exception {
+
+    if (!ConfigUtility.isEmpty(fieldValue)) {
+      if (escapeValue) {
+        return fieldName + ":\"" + QueryParserBase.escape(fieldValue) + "\"";
+      } else {
+        return fieldName + ":" + fieldValue;
+      }
+    } else {
+      return "NOT " + fieldName + ":[* TO *]";
+    }
+  }
+
+  /**
+   * Returns the name from class by stripping package and putting spaces where
+   * CamelCase is used.
+   *
+   * @param clazz the clazz
+   * @return the name from class
+   */
+  public static String getNameFromClass(Class<?> clazz) {
+    return clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1)
+        .replaceAll(String.format("%s|%s|%s", "(?<=[A-Z])(?=[A-Z][a-z])",
+            "(?<=[^A-Z])(?=[A-Z])", "(?<=[A-Za-z])(?=[^A-Za-z])"), " ");
+  }
+
+  /**
+   * Returns the byte comparator.
+   *
+   * @return the byte comparator
+   */
+  public static Comparator<String> getByteComparator() {
+    return new Comparator<String>() {
+
+      /* see superclass */
+      @Override
+      public int compare(String o1, String o2) {
+        try {
+          return UnsignedBytes.lexicographicalComparator()
+              .compare(o1.getBytes("UTF-8"), o2.getBytes("UTF-8"));
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+
+    };
+  }
+
+  /**
+   * Returns the first order field hash.
+   *
+   * @param c the c
+   * @return the first order field hash
+   * @throws Exception the exception
+   */
+  public static String getFirstOrderFieldHash(Component c) throws Exception {
+    final StringBuilder sb = new StringBuilder();
+    for (final Method m : c.getClass().getMethods()) {
+      if (!Collection.class.isAssignableFrom(m.getReturnType())
+          && m.getParameterTypes().length == 0
+          && m.getName().startsWith("get")) {
+        sb.append(m.invoke(c, new Object[] {})).append(",");
+      }
+    }
+    return "";
+  }
+
+  /** Size of the buffer to read/write data. */
+  private static final int BUFFER_SIZE = 4096;
+
+  /**
+   * Extracts a zip file specified by the zipFilePath to a directory specified
+   * by destDirectory (will be created if does not exists).
+   *
+   * @param zipFilePath the zip file path
+   * @param destDirectory the dest directory
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  public static void unzip(String zipFilePath, String destDirectory)
+    throws IOException {
+    File destDir = new File(destDirectory);
+    if (!destDir.exists()) {
+      destDir.mkdir();
+    }
+    ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+    ZipEntry entry = zipIn.getNextEntry();
+    // iterates over entries in the zip file
+    while (entry != null) {
+      String filePath = destDirectory + File.separator + entry.getName();
+      if (!entry.isDirectory()) {
+        // if the entry is a file, extracts it
+        extractFile(zipIn, filePath);
+      } else {
+        // if the entry is a directory, make the directory
+        File dir = new File(filePath);
+        dir.mkdir();
+      }
+      zipIn.closeEntry();
+      entry = zipIn.getNextEntry();
+    }
+    zipIn.close();
+  }
+
+  /**
+   * Extracts a zip entry (file entry).
+   *
+   * @param zipIn the zip in
+   * @param filePath the file path
+   * @throws IOException Signals that an I/O exception has occurred.
+   */
+  private static void extractFile(ZipInputStream zipIn, String filePath)
+    throws IOException {
+    BufferedOutputStream bos =
+        new BufferedOutputStream(new FileOutputStream(filePath));
+    byte[] bytesIn = new byte[BUFFER_SIZE];
+    int read = 0;
+    while ((read = zipIn.read(bytesIn)) != -1) {
+      bos.write(bytesIn, 0, read);
+    }
+    bos.close();
+  }
+
+  /**
+   * Executes an operating system command with more options. This is the most
+   * flexible (and confusing) of the <code>exec</code> methods.
+   * <p>
+   * It allows you to specify a command with parameters and a set of environment
+   * variable definitions. You may determine whether or not the process should
+   * write to the application log, and if it does whether it reads the processes
+   * STDOUT or STDERR. Finally, you can choose to run the process in the
+   * background.
+   *
+   * @param cmdarrayIn the cmdarray in
+   * @param env a {@link String}<code>[]</code> containing "NAME=VALUE" pairs of
+   *          environment variable definitions
+   * @param background a flag indicating whether or not to run the process in
+   *          the background.
+   * @param dirIn the dir in
+   * @param s <code>PrintWriter</code> to use for output
+   * @param fixFlag the fix flag
+   * @return a {@link String} containing the process log
+   * @throws Exception the exception
+   */
+  public static String exec(String[] cmdarrayIn, String[] env,
+    boolean background, String dirIn, PrintWriter s, boolean fixFlag) throws Exception {
+    // Check if on windows and invoke "cygwin" - assume it's defined in config
+    // properties
+    // This requires cygwin (e.g. c:/cygwin64/bin) and requires "tcsh" shell
+    // installed
+    String dir = dirIn;
+    String[] cmdarray = cmdarrayIn;
+    if (fixFlag && System.getProperty("os.name").toLowerCase().contains("win")) {
+      // Change the command to be based around cygwin
+      if (ConfigUtility.getConfigProperties()
+          .getProperty("cygwin.bin") == null) {
+        throw new Exception("Exec on windows requires cygwin to be installed '"
+            + "and specified by cygwin.bin in config.properties");
+      }
+      final String tcsh =
+          ConfigUtility.getConfigProperties().getProperty("cygwin.bin")
+              + "/tcsh.exe";
+
+      // Fix anything that looks like a directory to use forward slashes
+      // and /cygwin oriented directories
+      for (int i = 0; i < cmdarrayIn.length; i++) {
+        if (cmdarrayIn[i].contains("\\")) {
+          cmdarrayIn[i] = FilenameUtils.separatorsToUnix(cmdarrayIn[i])
+              .replaceAll("^([a-zA-Z]):", "/cygdrive/$1");
+        }
+      }
+      cmdarray = new String[] {
+          tcsh, "-c", FieldedStringTokenizer.join(cmdarrayIn, " ")
+      };
+      dir = FilenameUtils.separatorsToUnix(dirIn);
+    }
+
+    Runtime run = null;
+
+    Process proc = null;
+
+    StringBuffer output = new StringBuffer(1000);
+
+    String line;
+    run = Runtime.getRuntime();
+    Logger.getLogger(ConfigUtility.class)
+        .info("execute = " + FieldedStringTokenizer.join(cmdarray, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  env = " + FieldedStringTokenizer.join(env, " "));
+    Logger.getLogger(ConfigUtility.class)
+        .info("  working dir = " + new File(dir));
+    proc = run.exec(cmdarray, env, new File(dir));
+
+    BufferedReader in = null;
+
+    // Connect a reader to the process
+    final InputStreamReader procIn =
+        new InputStreamReader(proc.getInputStream(), "UTF-8");
+    in = new BufferedReader(procIn);
+    while ((line = in.readLine()) != null) {
+      if (s != null) {
+        s.println(line);
+        s.flush();
+      }
+      output.append(line).append("\n");
+    }
+
+    // If we are not running in the background
+    // then wait for the process to finish and track its exit value
+    if (!background) {
+      proc.waitFor();
+      if (proc.exitValue() != 0) {
+        // If there was an error, read from the error stream
+        InputStreamReader converter =
+            new InputStreamReader(proc.getErrorStream(), "UTF-8");
+        in = new BufferedReader(converter);
+        StringBuffer sb = new StringBuffer(1000);
+        sb.append("\n--------------------------------------------\n");
+        sb.append("Error:");
+        while ((line = in.readLine()) != null) {
+          sb.append("\t" + line);
+          sb.append("\n");
+        }
+        sb.append("--------------------------------------------\n");
+        StringBuilder cmdBuffer = new StringBuilder();
+        for (String cmdarg : cmdarray) {
+          cmdBuffer.append(cmdarg).append(" ");
+        }
+        StringBuilder envBuffer = new StringBuilder();
+        for (String envarg : env) {
+          envBuffer.append(envarg).append(" ");
+        }
+        Exception ee = new Exception("Command failed = " + proc.exitValue()
+            + ", " + cmdBuffer + ", " + envBuffer + ", " + sb.toString());
+        throw ee;
+      }
+    }
+
+    return output.toString();
+  }
 }

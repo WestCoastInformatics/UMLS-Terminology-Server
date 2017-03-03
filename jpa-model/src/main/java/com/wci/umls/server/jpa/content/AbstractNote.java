@@ -19,6 +19,8 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.jpa.workflow.ChecklistNoteJpa;
+import com.wci.umls.server.jpa.workflow.WorklistNoteJpa;
 
 /**
  * Abstract implementation of a {@link Note}.
@@ -26,11 +28,11 @@ import com.wci.umls.server.helpers.Note;
 @Audited
 @MappedSuperclass
 @XmlSeeAlso({
-    CodeNoteJpa.class, ConceptNoteJpa.class,
-    DescriptorNoteJpa.class
+    CodeNoteJpa.class, ConceptNoteJpa.class, DescriptorNoteJpa.class,
+    WorklistNoteJpa.class, ChecklistNoteJpa.class
 })
 public abstract class AbstractNote implements Note {
-  
+
   /** The id. */
   @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
@@ -50,19 +52,18 @@ public abstract class AbstractNote implements Note {
   /** The last modified by. */
   @Column(nullable = false)
   private String lastModifiedBy;
-  
+
   /** The note. */
   @Column(nullable = false, length = 4000)
   private String note;
-  
 
   /**
    * Instantiates a new abstract note.
    */
   public AbstractNote() {
-    
+
   }
-  
+
   /**
    * Instantiates a new abstract note.
    *
@@ -88,10 +89,8 @@ public abstract class AbstractNote implements Note {
     this.id = id;
   }
 
-  
   /* see superclass */
   @Override
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Date getTimestamp() {
     return timestamp;
   }
@@ -108,7 +107,6 @@ public abstract class AbstractNote implements Note {
   public Date getLastModified() {
     return lastModified;
   }
-
 
   /* see superclass */
   @Override
@@ -132,7 +130,7 @@ public abstract class AbstractNote implements Note {
   /* see superclass */
   @Override
   public void setNote(String note) {
-    this.note = note;    
+    this.note = note;
   }
 
   /* see superclass */
@@ -153,8 +151,6 @@ public abstract class AbstractNote implements Note {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
     result = prime * result + ((note == null) ? 0 : note.hashCode());
     return result;
   }
@@ -168,11 +164,6 @@ public abstract class AbstractNote implements Note {
     if (getClass() != obj.getClass())
       return false;
     AbstractNote other = (AbstractNote) obj;
-    if (lastModifiedBy == null) {
-      if (other.lastModifiedBy != null)
-        return false;
-    } else if (!lastModifiedBy.equals(other.lastModifiedBy))
-      return false;
     if (note == null) {
       if (other.note != null)
         return false;
@@ -180,7 +171,5 @@ public abstract class AbstractNote implements Note {
       return false;
     return true;
   }
-  
-  
 
 }

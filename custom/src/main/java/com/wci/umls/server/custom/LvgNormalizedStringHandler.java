@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.custom;
 
@@ -28,10 +28,16 @@ public class LvgNormalizedStringHandler implements NormalizedStringHandler {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     if (p.getProperty("lvg.dir") == null) {
       throw new Exception("Required property lvg.dir is missing");
     }
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
     LVG_DIR = p.getProperty("lvg.dir");
     Hashtable<String, String> properties = new Hashtable<String, String>();
     properties.put(gov.nih.nlm.nls.lvg.Lib.Configuration.LVG_DIR,

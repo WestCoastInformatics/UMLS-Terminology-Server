@@ -40,14 +40,14 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
    * parameters.
    *
    * @param component the component
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public AbstractComponentHasAttributes(ComponentHasAttributes component,
-      boolean deepCopy) {
+      boolean collectionCopy) {
     super(component);
 
-    if (deepCopy) {
-      for (Attribute attribute : component.getAttributes()) {
+    if (collectionCopy) {
+      for (final Attribute attribute : component.getAttributes()) {
         getAttributes().add(new AttributeJpa(attribute));
       }
     }
@@ -72,7 +72,7 @@ public abstract class AbstractComponentHasAttributes extends AbstractComponent
   /* see superclass */
   @Override
   public Attribute getAttributeByName(String name) {
-    for (Attribute attribute : getAttributes()) {
+    for (final Attribute attribute : getAttributes()) {
       // If there are more than one, this just returns the first.
       if (attribute.getName().equals(name)) {
         return attribute;

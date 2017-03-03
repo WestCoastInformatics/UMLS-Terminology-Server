@@ -1,0 +1,125 @@
+<div class="modal-header">
+  <h4 style="display: inline">Import Checklist</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <div>
+
+    <div>
+      <ul class="pointer nav nav-tabs">
+        <li ng-class="{active : mode == 'Import'}"><a
+            ng-click="mode = 'Import'">Import</a></li>
+        <li ng-class="{active : mode == 'Compute'}"><a
+            ng-click="mode = 'Compute'">Compute</a></li>
+      </ul>
+    </div>
+    <br>
+
+    <table ng-show="mode == 'Compute'" class="slim able">
+      <tr>
+        <td>
+          <b>Checklist Name</b>
+        </td>
+        <td>
+          <input autofocus type="text" title="Checklist name"
+            placeholder="e.g. chk_test" size="40" ng-model="checklistName">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query</b>
+        </td>
+        <td>
+          <textarea rows="5" cols="60" ng-model="query"
+            placeholder="Query to load checklist"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query Type</b>
+        </td>
+        <td>
+          <select ng-model="queryType" ng-options="item for item in queryTypes"></select>
+          <span style="float: right;">
+            <button ng-click="testQuery(definition)" title="Test query"
+              class="btn btn-xs btn-primary">Test Query</button>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Cluster Count</b>
+        </td>
+        <td>
+          <input type="number" size="4" ng-model="clusterCt"
+            list="clusterCtList" placeholder="e.g. 100, 200" />
+          <datalist id="clusterCtList">
+            <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
+          </datalist>
+          <button class="btn btn-xs btn-warning" ng-show="clusterCt"
+            ng-click="clusterCt = ''">Clear</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Skip Clusters</b>
+        </td>
+        <td>
+          <input type="number" ng-model="skipClusterCt" size="4" />
+        </td>
+      </tr>
+    </table>
+
+    <table ng-show="mode == 'Import'" class="slim table">
+      <tr>
+        <td>
+          <b>Checklist Name</b>
+        </td>
+        <td>
+          <input type="text" title="Checklist name" placeholder="e.g. chk_test"
+            size="40" ng-model="checklistName">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Choose File</b>
+        </td>
+        <td>
+          <button style="margin-left: 15px" type="file" ngf-select
+            ng-model="file" name="file" ngf-pattern="*.xls*"
+            ngf-max-size="200MB">Browse for File</button>
+          <div ngf-drop ng-model="file" class="drop-box"
+            ngf-drag-over-class="'dragover'" ngf-max-size="1MB"
+            ngf-pattern="*.xls*">Drop file here</div>
+        </td>
+      </tr>
+      <tr ng-show="file">
+        <td>Selected File</td>
+        <td>{{file.name}}</td>
+      </tr>
+    </table>
+
+    <!-- Errors -->
+    <div errors="errors"></div>
+
+    <!-- messages -->
+    <div class="col-md-12 col-xs-12">
+      <div class="alert alert-success" ng-repeat="message in messages">
+        {{message}}
+        <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-disabled="!file" ng-show="mode == 'Import'"
+    ng-click="import();">Import</button>
+  <button class="btn btn-primary" ng-disabled="!query"
+    ng-show="mode == 'Compute'" ng-click="compute();">Compute</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

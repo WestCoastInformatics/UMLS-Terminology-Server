@@ -1,0 +1,72 @@
+<span ng-show="!selected.project" style="display: block;"
+  class="alert alert-warning">No project selected.</span>
+
+<div ng-show="selected.component">
+  <!-- Title -->
+  <h5>
+    {{selected.component.terminologyId}} {{selected.component.name}}
+    <span ng-show="pagedActions.totalCount>0">
+      ({{molecularActions.totalCount}})</span>
+    <span class="label label-warning"
+      ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
+      uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
+    <span class="label label-default" ng-show="selected.component.obsolete"
+      uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.anonymous"
+      class="label label-info" uib-tooltip="Anonymous">A</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && !selected.component.fullyDefined && !selected.component.anonymous"
+      class="label label-info" uib-tooltip="Primitive">P</span>
+    <span style="padding-bottom: 2px;"
+      ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.fullyDefined"
+      class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
+  </h5>
+
+
+  <div pager paging="paging" count="pagedActions.totalCount"
+    callbacks="paging.callbacks"></div>
+
+  <table ng-show="pagedActions.totalCount > 0 || paging.filter"
+    class="slim table">
+    <thead>
+      <tr>
+        <th class="col-md-2 col-xs-2">Id</th>
+        <th class="col-md-2 col-xs-2">Id2</th>
+        <th class="col-md-2 col-xs-2">Name</th>
+        <th class="col-md-3 col-xs-3">Timestamp</th>
+        <th class="col-md-2 col-xs-2">Editor</th>
+        <th class="col-md-1 col-xs-1">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat='action in pagedActions'
+        ng-class="{grey: action.undoneFlag == true}">
+        <td>{{action.componentId}}</td>
+        <td>{{action.componentId2}}</td>
+        <td>{{action.name}}</td>
+        <td>{{toDate(action.timestamp)}}</td>
+        <td>{{action.lastModifiedBy}}</td>
+        <td class="nobreak" ng-mouseenter="displayLog(action);">
+          <span
+            ng-show="selected.project.editingEnabled && hasPermissions('UndoRedo') && selfResolved(action)">
+            <i title="Undo action" ng-show="isUndoable(action)"
+              ng-click="undoAction(action, false); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-menu-left"></i>
+            <i title="Redo action"
+              ng-show="isRedoable(action) && hasPermissions('UndoRedo') && selfResolved(action)"
+              ng-click="redoAction(action, false); $event.stopPropagation()"
+              class="noul glyphicon glyphicon-menu-right"></i>
+          </span>
+          <i uib-popover-html="action.log" popover-trigger="outsideClick"
+            popover-placement="left" class="noul glyphicon glyphicon-file"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <span ng-show="!paging.filter && pagedActions.totalCount == 0"
+    class="alert alert-warning"> No actions </span>
+  <span ng-show="paging.filter && pagedActions.totalCount == 0"
+    class="alert alert-warning"> No matching actions records found </span>
+
+</div>

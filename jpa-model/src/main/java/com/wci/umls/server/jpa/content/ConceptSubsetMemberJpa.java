@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -38,8 +38,9 @@ import com.wci.umls.server.model.content.SubsetMember;
 @Audited
 @Indexed
 @XmlRootElement(name = "conceptMember")
-public class ConceptSubsetMemberJpa extends
-    AbstractSubsetMember<Concept, ConceptSubset> implements ConceptSubsetMember {
+public class ConceptSubsetMemberJpa
+    extends AbstractSubsetMember<Concept, ConceptSubset>
+    implements ConceptSubsetMember {
 
   /** The member. */
   @ManyToOne(targetEntity = ConceptJpa.class, optional = false)
@@ -62,13 +63,13 @@ public class ConceptSubsetMemberJpa extends
    * Instantiates a {@link ConceptSubsetMemberJpa} from the specified
    * parameters.
    *
-   * @param member the subset
-   * @param deepCopy the deep copy
+   * @param copy the copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptSubsetMemberJpa(ConceptSubsetMember member, boolean deepCopy) {
-    super(member, deepCopy);
-    subset = member.getSubset();
-    this.member = member.getMember();
+  public ConceptSubsetMemberJpa(ConceptSubsetMember copy, boolean collectionCopy) {
+    super(copy, collectionCopy);
+    subset = copy.getSubset();
+    member = copy.getMember();
   }
 
   /* see superclass */
@@ -305,7 +306,7 @@ public class ConceptSubsetMemberJpa extends
    *
    * @return the subset name
    */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  @Field(index = Index.YES, store = Store.NO, analyze = Analyze.YES, analyzer = @Analyzer(definition = "noStopWord"))
   public String getSubsetName() {
     return subset == null ? null : subset.getName();
   }
@@ -333,15 +334,11 @@ public class ConceptSubsetMemberJpa extends
     int result = super.hashCode();
     result = prime * result + ((member == null) ? 0 : member.hashCode());
     result =
-        prime
-            * result
-            + ((member == null || member.getTerminologyId() == null) ? 0
-                : member.getTerminologyId().hashCode());
+        prime * result + ((member == null || member.getTerminologyId() == null)
+            ? 0 : member.getTerminologyId().hashCode());
     result =
-        prime
-            * result
-            + ((subset == null || subset.getTerminologyId() == null) ? 0
-                : subset.getTerminologyId().hashCode());
+        prime * result + ((subset == null || subset.getTerminologyId() == null)
+            ? 0 : subset.getTerminologyId().hashCode());
     return result;
   }
 
@@ -366,8 +363,8 @@ public class ConceptSubsetMemberJpa extends
     } else if (member.getTerminologyId() == null) {
       if (other.member != null && other.member.getTerminologyId() != null)
         return false;
-    } else if (!member.getTerminologyId().equals(
-        other.member.getTerminologyId()))
+    } else if (!member.getTerminologyId()
+        .equals(other.member.getTerminologyId()))
       return false;
     if (subset == null) {
       if (other.subset != null)
@@ -375,8 +372,8 @@ public class ConceptSubsetMemberJpa extends
     } else if (subset.getTerminologyId() == null) {
       if (other.subset != null && other.subset.getTerminologyId() != null)
         return false;
-    } else if (!subset.getTerminologyId().equals(
-        other.subset.getTerminologyId()))
+    } else if (!subset.getTerminologyId()
+        .equals(other.subset.getTerminologyId()))
       return false;
     return true;
   }

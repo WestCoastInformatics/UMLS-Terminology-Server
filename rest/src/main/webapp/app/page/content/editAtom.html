@@ -1,0 +1,113 @@
+<form ng-submit="submitAtom(atom)">
+  <div class="modal-header">
+    <h4 style="display: inline">{{action}} Atom</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
+
+  <div class="modal-body">
+    <div>
+      <table class="slim table">
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <textarea autofocus rows="2" cols="40" ng-model="atom.name"
+              placeholder="Name of atom"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Termgroup</b>
+          </td>
+          <td>
+            <span>
+              <select ng-model="selectedTermgroup"
+                ng-options="item for item in selected.project.newAtomTermgroups"></select>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Language</b>
+          </td>
+          <td>
+            <span>
+              <select ng-model="atom.language"
+                ng-options="item.key as item.value for item in selected.metadata.languages"></select>
+            </span>
+
+          </td>
+        </tr>
+        <!-- 
+      <tr ng-show="action == 'Add' || atom.codeId">
+        <td>
+          <b>Code</b>
+        </td>
+        <td>
+          <input ng-show="action == 'Add'" ng-model="atom.codeId">
+          <span ng-show="action != 'Add'">{{atom.codeId}}</span>
+        </td>
+      </tr>
+      <tr ng-show="action == 'Add' || atom.conceptId">
+        <td>
+          <b>Concept</b>
+        </td>
+        <td>
+          <input ng-show="action == 'Add'" ng-model="atom.conceptId">
+          <span ng-show="action != 'Add'">{{atom.conceptId}}</span>
+        </td>
+      </tr>
+      <tr ng-show="action == 'Add' || atom.descriptorId">
+        <td>
+          <b>Descriptor</b>
+        </td>
+        <td>
+          <input ng-show="action == 'Add'" ng-model="atom.descriptorId">
+          <span ng-show="action != 'Add'">{{atom.descriptorId}}</span>
+        </td>
+      </tr>
+ -->
+        <tr>
+          <td>
+            <b>Publishable</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="atom.publishable"
+              title="Atom is publishable.">
+          </td>
+        </tr>
+        <!-- <tr>
+        <td>
+          <b>Workflow Status</b>
+        </td>
+        <td>
+        
+          <select ng-model="atom.workflowStatus"
+            ng-options="item.substring(0, 1) for item in workflowStatuses"></select>
+        </td>
+      </tr> -->
+        <tr>
+          <td>
+            <b>Suppressible</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="atom.suppressible"
+              title="Atom is suppressible">
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Errors -->
+    <div errors="errors"></div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary">{{action}}</button>
+    <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
+  </div>
+</form>

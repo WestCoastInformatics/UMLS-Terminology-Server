@@ -1,57 +1,45 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
-
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlID;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Abstract implementation of {@link ComponentHasAttributes} for use with JPA.
  */
 @Audited
 @MappedSuperclass
-public abstract class AbstractComponent implements Component {
+@XmlSeeAlso({
+    ConceptJpa.class
+})
+public abstract class AbstractComponent extends AbstractHasLastModified
+    implements Component {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
+  @GenericGenerator(name = "ExistingOrGeneratedId", strategy = "com.wci.umls.server.jpa.helpers.UseExistingOrGenerateIdGenerator")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "ExistingOrGeneratedId")
   private Long id;
-
-  /** the timestamp. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date timestamp = null;
-
-  /** The last modified. */
-  @Column(nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date lastModified = null;
-
-  /** The last modified. */
-  @Column(nullable = false)
-  private String lastModifiedBy;
 
   /** The suppressible flag. */
   @Column(nullable = false)
@@ -67,7 +55,7 @@ public abstract class AbstractComponent implements Component {
 
   /** The publishable flag. */
   @Column(nullable = false)
-  private boolean publishable = false;
+  private boolean publishable = true;
 
   /** The terminology. */
   @Column(nullable = false)
@@ -84,8 +72,6 @@ public abstract class AbstractComponent implements Component {
   /** The branch set to include empty branch. */
   @Column(nullable = true)
   private String branch = Branch.ROOT;
-  
-
 
   /**
    * Instantiates an empty {@link AbstractComponent}.
@@ -100,8 +86,9 @@ public abstract class AbstractComponent implements Component {
    * @param component the component
    */
   public AbstractComponent(Component component) {
+    super(component);
     id = component.getId();
-    timestamp = new Date();
+    timestamp = component.getTimestamp();
     lastModified = component.getLastModified();
     lastModifiedBy = component.getLastModifiedBy();
     terminology = component.getTerminology();
@@ -116,6 +103,8 @@ public abstract class AbstractComponent implements Component {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getId() {
     return this.id;
   }
@@ -124,75 +113,6 @@ public abstract class AbstractComponent implements Component {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  /* see superclass */
-  @Override
-  public void setTimestamp(Date timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public Date getLastModified() {
-    return lastModified;
-  }
-
-  /**
-   * Returns the last modified in yyyymmdd format.
-   *
-   * @return the last modified yyyymmdd
-   */
-  @Field(name = "lastModifiedYYYYMMDD", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  private String getLastModifiedYYYYMMDD() {
-    return ConfigUtility.DATE_FORMAT.format(lastModified);
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModified(Date lastModified) {
-    this.lastModified = lastModified;
-  }
-
-  /* see superclass */
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  @Override
-  public String getLastModifiedBy() {
-    return lastModifiedBy;
-  }
-
-  /* see superclass */
-  @Override
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
   }
 
   /* see superclass */
@@ -308,31 +228,44 @@ public abstract class AbstractComponent implements Component {
   public void setTerminologyId(String terminologyId) {
     this.terminologyId = terminologyId;
   }
-  
-  /**
-   * CUSTOM equals: uses .toString() on the concept terminology ids map.
-   *
-   * @return the int
-   * @see java.lang.Object#hashCode()
-   */
+
+  @Override
+  public void setType(IdType type) {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public IdType getType() throws Exception {
+    return IdType.getIdType(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((branch == null) ? 0 : branch.hashCode());
     result = prime * result + (obsolete ? 1231 : 1237);
-    result = prime * result + (publishable ? 1231 : 1237);
-    result = prime * result + (published ? 1231 : 1237);
     result = prime * result + (suppressible ? 1231 : 1237);
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((terminologyId == null) ? 0 : terminologyId.hashCode());
-    result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result
+        + ((terminologyId == null) ? 0 : terminologyId.hashCode());
     return result;
   }
 
-  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -342,12 +275,12 @@ public abstract class AbstractComponent implements Component {
     if (getClass() != obj.getClass())
       return false;
     AbstractComponent other = (AbstractComponent) obj;
-
+    if (branch == null) {
+      if (other.branch != null)
+        return false;
+    } else if (!branch.equals(other.branch))
+      return false;
     if (obsolete != other.obsolete)
-      return false;
-    if (publishable != other.publishable)
-      return false;
-    if (published != other.published)
       return false;
     if (suppressible != other.suppressible)
       return false;
@@ -361,11 +294,6 @@ public abstract class AbstractComponent implements Component {
         return false;
     } else if (!terminologyId.equals(other.terminologyId))
       return false;
-    if (version == null) {
-      if (other.version != null)
-        return false;
-    } else if (!version.equals(other.version))
-      return false;
     return true;
   }
 
@@ -373,7 +301,7 @@ public abstract class AbstractComponent implements Component {
   @Override
   public String toString() {
     return "id=" + id + ", terminologyId=" + terminologyId + ", lastModified="
-        + lastModified + ", lastModifiedBy=" + lastModifiedBy
+        + getLastModified() + ", lastModifiedBy=" + getLastModifiedBy()
         + ", suppressible=" + suppressible + ", obsolete=" + obsolete
         + ", published=" + published + ", publishable=" + publishable
         + ", terminology=" + terminology + ", version=" + version + ", branch="

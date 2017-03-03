@@ -1,0 +1,293 @@
+<!-- Controlled by WorkflowCtrl (in workflowController.js)  -->
+<div class="row">
+  <!-- Workflow -->
+  <div class="col-md-12 col-xs-12">
+    <h6>
+      <span>
+        Project: <select ng-model="selected.project"
+          ng-show="lists.projects.length > 1"
+          ng-options="item.name for item in lists.projects"
+          ng-change="setProject(selected.project);"></select>
+        <span ng-show="lists.projects.length == 1">{{selected.project.name}}</span>
+      </span>
+      <span>
+        &nbsp;&nbsp;Role: <select ng-model="selected.projectRole"
+          ng-show="lists.projectRoles.length > 1"
+          ng-change="changeProjectRole()"
+          ng-options="projectRole for projectRole in lists.projectRoles"></select>
+        <span ng-show="lists.projectRoles.length == 1">{{selected.projectRole}}</span>
+      </span>
+      <span ng-show="ws.connected" class="alert alert-success">CONNECTED</span>
+      <span ng-show="ws && !ws.connected">
+        <span class="alert alert-danger"> DISCONNECTED</span>
+        <button class="btn btn-xs btn-primary" ng-click="reconnect()">Reconnect</button>
+      </span>
+      <span ng-show="selected.project && !selected.project.editingEnabled"
+        style="display: block;" class="alert alert-danger">Editing is
+        disabled.</span>
+    </h6>
+  </div>
+  <div class="col-md-12 col-xs-12">
+    <!-- Accordion -->
+    <uib-accordion> <!-- A1 - Bins --> <uib-accordion-group
+      is-open="groups[0].open" ng-click="saveAccordionStatus()">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Bins">Bins</span>
+    </h5>
+    </uib-accordion-heading>
+    <div class="row">
+      <div class="col-md-12 col-xs-12">
+        <button ng-show="hasPermissions('EditEpoch')" title="Edit epoch"
+          ng-click="openEditEpochModal()" class="btn btn-xs btn-primary mr20">epoch:
+          {{selected.epoch.name}}</button>
+        <select ng-model="selected.config" ng-show="lists.configs.length > 1"
+          ng-options="config as config.type for config in getConfigList()"
+          ng-change="setConfig(selected.config)"></select>
+        <span ng-show="lists.configs.length == 1">{{selected.config.type}}
+        </span>
+        <button confirm="Are you sure you want to regenerate bins?"
+          title="Regenerate bins" ng-click="regenerateBins()"
+          ng-show="hasPermissions('RegenerateBins')"
+          class="ml20 btn btn-xs btn-primary">Regenerate</button>
+        <button confirm="Are you sure you want to initialize concept status?"
+          title="Initialize concept status" ng-click="recomputeConceptStatus()"
+          ng-show="hasPermissions('RecomputeConceptStatus')"
+          class="ml20 btn btn-xs btn-primary">Initialize</button>
+        <button confirm="Are you sure you want to update concept status?"
+          title="Update concept status" ng-click="recomputeConceptStatus(true)"
+          ng-show="hasPermissions('RecomputeConceptStatus')"
+          class="ml20 btn btn-xs btn-primary">Update</button>
+        <!--  consider buttons
+        <i title="Regenerate bins"
+          ng-click="regenerateBins(); $event.stopPropagation()"
+          class="ml20 noul glyphicon glyphicon-repeat"></i>
+         <i title="Recompute concept status"
+          ng-click="recomputeConceptStatus(); $event.stopPropagation()"
+          class="ml20 noul glyphicon glyphicon-retweet"></i>
+ -->
+        <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
+          <i ng-click="openEditConfigModal(selected.config)"
+            ng-show="selected.config" title="Edit workflow configuration"
+            class="ml20 noul glyphicon glyphicon-pencil"></i>
+          <i ng-show="selected.config" ng-click="exportWorkflow()"
+            title="Export workflow"
+            class="ml20 noul glyphicon glyphicon-download"></i>
+          <i ng-show="selected.config" ng-click="openImportWorkflowModal()"
+            title="Import workflow" class="ml20 noul glyphicon glyphicon-upload"></i>
+          <i
+            confirm="Are you sure you want to remove the 
+          {{selected.config.type}} configuration?"
+            ng-show="selected.config" title="Remove workflow configuration"
+            ng-click="removeConfig(selected.config);"
+            class="ml20 noul glyphicon glyphicon-trash"></i>
+          <button ng-click="openAddConfigModal()"
+            title="Add workflow configuration"
+            class="ml20 btn btn-xs btn-primary">Add Config</button>
+          <span ng-show="selected.projectRole == 'ADMINISTRATOR'"
+            style="float: right;">
+            <button ng-click="openAddBinModal()" title="Add new bin"
+              class="btn btn-xs btn-primary">Add Bin</button>
+          </span>
+        </span>
+      </div>
+      <div class="mt10 col-md-12 col-xs-12">
+
+        <span ng-show="lists.bins.length > paging['bins'].pageSize"
+          style="float: right;">
+          Page size: <select ng-model="paging['bins'].pageSize"
+            title="Page Size"
+            ng-change="paging['bins'].callbacks.getPagedList()"
+            ng-options="item.value as item.name for item in pageSizes">
+          </select>
+        </span>
+        <div pager paging="paging['bins']" count="lists.bins.length"
+          callbacks="paging['bins'].callbacks"></div>
+
+        <table class="slim table table-hover pointer" style="margin-top: 10px;"
+          ng-show="lists.bins.length > 0">
+          <thead class="pointer">
+            <tr>
+              <th class="col-md-1 col-xs-1">Rank</th>
+              <th class="col-md-2 col-xs-2">Name</th>
+              <th class="col-md-4 col-xs-4">Dates</th>
+              <th class="col-md-1 col-xs-1">Cluster</th>
+              <th class="col-md-1 col-xs-1">All</th>
+              <th class="col-md-1 col-xs-1">Assigned</th>
+              <th class="col-md-1 col-xs-1">Unassigned</th>
+              <th class="col-md-1 col-xs-1">Actions</th>
+            </tr>
+          </thead>
+          <tbody ng-repeat="bin in pagedBins.data">
+            <tr ng-click="bin.enabled && selectBin(bin, 'all');"
+              ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
+              ng-class="{selected: bin.id == selected.bin.id && bin.enabled}">
+              <td rowspan="4">{{bin.rank}}</td>
+              <td rowspan="4">
+                <i uib-tooltip="{{bin.description}}"
+                  class="noul glyphicon glyphicon-question-sign"></i>
+                &nbsp;{{bin.name}}<br />
+                <span ng-show="selected.projectRole == 'ADMINISTRATOR'">
+                  <input type="checkbox" title="Enable/Disable Bin"
+                    ng-change="toggleEnable(bin);" ng-model="bin.enabled"></input>
+                  <i ng-click="openEditBinModal(bin)" ng-show="bin.enabled"
+                    title="Edit Bin" class="noul glyphicon glyphicon-pencil"></i>
+                  <i ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                    title="Regenerate Bin"
+                    class="noul glyphicon glyphicon-repeat"></i>
+                  <i ng-click="openCloneBinModal(bin)" ng-show="bin.enabled"
+                    title="Clone Bin" class="noul glyphicon glyphicon-copy"></i>
+                  <i
+                    confirm="Are you sure you want to remove the bin definition?"
+                    ng-click="removeBin(bin); $event.stopPropagation()"
+                    ng-show="bin.enabled" title="Remove Bin"
+                    class="noul glyphicon glyphicon-trash"></i>
+                </span>
+              </td>
+              <td rowspan="4">
+                Created: {{toDate(bin.creationTime)}} <br />Modified:
+                {{toDate(bin.lastModified)}}
+                <span ng-show="bin.required">
+                  <br /> <b>REQUIRED</b>
+                </span>
+              </td>
+            </tr>
+            <tr ng-repeat="stats in bin.stats"
+              ng-click="bin.enabled && selectBin(bin, stats.clusterType);"
+              ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
+              ng-class="{selected: bin.enabled && ((stats.clusterType == selected.clusterType && bin.id == selected.bin.id) ||
+                                      (selected.clusterType == 'all' && bin.id == selected.bin.id))}">
+              <td>{{stats.clusterType}}</td>
+              <td>{{stats.stats.all}}</td>
+              <td>{{stats.stats.assigned}}</td>
+              <td>{{stats.stats.unassigned}}</td>
+              <td class="nobreak">
+                <i
+                  ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
+                  ng-click="setConfig(selected.config); $event.stopPropagation()"
+                  title="Refresh counts"
+                  class="noul glyphicon glyphicon-refresh"></i>
+                <i
+                  ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
+                  ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
+                  title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
+                &nbsp;
+                <i
+                  ng-show="stats.clusterType != 'all' && bin.enabled && 
+                  selected.project.editingEnabled && hasPermissions('CreateWorklist')"
+                  ng-click="openAddWorklistModal(bin, stats.clusterType, stats.stats.unassigned); $event.stopPropagation()"
+                  title="Add Worklist" class="noul glyphicon glyphicon-list-alt"></i>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <span ng-show="lists.bins.length == 0" style="display: block;"
+          class="alert alert-warning">No workflow Bins</span>
+      </div>
+      <hr ng-show="selected.bin">
+      <!-- Bin Records Table -->
+      <div ng-show="selected.bin" records-table selected="selected"
+        lists="lists" user="user" paging="paging['records']"></div>
+    </div>
+    </uib-accordion-group> <!-- A2 - Checklists --> <uib-accordion-group
+      ng-click="saveAccordionStatus()" is-open="groups[1].open">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Checklists">Checklists
+        ({{lists.checklistCt}})</span>
+    </h5>
+    </uib-accordion-heading>
+    <div worklists-table type="Checklist" selected="selected" lists="lists"
+      user="user"></div>
+    </uib-accordion-group> <!-- A3 - Worklists --> <uib-accordion-group
+      ng-click="saveAccordionStatus()" is-open="groups[2].open">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Workflow Worklists">Worklists
+        ({{lists.worklistCt}})</span>
+    </h5>
+    </uib-accordion-heading>
+    <div worklists-table type="Worklist" selected="selected" lists="lists"
+      user="user"></div>
+    </uib-accordion-group>
+    <uib-accordion-group
+      is-open="groups[3].open" ng-click="saveAccordionStatus()">
+    <uib-accordion-heading>
+    <h5>
+      <span uib-tooltip="Reports">Reports</span>
+    </h5>
+    </uib-accordion-heading>
+    <div class="col-md-6 col-xs-12">
+      <div><select ng-model="selected.reportType" ng-show="lists.configs.length > 1"
+        ng-options="def as def.name for def in getReportTypeList()"
+        ng-change="findPagedReports();"></select>
+
+      <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate
+        Report</button></div>
+        
+      <div pager paging="paging['reports']" count="selected.reports.totalCount"
+          callbacks="paging['reports'].callbacks"></div>
+          
+      <table class="slim table table-hover pointer" style="margin-top: 10px;"
+        ng-show="lists.configs.length > 0">
+        <thead>
+          <th class="col-md-7 col-xs-7">Name</th>
+          <th class="col-md-4 col-xs-4">Date</th>
+          <th class="col-md-1 col-xs-1"></th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="report in selected.reports.atoms"
+              ng-click="setSelectedReport(report)"
+              ng-class="{selected: report.id == selected.report.id}">
+            <td>{{report.name}}</td>
+            <td>{{toDate(report.lastModified)}}</td>
+            <td><i       
+                  ng-click="deleteReport(report)"
+                  title="Delete Report" class="noul glyphicon glyphicon-trash"></i></td>
+          </tr>
+        </tbody>
+      </table>
+      <span ng-show="!selected.reportType" style="display: block;"
+          class="alert alert-warning">No report type selected</span>
+      <span ng-show="selected.reportType && selected.reports.totalCount == 0" style="display: block;"
+          class="alert alert-warning">No reports available</span>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span ng-show="!pagedResults || pagedResults.totalCount == 0" style="display: block;"
+          class="alert alert-warning">No report selected</span>
+      <span ng-show="pagedResults.totalCount > 0"><b>Report:</b> {{selected.report.name}}</span>
+      <div pager paging="paging['results']" count="pagedResults.totalCount"
+          callbacks="paging['results'].callbacks"></div>
+          
+      <table class="slim table table-hover pointer" style="margin-top: 10px;"
+        ng-show="pagedResults.totalCount > 0">
+        <thead>
+          <th class="col-md-10 col-xs-10"><span
+                ng-click="setSortField('results','value')">
+                Value
+                <span ng-bind="getSortIndicator('results','value')"></span>
+              </span></th>
+          <th class="col-md-1 col-xs-1"><span
+                ng-click="setSortField('results','ct')">
+                Count
+                <span ng-bind="getSortIndicator('results','ct')"></span>
+              </span></th>
+          <th class="col-md-1 col-xs-1"></th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="result in pagedResults.data">
+            <td><ul style="list-style: none;">
+              <li ng-repeat="sty in result.valueArray">{{sty}}</li>
+            </ul></td>
+            <td>{{result.ct}}</td>
+            <td><i       
+                  ng-click="computeChecklist(result)"
+                  title="Add Checklist" class="noul glyphicon glyphicon-check"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </uib-accordion-group>
+    </uib-accordion>
+  </div>
+</div>

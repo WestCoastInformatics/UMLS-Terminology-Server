@@ -9,28 +9,14 @@ package com.wci.umls.server.model.content;
 
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Represents a group of {@link Mapping}s between one {@link Terminology} and
  * another.
  */
-public interface MapSet extends ComponentHasAttributes {
-
-  /**
-   * Returns the name.
-   * 
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   * 
-   * @param name the name
-   */
-  public void setName(String name);
-
+public interface MapSet extends ComponentHasAttributes, HasAlternateTerminologyIds {
   /**
    * Returns the from complexity.
    * 
@@ -106,14 +92,14 @@ public interface MapSet extends ComponentHasAttributes {
    * 
    * @param type the type
    */
-  public void setType(String type);
+  public void setMapType(String type);
 
   /**
    * Returns the type.
    * 
    * @return the type
    */
-  public String getType();
+  public String getMapType();
 
   /**
    * Returns the mappings.
@@ -128,7 +114,6 @@ public interface MapSet extends ComponentHasAttributes {
    * @param mappings the mappings
    */
   public void setMappings(List<Mapping> mappings);
-
 
   /**
    * Gets the from terminology.

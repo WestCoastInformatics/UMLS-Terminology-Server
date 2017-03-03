@@ -15,13 +15,15 @@ import java.util.UUID;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.LocalException;
-import com.wci.umls.server.helpers.UserImpl;
+import com.wci.umls.server.jpa.AbstractConfigurable;
+import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
 /**
- * Implements a security handler that authorizes via IHTSDO authentication.
+ * Implements a security handler that authorizes via UTS authentication.
  */
-public class UtsSecurityServiceHandler implements SecurityServiceHandler {
+public class UtsSecurityServiceHandler extends AbstractConfigurable
+    implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;
@@ -41,15 +43,12 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     if (licenseCode == null) {
       throw new Exception("License code must be specified.");
     }
-    String data =
-        URLEncoder.encode("licenseCode", "UTF-8") + "="
-            + URLEncoder.encode(licenseCode, "UTF-8");
-    data +=
-        "&" + URLEncoder.encode("user", "UTF-8") + "="
-            + URLEncoder.encode(username, "UTF-8");
-    data +=
-        "&" + URLEncoder.encode("password", "UTF-8") + "="
-            + URLEncoder.encode(password, "UTF-8");
+    String data = URLEncoder.encode("licenseCode", "UTF-8") + "="
+        + URLEncoder.encode(licenseCode, "UTF-8");
+    data += "&" + URLEncoder.encode("user", "UTF-8") + "="
+        + URLEncoder.encode(username, "UTF-8");
+    data += "&" + URLEncoder.encode("password", "UTF-8") + "="
+        + URLEncoder.encode(password, "UTF-8");
 
     final String urlProp = properties.getProperty("url");
     if (urlProp == null) {
@@ -89,7 +88,7 @@ public class UtsSecurityServiceHandler implements SecurityServiceHandler {
     String authGivenName = "UTS User - " + username;
     String authSurname = "";
 
-    User returnUser = new UserImpl();
+    User returnUser = new UserJpa();
     returnUser.setName(authGivenName + " " + authSurname);
     returnUser.setEmail(authEmail);
     returnUser.setUserName(authUserName);

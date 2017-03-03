@@ -3,12 +3,13 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
  * Represents a mapping between a from object and a to object.
  */
-public interface Mapping extends ComponentHasAttributes {
+public interface Mapping extends ComponentHasAttributes, HasAlternateTerminologyIds {
 
   /**
    * Gets the from id type.

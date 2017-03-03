@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -12,20 +12,6 @@ import com.wci.umls.server.model.meta.TermType;
  * ranks.
  */
 public interface PrecedenceList extends HasTerminology, HasLastModified {
-
-  /**
-   * Indicates whether or not default is the case.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isDefaultList();
-
-  /**
-   * Sets the default.
-   *
-   * @param defaultList the default list
-   */
-  public void setDefaultList(boolean defaultList);
 
   /**
    * Returns the name.
@@ -91,4 +77,11 @@ public interface PrecedenceList extends HasTerminology, HasLastModified {
    * @return the term type rank map
    */
   public Map<String, String> getTermTypeRankMap();
+
+  /**
+   * Returns the terminology rank map.
+   *
+   * @return the terminology rank map
+   */
+  public Map<String, String> getTerminologyRankMap();
 }

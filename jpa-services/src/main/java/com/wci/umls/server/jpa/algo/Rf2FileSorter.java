@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -13,16 +13,14 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.Files;
-import com.wci.umls.server.algo.Algorithm;
 import com.wci.umls.server.helpers.CancelException;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.services.helpers.ProgressListener;
 
 /**
  * File sorter for RF2 files. This creates files with standard file names in the
  * specified output directory. See the source code for details.
  */
-public class Rf2FileSorter implements Algorithm {
+public class Rf2FileSorter {
 
   /** The sort by effective time. */
   private boolean sortByEffectiveTime = false;
@@ -30,16 +28,16 @@ public class Rf2FileSorter implements Algorithm {
   /** The require all files. */
   private boolean requireAllFiles = false;
 
-  /**  The input dir. */
+  /** The input dir. */
   private String inputDir = null;
 
-  /**  The output dir. */
+  /** The output dir. */
   private String outputDir = null;
 
-  /**  The cancel flag. */
+  /** The cancel flag. */
   private boolean requestCancel = false;
 
-  /**  The directory map. */
+  /** The directory map. */
   Map<String, String> dirMap = new HashMap<>();
 
   /**
@@ -58,7 +56,7 @@ public class Rf2FileSorter implements Algorithm {
     dirMap.put("Refset_Simple", "/Refset/Content");
     dirMap.put("AttributeValue", "/Refset/Content");
     dirMap.put("AssociationReference", "/Refset/Content");
-    //dirMap.put("ComplexMap", "/Refset/Map");
+    // dirMap.put("ComplexMap", "/Refset/Map");
     dirMap.put("ExtendedMap", "/Refset/Map");
     dirMap.put("SimpleMap", "/Refset/Map");
     dirMap.put("Language", "/Refset/Language");
@@ -66,7 +64,6 @@ public class Rf2FileSorter implements Algorithm {
     dirMap.put("ModuleDependency", "/Refset/Metadata");
     dirMap.put("DescriptionType", "/Refset/Metadata");
   }
-
 
   /**
    * Sets the input dir.
@@ -114,15 +111,14 @@ public class Rf2FileSorter implements Algorithm {
 
     String fileVersion = null;
 
-    for (String dirName : dirMap.values()) {
-      File file = new File(inputDir + dirName);
+    for (final String dirName : dirMap.values()) {
+      final File file = new File(inputDir + dirName);
       if (file != null && file.exists()) {
-        for (String fileName : file.list()) {
+        for (final String fileName : file.list()) {
           // match last _dddddd
           try {
-            Matcher matcher =
-                Pattern.compile("\\d+").matcher(
-                    fileName.substring(fileName.lastIndexOf('_')));
+            Matcher matcher = Pattern.compile("\\d+")
+                .matcher(fileName.substring(fileName.lastIndexOf('_')));
             matcher.find();
             fileVersion = matcher.group();
           } catch (Exception e) {
@@ -141,11 +137,46 @@ public class Rf2FileSorter implements Algorithm {
   }
 
   /**
+   * Return the extension (and namespace if present).
+   *
+   * @return the file extension info
+   * @throws Exception the exception
+   */
+  public String getFileExtensionInfo() throws Exception {
+    String fileExtension = null;
+
+    for (final String dirName : dirMap.values()) {
+      final File file = new File(inputDir + dirName);
+      if (file != null && file.exists()) {
+        for (final String fileName : file.list()) {
+          // match last _dddddd
+          try {
+
+            Matcher matcher = Pattern.compile(".*_Concept_Snapshot_([^_]*)")
+                .matcher(fileName);
+            matcher.find();
+            fileExtension = matcher.group(1);
+          } catch (Exception e) {
+            // do nothing
+          }
+
+        }
+      }
+    }
+
+    if (fileExtension == null) {
+      throw new Exception(
+          "Unable to determine file version from input directory " + inputDir);
+    }
+    return fileExtension;
+  }
+
+  /**
    * Sort files.
    *
    * @throws Exception the exception
    */
-  @Override
+
   public void compute() throws Exception {
     Logger.getLogger(getClass()).info("Start sorting files");
 
@@ -175,7 +206,7 @@ public class Rf2FileSorter implements Algorithm {
     sortByMap.put("Refset_Simple", 5);
     sortByMap.put("AttributeValue", 5);
     sortByMap.put("AssociationReference", 5);
-    //sortByMap.put("ComplexMap", 5);
+    // sortByMap.put("ComplexMap", 5);
     sortByMap.put("ExtendedMap", 5);
     sortByMap.put("SimpleMap", 5);
     sortByMap.put("Language", 5);
@@ -194,7 +225,7 @@ public class Rf2FileSorter implements Algorithm {
     fileMap.put("AttributeValue", "attributeValueRefsetsByRefCompId.sort");
     fileMap.put("AssociationReference",
         "associationReferenceRefsetsByRefCompId.sort");
-    //fileMap.put("ComplexMap", "complexMapRefsetsByConcept.sort");
+    // fileMap.put("ComplexMap", "complexMapRefsetsByConcept.sort");
     fileMap.put("ExtendedMap", "extendedMapRefsetsByConcept.sort");
     fileMap.put("SimpleMap", "simpleMapRefsetsByConcept.sort");
     fileMap.put("Language", "languageRefsetsByDescription.sort");
@@ -204,7 +235,7 @@ public class Rf2FileSorter implements Algorithm {
 
     // Sort files
     int[] fields = null;
-    for (String key : dirMap.keySet()) {
+    for (final String key : dirMap.keySet()) {
 
       if (requestCancel) {
         throw new CancelException("Cancel requested");
@@ -212,6 +243,7 @@ public class Rf2FileSorter implements Algorithm {
 
       Logger.getLogger(getClass()).info("  Sorting for " + key);
       final File file = findFile(new File(inputDir + dirMap.get(key)), key);
+
       Logger.getLogger(getClass()).info("    file = " + file);
 
       // Determine fields to sort by
@@ -221,7 +253,7 @@ public class Rf2FileSorter implements Algorithm {
         };
       } else {
         fields = new int[] {
-          sortByMap.get(key)
+            sortByMap.get(key)
         };
       }
       // Sort the file
@@ -229,8 +261,7 @@ public class Rf2FileSorter implements Algorithm {
         sortRf2File(file, new File(outputDir + "/" + fileMap.get(key)), fields);
       } else {
         // otherwise just create an empty "sort" file
-        new File(outputDir + dirMap.get(key) + "/" + fileMap.get(key))
-            .createNewFile();
+        new File(outputDir + "/" + fileMap.get(key)).createNewFile();
       }
     }
 
@@ -247,17 +278,16 @@ public class Rf2FileSorter implements Algorithm {
       };
     } else {
       fields = new int[] {
-        sortByMap.get("merge_Relationship")
+          sortByMap.get("merge_Relationship")
       };
     }
 
-    File mergedRel =
-        ConfigUtility.mergeSortedFiles(relationshipsFile,
-            statedRelationshipsFile, getComparator(fields), outputDirFile, "");
+    File mergedRel = ConfigUtility.mergeSortedFiles(relationshipsFile,
+        statedRelationshipsFile, getComparator(fields), outputDirFile, "");
 
     // rename the temporary file
-    Files.move(mergedRel, new File(outputDir + "/"
-        + "relationshipsAllBySourceConcept.sort"));
+    Files.move(mergedRel,
+        new File(outputDir + "/" + "relationshipsAllBySourceConcept.sort"));
 
     Thread.sleep(1000);
     Logger.getLogger(getClass()).info("Done...");
@@ -275,7 +305,7 @@ public class Rf2FileSorter implements Algorithm {
   public File findFile(File dir, String prefix) throws Exception {
     File file = null;
     // file
-    for (File f : dir.listFiles()) {
+    for (final File f : dir.listFiles()) {
       if (f.getName().contains(prefix)) {
         if (file != null)
           throw new Exception("Multiple " + prefix + " files");
@@ -317,9 +347,8 @@ public class Rf2FileSorter implements Algorithm {
       }
       columns.append(sortColumn);
     }
-    Logger.getLogger(getClass()).info(
-        "    Sorting " + fileIn.getName() + "  into " + fileOut.toString()
-            + " by columns " + columns);
+    Logger.getLogger(getClass()).info("    Sorting " + fileIn.getName()
+        + "  into " + fileOut.toString() + " by columns " + columns);
     FileSorter.sortFile(fileIn.toString(), fileOut.toString(), comp);
 
   }
@@ -348,38 +377,4 @@ public class Rf2FileSorter implements Algorithm {
     };
   }
 
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    // do nothing
-
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    // do nothing
-
-  }
-
-  /* see superclass */
-  @Override
-  public void reset() throws Exception {
-    // do nothing
-
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() throws Exception {
-    requestCancel = true;
-
-  }
-
-  /* see superclass */
-  @Override
-  public void close() throws Exception {
-    // do nothing
-
-  }
 }

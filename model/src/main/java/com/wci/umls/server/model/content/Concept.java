@@ -1,13 +1,15 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
+import java.util.Date;
 import java.util.List;
 
-import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.helpers.HasComponentHistory;
 import com.wci.umls.server.helpers.HasMembers;
 import com.wci.umls.server.helpers.HasNotes;
+import com.wci.umls.server.helpers.HasTreePositions;
 
 /**
  * Represents a conceptual meaning. This can be a concept in a terminology (like
@@ -16,7 +18,8 @@ import com.wci.umls.server.helpers.HasNotes;
  */
 public interface Concept extends AtomClass, ComponentHasDefinitions,
     ComponentHasRelationships<ConceptRelationship>,
-    HasMembers<ConceptSubsetMember>, HasNotes, ComponentInfo {
+    HasMembers<ConceptSubsetMember>, HasNotes, HasComponentHistory,
+    HasTreePositions<ConceptTreePosition> {
 
   /**
    * Indicates whether or not the concept is fully defined. This is always false
@@ -88,5 +91,33 @@ public interface Concept extends AtomClass, ComponentHasDefinitions,
    * @param flag the flag
    */
   public void setUsesRelationshipUnion(boolean flag);
+
+  /**
+   * Returns the last approved by.
+   *
+   * @return the last approved by
+   */
+  public String getLastApprovedBy();
+
+  /**
+   * Sets the last approved by.
+   *
+   * @param lastApprovedBy the last approved by
+   */
+  public void setLastApprovedBy(String lastApprovedBy);
+
+  /**
+   * Returns the last approved.
+   *
+   * @return the last approved
+   */
+  public Date getLastApproved();
+
+  /**
+   * Sets the last approved.
+   *
+   * @param lastApproved the last approved
+   */
+  public void setLastApproved(Date lastApproved);
 
 }

@@ -1,0 +1,41 @@
+
+<tr>
+
+  <td>
+
+    <!--  precedence table -->
+    <div>
+      <span style="float: right;">
+        <button ng-click="updatePrecedenceList()" title="Save precedence order"
+          class="btn btn-xs btn-primary">Save</button>
+      </span>
+    </div>
+    <div style="overflow-y: scroll; width: 100%; height: 400px">
+      <table class="yscroll slim table">
+        <tr ng-repeat="entry in pagedPrecedenceList.data"
+          ng-class="{selected : entriesTouched[entry.key+entry.value]}">
+          <td>{{entry.key}}</td>
+          <td>{{entry.value}}</td>
+          <td>
+            <span class="nobreak">
+              <!-- Actions - move up-->
+              <i ng-if="!isFirstIndex(entry)" ng-click="moveTermgroupUp(entry)"
+                title="Move termgroup up"
+                class="noul glyphicon glyphicon-arrow-up"></i>
+              <!-- Actions - move down-->
+              <i ng-if="!isLastIndex(entry)" ng-click="moveTermgroupDown(entry)"
+                title="Move termgroup down"
+                class="noul glyphicon glyphicon-arrow-down"></i>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div>
+      <span style="float: right;">
+        <button ng-click="updatePrecedenceList()" title="Save precedence order"
+          class="btn btn-xs btn-primary">Save</button>
+      </span>
+    </div>
+  </td>
+</tr>

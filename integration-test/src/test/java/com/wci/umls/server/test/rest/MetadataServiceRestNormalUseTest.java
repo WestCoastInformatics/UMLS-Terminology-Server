@@ -5,9 +5,12 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,11 +22,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.KeyValuePairLists;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
+import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.MetadataService.MetadataKeys;
@@ -35,6 +40,9 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
   /** The auth token. */
   private static String authToken;
+
+  /** The admin token. */
+  private static String adminToken;
 
   /**
    * Create test fixtures per test.
@@ -48,6 +56,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     // authentication
     authToken =
         securityService.authenticate(testUser, testPassword).getAuthToken();
+    adminToken =
+        securityService.authenticate(adminUser, adminPassword).getAuthToken();
 
   }
 
@@ -57,10 +67,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestMetadata001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetCurrentTerminologies() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
-    TerminologyList termList = metadataService.getTerminologies(authToken);
+    TerminologyList termList =
+        metadataService.getCurrentTerminologies(authToken);
     Logger.getLogger(getClass()).debug("  data = " + termList);
 
     // flags for whether UMLS, SNOMEDCT_US, and MSH were found
@@ -71,17 +82,17 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     for (Terminology terminology : termList.getObjects()) {
       // test versions
       switch (terminology.getTerminology()) {
-        case "UMLS":
+        case "MTH":
           foundUmls = true;
-          assertTrue(terminology.getVersion().equals("latest"));
+          assertEquals("latest", terminology.getVersion());
           break;
         case "SNOMEDCT_US":
           foundSnomedct = true;
-          assertTrue(terminology.getVersion().equals("2014_09_01"));
+          assertEquals("2016_03_01", terminology.getVersion());
           break;
         case "MSH":
           foundMsh = true;
-          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
+          assertEquals("2016_2016_02_26", terminology.getVersion());
           break;
         default:
           // ignore other terminologies, only three above are assumed
@@ -94,71 +105,25 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
   }
 
   /**
-   * Tests retrieval of all terminology and latest version pairs NOTE: Test is
-   * identical to testNormalUseRestMetadata001 but uses different API call.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testNormalUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
-
-    // flags for whether SNOMEDCT_US and ICD9CM were found
-    boolean foundUmls = false;
-    boolean foundSnomedct = false;
-    boolean foundMsh = false;
-
-    // make the call
-    TerminologyList termList =
-        metadataService.getAllTerminologiesLatestVersions(authToken);
-
-    // cycle over each pair in list
-    for (Terminology terminology : termList.getObjects()) {
-
-      // test versions
-      switch (terminology.getTerminology()) {
-        case "UMLS":
-          foundUmls = true;
-          assertTrue(terminology.getVersion().equals("latest"));
-          break;
-        case "SNOMEDCT_US":
-          foundSnomedct = true;
-          assertTrue(terminology.getVersion().equals("2014_09_01"));
-          break;
-        case "MSH":
-          foundMsh = true;
-          assertTrue(terminology.getVersion().equals("2015_2014_09_08"));
-          break;
-        default:
-          // ignore other terminologies, only three above are assumed
-          break;
-      }
-
-    }
-
-    assertTrue(foundSnomedct && foundMsh && foundUmls);
-  }
-
-  /**
    * Test retrieving all metadata for a terminology.
    *
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestMetadata003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetAllMetadata() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test UMLS metadata
-    assertTrue(testUmlsMetadata(metadataService.getAllMetadata("UMLS",
+    assertTrue(testUmlsMetadata(metadataService.getAllMetadata("MTH",
         "latest", authToken)));
 
     // test SNOMED metadata
     assertTrue(testSnomedMetadata(metadataService.getAllMetadata("SNOMEDCT_US",
-        "2014_09_01", authToken)));
+        "2016_03_01", authToken)));
 
     // test MSH metadata
     assertTrue(testMshMetadata(metadataService.getAllMetadata("MSH",
-        "2015_2014_09_08", authToken)));
+        "2016_2016_02_26", authToken)));
   }
 
   /**
@@ -167,12 +132,12 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestMetadata004() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetTerminology() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test UMLS metadata
     Terminology umls =
-        metadataService.getTerminology("UMLS", "latest", authToken);
+        metadataService.getTerminology("MTH", "latest", authToken);
     assertEquals("loader", umls.getLastModifiedBy());
     assertFalse(umls.isAssertsRelDirection());
     assertTrue(umls.isCurrent());
@@ -180,11 +145,11 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(umls.getEndDate());
     assertNull(umls.getStartDate());
     assertEquals(IdType.CONCEPT, umls.getOrganizingClassType());
-    assertEquals("UMLS", umls.getPreferredName());
-    assertEquals("UMLS", umls.getTerminology());
+    assertEquals("MTH", umls.getPreferredName());
+    assertEquals("MTH", umls.getTerminology());
     assertEquals("latest", umls.getVersion());
 
-    assertEquals("UMLS", umls.getRootTerminology().getTerminology());
+    assertEquals("MTH", umls.getRootTerminology().getTerminology());
     // Because of XML Transient
     assertNull(umls.getRootTerminology().getLastModifiedBy());
     assertNull(umls.getRootTerminology().getFamily());
@@ -198,7 +163,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test UMLS metadata
     Terminology snomed =
-        metadataService.getTerminology("SNOMEDCT_US", "2014_09_01", authToken);
+        metadataService.getTerminology("SNOMEDCT_US", "2016_03_01", authToken);
     assertEquals("loader", snomed.getLastModifiedBy());
     assertTrue(snomed.isAssertsRelDirection());
     assertTrue(snomed.isCurrent());
@@ -206,10 +171,10 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(snomed.getEndDate());
     assertNull(snomed.getStartDate());
     assertEquals(IdType.CONCEPT, snomed.getOrganizingClassType());
-    assertEquals("US Edition of SNOMED CT, 2014_09_01",
+    assertEquals("US Edition of SNOMED CT, 2016_03_01",
         snomed.getPreferredName());
     assertEquals("SNOMEDCT_US", snomed.getTerminology());
-    assertEquals("2014_09_01", snomed.getVersion());
+    assertEquals("2016_03_01", snomed.getVersion());
 
     assertEquals("SNOMEDCT_US", snomed.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -225,7 +190,7 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
 
     // test MSH metadata
     Terminology msh =
-        metadataService.getTerminology("MSH", "2015_2014_09_08", authToken);
+        metadataService.getTerminology("MSH", "2016_2016_02_26", authToken);
     assertEquals("loader", msh.getLastModifiedBy());
     assertFalse(msh.isAssertsRelDirection());
     assertTrue(msh.isCurrent());
@@ -233,10 +198,10 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     assertNull(msh.getEndDate());
     assertNull(msh.getStartDate());
     assertEquals(IdType.DESCRIPTOR, msh.getOrganizingClassType());
-    assertEquals("Medical Subject Headings, 2015_2014_09_08",
+    assertEquals("Medical Subject Headings, 2016_2016_02_26",
         msh.getPreferredName());
     assertEquals("MSH", msh.getTerminology());
-    assertEquals("2015_2014_09_08", msh.getVersion());
+    assertEquals("2016_2016_02_26", msh.getVersion());
 
     assertEquals("MSH", msh.getRootTerminology().getTerminology());
     // Because of XML Transient
@@ -258,38 +223,38 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestMetadata005() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetDefaultPrecedenceList() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test precedence list
     PrecedenceList precedence =
-        metadataService.getDefaultPrecedenceList("UMLS", "latest", authToken);
+        metadataService.getDefaultPrecedenceList("MTH", "latest", authToken);
     assertEquals("loader", precedence.getLastModifiedBy());
-    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("MTH", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
-    assertEquals("MTH", precedence.getPrecedence().getKeyValuePairs().get(0)
+    assertEquals("SRC", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());
-    assertEquals("PN", precedence.getPrecedence().getKeyValuePairs().get(0)
+    assertEquals("SSN", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getValue());
-    assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
+    assertEquals("SRC", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(1)
+    assertEquals("VAB", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getValue());
     assertEquals("DEFAULT", precedence.getName());
 
     precedence =
-        metadataService.getDefaultPrecedenceList("MSH", "2015_2014_09_08",
+        metadataService.getDefaultPrecedenceList("MSH", "2016_2016_02_26",
             authToken);
     // assertEquals("loader", precedence.getLastModifiedBy());
-    assertEquals("UMLS", precedence.getTerminology());
+    assertEquals("MTH", precedence.getTerminology());
     assertEquals("latest", precedence.getVersion());
     assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getKey());
-    assertEquals("MH", precedence.getPrecedence().getKeyValuePairs().get(0)
+    assertEquals("PM", precedence.getPrecedence().getKeyValuePairs().get(0)
         .getValue());
     assertEquals("MSH", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getKey());
-    assertEquals("TQ", precedence.getPrecedence().getKeyValuePairs().get(1)
+    assertEquals("QSV", precedence.getPrecedence().getKeyValuePairs().get(1)
         .getValue());
 
     assertEquals("DEFAULT", precedence.getName());
@@ -331,24 +296,24 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     Map<MetadataKeys, Set<String>> expectedNames = new HashMap<>();
 
     // Relationship types
-    expectedSizes.put(MetadataKeys.Relationship_Types, 9);
-    expectedSizes2.put(MetadataKeys.Relationship_Types, 9);
+    expectedSizes.put(MetadataKeys.Relationship_Types, 11);
+    expectedSizes2.put(MetadataKeys.Relationship_Types, 11);
     expectedIds.put(MetadataKeys.Relationship_Types, "PAR");
     expectedNames.put(MetadataKeys.Relationship_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Relationship_Types).add(
         "has parent relationship in a Metathesaurus source vocabulary");
 
     // Additional relationship types
-    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 82);
-    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 82);
+    expectedSizes.put(MetadataKeys.Additional_Relationship_Types, 242);
+    expectedSizes2.put(MetadataKeys.Additional_Relationship_Types, 242);
     expectedIds.put(MetadataKeys.Additional_Relationship_Types, "isa");
     expectedNames.put(MetadataKeys.Additional_Relationship_Types,
         new HashSet<String>());
     expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 98);
-    expectedSizes2.put(MetadataKeys.Attribute_Names, 445);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 447);
+    expectedSizes2.put(MetadataKeys.Attribute_Names, 447);
     expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
     expectedNames.get(MetadataKeys.Attribute_Names).add("Acceptability Id");
@@ -361,18 +326,27 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
 
     // Term types
-    expectedSizes.put(MetadataKeys.Term_Types, 47);
-    expectedSizes2.put(MetadataKeys.Term_Types, 47);
+    expectedSizes.put(MetadataKeys.Term_Types, 174);
+    expectedSizes2.put(MetadataKeys.Term_Types, 174);
     expectedIds.put(MetadataKeys.Term_Types, "PT");
     expectedNames.put(MetadataKeys.Term_Types, new HashSet<String>());
     expectedNames.get(MetadataKeys.Term_Types).add("Designated preferred name");
 
     // Languages
-    expectedSizes.put(MetadataKeys.Languages, 21);
-    expectedSizes2.put(MetadataKeys.Languages, 21);
+    expectedSizes.put(MetadataKeys.Languages, 25);
+    expectedSizes2.put(MetadataKeys.Languages, 25);
     expectedIds.put(MetadataKeys.Languages, "ENG");
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
+
+    // General metadata entries
+    expectedSizes.put(MetadataKeys.General_Metadata_Entries, 139);
+    expectedSizes2.put(MetadataKeys.General_Metadata_Entries, 139);
+    expectedIds.put(MetadataKeys.General_Metadata_Entries, "FULL-MULTIPLE");
+    expectedNames.put(MetadataKeys.General_Metadata_Entries,
+        new HashSet<String>());
+    expectedNames.get(MetadataKeys.General_Metadata_Entries).add(
+        "Full contexts, multiple tree positions");
 
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
@@ -419,18 +393,18 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
         "Has temporal context");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 43);
-    expectedSizes2.put(MetadataKeys.Attribute_Names, 43);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 46);
+    expectedSizes2.put(MetadataKeys.Attribute_Names, 46);
     expectedIds.put(MetadataKeys.Attribute_Names, "ACCEPTABILITYID");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
     expectedNames.get(MetadataKeys.Attribute_Names).add("Acceptability Id");
 
     // Semantic types
-    expectedSizes.put(MetadataKeys.Semantic_Types, 0);
-    expectedSizes2.put(MetadataKeys.Semantic_Types, 0);
-    expectedIds.put(MetadataKeys.Semantic_Types, "clnd");
+    expectedSizes.put(MetadataKeys.Semantic_Types, 194);
+    expectedSizes2.put(MetadataKeys.Semantic_Types, 194);
+    expectedIds.put(MetadataKeys.Semantic_Types, "168254");
     expectedNames.put(MetadataKeys.Semantic_Types, new HashSet<String>());
-    // expectedNames.get(MetadataKeys.Semantic_Types).add("Clinical Drug");
+    expectedNames.get(MetadataKeys.Semantic_Types).add("Pneumocystosis");
 
     // Term types
     expectedSizes.put(MetadataKeys.Term_Types, 18);
@@ -445,6 +419,15 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedIds.put(MetadataKeys.Languages, "ENG");
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
+
+    // General metadata entries
+    expectedSizes.put(MetadataKeys.General_Metadata_Entries, 0);
+    expectedSizes2.put(MetadataKeys.General_Metadata_Entries, 0);
+    expectedNames.put(MetadataKeys.General_Metadata_Entries,
+        new HashSet<String>());
+    KeyValuePairList list = new KeyValuePairList();
+    list.setName(MetadataKeys.General_Metadata_Entries.toString());
+    keyValuePairLists.addKeyValuePairList(list);
 
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
@@ -489,8 +472,8 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedNames.get(MetadataKeys.Additional_Relationship_Types).add("Is a");
 
     // Attribute names
-    expectedSizes.put(MetadataKeys.Attribute_Names, 27);
-    expectedSizes2.put(MetadataKeys.Attribute_Names, 27);
+    expectedSizes.put(MetadataKeys.Attribute_Names, 26);
+    expectedSizes2.put(MetadataKeys.Attribute_Names, 26);
     expectedIds.put(MetadataKeys.Attribute_Names, "TERMUI");
     expectedNames.put(MetadataKeys.Attribute_Names, new HashSet<String>());
     expectedNames.get(MetadataKeys.Attribute_Names).add(
@@ -516,6 +499,19 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
     expectedIds.put(MetadataKeys.Languages, "ENG");
     expectedNames.put(MetadataKeys.Languages, new HashSet<String>());
     expectedNames.get(MetadataKeys.Languages).add("English");
+
+    // General metadata entries - add empty
+    expectedSizes.put(MetadataKeys.General_Metadata_Entries, 0);
+    expectedSizes2.put(MetadataKeys.General_Metadata_Entries, 0);
+    expectedNames.put(MetadataKeys.General_Metadata_Entries,
+        new HashSet<String>());
+
+    KeyValuePairList list = new KeyValuePairList();
+    list.setName(MetadataKeys.General_Metadata_Entries.toString());
+    keyValuePairLists.addKeyValuePairList(list);
+
+    // expectedNames.get(MetadataKeys.General_Metadata_Entries).add(
+    // "Full contexts, multiple tree positions");
 
     boolean result =
         testHelper(keyValuePairLists, expectedSizes, expectedSizes2,
@@ -551,6 +547,12 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
       Logger.getLogger(getClass()).info(
           "Checking " + keyValuePairList.getKeyValuePairs().size() + " "
               + keyValuePairList.getName());
+
+      // Skip label sets - no data
+      if (MetadataKeys.valueOf(keyValuePairList.getName()) == MetadataKeys.Label_Sets) {
+        categorySuccessCt++;
+        continue;
+      }
 
       int expectedSize =
           expectedSizes.get(MetadataKeys.valueOf(keyValuePairList.getName()));
@@ -606,6 +608,64 @@ public class MetadataServiceRestNormalUseTest extends MetadataServiceRestTest {
             + MetadataKeys.values().length);
 
     return categorySuccessCt == MetadataKeys.values().length;
+  }
+
+  /**
+   * Test addition, update, and removal of precedence lists.
+   */
+  @SuppressWarnings("static-method")
+  @Test
+  public void testPrecedenceList() {
+
+    PrecedenceList p = new PrecedenceListJpa();
+    p.setBranch(Branch.ROOT);
+    p.setLastModified(new Date());
+    p.setLastModifiedBy("userName");
+    p.setName("name");
+    p.setTerminology("terminology");
+    p.setVersion("version");
+    p.setTimestamp(new Date());
+
+    // test add
+    try {
+      p = metadataService.addPrecedenceList((PrecedenceListJpa) p, adminToken);
+      assertNotNull(p);
+      assertNotNull(p.getId());
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed to add precedence list");
+    }
+
+    // test get
+    try {
+      p = metadataService.getPrecedenceList(p.getId(), authToken);
+      assertNotNull(p);
+      assertTrue(p.getTerminology().equals("terminology"));
+    } catch (Exception e1) {
+      e1.printStackTrace();
+      fail("Failed to get precedence list");
+    }
+
+    // test update
+    p.setTerminology("newTerminology");
+    try {
+      metadataService.updatePrecedenceList((PrecedenceListJpa) p, adminToken);
+      p = metadataService.getPrecedenceList(p.getId(), authToken);
+      assertTrue(p.getTerminology().equals("newTerminology"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed to update precedence list");
+    }
+
+    // test remove
+    try {
+      metadataService.removePrecedenceList(p.getId(), adminToken);
+      p = metadataService.getPrecedenceList(p.getId(), authToken);
+      assertNull(p);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Failed to remove precedence list");
+    }
   }
 
 }

@@ -37,6 +37,34 @@ public interface TermType extends Abbreviation {
   public void setSuppressible(boolean suppressible);
 
   /**
+   * Indicates whether or not exclude is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isExclude();
+
+  /**
+   * Sets the exclude.
+   *
+   * @param exclude the exclude
+   */
+  public void setExclude(boolean exclude);
+
+  /**
+   * Indicates whether or not norm exclude is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isNormExclude();
+
+  /**
+   * Sets the norm exclude.
+   *
+   * @param normExclude the norm exclude
+   */
+  public void setNormExclude(boolean normExclude);
+  
+  /**
    * Sets the name variant type.
    * 
    * @param nameVariantType the name variant type

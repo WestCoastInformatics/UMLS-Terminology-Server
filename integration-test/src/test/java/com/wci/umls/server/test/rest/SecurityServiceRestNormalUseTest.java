@@ -3,8 +3,11 @@
  */
 package com.wci.umls.server.test.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -37,8 +40,8 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestSecurity001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testAuthenticate() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     String authToken =
         service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
@@ -59,12 +62,12 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestSecurity002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testUserManagement() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // local variables
     User user;
-    String viewerUserNameAuthToken, adminAuthToken;
+    String adminAuthToken;
 
     // authorize the user
     adminAuthToken =
@@ -77,7 +80,7 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
     user.setApplicationRole(UserRole.VIEWER);
     user.setEmail("none");
     user.setName(badUserName);
-    user.setUserName(badUserName);
+    user.setUserName(badUserName + new Date().getTime());
 
     // add the user and verify that hibernate id has been set
     user = service.addUser((UserJpa) user, adminAuthToken);
@@ -93,62 +96,15 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
     Logger.getLogger(getClass()).info("  Procedure 3: update a user");
     user.setEmail("new email");
     service.updateUser((UserJpa) user, adminAuthToken);
-    user = service.getUser(badUserName, adminAuthToken);
-    assertTrue(user.getEmail().equals("new email"));
+    user = service.getUser(user.getId(), adminAuthToken);
+    assertEquals("new email", user.getEmail());
 
     // PROCEDURE 4: remove a user
     Logger.getLogger(getClass()).info("  Procedure 4: remove a user");
 
     service.removeUser(user.getId(), adminAuthToken);
-    user = service.getUser(badUserName, adminAuthToken);
+    user = service.getUser(user.getId(), adminAuthToken);
     assertTrue(user == null);
-
-    // PROCEDURE 5: authenticate a user that does not exist
-    Logger.getLogger(getClass()).info(
-        "  Procedure 5: authenticate a user that does not exist");
-
-    // get the existing test user if it exists
-    user = service.getUser(viewerUserName, adminAuthToken);
-
-    // if user exists, remove it
-    if (user != null) {
-      service.removeUser(user.getId(), adminAuthToken);
-    }
-
-    // verify user does not exist
-    user = service.getUser(viewerUserName, adminAuthToken);
-    assertTrue(user == null);
-
-    // authenticate user based on config parameters
-    viewerUserNameAuthToken =
-        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
-    assertTrue(viewerUserNameAuthToken != null
-        && !viewerUserNameAuthToken.isEmpty());
-
-    // retrieve user and verify it exists
-    user = service.getUser(viewerUserName, adminAuthToken);
-    assertTrue(user != null && user.getUserName().equals(viewerUserName));
-
-    // PROCEDURE 6: Authenticate a user that exists in database with changed
-    // details
-    Logger
-        .getLogger(getClass())
-        .info(
-            "  Procedure 6: authenticate a user that exists in database with changed details");
-
-    // save the email, modify it, re-retrieve, and verify change persisted
-    String userEmail = user.getEmail();
-    user.setEmail(userEmail + "_modified");
-    service.updateUser((UserJpa) user, adminAuthToken);
-    assertTrue(!user.getEmail().equals(userEmail));
-
-    // authenticate the user and verify email overwritten
-    viewerUserNameAuthToken =
-        service.authenticate(viewerUserName, viewerUserPassword).getAuthToken();
-    assertTrue(viewerUserNameAuthToken != null
-        && !viewerUserNameAuthToken.isEmpty());
-    user = service.getUser(viewerUserName, adminAuthToken);
-    assertTrue(user.getEmail().equals(userEmail));
 
   }
 
@@ -158,8 +114,8 @@ public class SecurityServiceRestNormalUseTest extends SecurityServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestSecurity003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testLogout() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     service.authenticate("guest", "guest");
 
     service.authenticate("admin", "admin");

@@ -1,12 +1,15 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -17,11 +20,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 
@@ -35,7 +40,8 @@ import com.wci.umls.server.model.content.Mapping;
 @Audited
 @Indexed
 @XmlRootElement(name = "mapSet")
-public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet {
+public class MapSetJpa extends AbstractComponentHasAttributes
+    implements MapSet {
 
   /** The mappings. */
   @OneToMany(mappedBy = "mapSet", targetEntity = MappingJpa.class)
@@ -85,6 +91,12 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
   @Column(nullable = true)
   private String toVersion;
 
+  /** The alternate terminology ids. */
+  @ElementCollection()
+  // consider this: @Fetch(FetchMode.JOIN)
+  @Column(nullable = true)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link MapSetJpa}.
    */
@@ -95,26 +107,26 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
   /**
    * Instantiates a {@link MapSetJpa} from the specified parameters.
    *
-   * @param mapSet the map set
-   * @param deepCopy the deep copy
+   * @param mapset the map set
+   * @param collectionCopy the deep copy
    */
-  public MapSetJpa(MapSet mapSet, boolean deepCopy) {
-    super(mapSet, deepCopy);
-    name = mapSet.getName();
-    fromComplexity = mapSet.getFromComplexity();
-    toComplexity = mapSet.getToComplexity();
-    complexity = mapSet.getComplexity();
-    fromExhaustive = mapSet.getFromExhaustive();
-    toExhaustive = mapSet.getToExhaustive();
-    type = mapSet.getType();
-    fromTerminology = mapSet.getFromTerminology();
-    toTerminology = mapSet.getToTerminology();
-    fromVersion = mapSet.getFromVersion();
-    toVersion = mapSet.getToVersion();
-    if (deepCopy) {
-      for (Mapping mapping : mapSet.getMappings()) {
-        getMappings().add(new MappingJpa(mapping, deepCopy));
-      }
+  public MapSetJpa(MapSet mapset, boolean collectionCopy) {
+    super(mapset, collectionCopy);
+    name = mapset.getName();
+    fromComplexity = mapset.getFromComplexity();
+    toComplexity = mapset.getToComplexity();
+    complexity = mapset.getComplexity();
+    fromExhaustive = mapset.getFromExhaustive();
+    toExhaustive = mapset.getToExhaustive();
+    type = mapset.getMapType();
+    fromTerminology = mapset.getFromTerminology();
+    toTerminology = mapset.getToTerminology();
+    fromVersion = mapset.getFromVersion();
+    toVersion = mapset.getToVersion();
+    alternateTerminologyIds =
+        new HashMap<>(mapset.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      mappings = new ArrayList<>(getMappings());
     }
 
   }
@@ -185,13 +197,13 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
 
   /* see superclass */
   @Override
-  public void setType(String type) {
+  public void setMapType(String type) {
     this.type = type;
   }
 
   /* see superclass */
   @Override
-  public String getType() {
+  public String getMapType() {
     return type;
   }
 
@@ -283,20 +295,35 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>(2);
+    }
+    return alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result =
         prime * result + ((complexity == null) ? 0 : complexity.hashCode());
-    result =
-        prime * result
-            + ((fromComplexity == null) ? 0 : fromComplexity.hashCode());
-    result =
-        prime * result
-            + ((fromExhaustive == null) ? 0 : fromExhaustive.hashCode());
-    result =
-        prime * result
-            + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
+    result = prime * result
+        + ((fromComplexity == null) ? 0 : fromComplexity.hashCode());
+    result = prime * result
+        + ((fromExhaustive == null) ? 0 : fromExhaustive.hashCode());
+    result = prime * result
+        + ((fromTerminology == null) ? 0 : fromTerminology.hashCode());
     result =
         prime * result + ((fromVersion == null) ? 0 : fromVersion.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -304,9 +331,8 @@ public class MapSetJpa extends AbstractComponentHasAttributes implements MapSet 
         prime * result + ((toComplexity == null) ? 0 : toComplexity.hashCode());
     result =
         prime * result + ((toExhaustive == null) ? 0 : toExhaustive.hashCode());
-    result =
-        prime * result
-            + ((toTerminology == null) ? 0 : toTerminology.hashCode());
+    result = prime * result
+        + ((toTerminology == null) ? 0 : toTerminology.hashCode());
     result = prime * result + ((toVersion == null) ? 0 : toVersion.hashCode());
     result = prime * result + ((type == null) ? 0 : type.hashCode());
     return result;

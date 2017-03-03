@@ -3,8 +3,9 @@
  */
 package com.wci.umls.server.test.rest;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,11 +24,8 @@ import com.wci.umls.server.jpa.ProjectJpa;
  */
 public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
 
-  /** The viewer auth token. */
-  private static String viewerAuthToken;
-
   /** The admin auth token. */
-  private static String adminAuthToken;
+  private static String authToken;
 
   /**
    * Create test fixtures per test.
@@ -39,9 +37,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
   public void setup() throws Exception {
 
     // authentication
-    viewerAuthToken =
-        securityService.authenticate(testUser, testPassword).getAuthToken();
-    adminAuthToken =
+    authToken =
         securityService.authenticate(adminUser, adminPassword).getAuthToken();
   }
 
@@ -51,8 +47,8 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testAddUpdateRemoveProject() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
@@ -61,36 +57,32 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     values.add("PUBLISHED");
 
     project.setDescription("Sample");
-    project.setName("Sample");
-    project.setTerminology("UMLS");
-
+    project.setName("Sample " + new Date().getTime());
+    project.setTerminology("MTH");
+    project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 =
-        (ProjectJpa) projectService.addProject(project, adminAuthToken);
+        (ProjectJpa) projectService.addProject(project, authToken);
 
     // TEST: retrieve the project and verify it is equal
     Assert.assertEquals(project, project2);
 
     // Update that newly added project
     Logger.getLogger(getClass()).info("  Update project");
-    project2.setName("Sample 2");
-    projectService.updateProject(project2, adminAuthToken);
+    project2.setName("Sample 2 " + new Date().getTime());
+    projectService.updateProject(project2, authToken);
     Project project3 =
-        projectService.getProject(project2.getId(), adminAuthToken);
+        projectService.getProject(project2.getId(), authToken);
 
     // TEST: retrieve the project and verify it is equal
     Assert.assertEquals(project2, project3);
 
     // Remove the project
     Logger.getLogger(getClass()).info("  Remove project");
-    projectService.removeProject(project2.getId(), adminAuthToken);
+    projectService.removeProject(project2.getId(), authToken);
 
     // TEST: verify that it is removed (call should return null)
-    try {
-      project3 = projectService.getProject(project2.getId(), adminAuthToken);
-      fail("Cannot retrieve a removed project.");
-    } catch (Exception e) {
-      // do nothing
-    }
+    project3 = projectService.getProject(project2.getId(), authToken);
+    assertNull(project3);
   }
 
   /**
@@ -99,8 +91,8 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUseRestProject002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testAddProjects() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Add a project
     Logger.getLogger(getClass()).info("  Add project");
@@ -108,35 +100,38 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
     project.setDescription("Sample");
-    project.setName("Sample");
-    project.setTerminology("UMLS");
+    project.setName("Sample " + new Date().getTime());
+    project.setTerminology("MTH");
+    project.setWorkflowPath("DEFAULT");
     ProjectJpa project2 = new ProjectJpa(project);
-    project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
+    project = (ProjectJpa) projectService.addProject(project, authToken);
 
     // Add a second project
     Logger.getLogger(getClass()).info("  Add second project");
-    project2.setName("Sample 2");
+    project2.setName("Sample 2 " + new Date().getTime());
     project2.setDescription("Sample 2");
-    project2 = (ProjectJpa) projectService.addProject(project2, adminAuthToken);
+    project2.setTerminology("MTH");
+    project2.setWorkflowPath("DEFAULT");
+    project2 = (ProjectJpa) projectService.addProject(project2, authToken);
 
     // Get the projects
     Logger.getLogger(getClass()).info("  Get the projects");
-    ProjectList projectList = projectService.getProjects(adminAuthToken);
-    int projectCount = projectList.getCount();
+    ProjectList projectList = projectService.findProjects(null, null, authToken);
+    int projectCount = projectList.size();
     Assert.assertTrue(projectList.contains(project));
     Assert.assertTrue(projectList.contains(project2));
 
     // remove first project
     Logger.getLogger(getClass()).info("  Remove first project");
-    projectService.removeProject(project.getId(), adminAuthToken);
-    projectList = projectService.getProjects(adminAuthToken);
-    Assert.assertEquals(projectCount - 1, projectList.getCount());
+    projectService.removeProject(project.getId(), authToken);
+    projectList = projectService.findProjects(null, null, authToken);
+    Assert.assertEquals(projectCount - 1, projectList.size());
 
     // remove second project
     Logger.getLogger(getClass()).info("  Remove second project");
-    projectService.removeProject(project2.getId(), adminAuthToken);
-    projectList = projectService.getProjects(adminAuthToken);
-    Assert.assertEquals(projectCount - 2, projectList.getCount());
+    projectService.removeProject(project2.getId(), authToken);
+    projectList = projectService.findProjects(null, null, authToken);
+    Assert.assertEquals(projectCount - 2, projectList.size());
 
   }
 
@@ -150,8 +145,7 @@ public class ProjectServiceRestNormalUseTest extends ProjectServiceRestTest {
   public void teardown() throws Exception {
 
     // logout
-    securityService.logout(viewerAuthToken);
-    securityService.logout(adminAuthToken);
+    securityService.logout(authToken);
   }
 
 }

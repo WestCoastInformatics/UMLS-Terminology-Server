@@ -17,7 +17,7 @@ public class CollectionToCsvBridge implements StringBridge {
   @Override
   public String objectToString(Object value) {
     if (value != null) {
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
 
       Collection<?> col = (Collection<?>) value;
       Iterator<?> it = col.iterator();
@@ -25,7 +25,7 @@ public class CollectionToCsvBridge implements StringBridge {
         String next = it.next().toString();
         buf.append(next);
         if (it.hasNext())
-          buf.append(", ");
+          buf.append(" ");
       }
       return buf.toString();
     }

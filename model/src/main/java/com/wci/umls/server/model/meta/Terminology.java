@@ -1,10 +1,11 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.HasLastModified;
 import com.wci.umls.server.model.content.AtomClass;
@@ -220,4 +221,89 @@ public interface Terminology extends HasLastModified {
    * @param metathesaurus the metathesaurus
    */
   public void setMetathesaurus(boolean metathesaurus);
+
+  /**
+   * Returns the inverter email.
+   *
+   * @return the inverter email
+   */
+  public String getInverterEmail();
+
+  /**
+   * Sets the inverter email.
+   *
+   * @param inverterEmail the inverter email
+   */
+  public void setInverterEmail(String inverterEmail);
+
+  /**
+   * Indicates whether or not include siblings is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isIncludeSiblings();
+
+  /**
+   * Sets the include siblings.
+   *
+   * @param includeSiblings the include siblings
+   */
+  public void setIncludeSiblings(boolean includeSiblings);
+
+  /**
+   * Returns the url.
+   *
+   * @return the url
+   */
+  public String getUrl();
+
+  /**
+   * Sets the url.
+   *
+   * @param url the url
+   */
+  public void setUrl(String url);
+
+  /**
+   * Returns the metathesaurus "first" release versions.
+   *
+   * @return the metathesaurus release versions
+   */
+  public Map<String, String> getFirstReleases();
+
+  /**
+   * Sets the first releases.
+   *
+   * @param firstReleases the first releases
+   */
+  public void setFirstReleases(Map<String, String> firstReleases);
+
+  /**
+   * Returns the metathesaurus "last" release versions.
+   *
+   * @return the metathesaurus release versions
+   */
+  public Map<String, String> getLastReleases();
+
+  /**
+   * Sets the last releases.
+   *
+   * @param lastReleases the last releases
+   */
+  public void setLastReleases(Map<String, String> lastReleases);
+
+  /**
+   * Returns the related terminologies.
+   *
+   * @return the related terminologies
+   */
+  public List<String> getRelatedTerminologies();
+
+  /**
+   * Sets the relatied terminologies.
+   *
+   * @param relatedTerminologies the relatied terminologies
+   */
+  public void setRelatedTerminologies(List<String> relatedTerminologies);
+
 }

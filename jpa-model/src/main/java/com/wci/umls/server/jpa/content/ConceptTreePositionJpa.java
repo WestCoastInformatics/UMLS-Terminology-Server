@@ -57,10 +57,10 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * parameters.
    *
    * @param treepos the treepos
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptTreePositionJpa(ConceptTreePosition treepos, boolean deepCopy) {
-    super(treepos, deepCopy);
+  public ConceptTreePositionJpa(ConceptTreePosition treepos, boolean collectionCopy) {
+    super(treepos, collectionCopy);
     node = treepos.getNode();
   }
 
@@ -81,8 +81,8 @@ public class ConceptTreePositionJpa extends AbstractTreePosition<Concept>
    * @return the node id
    */
   @XmlElement
-  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getNodeId() {
     return node == null ? null : node.getId();
   }

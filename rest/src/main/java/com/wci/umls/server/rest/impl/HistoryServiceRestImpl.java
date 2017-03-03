@@ -27,23 +27,27 @@ import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 import com.wci.umls.server.services.HistoryService;
 import com.wci.umls.server.services.SecurityService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link HistoryServiceRest}.
  */
 @Path("/history")
-@Api(value = "/history", description = "Operations to retrieve historical RF2 content for a terminology")
+@Api(value = "/history")
+@SwaggerDefinition(info = @Info(description = "Operations to retrieve historical content for a terminology.", title = "History API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class HistoryServiceRestImpl extends RootServiceRestImpl implements
-    HistoryServiceRest {
+public class HistoryServiceRestImpl extends RootServiceRestImpl
+    implements HistoryServiceRest {
 
   /** The security service. */
   private SecurityService securityService;
@@ -66,8 +70,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/history/");
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/history/");
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -95,8 +99,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/current/");
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/current/");
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -124,8 +128,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/previous/");
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/previous/");
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -153,8 +157,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Release info terminology , e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/planned/");
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/planned/");
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -183,8 +187,8 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Release version info, e.g. 'latest'", required = true) @PathParam("name") String name,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/" + name);
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/" + name);
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -206,22 +210,22 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @PUT
-  @Path("/release/add")
+  @Path("/release")
   @ApiOperation(value = "Add release info", notes = "Adds the specified release info", response = ReleaseInfoJpa.class)
   public ReleaseInfo addReleaseInfo(
     @ApiParam(value = "Release info object, e.g. see output of /release/current", required = true) ReleaseInfoJpa releaseInfo,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/add " + releaseInfo.getName());
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release " + releaseInfo.getName());
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
       authorizeApp(securityService, authToken, "add release info",
           UserRole.ADMINISTRATOR);
 
-      releaseInfo.setLastModifiedBy(securityService
-          .getUsernameForToken(authToken));
+      releaseInfo
+          .setLastModifiedBy(securityService.getUsernameForToken(authToken));
       ReleaseInfo result = historyService.addReleaseInfo(releaseInfo);
       return result;
 
@@ -237,22 +241,22 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @POST
-  @Path("/release/update")
+  @Path("/release")
   @ApiOperation(value = "Update release info", notes = "Updatess the specified release info")
   public void updateReleaseInfo(
     @ApiParam(value = "Release info object, e.g. see output of /release/current", required = true) ReleaseInfoJpa releaseInfo,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/update " + releaseInfo.getName());
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release " + releaseInfo.getName());
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
       authorizeApp(securityService, authToken, "update release info",
           UserRole.ADMINISTRATOR);
 
-      releaseInfo.setLastModifiedBy(securityService
-          .getUsernameForToken(authToken));
+      releaseInfo
+          .setLastModifiedBy(securityService.getUsernameForToken(authToken));
       historyService.updateReleaseInfo(releaseInfo);
     } catch (Exception e) {
       handleException(e, "trying to update release info");
@@ -265,14 +269,13 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
   /* see superclass */
   @Override
   @DELETE
-  @Path("/release/remove/{id}")
+  @Path("/release/{id}")
   @ApiOperation(value = "Remove release info", notes = "Removes the release info for the specified id")
   public void removeReleaseInfo(
     @ApiParam(value = "Release info object id, e.g. 2", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/remove/" + id);
+    Logger.getLogger(getClass()).info("RESTful call (History): /release/" + id);
 
     HistoryService historyService = new HistoryServiceJpa();
     try {
@@ -299,16 +302,17 @@ public class HistoryServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /release/startEditingCycle/" + releaseVersion
-            + "/" + terminology + "/" + version);
+    Logger.getLogger(getClass())
+        .info("RESTful call (History): /release/startEditingCycle/"
+            + releaseVersion + "/" + terminology + "/" + version);
     // Perform operations
     StartEditingCycleAlgorithm algorithm =
         new StartEditingCycleAlgorithm(releaseVersion, terminology, version);
     try {
       authorizeApp(securityService, authToken, "start editing cycle",
           UserRole.ADMINISTRATOR);
-      algorithm.setUser(securityService.getUsernameForToken(authToken));
+      algorithm
+          .setLastModifiedBy(securityService.getUsernameForToken(authToken));
       algorithm.compute();
     } catch (Exception e) {
       algorithm.compute();

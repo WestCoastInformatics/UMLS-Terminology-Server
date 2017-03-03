@@ -192,9 +192,9 @@ public class DegenerateUseMethodTestHelper {
     // if no invalid parameters specified, construct defaults
     if (invalidParameters == null) {
 
-      for (Object validParameter : validParameterList) {
+      for (final Object validParameter : validParameterList) {
 
-        Class<?> parameterType = validParameter.getClass();
+        final Class<?> parameterType = validParameter.getClass();
         Object invalidParameter = null;
 
         if (parameterType.equals(String.class)) {

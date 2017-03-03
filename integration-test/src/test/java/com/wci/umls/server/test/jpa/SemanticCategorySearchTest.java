@@ -15,11 +15,12 @@ import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class SemanticCategorySearchTest {
+public class SemanticCategorySearchTest extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -48,11 +49,11 @@ public class SemanticCategorySearchTest {
    */
   @Test
   public void testSearches() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     ContentService service = new ContentServiceJpa();
     SearchResultList list =
-        service.findConceptsForQuery("SNOMEDCT_US", "2014_09_01", Branch.ROOT,
+        service.findConceptSearchResults("SNOMEDCT_US", "2016_03_01", Branch.ROOT,
             "atoms.nameSort:\"[A-Z].* (disorder)\"", new PfsParameterJpa());
     Logger.getLogger(getClass()).info(" list = " + list);
 

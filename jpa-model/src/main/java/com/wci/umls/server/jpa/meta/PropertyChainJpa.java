@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -27,8 +27,8 @@ import com.wci.umls.server.model.meta.PropertyChain;
 }))
 @Audited
 @XmlRootElement(name = "propertyChain")
-public class PropertyChainJpa extends AbstractAbbreviation implements
-    PropertyChain {
+public class PropertyChainJpa extends AbstractAbbreviation
+    implements PropertyChain {
 
   /** The chain. */
   @ManyToMany(targetEntity = AdditionalRelationshipTypeJpa.class)
@@ -48,12 +48,12 @@ public class PropertyChainJpa extends AbstractAbbreviation implements
   /**
    * Instantiates a {@link PropertyChainJpa} from the specified parameters.
    *
-   * @param chain the chain
+   * @param copy the copy
    */
-  public PropertyChainJpa(PropertyChain chain) {
-    super(chain);
-    this.chain = chain.getChain();
-    result = chain.getResult();
+  public PropertyChainJpa(PropertyChain copy) {
+    super(copy);
+    chain = copy.getChain();
+    result = copy.getResult();
   }
 
   /* see superclass */

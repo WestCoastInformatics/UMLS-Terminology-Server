@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h4 style="display: inline">{{action}} Errors/Warnings</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+<div class="modal-body">
+  <table class="slim table">
+    <thead>
+      <tr>
+        <th class="col-md-2 col-xs-2">Concept Id</th>
+        <th class="col-md-2 col-xs-2">CUI</th>
+        <th class="col-md-4 col-xs-4">Concept Name</th>
+        <th class="col-md-4 col-xs-4">Semantic Types</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{concept.id}}</td>
+        <td>{{concept.terminologyId}}</td>
+        <td>{{concept.name}}</td>
+        <td>
+          <span ng-repeat='sty in concept.semanticTypes'>
+            {{sty.semanticType}}<br>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div errors="errors" warnings="warnings"></div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-show="warnings.length > 0"
+    ng-click="overrideWarnings();"
+    title="Override warnings and complete action.">Override Warnings</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

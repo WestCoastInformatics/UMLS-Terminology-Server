@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,9 +26,10 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link CodeRelationship}.
@@ -55,7 +55,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
   private Code to;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
@@ -70,14 +70,17 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
    * Instantiates a {@link CodeRelationshipJpa} from the specified parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public CodeRelationshipJpa(CodeRelationship relationship, boolean deepCopy) {
-    super(relationship, deepCopy);
+  public CodeRelationshipJpa(CodeRelationship relationship,
+      boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -332,7 +335,7 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
@@ -350,57 +353,28 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
+  public Relationship<Code, Code> createInverseRelationship(
+    Relationship<Code, Code> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+
+    final CodeRelationship inverseRelationship =
+        new CodeRelationshipJpa((CodeRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /* see superclass */
   @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /**
-   * CUSTOM to support to/from/alternateTerminologyIds.
-   *
-   * @return the int
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
-   */
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((from == null || from.getTerminologyId() == null) ? 0 : from
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((to == null || to.getTerminologyId() == null) ? 0 : to
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
+    result = prime * result + ((from == null) ? 0 : from.hashCode());
+    result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
-  /**
-   * Custom equals method for to/from.getTerminologyId
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -413,26 +387,16 @@ public class CodeRelationshipJpa extends AbstractRelationship<Code, Code>
     if (from == null) {
       if (other.from != null)
         return false;
-    } else if (from.getTerminologyId() == null) {
-      if (other.from != null && other.from.getTerminologyId() != null)
-        return false;
-    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
+    } else if (!from.equals(other.from))
       return false;
     if (to == null) {
       if (other.to != null)
         return false;
-    } else if (to.getTerminologyId() == null) {
-      if (other.to != null && other.to.getTerminologyId() != null)
-        return false;
-    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
-      return false;
-
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+    } else if (!to.equals(other.to))
       return false;
     return true;
   }
+
+  // Use superclass toString()
 
 }

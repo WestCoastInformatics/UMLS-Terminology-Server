@@ -6,29 +6,24 @@ package com.wci.umls.server.jpa.services.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 
 /**
  * Default implementation of {@link ComputePreferredNameHandler}. This is a
  * dummy implelmentation just to ensure an example exists.
  */
-public class DefaultComputePreferredNameHandler implements
-    ComputePreferredNameHandler {
+public class DefaultComputePreferredNameHandler extends AbstractConfigurable
+    implements ComputePreferredNameHandler {
 
   /* see superclass */
   @Override
-  public void setProperties(Properties p) throws Exception {
-    // Needs a precedence list
-  }
-
-  /* see superclass */
-  @Override
-  public String computePreferredName(Collection<Atom> atoms, PrecedenceList list)
-    throws Exception {
+  public String computePreferredName(Collection<Atom> atoms,
+    PrecedenceList list) throws Exception {
     // For default implementation, pick first atom.
     return atoms.size() > 0 ? atoms.iterator().next().getName() : null;
 
@@ -36,7 +31,7 @@ public class DefaultComputePreferredNameHandler implements
 
   /* see superclass */
   @Override
-  public List<Atom> sortByPreference(Collection<Atom> atoms, PrecedenceList list)
+  public List<Atom> sortAtoms(Collection<Atom> atoms, PrecedenceList list)
     throws Exception {
     // simply return the list
     return new ArrayList<>(atoms);
@@ -45,6 +40,13 @@ public class DefaultComputePreferredNameHandler implements
   @Override
   public String getName() {
     return "Default Preferred Name Handler";
+  }
+
+  @Override
+  public <T extends Relationship<?, ?>> List<T> sortRelationships(
+    Collection<T> rels, PrecedenceList list) throws Exception {
+    // just return the list
+    return new ArrayList<>(rels);
   }
 
 }

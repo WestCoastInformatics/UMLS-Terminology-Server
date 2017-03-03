@@ -49,13 +49,13 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Identify
     String terminologyId = "C0000294";
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // The concept has no relationships at this point
     // because we use a graph resolver that does not pre-load
@@ -65,7 +65,7 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
@@ -73,11 +73,11 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
 
     // Loading all deep relationships for the concept
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId,
-            terminology, version, null, null, authToken);
+        contentClient.findConceptDeepRelationships(terminologyId,
+            terminology, version, false, false, false, false, null, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
     // Now, see that this concept has only 126 "deep" relationships (which
@@ -88,11 +88,11 @@ public class GetConceptDeepRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findDeepRelationshipsForConcept(terminologyId,
-            terminology, version, pfs, null, authToken);
+        contentClient.findConceptDeepRelationships(terminologyId,
+            terminology, version, false, false, false, false, pfs, null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

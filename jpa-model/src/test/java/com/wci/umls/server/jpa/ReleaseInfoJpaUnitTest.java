@@ -22,7 +22,7 @@ import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 /**
  * Unit testing for {@link ReleaseInfoJpa}.
  */
-public class ReleaseInfoJpaUnitTest {
+public class ReleaseInfoJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private ReleaseInfoJpa object;
@@ -49,8 +49,8 @@ public class ReleaseInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet002");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -61,8 +61,8 @@ public class ReleaseInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode002");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("description");
     tester.include("name");
@@ -85,8 +85,8 @@ public class ReleaseInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy002");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
     assertTrue(tester.testCopyConstructor(ReleaseInfo.class));
   }
@@ -97,8 +97,8 @@ public class ReleaseInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient002");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
     assertTrue(tester.testXmlSerialization());
   }
@@ -109,8 +109,8 @@ public class ReleaseInfoJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField002() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField002");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("name");
     tester.include("description");
@@ -120,6 +120,8 @@ public class ReleaseInfoJpaUnitTest {
     tester.include("version");
     tester.include("lastModified");
     tester.include("lastModifiedBy");
+    tester.include("timestamp");
+
 
     assertTrue(tester.testNotNullFields());
   }

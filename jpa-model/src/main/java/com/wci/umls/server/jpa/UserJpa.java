@@ -23,9 +23,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.envers.Audited;
@@ -37,22 +35,22 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.EnumBridge;
-
-import com.wci.umls.server.jpa.helpers.MapIdBridge;
-import com.wci.umls.server.jpa.helpers.ProjectRoleBridge;
-import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.jpa.helpers.MapIdBridge;
+import com.wci.umls.server.jpa.helpers.ProjectRoleBridge;
+import com.wci.umls.server.jpa.helpers.ProjectRoleMapAdapter;
 
 /**
  * JPA and JAXB enabled implementation of {@link User}.
  */
 @Entity
 @Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "userName"
+    "userName"
 }))
 @Audited
 @Indexed
@@ -66,16 +64,24 @@ public class UserJpa implements User {
   private Long id;
 
   /** The user name. */
-  @Column(nullable = false, unique = true, length = 250)
+  @Column(nullable = false, unique = true)
   private String userName;
 
   /** The name. */
-  @Column(nullable = false, length = 250)
+  @Column(nullable = false)
   private String name;
+
+  /** The team. */
+  @Column(nullable = true)
+  private String team;
 
   /** The email. */
   @Column(nullable = false)
   private String email;
+
+  /** The editor level. */
+  @Column(nullable = false)
+  private int editorLevel = 0;
 
   /** The application role. */
   @Enumerated(EnumType.STRING)
@@ -112,17 +118,21 @@ public class UserJpa implements User {
    */
   public UserJpa(User user) {
     super();
-    this.id = user.getId();
-    this.userName = user.getUserName();
-    this.name = user.getName();
-    this.email = user.getEmail();
-    this.applicationRole = user.getApplicationRole();
-    this.authToken = user.getAuthToken();
-    this.userPreferences = user.getUserPreferences();
+    id = user.getId();
+    userName = user.getUserName();
+    name = user.getName();
+    team = user.getTeam();
+    email = user.getEmail();
+    editorLevel = user.getEditorLevel();
+    applicationRole = user.getApplicationRole();
+    authToken = user.getAuthToken();
+    userPreferences = user.getUserPreferences();
+    projectRoleMap = new HashMap<>(user.getProjectRoleMap());
   }
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = LongBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getId() {
     return id;
@@ -132,27 +142,6 @@ public class UserJpa implements User {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null) {
-      this.id = Long.parseLong(id);
-    }
   }
 
   /* see superclass */
@@ -184,6 +173,18 @@ public class UserJpa implements User {
     this.name = name;
   }
 
+  @Override
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public String getTeam() {
+    return team;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTeam(String team) {
+    this.team = team;
+  }
+
   /* see superclass */
   @Override
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
@@ -195,6 +196,18 @@ public class UserJpa implements User {
   @Override
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  /* see superclass */
+  @Override
+  public int getEditorLevel() {
+    return editorLevel;
+  }
+
+  /* see superclass */
+  @Override
+  public void setEditorLevel(int editorLevel) {
+    this.editorLevel = editorLevel;
   }
 
   /* see superclass */
@@ -227,12 +240,13 @@ public class UserJpa implements User {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime * result
-            + ((applicationRole == null) ? 0 : applicationRole.hashCode());
+    result += editorLevel;
+    result = prime * result
+        + ((applicationRole == null) ? 0 : applicationRole.hashCode());
     result = prime * result + ((authToken == null) ? 0 : authToken.hashCode());
     result = prime * result + ((email == null) ? 0 : email.hashCode());
     result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((team == null) ? 0 : team.hashCode());
     result = prime * result + ((userName == null) ? 0 : userName.hashCode());
     return result;
   }
@@ -259,10 +273,17 @@ public class UserJpa implements User {
         return false;
     } else if (!email.equals(other.email))
       return false;
+    if (editorLevel != other.editorLevel)
+      return false;
     if (name == null) {
       if (other.name != null)
         return false;
     } else if (!name.equals(other.name))
+      return false;
+    if (team == null) {
+      if (other.team != null)
+        return false;
+    } else if (!team.equals(other.team))
       return false;
     if (userName == null) {
       if (other.userName != null)
@@ -289,8 +310,9 @@ public class UserJpa implements User {
   @Override
   public String toString() {
     return "UserJpa [id=" + id + ", userName=" + userName + ", name=" + name
-        + ", email=" + email + ", applicationRole=" + applicationRole
-        + ", authToken=" + authToken + "]";
+        + ", team=" + team + ", email=" + email + ", applicationRole="
+        + applicationRole + ", authToken=" + authToken + ", editorLevel="
+        + editorLevel + "]";
   }
 
   /*

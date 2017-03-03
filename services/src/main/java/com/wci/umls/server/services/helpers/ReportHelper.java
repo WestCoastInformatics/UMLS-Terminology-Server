@@ -31,28 +31,28 @@ public class ReportHelper {
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
     builder.append("CONCEPT = " + concept).append(nl);
-    for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+    for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
       builder.append("  STY = " + sty);
     }
-    for (Atom atom : concept.getAtoms()) {
+    for (final Atom atom : concept.getAtoms()) {
       builder.append("  ATOM = " + atom).append(nl);
-      for (Attribute att : atom.getAttributes()) {
+      for (final Attribute att : atom.getAttributes()) {
         builder.append("    ATT = " + att).append(nl);
       }
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         builder.append("    DEF = " + def).append(nl);
       }
-      for (AtomRelationship rel : atom.getRelationships()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
         builder.append("    REL = " + rel).append(nl);
       }
     }
-    for (Attribute att : concept.getAttributes()) {
+    for (final Attribute att : concept.getAttributes()) {
       builder.append("    ATT = " + att).append(nl);
     }
-    for (Definition def : concept.getDefinitions()) {
+    for (final Definition def : concept.getDefinitions()) {
       builder.append("    DEF = " + def).append(nl);
     }
-    for (ConceptRelationship rel : concept.getRelationships()) {
+    for (final ConceptRelationship rel : concept.getRelationships()) {
       builder.append("  REL = " + rel).append(nl);
     }
 
@@ -70,25 +70,25 @@ public class ReportHelper {
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
     builder.append("DESCRIPTOR = " + descriptor).append(nl);
-    for (Atom atom : descriptor.getAtoms()) {
+    for (final Atom atom : descriptor.getAtoms()) {
       builder.append("  ATOM = " + atom).append(nl);
-      for (Attribute att : atom.getAttributes()) {
+      for (final Attribute att : atom.getAttributes()) {
         builder.append("    ATT = " + att).append(nl);
       }
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         builder.append("    DEF = " + def).append(nl);
       }
-      for (AtomRelationship rel : atom.getRelationships()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
         builder.append("    REL = " + rel).append(nl);
       }
     }
-    for (Attribute att : descriptor.getAttributes()) {
+    for (final Attribute att : descriptor.getAttributes()) {
       builder.append("    ATT = " + att).append(nl);
     }
-    for (Definition def : descriptor.getDefinitions()) {
+    for (final Definition def : descriptor.getDefinitions()) {
       builder.append("    DEF = " + def).append(nl);
     }
-    for (DescriptorRelationship rel : descriptor.getRelationships()) {
+    for (final DescriptorRelationship rel : descriptor.getRelationships()) {
       builder.append("  REL = " + rel).append(nl);
     }
 
@@ -106,22 +106,22 @@ public class ReportHelper {
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
     builder.append("CODE = " + code).append(nl);
-    for (Atom atom : code.getAtoms()) {
+    for (final Atom atom : code.getAtoms()) {
       builder.append("  ATOM = " + atom).append(nl);
-      for (Attribute att : atom.getAttributes()) {
+      for (final Attribute att : atom.getAttributes()) {
         builder.append("    ATT = " + att).append(nl);
       }
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         builder.append("    DEF = " + def).append(nl);
       }
-      for (AtomRelationship rel : atom.getRelationships()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
         builder.append("    REL = " + rel).append(nl);
       }
     }
-    for (Attribute att : code.getAttributes()) {
+    for (final Attribute att : code.getAttributes()) {
       builder.append("    ATT = " + att).append(nl);
     }
-    for (CodeRelationship rel : code.getRelationships()) {
+    for (final CodeRelationship rel : code.getRelationships()) {
       builder.append("  REL = " + rel).append(nl);
     }
 
@@ -139,13 +139,13 @@ public class ReportHelper {
     final StringBuilder builder = new StringBuilder();
     builder.append(nl);
     builder.append("ATOM = " + atom).append(nl);
-    for (Attribute att : atom.getAttributes()) {
+    for (final Attribute att : atom.getAttributes()) {
       builder.append("  ATT = " + att).append(nl);
     }
-    for (Definition def : atom.getDefinitions()) {
+    for (final Definition def : atom.getDefinitions()) {
       builder.append("  DEF = " + def).append(nl);
     }
-    for (AtomRelationship rel : atom.getRelationships()) {
+    for (final AtomRelationship rel : atom.getRelationships()) {
       builder.append("  REL = " + rel).append(nl);
     }
     return builder.toString();

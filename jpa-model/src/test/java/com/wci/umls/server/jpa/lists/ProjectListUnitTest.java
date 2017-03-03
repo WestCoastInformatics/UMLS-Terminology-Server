@@ -61,7 +61,7 @@ public class ProjectListUnitTest extends AbstractListUnit<Project> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse010() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -72,7 +72,7 @@ public class ProjectListUnitTest extends AbstractListUnit<Project> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse010() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -82,7 +82,7 @@ public class ProjectListUnitTest extends AbstractListUnit<Project> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases010() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -93,7 +93,7 @@ public class ProjectListUnitTest extends AbstractListUnit<Project> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization010() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

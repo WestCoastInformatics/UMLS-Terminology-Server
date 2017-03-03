@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers.content;
 
@@ -21,6 +21,7 @@ import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 
 /**
@@ -44,6 +45,9 @@ public class TreeJpa implements Tree {
 
   /** The terminology id. */
   String nodeTerminologyId = null;
+
+  /** The node id */
+  Long nodeId = null;
 
   /** The name. */
   String nodeName = null;
@@ -80,6 +84,7 @@ public class TreeJpa implements Tree {
     terminology = tree.getTerminology();
     version = tree.getVersion();
     nodeTerminologyId = tree.getNodeTerminologyId();
+    nodeId = tree.getNodeId();
     nodeName = tree.getNodeName();
     childCt = tree.getChildCt();
     ancestorPath = tree.getAncestorPath();
@@ -87,10 +92,8 @@ public class TreeJpa implements Tree {
     labels = tree.getLabels();
 
     // deep-copy children
-    children = new ArrayList<>();
-    for (Tree child : tree.getChildren()) {
-      children.add(new TreeJpa(child));
-    }
+    children = new ArrayList<>(tree.getChildren());
+
   }
 
   /**
@@ -98,7 +101,8 @@ public class TreeJpa implements Tree {
    *
    * @param treePosition the tree position
    */
-  public TreeJpa(TreePosition<? extends AtomClass> treePosition) {
+  public TreeJpa(
+      TreePosition<? extends ComponentHasAttributesAndName> treePosition) {
 
     if (treePosition == null)
       throw new IllegalArgumentException(
@@ -108,11 +112,14 @@ public class TreeJpa implements Tree {
     this.terminology = treePosition.getNode().getTerminology();
     this.version = treePosition.getNode().getVersion();
     this.nodeTerminologyId = treePosition.getNode().getTerminologyId();
+    this.nodeId = treePosition.getNode().getId();
     this.nodeName = treePosition.getNode().getName();
     this.childCt = treePosition.getChildCt();
     this.ancestorPath = treePosition.getAncestorPath();
     this.children = new ArrayList<>();
-    this.labels = treePosition.getNode().getLabels();
+    if (treePosition.getNode() instanceof AtomClass) {
+      this.labels = ((AtomClass) treePosition.getNode()).getLabels();
+    }
   }
 
   /* see superclass */
@@ -130,12 +137,12 @@ public class TreeJpa implements Tree {
     }
 
     // assemble a map of this tree's children
-    Map<Long, Tree> childMap = new HashMap<>();
-    for (Tree t : this.getChildren()) {
+    final Map<Long, Tree> childMap = new HashMap<>();
+    for (final Tree t : this.getChildren()) {
       childMap.put(t.getId(), t);
     }
 
-    for (Tree child : tree.getChildren()) {
+    for (final Tree child : tree.getChildren()) {
       if (!childMap.containsKey(child.getId())) {
         children.add(child);
       } else {
@@ -194,6 +201,18 @@ public class TreeJpa implements Tree {
   @Override
   public void setNodeTerminologyId(String terminologyId) {
     this.nodeTerminologyId = terminologyId;
+  }
+
+  /* see superclass */
+  @Override
+  public Long getNodeId() {
+    return nodeId;
+  }
+
+  /* see superclass */
+  @Override
+  public void setNodeId(Long nodeId) {
+    this.nodeId = nodeId;
   }
 
   /* see superclass */
@@ -291,9 +310,8 @@ public class TreeJpa implements Tree {
     result = prime * result + ((nodeName == null) ? 0 : nodeName.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
-    result =
-        prime * result
-            + ((nodeTerminologyId == null) ? 0 : nodeTerminologyId.hashCode());
+    result = prime * result
+        + ((nodeTerminologyId == null) ? 0 : nodeTerminologyId.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
     return result;
   }
@@ -375,7 +393,7 @@ public class TreeJpa implements Tree {
     if (tree.getChildren().size() == 0) {
       leafNodes.add(tree);
     } else {
-      for (Tree chd : tree.getChildren()) {
+      for (final Tree chd : tree.getChildren()) {
         getLeafNodesHelper(chd, leafNodes);
       }
     }

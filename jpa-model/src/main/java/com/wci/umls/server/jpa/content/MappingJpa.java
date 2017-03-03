@@ -1,9 +1,13 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,6 +29,7 @@ import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.builtin.LongBridge;
 
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
@@ -39,8 +44,8 @@ import com.wci.umls.server.model.meta.IdType;
 @Audited
 @Indexed
 @XmlRootElement(name = "mapping")
-public class MappingJpa extends AbstractComponentHasAttributes implements
-    Mapping {
+public class MappingJpa extends AbstractComponentHasAttributes
+    implements Mapping {
 
   /** The map set. */
   @ManyToOne(targetEntity = MapSetJpa.class, optional = false)
@@ -97,6 +102,12 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
   @Column(nullable = true)
   private String additionalRelationshipType;
 
+  /** The alternate terminology ids. */
+  @ElementCollection()
+  // consider this: @Fetch(FetchMode.JOIN)
+  @Column(nullable = true)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link MappingJpa}.
    */
@@ -108,10 +119,10 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
    * Instantiates a {@link MappingJpa} from the specified parameters.
    *
    * @param mapping the mapping
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public MappingJpa(Mapping mapping, boolean deepCopy) {
-    super(mapping, deepCopy);
+  public MappingJpa(Mapping mapping, boolean collectionCopy) {
+    super(mapping, collectionCopy);
     mapSet = mapping.getMapSet();
     fromTerminologyId = mapping.getFromTerminologyId();
     fromName = mapping.getFromName();
@@ -125,6 +136,7 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
     rank = mapping.getRank();
     relationshipType = mapping.getRelationshipType();
     additionalRelationshipType = mapping.getAdditionalRelationshipType();
+    alternateTerminologyIds = new HashMap<>(mapping.getAlternateTerminologyIds());
   }
 
   /* see superclass */
@@ -403,38 +415,46 @@ public class MappingJpa extends AbstractComponentHasAttributes implements
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>(2);
+    }
+    return alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((additionalRelationshipType == null) ? 0
-                : additionalRelationshipType.hashCode());
+    result = prime * result + ((additionalRelationshipType == null) ? 0
+        : additionalRelationshipType.hashCode());
     result = prime * result + ((advice == null) ? 0 : advice.hashCode());
     result =
         prime * result + ((fromIdType == null) ? 0 : fromIdType.hashCode());
-    result =
-        prime * result
-            + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
+    result = prime * result
+        + ((fromTerminologyId == null) ? 0 : fromTerminologyId.hashCode());
     result = prime * result + ((group == null) ? 0 : group.hashCode());
-    result =
-        prime * result
-            + ((getMapSetId() == null) ? 0 : getMapSetId().hashCode());
-    result =
-        prime
-            * result
-            + ((getMapSetTerminologyId() == null) ? 0
-                : getMapSetTerminologyId().hashCode());
+    result = prime * result
+        + ((getMapSetId() == null) ? 0 : getMapSetId().hashCode());
+    result = prime * result + ((getMapSetTerminologyId() == null) ? 0
+        : getMapSetTerminologyId().hashCode());
     result = prime * result + ((rank == null) ? 0 : rank.hashCode());
-    result =
-        prime * result
-            + ((relationshipType == null) ? 0 : relationshipType.hashCode());
+    result = prime * result
+        + ((relationshipType == null) ? 0 : relationshipType.hashCode());
     result = prime * result + ((rule == null) ? 0 : rule.hashCode());
     result = prime * result + ((toIdType == null) ? 0 : toIdType.hashCode());
-    result =
-        prime * result
-            + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
+    result = prime * result
+        + ((toTerminologyId == null) ? 0 : toTerminologyId.hashCode());
     return result;
   }
 

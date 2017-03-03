@@ -1,11 +1,10 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services;
 
 import java.util.Map;
 
-import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.meta.AdditionalRelationshipTypeList;
 import com.wci.umls.server.helpers.meta.AttributeNameList;
@@ -18,7 +17,6 @@ import com.wci.umls.server.helpers.meta.RootTerminologyList;
 import com.wci.umls.server.helpers.meta.SemanticTypeList;
 import com.wci.umls.server.helpers.meta.TermTypeList;
 import com.wci.umls.server.helpers.meta.TerminologyList;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.GeneralMetadataEntry;
@@ -35,7 +33,7 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
 /**
  * Services to retrieve metadata objects.
  */
-public interface MetadataService extends RootService, Configurable {
+public interface MetadataService extends ProjectService {
 
   /**
    * An enum for the keys of the get all metadata call.
@@ -59,16 +57,6 @@ public interface MetadataService extends RootService, Configurable {
     /** The Label sets. */
     Label_Sets,
   }
-
-  /**
-   * Enable listeners.
-   */
-  public void enableListeners();
-
-  /**
-   * Disable listeners.
-   */
-  public void disableListeners();
 
   /**
    * Returns the terminologies.
@@ -118,6 +106,15 @@ public interface MetadataService extends RootService, Configurable {
   public String getLatestVersion(String terminology) throws Exception;
 
   /**
+   * Returns the previous version.
+   *
+   * @param terminology the terminology
+   * @return the previous version
+   * @throws Exception the exception
+   */
+  public String getPreviousVersion(String terminology) throws Exception;
+
+  /**
    * Returns the terminology latest versions.
    * 
    * @return the terminology latest versions
@@ -142,6 +139,24 @@ public interface MetadataService extends RootService, Configurable {
    * @throws Exception the exception
    */
   public TerminologyList getTerminologies() throws Exception;
+
+  /**
+   * Returns the current terminology.
+   *
+   * @param terminologyName the terminology name
+   * @return the current terminology
+   * @throws Exception the exception
+   */
+  public Terminology getCurrentTerminology(String terminologyName) throws Exception;
+  
+  
+  /**
+   * Returns the current terminologies.
+   *
+   * @return the current terminologies
+   * @throws Exception the exception
+   */
+  public TerminologyList getCurrentTerminologies() throws Exception;
 
   /**
    * Returns the all metadata.
@@ -247,22 +262,6 @@ public interface MetadataService extends RootService, Configurable {
     throws Exception;
 
   /**
-   * Indicates whether or not stated relationship is the case.
-   *
-   * @param relationship the r
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isStatedRelationship(Relationship<?, ?> relationship);
-
-  /**
-   * Indicates whether or not inferred relationship is the case.
-   *
-   * @param relationship the r
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isInferredRelationship(Relationship<?, ?> relationship);
-
-  /**
    * Returns the non grouping relationship types.
    *
    * @param terminology the terminology
@@ -291,16 +290,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the precedence list
    * @throws Exception the exception
    */
-  public PrecedenceList getDefaultPrecedenceList(String terminology,
+  public PrecedenceList getPrecedenceList(String terminology,
     String version) throws Exception;
-
-  /**
-   * Indicates whether or not to assign last modified when changing terminology
-   * components. Supports a loader that wants to disable this feature.
-   *
-   * @return <code>true</code> if so, <code>false</code> otherwise
-   */
-  public boolean isLastModifiedFlag();
 
   /**
    * Adds the semantic type.
@@ -516,8 +507,8 @@ public interface MetadataService extends RootService, Configurable {
    * @return the general metadata entry
    * @throws Exception the exception
    */
-  public GeneralMetadataEntry addGeneralMetadataEntry(GeneralMetadataEntry entry)
-    throws Exception;
+  public GeneralMetadataEntry addGeneralMetadataEntry(
+    GeneralMetadataEntry entry) throws Exception;
 
   /**
    * Update general metadata entry.
@@ -624,4 +615,98 @@ public interface MetadataService extends RootService, Configurable {
   public GraphResolutionHandler getGraphResolutionHandler(String terminology)
     throws Exception;
 
+  /**
+   * Gets the semantic type descendants.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param treeNumber the tree number
+   * @param includeSelf the include self
+   * @return the semantic type descendants
+   * @throws Exception the exception
+   */
+  public SemanticTypeList getSemanticTypeDescendants(String terminology,
+    String version, String treeNumber, boolean includeSelf) throws Exception;
+
+  /**
+   * Gets the precedence list.
+   *
+   * @param precedenceListId the precedence list id
+   * @return the precedence list
+   * @throws Exception the exception
+   */
+  public PrecedenceList getPrecedenceList(Long precedenceListId)
+    throws Exception;
+
+  /**
+   * Gets the semantic type for a terminology.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the semantic type
+   * @throws Exception the exception
+   */
+  public SemanticType getSemanticType(String type, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Gets the attribute name.
+   *
+   * @param name the name
+   * @param terminology the terminology
+   * @param version the version
+   * @return the attribute name
+   * @throws Exception the exception
+   */
+  public AttributeName getAttributeName(String name, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Gets the term type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the term type
+   * @throws Exception the exception
+   */
+  public TermType getTermType(String type, String terminology, String version)
+    throws Exception;
+
+  /**
+   * Gets the relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the relationship type
+   * @throws Exception the exception
+   */
+  public RelationshipType getRelationshipType(String type, String terminology,
+    String version) throws Exception;
+
+  /**
+   * Gets the additional relationship type.
+   *
+   * @param type the type
+   * @param terminology the terminology
+   * @param version the version
+   * @return the additional relationship type
+   * @throws Exception the exception
+   */
+  public AdditionalRelationshipType getAdditionalRelationshipType(String type,
+    String terminology, String version) throws Exception;
+
+  /**
+   * Gets the language.
+   *
+   * @param language the language
+   * @param terminology the terminology
+   * @param version the version
+   * @return the language
+   * @throws Exception the exception
+   */
+  public Language getLanguage(String language, String terminology,
+    String version) throws Exception;
 }

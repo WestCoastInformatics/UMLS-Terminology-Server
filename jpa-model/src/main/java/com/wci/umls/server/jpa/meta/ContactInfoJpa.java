@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
 
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.model.meta.ContactInfo;
 
@@ -81,7 +82,7 @@ public class ContactInfoJpa implements ContactInfo {
   private String url;
 
   /** The value. */
-  @Column(nullable = true)
+  @Column(nullable = true, length = 4000)
   private String value;
 
   /** The zip code. */
@@ -101,6 +102,7 @@ public class ContactInfoJpa implements ContactInfo {
    * @param contactInfo the i
    */
   public ContactInfoJpa(ContactInfo contactInfo) {
+    id = contactInfo.getId();
     address1 = contactInfo.getAddress1();
     address2 = contactInfo.getAddress2();
     city = contactInfo.getCity();
@@ -136,6 +138,7 @@ public class ContactInfoJpa implements ContactInfo {
     String[] fields = FieldedStringTokenizer.split(mrsabField, ";");
     if (fields.length < 10) {
       // does not meet requirements, bail
+      value = mrsabField;
       return;
     }
     name = fields[0];
@@ -344,9 +347,8 @@ public class ContactInfoJpa implements ContactInfo {
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result =
         prime * result + ((organization == null) ? 0 : organization.hashCode());
-    result =
-        prime * result
-            + ((stateOrProvince == null) ? 0 : stateOrProvince.hashCode());
+    result = prime * result
+        + ((stateOrProvince == null) ? 0 : stateOrProvince.hashCode());
     result = prime * result + ((telephone == null) ? 0 : telephone.hashCode());
     result = prime * result + ((title == null) ? 0 : title.hashCode());
     result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -436,6 +438,25 @@ public class ContactInfoJpa implements ContactInfo {
     } else if (!zipCode.equals(other.zipCode))
       return false;
     return true;
+  }
+
+  /* see superclass */
+  @Override
+  public String toString() {
+    if (!ConfigUtility.isEmpty(getValue())) {
+      return getValue();
+    }
+    return (getName() != null ? getName() : "") + ";"
+        + (getTitle() != null ? getTitle() : "") + ";"
+        + (getOrganization() != null ? getOrganization() : "") + ";"
+        + (getAddress1() != null ? getAddress1() : "") + ";"
+        + (getAddress2() != null ? getAddress2() : "") + ";"
+        + (getCity() != null ? getCity() : "") + ";"
+        + (getStateOrProvince() != null ? getStateOrProvince() : "") + ";"
+        + (getCountry() != null ? getCountry() : "") + ";"
+        + (getZipCode() != null ? getZipCode() : "") + ";"
+        + (getEmail() != null ? getEmail() : "");
+
   }
 
 }

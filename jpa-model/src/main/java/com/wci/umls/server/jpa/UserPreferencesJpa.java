@@ -1,21 +1,25 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -23,6 +27,7 @@ import org.hibernate.envers.Audited;
 
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserPreferences;
+import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 
@@ -36,9 +41,9 @@ import com.wci.umls.server.jpa.helpers.PrecedenceListJpa;
 public class UserPreferencesJpa implements UserPreferences {
 
   /** The id. */
-  @TableGenerator(name = "EntityIdGen", table = "table_generator", pkColumnValue = "Entity")
+  @TableGenerator(name = "EntityIdGenUser", table = "table_generator_users", pkColumnValue = "Entity", initialValue = 50)
   @Id
-  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGen")
+  @GeneratedValue(strategy = GenerationType.TABLE, generator = "EntityIdGenUser")
   private Long id;
 
   /** The user name. */
@@ -57,6 +62,11 @@ public class UserPreferencesJpa implements UserPreferences {
   @Column(nullable = true)
   private String lastTab;
 
+  /** The lastProjectRole. */
+  @Enumerated(value = EnumType.STRING)
+  @Column(nullable = true)
+  private UserRole lastProjectRole;
+
   /** The lastTerminology. */
   @Column(nullable = true)
   private String lastTerminology;
@@ -66,29 +76,39 @@ public class UserPreferencesJpa implements UserPreferences {
   private PrecedenceList precedenceList = null;
 
   /** The favorites. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   private List<String> favorites = null;
 
+  /** The properties. */
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 4000)
+  private Map<String, String> properties;
+
   /**
-   * The default constructor.
+   * Instantiates an empty {@link UserPreferencesJpa}.
    */
   public UserPreferencesJpa() {
+    // n/a
   }
 
   /**
    * Instantiates a new user jpa.
    *
-   * @param userPreferences the user preferences
+   * @param prefs the user preferences
    */
-  public UserPreferencesJpa(UserPreferences userPreferences) {
+  public UserPreferencesJpa(UserPreferences prefs) {
     super();
-    id = userPreferences.getId();
-    user = userPreferences.getUser();
-    feedbackEmail = userPreferences.getFeedbackEmail();
-    lastTab = userPreferences.getLastTab();
-    lastProjectId = userPreferences.getLastProjectId();
-    lastTerminology = userPreferences.getLastTerminology();
-    precedenceList = userPreferences.getPrecedenceList();
+    id = prefs.getId();
+    user = prefs.getUser();
+    feedbackEmail = prefs.getFeedbackEmail();
+    lastTab = prefs.getLastTab();
+    lastProjectId = prefs.getLastProjectId();
+    lastTerminology = prefs.getLastTerminology();
+    lastProjectRole = prefs.getLastProjectRole();
+    precedenceList = prefs.getPrecedenceList();
+    favorites = new ArrayList<>(prefs.getFavorites());
+    properties = new HashMap<>(prefs.getProperties());
   }
 
   /**
@@ -109,27 +129,6 @@ public class UserPreferencesJpa implements UserPreferences {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /**
-   * Returns the object id. Needed for JAXB id
-   *
-   * @return the object id
-   */
-  @XmlID
-  public String getObjectId() {
-    return id == null ? "" : id.toString();
-  }
-
-  /**
-   * Sets the object id.
-   *
-   * @param id the object id
-   */
-  public void setObjectId(String id) {
-    if (id != null && !id.equals("")) {
-      this.id = Long.parseLong(id);
-    }
   }
 
   /**
@@ -159,7 +158,7 @@ public class UserPreferencesJpa implements UserPreferences {
    * @return the user id
    */
   public Long getUserId() {
-    return user == null ? 0L : user.getId();
+    return user == null ? null : user.getId();
   }
 
   /**
@@ -249,6 +248,19 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /* see superclass */
   @Override
+  public UserRole getLastProjectRole() {
+    return lastProjectRole;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastProjectRole(UserRole lastProjectRole) {
+    this.lastProjectRole = lastProjectRole;
+
+  }
+
+  /* see superclass */
+  @Override
   public String getFeedbackEmail() {
     return feedbackEmail;
   }
@@ -309,22 +321,35 @@ public class UserPreferencesJpa implements UserPreferences {
 
   /* see superclass */
   @Override
+  public Map<String, String> getProperties() {
+    if (properties == null) {
+      properties = new HashMap<>();
+    }
+    return properties;
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((lastTab == null) ? 0 : lastTab.hashCode());
     result =
-        prime * result
-            + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
-    result =
-        prime * result
-            + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
-    // result =
-    // prime * result
-    // + ((precedenceList == null) ? 0 : precedenceList.hashCode());
-    result =
-        prime * result
-            + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
+        prime * result + ((properties == null) ? 0 : properties.hashCode());
+    result = prime * result
+        + ((lastTerminology == null) ? 0 : lastTerminology.hashCode());
+    result = prime * result
+        + ((feedbackEmail == null) ? 0 : feedbackEmail.hashCode());
+    result = prime * result
+        + ((lastProjectId == null) ? 0 : lastProjectId.hashCode());
+    result = prime * result
+        + ((lastProjectRole == null) ? 0 : lastProjectRole.hashCode());
     result = prime * result + ((user == null) ? 0 : user.hashCode());
     return result;
   }
@@ -360,10 +385,20 @@ public class UserPreferencesJpa implements UserPreferences {
         return false;
     } else if (!lastProjectId.equals(other.lastProjectId))
       return false;
+    if (lastProjectRole == null) {
+      if (other.lastProjectRole != null)
+        return false;
+    } else if (!lastProjectRole.equals(other.lastProjectRole))
+      return false;
     if (feedbackEmail == null) {
       if (other.feedbackEmail != null)
         return false;
     } else if (!feedbackEmail.equals(other.feedbackEmail))
+      return false;
+    if (properties == null) {
+      if (other.properties != null)
+        return false;
+    } else if (!properties.equals(other.properties))
       return false;
     // if (precedenceList == null) {
     // if (other.precedenceList != null)
@@ -378,8 +413,9 @@ public class UserPreferencesJpa implements UserPreferences {
   public String toString() {
     return "UserPreferencesJpa [id=" + id + ", user=" + user
         + ", lastTerminology=" + lastTerminology + ", lastProjectId="
-        + lastProjectId + ", lastTab=" + lastTab + ", feedbackEmail="
-        + feedbackEmail + ", precedenceList=" + precedenceList + "]";
+        + lastProjectId + ", lastProjectRole=" + lastProjectRole + ", lastTab="
+        + lastTab + ", feedbackEmail=" + feedbackEmail + ", precedenceList="
+        + precedenceList + properties + "]";
   }
 
 }

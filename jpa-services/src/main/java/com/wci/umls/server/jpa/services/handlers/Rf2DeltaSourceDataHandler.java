@@ -4,13 +4,16 @@
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -25,8 +28,10 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link Rf2DeltaSourceDataHandler}.
+   *
+   * @throws Exception the exception
    */
-  public Rf2DeltaSourceDataHandler() {
+  public Rf2DeltaSourceDataHandler() throws Exception {
     // n/a
   }
 
@@ -47,9 +52,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
    */
   @Override
   public void compute() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Loading RF2 Delta for "
-            + (sourceData == null ? "null" : sourceData.getName()));
+    Logger.getLogger(getClass()).info("Loading RF2 Delta for "
+        + (sourceData == null ? "null" : sourceData.getName()));
 
     // check pre-requisites
     if (sourceData == null) {
@@ -84,8 +88,8 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
             + File.separator + sourceData.getId().toString();
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // RF2 Loads require locating a base directory containing two folders
@@ -94,7 +98,7 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
     String revisedInputDir = null;
 
     // find the DELTA file
-    for (File f : new File(inputDir).listFiles()) {
+    for (final File f : new File(inputDir).listFiles()) {
       if (f.getName().toLowerCase().equals("delta")) {
         revisedInputDir = f.getAbsolutePath();
       }
@@ -125,9 +129,10 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
       // perform main load
       algo.compute();
 
-      // compute transitive closures and tree positions
-      algo.computeTreePositions();
-      algo.computeTransitiveClosures();
+      // compute tree pos, compute transitive closure
+      // TODO: reowrk this to operate around a "process" and source data service
+      // can register the proccess - or we can fold this all into process
+      // serviceP
 
       sourceData.setStatus(SourceData.Status.LOADING_COMPLETE);
     } catch (Exception e) {
@@ -140,33 +145,43 @@ public class Rf2DeltaSourceDataHandler extends AbstractSourceDataHandler {
     }
   }
 
+  /* see superclass */
   @Override
-  public boolean checkPreconditions() throws Exception {
+  public ValidationResult checkPreconditions() throws Exception {
 
+    final ValidationResult result = new ValidationResultJpa();
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
 
       // concepts must exist with this terminology/version
-      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+      if (contentService.findConceptSearchResults(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
           .getTotalCount() > 0) {
-        return true;
-      } else {
-        return false;
+        result.addError("Unexpected lack of concepts for "
+            + sourceData.getTerminology() + ", " + sourceData.getVersion());
       }
+
+      return result;
     } catch (Exception e) {
       throw e;
     } finally {
       if (contentService != null)
         contentService.close();
     }
+
   }
 
+  /* see superclass */
   @Override
   public void reset() throws Exception {
     // do nothing
 
+  }
+
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
   }
 
 }

@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.wci.umls.server.helpers.PfsParameter;
 
 /**
- * The JPA and JAXB enabled implementation of the paging/filtering/sorting object.
+ * The JAXB enabled implementation of the paging/filtering/sorting object. 
  */
 @XmlRootElement(name = "pfs")
 public class PfsParameterJpa implements PfsParameter {
@@ -64,10 +64,11 @@ public class PfsParameterJpa implements PfsParameter {
     queryRestriction = pfs.getQueryRestriction();
     branch = pfs.getBranch();
     sortField = pfs.getSortField();
-    sortFields = pfs.getSortFields();
+    sortFields = new ArrayList<>(pfs.getSortFields());
     ascending = pfs.isAscending();
     activeOnly = pfs.getActiveOnly();
     inactiveOnly = pfs.getInactiveOnly();
+    expression = pfs.getExpression();
   }
 
   @Override

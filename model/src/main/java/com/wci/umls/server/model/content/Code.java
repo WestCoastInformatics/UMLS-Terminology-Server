@@ -1,10 +1,10 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
-import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasNotes;
+import com.wci.umls.server.helpers.HasTreePositions;
 
 /**
  * Represents a fuzzy conceptual meaning that may be a {@link Concept} or may be
@@ -15,8 +15,9 @@ import com.wci.umls.server.helpers.HasNotes;
  * For "legacy" UMLS sources, it's also an alternative to concept/descriptor as
  * it has not clearly been defined which is which.
  */
-public interface Code extends AtomClass,
-    ComponentHasRelationships<CodeRelationship>, HasNotes, ComponentInfo {
+public interface Code
+    extends AtomClass, ComponentHasRelationships<CodeRelationship>, HasNotes,
+    HasTreePositions<CodeTreePosition> {
 
   // n/a
 

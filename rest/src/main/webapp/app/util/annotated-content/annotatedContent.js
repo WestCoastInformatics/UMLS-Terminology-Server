@@ -1,4 +1,4 @@
-// Content controller
+// Notes
 tsApp.directive('annotatedContent', [
   '$rootScope',
   'utilService',
@@ -6,26 +6,27 @@ tsApp.directive('annotatedContent', [
   'securityService',
   '$uibModal',
   function($rootScope, utilService, contentService, securityService, $uibModal) {
-    console.debug('configure note components directive');
     return {
       restrict : 'A',
       scope : {
         // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
+        component : '=',
         callbacks : '='
       },
       templateUrl : 'app/util/annotated-content/annotatedContent.html',
       link : function(scope, element, attrs) {
-        
+
         // TODO Check into case sensitivity of filter for terminology ids
 
         console.debug('entered note components directive');
 
-        // instantiate paging and paging callback function
+        // instantiate paging and paging callbacks function
         scope.pagedData = [];
+        scope.pageSizes = utilService.getPageSizes();
         scope.paging = utilService.getPaging();
         console.debug(scope.paging);
-        scope.pageCallback = {
+        scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 
@@ -44,7 +45,7 @@ tsApp.directive('annotatedContent', [
         }, {
           key : 'Terminology Id',
           value : 'terminologyId'
-        }];
+        } ];
 
         function getPagedList() {
 
@@ -64,8 +65,8 @@ tsApp.directive('annotatedContent', [
         };
 
         scope.removeAnnotatedContent = function(content) {
-          securityService.removeUserAnnotatedContent(content.type, content.terminology, content.version,
-            content.terminologyId, content.value).then(function(response) {
+          securityService.removeUserAnnotatedContent(content.type, content.terminology,
+            content.version, content.terminologyId, content.value).then(function(response) {
             getPagedList();
             scope.callbacks.checkAnnotatedContentStatus();
 

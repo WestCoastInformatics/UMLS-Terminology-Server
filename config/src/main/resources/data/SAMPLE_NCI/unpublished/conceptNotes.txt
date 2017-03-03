@@ -1,0 +1,850 @@
+C2984172|Dec 28, 2012-- Discussed with Terry, NICHD belongs with the gene.  LLW|E-LLW|29-NOV-12
+C0113293|note: "Precedex" is actually dexmedetomidine hydrochloride; this will be fixed in NCIt.  MNC 4/20/11|E-MNC|20-APR-11
+C0376147|NCI uses this term to comprise all variants of alanine transaminase.--AG--2006.1.18|E-HAG|18-JAN-06
+C0934940|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C1300072|'T-Stage' has been removed as an SY from the NCIt concept (C16899) in Protege. 3/25/14 GSC|E-GSC|25-MAR-14
+CL386104|10-06-2008 Gallstone disease is NT Bile Duct Calculus Disorder.  The two should not be merged.  LLW|E-LLW|06-OCT-08
+CL449041|[cfc 1-12-10] Per Nick S., Pemphigoid C34908 and Bullous Pemphigoid C84389 should be kept separate.|E-CFC|12-JAN-10
+C1382107|01-04-06 Terms are SYN and will be merged in TDE.|E-LAR|03-MAY-06
+C0042024|Deleted synonyms for NCI concepts in TDE.--2005.05.30—AG|E-HAG|30-MAY-06
+C0010186|This concept has 2 NCI PTs, and will be merged in the NCIT. 2007.10.09--AG|E-HAG|09-OCT-07
+CL413528|2-11-2010 The SYN AZD6918 is incorrect and will be fixed in Thesaurus by Cynthia. LLW|E-LLW|11-FEB-10
+C0599156|[cfc, 7-29-10] NCIt concept C45590 is retired, so I merged it in here.|E-CFC|29-JUL-10
+C0392939|PDQ PT is listed as "mbarnstead". This is incorrect.  Error was reported. 9/8/16 GSC|E-GSC|08-SEP-16
+C0242528|06-27-08 Please do not split out MDR uremia atoms it causes a SFO/LFO split.  LLW|E-LLW|27-JUN-08
+C0007582|[cfc, 8-24-10] C41511 was merged with this in NCIt, so I merged it here.|E-CFC|24-AUG-10
+C0264879|Dec 2012-- NICHD will be moved to the other NCI concept in Thesaurus. LLW|E-LLW|07-DEC-12
+C1513841|Two PTS will be merged in NCIt (LAR 8/13/2014)|E-LAR|14-AUG-14
+C1450468|Currently determining whether to merge this concept with CN#174167.  10/1/14 GSC|E-GSC|01-OCT-14
+C0022131|June 6, 2013-- two NCI PTs in this concept. Nick has merged in Thesaurus. LLW|E-LLW|06-JUN-13
+C0304352|Codeine Sufate will be new concept in NCIt.--AG--2006.1.18|E-HAG|19-JAN-06
+C0025605|Methadone with code = C638 no longer valid SY in NCIT.2006.10.12--AG|E-HAG|12-OCT-06
+C1515592|[cfc 8-5-11] C45860 is retired. Merged in with the current concept.|E-CFC|05-AUG-11
+C3159320|Cardamom and cardamon are alternate spellings. 11/17/15 GSC|E-GSC|17-NOV-15
+C0815811|The RADLEX SY is incorrect.  It notes the wrong side.  4/23/14 GSC|E-GSC|23-APR-14
+C1378511|[cfc 7-28-09] Undifferentiated Acute Leukemia C9299 is retired, so I put those atoms in here.|E-CFC|28-JUL-09
+C0319966|Paecilomyces variotii is the asexual state of Byssochlamys spectabilis. 9/22/16 GSC|E-GSC|22-SEP-16
+C0528166|NCI definition was modified to correct typos and phrasing. 9/8/16 GSC|E-GSC|08-SEP-16
+C0242129|MedDRA split from NCit NICHD concept correctly. taq 11/15|E-TAQ|16-NOV-15
+C0085407|NCI definition has been updated as Microsporidia are now classified as fungal organisms. 6/29/16 GSC|E-GSC|29-JUN-16
+C0002165|04-03-2009 Doxil SYN is a mistake and will be removed in NCIt by Wen-Ling.  LLW|E-LLW|03-APR-09
+C0151436|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C0017562|Merge in Meta. Sent note to merge in Thesaurus. (4/14/2010 LAR)|E-LAR|14-APR-10
+C0016904|[cfc 7-23-09] Per Cynthia, the NCI PT should not have periods. She will remove them in NCIt.|E-CFC|23-JUL-09
+C1328169|Rocaltrol and Calcijex have been removed as synonyms of DN-101 as of 5/7/10 in NCIt.  MNC|E-MNC|07-MAY-10
+C2587212|2010.06.29 - This concept is human related and the MSH concept (CN#168915) is animal related.  AKJ|E-AKJ|29-JUN-10
+C0003461|Anal and Anus will be merged in NCI Thesaurus (11/1/2005 LAR)|E-LAR|01-NOV-05
+C0027126|Congenital myotonic dystrophy moved, consistent with NCIt. taq 8/15|E-TAQ|20-AUG-15
+C0113600|3-21-08 Two NCI PTs in this concept-- they will be merged in NCIt.  LLW|E-LLW|21-MAR-08
+C0815805|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C1517447|Note the Radlex SY mistake will be reported to LLW.  MNC  4/27/14|E-MNC|27-APR-14
+C0059438|08-30-07 Two NCI PTs in this concept-- they are now merged in NCIt.  LLW|E-LLW|30-AUG-07
+C0014306|Will merge in NCIt . Misspelled concept will be deprecated. AG 2015.09.28|E-HAG|29-SEP-15
+C0063491|08-30-07 Two NCI PTs in this concept-- they are now merged in NCIt.  LLW|E-LLW|30-AUG-07
+C0221198|03-31-2008, per Lyuba these two NCI concepts have been merged in NCIt.  I have merged them here. LLW|E-LLW|31-MAR-08
+C0699900|[cfc, 7-16-10] C18266 is retired in NCIt.|E-CFC|16-JUL-10
+C0004170|05-05-2010 two NCI PTs in this concept. They will be merged in Thesaurus by Nick. LLW|E-LLW|05-MAY-10
+C1516823|[cfc, 8-24-10] C45579 was retired and merged into this in NCIt, so I merged it here.|E-CFC|24-AUG-10
+C0162672|[cfc, 12-13-16] Merged C129979 in with this concept. Al is taking care of merging in NCIt to C84889.|E-CFC|13-DEC-16
+C0410226|Congenital myotonic dystrophy moved, consistent with NCIt. taq 8/15|E-TAQ|20-AUG-15
+C0130561|04-03-2009 Two NCIt PTs.  They will be merged in Thesaurus by Wen-Ling. LLW|E-LLW|03-APR-09
+C0080218|The misspelling of cord as ‘chord’ in one of the RDR ET terms has been reported. 7/16/15 GSC|E-GSC|16-JUL-15
+C0318417|Echovirus 23 has been renamed Human Parechovirus 2. 10/12/16 GSC|E-GSC|12-OCT-16
+C0914288|Despite MeSH naming, this is a non-coding RNA.  4/1/16 GSC|E-GSC|01-APR-16
+C0156275|Oct 2015-- moved LLT to other NCI concept. Will be fixed in NCIt.  LLW|E-LLW|01-OCT-15
+C0029078|Changed NCI PT to correct spelling of: Ophthalmic Artery in Protege.  12/11/13 GSC|E-GSC|11-DEC-13
+C0034013|NCIt concepts merged - consistent with NCIt. (taq 7/31/15)|E-TAQ|31-JUL-15
+C0014678|Misspelling of failure in RADLEX PT and SY was reported.  4/10/14 GSC|E-LAR|22-JUN-15
+C0450254|[cfc 4-3-09] The NCI concept for Pathogen C50922 will be retired, per Nicole Thomas.|E-CFC|03-APR-09
+C0835250|The RADLEX SY is incorrect. It refers to a tendon not a ligament. 4/23/14 GSC|E-GSC|23-APR-14
+C0223792|O.K. 2 NCI PTs. Merged in TDE. 2006.03.15--AG|E-HAG|15-MAR-06
+C0265234|The NCIt concepts comport to the way the data is represented in the NCIt. taq 9/15|E-TAQ|25-SEP-15
+C0163272|02-17-2012 Two NCI PTs. Per WL this is a mistake in Thesaurus and the two will be merged. LLW|E-LLW|17-FEB-12
+C0879262|Misspelling of 5-fluorouracil in NCI definition has been corrected in NCIt. 9/9/16 GSC|E-GSC|09-SEP-16
+C0018779|[cfc, 9-23-15] split Hearing loss [MEDDRA_2015_08E/LLT/10019246] C116365 due to bad synonomy.|E-CFC|23-SEP-15
+C0835249|The RADLEX SY is incorrect. It refers to a tendon not a ligament. 4/23/14 GSC|E-GSC|23-APR-14
+C0010408|Concepts were merged in TDE--2006.09.18--AG|E-HAG|18-SEP-06
+C0376649|2010.03.11 Suggested PN for this concept - Address (speech or report).  AKJ|E-AKJ|11-MAR-10
+C0152298|06-25-2010 Two NCI PTs. Nick will merge these in Thesaurus.  LLW|E-LLW|25-JUN-10
+C1329474|144 MG Pyrantel Pamoate = 50 MG Pyrantel base.  12/17/13 GSC|E-GSC|17-DEC-13
+C0032533|Polymyalgia rheumatica was formerly known as rhizomelic pseudopolyarthritis.  7/20/15 GSC|E-GSC|20-JUL-15
+C0935607|The correctly spelled eponym is Zeis (see: http://www.ncbi.nlm.nih.gov/pubmed/793660). 6/20/16 GSC|E-GSC|20-JUN-16
+C0029965|[cfc 8-5-11] Merged C92938 into here since it has been retired.|E-CFC|05-AUG-11
+C0450408|Photo patch test result of ph++ indicates an intense reaction. 10/25/16 GSC|E-GSC|25-OCT-16
+C3888018|Changes to NCIt concept consistent with data in NCIt. (taq-7/30/15)|E-TAQ|30-JUL-15
+C0971579|Please note: the BN "Levitra" has been moved in NCIt to "vardenafil hydrochloride."  MNC  7/14/10|E-MNC|14-JUL-10
+C0949561|NCI synonym "Alpha-Methyltyrosine" deleted from NCIt.  MNC 5/7/10|E-MNC|07-MAY-10
+C1334679|[cfc, 12-6-10] C6625 is retired.|E-CFC|06-DEC-10
+C0084440|08-30-07 Two NCI PTs in this concept-- they are now merged in NCIt.  LLW|E-LLW|30-AUG-07
+C0304915|08-30-07 Two NCI PTs in this concept-- they are now merged in NCIt.  LLW|E-LLW|30-AUG-07
+C0016520|07-06-2009 Two NCI PTs in this concept.  They will be merged in NCIt by Nick.  LLW.|E-LLW|06-JUL-09
+C0039840|8-23-07  Two NCI PTs in this concept as it was a mistake in NCIt-- which has now been merged.  LLW|E-LLW|23-AUG-07
+C0030350|04-03-09 Papaverine HCL is a mistake in Thesaurus, Wen- Ling will delete this atom. LLW|E-LLW|03-APR-09
+C0003955|Species name is misspelled in NCI PT.  It has been corrected in NCI Thesaurus. 7/5/16 GSC|E-GSC|05-JUL-16
+C0030342|9-25-2007 Two NCI PTs merged here.  Note sent about duplicate concepts in NCIt to be fixed.  LLW|E-LLW|25-SEP-07
+C0438100|Misspelling of infant as "nfant" in SY was reported. 11/26/14 GSC|E-GSC|26-NOV-14
+C0027686|05-24-2010 Merged two NCI PTs. These will be merged by Nick in Thesaurus. LLW|E-LLW|24-MAY-10
+C1883177|5-14-07 This has been changed in TDE is now an ovarian tumor.  LLW|E-CFC|16-JUL-07
+C0599157|[cfc, 8-24-10] C45591 is retired in NCIt, so I merged it in here.|E-CFC|24-AUG-10
+C0053396|08-30-07 Two NCI PTs in this concept.  The concepts have now been merged in NCIt.  LLW|E-LLW|30-AUG-07
+C0054241|I have contacted Cynthia regarding C96326 and C96327.  MNC 10/19/14|E-MNC|19-OCT-14
+C0151907|[cfc, 9-28-15] split Abnormal pigmentation [MEDDRA_2015_08E/LLT/10000165] C3327 due to bad synonomy.|E-CFC|28-SEP-15
+C0039729|06-23-2010 2 NCI PTs in this concept they will be merged in Thesaurus by Nick. LLW|E-LLW|23-JUN-10
+C0751547|See: https://www.orpha.net/data/patho/GB/uk-juvenile-temporal-arteritis.pdf 8/12/15 GSC|E-GSC|12-AUG-15
+C0014268|Requested merge between the two NCI PTs in Thesaurus.-- 9.22.2005--AG|E-HAG|22-SEP-05
+C0004457|05-05-2010 2 NCI PTs in this concept. They will be merged in NCIt by Nick. LLW|E-LLW|05-MAY-10
+C0234398|OCT 2015-- Moved LLT in here for SYN reasons. Will be corrected in NCIt.  LLW|E-LLW|02-OCT-15
+C0007587|[cfc 7-12-10] Merging C41515 into here because other NCI concept is inactive (C16398).|E-CFC|13-JUL-10
+C1679363|Misspelling of 'metastasis' in SY was fixed in NCI Thesaurus.  8/29/16 GSC|E-GSC|29-AUG-16
+C0115656|Miacalcin is salmon calcitonin, not elcatonin; this will be fixed in NCIt.  MNC 6/22/2011|E-MNC|22-JUN-11
+C0009938|Oct 2015-- 2 NCIt PTs in this concept. They will be merged in NCI by Nick. LLW|E-LLW|26-OCT-15
+C1298430|A sodium fluoride solution of 5.56 MG/ML contans fluoride ion at 2.5 MG/ML. 12/18/13 GSC|E-GSC|18-DEC-13
+C1519478|[cfc, 7-21-10] C45586 is retired, so I merged it in here.|E-CFC|21-JUL-10
+C0210243|Atevirdine is U87201; U87201E is atevirdine mesylate.  This has been fixed in RxNorm.  MNC 6/22/11|E-MNC|22-JUN-11
+C0829117|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0015300|[cfc, 9-22-15] Merged NCI C118763 here because of misspelling. Teri will fix in NCIt.|E-CFC|22-SEP-15
+C0050380|[cfc, 11-19-10] C63364 is retired in NCIt.|E-CFC|19-NOV-10
+C0720433|The ingredient of this Fiberall is not calcium polycarbophil, it's psyllium.  MNC 4/23/10|E-MNC|23-APR-10
+C0156229|[cfc 8-17-13] C35539 and C35538 are retired so I merged into here.|E-CFC|17-AUG-13
+C1519903|April 2, 2012-- Two NCI PTs. These will be merged in NCIt by Wen-Ling.  LLW|E-LLW|02-APR-12
+C0829119|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0829121|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0231290|[cfc 4-3-07] Status Post is retired in NCI and is cross-referenced to Post, so I combined them here.|E-CFC|03-APR-07
+C0238397|The NCI definition has been changed to congenital or acquired. taq 2/2012|E-TAQ|20-FEB-12
+C0852707|Split from NCIt taq 11/15|E-TAQ|16-NOV-15
+C0834646|The RADLEX SY is incorrect.  It notes the wrong side.  4/23/14 GSC|E-GSC|23-APR-14
+C0000959|Note: "Vetranquil" is actually acepromazine maleate; this has been fixed in NCIt.  MNC 9/15/2010|E-MNC|15-SEP-10
+C1527219|req removal of full syn r-flurbiprofen from concept C508--2007.01.03-ag|E-HAG|04-JAN-07
+C1701901|[cfc 1-26-09] These two NCI concepts, C63905 and C78344, should be merged in NCIt per Nicole Thomas.|E-CFC|26-JAN-09
+C0879265|[cfc, 11-29-10] C63370 is retired.|E-CFC|29-NOV-10
+C1266065|July 2015-- There is a typo in this concept from RDR. It should be Porocarcinoma.  LLW|E-LLW|06-JUL-15
+C0318416|Echovirus 22 has been renamed Human Parechovirus 1. 10/12/16 GSC|E-GSC|12-OCT-16
+C1173247|Note: this concept and NCIt concept C76497 have been merged in NCIt.  MNC 6/7/11|E-MNC|07-JUN-11
+C1173247|Note: this concept and NCI concept C80054 have been merged in NCIt.  MNC 6/7/11|E-LLW|02-APR-12
+C0069717|Liposomal oxaliplatin now in separate concept. 2 NCI codes OK. -2007.04.04--AG|E-HAG|04-APR-07
+C0932506|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C1433192|Added space to SY, 'Mas-Related G-ProteinCoupled Receptor G3' in NCIt. 9/2/16 GSC|E-GSC|02-SEP-16
+C0069454|Dipentum is actually olsalazine sodium; this will be changed in NCIt.  MNC  4/27/10|E-MNC|27-APR-10
+C0771029|Requested removal of <Lamisil> from terbinafine base concept.2006.10.30--AG|E-HAG|30-OCT-06
+C2930972|02-20-2012: Two NCI PTs. These will be merged in Thesaurus. LLW|E-LLW|20-FEB-12
+C0332518|RADLEX definition should state "Unequivocal increase..."  Error was reported. 4/10/14 GSC|E-GSC|10-APR-14
+C0013423|NCIt atoms consistent with NCIt data. (taq 7/31/15)|E-TAQ|31-JUL-15
+C0027773|Changes to NCIt concept consistent with data in NCIt. (taq-7/30/15)|E-TAQ|30-JUL-15
+C1517586|[cfc 12-6-10] C28296 is retired.|E-CFC|06-DEC-10
+C0282107|03-31-2008 Two RXNorm codes (756 and 81984) in this concept are OK. LLW|E-LLW|31-MAR-08
+C0342648|[cfc, 9-25-15] split Calcinosis [MEDDRA_2015_08E/LLT/10006938] C114845 due to bad synonomy|E-CFC|25-SEP-15
+C0728803|used as a "disintegrant" for tablets.  MNC  7/9/10|E-MNC|09-JUL-10
+C1512125|[cfc, 12-13-10] These two concepts are not the same and should not be merged: C91589 and C39067|E-CFC|13-DEC-10
+C1017542|Candida lambica is the now obsolete name for C. firmentaria. 10/13/16 GSC|E-GSC|13-OCT-16
+C0393023|[cfc, 12-5-10] C63452 is retired.|E-CFC|05-DEC-10
+C0280697|[cfc, 11-29-10] C63456 is retired so I merged the PDQ in with this concept.|E-CFC|29-NOV-10
+C0829145|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0523807|[cfc 8-5-11] Merged  C96615 in here since it is retired.|E-CFC|05-AUG-11
+C0599155|[cfc, 7-21-10] C45585 is retired.|E-CFC|21-JUL-10
+C1436653|Despite MeSH naming, this is a non-protein coding RNA transcript.  4/1/16 GSC|E-GSC|01-APR-16
+C0393799|Verified RDR ETs:  http://jaoa.org/article.aspx?articleid=2093505  7/2/15 GSC|E-GSC|02-JUL-15
+C1155266|[cfc,12-6-10] C21111 is retired.|E-CFC|06-DEC-10
+C1506747|Reparixin was formerly termed "repertaxin."  MNC  5/20/10|E-LLW|23-AUG-13
+C1519246|[cfc, 8-24-10] C64663 is retired, so I merged it into this concept.|E-CFC|24-AUG-10
+C0060483|PDQ SY typo "fludarabine monophophate" (missing an 's') was reported. 9/9/16 GSC|E-GSC|09-SEP-16
+C0069021|04-03-2009 Konessin SYN is a mistake and will be removed in NCIt by Wen-Ling.  LLW|E-LLW|03-APR-09
+C0066789|[cfc, 12-4-10] C63365 is retired.|E-CFC|04-DEC-10
+C0153633|NICHD content accurately reflected here with regards to NCIt. taq 11/15|E-TAQ|16-NOV-15
+C1831915|[cfc, 12-5-10] C62725 is retired.|E-CFC|05-DEC-10
+C0507218|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0043251|06-21-07  Two NCI PTs in this concept-- they are being merged in NCIt. LLW|E-LLW|21-JUN-07
+C0152149|[cfc] Per Nick Sioutos, Ovulation Pain C79700 will be merged in with Ovulatory Pain C78514.|E-CFC|05-MAR-09
+C0042023|Deleted synonyms for NCI concepts in TDE.--2005.05.30—AG|E-HAG|30-MAY-06
+C0069477|[cfc, 8-16-11] C90849 is retired and cross-referenced to this concept, so I merged in here.|E-CFC|16-AUG-11
+C0087000|12-29-09 Two NCI PTs here. Sent to drug team, appear to be duplicates. LLW|E-LLW|29-DEC-09
+C0022584|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C0007226|2 nci pts OK.  LLW|E-LLW|09-JUL-08
+C0162772|06-04-2009 2 NCI PTs.  These will be merged in Thesaurus by Liz. LLW|E-LLW|04-JUN-09
+C1442065|According to RELMA, ADDR is the abbreviation for ADDRESS.10.5.2005--AG|E-HAG|05-OCT-05
+C0346421|Dec 2015-- All eosinophillic leukemia is chronic.  LLW|E-LLW|07-DEC-15
+C0815801|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0227157|Epiglottis is misspelled as "epiglotis" in RADLEX SY. 4/22/14 GSC|E-GSC|22-APR-14
+C1512032|[cfc, 8-24-10] C45578 was retired and merged into this in NCIt, so I merged them here.|E-CFC|24-AUG-10
+C0086138|MedDRA atom separated from NCIt concept due to non-synonomy. taq 11/15|E-TAQ|17-NOV-15
+C0429865|[cfc] The two NCI concepts, C49291 and C78557, should be merged, per Nicole Thomas - Jan. 26, 2009.|E-CFC|26-JAN-09
+C0134394|Will request merge in NCI Thesaurus. 2008.08.05--AG|E-HAG|17-JAN-12
+C0039585|[cfc 2-13-12] Merged c98812 as it was retired in Protege and merged into this concept there.|E-CFC|13-FEB-12
+C0073188|There are 2 NCI concept PTs in this concept and they have been merged in NCIt.   MNC 3/2/11|E-MNC|02-MAR-11
+C0004698|Oct2015-- Two NCI PTs. Al will merge in Thesaurus. LLW|E-LLW|01-OCT-15
+C1449563|MeSH EN typo, 'Cardiomyopathy, Dilated, with Conduction Deffect1' was reported. 9/1/15 GSC|E-GSC|01-SEP-15
+C0153898|Dec 2015-- All monocytic leukemia is acute. LLW|E-LLW|07-DEC-15
+C0241934|This NCI merge comports with the representation in the NCIt. taq 9/15|E-TAQ|25-SEP-15
+C0030805|[cfc 1-12-10] Per Nick S., Pemphigoid C34908 and Bullous Pemphigoid C84389 should be kept separate.|E-CFC|12-JAN-10
+C0041485|The NPO SY (abbreviation) of 'Try' is incorrect.  Error has been reported. 11/15/16 GSC|E-GSC|15-NOV-16
+C0828568|RADLEX SY of "region of surface of metacarpal bone" is not truly synonymous with PT. 4/22/14 GSC|E-GSC|22-APR-14
+C1704736|[cfc, 7-14-10] Merged C49852 in with this because it is an inactive concept.|E-CFC|14-JUL-10
+C0968654|Note: GCS-100 was formerly known as GBC-590.|E-MNC|20-MAY-10
+C0152309|[cfc, 7-18-10] NCI concept C33699 is retired.|E-CFC|18-JUL-10
+C1140097|10-11-12: Two NCI PTs these will be merged in Thesaurus by Terry or Erin.  LLW|E-LLW|11-OCT-12
+C0419095|[cfc 12-6-10] C66890 is retired.|E-CFC|06-DEC-10
+C1708554|[cfc, 9-24-15] split Eye infection [MEDDRA_2015_08E/LLT/10015929] C50617 due to bady synonomy.|E-CFC|24-SEP-15
+C0829852|The RADLEX SY is incorrect. It notes the wrong muscle as well as the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0020725|See: http://emedicine.medscape.com/article/945460-overview  8/19/15 GSC|E-GSC|19-AUG-15
+C0829872|The RADLEX SY is incorrect. It notes the wrong side. 4/23/14 GSC|E-GSC|23-APR-14
+C0008294|Hygroton atom from NCI C47769 belongs in the concept. It has been corrected in NCIt. --AG--2006.1.30|E-HAG|30-JAN-06
+C1297883|NCI PTs (concepts) merged in Thesaurus. --9.22.2005-AG|E-HAG|22-SEP-05
+C1514892|[cfc, 8-24-10] C19391 was retired and merged into this in NCIt, so I merged it here.|E-CFC|24-AUG-10
+C1553268|3-22-2011 CDC atom and NCIt atom need to stay together. LLW|E-LLW|22-MAR-11
+C1708558|03-2014-- Discussed the NCIt concept with Nick, he will modify the definition. LLW|E-LLW|05-MAR-14
+C1515157|[cfc, 6-7-11] C84274 was retired and merged in with this in NCIt.|E-CFC|07-JUN-11
+C1513438|2 NCI PTs OK this concept-- to be merged in TDE--AG 2006.1.4|E-HAG|04-JAN-06
+C1513439|2 NCI PTs OK in this concept-- to be merged in TDE --AG--2006.1.4|E-HAG|04-JAN-06
+C1569697|08-25-09 Per Cynthia these two nci PTs have been merged by wen-ling in Thesaurus. LLW|E-LLW|25-AUG-09
+C1579319|Typo in SNOMEDCT-US SY was reported.  2/12/14 GSC|E-GSC|12-FEB-14
+C1552930|03-31-2008 Two NCI codes in this concept-- they will be merged in NCIt. LLW|E-LLW|31-MAR-08
+C0533115|06-04-2009 2 NCIPT.  Will be merged in Thesaurus by Wen-Ling.  LLW|E-LLW|04-JUN-09
+C1532536|[cfc, 8-30-12] C74993 is retired and cross-referenced to this concept, C66975.|E-CFC|30-AUG-12
+C1956330|will check with chemicals to see if this is missed syn. 2008.09.18--ag|E-LLW|12-SEP-13
+C1539341|The NCIt concept represented here is being fixed by Liz Hahn-Dantona.  MNC  7/5/11|E-LLW|16-AUG-11
+C0450409|Photo patch test result of ph+++ indicates an extreme reaction. 10/25/16 GSC|E-GSC|25-OCT-16
+C0031618|Currently determining whether to merge this concept with CN#18871443.  10/1/14 GSC|E-GSC|01-OCT-14
+C1882762|[cfc, 3-4-15] These will be merged in NCIt by Erin: C60463 and C64118.|E-CFC|04-MAR-15
+C0663655|Note: I checked ChemIDPlus and 1592U89 is an SY for both abacavir and abacavir sulfate.  MNC 7/7/11|E-MNC|07-JUL-11
+C0026259|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0026259|Please note "mitroxantrone" (NPO atom at bottom of concept) is a misspelling.  MNC 10/4/10|E-MNC|04-OCT-10
+C0026549|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0027358|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0027324|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0025853|<Metoclopramide> with NCI code = C649 is no longer a valid SY in NCIT. 2006.10.12-AG|E-HAG|12-OCT-06
+C0025887|Mexiletine [NCI2006_07D/SY/C652] is no longer a vaild SY in NCIT. 2006.10.12-AG|E-HAG|12-OCT-06
+C0026056|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0031441|Salt and base are now separate concepts in NCIT.2006.13.13-AG|E-HAG|13-OCT-06
+C0031448|Salt and base are now separate concepts in NCIT.2006.13.13-AG|E-HAG|13-OCT-06
+C0031469|Salt and base are now separate concepts in NCIT.2006.13.13-AG|E-HAG|13-OCT-06
+C0031955|Salt and base are now separate concepts in NCIT.2006.13.13-AG|E-HAG|13-OCT-06
+C0033126|Salt and base are now two separate concepts in NCIT.2006.10.13-AG|E-HAG|13-OCT-06
+C0028420|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|12-OCT-06
+C0038670|Salt and base are now two separate concepts in NCIT.2006.10.13-AG|E-HAG|13-OCT-06
+C1831823|as of 2007.01.04 this concept has two nic pts-- one will be changed back to gossypol. 2007.01.04--ag|E-HAG|04-JAN-07
+C1883529|Merge two PTs because one is just a NOS term (LAR 1/21/2010)|E-LAR|22-JAN-10
+C1881666|[cfc-1-16-07] Concept C63011 is in retired Kind in NCIt, and this string is listed as SYN in C63012.|E-CFC|16-JAN-07
+C4050518|The PMA definition describes the Aland Islands (see CN#2900747) not Europa Island. 11/12/15 GSC|E-GSC|12-NOV-15
+C3853900|2 PDQ PTs here because AS703569 was formerly known as R763.  MNC 6/1/10|E-MNC|01-JUN-10
+C1881267|[cfc 3-14-07] Cetuximab-Irinotecan Regimen is retired and cross-referenced to this concept.|E-CFC|14-MAR-07
+C1879770|[cfc 3-14-07] PEB regimen is retired and cross-referenced to this concept.|E-CFC|14-MAR-07
+C1831940|Liposomal oxaliplatin now in separate concept. 2 NCI codes OK. -2007.04.04--AG|E-HAG|04-APR-07
+C1879957|[cfc, 8-24-10] C83150 merged with this in NCIt, so I merged it here.|E-CFC|24-AUG-10
+C0027360|Salt and base are now two separate concepts in NCIT.2006.10.12-AG|E-HAG|28-MAY-10
+C0025810|NCI atoms with code = C646 are no longer valid SY in NCIT. 2006.10.12--AG|E-HAG|24-MAY-10
+C1883440|[cfc 12-6-10] C67386 is retired.|E-CFC|06-DEC-10
+C2347286|[cfc 9-20-07] Lyuba will correct PT to read Mole per Kilogram in NCIt.|E-CFC|27-SEP-07
+C1690444|Note: GCS-100 was formerly known as GBC-590.|E-MNC|20-MAY-10
+C0037188|2010.05.10 - Okay to merge the 2 NCI PTs.  To be fixed in NCIt.  AKJ|E-AKJ|10-MAY-10
+C2346680|2009.10.25 - Recommended PN - Link for Gunter's Chain British.  AKJ|E-AKJ|25-OCT-09
+C2347332|2009.10.25 - Recommended PN - Nautical Mile British.  AKJ|E-AKJ|25-OCT-09
+C1744592|[cfc, 8-16-12] Merging Radlex and NCI C33276 here since C33276 is retired.|E-CFC|16-AUG-12
+C0721437|NCI BN term has been changed to "Lotensin HCT" in NCIt.  10/16/14 GSC|E-GSC|16-OCT-14
+C1277003|06-29-2010: Two NCIt PTs. These have been merged in Thesaurus. LLW|E-LLW|29-JUN-10
+CL480954|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C1836032|TACI = transmembrane activator and calcium-modulator and cyclophilin ligand interactor 9/3/15 GSC|E-GSC|03-SEP-15
+C3489789|See: http://www.ncbi.nlm.nih.gov/pubmed/20955958 8/19/15 GSC|E-GSC|19-AUG-15
+C1856973|Eponym is misspelled--it should be Bonnemann. This has been reported. 9/3/15 GSC|E-GSC|03-SEP-15
+C1849157|Verified that typo in NCI Thesaurus definition was corrected.  3/19/15 GSC|E-GSC|19-MAR-15
+CL480952|NCIt atoms consistent with NCIt data. (taq 7/31/15)|E-TAQ|31-JUL-15
+C1859967|Misspelling of hypoplasia in one of the RDR ETs was reported.  8/11/15 GSC|E-GSC|11-AUG-15
+C1860471|See: http://www.ncbi.nlm.nih.gov/pubmed/1376967  8/20/15 GSC|E-GSC|20-AUG-15
+C1875833|[cfc, 9-28-15] split Tracheostomy [MEDDRA_2015_08E/LLT/10044320] C122643 due to bad synonomy.|E-CFC|28-SEP-15
+C3897871|[cfc, 9-24-15] split  Normal newborn [MEDDRA_2015_08E/LLT/10029769] C114947 due to bad synonomy.|E-CFC|24-SEP-15
+CL466548|Misspellings of reporting and post-processing in RADLEX definition were reported. 4/10/14 GSC|E-GSC|10-APR-14
+CL466551|Misspellings of annulus in RADLEX definitions reported. 4/10/14 GSC|E-GSC|10-APR-14
+CL380890|The RADLEX SY is misspelled. It should be the tympanic canaliculus. 4/22/14 GSC|E-GSC|22-APR-14
+C0333051|Radlex definition does not line up with the hierarchy.  MNC 1/25/15|E-MNC|25-JAN-15
+C2603422|2 PDQ PTs in this concept because NCI indicates they are synonymous.  MNC  5/27/10|E-MNC|27-MAY-10
+C0451306|Sent for review to NCIt since there are two NCI codes|E-LAR|23-OCT-13
+C1511760|[cfc, 8-24-10] C45577 is retired in NCIt, so I merged it in here.|E-CFC|24-AUG-10
+C1934674|[cfc 12-17-08] Uniprot confirms that these are synonyms: http://www.uniprot.org/taxonomy/28987|E-CFC|17-DEC-08
+C2703118|2 PDQ PTs in this concept because NCI indicates they are synonymous.  MNC  5/27/10|E-MNC|27-MAY-10
+C1709400|[cfc, 8-16-11] C95799 is retired so I merged in here.|E-CFC|16-AUG-11
+C0033223|Salt and base are now two separate concepts in NCIT.2006.10.13-AG|E-HAG|01-NOV-09
+C1170743|NCI Focalin [NCI2005_10E/BN/C26642] OK in this concept. It has been corrected in NCIt.-AG-2006.1.31|E-HAG|24-NOV-09
+C2350307|Corrected misspellings of 'Ciruclating' in NCI Thesaurus.  3/19/15 GSC|E-GSC|19-MAR-15
+C0003814|06-04-2009 2 NCI PTs in this concept, they will be merged in Thesaurus by Wen-Ling.  LLW|E-HAG|20-OCT-09
+C0995171|Note: "Urex" is methenamine hippurate, not mandelate; this will be fixed in NCIt.  MNC 4/19/11|E-MNC|19-APR-11
+C0450407|Photo patch test result of ph+ indicates a slight reaction. 10/25/16 GSC|E-GSC|25-OCT-16
+C1851945|NCIt atoms consistent with NCIt data. (taq 7/31/15)|E-TAQ|31-JUL-15
+C2349425|[cfc, 9-22-15] split Hemicrania [MEDDRA_2015_08E/LLT/10019461] C117081 due to bad synonomy|E-CFC|22-SEP-15
+C2727935|Note: see UMLS concept 114000963; this is STY'ed both Clinical Drug and Drg Delivery Device. MNC|E-MNC|29-APR-11
+C2951090|RADLEX3_10 SY, <<deleted>>, was reported.  4/3/14 GSC|E-GSC|03-APR-14
+C2984392|[cfc, 12-13-10] These two concepts are not the same and should not be merged: C91589 and C39067|E-CFC|13-DEC-10
+C2604734|The BN "Avakine" is infliximab, not "briakinumab"; this has been fixed in NCIt.  MNC 3/4/11|E-MNC|04-MAR-11
+C0795830|See: http://9pminus.org/  8/14/15 GSC|E-GSC|14-AUG-15
+C2608083|See: http://www.ncbi.nlm.nih.gov/pubmed/20955958  8/19/15 GSC|E-GSC|19-AUG-15
+C0947677|tried to merge into concept 999479 but did not pass MeSH integrity checks.  MNC 4/19/11|E-MNC|19-APR-11
+C2931511|See: http://link.springer.com/article/10.1007%2FBF02016246#page-1  8/20/15 GSC|E-GSC|20-AUG-15
+C3177318|See: http://www.ncbi.nlm.nih.gov/pubmed/236537  8/18/15 GSC|E-GSC|18-AUG-15
+C2931293|See: http://www.ncbi.nlm.nih.gov/pubmed/15203719  8/21/15 GSC|E-GSC|21-AUG-15
+C3887548|[cfc, 9-23-15] split Apnea neonatal [MEDDRA_2015_08E/LLT/10002973] C116335 due to bad synonomy.|E-CFC|23-SEP-15
+CL429070|I have contacted Cynthia regarding C96326 and C96327.  MNC 10/19/14|E-MNC|19-OCT-14
+C3272694|[cfc 8-5-11] Merged C96863 in here - it was retired.|E-CFC|05-AUG-11
+C3273006|"Xamoterol" has been removed as an SY for "Rafabegron."  MNC 7/7/11|E-MNC|07-JUL-11
+C3273737|11-03-11 The SYN BRL40015A is a mistake and will be corrected in NCIt. LLW|E-LLW|03-NOV-11
+C2953816|RADLEX3_10 SY, <<deleted>>, was reported.  4/3/14 GSC|E-GSC|03-APR-14
+CL447162|NCI SY of  "Autologous Sarcoma Cell Lysate" was deleted in NCI Thesaurus.  6/12/14 GSC|E-GSC|12-JUN-14
+C0253005|Chitotriosidase is the mammalian chitinase.  11/16/15 GSC|E-GSC|16-NOV-15
+C3815112|[cfc. 9-22-15] split Decubitus [MEDDRA_2015_08E/LLT/10011983] C112115 due to bad synonomy.|E-CFC|22-SEP-15
+C3812646|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C3539908|Typos in SY ('insoluble' instead of 'soluble') were reported.  2/21/14 GSC|E-GSC|21-FEB-14
+C1096745|Misplaced comma in SY reported.  2/21/14 GSC|E-GSC|21-FEB-14
+C3661741|SNOMED SY typo ('Vesicale' should be 'Vesicle' or 'Vesicular') reported. 2/21/14 GSC|E-GSC|21-FEB-14
+C3829512|Oct 2015-- moved LLT to other NCI concept. Will be corrected in Thesaurus. LLW|E-LLW|01-OCT-15
+C3830299|Sept 2015-- moved Meddra LLT to other NCI concept where it is a SYN. LLW|E-LLW|24-SEP-15
+CL466522|No space in RADLEX3_10 PT, DischargeTime, was reported. 4/3/14 GSC|E-GSC|03-APR-14
+CL463036|Background is misspelled as 'lbackground' in RADLEX definition.  4/22/14 GSC|E-GSC|22-APR-14
+CL463065|The RADLEX SY, "persistent homogeneous hyper-enhancemen", is missing the final letter t. 4/22/14 GSC|E-GSC|22-APR-14
+CL458546|Histiocytoma is misspelled as "hisitocytoma" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL458559|Abscess is misspelled as "abcess" in RADLEX definition.  4/18/14 GSC|E-GSC|18-APR-14
+CL458576|Lateral is misspelled as "lateal" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL458606|Pyelography is misspelled as "pyleography" in definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL458670|Outer is misspelled as "outter" in RADLEX definition. 4/17/14 GSC|E-GSC|17-APR-14
+CL458727|Coarctation is misspelled as "coaractation" in the RADLEX definition.  4/17/14 GSC|E-GSC|17-APR-14
+CL458728|Coarctation is misspelled as "coaractation" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL458751|RADLEX SY "fragmented stag horm" is misspelled. 4/17/14 GSC|E-GSC|17-APR-14
+CL458796|"mesentary defect" in RADLEX definition should read mesenteric defect. 4/18/14 GSC|E-GSC|18-APR-14
+CL458810|Azygos is misspelled as 'azyogs' in RADLEX definition.  4/17/14 GSC|E-GSC|17-APR-14
+CL458886|Root is misspelled as "rooth" in RADLEX definition. 4/17/14 GSC|E-GSC|17-APR-14
+CL458969|Most sources suggest that this eponymous term is spelled Ranke complex. 4/17/14 GSC|E-GSC|17-APR-14
+CL458982|Lymphadenopathy is misspelled as "lympadenopathy" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL458986|Pericholecystic is misspelled as 'penicholecystic' in RADLEX definition.  4/17/14 GSC|E-GSC|17-APR-14
+CL459002|Sagittal is misspelled as "saggital" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL459025|Obscured is misspelled as "obscurred" in RADLEX definition. 4/18/14 GSC|E-GSC|18-APR-14
+CL459178|Vertebral is misspelled once as "vetebral" in the RADLEX definition.  4/17/14 GSC|E-GSC|17-APR-14
+CL461873|Nonsensical/incomplete RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL461908|Complication is misspelled but RADLEX term is OP.  4/28/14 GSC|E-GSC|28-APR-14
+CL462794|Unlike other comparable concepts, lower case 'c' was used in RADLEX PT. 4/22/14 GSC|E-GSC|22-APR-14
+CL461812|Misspelling of dictation in RADLEX PT reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL461833|Truncated RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL461845|Inconclusive comment, (?Dup with ProcedureReady#25)?, in RADLEX definition was reported. 4/10/14 GSC|E-GSC|10-APR-14
+CL461858|Misspelling of preliminary in RADLEX SY reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL461861|Misspelling of allergies in RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL461872|Misspelling of respond in RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL463807|Misspelling of preparation in RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL463810|Misspelling of queue in RADLEX definition reported. 4/9/14 GSC|E-GSC|09-APR-14
+CL463846|Truncated RADLEX definition was reported.  4/10/14 GSC|E-GSC|10-APR-14
+C1395365|Oct 2015-- Moved LLT to other NCI concept. Will be corrected in NCIt. LLW|E-LLW|01-OCT-15
+C3897942|Sept 2015-- moved Meddra LLT- not SYN. LLW|E-LLW|24-SEP-15
+C1395369|[cfc, 9-29-15] split Catheter blockage [MEDDRA_2015_08E/LLT/10052255] C114764 due to bad synonomy.|E-CFC|29-SEP-15
+C3897720|[cfc, 9-24-15] split Graft thrombosis [MEDDRA_2015_08E/LLT/10051269] C114844 due to bad synonomy.|E-CFC|24-SEP-15
+C3826988|Will change NCI AB term to 'JPM'.  7/20/15 GSC|E-GSC|20-JUL-15
+C3899731|Oct 2015-- moved LLT to other NCI concept. Will be fixed in Thesaurus. LLW|E-LLW|01-OCT-15
+C3897450|[cfc, 9-30-15] split from Renal hematoma [MEDDRA_2015_08E/LLT/10038462] C115788 due to bad synonomy.|E-CFC|30-SEP-15
+C3897876|[cfc, 9-18-15] split Hydrocephalus [MEDDRA_2015_08E/LLT/10020508] C116384 due to bad synonomy.|E-CFC|18-SEP-15
+C1883660|[cfc 8-6-14] Merged - NCI Thesaurus has been notified about a duplicate concept (per Laura Roth.)|E-CFC|06-AUG-14
+CL473871|Sept 2015-- moved Meddra LLT to other concept b/c it was not a SYN.  LLW|E-LLW|24-SEP-15
+C1271991|[cfc, 9-22-15] split Death neonatal [MEDDRA_2015_08E/LLT/10011912] C116772 due to bad synonomy.|E-CFC|22-SEP-15
+C0455987|[cfc, 9-22-15] split Death neonatal [MEDDRA_2015_08E/LLT/10011912] C116773 due to bad synonomy.|E-CFC|22-SEP-15
+C0338656|Note: this cannot go into concept 646445 because that already has an NCI PT.  MNC  10/12/14|E-MNC|12-OCT-14
+CL474527|This cannot go into concept 151289 because there is an NCI PT already there.  MNC 10/11/14|E-MNC|11-OCT-14
+C0037320|This cannot be merged into 204949 because there is already an NCI PT there.  MNC  10/11/14|E-MNC|11-OCT-14
+C3714319|Typo in SNOMED definition (Specialty is misspelled).  11/14/14 GSC|E-GSC|14-NOV-14
+C3853277|Typo in SY (formula is misspelled) was reported. 11/14/14 GSC|E-GSC|14-NOV-14
+C3897064|The PT will be changed to 'Femtogram per Milliliter per Meter Squared'. 2/4/15 GSC|E-GSC|04-FEB-15
+C3897369|Misspelling of 5-fluorouracil in NCI definition has been corrected in NCIt. 9/9/16 GSC|E-GSC|09-SEP-16
+CL493474|Refers to fMRI paradigms. 7/1/15 GSC|E-GSC|01-JUL-15
+CL493882|June 2015-- This concept will be retreed and given therapeutic procedure in NCIt.  LW|E-LLW|04-JUN-15
+CL494960|See: http://www.bloodjournal.org/content/103/4/1244?sso-checked=true  8/24/15 GSC|E-GSC|24-AUG-15
+CL494823|http://www.pedneur.com/article/S0887-8994%2807%2900232-9/abstract  7/6/15 GSC|E-GSC|06-JUL-15
+CL494827|See: http://www.ncbi.nlm.nih.gov/pubmed/22630574 7/16/15 GSC|E-GSC|16-JUL-15
+CL495350|Misspelling of 'exudative' in GARD PT has been reported. 9/4/15 GSC|E-GSC|04-SEP-15
+CL495352|Misspelling of 'exudative' in GARD PT has been reported. 9/4/15 GSC|E-GSC|04-SEP-15
+CL495353|Misspelling of 'exudative' in GARD PT has been reported. 9/4/15 GSC|E-GSC|04-SEP-15
+CL495355|Misspelling of 'asymmetry' in GARD PT has been reported.  9/4/15 GSC|E-GSC|04-SEP-15
+C4049262|GARD ET typo, 'Status epileptics owing to presumed encephalitis' has been reported. 9/1/15 GSC|E-GSC|01-SEP-15
+CL495034|Eponym is misspelled--it should be Kousseff.  This has been reported. 9/2/15 GSC|E-GSC|02-SEP-15
+CL494858|This is caused by rotational occlusion of the vertebral artery.  9/1/15 GSC|E-GSC|01-SEP-15
+CL495048|Unable to determine what this eponym refers to. 9/3/15 GSC|E-GSC|03-SEP-15
+CL494893|Misspelling of micrognathia as 'migrognathia' in PT has been reported. 9/2/15 GSC|E-GSC|02-SEP-15
+CL495704|See http://www.ncbi.nlm.nih.gov/pubmed/8352860. 7/7/15 GSC|E-GSC|07-JUL-15
+CL495714|Possibly: http://www.ncbi.nlm.nih.gov/pubmed/1442893 7/16/15 GSC|E-GSC|16-JUL-15
+CL495726|See: http://www.ncbi.nlm.nih.gov/pubmed/501430 7/16/15 GSC|E-GSC|16-JUL-15
+CL495732|See:  http://www.ncbi.nlm.nih.gov/pubmed/7785423 7/17/15 GSC|E-GSC|17-JUL-15
+CL495351|Misspelling of 'exudative' in GARD PT has been reported. 9/4/15 GSC|E-GSC|04-SEP-15
+CL495728|See: http://www.ncbi.nlm.nih.gov/pubmed/6439042 7/16/15 GSC|E-GSC|16-JUL-15
+CL495730|See: http://www.ncbi.nlm.nih.gov/pubmed/2251013 7/17/15 GSC|E-GSC|17-JUL-15
+C4048704|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C0017927|GSD Type VIII is now considered a subtype of GSD VI and not truly a separate entity. 8/12/15 GSC|E-GSC|12-AUG-15
+CL495943|See:  http://www.omim.org/entry/300934 7/22/15 GSC|E-GSC|22-JUL-15
+CL495974|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+C4049638|Concept split is consistent with data in NCIt. (taq 7/30/15)|E-TAQ|30-JUL-15
+CL496092|See: http://www.ncbi.nlm.nih.gov/pubmed/15704180 8/24/15 GSC|E-GSC|24-AUG-15
+C4055110|[cfc, 9-28-15] split Duodenostomy [MEDDRA_2015_08E/LLT/10053072] C122639 due to bad synonomy.|E-CFC|28-SEP-15
+C4055173|[cfc, 9-30-15] split Cystostomy [MEDDRA_2015_08E/LLT/10011817] C122641 due to bad synonomy.|E-CFC|30-SEP-15
+C4054742|[cfc], 9-23-15] split Ileostomy [MEDDRA_2015_08E/LLT/10021321] C122642 due to bad synonomy.|E-CFC|23-SEP-15
+C4053891|[cfc, 9-29-15] split Urostomy [MEDDRA_2015_08E/LLT/10046713] C122644 due to bad synonomy.|E-CFC|29-SEP-15
+CL503939|Typo in PDQ SY "snti-CD123 CAR mRNA-electroporated autologous T lymphocytes" is noted. 9/8/16 GSC|E-GSC|08-SEP-16
+CL505229|Candida lambica is the now obsolete name for C. firmentaria. 10/13/16 GSC|E-GSC|13-OCT-16
+CL505751|I think this is murine amylase or mAmylase. 6/15/16 GSC|E-GSC|15-JUN-16
+C0077768|"Lumigan" contains bimatoprost, not brimonidine tartrate; this will be fixed in NCIt.  MNC 5/10/10|E-HAG|11-AUG-16
+C0020352|August 28, 2012-- Two NCI PTs. Per Wen-Ling these will be merged in Thesaurus. LLW|E-HAG|12-AUG-16
+C0017449|NCIT  has these chemicals represented as salt and base forms.--2006.11.21--AG|E-HAG|11-AUG-16
+C0282155|NCIT now has these chemicals represented as salt and base forms. 2006.11.21--AG|E-HAG|12-AUG-16
+C2346910|2 PDQ PTs in this concept because NCI indicates they are synonymous.  MNC  5/27/10|E-HAG|16-SEP-16
+CL507907|Spelling error in SY has been fixed in NCIt concept C127117. 9/8/16 GSC|E-GSC|08-SEP-16
+CL507817|PDQ PT should read "FGFR4 Inhibitor FGF401". Error has been reported. 9/8/16 GSC|E-GSC|08-SEP-16
+CL510806|Echovirus 10 has been renamed Reovirus 1. 10/12/16 GSC|E-GSC|12-OCT-16
+C0005937|05-04-06 Bone cysts, solitary bone cysts, simple bone cyst, and unicameral bone cyst are all syn.  After discussing with Nick, C2904 and C1268 are now merged in NCIt and Meta.  LLW|E-LLW|25-MAY-06
+C0032098|06-06-06 After discussing with Nicole, moved NCI C14258 SY embryophyta to concept 1365184 higher plants. LLW|E-LLW|06-JUN-06
+C1562025|06-06-06 After discussing with Nicole, moved NCI C14258 SY embryophyta in from the broader concept 176647 Plants. LLW|E-MNC|10-MAY-11
+C0043342|06-06-06 After discussing with Nicole, moved NCI C14285 SY AFrican Clawed Frog to 237891 Xenopus Laevis.  LLW|E-LLW|06-JUN-06
+C0043343|06-06-06 After discussing with Nicole, moved NCI C14285 SY AFrican Clawed Frog in from 237883  Xenopus.  LLW|E-LLW|06-JUN-06
+C1095982|06-06-06 Two NCI codes in concept due to error of SY.  C54607 has a PT of Decreased Drug Half Life and the SY of Increased Half Life.  The SY was left on string with Increased Half Life-- PT C54603.  LLW|E-LAR|29-JUL-09
+C1705617|06-06-06 NCI C54607 has a PT of Decreased Drug Half Life and the SY of Increased Half Life.  The SY was moved on string to Increased Half Life-- PT C54603.  LLW|E-LLW|06-JUN-06
+C0206740|(cfc--6-8-06) Per Nick, the two NCI concepts with different codes (C54319 and C3807) are indeed the same thing. He will merge them in NCIt.|E-CFC|08-JUN-06
+C0014013|6-16-06 Discussed with Nick, we agree that pyothorax and pulmonary empyema are SY and should be merged.  Terms C34574 and C45692 are now merged in NCIt as well. LLW|MTH2006AB|10-FEB-07
+C0184925|6-17-06 Discussed with Nick, agree that trephine biopsy is not SY with punch biopsy.  Trephine biopsy  was moved to concept 695486--trephine biopsy.  Term was deleted in NCIt.  LLW|E-LLW|16-JUN-06
+C0191321|6-17-06 Discussed with Nick, agree that trephine biopsy is not SY with punch biopsy.  Trephine biopsy  was moved to concept 695486--trephine biopsy.  Term was deleted in NCIt.  LLW|E-LLW|16-JUN-06
+C0002448|6-17-06 Discussed with Nick, at one time these terms were made SY for each other.  Now, they are three separate concepts in NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3. Adamantinoma.  I have split based on the new NCI classification. LLW|E-LLW|16-JUN-06
+C0002448|6-17-06 Discussed with Nick, at one time these terms were made SY for each other.  Now, they are three separate concepts in NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3. Adamantinoma.  I have split based on the new NCI classification. LLW|MTH2006AA|23-AUG-06
+C1367554|6-17-06 Discussed with Nick, at one time these terms were made SY for each other.  Now, they are three separate concepts in NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3. Adamantinoma.  I have split based on the new NCI classification. LLW|E-LLW|16-JUN-06
+C0450371|(cfc 6-20-06) Emailed Nicole Thomas about correcting the NCI SYN that states incorrectly that this is a male genotype.|E-CFC|20-JUN-06
+C1710693|(cfc 6-20-06) Emailed Nicole Thomas about correcting the NCI SYN that states incorrectly that this is a female genotype.|E-CFC|20-JUN-06
+C0678056|[cfc 7-6-06] Wen-Ling has noted in TDE that CN# 2614333 is a retired concept and to SEE CN#2031017, so I just merged these two.|E-CFC|06-JUL-06
+C0083355|[cfc 7-11-06] Per Wen-Ling, I merged these two NCI PTs as they are the same. Wen-Ling says keep C37523 Amsacrine/Azacitidine/Etoposide as main concept and have C9675 Amsacrine/Azacytidine/Etoposide as SYN, since it’s the FDA approved one. Wen-Ling will make the change in TDE.|E-CFC|11-JUL-06
+C0001163|7-27-06 Discussed with Nick.  Split SY of acoustic nerve disorder and cochlear nerve disorder from C27207 PT Vestibulocochlear Nerve Disorder.  NCIt also changed.  LLW|E-LLW|27-JUL-06
+C0007194|7-28-06 Per Dorland's, ICD9, and Snomed: Hypertrophic Cardiomyopathy and Hypertrophic Obstructive Cardiomyopathy are not SYN.  I split Mesh accordingly. LLW|MTH2006AB|10-FEB-07
+C0007194|7-28-06 Per Dorland's, ICD9, and Snomed: Hypertrophic Cardiomyopathy and Hypertrophic Obstructive Cardiomyopathy are not SYN.  I split Mesh accordingly. LLW|E-LLW|28-JUL-06
+C0011603|7-31-06 Discussed with Nick.  Two concepts in NCIt-- Dermatitis and Skin Inflammation.  Concepts now merged.  LLW|E-LLW|31-JUL-06
+C1704220|6-17-06 Discussed with Nick, at one time these terms were made; SY for each other. Now, they are three separate concepts in; NCIt-- 1. Odontoameloblastoma, 2. Ameloblastoma, 3.;  Adamantinoma. I have split based on the new NCI classification.;  LLW|E-LLW|12-JUL-07
+C0020629|9-5-06 Discussed with Nick, hypopharynx and laryngopharynx are SY.  Terms will be merged in NCIt.  LLW|E-LLW|05-SEP-06
+C0704829|All of these drugs appear to have a final concentration of 100mg/ml. Atoms where wt/vol ratios were not present were left in the concepts where the total strength of the drug matched the total strength in one of the vials.--2006.09.14--AG|E-HAG|14-SEP-06
+C0006388|2 NCI Codes are contained in this concept. These concepts have  been corrected in TDE.--2006.10.10--AG|E-HAG|10-OCT-06
+C0025942|Miconazole [NCI2006_07D/SY/C29257] and 1-[2-(2,4-Dichlorophenyl)-2-[(2,4-dichlorophenyl)methoxy]ethyl]-1H-imidazole [NCI2006_07D/CSN/C29257] are no longer valid SY in the NCIT. 2006.10.12-AG|MTH2006AB|03-FEB-07
+C0227375|11-01-06 the SY Right Colon (C12265) has been deleted in NCIt and no longer appears in TDE.  Right Colon PT (C12383) is its own concept.  Left the SY here on code, for now. LLW|E-LLW|01-NOV-06
+C0227389|11-01-06 the SY left colon (C12268) has been deleted in NCIt and no longer appears in TDE.  Left it here on code for now. LLW|E-LLW|01-NOV-06
+C0193867|[cfc-11-21-06] I checked in TDE and Axillary Lymphadenectomy is retired and is cross-referenced to Axillary Lymph Node Dissection, so I merged these together here in Meta.|E-LLW|28-NOV-06
+C0521987|[cfc-11-21-06] I checked in TDE and Preexisting Condition is retired and cross-referenced to Pre-existing Condition, so I merged them here.|E-LLW|10-SEP-14
+C0914674|01-04-07 Two concepts and PTs were created in NCIt  for this chemotherapy regimen, for a specific purpose.  However, for the purpose of Meta, the two belong together and have been merged.  LLW|E-LLW|04-JAN-07
+C0030797|1-30-07 Per Laura NCI wants adjectives with the nouns-- thus there are two nci codes C12767 and C25399 in this concept.  LLW|E-LLW|30-JAN-07
+C0282042|This concept has 2 NCI codes because this chemical is now represented as a salt and a base concept.—2007.02.06—AG|E-HAG|06-FEB-07
+C0280969|2-8-07 cfc - Cynthia will make the change in TDE to merge these two concepts. The one with the 'i' spelling will be the current concept.|E-CFC|08-FEB-07
+C0279315|2-8-07 cfc - Cynthia will make the change in TDE to merge these two concepts. The one with the 'i' spelling will be the current concept.|E-CFC|08-FEB-07
+C0279355|2-8-07 cfc - Cynthia will make the change in TDE to merge these two concepts. The one with the 'i' spelling will be the current concept.|E-CFC|08-FEB-07
+C0278526|2-8-07 cfc - Cynthia will make the change in TDE to merge these two concepts. The one with the 'i' spelling will be the current concept.|E-CFC|08-FEB-07
+C1882742|[cfc 2-14-07] The 11D concept has been retired (C60443) and cross-referenced with the 12D concept of the same string, so I merged them together in Meta.|E-CFC|14-FEB-07
+C1882815|[cfc 2-14-07] 11D concept is retired C63910 -- so I merged this with the equivalent concept in 12D, even though they have different NCI codes.|E-CFC|14-FEB-07
+C1882816|[cfc 2-14-07] 11D concept is retired C63911 -- so I merged this with the equivalent concept in 12D, even though they have different NCI codes.|E-CFC|14-FEB-07
+C1882818|[cfc 2-14-07] 11D concept is retired C63912 -- so I merged this with the equivalent concept in 12D, even though they have different NCI codes.|E-CFC|14-FEB-07
+C0005119|2-14-07 Bereavement was split into different concepts based on source context.  1-Mesh is bereavement the natural mental process. 2-MDR90 is bereavement reaction treed under disorder, and SNOMEDCT has two finding concepts one broader than the other.  I respected the source on these.  LLW|MTH2006AC|14-APR-07
+C0184661|[cfc 2-16-07] The inactive concept C16197 is retired in TDE and cross-referenced to this current concept.|E-CFC|16-FEB-07
+C1541282|[cfc] There is a cross-reference in TDE stating to refer to Alternative Medical Procedure, from the retired concept of Alternative Product Therapy.|E-CFC|28-FEB-07
+C0591457|2 NCIt codes OK in this concept, due to creation of narrower concept specific to Erwinia.--2007.03.01--AG|E-HAG|01-MAR-07
+C1515713|1-30-07 Requested merge between the two NCI PTs In Thesaurus.  Both C27214 and C36316 have a PT of  t(11;22)(q24;q12).  LLW|E-LLW|13-MAR-07
+C1511136|[cfc 3-14-07] Bioelectromagnetics is retired. Cross-referenced in TDE to Electromagnetic-Based Therapy.|E-CFC|14-MAR-07
+CL415099|[cfc 4-4-07] Looking at NCIt, it seems that this concept (C18190) is listed as a Diagnostic Procedure, and the field of Histopathology is listed as a SYN. So, I split it out to go with the CDT5 atom of Histopathologic Examinations, leaving the concept for the histopathology field itself separate.|E-CFC|04-APR-07
+C0031150|04-05-2007 Spoke with Nick regarding NCI SY of diagnostic lap.  Nick will remove it in TDE.   NCI C16969 is Laparoscopy  and NCI C64946 is Diagnostic Laparoscopy.  LLW|E-LLW|05-APR-07
+C0751690|05-04-07 Two NCI Pts in this concept.  I discussed with Nick, one is an antiquated term and retired in NCIt.  For meta purposed I have merged, as the meaning is the same.  LLW|E-LLW|07-DEC-15
+C0439259|[cfc 7-12-05] Leaving the two concepts of 'calorie' and 'Calorie' separate for now. NCIt requires separate concepts for different users, per Lyuba Remennik.|E-CFC|12-JUL-07
+CL435395|[cfc 7-12-05] Leaving the two concepts of 'calorie' and 'Calorie' separate for now. NCIt requires separate concepts for different users, per Lyuba Remennik.|E-CFC|12-JUL-07
+C0041004|09-27-2007  I merged two NCI PTs in this concept.  Note sent to Wen-Ling who will merge in NCIt.  LLW|E-LLW|27-SEP-07
+C0457345| [cfc 12-13-07] Relating these two concepts for now (accelerated phase chronic myelogenous leukemia and accelerated phase), but there is confusion in NCIt regarding the NCI-GLOSS atom. It doesn't match the SNOMED context here.|E-CFC|13-DEC-07
+C0023472| [cfc 12-13-07] Relating these two concepts for now (accelerated phase chronic myelogenous leukemia and accelerated phase), but there is confusion in NCIt regarding the NCI-GLOSS atom. It doesn't match the SNOMED context here.|E-CFC|13-DEC-07
+C0457343| [cfc 12-13-07] Relating these two concepts for now (chronic phase chronic myelogenous leukemia and chronic phase), but there is confusion in NCIt regarding the NCI-GLOSS atom. It doesn't match the SNOMED context here.|E-CFC|13-DEC-07
+C0023474| [cfc 12-13-07] Relating these two concepts for now (chronic phase chronic myelogenous leukemia and chronic phase), but there is confusion in NCIt regarding the NCI-GLOSS atom. It doesn't match the SNOMED context here.|E-CFC|13-DEC-07
+C0449370|03-31-2008 NCIt concepts C71492 and C53193 are different concepts.  The PT for C53193 is being changed to Type of Statistical Sample to reflect this. LLW|E-LLW|31-MAR-08
+C0982725|03-31-2008 I left 2 rxnorm codes in this concept (315096 and 543127) because 543127 is obsolete and has an identical string.  LLW|E-LLW|31-MAR-08
+C1280500|[cfc 4-1-08] These two concepts are indeed different and should stay separate. Effect C25492 A phenomenon that follows and is caused by some previous phenomenon. Effect (Effect_Appearance) C71600 An outward appearance. (Example: "She retained that bold effect in her reproductions of the original painting"; think "Special Effects")|E-CFC|01-APR-08
+C2348382|[cfc 4-1-08] These two concepts are indeed different and should stay separate. Effect C25492 A phenomenon that follows and is caused by some previous phenomenon. Effect (Effect_Appearance) C71600 An outward appearance. (Example: "She retained that bold effect in her reproductions of the original painting"; think "Special Effects")|E-CFC|01-APR-08
+C0004083|[cfc 4-25-08] Per Lyuba Remennik, the two NCIt concepts that have the same PT of Relationship: in NCIt everything looks clean: C71472 Relationship was merged into Relationship C25648 (which has the PT Relationship, but the concept name - Related.)|E-CFC|25-APR-08
+C0152288|[cfc 5-12-08] Per Nick Sioutos, these two different NCI concepts (Foramen of Magendie C32626 Magendie's Foramen C33047) should be the same. Lori Whiteman advised merging them here in Meta. Fix in NCI Thesaurus is pending.|E-CFC|26-JUN-08
+C0152288|[cfc 6-26-08] I checked in the current NCIt and Magendie's Foramen C33047 is now listed as RETIRED. So, hopefully the change will trickle through to Meta soon.|E-CFC|26-JUN-08
+C0162342|[cfc 5-12-08] These two separate NCI concepts should be merged (Lenticular Nucleus C32977 Lentiform Nucleus C32978 ), per Nick Sioutos and Lori Whiteman. Changes in NCIt are pending.; [cfc 6-26-08] I checked in the current NCIt and Lentiform Nucleus C32978 is now listed as retired. Changes should trickle through to Meta soon.|E-CFC|26-JUN-08
+C1369038|[cfc 25-Jul-08] Waiting to resolve this in NCIt -- the NCI-GLOSS and NCI atoms should be split out. Will leave them together for now until the issue is resolved in NCIt. Eventually, will want to split out NCI-GLOSS and merge it into CN#5103319 (Distraction Therapy).|E-CFC|25-JUL-08
+CL383716|[cfc 8-7-08] Note to self...split this out from other concept #2650092 Adult Oligodendroglial Tumor per Lori's advice on other concepts where she split out brain or spinal/meninges as NRW from the general type of tumor.|E-CFC|07-AUG-08
+C0205097|[cfc 8-19-08] Per Nick Sioutos and Nicole Thomas - these two concepts have a slightly different meaning; caudad relates more to the positioning of the body in relation with the head (spatial concept), whereas caudal relates more to the specific anatomic site.|E-CFC|19-AUG-08
+CL448227|[cfc 8-19-08] Per Nick Sioutos and Nicole Thomas - these two concepts have a slightly different meaning; caudad relates more to the positioning of the body in relation with the head (spatial concept), whereas caudal relates more to the specific anatomic site.|E-CFC|19-AUG-08
+C1999797|[cfc Sep-16-08] Incorrect definition is in here (it's for the wt Allele, not the gene). Liz Hahn-Dantona will correct the definition in Protege, so the change should trickle through soon to Meta.|E-CFC|16-SEP-08
+C1421536|[cfc Sep-16-08] Incorrect definition is in here (it's for the wt Allele, not the gene). Notified Liz Hahn-Dantona to correct the definition in Protege, so the change should trickle through soon to Meta.|E-CFC|16-SEP-08
+C2700283|[cfc Sep-16-08] Incorrect definition is in here (it's for the gene, not the wt Allele). Emailed Liz Hahn-Dantona to correct the definition in Protege, so the change should trickle through soon to Meta.|E-CFC|16-SEP-08
+C2697522|[cfc 9-17-08] Contacted Terry Quinn and she confirmed that these are supposed to be the same thing. Corrections will be made in NCIt and should show up in Meta soon.|E-CFC|17-SEP-08
+C1692886|10-01-08 Three NCI PTs in this concept.  Discussed with Nick, these three will be merged in Thesaurus. LLW|E-LLW|01-OCT-08
+C0267869|10-06-2008 Biliary duct calculus disorder refers to any or the three biliary duct thus should not be merged with gallstone disease.  LLW|E-LLW|06-OCT-08
+C0023440|[cfc 10-7-08] Kept MeSH atoms together, even though they cover a number of synonyms that are separate concepts in NCI. I left the NCI concept of Acute Erythroid Leukemia as BRD, per the NCI context.|E-LLW|07-JUL-15
+C0023440|[cfc 10-7-08] Left this NCI concept of Acute Erythroid Leukemia as BRD than Acute Erythroblastic Leukemia, per the NCI context. Kept MeSH atoms together in the other concept (Acute Erythroblastic Leukemia), even though they cover a number of synonyms that  are also in this concept.|E-CFC|07-OCT-08
+C0266015|10-08-2008 Digestive tract is sometimes used as SYN to GI tract.  This concept however, is NT concept 29992427 Congenital anomaly of digestive tract as Snomed is referring to the complete digestive tract, not just the GI portion. LLW|E-LLW|08-OCT-08
+C0032460|[cfc 10-09-08] Per Nick Sioutos, these are synonyms: Stein-Leventhal Syndrome C26862 and Polycystic Ovarian Disease C27086. He will merge them in NCIt.|E-CFC|09-OCT-08
+C1384606|11-11-2008 Based  on definition and multiple treeing this concept is BT female dyspareunia and should not be merged. LLW|E-LLW|11-NOV-08
+C2697649|[cfc 12-10-08] Should have PT that includes 'wt allele'. Emailed Liz Hahn-Dantona so that she can fix in NCIt.|E-CFC|10-DEC-08
+C0003062|[cfc 12-29-08] NCI concept 'Animalia' C77913 is retired and merged into the concept Animal (per info in Protege - editor, Erin Muhlbradt)|E-CFC|29-DEC-08
+C0085096|[cfc 12-30-08] Peripheral Vascular Disease NCI concept C50694 is retired, so I merged it into this concept.|E-CFC|30-DEC-08
+C3257803|Jan 23, 2009 discussed with Nick, he feels watering eyes and excessive tearing are different and should not be merged.  LLW|E-LLW|23-JAN-09
+C0021167|Jan 23, 2009 per Nick, this concept has been modified in Thesaurus and should be incontinence not urinary incontinence.  LLW|E-CFC|07-APR-09
+C0028377|[cfc] The two NCI concepts, C78534 and C53215, should be merged, per Nicole Thomas - Jan. 26, 2009. So, I have merged them here in Meta.|E-CFC|26-JAN-09
+C0037833|[cfc 2-20-09] Nick Sioutos, Lori Whiteman and Nicole Thomas agreed to retree the NCI concept under procedures-- under training-- with an sty of health care activity. Definition will be changed to something like: Instructional activity designed to teach patients how to vocalize with a non-functioning or absent larynx.|E-CFC|20-FEB-09
+C0034186|[cfc 3-4-09] Nick Sioutos confirmed that the two NCI concepts were duplicates. He will merge in NCIt. Pyelonephritis C34965 and Pyelonephritis C79604. I believe the newer concept is being merged in with the older.|E-CFC|04-MAR-09
+C0201998|[cfc 3-11-09] Epinephrine Measurement C79445 and Adrenaline Measurement C74840 will be merged in NCIt per Lori Whiteman.|E-CFC|11-MAR-09
+C0278962|[cfc 3-13-09] These should be merged, per Al Garrett: New York Heart Association Class III/IV C7922 and NYHA III/IV C27997. Nick Sioutos has been notified to fix in NCIt.|E-CFC|13-MAR-09
+C1704312|[cfc 4-3-09] Health Professional C54067 and Health Professional C53287 are both FDA concepts in NCIt, so they cannot be merged there, but for Meta purposes they can be merged here per Lori Whiteman.|E-CFC|03-APR-09
+C0677821|[cfc 4-7-09] Merged two NCI concepts -- C37814 and C11327. They are the same, per Wen-Ling Shaiu. Cynthia Minnery will merge in NCIt.|E-CFC|07-APR-09
+C0677822|[cfc 4-7-09] Merged two NCI concepts -- C37816 and C11328. They are the same, per Wen-Ling Shaiu. Cynthia Minnery will merge in NCIt.|E-CFC|07-APR-09
+C0796299|[cfc 4-7-09] Merged two NCI concepts -- C37815 and C11583. They are the same, per Wen-Ling Shaiu. Cynthia Minnery will merge in NCIt.|E-CFC|07-APR-09
+C0879322|[cfc 4-7-09] Duplicate NCI concepts C37819 and C11677 will be combined in NCIt per Wen-Ling and Cynthia.|E-CFC|07-APR-09
+C1512952|[cfc 4-8-09] The two NCI concepts will be merged in NCIt. C79410 being the concept number that is retained and adopting the NCI definition in C38248 into 79410 (per Terry Quinn.)|E-CFC|08-APR-09
+C0017422|[cfc 4-27-09] Male Genital Organ C13017 will eventually be removed from NCIt per Terry and Erin. We will keep the NCIt concept of C61599 that also contains the CDISC concept and will revise the NCI definition to refer to internal and external male genital organs.|E-CFC|27-APR-09
+C0039277|[cfc 5-5-09] These two NCI concepts will be merged in NCIt, per Nick Sioutos -- Talus C52799 and Astragalus C32156 -- keeping the code for Talus C52799 because it is the CDISC code.|E-CFC|05-MAY-09
+CL405474|[cfc 6-3-09] Per Erin M. -- These (C74792 and C80360) are different terms in that ‘Somatotrophin’ refers to the natively produced protein whereas ‘Somatotropin’ refers to the recombinant form of the protein, usually given as a therapeutic agent. CDISC made the decision through their change control mechanism to keep the term Somatotrophin Measurement and remove Somatotropin Measurement from their codelists which is why C74792 is not tagged with CDISC, whereas C80360 is.|E-CFC|03-JUN-09
+C0202056|[cfc 6-3-09] Per Erin M. -- These (C74792 and C80360) are different terms in that ‘Somatotrophin’ refers to the natively produced protein whereas ‘Somatotropin’ refers to the recombinant form of the protein, usually given as a therapeutic agent. CDISC made the decision through their change control mechanism to keep the term Somatotrophin Measurement and remove Somatotropin Measurement from their codelists which is why C74792 is not tagged with CDISC, whereas C80360 is.|E-CFC|03-JUN-09
+C0032143|06-04-2009 should not be merged with NCI Alteplase C39607) CN 176877 the pharmalogical substance. LLW|E-GSC|28-JUL-16
+C0813171|[cfc 7-20-09] Both NCI-GLOSS PT atoms belong with this concept, per NCIT. hypericum perforatum  NCI-GLOSS  	PT  CDR0000044462 and St. John's wort NCI-GLOSS 	PT CDR0000044957.|E-CFC|20-JUL-09
+C0750197|[cfc 7-21-09] Two NCI PTs merged here, per duplicate entry in NCIt (Terry Quinn). They will be merged in NCIt, most likely keeping C80393.|E-CFC|21-JUL-09
+C0750194|[cfc 7-21-09] Two NCI PTs merged here per duplicate NCIt concepts (Terry Quinn). They will be merged in NCIt and most likely C80394 will be kept.|E-CFC|21-JUL-09
+C0202230|[cfc 7-29-09] Per Erin M., merging C81295 into C64813 (keeping C64813). the C81295 was a duplicate created in error. She will merge in NCIt.|E-CFC|29-JUL-09
+C1537780|[cfc 8-3-09] NCIt concept PT MIR130B Gene should not have underscore. Will be fixed by John B. in NCIt.|E-CFC|04-AUG-09
+C1537839|[cfc 8-4-09] NCIt concept PT MIR200B Gene should not have underscore. Will be fixed by John B. in NCIt.|E-CFC|04-AUG-09
+C0085076|[cfc 8-6-09] Combined two NCI concepts here that appear to be the same - C15354 and C51614. Am inquiring with editors to see if they will be combined in NCIt.|E-CFC|06-AUG-09
+CL031047|08-27-09 These two atoms belong together in NCIt so have kept them together here and notified Nicole of the different definitions.  LLW|E-LLW|27-AUG-09
+CL411308|2009.09.21 - I left the CBO atoms together on code and did not merge into an existing concept,, since on code CBO has both glycophorin A and glycophorin B.  AKJ|E-AKJ|21-SEP-09
+C0016298|09-30-2009 There is an issue with nci sub-split with this concept and Fluocinolone.  The mistake comes from Thesaurus and will be fixed there by Wen-Ling.  For now this concept will show up in the QA bin.  LLW|E-LLW|30-SEP-09
+C1554551|2009.10.25 - Recommended change of PN to Registered Nurse - Community Health - HIPAA Provider Codes - to be consistent with the HL7 NUCC Provider Codes.  AKJ|E-AKJ|25-OCT-09
+C0016242|2009.12.02 - There are two NCI PTs  in this concept as the meaning of the two PTs is the same - just slight difference in the hierarchy.  A request has been sent to NS to fix in the NCIt.  AKJ|E-AKJ|03-DEC-09
+C0524979|2009.12.03  Please do not merge CN# 38363179 - Enterochromaffin Cell - in with this concept as it is a subtype of this concept.  AKJ|E-AKJ|03-DEC-09
+CL449028|2009.12.03  Please do not merge this concept with CN# 791135  Enteroendocrine Cell - as this concept is a subtype of CN# 791135  Enteroendocrine Cell.  AKJ|E-AKJ|03-DEC-09
+C3152252|[cfc 12-8-09] Two NCI concepts are being merged by Nicole in NCIt (C43521 and C28272). They are the same and so we have merged here.|E-CFC|08-DEC-09
+C0019829|[cfc 12-10-09] Two NCI PTs are in this record - C26956 Hodgkin's Paragranuloma is an antiquated term and so I left it in here.|E-CFC|10-DEC-09
+C2828333|12-30-09 This concept has been changed in Thesaurus to Hyaluronate Potassium, so it does not belong in the hyaluronate sodium concept with the other NCIt PT. LLW|E-CFC|02-FEB-10
+C0001127|12-30-2009 Two NCI PTs in this concept. Appear to be duplicates, note sent to Nick to review in Thesaurus. LLW|E-LLW|30-DEC-09
+CL412926|[cfc 1-7-10] There are two different concepts in NCIt -- Fabry Disease C84701 will remain separate from Angiokeratoma Corporis Diffusum C27528, respecting the source.|E-CFC|07-JAN-10
+C0002986|[cfc 1-7-10] There are two different concepts in NCIt -- Fabry Disease C84701 will remain separate from Angiokeratoma Corporis Diffusum C27528, respecting the source.|E-CFC|07-JAN-10
+C0012517|[cfc 1-9-10] Two NCI concepts are here because they are being merged in NCIt - Dipetalonema Infection C84674 and Dipetalonemiasis C34540. C34540 is the surviving concept, per Nick S.|E-CFC|09-JAN-10
+C0014072|[cfc 1-9-10] Combined two NCI concepts that are being merged in NCIt, per Nick S. Experimental Autoimmune Encephalomyelitis C84700 and Experimental Allergic Encephalomyelitis C3006. C3006 is the surviving concept.|E-CFC|09-JAN-10
+C0028271|[cfc 1-24-10] Per Nick S., NCIt concept Noma (C84936) is the same as Gangrenous Stomatitis (C34852), so they were merged in NCIt with the surviving concept being gangrenous stomatitis (C34852).|E-CFC|24-JAN-10
+CL413025|[cfc 1-24-10] Per Nick S. Toxemia of pregnancy (C34943) is a spectrum of disorders characterized by pregnancy-induced hypertension. Preeclampsia (C85021)is at one end of the spectrum and should remain separate.|E-CFC|24-JAN-10
+C0032914|[cfc 1-24-10] Per Nick S. Toxemia of pregnancy (C34943) is a spectrum of disorders characterized by pregnancy-induced hypertension. Preeclampsia (C85021)is at one end of the spectrum and should remain separate.|E-CFC|24-JAN-10
+C0268548|[cfc 1-25-10] Per Nick S., the two NCI concepts will be merged Hyperargininemia C84769 and Argininemia C84568, with the surviving concept being Argininemia.|E-CFC|25-JAN-10
+C0039663|2-5-2010 I put the DTP Atom Cannabinol NSC0134455  in this concept to resolve a nci subsource split. It does not belong with this concept and will be corrected in NCIt.  LLW|E-LLW|05-FEB-10
+C0203608|Per Nick, the two NCI codes were merged together in NCI on 3/5/2010. So merged in meta (LAR 3/5/2010)|E-LAR|05-MAR-10
+C0085498|03-11-2010 2 NCI PTs in this concept. They appear to be duplicates. Erin sent info to merge in Thesaurus.  LLW|E-LLW|11-MAR-10
+C0522772|2010.03.11  Suggested PN of Shaving - surgical action or something similar to distinguish it from the NCI concept of 'Shave' - more general and not specific to a surgical procedure.  AKJ|E-AKJ|11-MAR-10
+C0317763|03-11-2010 NCI SYN and CDISC SYN are narrower than the PT. Email sent to Erin about this for now I related the concept with the subspecies.  LLW|E-LLW|11-MAR-10
+CL414278|[cfc 3-11-10] Per Nick S. Proptosis C87114 should remain separate from Exophthalmos C43262 (more due to endocrine-related causes).|E-CFC|11-MAR-10
+C0015300|[cfc 3-11-10] Per Nick S. Proptosis C87114 should remain separate from Exophthalmos C43262 (more due to endocrine-related causes).|E-CFC|11-MAR-10
+C1032649|2010.03.12 - This concept has two NCI PTs.  NCIt editors have been notified to make the appropriate change in NCIt.  AKJ|E-AKJ|12-MAR-10
+C0028884|03-12-2010 NCIt tree is incorrect and will be changed in Thesaurus. Concept will be put under conceptual entity by Nick.  LLW|E-LLW|12-MAR-10
+C0227610|[cfc 4-15-10] Two NCI PTs - per Nick S. posterior surface of the kidney (c34023) has been retired and merged in with Kidney Posterior Surface C32895.|E-CFC|15-APR-10
+C0042754|could not merge in "Staphylomycin" (concept 1268211) and "Antibiotic 899" (1268210) because of MeSH integrity checks.  MNC 4/22/2010|E-MNC|22-APR-10
+C0282081|The "Coreg" atom does not belong here ("Coreg" is carvedilol); it has been removed from the butoxamine HCl entry in NCIt.  MNC 4/23/10|E-MNC|23-APR-10
+C0378042|The NCI CCN "Ro 31-3948" is actually Romazarit, not Actarit; this will be fixed in NCIt.  MNC 4/28/2010|E-MNC|28-APR-10
+C0544886|[cfc 5-4-10] Per Nicole T., regarding Somatic Mutation Abnormality C45592 and Somatic Mutation C18060, the second concept is considered a biological process; the first is a header for a listing of abnormalities that are observed in neoplasms. They should not be merged.|E-CFC|04-MAY-10
+C1707524|[5-5-10, cfc] Per Nick S.  Two NCI concepts (Corticotroph C45943 and Corticotrope Cell C32390) are absolute synonyms and I merged them.  The surviving concept is the corticotrope cell.|E-CFC|05-MAY-10
+C0359114|"Acetic Acid 0.00921 MG/MG / Glycerin 0.05 MG/MG / Oxyquinoline 0.00025 MG/MG / Ricinoleic Acid 0.007 MG/MG Vaginal Gel [Aci-Jel]" was assigned to these atoms on 5/4/2010 by NM|E-MNC|06-MAY-10
+C2702165|these atoms have been assigned the form "Acetic Acid 0.00921 MG/MG / Glycerin 0.05 MG/MG / Oxyquinoline 0.00025 MG/MG / Ricinoleate 0.007 MG/MG Vaginal Gel" in RxNorm on 5/4/10 by NM.|E-MNC|21-APR-11
+C1708248|[5-6-10, cfc] Per Nick S. Two NCI concepts (Gonadotroph Cell C45958 and Gonadotrope Cell C32691) are synonyms and he merged them. The surviving concept is the gonadotrope cell.|E-CFC|06-MAY-10
+C1522596|Serophene and Clomid are clomiphene citrate, not zuclomiphene citrate; they will be deleted as synonyms for zuclomiphene citrate in NCIt.  MNC  5/7/10|E-MNC|07-MAY-10
+C1140123|[cfc, 5-10-10] Per Erin M., since CDISC is using the C49468 c-code, the term C71882 should be merged into that one and C49468 should be kept.|E-CFC|10-MAY-10
+C0007285|[cfc 5-12-10] Per Nick S., the two NCI concepts are the same Carpus Bone C32266 and Carpal Bone C12688. He merged them in NCIt and the surviving concept is Carpal Bone C12688.|E-CFC|12-MAY-10
+C0729139|tried to merge this with concept 1005686 "Sulfamethizole" but could not due to "integrity checks"  MNC 5/13/10|E-MNC|13-MAY-10
+C0909381|"Valcyte" is valgancyclovir hydrochloride, not the base valgancyclovir; this will be fixed in NCIt.  MNC  5/17/10|E-MNC|17-MAY-10
+C0677766|Note: this has STY Therapeutic or Preventive Procedure because it is the calcium carbonate/cholecalciferol protocol (see NCIt or UMLS concept number 34940284)   MNC 5/21/10|E-MNC|21-MAY-10
+C1328051|The NCI PT has "Therapeutic and Preventive Procedure" as its STY in NCIt, but for the purposes of the NCI Meta it has been merged with other vitamin E/ubidicarenone atoms and given STY Org Chem/Pharm Sub.  MNC 5/21/10|E-MNC|21-MAY-10
+C0886515|[5-21-10, cfc] Per Nick S. - re: Secretory Vesicle C26063 and Secretory Granule C26062. Please leave them as separate terms.  Secretory granules are actually small secretory vesicles.  Sometimes these two terms are used broadly as synonyms, but not always.|E-CFC|21-MAY-10
+CL448505|[5-21-10, cfc] Per Nick S. - re: Secretory Vesicle C26063 and Secretory Granule C26062. Please leave them as separate terms.  Secretory granules are actually small secretory vesicles.  Sometimes these two terms are used broadly as synonyms, but not always.|E-CFC|21-MAY-10
+C0238767|[5-21-10] Per Nicole and Lori - Bilateral C0238767 and Right and Left C0238767 - will be merged in NCIt.|E-CFC|21-MAY-10
+C0041657|[cfc, 5-31-10] Terry Quinn stated that the two NCI concepts have been slated for merging in NCIt: Unconscious State C88435 and  Loss of Consciousness C50635|E-CFC|31-MAY-10
+C0085140|[cfc, 6-13-10] Per Nick S., Prosencephalon C12455 and Fore-Brain C40185 are the same. He has premerged in NCIt and Fore-Brain is the surviving concept.|E-CFC|13-JUN-10
+C0029309|Please note that "Norflex" is orphenadrine citrate, not just orphenadrine; this has been corrected in NCIt.  MNC  7/13/10|E-MNC|13-JUL-10
+C1831985|please note that this concept differs from concept 297854  in that this concept refers to the recombinant pharmacologic mannose-binding lectin, whereas concept 297854 refers just to mannose-binding lectins in general.  MNC 7/13/10|E-MNC|13-JUL-10
+C1705054|[cfc, 7-13-10] Merging this deleted cui C78220 into the active record C50322, even though they are two different codes (Ok, since one is inactive.)|E-CFC|13-JUL-10
+C2959379|Please note that the BN Prostascint refers to capromab pendetide before it is radiolabelled with indium In 111; therefore, it does not belong in this concept.  NCIt has been edited accordingly.  MNC  7/14/10|E-HAG|16-JAN-12
+C1252632|Please note: I removed the BN "Latisse" from the concept Bimatoprost Ophthalmic Solution in NCIt because it was already associated with the preferred name "bimatoprost."  MNC  7/14/10|E-MNC|14-JUL-10
+C0008114|[cfc, 7-15-10] Per Nick S., Chin C89805 can be merged with Mentum C81169 -- these will be combined in NCIt, with Mentum as the surviving concept.|E-CFC|15-JUL-10
+C0201551|[cfc, 8-2-10] Per Erin M. and Nick S., these two NCI concepts are the same (C84334 and C81982) and will be combined in NCIt, with the surviving concept being  Cancer Antigen 19-9 Measurement C81982.|E-CFC|02-AUG-10
+C1881410|[cfc, 8-5-10] Liposarcoma of the Rat Kidney C64117 has been merged in with Rat Renal Liposarcoma by Wen-Ling in NCIt, so I have combined here.|E-CFC|05-AUG-10
+C1883346|[cfc, 8-5-10] Per Terry Q., these two NCI concepts will be combined in NCIt: Tissue Culture Infection Dose 50 -- C67450 ; 50 Percent Tissue Culture Infective Dose -- C70536|E-MNC|21-MAR-11
+C0072863|"BAY-Va 9391" is olaquindox, not quindoxin, so this has been removed from quindoxin in NCIt.  MNC  8/11/10|E-MNC|11-AUG-10
+C1153197|09-15-2010 Two GO codes and UMLS cuis in this concept. Unable to find a difference between porter and porters.  LLW|E-LLW|15-SEP-10
+CL423118|I decided not to put the NPO "terpenoid" in with the Terpenes concept because according to the definition it is referring to a different class of organic compound.  MNC  9/30/2010|E-MNC|30-SEP-10
+C0976961|Note: I have requested the removal of the PN "Fluorescein 100 MG/ML Injectable Solution" because it no longer applies to the atoms in the concept.  (They have been marked Hard in RxNorm).  MNC  11/12/10|E-MNC|12-NOV-10
+C0027732|[cfc 2-3-11] Ureteronephrectomy C94447 is merged into Nephroureterectomy C51646 - these are the same according to Nick Sioutos and Nicole Thomas and will be merged in NCIt.|E-CFC|03-FEB-11
+C0011389|02-11-2011 The NCI GLOSS definition is too broad for the NCIt concept dental plaque. I have notified Nicole and Nick. LLW|E-LLW|11-FEB-11
+C1869115|Please note that the MeSH note here is incorrect; it is the autosomal recessive form of Weill-Marchesani syndrome that is associated with Adamts10 gene mutations.  The autosomal dominant form is associated with FBN1 gene mutations.  MNC  2/14/11|E-MNC|14-FEB-11
+C2987040|Zinviroxime has been fixed in NCIt so that it does not have an SY of "Enviroxime" and it has the appropriate FDA PT, i.e. "ZINVIROXIME".; MNC 3/2/11|E-MNC|02-MAR-11
+C1363844|I moved the MeSH atoms from 1550461 to this concept because they seemed more appropriate here.  MNC 3/4/11|E-MNC|04-MAR-11
+C0072511|Deleted "Theophyline Ethylenediamine [NCI2011_01E/SY/C80339]" from NCIt because "theophylline ethylenediamine" is aminophylline, not proxyphylline.  MNC 4/13/11|E-MNC|13-APR-11
+C0024452|Please note that "Sulfamylon" has been deleted from the "Mafenide" concept in NCIt, because "Sulfamylon" is Mafenide Acetate.   MNC 12/14/11|E-MNC|14-APR-11
+C0333117|Note: Radlex PT is in here due to hierarchy below and despite the definition, which appears to be incorrect.  MNC|E-MNC|10-MAY-11
+C0969677|May 12, 2011 There are 2 NCI PTs in this concept. These PTs must remain separate in Thesaurus due to FDA atoms.  We have put them together in Meta for now.  LLW|E-LLW|12-MAY-11
+C2729166|[cfc, 5-17-11] Merged Macrognathia with Congenital macrognathia per advice from Lori Whiteman and Mike Cantwell.|E-CFC|17-MAY-11
+C1871526|"Isentress" has been removed as an NCI BN because it is actually raltegravir potassium.  MNC  6/10/11|E-HAG|02-SEP-11
+C0228014|Incorrect CDISC SY of "Vena Cephalica" does not belong and has been reported to Erin Muhlbradt.  MNC  6/29/11|E-MNC|29-JUN-11
+C0675080|The NCI SY of "UK-38,485" has been removed from the NCIt concept of Terbogrel because "UK-38,485" is actually Dazmegrel (NCIt concept C96922.  MNC  7/7/11|E-MNC|07-JUL-11
+C3275267|Note: despite the definition, this is a protein (see hierarchy).  This will be fixed in NCIt.  MNC 7/7/11|E-MNC|07-JUL-11
+C0812271|Please note that the SY "MDS1 and EVI1 Complex Locus wt Allele" (C18392) is incorrect here and will be fixed by Liz Hahn-Dantona.  7/12/11  MNC|E-MNC|12-JUL-11
+C3250443|[9-22-11, cfc]  per Lori - Looks like it may be a mistake on umls side. All the OMIM have the same code in both concepts and the OMIM attribute is 3, meaning it refers to the disease and not the gene. Go ahead and put these all together.|E-CFC|22-SEP-11
+C0076804|10-20-2011 The SYNs of NCI concept are incorrect and will be corrected with the next baseline. Wen-Ling will delete them. LLW|E-LLW|20-OCT-11
+C0334378|[cfc 10-30-11] Merged NCIt C9008 in with this since it is retired and the active ICD03 atom matches a string in this record.|E-CFC|30-OCT-11
+C0677886|In this particular concept, the malignant epithelial tumor of ovary equals ovarian carcinoma. 1/2012 TAQ|E-TAQ|31-JAN-12
+C0684249|Feb 2012 In this case, malignant neoplasm (malignant epithelial neoplasm of the lung) and carcinoma are syns. LLW|E-LLW|07-FEB-12
+C1413861|Contains 2 NCI codes-- error reported to NCI Thesaurus cytochrome editor for correction.-- 11.28.2005--AG|L-BAC|19-JUN-06
+C3247913|April 2012 discussed BN issue with WL. Jakafi belongs in this concept. It will be fixed in NCIt.  LLW|E-LLW|05-APR-12
+C2715577|April 2012 discussed BN issue with WL. Jakafi belongs in Ruxolitinib Phosphate. It will be fixed in NCIt.  LLW|E-LLW|05-APR-12
+C0520886|ST Elevation C71028 and EKG ST Segment Elevation C50540 have been merged into C50540 in the NCI Thesaurus. 5/12 tq.|E-TAQ|08-JUN-12
+C0315276|[cfc, 6-20-12]  Wen-Ling will merge C101490 into the existing concept C86015, per Erin M., since they are the same thing.|E-CFC|20-JUN-12
+C0003466|[cfc, 6-22-12] Anal Atresia - C101280 and Imperforate Anus - C84784 are being merged in NCIt by Nick S. These are the same.|E-CFC|22-JUN-12
+C0671135|12/16/05 (cfc) Wen-Ling confirmed that these two concepts (Picoplatin and ZD0473) are synonymous, so we should keep them together here. She will take care of making the change to NCI Thesaurus.|E-CFC|16-DEC-05
+C0392979|12/16/05 (cfc) Wen-Ling verified that the atoms here are synonymous (XRP9881 and the RPR 190881A) and that she will make any necessary changes in NCI Thesaurus.|E-CFC|16-DEC-05
+CL448741|1/12/06 (cfc) Per Nicole Thomas: In response to caDSR needs I was asked to add "standard notation" for addresses. In addition to "normal" things like "Block" or "City" it included things like "Door" and "Staircase". I had trouble coming up with decent definitions to reflect that this refers to a physical part of a building used as part of an address. Perhaps I should change these to:; Door: "The entrance through which you enter or leave a room or building used as an element of an address."|E-CFC|12-JAN-06
+C0006938|Capoten (all NCI codes) belongs in the Captopril concept (not Enalaprilat). Corrected in NCIt.--AG--2006.1.18|E-HAG|19-JAN-06
+C0000905|The two NCI PTs will be merged in TDE. Spinal Accessory Nerve and Accessory Nerve are synonyms.--AG--2006.1.27|E-HAG|27-JAN-06
+C0025696|Aquatensen [NCI2005_10E/BN/C47557] belongs in this concept (as does the SY). It has been corrected in NCIt.-AG-2006.1.30|E-HAG|30-JAN-06
+C0043162|2-9-06 Al Garrett has flagged the two different NCI PTs for pre-merge. They should be all in the same concept, so I am leaving the atoms all together in this record (cfc).|E-CFC|09-FEB-06
+C1269782|3-16-06 Nick Sioutos confirmed that these should indeed be the same NCIt concept. He will make the fix in NCIt (merging the two.)|E-HAG|09-JUN-06
+C3641182|[cfc, 1-17-2013] Merged NCI concept C27852 with C103296 - these will be combined in NCIt by Terry Quinn.|E-CFC|17-JAN-13
+C0222724|[cfc, 1-28-13] Clivus - C62641 and Clivus - C12494 are the same per Nick S. Merging C62641 into C12494 (the older concept).|E-CFC|28-JAN-13
+C0005844|January 2013-- I have asked the editors about NCIt concept. Seems the definition and tree are incorrect and should be lab procedure. They are keeping it as is in Thesaurus, in Meta it will be in the laboratory procedure concept. LLW|E-LLW|28-JAN-13
+C1446368|March 13, 2013-- do not merge with "Limitation of activities due to disability" because it is a Z-code concept.  LLW|E-LLW|13-MAR-13
+C0476648|March 13, 2013-- This concept has Z codes. Do not merge with SnomedCT "Disability affecting daily living".  LLW|E-LLW|13-MAR-13
+CL440749|April 4, 2013 Two ISO PTs in this concept. The second PT is thought to be an alternate spelling of the district.  LLW|E-LLW|04-APR-13
+C1996431|Strings listing dose as 625 MG appear to be in error. Sennosides suppositories seem to be available in 652 MG (not 625 MG). 12/18/13 GSC|E-GSC|18-DEC-13
+C3827091|A new NCIt PT was added in Protege: PEG-Proline-Interferon Alfa-2b.  The definition was amended as follows: A long-acting formulation of recombinant interferon alpha subtype 2b (IFN-a2b) protein, in which IFN-a2b is coupled, via proline, to polyethylene glycol (PEG), with antiviral, immunomodulating and antineoplastic activities. Upon subcutaneous administration, IFN-a2b binds to specific interferon cell-surface receptors. This activates interferon-mediated signal transduction pathways and induces the transcription and translation of genes with interferon-specific response elements (ISREs); the protein products mediate antiviral, antiproliferative, anticancer, and immune-modulating effects. The PEG moiety inhibits proteolytic breakdown and clearance of IFN-a2b, which prolongs its half-life, extends the duration of its therapeutic effects and allows less frequent dosing. The proline linker facilitates the synthesis of a predominant (90%) positional isomer which allows for further increases in stability and a longer half-life than previous PEG conjugates. Two additional SYs were also added: PEG-P-IFN-Alfa-2b, PEG-P-IFN-Alpha-2b. Please do not merge with CN#1110588 as these are not synonymous. 12/31/13 GSC|E-HAG|23-MAR-16
+C0796545|Please do not merge with CN#76861440 (PEG-Proline-Interferon Alfa-2b) as these two concepts are not synonymous. 12/31/13 GSC|E-GSC|31-DEC-13
+CL454452|Note 12/31/13: wanted to merge this in with NCI Meta 29379 but that already has a different NCIt code in it.  MNC|E-MNC|31-DEC-13
+C0040262|the majority of Tinea versicolor is caused by the Malassezia globosa fungus, although Malassezia furfur is responsible for a small number of cases  MNC  1/18/14|E-MNC|18-JAN-14
+C3494933|Please note: I believe the Radlex definition is in error and is actually the definition for polyarteritis nodosa.  I have done extensive Internet searches and I think that both sialodochitis fibrinosa (which is parotid gland swelling due to a mucous or fibrin plug) and polyarteritis nodosa may have the synonym "Kussmaul's disease."  MNC  2/22/14|E-MNC|22-FEB-14
+C0226584|The eponymous SYs from SNOMEDCT, FMA and the UWDA incorrectly label the Inferior Anastomotic Vein as the Vein of Trolard. It is actually known as the Vein of Labbé. The Superior Anastomotic Vein is the one that is known as the Vein of Trolard. The errors have been reported. 2/27/14 GSC|E-GSC|27-FEB-14
+C0226583|The eponymous SY from SNOMEDCT incorrectly labels the Superior Anastomotic Vein as the Vein of Labbé. It is actually known as the Vein of Trolard. The Inferior Anastomotic Vein is the one that is known as the Vein of Labbé. The error has been reported. 2/27/14 GSC|E-GSC|27-FEB-14
+C3661746|The eponymous SNOMEDCT SYs incorrectly label the Superior Anastomotic Vein as the Vein of Labbé (vein is also misspelled in one of the SYs). It is actually known as the Vein of Trolard. The Inferior Anastomotic Vein is the one that is known as the Vein of Labbé. The errors have been reported. 2/27/14 GSC|E-GSC|27-FEB-14
+C3266656|The eponymous SNOMEDCT SYs incorrectly label the Superior Anastomotic Vein as the Vein of Labbé. It is actually known as the Vein of Trolard. The Inferior Anastomotic Vein is the one that is known as the Vein of Labbé. The errors have been reported. 2/27/14 GSC|E-GSC|27-FEB-14
+C0674431|Please note: the protein referred to by NCI in this concept is not the 52-amino acid protein adrenomedullin (concept 484047) but rather its precursor, preproadrenomedullin, which is coded for directly by the ADM gene and is 185 amino acids long.  Preproadrenomedullin is post-translationally modified to generate 2 biologically active peptides: adrenomedullin and proadrenomedullin N-terminal 20 peptide (PAMP).  The following is from NCBI (http://www.ncbi.nlm.nih.gov/gene/133) : "Adrenomedullin, a hypotensive peptide found in human pheochromocytoma, consists of 52 amino acids, has 1 intramolecular disulfide bond, and shows a slight homology with the calcitonin gene-related peptide. It may function as a hormone in circulation control because it is found in blood in a considerable concentration. The precursor, called preproadrenomedullin, is 185 amino acids long."  Also see OMIM at http://www.omim.org/entry/103275.  MNC 3/1/14|E-MNC|01-MAR-14
+C1636192|RADLEX atoms (RID43565) were placed in this urinary tract diagnostic concept however it is not certain that they don't instead represent the gastrointestinal diagnostic (see CN#12630523).  Research has not produced clarification of the intent of RADLEX.  4/2/14 GSC|E-GSC|02-APR-14
+C0035920|Incorrect RADLEX3_10 definition (infection with the parasitic roundworm Ascaris lumbricoides) was reported.  4/3/14 GSC|E-GSC|03-APR-14
+C0226170|Note: per the Radlex hierarchy, the Radlex "muscular artery" here mean specifically a branch of the ophthalmic artery.  MNC  4/5/14|E-MNC|05-APR-14
+CL462901|The RADLEX PT, Iv&#233;paque, is odd.  It is likely meant to be one of the following: Imagopaque® 250, Imagopaque® 300, Imagopaque® 350.  PT has been reported. 4/8/14 GSC|E-GSC|08-APR-14
+CL463841|Reported that RADLEX PT was not compressed like other RADLEX workflow term PTs (following pattern would suggest 'ArtifactorImproperPositioning' is the correct PT).  4/10/14 GSC|E-GSC|10-APR-14
+CL460219|The RADLEX definition does not quite fit the term. I think this term should probably be 'perilobular' not perilobar. This has been reported. 4/10/14 GSC|E-LAR|16-JUL-15
+CL460291|Inconclusive comments (Interval ? 6 months must have diameter increase of ? 50%. Interval > 6 months must have diameter increase of ? 100%) in RADLEX definition were reported.  4/10/14 GSC|E-GSC|10-APR-14
+CL466559|Please note that Radlex does not mean the occupation of speech pathology but rather this is tree'd under "body system-specific disorder."  MNC  4/12/14|E-MNC|12-APR-14
+CL458598|Obscured (written as "obscurred") and arrhythmia (written as "arrythmia") are misspelled in RADLEX definition. 4/17/14 GSC|E-GSC|17-APR-14
+CL459029|Deformity is misspelled as 'deforminty' in the RADLEX definition. Also 'shepard's crook deformity' is not a common spelling.  4/17/14 GSC|E-GSC|17-APR-14
+C0277564|[cfc 4-17-14] Left Radlex in here, even though DataAcquired atom is clearly not the same. It does share same code as acquired atom from Radlex.|E-CFC|17-APR-14
+C2337052|The lymph nodes involved in the metastasis of pancreatic cancer have been previously described according to 18 groups by the Japanese Pancreas Society (JPS) Classification.  Those along the left gastric artery are known as group 7. 4/22/14 GSC|E-GSC|22-APR-14
+C0224362|Latissimus is misspelled in one of the RADLEX SYs (and the RADLEX OP term (RID2492)) as "lattisimus". 4/23/14 GSC|E-GSC|23-APR-14
+C0224304|The RADLEX SY, "musculus accessories", is incorrect. It  should be musculus accessorius, an archaic term. 4/23/14 GSC|E-GSC|23-APR-14
+CL466581|note: moved these out of concept 509648 because there is also a left median lobe and left dorsal lobe.  MNC  4/27/14|E-MNC|27-APR-14
+CL466582|note: moved these out of concept 509641 because there is also a right median lobe and right dorsal lobe.  MNC  4/27/14|E-MNC|27-APR-14
+C0506779|Note: this Radlex SY is incorrect and should be "anterior T12 root" but I kept it here so as not to confuse anything further.  MNC 4/27/12|E-MNC|27-APR-14
+C0920976|Please note the Radlex SY mistake will be reported to LLW.  I decided to keep the incorrect SY here so as not to confuse things any further.  MNC  4/27/14|E-MNC|27-APR-14
+CL473348|On 6/14/14 I pulled NCI code C99553 ("Sleep Study") out of concept 430460 because the new insertion of NCI included NCI code C114185  ("Polysomnography"), which seemed to belong in 430460.  MNC|E-MNC|14-JUN-14
+C3816448|Please note that Formestane (NCI Meta concept 791833) is a prohormone to 4-Hydroxytestosterone.  MNC  6/15/14|E-MNC|15-JUN-14
+C3889830|[cfc, 7-3-14] Had to be corrected in NCIt - per Jordan: I treed this concept now under "Molecular Analysis" as a type of 'Laboratory Procedure'.|E-CFC|03-JUL-14
+C1705004|Please note that a polymorphism in IL10 promoter region is associated with resistance to graft-versus-host disease (GVHDS); that's why I decided to make a rel between 3426579 and 97518.  MNC  7/4/14|E-MNC|04-JUL-14
+C1963929|According to the NCI hierarchy below (you have to go at least halfway down the concept report to find it), this term is considered to be broader than Guillain-Barre Syndrome.  I think that the two terms are synonymous, and so do the sources I found on the Web regarding these 2.  But since you can't have 2 NCI terms in the same concept,  I just kept this NCI term apart from 98556.  MNC  7/5/14|E-CFC|21-JUL-16
+C0020410|There are 4 genera in the Hylobatidae family: Hylobates, Nomascus, Symphalangus and Hoolock. 8/14/14 GSC|E-GSC|14-AUG-14
+C0085234|There are currently described 4 genera in the Hylobatidae family: Hylobates, Nomascus, Symphalangus and Hoolock. 8/14/14 GSC|E-GSC|14-AUG-14
+C3147825|Please note that according to HUGO, "hsa-mir-499a" is a correct synonym for this gene, although this is MIR499B.  MIR499A's synonym is "hsa-mir-499."  MNC  8/23/14|E-MNC|23-AUG-14
+C3531431|Please note: from what I remember from my RxNorm days, it makes sense to have the 50 MG/ML topical cream atoms here because lidocaine 5 % topical cream is always rectal cream.  MNC 8/23/14|E-MNC|23-AUG-14
+C0878544|Please note that there are subtle differences between the terms Cardiomyopathy and Myocardial Disease (see CN#38165506). Cardiomyopathies are classified as hypertrophic, dilated or restrictive disorders of the myocardium itself whereas Myocardial Diseases may encompass a broader set of disorders including inflammatory processes like myocarditis or necrotic ones, like myocardial infarction. MeSH and NDFRT atoms have been kept together based on code and MH or PT terms respectively. 8/26/14 GSC|E-GSC|26-AUG-14
+C3241958|Please note that there are subtle differences between the terms Myocardial Disease and Cardiomyopathy (see CN#1186176). Cardiomyopathies are classified as hypertrophic, dilated or restrictive disorders of the myocardium itself whereas Myocardial Diseases may encompass a broader set of disorders including inflammatory processes like myocarditis or necrotic ones, like myocardial infarction. 8/26/14 GSC|E-GSC|26-AUG-14
+C0677640|[9-9-14, cfc] Per Lori - keep these "unspecified, without mention of manifestation" separate from other (even though we do  merge in NOS, or unspecified, this is a bit different.)|E-CFC|09-SEP-14
+C1824798|Please note that this concept is not related to concept 13521867, which is a cell component, although both of them have the abbreviation "TORC1", which makes things somewhat confusing.  Thanks, MNC  9/16/14|E-MNC|16-SEP-14
+C3272987|This concept has been updated in NCIt with the following new synonyms: Cogazocine3-(Cyclopropylmethyl)-1,2,3,4,5,6-hexahydro-cis-6,11-dimethyl-2,6-methano-3-benzazocine (SN); 3-(Cyclopropylmethyl)-1,2,3,4,5,6-hexahydro-6,11-dimethyl-2,6-methano-3-benzazocin (SN); Win 23,200 (CN).  9/23/14 GSC|E-GSC|23-SEP-14
+C3272988|This concept has been updated in NCIt with the following new synonyms:  2,6-Methano-3-benzazocine, 3-(cyclopropylmethyl)-1,2,3,4,5,6-hexahydro-6,11-dimethyl-, Hydrochloride, cis- (SN); Win 23,200 Hydrochloride (CN). 9/23/14 GSC|E-GSC|23-SEP-14
+C1149896|[cfc, 9-25-14] Per Laura, different GO codes: In this case, I would leave together. The strings are the same and there is nothing to indicate they don’t have the same meaning. If we split, I would have no way to explain to someone why they are different.|S-MNC|15-JAN-15
+C1883527|The PDQ synonym, "vinbalstine-ifosfamide-cisplatin regimen", is correctly placed in this concept.  The confusion stems from the fact that etoposide (also known as VP-16 and by the trade name VePesid) is the first agent represented in the 'VIP Regimen' whereas vinblastine is the first agent in the similarly named 'VeIP Regimen'. Some sources have used 'VIP' to represent 'VeIP' but in the synonym is correct here. The error has been reported. 10/3/14 GSC|E-GSC|03-OCT-14
+C1883259|These two NCIt concepts have been merged in the thesaurus with C63683 and the PT "TPF Regimen" remaining.  10/3/14 GSC|E-GSC|03-OCT-14
+C0268344|From OMIM (http://www.omim.org/entry/229200): The kyphoscoliotic type of Ehlers-Danlos syndrome (EDS VI) was at one time separated into EDS VIA (with lysyl hydroxylase deficiency) and EDS VIB (with normal lysyl hydroxylase activity). The designation EDS VIB was then thought to include the brittle cornea syndrome. Another entity formerly called EDS VIB is now known as the musculocontractural type of EDS (601776), caused by mutation in the CHST14 gene. 10/3/14 GSC|E-GSC|03-OCT-14
+C1866294|From OMIM (http://www.omim.org/entry/601776): The kyphoscoliotic type of Ehlers-Danlos syndrome (EDS VI) was at one time separated into EDS VIA (with lysyl hydroxylase deficiency) and EDS VIB (with normal lysyl hydroxylase activity). What was designated EDS VIB is now known to represent 2 distinct entities: the brittle cornea syndrome (229200), caused by mutation in the ZNF469 gene and the musculocontractural type of EDS. 10/3/14 GSC|E-GSC|03-OCT-14
+C2917414|Please note that this concept differs from concept 1503249 because this concept represents the NDFRT Established Pharmacologic Class (EPC).  MNC  10/3/2014|E-MNC|03-OCT-14
+C3854364|this is a benign transient erythema of the newborn of no clinical significance, due to vasomotor instability.  MNC 10/5/14|E-CFC|25-SEP-15
+C3891158|[cfc, 10-8-14] This is in the wrong tree. Should be under Property or Attribute with a STY of Idea of Concept -- per Lori W.|E-CFC|08-OCT-14
+C0031485|Note: This was a little difficult to edit because this NCI code (C81315) was originally in concept 1037092 but then NCI had a new code for "classical phenylketonuria", and that had to go into 1037092, and since you cannot have 2 NCI concepts together I had to pull C81315 out of concept 1037092.  I thought about bring MeSH and Snomed to this concept but MeSH and Snomed consider PKU and classical PKU to be synonymous (which is why this was difficult.)  I finally decided just to leave MeSH and Snomed and everything else in 1037092 rather than create a whole huge mess.  MNC  10/11/14|E-CFC|11-MAR-15
+C0320385|Please note that the correct spelling of the species name includes two letter "i"s.  See http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2681121/ GSC 10/15/14|E-GSC|15-OCT-14
+C0061081|[cfc, 10-27-14] Per Laura, the two SNOMED codes should stay together. We keep substance and product together from SNOMED. I think these can all go in the same concept with Gamma-oryzanol.|E-CFC|27-OCT-14
+C3899212|[cfc, 10-27-14] Per Erin, this is indeed mis-treed. Lori suggested Idea or Concept for STY. Erin will fix in NCIt (move to correct tree.)|E-CFC|27-OCT-14
+C0072982|Canola oil may be derived from either the rapeseed  plant (Brassica napus) or from the field mustard or turnip rape (Brassica rapa). Thus canola oil is a valid synonym here but it is also a separate concept (see CN#265775). 10/30/14 GSC|E-GSC|30-OCT-14
+C1333893|BDMR (HGNC 1032) has been withdrawn as a name.  It is now known as HDAC4 (HGNC 14063). Please see: http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:14063 and http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:14063  (GSC, 10/30/14)|E-GSC|30-OCT-14
+C1855722|Per OMIM, there is substantial phenotypic overlap with Fryns-Aftimos Syndrome (http://www.omim.org/entry/243310?search=243310&highlight=243310) but these are currently considered distinct entities.  11/6/14 GSC|E-GSC|06-NOV-14
+CL480145|The Roman numeral D represents the number 500; it is not the same as Upper case Roman letter D (see CN#18871379). 12/17/14 GSC|E-GSC|17-DEC-14
+C1705211|[cfc, 12-19-14] Laura indicated that we may need to change documentation to allow merging of Potency Units in NCI with other concepts. No need to separate as before.|E-CFC|18-DEC-14
+C0026858|[cfc, 1-14-15] NICHD atoms have to stay with NCI. Teri wll correct the NICHD atom for chest wall pain in NCit. From Teri: I have moved the NICHD atom into Chest Wall Pain, C78238.|E-CFC|14-JAN-15
+C3899153|Fixed typo (changed 'ub-tenon's space' to 'sub-Tenon's space') in NCI and NICHD/AE definitions in Protege.  2/4/15 GSC|E-GSC|04-FEB-15
+C1370189|Though the proper name of this fungal species is Pneumocystis jirovecii, it is commonly spelled with one 'i' (Pneumocystis jiroveci).  Fungal naming conventions require two 'i's in the species name whereas protozoal naming conventions use only one.  Since this organism was originally presumed to be a protozoan, the species name was created with one 'i' and then latter changed to reflect its true nature.  Pneumocystis carinii was the name applied to the organism that  was capable of infecting multiple species. P. jirovecii is the name of the agent that specifically infects humans.  (see http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2681121/) 2/10/15 GSC|E-GSC|10-FEB-15
+C0541782|[cfc, 2-25-15] Per Laura, the MeSH concept with the NM (Atrial Standstill [MSH_2015_2014_09_08/NM/C563984] M0564284 C1838539) is a MeSH supplementary concept and can be split out from the regular MeSH atoms of the same code (found in CN# 24900127  CARDIOMYOPATHY, FAMILIAL, WITH CONDUCTION DISTURBANCE). It is merged here since it matches by string.|E-CFC|25-FEB-15
+C1265451|[cfc, 4/9/15] Per Laura, merging in the species atoms that are inactive. She will kill the extra PN. Since they are not being released, it keeps the past version and current version aligned. The separate codes are fine.|E-CFC|09-APR-15
+C2917381|this was separated by MNC from 91947301 because this is the external pharmacologic class of NDFRT and 91947301 is a medical device according to the Snomed hierarchy  4/13/15|E-MNC|13-APR-15
+C0851312|Please note this Snomed code should NOT be merged with concept 1170371, because this refers to the surgical specialty (professional or occupational group) as opposed to the actual procedure.  Thanks.  MNC  4/30/15|E-MNC|30-APR-15
+C1419129|The typo in the CBO SY ( 6-pyruvoyltetrahydropterin synthase misspelled as '6-pyruvoultetrahydropterin synthase') has been reported. 6/3/15 GSC|E-GSC|03-JUN-15
+C1969275|The RDR atom came from Budd-Chiari Syndrome concept (CN#2051773).  Suspect that it was intended for Arnold-Chiari instead. 6/25/15 GSC|E-GSC|25-JUN-15
+CL495686|This appears to be distinct from Hereditary Motor and Sensory Neuropathy Type 1 (Charcot-Marite-Tooth Type 1):  http://onlinelibrary.wiley.com/doi/10.1111/j.1399-0004.1992.tb03644.x/abstract  7/6/15 GSC|E-GSC|06-JUL-15
+C0023467|July 2015-- Acute Erythroblastic Leukemia (NICHD) should not be in this concept.  NCIt editors notified. It will be removed in Protege.  LLW|E-LLW|07-JUL-15
+CL495468|See: https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0CCQQFjABahUKEwj304LOqODGAhXKkQ0KHU-RABU&url=http%3A%2F%2Fextras.springer.com%2F2008%2F978-88-470-5624-4%2FDocs%2FProfili%2F26530.pdf&ei=1vynVfeQIcqjNs-igqgB&usg=AFQjCNEwwviphpv-Jryssr47hkLd4WRAzQ  7/16/15 GSC|E-GSC|16-JUL-15
+C1846816|Apparent typo in MeSH NM term has been reported.  No 'type IIID' is described in the literature.  7/22/15 GSC|E-GSC|22-JUL-15
+C0687751|Acanthocytes are an erythrocyte morphology seen most commonly in abetalipoproteinemia and hemolytic anemia. 7/22/15 GSC|E-GSC|22-JUL-15
+C0259779|Please note that fibrous dysplasia [of bone] and osteofibrous dysplasia are similar but distinct lesions.  See: http://www.ncbi.nlm.nih.gov/pubmed/11564214 7/23/15 GSC|E-GSC|23-JUL-15
+C1709353|Please note that osteofibrous dysplasia and fibrous dysplasia [of bone] are similar but distinct lesions.  See: http://www.ncbi.nlm.nih.gov/pubmed/11564214 7/23/15 GSC|E-GSC|23-JUL-15
+C0677055|July 2015 Left the SNOMED malignant epithelial neoplasm string in  b/c I cannot split the Snomed FN and PT-- the PT is Carcinoma of the Vulva which belongs in this concept.  LLW|E-LLW|24-JUL-15
+C0917715|Serpentine fibula-polycystic kidney syndrome is likely a variant clinical presentation of Hajdu-Cheney syndrome. 8/10/15 GSC|E-GSC|10-AUG-15
+C1956097|There is debate whether Wolf-Hirschhorn Syndrome and Pitt-Rogers-Danks Syndrome are separate entities or phenotypic variants of the same chromosomal abnormality. OMIM lists these as synonymous (see: http://www.omim.org/entry/194190).  8/11/15 GSC|E-GSC|11-AUG-15
+C0796117|There is debate whether Wolf-Hirschhorn Syndrome and Pitt-Rogers-Danks Syndrome are separate entities or phenotypic variants of the same chromosomal abnormality. OMIM lists these as synonymous (see: http://www.omim.org/entry/194190).  8/11/15 GSC|E-GSC|11-AUG-15
+C2931396|See: http://accessanesthesiology.mhmedical.com/content.aspx?sectionid=49517779&bookid=852&jumpsectionID=49532395&Resultclick=2  8/11/15 GSC|E-GSC|11-AUG-15
+C0406612|Fishman Syndrome and Haberland Syndrome are established eponyms for encephalcraniocutaneous lipomatosis.  (see: http://emedicine.medscape.com/article/1117060-overview).  8/11/15 GSC|E-GSC|11-AUG-15
+CL496029|GSD type IXe is muscle phosphorylase kinase deficiency with an autosomal inheritance pattern. In contrast, GSD type IXd is muscle phosphorylase kinase deficiency with an X-linked inheritance pattern.  See "The Glycogen Storage Diseases and Related Disorders" by Smit et al. (section 6.1.5, Glycogen Storage Disease Type IX): http://eknygos.lsmuni.lt/springer/223/II%20Part/101-119.pdf 8/12/15 GSC|E-GSC|12-AUG-15
+C1845151|GSD type IXd and IXe are both deficiences of muscle phosphorylase kinase but they differ in inheritance pattern. GSD type IXd is X-linked whereas GSD type IXe is autosomally inherited. 8/12/15 GSC|E-GSC|12-AUG-15
+C1321551|Misspelling of eponym ('Golberg' instead of Goldberg) in MeSH NM and CE terms was reported. 8/12/15 GSC|E-GSC|12-AUG-15
+C0268292|RDR ET typo '11-alpha beta hydroxylase' reported.  Congenital adrenal hyperplasia from 11-beta hydroxylase deficiency or 17-alpha hydroxylase deficiency is possible.  However, there is no enzyme that is named '11-alpha beta hydroxylase'.  8/12/15 GSC|E-GSC|12-AUG-15
+C1858160|See original 1993 Warman, Mulliken, Hayward and Muller paper: http://www.ncbi.nlm.nih.gov/pubmed/8357019  8/13/15 GSC|E-GSC|13-AUG-15
+CL474066|Though similar, fundus flavimaculatus and Stargardt's Disease are distinct (see: http://www.retinareference.com/diseases/54bc6d7d003e44a8/documents/abe457313b/document.pdf) 8/14/15 GSC|E-GSC|14-AUG-15
+C0271093|Though similar, Stargardt's Disease and fundus flavimaculatus are distinct (see: http://www.retinareference.com/diseases/54bc6d7d003e44a8/documents/abe457313b/document.pdf) 8/14/15 GSC|E-GSC|14-AUG-15
+CL480897|Factor I deficiency encompasses afibrinogenemia, hypofibrinogenemia and dysfibrinogenemia. 8/14/15 GSC|E-GSC|14-AUG-15
+C0752120|OPCA I (Menzel type) and OPCA IV (Schut-Haymaker type) are currently considered to be the same disorder. 8/18/15 GSC|E-GSC|18-AUG-15
+C1855606|Burton Syndrome appears to share features with Schwartz-Jampel Syndrome and may be a part of the same spectrum of disorders. Kept separate but related for now. See: http://www.ncbi.nlm.nih.gov/pubmed/11038441  8/18/15 GSC|E-GSC|18-AUG-15
+C3810067|According to OMIM, congenital disorder of glycosylation type Ix is associated with genetic mutation of STT3B (http://www.omim.org/entry/615597), and congenital disorder of glycosylation type Iw is associated with genetic mutation of STT3A (http://www.omim.org/entry/615596). 8/19/15 GSC|E-GSC|19-AUG-15
+C3810062|According to OMIM, congenital disorder of glycosylation type Iw is associated with genetic mutation of STT3A (http://www.omim.org/entry/615596), and congenital disorder of glycosylation type Ix is associated with genetic mutation of STT3B (http://www.omim.org/entry/615597). 8/19/15 GSC|E-GSC|19-AUG-15
+C1839311|See Scott CR, Brynat JI, Graham CB, A new craniodigital syndrome with mental retardation. JPeds, 1971, 78: 658-63. 8/19/15 GSC|E-GSC|19-AUG-15
+C1863389|Acrocephalosyndactyly type II (Apert-Crouzon Disease) is not the same as Acrocephalopolysyndactyly type II (Carpenter Syndrome, see CN#1662542). 8/19/15 GSC|E-GSC|19-AUG-15
+C1275078|Acrocephalopolysyndactyly type II (Carpenter Syndrome) is not the same as Acrocephalosyndactyly type II (Apert-Crouzon Disease, see CN#24580890). 8/19/15 GSC|E-GSC|19-AUG-15
+C3489789|Mutations in the ABCB11 gene are responsible for PFIC2. The ABCB11 gene provides instructions for making a protein called the bile salt export pump (BSEP). Hence the GARD ET of BSEP deficiency. 8/19/15 GSC|E-GSC|19-AUG-15
+C0162674|The Kiloh-Nevin Syndrome SNOMED SY is a reference to the two authors of a paper: Kiloh LG, Nevin S. Progressive dystrophy of th external ocular muscles. Brain. 1951;74:115-43.  It is not synonymous with Anterior Interosseous Nerve Syndrome (see CN#7249126) which also bears the same eponym but refers to a median nerve disorder.  8/21/15 GSC|E-GSC|21-AUG-15
+C1328840|GARD ET, FAS deficiency, refers to Fas-ligand deficiency which has been shown to be associated with autoimmune lymphoproliferative syndrome. 8/21/15 GSC|E-GSC|21-AUG-15
+C3501372|See: Booth, F.A., Haworth, J.C., Dilling, L.A. et al. (1989) Mitochondrial encephalomyopathy with associated aminoacidopathy in a male sibship. JPeds, 115:81-88.  8/21/15 GSC|E-GSC|21-AUG-15
+C2678045|See: Green, A. J., Sandford, R. N., Davison, B. C. C. An autosomal dominant syndrome of renal and anogenital malformations with syndactyly. J. Med. Genet. 33: 594-596, 1996. 8/21/15 GSC|E-GSC|21-AUG-15
+CL495216|See: Pierquin G, van Regemorter N, Hayez-Delatte, Fourneau C, Bormans J Foerster M, Damis E, Cremer-Perlmutter N, Lapiere CM, Vamos E: Two unrelated children with partial trisomy lq and monosomy 6p, presenting with the phenotype of the Larsen syndrome. Hum Genet 87: 587-591 (1991)  8/24/15 GSC|E-GSC|24-AUG-15
+C2931534|See: Kozlowski K, Jequier S, Sillence D, Moir DH. Cloverleaf Skull and Bone Dysplasias (Report of four cases). Australasian Radiology.31: 3, 309-14, August 1987.  8/27/15 GSC|E-GSC|27-AUG-15
+C0702159|Four major congenital causes of aplastic anemia: Fanconi anemia, dyskeratosis congenita, Shwachman-Diamond syndrome, amegakaryocytic thrombocytopenia.  8/28/15 GSC|E-GSC|28-AUG-15
+C0702169|There is a distinction between acrania (absence of the flat skull bones (face) and calvarium (dome)) and acalvaria (absence of the dome-like superior portion of the skull). 8/28/15 GSC|E-GSC|28-AUG-15
+C2930936|There is a distinction between acalvaria (absence of the dome-like superior portion of the skull) and acrania (absence of the flat skull bones (face) and calvarium (dome)). 8/28/15 GSC|E-GSC|28-AUG-15
+C2930936|Primary acalvaria is misspelled as 'Primary alcavaria' in GARD ET.  Typo has been reported. 8/28/15 GSC|E-GSC|28-AUG-15
+C0235833|Misspelling of 'Diaphragmatic agenesis' as 'Diaphragmatic agenesia' in GARD ET has been reported. 8/31/15 GSC|E-GSC|31-AUG-15
+CL495036|See: Andre M, Aumaitre O. Aseptic Abscesses Syndrome. Rev Med Interne. 2011 Nov;32(11):678-88 (http://www.ncbi.nlm.nih.gov/pubmed/21382655). 9/1/15 GSC|E-GSC|01-SEP-15
+CL495346|See: Sarkany RP et al. Erythropoietic uroporphyria associated with myeloid malignancy is likely distinct from autosomal recessive congenital erythropoietic porphyria. J Invest Dermatol. 2011 May;131(5):1172-5. (http://www.ncbi.nlm.nih.gov/pubmed/21326293). 9/1/15 GSC|E-GSC|01-SEP-15
+C4040043|See: Suskind D et al. Collagenous gastritis, a new spectrum of disease in pediatric patients: two case reports. Cases J. 2009; 2: 7511. (http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2740095/) 9/1/15 GSC|E-GSC|01-SEP-15
+C1857300|See: Wider C et al. Leukoencephalopathy with spheroids (HDLS) and pigmentary leukodystrophy (POLD) A single entity? Neurology June 2, 2009 vol. 72 no. 22 1953-1959. (http://www.neurology.org/content/72/22/1953.short) 9/1/15 GSC|E-GSC|01-SEP-15
+CL496105|See: van de Vosse E et al. IL-12Rβ1 deficiency: mutation update and description of the IL12RB1 variation database. Hum Mutat. 2013 Oct;34(10):1329-39. (http://www.ncbi.nlm.nih.gov/pubmed/23864330). 9/1/15 GSC|E-GSC|01-SEP-15
+C3715192|See: Shastry S et al. A novel syndrome of mandibular hypoplasia, deafness, and progeroid features associated with lipodystrophy, undescended testes, and male hypogonadism. J Clin Endocrinol Metab. 2010 Oct;95(10):E192-7. (http://www.ncbi.nlm.nih.gov/pubmed/20631028) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494887|See: Stratton RF, Koehler N, Morrow WR. An unusual cardiomelic syndrome. Am J Med Genet. 1988 Feb;29(2):333-41. (http://www.ncbi.nlm.nih.gov/pubmed/3354604) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494730|See: Jensen DR et. al. A Novel Chromosome 19p13.12 Deletion in a Child with Multiple Congenital Anomalies. Am J Med Genet A. 2009 Mar; 149A(3): 396–402. (http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2872113/) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494938|See: Palumbo O et al. An emerging phenotype of interstitial 15q25.2 microdeletions: clinical report and review. Am J Med Genet A. 2012 Dec;158A(12):3182-9. (http://www.ncbi.nlm.nih.gov/pubmed/23166063)9/1/15 GSC|E-GSC|01-SEP-15
+C3275929|See: Minor LB et al. Sound- and/or pressure-induced vertigo due to bone dehiscence of the superior semicircular canal. Arch Otolaryngol Head Neck Surg. 1998 Mar;124(3):249-58. (http://www.ncbi.nlm.nih.gov/pubmed/9525507) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494733|See: van Bon BWM et al. The 2q23.1 microdeletion syndrome: clinical and behavioural phenotype. European Journal of Human Genetics (2010) 18, 163–170. (http://www.nature.com/ejhg/journal/v18/n2/full/ejhg2009152a.html) 9/1/15 GSC|E-GSC|01-SEP-15
+C0406776|See: Iijima S, Naito Y, Naito S, Uyeno K. Reticulate hyperpigmentation distributed in a zosteriform fashion: a new clinical type of hyperpigmentation. Br J Dermatol. 1987 Oct;117(4):503-10. (http://www.ncbi.nlm.nih.gov/pubmed/3676095) 9/1/15 GSC|E-GSC|01-SEP-15
+C4049262|See: Kramer U et al. Febrile infection–related epilepsy syndrome (FIRES): Pathogenesis, treatment, and outcome. Epilepsia, Volume 52, Issue 11, pages 1956–1965, November 2011. "Febrile infection–related epilepsy syndrome (FIRES) is a catastrophic epileptic encephalopathy with a yet undefined etiology. This rare entity comprises a small minority of all patients with status epilepticus (SE). A literature search for refractory SE related to encephalitis due to an unidentified agent or immune encephalopathy yielded several series. FIRES was given many names that emphasize either the characteristics of acute refractory partial epilepsy or the presumed pathogenesis, among them “acute encephalitis with refractory, repetitive partial seizures” (AERRPS) (Sakuma et al., 2001), “severe refractory status epilepticus due to presumed encephalitis” (Sahin et al., 2001), “idiopathic catastrophic epileptic encephalopathy” (Baxter et al., 2003), “new-onset refractory status epilepticus” (NORSE) (Wilder-Smith et al., 2005), “devastating epileptic encephalopathy in school-aged children” (DESC) (Mikaeloff et al., 2006), and FIRES (van Baalen et al., 2010). Japanese authors prefer the term AERRPS and European authors prefer FIRES." (http://onlinelibrary.wiley.com/doi/10.1111/j.1528-1167.2011.03250.x/full) 9/1/15 GSC|E-GSC|01-SEP-15
+CL495752|See: Babovic-Vuksanovic D et al. Multiple orbital neurofibromas, painful peripheral nerve tumors, distinctive face and marfanoid habitus: a new syndrome. Eur J Hum Genet. 2012 Jun;20(6):618-25. (http://www.ncbi.nlm.nih.gov/pubmed/22258529) 9/1/15 GSC|E-GSC|01-SEP-15
+CL495733|See: Wanat KA, Reid E, and Rubin AI. Onychocytic Matricoma: A New, Important Nail-Unit Tumor Mistaken for a Foreign Body. JAMA Dermatol. 2014;150(3):335-337. (http://archderm.jamanetwork.com/article.aspx?articleid=1819583) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494889|See: Mangiafico RA et al. Accelerated cardiomyopathy in maternally inherited diabetes and deafness. Int J Clin Pharmacol Res. 2004;24(1):15-21. (http://www.ncbi.nlm.nih.gov/pubmed/15575173) 9/1/15 GSC|E-GSC|01-SEP-15
+C2931289|See: Weinstein RL, Kliman B, and Scully RE. Familial Syndrome of Primary Testicular Insufficiency with Normal Virilization, Blindness, Deafness and Metabolic Abnormalities. N Engl J Med 1969; 281:969-977. (http://www.nejm.org/doi/full/10.1056/NEJM196910302811801) 9/1/15 GSC|E-GSC|01-SEP-15
+CL495371|See: Nagai T et al. Fatal infantile mitochondrial encephalomyopathy with complex I and IV deficiencies. Pediatr Neurol. 1993 Mar-Apr;9(2):151-4. (http://www.ncbi.nlm.nih.gov/pubmed/8388688) 9/1/15 GSC|E-GSC|01-SEP-15
+CL494896|See: Litt M et al. Autosomal dominant congenital cataract associated with a missense mutation in the human alpha crystallin gene CRYAA. Hum Mol Genet. 1998 Mar;7(3):471-4. (http://www.ncbi.nlm.nih.gov/pubmed/9467006) 9/2/15 GSC|E-GSC|02-SEP-15
+CL494897|See: Wilkie AO et al. Congenital cataract, microphthalmia and septal heart defect in two generations: a new syndrome? Clin Dysmorphol. 1993 Apr;2(2):114-9. (http://www.ncbi.nlm.nih.gov/pubmed/8281271) 9/2/15 GSC|E-GSC|02-SEP-15
+CL495022|See: Parano E et al. Congenital muscular dystrophy with syringomyelia. Pediatr Neurol. 1994 Oct;11(3):263-5. (http://www.ncbi.nlm.nih.gov/pubmed/7880344) 9/2/15 GSC|E-GSC|02-SEP-15
+CL495024|See: Currarino G and Williams B. Causes of congenital unilateral pulmonary hypoplasia: a study of 33 cases. Pediatr Radiol. 1985;15(1):15-24. (http://www.ncbi.nlm.nih.gov/pubmed/3969292) 9/2/15 GSC|E-GSC|02-SEP-15
+CL495027|See: Spellacy E, Gibbs DA, Watts RW. A newly recognized syndrome of connective tissue dysplasia in siblings (previously described as a variant of Morquio disease). Q J Med. 1981 Autumn;50(200):377-415. (http://www.ncbi.nlm.nih.gov/pubmed/6805033) 9/2/15 GSC|E-GSC|02-SEP-15
+CL495028|A literature search reveals that these three investigators have co-authored multiple papers together. It is unclear what this eponym refers to. 9/2/15 GSC|E-GSC|02-SEP-15
+CL495032|See: Smith PJ, Hindmarsh P, Kendall B, Brook CGD. Dysgenesis of corpus callosum and hypopituitarism. Acta Paediatr. 1986. 75:923-26. 9/2/15 GSC|E-GSC|02-SEP-15
+CL495034|See: Cortada X, Kousseff BG, Matsumoto GM. Constricted maxilla and mandible, scoliosis, bowed radii, ulnar hypoplasia, acromicria and microcephaly, with mental retardation--a new autosomal recessive syndrome? Birth Defects Orig Artic Ser. 1982;18(3B):197-202. (http://www.ncbi.nlm.nih.gov/pubmed/7139102) 9/2/15 GSC|E-GSC|02-SEP-15
+CL495035|See: Cortes F and Lacassie Y. An unusual case of ectodermal dysplasia. 1986. Am. J. Med. Genet. 25:289-291. 9/2/15 GSC|E-GSC|02-SEP-15
+C1857568|See: Hernandez A et al. Cortical blindness, growth and psychomotor retardation and postaxial polydactyly. Clin Genet 1985;28:251–4. 9/2/15 GSC|E-GSC|02-SEP-15
+C2931195|See: Ectodermal dysplasia, osteosclerosis, atrial septal defect, malabsorption, neutropenia, growth and mental retardation: The Cote-Katsantoni syndrome? AmJ Med Genet 1987;26:729–32. 9/2/15 GSC|E-GSC|02-SEP-15
+C0457133|See: Santavuori P , Leisti J, Kruus S. Muscle, eye and brain disease: a new syndrome. Neuropediatrie 1977. 8(suppl):553–8. 9/2/15 GSC|E-GSC|02-SEP-15
+C1852512|See: Grosse FR. The Rabenhorst-syndrome: a cardio-acral-facial syndrome. Z. Kinderheilk. 117: 109-114, 1974. (http://www.ncbi.nlm.nih.gov/pubmed/4425531) 9/3/15 GSC|E-GSC|03-SEP-15
+C1852510|See: Sommer A, Young-Wee T, Frye T. Previously undescribed syndrome of craniofacial, hand anomalies, and sensorineural deafness. Am. J. Med. Genet. 15: 71-77, 1983. (http://www.ncbi.nlm.nih.gov/pubmed/6859126) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495038|See: Van Biervliet JP, Hendrickx G, van Ertbruggen I. Intrauterine growth retardation with craniofacial and brain anomalies and arthrogryposis: a new syndrome? Acta Paediatr Belg. 1977 Apr-Jun;30(2):97-103. (http://www.ncbi.nlm.nih.gov/pubmed/196478) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495042|See: Christian JC, Andrews PA, Conneally PM, Muller J. The adducted thumb syndrome. An autosomal recessive disease with arthrogryposis, dysmyelination, craniostenosis, and cleft palate. 1971. Clin Genet. 2:95–103. 9/3/15 GSC|E-GSC|03-SEP-15
+C2931159|See: Iida A, Ohashi Y, Ono K, Imai N, Kannari Y. Craniosynostosis with joint contractures, ear deformity, cleft palate, scoliosis, and other features. Cleft Palate Craniofac J. 1995 Nov;32(6):489-93. (http://www.ncbi.nlm.nih.gov/pubmed/8547289) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495047|See: Castori M et al. Fontaine-Farriaux syndrome: a recognizable craniosynostosis syndrome with nail, skeletal, abdominal, and central nervous system anomalies. Am J Med Genet A. 2009 Oct;149A(10):2193-9. (http://www.ncbi.nlm.nih.gov/pubmed/19731360) 9/3/15 GSC|E-GSC|03-SEP-15
+C2931088|See: Maroteaux P, Fonfria MC. Apparent Apert syndrome with polydactyly: rare pleiotropic manifestation or new syndrome? Am. J. Med. Genet. 28: 153-158, 1987. (http://www.ncbi.nlm.nih.gov/pubmed/3674108) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495074|See: Sharp CW, Muir WJ, Blackwood DH, Walker M, Gosden C, St Clair DM. Schizophrenia and mental retardation associated in a pedigree with retinitis pigmentosa and sensorineural deafness. Am J Med Genet. 1994 Dec 15;54(4):354-60. (http://www.ncbi.nlm.nih.gov/pubmed/7726208). 9/3/15 GSC|E-GSC|03-SEP-15
+C1856973|See: Bonnemann CG, Meinecke P, Reich H. Encephalopathy with intracerebral calcification, white matter lesions, growth hormone deficiency, microcephaly, and retinal degeneration: two sibs confirming a probably distinct entity. J. Med. Genet. 28: 708-711, 1991. (http://www.ncbi.nlm.nih.gov/pubmed/1941968) 9/3/15 GSC|E-GSC|03-SEP-15
+C2931545|See: Eng CE, Strom CM. New syndrome: familial proportionate short stature, intrauterine growth retardation, and recurrent locking of the fingers. Am J Med Genet. 1987 Jan;26(1):217-20. (http://www.ncbi.nlm.nih.gov/pubmed/3812565) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495328|See: Engelhard D, Yatziv S. Pre and post axial polysyndactyly, microcephaly and ptosis. Jan 18, 1979. Eur J Pediatr. 130(1):47-51. (http://www.ncbi.nlm.nih.gov/pubmed/215412) 9/3/15 GSC|E-GSC|03-SEP-15
+CL495339|See: Aschinberg LC, Solomon LM, Zeis PM, Justice P, Rosenthal IM. Vitamin D-resistant rickets associated with epidermal nevus syndrome: demonstration of a phosphaturic substance in the dermal lesions. J Pediatr. 1977 Jul;91(1):56-60. (http://www.ncbi.nlm.nih.gov/pubmed/195029) 9/3/15 GSC|E-GSC|03-SEP-15
+C0393702|Typo in SNOMED SY reported. It should be Doose Syndrome.  See: Doose H. Myoclonic-astatic epilepsy. Epilepsy Research Supplement 1992, 6:163-168. (http://europepmc.org/abstract/med/1418479) 9/4/15 GSC|E-GSC|04-SEP-15
+CL495345|See: Finucane B, Kurtz MB, Scott CI Jr. New mental retardation syndrome with hearing impairment, distinct facial appearance, and skeletal anomalies. Am J Med Genet. 1992 Jul 15;43(5):844-7. (http://www.ncbi.nlm.nih.gov/pubmed/1642273) 9/4/15 GSC|E-GSC|04-SEP-15
+C1851896|See: Escher F, Hirt H. Dominant hereditary conductive deafness through lack of incus-stapes junction. Acta Otolaryng. 65:25-32, 1968. (http://www.ncbi.nlm.nih.gov/pubmed/5657116) 9/4/15 GSC|E-GSC|04-SEP-15
+CL495347|See: Mehes K. Esophageal atresia, coloboma, and clubfoot in two unrelated infants. Human Genetics. August 1984, Volume 67, Issue 3, pp 354-354. (http://www.ncbi.nlm.nih.gov/pubmed/6469248) 9/4/15 GSC|E-GSC|04-SEP-15
+C1851412|See: Char F, Douglas JE, Dungan WT. Familial multiforme ventricular extrasystoles with short stature, hyperpigmentation and microcephaly--a new syndrome. Birth Defects Orig Artic Ser XI (5):63, 1975.  9/4/15 GSC|E-GSC|04-SEP-15
+CL495358|See: Rippberger CW, Aase JM. Case report 42. Facial, skeletal and genital abnormalities. Synd. Indent. 4(1):16-19, 1976. 9/4/15 GSC|E-GSC|04-SEP-15
+C0475590|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015_08E/LLT/10022841] from NCI concept because of bad synonymy.|E-CFC|18-SEP-15
+C2910046|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015_08E/LLT/10022841] C117202 because of bad synonomy.|E-CFC|18-SEP-15
+C0475591|[cfc, 9-18-15] split Intraventricular haemorrhage neonatal [MEDDRA_2015_08E/LLT/10022841] C99140 due to bad synonomy.|E-CFC|18-SEP-15
+C3899347|[cfc, 9-18-15] split R []  Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115162 due to bad synonomy.|E-CFC|18-SEP-15
+C3899350|[9-18-15] split N []  Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115162, D   A         N        Catheter dislodgment [MEDDRA_2015_08E/LLT/10073974] C115161; due to bad synonomy.|E-CFC|18-SEP-15
+C1827547|[cfc, 9-22-15] split Stereotypy/habit disorder [MEDDRA_2015_08E/LLT/10042009] C117193 due to bad synonomy.|E-CFC|22-SEP-15
+C0271202|[cfc, 9-22-15] split Homonymous hemianopsia [MEDDRA_2015_08E/LLT/10020368] C118729 due to bad synonomy.|E-CFC|22-SEP-15
+C0242567|[cfc, 9-22-15] split Opsoclonus myoclonus [MEDDRA_2015_08E/LLT/10053854] C118720 due to bad synonomy.|E-CFC|22-SEP-15
+C3889979|[cfc, 9-23-15] split Autoinflammatory disease [MEDDRA_2015_08E/LLT/10072220] C118240 due to bad synonomy.|E-CFC|23-SEP-15
+C3899383|[cfc. 9-24-15] split Catheter related infection [MEDDRA_2015_08E/LLT/10007810] C114726 due to bad synonomy.|E-CFC|24-SEP-15
+C0011757|[cfc, 9-25-15] split Motor developmental delay [MEDDRA_2015_08E/LLT/10070302] C92561 due to bad synonomy.|E-CFC|25-SEP-15
+C3899403|[cfc, 9-24-15] split Concentration impaired [MEDDRA_2015_08E/LLT/10010249] C117246 due to bad synonomy.|E-CFC|25-SEP-15
+C0017890|NPO SY of 'Gln' is incorrect.  'Gln' is three-letter amino acid code for glutamine not glycine (Gly).  9/25/15 GSC|E-GSC|25-SEP-15
+C0026820|[cfc, 9-30-15] split Contraction skeletal muscle [MEDDRA_2015_08E/LLT/10010815] C30085 due to bad synonomy.|E-CFC|30-SEP-15
+C3897359|Moved NCI MDR atom to #402655 because it was for disorder and matching MDR atoms were in that concept. LAR (10/15)|E-LAR|02-OCT-15
+C0154199|Moved NCI MDR atom to #402655 because it was for disorder and matching MDR atoms were in that concept. LAR (10/15)|E-LAR|02-OCT-15
+C0009410|Moved NCI MDR atom to #50448 because it was for procedure and matching MDR atoms were in that concept. LAR (10/15)|E-LAR|02-OCT-15
+C3897569|NCI PT changed to 'Slipped Extraocular Muscle' in NCI Thesaurus.  Medial rectus is not the only extraocular muscle that this may occur to.  10/13/15 GSC|E-GSC|13-OCT-15
+C3658266|Castration-resistant prostate cancer (CRPC) has been used synonymously with androgen-independent (AIPC) and hormone-refractory prostate cancer (HRPC) but CRPC is the preferred and recommended term established by the Prostate Cancer Working Group 2 (PCWG 2)  (from Bellmunt J, Castration-resistant prostate cancer: new science and therapeutic prospects.Ther Adv Med Oncol. 2010 May; 2(3): 189–207. See also: Scher HI et al. Design and end points of clinical trials for patients with progressive prostate cancer and castrate levels of testosterone: recommendations of the Prostate Cancer Clinical Trials Working Group. J Clin Oncol, 2008;26: 1148–1159) 10/13/15 GSC|E-GSC|13-OCT-15
+C0002736|NCI Thesaurus definition has been updated to: A neurodegenerative disorder characterized by progressive degeneration of the motor neurons of the central nervous system. It results in weakness and atrophy of the muscles which leads to an inability to initiate and control voluntary movements. 10/13/15 GSC|E-GSC|13-OCT-15
+C0740340|NCI Thesaurus definition has been updated to:  An autosomal dominant inherited form of amyloidosis. 10/13/15 GSC|E-GSC|13-OCT-15
+C0751042|Oct 2015-- MDR "Color Blind is in the SOC of congenital therefore it belongs in this Inherited concept. LLW|E-LLW|27-OCT-15
+C1513846|This inbred mouse strain was maintained (but not originally developed) by the Naval Medical Research Institute (NMRI) and now bears its name. 11/6/15 GSC|E-GSC|06-NOV-15
+C0014306|[cfc, 11-7-15] Noted to Teri about the incorrect MEDDRA atom MedDRA [MEDDRA_2015_10D/LLT/10014853] C79552.  She will fix in NCIt and it will resolve in Meta.|E-CFC|07-NOV-15
+C0051817|After consultation with Drug Team, advised that this concept refers to the agent combination used for chemotherapy not the protocol/regimen (cf. CN#93222291).  11/10/15 GSC|E-GSC|10-NOV-15
+C0128318|After consultation with Drug Team, advised that this concept refers to the protocol/regimen as compared to the agent combination used for chemotherapy (cf. CN#258163).  11/10/15 GSC|E-GSC|10-NOV-15
+C0051817|Verified with Drug Team that LOMAC refers to leucovorin + cyclophosphamide/doxorubicin/methotrexate/vincristine and thus is not a correct SY for this agent combination.  11/10/15 GSC|E-GSC|10-NOV-15
+C1515101|[cfc, 11-10-15] Per Teri Quinn, do not merge with Svalbard and Jan Mayen. These are separate according to GENC.|E-CFC|10-NOV-15
+C1628996|Neisseria meningitidis capsular antigen E was formerly known as antigen Z'.  (see: http://wwwnc.cdc.gov/eid/article/19/4/11-1799_article) 11/20/15 GSC|E-GSC|20-NOV-15
+C0003663|There are conflicting instances in the literature as to what common names are used to represent vitamin B12a and vitamin B12b.  However, it is established that aquacobalamin is the conjugate acid of hydroxocobalamin. 11/23/15 GSC|E-GSC|23-NOV-15
+C0020316|There are conflicting instances in the literature as to what common names are used to represent vitamin B12a and vitamin B12b.  However, it is established that aquacobalamin is the conjugate acid of hydroxocobalamin. 11/23/15 GSC|E-GSC|23-NOV-15
+C0072296|This enzyme is known as prostaglandin H2 D-isomerase (recommended name per UniProt) or prostaglandin D2 synthase or 'beta trace protein'. It catalyzes the conversion of PGH2 to PGD2.  11/23/15 GSC|E-GSC|23-NOV-15
+C1445547|Misspelling in species name of SY has been reported. It should be 'Ambrosia artemisiifolia'. 12/3/15 GSC|E-GSC|03-DEC-15
+C0872912|Spoke with RxN editor to reconcile two RxN ingredients that appear to be synonymous: SOY LECITHIN (259279) and Soybean Lecithin (579598).  RxN ingredients will be merged during next UMLS Meta resync with RxN. 12/7/15 GSC|E-GSC|07-DEC-15
+C4040580|Per NICHD Pediatric Rheumatology Working Group, secondary Raynaud's phenomenon (Raynaud phenomenon associated with an underlying autoimmune disorder.) is synonymous with the older term, Raynaud's syndrome. 12/21/15 GSC|E-GSC|21-DEC-15
+C1862472|Per OMIM, "In a revised classification scheme of the distal arthrogryposes, Bamshad et al. (1996) renamed the disorder referred to as DAIIB by Hall et al. (1982) as DA5. This disorder is distinct from DA2B (601680)." 12/24/15 GSC|E-GSC|24-DEC-15
+C1537997|Per OMIM, as of 8/28/15, code 606120 has been incorporated into 561010 (see: http://www.omim.org/entry/606120). 12/29/15 GSC|E-GSC|29-DEC-15
+C0597997|Typo (magnetic is misspelled as 'mangetic') in NCIt definition has been corrected in Protege. 12/30/15 GSC|E-GSC|30-DEC-15
+C1824188|Per HUGO, this gene has been renamed 'long intergenic non-protein coding RNA 1554' (LINC01554). See: http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=24687 12/30/15 GSC|E-GSC|30-DEC-15
+C1872347|Lactoferricin is not synonymous with lactotransferrin/lactoferrin. "Lactoferricin is a multifunctional, 25-residue peptide that is generated upon cleavage of native lactoferrin by pepsin and represents amino acid residues number 17–41 in lactoferrin. The lactoferricin peptide is different from the other peptides described so far as it contains a disulfide bond between residues Cys 20 and Cys 37 in human lactoferrin and Cys 19 and Cys 36 in bovine lactoferrin." (see: http://www.hindawi.com/journals/ijpep/2013/390230/) 1/8/16 GSC|E-LAR|13-JAN-16
+C0022942|Lactoferricin is not synonymous with lactotransferrin/lactoferrin. "Lactoferricin is a multifunctional, 25-residue peptide that is generated upon cleavage of native lactoferrin by pepsin and represents amino acid residues number 17–41 in lactoferrin. The lactoferricin peptide is different from the other peptides described so far as it contains a disulfide bond between residues Cys 20 and Cys 37 in human lactoferrin and Cys 19 and Cys 36 in bovine lactoferrin." (see: http://www.hindawi.com/journals/ijpep/2013/390230/) 1/8/16 GSC|E-GSC|08-JAN-16
+C0012764|[cfc, 1-20-16] Merged NCI C43456 and C108007, per Lori. These are the same. She will let editor know.|E-CFC|20-JAN-16
+C2828062|This concept will likely need to be merged with CN#198336.  Since two NCI concepts cannot be maintained together in NCI Meta, will wait until merge is complete in NCI Thesaurus.  1/21/16 GSC|E-GSC|21-JAN-16
+C0036113|This concept will likely need to be merged with CN#39956920.  Since two NCI concepts cannot be maintained together in NCI Meta, will wait until merge is complete in NCI Thesaurus.  1/21/16 GSC|E-GSC|21-JAN-16
+C3085837|[cfc, 1-22-16] Merged 1441793. NCBI context seems identical, though we typically do not merge different NCBI codes. Laura and Lori agreed to the merge.|E-CFC|22-JAN-16
+C2748553|Per HGNC, the gene previously known as 'RGNEF' (NCIt concept was created in June 2011) is now named ARHGEF28 (assigned in September 2012). 3/11/16 GSC|E-GSC|11-MAR-16
+C4019067|Notified RxN editors that atom ID 95856067 was incorrectly assigned to MUI 834198.  Verified that atom has been correctly moved to MUI 1661076.  3/23/16 GSC|E-GSC|23-MAR-16
+C1722829|Per UNIPROT (http://www.uniprot.org/uniprot/P19474) and GeneCards (http://www.genecards.org/cgi-bin/carddisp.pl?gene=TRIM21), 'Sjoegren Syndrome Type A Antigen' is the correctly spelled synonym. 4/1/16 GSC|E-GSC|01-APR-16
+C3827008|These two NCI concepts refer to the same questionnaire and will be merged into C112521 in NCI Thesaurus.  5/11/16 GSC|E-GSC|11-MAY-16
+CL504849|The CCN 'CyTP 007' is incorrect and has been removed in NCI Thesaurus.  It is correctly associated with NCIt C114979.  5/12/16 GSC|E-GSC|12-MAY-16
+C1540031|Per OMIM (http://www.omim.org/entry/601587), entry number 601587 was moved to 300939 in November 2014. 5/17/16 GSC|E-GSC|17-MAY-16
+C1269685|The two SNOMED SYs that list adrenaline (epinephrine) concentrations as 1:50,000 are incorrect but have been kept with the other SNOMED atoms based on code. 6/9/16 GSC|E-GSC|09-JUN-16
+C3557000|Cystofilobasidium macerans is the sexual stage (telomorph) of Cryptococcus macerans (anamorph) (see: http://www.mycobank.org/name/Cystofilobasidium%20macerans). 6/16/16 GSC|E-GSC|16-JUN-16
+C0446023|Candida cacao H.R. Buckley & Uden, 1968 is a known synonym for Millerozyma farinosa (see: http://www.gbif.org/species/5893373) 6/16/16 GSC|E-GSC|16-JUN-16
+C3966012|Candida ernobii has known synonyms of Torulopsis ernobii and Nakazawaea ernobii (see: http://www.mycobank.org/name/Candida%20ernobii) 6/16/16 GSC|E-GSC|16-JUN-16
+C1905388|Candida fermentati has knwon synonyms of Meyerozyma caribbica, Pichia caribbica, Torula fermentati (see: http://www.mycobank.org/BioloMICS.aspx?TableKey=14682616000000067&Rec=107080&Fields=All) 6/16/16 GSC|E-GSC|16-JUN-16
+C1012081|Candida shehatae is a synonym of Scheffersomyces shehatae (see: http://www.uniprot.org/taxonomy/45589) 6/16/16 GSC|E-GSC|16-JUN-16
+C3966016|Nakazawaea peltata (D. Yarrow) C. P. Kurtzman & C. J. Robnett, 2014 is a known synonym for Candia peltata (see: http://www.mycobank.org/name/Candida%20peltata) 6/16/16 GSC|E-GSC|16-JUN-16
+CL506455|HOSPITAL is an acronym for: Hemoglobin at discharge, discharge from an Oncology service, Sodium level at discharge, Procedure during the index admission, Index Type of admission, number of Admissions during the last 12 months, and Length of stay. 6/20/16 GSC|E-GSC|20-JUN-16
+C4048838|Spoke with RxN editor, this base atom will be properly assigned to an SBD normal form. This will be fixed in next UMLS insertion. 7/29/16 GSC|E-GSC|29-JUL-16
+C1456426|This NCI concept (C104511) refers to the endogenous protein whereas C1387 refers to an exogenous protein or peptide antigen. 8/30/16 GSC|E-GSC|30-AUG-16
+C0126758|This NCI concept (C1387) refers to an exogenous protein or peptide antigen whereas C104511 refers to the endogenous protein. 8/30/16 GSC|E-GSC|30-AUG-16
+C2983812|Odd SY, "); 4-Thiazoleacetamide, 2-Amino-N-(4-(2-(((2R)-2-hydroxy-2-phenylethyl)amino)ethyl)phenyl)-", will be corrected to remove ");" portion in NCIt. 9/8/16 GSC|E-GSC|08-SEP-16
+CL504332|PDQ SY referring to "dendritic cells" is incorrect. These cells are pluripotent killer (PIK) T-cells. Error has been reported. 9/8/16 GSC|E-GSC|08-SEP-16
+CL421637|Misspelling of "Light" in SY (listed as CSN), "Immunoglobulin G1, Anti-(human Neu (Receptor)) (Human-Mus musculus Monoclonal MGAH22 Clone ch4D5 Heavy Chain), Disulfide with Human-Mus musculus Monoclonal MGAH22 Clone ch4D5 lLght Chain, Dimer" has been fixed in NCIt. 9/8/16 GSC|E-GSC|08-SEP-16
+CL413584|PDQ PT lists hydromide salt of burixafor but this concept refers to the base form. This has been reported. 9/8/16 GSC|E-GSC|08-SEP-16
+C0033295|Confirmed that this compound is associated with two different CAS numbers (see: https://pubchem.ncbi.nlm.nih.gov/compound/15741#section=Synonyms). 9/9/16 GSC|E-GSC|09-SEP-16
+C0319950|Microsporum canis is a genetic clone derived from the sexually reproducing species, Arthroderma otae. 9/22/16 GSC|E-GSC|22-SEP-16
+C3492864|Incorrect SY, "Mammalian Target of Rapamycin Kinase Inhibitor OSI-027", has been corrected to "Mammalian Target of Rapamycin Kinase Inhibitor PP-242" in NCIt. 9/23/16 GSC|E-GSC|23-SEP-16
+C0389836|MNAPB is actually 4-{N-Methyl-A'-nitrosoamino-1-(3-pyridyl)-1-butanone per this document: http://mutage.oxfordjournals.org/content/13/6/539.full.pdf 9/23/16 GSC|E-GSC|23-SEP-16
+C0137794|Polyhexamethylene biguanideand polyhexanide are synonymous (see: https://chem.nlm.nih.gov/chemidplus/name/polyhexamethylene%20biguanide) 10/6/16|E-GSC|06-OCT-16
+C0084110|Polyaminopropyl biguanide is chemically similar to polyhexamethylene biguanide (polyhexanide) but the repeating unit is smaller. 10/6/16 GSC|E-GSC|06-OCT-16
+C4038916|Ehrlichia risticii is now known as Neorickettsia risticii (see: http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=964022). 10/7/16 GSC|E-GSC|07-OCT-16
+C1718209|The SNOMEDCT atoms have been placed in this concept based on source context. Despite not being appended with "score", this concept appears to refer to the results of this assessment, not the questionnaire itself (CN#18160015 ). 10/12/16 GSC|E-GSC|12-OCT-16
+CL512003|The SNOMEDCT atoms have been placed in this concept based on source context. Despite not being appended with "score", this concept appears to refer to the results of this assessment, not the assessment itself (CN#100265039). 10/12/16 GSC|E-GSC|12-OCT-16
+CL511703|Molecular studies have shown that phenotypically identified C. parapsilosis isolates represent a complex of three species, namely, C. parapsilosis, C. orthopsilosis and C. metapsilosis. Lodderomyces elongisporus is another species phenotypically closely related to the C. parapsilosis-complex. (from Asadzadeh M. et al. Simple, Low-Cost Detection of Candida parapsilosis Complex Isolates and Molecular Fingerprinting of Candida orthopsilosis Strains in Kuwait by ITS Region Sequencing and Amplified Fragment Length Polymorphism Analysis. PLoS One. 2015; 10(11): e0142880). 10/13/16 GSC|E-GSC|13-OCT-16
+CL511638|M. abscessus complex is differentiated into 3 subspecies: M. abscessus subsp. abscessus, M. abscessus subsp. massiliense, and M. abscessus subsp. bolletii. (from Lee M-R. Mycobacterium abscessus Complex Infections in Humans. Emerg Infect Dis. 2015 Sep; 21(9): 1638–1646) 10/13/16 GSC|E-GSC|13-OCT-16
+C1174887|The CSN (scientific name) belongs with NCIt concept C90702 (Dabigatran Etexilate Mesylate, CN#101481118).  It has been corrected in NCIt.  10/27/16 GSC|E-GSC|27-OCT-16
+C0971226|The definition incorrectly notes that this antigen is encoded by EBNA2.  It should read EBNA1. This has been fixed in NCIt. 10/28/16 GSC|E-GSC|28-OCT-16
+CL512520|The eponym spelling has been changed from "Papanicolau" to "Papanicolaou" in NCIt. CDISC has also been made aware of the  misspelling and will make a change request for the next cycle. 10/28/16 GSC|E-GSC|28-OCT-16
+C1415478|The CLINBIO SY of 'HBA1' is incorrect.  It should be 'HBA2'. The error has been reported.  11/10/16 GSC|E-GSC|10-NOV-16
+C1425505|SPANXF1 is a previous name for SPANXB1 (CN#1871128, see: http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:14329).  11/10/16 GSC|E-GSC|10-NOV-16
+C1422568|SPANXB2 is a previous name for SPANXB1 (CN#1871128, see: http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:14329).  11/10/16 GSC|E-GSC|10-NOV-16
+C1422567|The HGNC PT with code 18429 corresponds to PTGR1 gene which is an error.  This was added to this concept based on string. Also note that SPANXF1 and SPANXB2 are previous names for SPANXB1 (see: http://www.genenames.org/cgi-bin/gene_symbol_report?hgnc_id=HGNC:14329).  11/10/16 GSC|E-GSC|10-NOV-16
+C0054953|The error in the CLINBIO SY, "hematopoietic progeniial cell antigen CD34", has been reported. 11/15/16 GSC|E-GSC|15-NOV-16
+C3541493|The accepted gene name for this concept is NUTM2A.  This will be updated in NCIt at some point. 11/16/16 GSC|E-GSC|16-NOV-16
+C0242602|The two NCIt concepts have been merged in Protege.  The older NCI concept number, C15430, is preserved.  11/17/16 GSC|E-GSC|17-NOV-16
+C0268596|The two NCIt concepts have been merged in Protege.  The older NCI concept number, C84907, is preserved.  For reference, please see: http://www.omim.org/entry/231680  11/17/16 GSC|E-GSC|17-NOV-16
+C3147162|Per OMIM, "Previously, EIF2D was erroneously called ligatin (LGTN; OMIM 151625) in the literature." (see: Dmitriev, S. E., Terenin, I. M., Andreev, D. E., Ivanov, P. A., Dunaevsky, J. E., Merrick, W. C., Shatsky, I. N. GTP-independent tRNA delivery to the ribosomal P-site by a novel eukaryotic translation factor. J. Biol. Chem. 285: 26779-26787, 2010.) 11/17/16 GSC|E-GSC|17-NOV-16
+C1259013|A ticket was submitted to MeSH directly citing a "MeSH Factual Error" for the CE term "CD112 antigen, human". The message sent indicated that the term should be "CD122 antigen, human" (see: http://www.uniprot.org/uniprot/P14784). 11/29/16 GSC|E-GSC|29-NOV-16
+C0615770|Placed deleted cui atoms in this concept by code (and MeSH definition) match (cf. string match with CN#101334104). 11/29/16 GSC|E-GSC|29-NOV-16
+C0017963|Per Liz, this is an exogenous agent (cf. CN#99912 which is the endogenous gene product). 12/13/16 GSC|E-GSC|13-DEC-16
+C0018664|Per Liz, this is the endogenous gene product (cf. CN#37018652 which is an exogenous agent). 12/13/16 GSC|E-GSC|13-DEC-16

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -18,32 +21,26 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads an RF2 Snapshot of SNOMED CT data into a database.
  * 
  * See admin/remover/pom.xml for a sample execution.
- * 
- * @goal compute-tree-positions
- * 
- * @phase package
  */
+@Mojo(name = "compute-tree-positions", defaultPhase = LifecyclePhase.PACKAGE)
 public class TreeposComputerMojo extends AbstractMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -67,8 +64,8 @@ public class TreeposComputerMojo extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(

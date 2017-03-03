@@ -9,7 +9,7 @@
         ng-click="createSourceData()">Add</button>  
   	</script>
     <!--  Source data ng-table -->
-    <table ng-table="tpSourceDatas" class="table">
+    <table ng-table="tpSourceDatas" class="slim table">
       <tr ng-repeat="item in $data">
         <td data-title="'Name'" sortable="'name'"
           ng-click="viewSourceData(item)">{{item.name ? item.name :
@@ -32,7 +32,7 @@
     <div class="row" ng-show="currentSourceData" style="margin-top: 75px;">
       <div class="col-md-4 col-xs-4">
         <h4>Source Data Details</h4>
-        <table class="table">
+        <table class="slim table">
           <tr>
             <td class="col-md-3 col-xs-3">Name</td>
             <td class="col-md-9 col-md-9" col-xs-9>
@@ -79,26 +79,25 @@
               <button class="btn btn-xs btn-warning"
                 ng-click="cancelSourceDataModifications()"
                 ng-show="isSourceDataModified">Cancel</button>
-              <button class="btn btn-success btn-sm"
+              <button class="btn btn-success btn-xs"
                 ng-click="loadFromSourceData(currentSourceData)"
                 ng-show="!isSourceDataModified && currentSourceData.status === 'NEW' && currentSourceData.sourceDataFiles.length > 0">
                 <span class="glyphicon glyphicon-play"></span>
                 &nbsp;Load Data
               </button>
-              <button class="btn btn-success btn-sm"
-               ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'"
-              
+              <button class="btn btn-success btn-xs"
+                ng-show="!isSourceDataModified && currentSourceData.status === 'REMOVAL_COMPLETE'"
                 ng-click="loadFromSourceData(currentSourceData)">
                 <span class="glyphicon glyphicon-play"></span>
                 &nbsp;Reload Terminology
               </button>
-              <button class="btn btn-danger btn-sm"
+              <button class="btn btn-danger btn-xs"
                 ng-click="removeFromSourceData(currentSourceData)"
                 ng-show="!isSourceDataModified && (currentSourceData.status === 'LOADING_FAILED' || currentSourceData.status === 'LOADING_COMPLETE')">
                 <span class="glyphicon glyphicon-trash"></span>
                 &nbsp;Remove Terminology
               </button>
-              <button class="btn btn-warning btn--sm"
+              <button class="btn btn-warning btn-xs"
                 ng-click="cancelSourceDataProcess(currentSourceData)"
                 ng-show="currentSourceData.status === 'LOADING' || currentSourceData.status === 'REMOVING'">
                 <span class="glyphicon glyphicon-ban">Stop</span>
@@ -140,7 +139,7 @@
           ng-show="uploader.queue.length > 0">
           <h4>Upload queue</h4>
           <p>Queue length: {{ uploader.queue.length }}</p>
-          <table class="table">
+          <table class="slim table">
             <thead>
               <tr>
                 <th ng-show="hasZippedFiles">Unzip</th>
@@ -176,7 +175,7 @@
                     <i class="glyphicon glyphicon-ban-circle"></i>
                   </span>
                   <span ng-show="item.isError">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="noul glyphicon glyphicon-remove"></i>
                   </span>
                 </td>
                 <td nowrap>
@@ -235,7 +234,7 @@
           <div class="alert alert-warning"
             ng-show="!currentSourceData.sourceDataFiles || currentSourceData.sourceDataFiles.length === 0">No
             source data files added.</div>
-          <table ng-table="tpSourceDataFiles" class="table"
+          <table ng-table="tpSourceDataFiles" class="slim able"
             ng-show="currentSourceData.sourceDataFiles.length > 0">
             <tr ng-repeat="item in $data">
               <td data-title="'Name'" sortable="'name'"

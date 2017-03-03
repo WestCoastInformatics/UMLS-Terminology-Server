@@ -1,15 +1,19 @@
+<!-- Site tracking code -->
+<span ng-bind-html="siteTrackingCode()"></span>
+<!-- Site cookie code -->
+<span ng-bind-html="siteCookieCode()"></span>
+
 <!-- Footer -->
 <div ng-show="isShowing()">
   <div>
     <!--  Show logout button at the bottom in XS mode -->
     <div id="mobileFooter" class="visible-xs hidden-md col-xs-12">
-      <button class="btn btn-sm btn-primary btn-structure"
-        style="margin-top: 10px" ng-click="logout()"
-        ng-show="user.authToken != null && appConfig.loginEnabled === 'true'">Logout</button>
+      <button class="btn btn-xs btn-primary btn-structure" ng-click="logout()"
+        ng-show="user.authToken != null && appConfig['deploy.login.enabled'] === 'true'">Logout</button>
       &nbsp; &nbsp;
-      <a ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
-        <button class="btn btn-sm btn-primary btn-structure "
-          style="margin-top: 10px;" ng-show="appConfig.deployFeedbackEmail">Feedback</button>
+      <a ng-href="mailto:{{appConfig['deploy.feedback.email']}}">
+        <button class="btn btn-xs btn-primary btn-structure "
+          style="margin-top: 10px;" ng-show="appConfig['deploy.feedback.email']">Feedback</button>
       </a>
     </div>
   </div>
@@ -20,20 +24,19 @@
       <div class="navbar-header">
         <ul class="nav navbar-nav navbar-left">
           <li><p class="navbar-text">
-              <a class="navbar-link" href="{{appConfig.deployLink}}">{{appConfig.deployCopyright}}</a>
+              <a href="{{appConfig['deploy.link']}}">{{appConfig['deploy.footer.copyright']}}</a>
             </p></li>
           <li ng-show="user.name != 'Guest'"><p class="navbar-text">{{user.name}}</p></li>
-          <li>
-            <!--  Return to login screen -->
-            <button
-              ng-show="user.authToken != null && appConfig.loginEnabled === 'true'"
-              class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()">Logout</button> <!--  Return to landing screen -->
-            <button
-              ng-show="user.name === 'Guest' && appConfig.landingEnabled === 'true' && appConfig.loginEnabled == 'false'"
-              class="btn btn-sm btn-primary btn-structure"
-              style="margin-top: 10px" ng-click="logout()">Exit</button>
-          </li>
+          <li><a>
+              <!--  Return to login screen -->
+              <span
+                ng-show="user.authToken != null && appConfig['deploy.login.enabled'] === 'true'"
+                class="btn btn-xs btn-primary btn-structure" ng-click="logout()">Logout</span>
+              <!--  Return to landing screen -->
+              <span
+                ng-show="user.name === 'Guest' && appConfig['deploy.landing.enabled'] === 'true' && appConfig['deploy.login.enabled'] == 'false'"
+                class="btn btn-xs btn-primary btn-structure" ng-click="logout()">Exit</span>
+            </a></li>
           <li>&nbsp;
             <p class="navbar-text">{{getTruncatedVersion(appConfig.projectVersion)}}</p>
           </li>
@@ -50,12 +53,13 @@
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
           <li>
-            <p class="navbar-text" ng-bind-html="deployPresentedBy"></p>
+            <p class="navbar-text" ng-bind-html="deployPresentedBy()"></p>
           </li>
           <li style="margin-right: 15px;"><a
-              ng-href="mailto:{{appConfig.deployFeedbackEmail}}">
-              <button class="btn btn-sm btn-primary btn-structure"
-                style="margin-top: 0px" ng-show="appConfig.deployFeedbackEmail">Feedback</button>
+              ng-href="mailto:{{appConfig['deploy.feedback.email']}}">
+              <span class="btn btn-xs btn-primary btn-structure"
+                style="margin-top: 0px"
+                ng-show="appConfig['deploy.feedback.email']">Feedback</span>
             </a></li>
         </ul>
       </div>

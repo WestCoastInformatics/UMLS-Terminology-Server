@@ -26,7 +26,7 @@ import com.wci.umls.server.jpa.helpers.NullableFieldTester;
 /**
  * Unit testing for {@link UserJpa}.
  */
-public class UserJpaUnitTest {
+public class UserJpaUnitTest extends ModelUnitSupport {
 
   /** The model object to test. */
   private UserJpa object;
@@ -55,8 +55,8 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelGetSet003");
+  public void testModelGetSet() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.test();
   }
@@ -67,13 +67,15 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelEqualsHashcode003");
+  public void testModelEqualsHashcode() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("applicationRole");
     tester.include("email");
+    tester.include("editorLevel");
     tester.include("authToken");
     tester.include("name");
+    tester.include("team");
     tester.include("userName");
 
     assertTrue(tester.testIdentityFieldEquals());
@@ -90,8 +92,8 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelCopy003");
+  public void testModelCopy() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     assertTrue(tester.testCopyConstructor(User.class));
@@ -103,8 +105,8 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelXmlTransient003");
+  public void testModelXmlSerialization() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
     UserPreferences up = new UserPreferencesJpa();
@@ -124,12 +126,13 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelNotNullField003");
+  public void testModelNotNullField() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     NullableFieldTester tester = new NullableFieldTester(object);
     tester.include("name");
     tester.include("userName");
     tester.include("email");
+    tester.include("editorLevel");
     tester.include("applicationRole");
     assertTrue(tester.testNotNullFields());
   }
@@ -140,8 +143,8 @@ public class UserJpaUnitTest {
    * @throws Exception the exception
    */
   @Test
-  public void testModelIndexedFields003() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST testModelIndexedFields003");
+  public void testModelIndexedFields() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Test analyzed fields
     IndexedFieldTester tester = new IndexedFieldTester(object);
@@ -154,6 +157,7 @@ public class UserJpaUnitTest {
     assertTrue(tester.testAnalyzedIndexedFields());
     tester = new IndexedFieldTester(object);
     tester.include("userName");
+    tester.include("team");
     tester.include("email");
     tester.include("applicationrole");
     tester.include("namesort");

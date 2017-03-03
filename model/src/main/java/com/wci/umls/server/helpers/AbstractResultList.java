@@ -37,7 +37,7 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
 
   /* see superclass */
   @Override
-  public int getCount() {
+  public int size() {
     return objects.size();
   }
 
@@ -52,7 +52,6 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
   public boolean contains(T element) {
     return objects.contains(element);
   }
-
 
   /* see superclass */
   @Override
@@ -101,10 +100,10 @@ public abstract class AbstractResultList<T> implements ResultList<T> {
   /* see superclass */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     sb.append(getClass().getSimpleName() + " [totalCount=" + totalCount
         + ", objects=[");
-    for (Object o : objects) {
+    for (final Object o : objects) {
       sb.append(o.toString()).append(",");
     }
     sb.append("]");

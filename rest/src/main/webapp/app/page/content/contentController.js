@@ -6,63 +6,71 @@ tsApp
       '$rootScope',
       '$scope',
       '$routeParams',
-      '$http',
       '$uibModal',
       '$location',
       '$q',
       '$anchorScroll',
       '$sce',
-      '$uibModal',
       'gpService',
       'utilService',
       'tabService',
+      'configureService',
       'securityService',
+      'projectService',
       'metadataService',
       'contentService',
-      'configureService',
       'websocketService',
       'appConfig',
-      function($rootScope, $scope, $routeParams, $http, $uibModal, $location, $q, $anchorScroll,
-        $sce, $uibModal, gpService, utilService, tabService, securityService, metadataService,
-        contentService, configureService, websocketService, appConfig) {
+      'editService',
+      function($rootScope, $scope, $routeParams, $uibModal, $location, $q, $anchorScroll, $sce,
+        gpService, utilService, tabService, configureService, securityService, projectService,
+        metadataService, contentService, websocketService, appConfig, editService) {
         console.debug('configure ContentCtrl');
 
-        if ($routeParams.mode == 'simple') {
-          console.debug('  simple mode deletected, hide tabs');
+        // Set up tabs and controller
+        if ($routeParams.mode) {
+          console.debug('  ' + $routeParams.mode + '  mode deletected, hide tabs');
           tabService.setShowing(false);
+          utilService.setHeaderFooterShowing(false);
         } else {
-          console.debug('  non-simple mode detected, show tabs');
+          console.debug('  no-params mode detected, show tabs');
           tabService.setShowing(true);
+          utilService.setHeaderFooterShowing(true);
+          tabService.setSelectedTabByLabel('Content');
         }
 
-        // retrieve the user
-        $scope.user = securityService.getUser();
-        console.debug($scope.user);
-        // Clear error
         utilService.clearError();
+        $scope.user = securityService.getUser();
+        projectService.getUserHasAnyRole();
 
         // pass app configuration constants to scope (for email link)
         $scope.appConfig = appConfig;
+        console.debug('appConfig', appConfig);
 
-        // Handle resetting tabs on "back" and "reload" button, but also handles
-        // non-standard
-        // content modes which may not have tabs
-        if (!$routeParams.mode) {
-          tabService.setSelectedTabByLabel('Content');
-        }
+        // History
+        $scope.history = contentService.getHistory();
 
         //
         // Scope Variables
         //
 
         // Scope variables initialized from services
-        // TODO Add this to other controllers where preferences are modified
         $scope.user = securityService.getUser();
         $scope.isGuestUser = securityService.isGuestUser;
-        $scope.mode = $routeParams.mode === 'simple' ? 'simple' : 'full';
-        $scope.metadata = metadataService.getModel();
-        $scope.component = null;
-        $scope.pageSizes = contentService.getPageSizes();
+        $scope.canSimpleEdit = editService.canEdit;
+        
+        $scope.callbacks = contentService.getCallbacks();
+        // Scope vars
+        $scope.mode = $routeParams.mode ? $routeParams.mode : 'full';
+        $scope.selected = {
+          metadata : metadataService.getModel(),
+          component : null,
+          project : null
+        };
+        $scope.lists = {
+          projects : [],
+          terminologies : []
+        };
 
         // Search parameters
         $scope.searchParams = contentService.getSearchParams();
@@ -86,15 +94,9 @@ tsApp
         $scope.queryForTree = false;
         // whether to query for tree
 
-        // Variables for iterating through trees in report
-        $scope.treeCount = null;
-        $scope.treeViewed = null;
-        $scope.componentTree = null;
-
-        // component scoring
+        // Stuff for scoring
         $scope.scoreExcellent = 0.7;
         $scope.scoreGood = 0.3;
-
         $scope.getColorForScore = function(score) {
           if (score > $scope.scoreExcellent) {
             return 'green';
@@ -109,49 +111,56 @@ tsApp
         // Watch expressions
         //
 
-        // Watch for changes in metadata.terminologies (indicates application
-        // readiness)
-        $scope.$watch('metadata.terminology', function() {
-
-          // clear the terminology-specific variables
-          $scope.autoCompleteUrl = null;
-
-          // if no terminology specified, stop
-          if ($scope.metadata.terminology == null) {
-            return;
-          }
-
-          // set the autocomplete url, with pattern:
-          // /type/{terminology}/{version}/autocomplete/{searchTerm}
-          $scope.autocompleteUrl = contentUrl
-            + $scope.metadata.terminology.organizingClassType.toLowerCase() + '/'
-            + $scope.metadata.terminology.terminology + '/' + $scope.metadata.terminology.version
-            + "/autocomplete/";
-
-        });
-
         // on route changes, save search params and last viewed component
         $scope.$on('$routeChangeStart', function() {
           contentService.setLastSearchParams($scope.searchParams);
-          contentService.setLastComponent($scope.component);
+          contentService.setLastComponent($scope.selected.component);
         });
 
         //
         // General
         //
 
-        // Configure tab and accordion
-        $scope.configureTab = function() {
-          $scope.user.userPreferences.lastTab = '/content';
-          securityService.updateUserPreferences($scope.user.userPreferences);
-        };
-
         // Sets the terminololgy
         $scope.setTerminology = function(terminology) {
+          // Set shared model (may already be set)
+          metadataService.setTerminology(terminology);
 
+          // set the autocomplete url, with pattern:
+          // /type/{terminology}/{version}/autocomplete/{searchTerm}
+          $scope.autocompleteUrl = $scope.selected.metadata.terminology.organizingClassType
+            .toLowerCase()
+            + '/'
+            + $scope.selected.metadata.terminology.terminology
+            + '/'
+            + $scope.selected.metadata.terminology.version + "/autocomplete/";
+
+          // Choose a project
+          for (var i = 0; i < $scope.lists.projects.length; i++) {
+            var p = $scope.lists.projects[i];
+            // Pick the first project if nothing has been selected
+            if (!$scope.selected.project) {
+              $scope.selected.project = p;
+            }
+            if (p.terminology == terminology.terminology) {
+              $scope.selected.project = p;
+            }
+          }
+          if ($scope.selected.project) {
+            securityService.saveProjectId($scope.user.userPreferences, $scope.selected.project.id);
+          }
+
+          // otherwise, leave project setting as is (last chosen)
+
+          // Load all metadata for this terminology, store it in the metadata
+          // service and return deferred promise
           var deferred = $q.defer();
+          metadataService.getAllMetadata(terminology.terminology, terminology.version).then(
+          // Success
+          function(data) {
 
-          metadataService.setTerminology(terminology).then(function() {
+            // Set the shared model in the metadata service
+            metadataService.setModel(data);
 
             // if metathesaurus, ensure list view set
             if (terminology.metathesaurus) {
@@ -162,7 +171,8 @@ tsApp
               $scope.findComponents(false, true);
             }
 
-            if ($scope.user && $scope.user.userPreferences) {
+            // Do not update user prefs when in popout mode
+            if (!$routeParams.terminology && $scope.user && $scope.user.userPreferences) {
               $scope.user.userPreferences.lastTerminology = terminology.terminology;
               securityService.updateUserPreferences($scope.user.userPreferences);
             }
@@ -172,6 +182,21 @@ tsApp
           });
 
           return deferred.promise;
+        };
+
+        // Retrieve all projects
+        $scope.getProjects = function() {
+          projectService.getProjectsForUser($scope.user).then(
+            // Success
+            function(data) {
+              $scope.lists.projects = data.projects;
+              $scope.selected.project = data.project;
+              if ($scope.selected.project) {
+                securityService.saveProjectId($scope.user.userPreferences,
+                  $scope.selected.project.id);
+              }
+            });
+
         };
 
         // Autocomplete function
@@ -221,22 +246,16 @@ tsApp
 
         // Get a component and set the local component data model
         // e.g. this is called when a user clicks on a search result
-        $scope.getComponent = function(type, terminologyId, terminology, version) {
+        $scope.getComponent = function(component) {
+          contentService.getComponent(component).then(
+          // Success
+          function(response) {
 
-          console.debug('getComponent', type, terminologyId, terminology, version);
+            // If we still don't know the terminology (because of a link in),
+            // look it up first
 
-          var wrapper = {
-            type : type,
-            terminologyId : terminologyId,
-            terminology : terminology,
-            version : version
-          };
-
-          contentService.getComponent(wrapper).then(function(response) {
-
-            $scope.component = response;
+            $scope.selected.component = response;
             $scope.checkFavoriteStatus();
-            $scope.setActiveRow(terminologyId);
             $scope.addComponentHistory();
 
           });
@@ -258,7 +277,11 @@ tsApp
         // Find concepts based on current search
         // - loadFirst indicates whether to auto-load result[0]
         $scope.findComponents = function(loadFirst, suppressWarnings) {
+          findComponents(loadFirst, suppressWarnings);
+        }
+        function findComponents(loadFirst, suppressWarnings) {
           $scope.searchOrBrowse = "SEARCH";
+          $scope.searchResultsCollapsed = false;
           if ($scope.queryForList) {
             $scope.findComponentsAsList(loadFirst, suppressWarnings);
           }
@@ -268,7 +291,8 @@ tsApp
           $location.hash('top');
           $anchorScroll();
 
-        };
+        }
+        ;
 
         // Perform search and populate list view
         $scope.findComponentsAsList = function(loadFirst, suppressWarnings) {
@@ -288,7 +312,7 @@ tsApp
           if (!hasQuery && !hasExpr && !hasNotes) {
             if (!suppressWarnings) {
               alert("You must use at least one character to search"
-                + ($scope.searchParams.advancedMode ? ($scope.metadata.terminology.descriptionLogicTerminology ? ", supply an expression,"
+                + ($scope.searchParams.advancedMode ? ($scope.selected.metadata.terminology.descriptionLogicTerminology ? ", supply an expression,"
                   : "")
                   + " or search user notes"
                   : ""));
@@ -299,16 +323,16 @@ tsApp
             }
             return;
           }
-          
+
           contentService.findComponentsAsList($scope.searchParams.query,
-            $scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page, $scope.searchParams).then(function(data) {
+            $scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version, $scope.searchParams).then(function(data) {
             $scope.searchResults = data;
 
             if (loadFirst && $scope.searchResults.results.length > 0) {
-              // pass the search result (as wrapper)
-              $scope.getComponentFromWrapper($scope.searchResults.results[0]);
+              // pass the search result (as component)
+              $scope.getComponent($scope.searchResults.results[0]);
             }
           });
         };
@@ -326,9 +350,9 @@ tsApp
           }
 
           contentService.findComponentsAsTree($scope.searchParams.query,
-            $scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page, $scope.searchParams).then(function(data) {
+            $scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version, $scope.searchParams).then(function(data) {
 
             // for ease and consistency of use of the ui tree
             // directive force the single tree into a ui-tree structure
@@ -337,7 +361,6 @@ tsApp
             $scope.searchResults.tree.push(data); // treeList
             // array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.count = data.count;
             // Load first functionality is not obvious here
             // so leave it alone for now.
 
@@ -346,18 +369,17 @@ tsApp
 
         // set the top level component from a tree node
         // TODO Consider changing nodeTerminologyId to terminologyId, adding
-        // type to allow wrapper universality
+        // type to allow component universality
         $scope.getComponentFromTree = function(type, nodeScope) {
           console.debug('getComponentFromTree', type, nodeScope);
           var tree = nodeScope.$modelValue;
-          $scope.getComponent(type, tree.nodeTerminologyId, tree.terminology, tree.version);
-        };
-
-        // helper function to get component from wrapper
-        $scope.getComponentFromWrapper = function(wrapper) {
-          console.debug('getComponentFromWrapper', wrapper);
-          $scope.getComponent(wrapper.type, wrapper.terminologyId, wrapper.terminology,
-            wrapper.version);
+          $scope.getComponent({
+            id : tree.nodeId,
+            type : type,
+            terminologyId : tree.nodeTerminologyId,
+            terminology : tree.terminology,
+            version : tree.version
+          });
         };
 
         // Load hierarchy into tree view
@@ -366,12 +388,12 @@ tsApp
           $scope.queryForTree = true;
           $scope.queryForList = false;
           $scope.browsingHierarchy = true;
-          $scope.searchParams.page = 1;
+          $scope.searchResults.page = 1
           $scope.searchParams.query = null;
 
-          contentService.getTreeRoots($scope.metadata.terminology.organizingClassType,
-            $scope.metadata.terminology.terminology, $scope.metadata.terminology.version,
-            $scope.searchParams.page).then(function(data) {
+          contentService.getTreeRoots($scope.selected.metadata.terminology.organizingClassType,
+            $scope.selected.metadata.terminology.terminology,
+            $scope.selected.metadata.terminology.version).then(function(data) {
             // for ease and consistency of use of the ui tree
             // directive
             // force the single tree into a ui-tree data
@@ -382,7 +404,9 @@ tsApp
             $scope.searchResults.tree.push(data);
             // treeList array of size 1
             $scope.searchResults.tree.totalCount = data.totalCount;
-            $scope.searchResults.tree.count = data.count;
+            if (data.objects) {
+              $scope.searchResults.tree.objects.length = data.objects.length
+            }
           });
         };
 
@@ -399,13 +423,6 @@ tsApp
         // Supporting search result trees
         // /////////////////////////////////////////
 
-        // search result tree callbacks
-        // NOTE Search Result Tree uses list search parameters
-        $scope.srtCallbacks = {
-          // set top level component from tree node
-          getComponentFromTree : $scope.getComponentFromTree
-        };
-
         // Function to toggle showing of extension info
         $scope.toggleExtension = function() {
           if ($scope.searchParams.showExtension == null
@@ -416,63 +433,29 @@ tsApp
           }
         };
 
-        // 
-        // Misc helper functions
-        // 
-
-        // Helper function to select an item in the list view
-        $scope.setActiveRow = function(terminologyId) {
-
-          // set for search results
-          if ($scope.searchResults && $scope.searchResults.results
-            && $scope.searchResults.results.length > 0) {
-
-            for (var i = 0; i < $scope.searchResults.results.length; i++) {
-              if ($scope.searchResults.results[i].terminologyId === terminologyId) {
-                $scope.searchResults.results[i].active = true;
-              } else {
-                $scope.searchResults.results[i].active = false;
-              }
-            }
-          }
-
-          // set for favorites
-          if ($scope.favorites && $scope.favorites.results && $scope.favorites.results.length > 0) {
-
-            for (var i = 0; i < $scope.favorites.results.length; i++) {
-              if ($scope.favorites.results[i].terminologyId === terminologyId) {
-                $scope.favorites.results[i].active = true;
-              } else {
-                $scope.favorites.results[i].active = false;
-              }
-            }
-          }
-
-        };
-
         //
         // METADATA related functions
         //
 
         // Find a terminology version
         $scope.getTerminologyVersion = function(terminology) {
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-            if (terminology === $scope.metadata.terminologies[i].terminology) {
-              return $scope.metadata.terminologies[i].version;
+          for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+            if (terminology === $scope.lists.terminologies[i].terminology) {
+              return $scope.lists.terminologies[i].version;
             }
           }
         };
         // Function to filter viewable terminologies for picklist
         $scope.getViewableTerminologies = function() {
           var viewableTerminologies = new Array();
-          if (!$scope.metadata.terminologies) {
+          if (!$scope.lists.terminologies) {
             return null;
           }
-          for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
+          for (var i = 0; i < $scope.lists.terminologies.length; i++) {
             // exclude MTH and SRC
-            if ($scope.metadata.terminologies[i].terminology != 'MTH'
-              && $scope.metadata.terminologies[i].terminology != 'SRC')
-              viewableTerminologies.push($scope.metadata.terminologies[i]);
+            if ($scope.lists.terminologies[i].terminology != 'MTH'
+              && $scope.lists.terminologies[i].terminology != 'SRC')
+              viewableTerminologies.push($scope.lists.terminologies[i]);
           }
           return viewableTerminologies;
         };
@@ -482,15 +465,11 @@ tsApp
         //
 
         // Local history variables for the display.
-        $scope.history = contentService.getHistory();
-        $scope.historyPage = {};
-
         function setHistoryPage() {
-
           console.debug('setHistoryPage: ', $scope.history);
 
           // convenience variables
-          var hps = parseInt($scope.pageSizes.general / 2);
+          var hps = $scope.history.pageSize;
           var ct = $scope.history.components.length;
           var index = $scope.history.index;
 
@@ -523,7 +502,7 @@ tsApp
           }
 
           contentService.getComponentFromHistory(index).then(function(data) {
-            $scope.component = data;
+            $scope.selected.component = data;
             $scope.checkFavoriteStatus();
             setHistoryPage();
           });
@@ -542,25 +521,14 @@ tsApp
         // an index For cases where history > page size, returns array
         // [index - pageSize / 2 + 1 : index + pageSize]
         $scope.addComponentHistory = function(index) {
-          contentService.addComponentToHistory($scope.component.terminologyId,
-            $scope.component.terminology, $scope.component.version, $scope.component.type,
-            $scope.component.name);
+          contentService.addComponentToHistory($scope.selected.component);
           setHistoryPage();
 
         };
 
         // Pop out content window
         $scope.popout = function() {
-          var currentUrl = window.location.href;
-          var baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-          // TODO; don't hardcode this - maybe "simple" should be a parameter
-          var newUrl = baseUrl + '/content/simple/' + $scope.component.type + '/'
-            + $scope.component.terminology + '/' + $scope.component.version + '/'
-            + $scope.component.terminologyId;
-          var myWindow = window.open(newUrl, $scope.component.terminology + '/'
-            + $scope.component.version + ', ' + $scope.component.terminologyId + ', '
-            + $scope.component.name);
-          myWindow.focus();
+          contentService.popout($scope.selected.component);
         };
 
         //
@@ -610,29 +578,21 @@ tsApp
 
         $scope.selectComponent = function(key) {
 
-          var modalScope = $rootScope.$new();
+          window.alert('wire this to finder modal which should be its own component');
 
-          var modalInstance = $uibModal.open({
-            animation : $scope.animationsEnabled,
-            templateUrl : 'app/util/select-component-modal/selectComponentModal.html',
-            controller : 'selectComponentModalCtrl',
-            scope : $rootScope,
-            size : 'lg',
-            resolve : {
-              metadata : function() {
-                return $scope.metadata;
-              }
-            }
-          });
-
-          modalInstance.result.then(function(component) {
-            $scope.searchParams.expression.fields[key] = component.terminologyId + ' | '
-              + component.name + ' |';
-            $scope.setExpression();
-          }, function() {
-            // do nothing
-          });
+          // modalInstance.result.then(function(component) {
+          // $scope.searchParams.expression.fields[key] =
+          // component.terminologyId + ' | '
+          // + component.name + ' |';
+          // $scope.setExpression();
+          // }, function() {
+          // // do nothing
+          // });
         };
+
+        //
+        // MODALS
+        //
 
         // Open notes modal, from either wrapper or component
         $scope.viewNotes = function(wrapper) {
@@ -645,7 +605,7 @@ tsApp
             size : 'lg',
             resolve : {
               component : function() {
-                return $scope.component;
+                return $scope.selected.component;
 
               }
             }
@@ -654,10 +614,10 @@ tsApp
           // on close or cancel, re-retrieve the concept for updated notes
           modalInstance.result.then(function() {
             // re-retrieve the concept
-            $scope.getComponentFromWrapper($scope.component);
+            $scope.getComponent($scope.selected.component);
           }, function() {
             // re-retrieve the concept
-            $scope.getComponentFromWrapper($scope.component);
+            $scope.getComponent($scope.selected.component);
           });
         };
 
@@ -667,144 +627,96 @@ tsApp
 
         // Check favorite status
         $scope.checkFavoriteStatus = function() {
-          $scope.isFavorite = $scope.component ? securityService.isUserFavorite(
-            $scope.component.type, $scope.component.terminology, $scope.component.version,
-            $scope.component.terminologyId) : false;
+          $scope.isFavorite = $scope.selected.component ? securityService
+            .isUserFavorite($scope.selected.component) : false;
         };
 
         // Toggle favorite
-        $scope.toggleFavorite = function(type, terminology, version, terminologyId, name) {
-          if (securityService.isUserFavorite(type, terminology, version, terminologyId)) {
-            securityService.removeUserFavorite(type, terminology, version, terminologyId, name)
-              .then(function() {
-                $scope.isFavorite = false;
-                websocketService.fireFavoriteChange();
-              });
+        $scope.toggleFavorite = function(component) {
+          if (securityService.isUserFavorite(component)) {
+            securityService.removeUserFavorite(component).then(
+            // Success
+            function() {
+              $scope.isFavorite = false;
+              websocketService.fireFavoriteChange();
+            });
           } else {
-            securityService.addUserFavorite(type, terminology, version, terminologyId, name).then(
-              function() {
-                $scope.isFavorite = true;
-                websocketService.fireFavoriteChange();
-              });
+            securityService.addUserFavorite(component).then(
+            // Favorite
+            function() {
+              $scope.isFavorite = true;
+              websocketService.fireFavoriteChange();
+            });
           }
         };
 
         //
-        // Callback Function Objects
+        // Callbacks Function Objects
         //
         $scope.configureCallbacks = function() {
-          console.debug('Initializing content controller callback objects');
-
-          // declare the callbacks objects
-          $scope.componentRetrievalCallbacks = {};
-          $scope.componentReportCallbacks = {};
-          $scope.favoritesCallbacks = {};
 
           //
           // Local scope functions pertaining to component retrieval
           //
-          $scope.componentRetrievalCallbacks = {
+          $scope.callbacks = {
             getComponent : $scope.getComponent,
             getComponentFromTree : $scope.getComponentFromTree,
-            getComponentFromWrapper : $scope.getComponentFromWrapper,
-            findComponentsForQuery : $scope.findComponentsForQuery
+            findComponentsForQuery : $scope.findComponentsForQuery,
+            checkFavoriteStatus : $scope.checkFavoriteStatus
           };
-          console.debug('  component retrieval callbacks', $scope.componentRetrievalCallbacks);
 
           //
           // Component report callbacks
           //
 
           // pass metadata callbacks for tooltip and general display
-          utilService.extendCallbacks($scope.componentReportCallbacks, metadataService
-            .getCallbacks());
+          utilService.extendCallbacks($scope.callbacks, metadataService.getCallbacks());
 
           // add content callbacks for special content retrieval (relationships,
           // mappings, etc.)
-          utilService.extendCallbacks($scope.componentReportCallbacks, contentService
-            .getCallbacks());
-
-          // if in simple mode
-          if ($routeParams.mode === 'simple') {
-            // do nothing
-          } else {
-            // add content callbacks for top-level component retrieval
-            utilService.extendCallbacks($scope.componentReportCallbacks,
-              $scope.componentRetrievalCallbacks);
+          utilService.extendCallbacks($scope.callbacks, contentService.getCallbacks());
+          
+          // add simple editing callbacks if enabled
+          if (editService.canEdit()) {
+            utilService.extendCallbacks($scope.callbacks, editService.getCallbacks());
           }
-          console.debug('  Component report callbacks', $scope.componentReportCallbacks);
-
-          //
-          // Favorites Callbacks
-          // 
-          $scope.favoritesCallbacks = {
-            checkFavoriteStatus : $scope.checkFavoriteStatus
-          };
-          // add content callbacks for top-level component retrieval
-          utilService
-            .extendCallbacks($scope.favoritesCallbacks, $scope.componentRetrievalCallbacks);
-          console.debug('  Favorites callbacks', $scope.favoritesCallbacks);
 
         };
 
-        //
-        // Initialize
-        //
+        // Wait for "terminologies" to load
+        $scope.initMetadata = function() {
 
-        $scope.initialize = function() {
-
-          $scope.configureTab();
-          $scope.configureExpressions();
-          $scope.configureCallbacks();
-
-          //
-          // Check for values preserved in content service (after route changes)
-          //
-          if (contentService.getLastSearchParams()) {
-            $scope.searchParams = contentService.getLastSearchParams();
-            $scope.findComponents(false, true);
-          }
-          if (contentService.getLastComponent()) {
-            $scope.component = contentService.getLastComponent();
-            $scope.checkFavoriteStatus();
-          }
-
-          // Load all terminologies upon controller load (unless already
-          // loaded)
-          if (!$scope.metadata.terminologies || !$scope.metadata.terminology) {
-            metadataService.initTerminologies().then(
-              // success
-              function(data) {
+          metadataService.getTerminologies().then(
+            // Success
+            function(data) {
+              $scope.lists.terminologies = data.terminologies;
+              // Load all terminologies upon controller load (unless already
+              // loaded)
+              if ($scope.lists.terminologies) {
 
                 // if route parameters are specified, set the terminology and
-                // retrieve
-                // the specified concept
-                if ($routeParams.terminology && $routeParams.version) {
+                // retrieve the specified concept
+                var terminologies = [];
+                if ($routeParams.terminology
+                  && (($routeParams.version && $routeParams.terminologyId) || $routeParams.id)) {
 
-                  var termToSet = null;
-                  for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                    var terminology = $scope.metadata.terminologies[i];
-                    // Determine whether to set as default
-                    if (terminology.terminology === $routeParams.terminology
-                      && terminology.version === $routeParams.version) {
-                      termToSet = terminology;
-                      break;
-                    }
-                  }
-
-                  if (!termToSet) {
-                    utilService.setError('Terminology specified in URL not found');
-                  } else {
-
+                  terminologies = $scope.lists.terminologies.filter(function(item) {
+                    return item.terminology == $routeParams.terminology
+                      && (!$routeParams.version || item.version == $routeParams.version);
+                  });
+                  if (terminologies && terminologies.length == 1) {
                     // set the terminology
-                    $scope.setTerminology(termToSet).then(
-                      function() {
+                    $scope.setTerminology(terminologies[0]).then(function(data) {
 
-                        // get the component
-                        $scope.getComponent($routeParams.type, $routeParams.terminologyId,
-                          $routeParams.terminology, $routeParams.version);
-                      });
+                      // get the component
+                      $scope.getComponent($routeParams);
+                    });
+                  } else if (terminologies && terminologies.length > 1) {
+                    utilService.setError('Too many matching terminologies found');
+                  } else {
+                    utilService.setError('Terminology specified in URL not found');
                   }
+
                 }
 
                 // otherwise, specify the default terminology
@@ -812,8 +724,8 @@ tsApp
 
                   var found = false;
                   if ($scope.user.userPreferences && $scope.user.userPreferences.lastTerminology) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
+                    for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+                      var terminology = $scope.lists.terminologies[i];
                       // set from user prefs
                       if (terminology.terminology === $scope.user.userPreferences.lastTerminology) {
                         $scope.setTerminology(terminology);
@@ -825,8 +737,8 @@ tsApp
 
                   // otherwise look for metathesaurus
                   if (!found) {
-                    for (var i = 0; i < $scope.metadata.terminologies.length; i++) {
-                      var terminology = $scope.metadata.terminologies[i];
+                    for (var i = 0; i < $scope.lists.terminologies.length; i++) {
+                      var terminology = $scope.lists.terminologies[i];
                       // Determine whether to set as default
                       if (terminology.metathesaurus) {
                         $scope.setTerminology(terminology);
@@ -838,15 +750,49 @@ tsApp
 
                   // If nothing set, pick the first one
                   if (!found) {
-                    if (!$scope.metadata.terminologies) {
+
+                    if (!$scope.lists.terminologies) {
                       window.alert('No terminologies found, database may not be properly loaded.');
                     } else {
-                      $scope.setTerminology($scope.metadata.terminologies[0]);
+                      $scope.setTerminology($scope.lists.terminologies[0]);
                     }
                   }
                 }
-              });
+              }
+
+            });
+
+        }
+
+        //
+        // Initialize - DO NOT PUT ANYTHING AFTER THIS SECTION
+        //
+        $scope.initialize = function() {
+          // configure tab unless we're showing a popout report
+          if (!$routeParams) {
+            securityService.saveTab($scope.user.userPreferences, '/content');
           }
+
+          $scope.configureExpressions();
+          $scope.configureCallbacks();
+          $scope.getProjects();
+
+          //
+          // Check for values preserved in content service (after route changes)
+          //
+          if (contentService.getLastSearchParams()) {
+            $scope.searchParams = contentService.getLastSearchParams();
+            $scope.findComponents(false, true);
+          }
+
+          if (contentService.getLastComponent()) {
+            $scope.selected.component = contentService.getLastComponent();
+            $scope.checkFavoriteStatus();
+          }
+
+          // Initialize metadata
+          $scope.initMetadata();
+
         };
 
         //
@@ -854,14 +800,20 @@ tsApp
         // (1) that application is configured, and
         // (2) that the license has been accepted (if required)
         //
-        configureService.isConfigured().then(function(isConfigured) {
+        configureService.isConfigured().then(
+        // Success
+        function(isConfigured) {
           if (!isConfigured) {
             $location.path('/configure');
           } else {
-            securityService.checkLicense().then(function() {
+            securityService.checkLicense().then(
+            // Success
+            function() {
               console.debug('License valid, initializing');
               $scope.initialize();
-            }, function() {
+            },
+            // Error
+            function() {
               console.debug('Invalid license');
               utilService.setError('You must accept the license before viewing that content');
               $location.path('/license');

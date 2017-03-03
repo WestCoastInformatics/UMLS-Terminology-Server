@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.custom;
 
@@ -12,7 +12,8 @@ import org.apache.log4j.Logger;
 import com.wci.umls.server.User;
 import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.UserImpl;
+import com.wci.umls.server.jpa.AbstractConfigurable;
+import com.wci.umls.server.jpa.UserJpa;
 import com.wci.umls.server.jpa.services.handlers.DefaultSecurityServiceHandler;
 import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 
@@ -21,7 +22,8 @@ import com.wci.umls.server.services.handlers.SecurityServiceHandler;
  * {@link DefaultSecurityServiceHandler} but exists to demonstrate how and where
  * to use a custom handler.
  */
-public class SampleCustomSecurityService implements SecurityServiceHandler {
+public class SampleCustomSecurityService extends AbstractConfigurable
+    implements SecurityServiceHandler {
 
   /** The properties. */
   private Properties properties;
@@ -47,7 +49,7 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
       properties = ConfigUtility.getConfigProperties();
     }
 
-    User user = new UserImpl();
+    User user = new UserJpa();
 
     // check specified admin users list from config file
     if (getAdminUsersFromConfigFile().contains(username)) {
@@ -87,20 +89,14 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
     return user;
   }
 
-  /* see superclass */
-  @Override
-  public void setProperties(Properties properties) {
-    this.properties = properties;
-  }
-
   /**
    * Returns the viewer users from config file.
    *
    * @return the viewer users from config file
    */
   private Set<String> getViewerUsersFromConfigFile() {
-    HashSet<String> userSet = new HashSet<>();
-    String userList = properties.getProperty("users.viewer");
+    final HashSet<String> userSet = new HashSet<>();
+    final String userList = properties.getProperty("users.viewer");
 
     if (userList == null) {
       Logger.getLogger(getClass()).warn(
@@ -108,7 +104,7 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
       return userSet;
     }
 
-    for (String user : userList.split(","))
+    for (final String user : userList.split(","))
       userSet.add(user);
     return userSet;
   }
@@ -120,8 +116,8 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
    */
   private Set<String> getAdminUsersFromConfigFile() {
 
-    HashSet<String> userSet = new HashSet<>();
-    String userList = properties.getProperty("users.admin");
+    final HashSet<String> userSet = new HashSet<>();
+    final String userList = properties.getProperty("users.admin");
 
     Logger.getLogger(getClass()).info(properties.keySet());
 
@@ -131,11 +127,12 @@ public class SampleCustomSecurityService implements SecurityServiceHandler {
       return userSet;
     }
 
-    for (String user : userList.split(","))
+    for (final String user : userList.split(","))
       userSet.add(user);
     return userSet;
   }
 
+  /* see superclass */
   @Override
   public String getName() {
     return "Sample Custom Security Service";

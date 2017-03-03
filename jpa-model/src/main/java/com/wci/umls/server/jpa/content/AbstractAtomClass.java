@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,6 +28,7 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.AnalyzerDefs;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -33,10 +36,12 @@ import org.hibernate.search.annotations.Parameter;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Abstract JPA and JAXB enabled implementation of {@link AtomClass}.
@@ -45,42 +50,41 @@ import com.wci.umls.server.model.content.AtomClass;
     @AnalyzerDef(name = "noStopWord", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
         @TokenFilterDef(factory = StandardFilterFactory.class),
         @TokenFilterDef(factory = LowerCaseFilterFactory.class)
-    }),
-    @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
-    // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
-        // Normalize token text to lowercase, as the user is unlikely to
-        // care about casing when searching for matches
-        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
-            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
-            @Parameter(name = "replacement", value = " "),
-            @Parameter(name = "replace", value = "all")
-        }), @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = StopFilterFactory.class),
-        // Index partial words starting at the front, so we can provide
-        // Autocomplete functionality
-        @TokenFilterDef(factory = EdgeNGramFilterFactory.class, params = {
-            @Parameter(name = "minGramSize", value = "3"),
-            @Parameter(name = "maxGramSize", value = "50")
-        })
-    }),
-    @AnalyzerDef(name = "autocompleteNGramAnalyzer",
-    // Split input into tokens according to tokenizer
-    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
-        // Normalize token text to lowercase, as the user is unlikely to
-        // care about casing when searching for matches
-        @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
-        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-        @TokenFilterDef(factory = NGramFilterFactory.class, params = {
-            @Parameter(name = "minGramSize", value = "3"),
-            @Parameter(name = "maxGramSize", value = "5")
-        }),
-        @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
-            @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
-            @Parameter(name = "replacement", value = " "),
-            @Parameter(name = "replace", value = "all")
-        })
-    })
+    }), @AnalyzerDef(name = "whitespace", tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+        @TokenFilterDef(factory = StandardFilterFactory.class),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class)
+    }), @AnalyzerDef(name = "autocompleteEdgeAnalyzer",
+        // Split input into tokens according to tokenizer
+        tokenizer = @TokenizerDef(factory = KeywordTokenizerFactory.class), filters = {
+            // Normalize token text to lowercase, as the user is unlikely to
+            // care about casing when searching for matches
+            @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+                @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+                @Parameter(name = "replacement", value = " "),
+                @Parameter(name = "replace", value = "all")
+            }), @TokenFilterDef(factory = LowerCaseFilterFactory.class), @TokenFilterDef(factory = StopFilterFactory.class),
+            // Index partial words starting at the front, so we can provide
+            // Autocomplete functionality
+            @TokenFilterDef(factory = EdgeNGramFilterFactory.class, params = {
+                @Parameter(name = "minGramSize", value = "3"),
+                @Parameter(name = "maxGramSize", value = "50")
+            })
+        }), @AnalyzerDef(name = "autocompleteNGramAnalyzer",
+            // Split input into tokens according to tokenizer
+            tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class), filters = {
+                // Normalize token text to lowercase, as the user is unlikely to
+                // care about casing when searching for matches
+                @TokenFilterDef(factory = WordDelimiterFilterFactory.class),
+                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+                @TokenFilterDef(factory = NGramFilterFactory.class, params = {
+                    @Parameter(name = "minGramSize", value = "3"),
+                    @Parameter(name = "maxGramSize", value = "5")
+                }), @TokenFilterDef(factory = PatternReplaceFilterFactory.class, params = {
+                    @Parameter(name = "pattern", value = "([^a-zA-Z0-9\\.])"),
+                    @Parameter(name = "replacement", value = " "),
+                    @Parameter(name = "replace", value = "all")
+                })
+            })
 })
 @Audited
 @MappedSuperclass
@@ -101,8 +105,9 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   private String branchedTo;
 
   /** The workflow status. */
-  @Column(nullable = true)
-  private String workflowStatus;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
 
   /**
    * Instantiates an empty {@link AbstractAtomClass}.
@@ -115,16 +120,15 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
    * Instantiates a {@link AbstractAtomClass} from the specified parameters.
    *
    * @param atomClass the atom
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractAtomClass(AtomClass atomClass, boolean deepCopy) {
-    super(atomClass, deepCopy);
+  public AbstractAtomClass(AtomClass atomClass, boolean collectionCopy) {
+    super(atomClass, collectionCopy);
     name = atomClass.getName();
     workflowStatus = atomClass.getWorkflowStatus();
-    if (deepCopy) {
-      for (Atom atom : atomClass.getAtoms()) {
-        getAtoms().add(new AtomJpa(atom, deepCopy));
-      }
+    branchedTo = atomClass.getBranchedTo();
+    if (collectionCopy) {
+      atoms = new ArrayList<>(atomClass.getAtoms());
     }
   }
 
@@ -147,10 +151,9 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   @Fields({
-      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+      @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO, analyzer = @Analyzer(definition = "noStopWord")),
       @Field(name = "nameSort", index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   })
-  @Analyzer(definition = "noStopWord")
   public String getName() {
     return name;
   }
@@ -163,14 +166,15 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = EnumBridge.class)
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  public String getWorkflowStatus() {
+  public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowStatus(String workflowStatus) {
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
 
   }
@@ -234,9 +238,8 @@ public abstract class AbstractAtomClass extends AbstractComponentHasAttributes
     }
     final int index = branchedTo.indexOf(closedBranch);
     if (index != -1) {
-      branchedTo =
-          branchedTo.substring(0, index - 1)
-              + branchedTo.substring(index + closedBranch.length() + 1);
+      branchedTo = branchedTo.substring(0, index - 1)
+          + branchedTo.substring(index + closedBranch.length() + 1);
     }
 
   }

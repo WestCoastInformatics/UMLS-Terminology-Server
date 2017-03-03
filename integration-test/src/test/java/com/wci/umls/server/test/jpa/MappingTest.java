@@ -22,11 +22,12 @@ import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Integration testing for {@link DefaultComputePreferredNameHandler}.
  */
-public class MappingTest {
+public class MappingTest extends IntegrationUnitSupport {
 
   /**
    * Setup class.
@@ -50,14 +51,17 @@ public class MappingTest {
    * @throws Exception the exception
    */
   @Test
-  public void testMappingNormalUse001() throws Exception {
-    Logger.getLogger(getClass()).info("TEST testMappingNormalUse001");
+  public void testMappingNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Add MapSet and Mapping
     ContentService contentService = new ContentServiceJpa();
+    contentService.setLastModifiedBy("admin");
+    contentService.setMolecularActionFlag(false);
+
     MapSet mapSet = new MapSetJpa();
     mapSet.setName("Test MapSet");
-    mapSet.setType("CONCEPT");
+    mapSet.setMapType("CONCEPT");
     mapSet.setFromComplexity("fcomp");
     mapSet.setToComplexity("toComp");
     mapSet.setFromExhaustive("fromExh");
@@ -78,7 +82,9 @@ public class MappingTest {
     assertEquals(mapSet.getName(), "Test MapSet");
     Mapping mapping = new MappingJpa();
     mapping.setAdvice("advice");
+    mapping.setFromTerminologyId("");
     mapping.setFromIdType(IdType.getIdType("CUI"));
+    mapping.setToTerminologyId("");
     mapping.setToIdType(IdType.getIdType("CUI"));
     mapping.setRank("rank");
     mapping.setGroup("subset/group");

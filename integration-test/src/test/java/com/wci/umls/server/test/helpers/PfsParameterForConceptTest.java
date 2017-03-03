@@ -62,7 +62,7 @@ public class PfsParameterForConceptTest {
 
     List<Concept> concepts = new ArrayList<>();
 
-    for (SearchResult sr : results.getObjects()) {
+    for (final SearchResult sr : results.getObjects()) {
       Concept c =
           contentService.getConcept(sr.getTerminologyId(), sr.getTerminology(),
               sr.getVersion(), Branch.ROOT);
@@ -104,7 +104,7 @@ public class PfsParameterForConceptTest {
         return false;
     }
 
-    for (Concept c : concepts) {
+    for (final Concept c : concepts) {
 
       thisValue = field.get(c);
 
@@ -145,18 +145,18 @@ public class PfsParameterForConceptTest {
         (int) (Math.floor(pfs.getStartIndex() / pfs.getMaxResults()) + 1);
     int pageSize = pfs.getMaxResults();
 
-    if (results.getCount() > pageSize)
+    if (results.size() > pageSize)
       return false;
 
     // check bounds
     if ((page - 1) * pageSize < 0)
       return false;
-    if ((page - 1) * pageSize + results.getCount() > fullResults
+    if ((page - 1) * pageSize + results.size() > fullResults
         .getTotalCount())
       return false;
 
     // check paging
-    for (int i = 0; i < results.getCount(); i++) {
+    for (int i = 0; i < results.size(); i++) {
       if (!results.getObjects().get(i)
           .equals(fullResults.getObjects().get((page - 1) * pageSize + i)))
         return false;

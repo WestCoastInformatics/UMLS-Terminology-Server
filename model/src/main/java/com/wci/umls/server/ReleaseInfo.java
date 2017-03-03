@@ -1,29 +1,17 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
 import java.util.Date;
 import java.util.List;
 
+import com.wci.umls.server.helpers.HasLastModified;
+
 /**
  * Represents release information about a data set.
  */
-public interface ReleaseInfo {
-
-  /**
-   * Returns the id.
-   *
-   * @return the id
-   */
-  public Long getId();
-
-  /**
-   * Sets the id.
-   *
-   * @param id the id
-   */
-  public void setId(Long id);
+public interface ReleaseInfo extends HasLastModified {
 
   /**
    * Returns the name.
@@ -136,34 +124,6 @@ public interface ReleaseInfo {
    * @param version the version
    */
   public void setVersion(String version);
-
-  /**
-   * Returns the last modified by.
-   *
-   * @return the last modified by
-   */
-  public String getLastModifiedBy();
-
-  /**
-   * Sets the last modified by.
-   *
-   * @param lastModifiedBy the last modified by
-   */
-  public void setLastModifiedBy(String lastModifiedBy);
-
-  /**
-   * Returns the last modified.
-   *
-   * @return the last modified
-   */
-  public Date getLastModified();
-
-  /**
-   * Sets the last modified.
-   *
-   * @param lastModified the last modified
-   */
-  public void setLastModified(Date lastModified);
 
   /**
    * Returns the properties.

@@ -1,0 +1,75 @@
+<div class="modal-header">
+  <h4 style="display: inline">{{type}} Notes</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <table class="slim table">
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>{{selected[field].name}}</td>
+    </tr>
+    <tr>
+      <td>
+        <b>{{type}} Id</b>
+      </td>
+      <td>{{selected[field].id}}</td>
+    </tr>
+    <tr ng-show="selected[field].description">
+      <td>
+        <b>Description</b>
+      </td>
+      <td>{{selected[field].description}}</td>
+    </tr>
+  </table>
+
+  <div pager paging="paging" count="pagedNotes.totalCount"
+    callbacks="paging.callbacks"></div>
+
+  <table class="slim table" ng-show="pagedNotes.length>0">
+    <thead>
+      <tr>
+        <th class="col-md-8 col-xs-8">Checklist Notes
+          ({{pagedNotes.totalCount}})</th>
+        <th class="col-md-2 col-xs-2">Date</th>
+        <th class="col-md-1 col-xs-1">Author</th>
+        <th class="col-md-1 col-xs-1">&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="note in pagedNotes">
+        <td>
+          <div ng-bind-html="getNoteValue(note)"></div>
+        </td>
+        <td>{{toDate(note.lastModified)}}</td>
+        <td>{{note.lastModifiedBy}}</td>
+        <td>
+          <i ng-click="removeNote(selected[field], note);" title="Remove note"
+            class="noul glyphicon glyphicon-trash"></i>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <span style="display: block" ng-show="pagedNotes.length == 0 && paging.filter"
+    class="alert alert-warning"> No notes matching filter </span>
+  <span style="display: block"
+    ng-show="pagedNotes.length == 0 && !paging.filter"
+    class="alert alert-warning"> No notes </span>
+
+  <textarea rows="4" cols="40" ng-model="newNote" ui-tinymce="tinymceOptions"></textarea>
+
+</div>
+
+<!-- Errors -->
+<div errors="errors"></div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-disabled="!newNote"
+    ng-click="submitNote(selected[field], newNote);"
+    title=" Add new note to {{type}}">Add</button>
+  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+</div>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
@@ -39,9 +39,9 @@ public class ValidationResultJpa implements ValidationResult {
    * @param result the result
    */
   public ValidationResultJpa(ValidationResult result) {
-    this.errors = new HashSet<>(result.getErrors());
-    this.warnings = new HashSet<>(result.getWarnings());
-    this.comments = new HashSet<>(result.getComments());
+    errors = new HashSet<>(result.getErrors());
+    warnings = new HashSet<>(result.getWarnings());
+    comments = new HashSet<>(result.getComments());
   }
 
   /* see superclass */
@@ -105,6 +105,18 @@ public class ValidationResultJpa implements ValidationResult {
     this.warnings.addAll(validationResult.getWarnings());
     this.comments.addAll(validationResult.getComments());
 
+  }
+
+  /* see superclass */
+  @Override
+  public void addError(String error) {
+    this.errors.add(error);
+  }
+
+  /* see superclass */
+  @Override
+  public void addWarning(String warning) {
+    this.warnings.add(warning);
   }
 
   /* see superclass */

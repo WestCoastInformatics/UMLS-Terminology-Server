@@ -1,4 +1,4 @@
-// Error service
+// Util service
 tsApp
   .service(
     'utilService',
@@ -6,9 +6,11 @@ tsApp
       '$location',
       '$anchorScroll',
       '$cookies',
+      '$uibModal',
       'appConfig',
-      function($location, $anchorScroll, $cookies, appConfig) {
-        console.debug('configure utilService');
+      function($location, $anchorScroll, $cookies, $uibModal, appConfig) {
+
+        this.showHeaderFooter = true;
 
         // declare the error
         this.error = {
@@ -38,7 +40,7 @@ tsApp
             return '';
           }
 
-          // Add a * to the filter if set and doesn't contain a :
+          // Add a * to the filter if set and doesn't contain a : ( or "
           if (query.indexOf("(") == -1 && query.indexOf(":") == -1 && query.indexOf("\"") == -1) {
             var query2 = query.concat('*');
             return encodeURIComponent(query2);
@@ -105,12 +107,12 @@ tsApp
         // Handle error message
         this.handleError = function(response) {
           if (response.data && response.data.length > 100) {
-            console.error(this.error.longMessage);
             this.error.message = "Unexpected error, click the icon to view attached full error";
             this.error.longMessage = response.data;
+            console.error(this.error.longMessage);
           } else {
-            console.error(this.error.message);
             this.error.message = response.data;
+            console.error(this.error.message);
           }
           // handle no message
           if (!this.error.message) {
@@ -125,7 +127,7 @@ tsApp
           if (this.error.message && this.error.message.indexOf('AuthToken') != -1) {
             // Reroute back to login page with 'auth token has
             // expired' message
-            if (appConfig.loginEnabled) {
+            if (appConfig['deploy.login.enabled'] === 'true') {
               $location.path('/login');
             } else {
               $location.path('/');
@@ -162,8 +164,92 @@ tsApp
           }
         };
 
+        // Set a flag indicating whether header/footer are to be showing
+        this.setHeaderFooterShowing = function(showHeaderFooter) {
+          this.showHeaderFooter = showHeaderFooter;
+        };
+
+        // Indicates whether header/footer are showing at all
+        this.isHeaderFooterShowing = function() {
+          return this.showHeaderFooter;
+        };
+
+        // Compose a URL properly for opening new window
+        this.composeUrl = function(extension) {
+          var currentUrl = $location.absUrl();
+          var baseUrl = currentUrl.substring(0, currentUrl.indexOf('#') + 1);
+          var newUrl = baseUrl + extension;
+          return newUrl;
+        }
+
+        // Convert seconds to hour/min string
+        this.toTime = function(secs) {
+          if (secs) {
+            var date = new Date(null);
+            date.setSeconds(secs);
+            return date.toISOString().substr(11, 8);
+          }
+
+          // if (d == 0)
+          // return "";
+          // var h = Math.floor(d / 3600);
+          // var m = Math.floor(d % 3600 / 60);
+          // return ((h + ":" + (m < 10 ? "0" : "") ) + m);
+        }
+
+        this.toText = function(camelCase, captializefirst) {
+          if (capitalizeFirst) {
+            var str = camelCase.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1");
+            return str[0].toUpperCase() + str.slice(1)
+          } else {
+            return camelCase.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1")
+          }
+        }
+
+        this.toCamelCase = function(text) {
+          // Lower cases the string
+          return text.toLowerCase()
+          // Replaces any - or _ characters with a space
+          .replace(/[-_]+/g, ' ')
+          // Removes any non alphanumeric characters
+          .replace(/[^\w\s]/g, '')
+          // Uppercases the first character in each group immediately following
+          // a space
+          // (delimited by spaces)
+          .replace(/ (.)/g, function($1) {
+            return $1.toUpperCase();
+          })
+          // Removes spaces
+          .replace(/ /g, '');
+        }
+
+        this.yyyymmdd = function(dateIn) {
+          var yyyy = dateIn.getFullYear();
+          // getMonth() is zero-based
+          var mm = dateIn.getMonth() + 1;
+          var dd = dateIn.getDate();
+          // Leading zeros for mm and dd
+          return String(10000 * yyyy + 100 * mm + dd);
+        }
+
+        this.yyyymmddhhmmss = function(dateIn) {
+          var yyyy = dateIn.getFullYear();
+          // getMonth() is zero-based
+          var MM = dateIn.getMonth() + 1;
+          var dd = dateIn.getDate();
+          var hh = dateIn.getHours();
+          var mm = dateIn.getMinutes();
+          var ss = dateIn.getSeconds();
+          // Leading zeros for mm and dd
+          return String(10000000000 * yyyy + 100000000 * MM + 1000000 * dd + 10000 * hh + 100 * mm
+            * ss);
+        }
+
         // Convert date to a string
         this.toDate = function(lastModified) {
+          if (!lastModified) {
+            return "";
+          }
           var date = new Date(lastModified);
           var year = '' + date.getFullYear();
           var month = '' + (date.getMonth() + 1);
@@ -191,6 +277,9 @@ tsApp
 
         // Convert date to a short string
         this.toShortDate = function(lastModified) {
+          if (!lastModified) {
+            return "";
+          }
           var date = new Date(lastModified);
           var year = '' + date.getFullYear();
           var month = '' + (date.getMonth() + 1);
@@ -219,16 +308,24 @@ tsApp
           return year + month + day;
         };
 
+        // Uniq an array of simple data types
+        this.uniq = function uniq(a) {
+          var seen = {};
+          return a.filter(function(item) {
+            return seen.hasOwnProperty(item) ? false : (seen[item] = true);
+          });
+        };
+
         // Table sorting mechanism
         this.setSortField = function(table, field, paging) {
           paging[table].sortField = field;
           // reset page number too
           paging[table].page = 1;
           // handles null case also
-          if (!paging[table].ascending) {
-            paging[table].ascending = true;
+          if (!paging[table].sortAscending) {
+            paging[table].sortAscending = true;
           } else {
-            paging[table].ascending = false;
+            paging[table].sortAscending = false;
           }
           // reset the paging for the correct table
           for ( var key in paging) {
@@ -241,73 +338,87 @@ tsApp
 
         // Return up or down sort chars if sorted
         this.getSortIndicator = function(table, field, paging) {
-          if (paging[table].ascending == null) {
+          if (paging[table].sortAscending == null) {
             return '';
           }
-          if (paging[table].sortField == field && paging[table].ascending) {
+          if (paging[table].sortField == field && paging[table].sortAscending) {
             return '▴';
           }
-          if (paging[table].sortField == field && !paging[table].ascending) {
+          if (paging[table].sortField == field && !paging[table].sortAscending) {
             return '▾';
           }
         };
 
         // Helper function to get a standard paging object
         // overwritten as needed
+        // Example of filterFields
+        // paging.filterFields.terminologyId = 1;
+        // paging.filterFields.expandedForm = 1;
+        //
         this.getPaging = function() {
           return {
             page : 1,
             pageSize : 10,
-            filter : null,
+            filter : '',
+            filterFields : null,
             sortField : null,
             sortAscending : true,
             sortOptions : []
           };
         };
 
+        // Get page sizes
+        this.getPageSizes = function() {
+          return [ {
+            name : 10,
+            value : 10
+          }, {
+            name : 20,
+            value : 20
+          }, {
+            name : 50,
+            value : 50
+          }, {
+            name : 100,
+            value : 100
+          }, {
+            name : 'All',
+            value : 100000
+          } ];
+        }
+
         // Helper to get a paged array with show/hide flags
         // and filtered by query string
+        // use when all data is already loaded
         this.getPagedArray = function(array, paging) {
           var newArray = new Array();
-
           // if array blank or not an array, return blank list
           if (array == null || array == undefined || !Array.isArray(array)) {
             return newArray;
           }
 
-          newArray = array;
-
+          newArray = array.slice(0);
           // apply suppressible/obsolete
-          if (!paging.showHidden) {
-            newArray = newArray.filter(function(item) {
-              return !item.suppressible && !item.obsolete;
-            });
-          }
 
           // apply sort if specified
           if (paging.sortField) {
-            console.debug('sorting', paging.sortField, paging.sortAscending);
             // if ascending specified, use that value, otherwise use false
-            newArray.sort(this.sortBy(paging.sortField, paging.sortAscending));
+            newArray.sort(this.sortBy(paging.sortField, !paging.sortAscending));
           }
 
           // apply filter
           if (paging.filter) {
-            newArray = this.getArrayByFilter(newArray, paging.filter);
-          }
-
-          // apply active status filter
-          if (paging.typeFilter) {
-            newArray = this.getArrayByActiveStatus(newArray, paging.typeFilter);
+            newArray = this.getArrayByFilter(newArray, paging.filter, paging.filterFields);
           }
 
           // get the page indices (if supplied)
+          var results;
           if (paging.pageSize != -1) {
             var fromIndex = (paging.page - 1) * paging.pageSize;
             var toIndex = Math.min(fromIndex + paging.pageSize, array.length);
 
             // slice the array
-            var results = newArray.slice(fromIndex, toIndex);
+            results = newArray.slice(fromIndex, toIndex);
           } else {
             results = newArray;
           }
@@ -321,44 +432,37 @@ tsApp
         // function for sorting an array by (string) field and direction
         this.sortBy = function(field, reverse) {
 
-          // key: function to return field value from object
-          var key = function(x) {
-            return x[field];
-          };
+          var fields = field.split(',');
+          console.debug('fields', fields);
 
-          // convert reverse to integer (1 = ascending, -1 =
-          // descending)
           reverse = !reverse ? 1 : -1;
 
-          return function(a, b) {
-            return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+          return function(x, y) {
+            for (var i = 0; i < fields.length; i++) {
+              var key = fields[i];
+              var a = x[key];
+              var b = y[key];
+              if ((a + '').match(/^[a-zA-Z]/)) {
+                a = a.toLowerCase();
+              }
+              if ((b + '').match(/^[a-zA-Z]/)) {
+                b = b.toLowerCase();
+              }
+              if (a == b) {
+                continue;
+              }
+              return reverse * ((a > b) - (b > a));
+            }
+            return 0;
           };
         };
 
         // Get array by filter text matching terminologyId or name
-        this.getArrayByFilter = function(array, filter) {
+        this.getArrayByFilter = function(array, filter, fields) {
           var newArray = [];
-
           for ( var object in array) {
 
-            if (this.objectContainsFilterText(array[object], filter)) {
-              newArray.push(array[object]);
-            }
-          }
-          return newArray;
-        };
-
-        // Get array by filter on conceptActive status
-        this.getArrayByActiveStatus = function(array, filter) {
-          var newArray = [];
-
-          for ( var object in array) {
-
-            if (array[object].conceptActive && filter == 'Active') {
-              newArray.push(array[object]);
-            } else if (!array[object].conceptActive && filter == 'Retired') {
-              newArray.push(array[object]);
-            } else if (array[object].conceptActive && filter == 'All') {
+            if (this.objectContainsFilterText(array[object], filter, fields)) {
               newArray.push(array[object]);
             }
           }
@@ -366,12 +470,16 @@ tsApp
         };
 
         // Returns true if any field on object contains filter text
-        this.objectContainsFilterText = function(object, filter) {
+        this.objectContainsFilterText = function(object, filter, fields) {
 
           if (!filter || !object)
             return false;
 
           for ( var prop in object) {
+            // skip if fields are defined but not specified in prop
+            if (fields && !fields[prop]) {
+              continue;
+            }
             var value = object[prop];
             // check property for string, note this will cover child elements
             if (value && value.toString().toLowerCase().indexOf(filter.toLowerCase()) != -1) {
@@ -447,7 +555,8 @@ tsApp
           }
           for ( var key in itemsToAdd) {
             if (callbacks.hasOwnProperty(key)) {
-              utilService.setError('Error constructing callbacks, name clash for ' + key, callbacks);
+              utilService
+                .setError('Error constructing callbacks, name clash for ' + key, callbacks);
               return;
             }
             callbacks[key] = itemsToAdd[key];
@@ -457,101 +566,60 @@ tsApp
       } ]);
 
 // Glass pane service
-tsApp.service('gpService', function() {
+tsApp.service('gpService', [ '$timeout', function($timeout) {
   console.debug('configure gpService');
   // declare the glass pane counter
-  this.glassPane = {
-    counter : 0
+  var glassPane = {
+    counter : 0,
+    messages : [],
+    enabled : true,
+    timeout : false
   };
 
+  this.getGlassPane = function() {
+    return glassPane;
+  }
+
   this.isGlassPaneSet = function() {
-    return this.glassPane.counter;
+    return glassPane.enabled;
   };
 
   this.isGlassPaneNegative = function() {
-    return this.glassPane.counter < 0;
+    return glassPane.counter < 0;
   };
 
   // Increments glass pane counter
   this.increment = function(message) {
-    this.glassPane.counter++;
+    if (message) {
+      glassPane.messages.push(message);
+    }
+    glassPane.counter++;
+    if (!glassPane.timeout) {
+      $timeout(function() {
+        if (glassPane.counter > 0) {
+          glassPane.enabled = true;
+        }
+        glassPane.timeout = false;
+      }, 100);
+    }
   };
 
   // Decrements glass pane counter
-  this.decrement = function() {
-    this.glassPane.counter--;
+  this.decrement = function(message) {
+    if (message) {
+      var index = glassPane.messages.indexOf(message);
+      if (index !== -1) {
+        glassPane.messages.splice(index, 1);
+      }
+    }
+    glassPane.counter--;
+    if (glassPane.counter == 0) {
+      $timeout(function() {
+        if (glassPane.counter == 0) {
+          glassPane.enabled = false;
+        }
+      }, 100);
+    }
   };
 
-});
-
-// Websocket service
-
-tsApp.service('websocketService', [ '$rootScope', '$location', 'utilService', 'gpService',
-  function($rootScope, $location, utilService, gpService) {
-    console.debug('configure websocketService');
-    this.data = {
-      message : null
-    };
-
-    // Determine URL without requiring injection
-    // should support wss for https
-    // and assumes REST services and websocket are deployed together
-    this.getUrl = function() {
-      var url = window.location.href;
-      url = url.replace('http', 'ws');
-      url = url.replace('index.html', '');
-      url = url.replace('index2.html', '');
-      url = url.substring(0, url.indexOf('#'));
-      url = url + "/websocket";
-      console.debug("Websocket URL" + url);
-      return url;
-
-    };
-
-    // TODO Add wiki entry about registering scopes and broadcast event receipt
-    // lists
-
-    this.connection = new WebSocket(this.getUrl());
-
-    this.connection.onopen = function() {
-      // Log so we know it is happening
-      console.log('Connection open');
-    };
-
-    this.connection.onclose = function() {
-      // Log so we know it is happening
-      console.log('Connection closed');
-    };
-
-    // error handler
-    this.connection.onerror = function(error) {
-      utilService.handleError(error, null, null, null);
-    };
-
-    // handle receipt of a message
-    this.connection.onmessage = function(e) {
-      var message = e.data;
-      console.log("MESSAGE: " + message);
-    };
-
-    // Send a message to the websocket server endpoint
-    this.send = function(message) {
-      this.connection.send(JSON.stringify(message));
-    };
-
-    //
-    // Temporary broadcast functions
-    // To be replaced once the WebSocket is functional
-    //
-
-    this.fireNoteChange = function(data) {
-      console.debug('websocketService: fireNoteChange event', data);
-      $rootScope.$broadcast('termServer::noteChange', data);
-    };
-
-    this.fireFavoriteChange = function(data) {
-      console.debug('websocketService: fireNoteChange event', data);
-      $rootScope.$broadcast('termServer::favoriteChange', data);
-    };
-
-  } ]);
+} ]);

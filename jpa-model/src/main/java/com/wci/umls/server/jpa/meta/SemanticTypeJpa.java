@@ -9,8 +9,8 @@ package com.wci.umls.server.jpa.meta;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 
@@ -20,17 +20,11 @@ import com.wci.umls.server.model.meta.SemanticType;
  * JPA and JAXB enabled implementation of {@link SemanticType}.
  */
 @Entity
-@Table(name = "semantic_types", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "value", "terminology", "version"
-}))
+@Table(name = "semantic_types")
 @Audited
 @XmlRootElement(name = "semanticType")
 public class SemanticTypeJpa extends AbstractAbbreviation implements
     SemanticType {
-
-  /** The value. */
-  @Column(nullable = false)
-  private String value;
 
   /** The definition. */
   @Column(nullable = false, length = 4000)
@@ -56,6 +50,14 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   @Column(nullable = true, length = 4000)
   private String usageNote;
 
+  /** The structural chemical. */
+  @Column(nullable = false)
+  private boolean structuralChemical;
+
+  /** The functional chemical. */
+  @Column(nullable = false)
+  private boolean functionalChemical;
+
   /**
    * Instantiates an empty {@link SemanticTypeJpa}.
    */
@@ -76,20 +78,9 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
     treeNumber = sty.getTreeNumber();
     typeId = sty.getTypeId();
     usageNote = sty.getUsageNote();
-    value = sty.getValue();
     nonHuman = sty.isNonHuman();
-  }
-
-  /* see superclass */
-  @Override
-  public String getValue() {
-    return value;
-  }
-
-  /* see superclass */
-  @Override
-  public void setValue(String value) {
-    this.value = value;
+    structuralChemical = sty.isStructuralChemical();
+    functionalChemical = sty.isFunctionalChemical();
   }
 
   /* see superclass */
@@ -165,6 +156,37 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
   }
 
   /* see superclass */
+  @XmlTransient
+  @Override
+  public boolean isChemical() {
+    return isStructuralChemical() || isFunctionalChemical();
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isStructuralChemical() {
+    return structuralChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setStructuralChemical(boolean structuralChemical) {
+    this.structuralChemical = structuralChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isFunctionalChemical() {
+    return functionalChemical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setFunctionalChemical(boolean functionalChemical) {
+    this.functionalChemical = functionalChemical;
+  }
+
+  /* see superclass */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -177,7 +199,6 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         prime * result + ((treeNumber == null) ? 0 : treeNumber.hashCode());
     result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
     result = prime * result + ((usageNote == null) ? 0 : usageNote.hashCode());
-    result = prime * result + ((value == null) ? 0 : value.hashCode());
     return result;
   }
 
@@ -203,6 +224,7 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
       return false;
     if (nonHuman != other.nonHuman)
       return false;
+
     if (treeNumber == null) {
       if (other.treeNumber != null)
         return false;
@@ -218,20 +240,18 @@ public class SemanticTypeJpa extends AbstractAbbreviation implements
         return false;
     } else if (!usageNote.equals(other.usageNote))
       return false;
-    if (value == null) {
-      if (other.value != null)
-        return false;
-    } else if (!value.equals(other.value))
-      return false;
+
     return true;
   }
 
   /* see superclass */
   @Override
   public String toString() {
-    return "SemanticTypeJpa [value=" + value + ", definition=" + definition
-        + ", example=" + example + ", typeId=" + typeId + ", nonHuman="
-        + nonHuman + ", treeNumber=" + treeNumber + ", usageNote=" + usageNote
+    return "SemanticTypeJpa [definition=" + definition + ", example=" + example
+        + ", typeId=" + typeId + ", nonHuman=" + nonHuman + ", treeNumber="
+        + treeNumber + ", usageNote=" + usageNote + ", structuralChemical="
+        + structuralChemical + ", functionalChemical=" + functionalChemical
         + "]";
   }
+
 }

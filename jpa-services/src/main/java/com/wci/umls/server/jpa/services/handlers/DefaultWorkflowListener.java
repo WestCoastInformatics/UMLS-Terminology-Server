@@ -5,10 +5,13 @@ package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -26,7 +29,8 @@ import com.wci.umls.server.services.handlers.WorkflowListener;
  * A sample validation check for a new concept meeting the minimum qualifying
  * criteria.
  */
-public class DefaultWorkflowListener implements WorkflowListener {
+public class DefaultWorkflowListener extends AbstractConfigurable
+    implements WorkflowListener {
 
   @Override
   public void setProperties(Properties p) throws Exception {
@@ -129,7 +133,7 @@ public class DefaultWorkflowListener implements WorkflowListener {
 
   @Override
   public void relationshipChanged(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     Action action) throws Exception {
     // n/a
 
@@ -184,6 +188,12 @@ public class DefaultWorkflowListener implements WorkflowListener {
   public void mapSetChanged(MapSet mapSet, Action action) {
     // n/a
 
+  }
+
+  @Override
+  public void componentHistoryChanged(ComponentHistory componentHistory,
+    Action action) throws Exception {
+    // n/a
   }
 
 }

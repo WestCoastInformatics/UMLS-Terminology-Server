@@ -65,5 +65,20 @@ public interface ValidationResult {
    * @param validationResult the validation result
    */
   public void merge(ValidationResult validationResult);
+  
+  /**
+   * Adds the error.
+   * 
+   * @param error the error
+   */
+  public void addError(String error);
+
+  /**
+   * Adds the warning.
+   * 
+   * @param warning the warning
+   */
+  public void addWarning(String warning);
+
 
 }

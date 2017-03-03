@@ -31,8 +31,8 @@ import com.wci.umls.server.model.content.Definition;
 }))
 @Audited
 @XmlRootElement(name = "definition")
-public class DefinitionJpa extends AbstractComponentHasAttributes implements
-    Definition {
+public class DefinitionJpa extends AbstractComponentHasAttributes
+    implements Definition {
 
   /** The value. */
   @Column(nullable = false, length = 4000)
@@ -54,10 +54,10 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
    * Instantiates a {@link DefinitionJpa} from the specified parameters.
    *
    * @param definition the definition
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public DefinitionJpa(Definition definition, boolean deepCopy) {
-    super(definition, deepCopy);
+  public DefinitionJpa(Definition definition, boolean collectionCopy) {
+    super(definition, collectionCopy);
     value = definition.getValue();
     alternateTerminologyIds =
         new HashMap<>(definition.getAlternateTerminologyIds());
@@ -94,34 +94,10 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /* see superclass */
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + ((value == null) ? 0 : value.hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
     return result;
   }
 
@@ -140,11 +116,7 @@ public class DefinitionJpa extends AbstractComponentHasAttributes implements
         return false;
     } else if (!value.equals(other.value))
       return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
-      return false;
+
     return true;
   }
 

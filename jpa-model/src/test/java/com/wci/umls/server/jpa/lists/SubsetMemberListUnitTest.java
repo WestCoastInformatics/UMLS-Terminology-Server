@@ -121,7 +121,7 @@ public class SubsetMemberListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testNormalUse012() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, s1, s2);
     list = new SubsetMemberListJpa();
     list2 = new SubsetMemberListJpa();
@@ -136,7 +136,7 @@ public class SubsetMemberListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testDegenerateUse012() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, s1, s2);
     list = new SubsetMemberListJpa();
     list2 = new SubsetMemberListJpa();
@@ -150,7 +150,7 @@ public class SubsetMemberListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testEdgeCases012() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, s1, s2);
     list = new SubsetMemberListJpa();
     list2 = new SubsetMemberListJpa();
@@ -166,7 +166,7 @@ public class SubsetMemberListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testXmlSerialization012() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, s1, s2);
     list = new SubsetMemberListJpa();
     list2 = new SubsetMemberListJpa();

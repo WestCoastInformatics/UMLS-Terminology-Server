@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -38,8 +38,9 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   private String value;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
-  @Column(nullable = true)
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds;
 
   /**
@@ -127,34 +128,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
   }
 
   /**
-   * Put alternate terminology id.
-   *
-   * @param terminology the terminology
-   * @param terminologyId the terminology id
-   */
-  @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
-
-  /**
-   * Removes the alternate terminology id.
-   *
-   * @param terminology the terminology
-   */
-  @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>();
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /**
    * CUSTOM to support alternateTerminologyIds.
    *
    * @return the int
@@ -166,11 +139,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
     int result = super.hashCode();
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((value == null) ? 0 : value.hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
     return result;
   }
 
@@ -198,11 +166,6 @@ public class AttributeJpa extends AbstractComponent implements Attribute {
       if (other.value != null)
         return false;
     } else if (!value.equals(other.value))
-      return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
       return false;
     return true;
   }

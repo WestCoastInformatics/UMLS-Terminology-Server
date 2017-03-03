@@ -1,59 +1,130 @@
+
 <div class="modal-header">
-  <h4>{{action}} Project</h4>
+  <h4 style="display: inline">{{action}} Project</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 
 <div class="modal-body">
   <div class="row">
-    <table class="table">
-      <tr ng-show="project.id">
-        <td>
-          <b>Project Id</b>
-        </td>
-        <td>{{project.id}}</td>
-      </tr>
-      <tr>
-        <td>
-          <b>Name</b>
-        </td>
-        <td>
-          <input ng-model="project.name" size="40" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Description</b>
-        </td>
-        <td>
-          <textarea rows="4" cols="40" ng-model="project.description"
-            placeholder="Basic description of the project"></textarea>
-        </td>
-      </tr>
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr ng-show="project.id">
+          <td>
+            <b>Project Id</b>
+          </td>
+          <td>{{project.id}}</td>
+        </tr>
+        <tr>
+          <td>
+            <b>Name</b>
+          </td>
+          <td>
+            <input autofocus ng-model="project.name" size="40" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Description</b>
+          </td>
+          <td>
+            <textarea rows="4" cols="40" ng-model="project.description"
+              placeholder="Basic description of the project"></textarea>
+          </td>
+        </tr>
 
-      <tr>
-        <td>
-          <b>Feedback Email</b>
-        </td>
-        <td>
-          <input ng-model="project.feedbackEmail" size="40"
-            placeholder="e.g. FreshDesk or Siebel email" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <b>Terminology</b>
-        </td>
-        <td>
-          <select ng-model="project.terminology"
-            ng-change="setTerminology(project.terminology)"
-            ng-options="terminology.terminology as terminology.terminology for terminology in getViewableTerminologies() | orderBy:'terminology'"></select>
-        </td>
-      </tr>
+        <tr>
+          <td>
+            <b>Feedback Email</b>
+          </td>
+          <td>
+            <input ng-model="project.feedbackEmail" size="40"
+              placeholder="e.g. FreshDesk or Siebel email" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Terminology</b>
+          </td>
+          <td>
+            <input placeholder="Enter terminology"
+              ng-change="setTerminology(project.terminology)" type="text"
+              ng-model="project.terminology" list="project-terminologies">
+            <datalist id="project-terminologies">
+              <option
+                ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+            </datalist>
+            <button class="btn btn-xs btn-warning" ng-show="project.terminology"
+              ng-click="project.terminology=''">Clear</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Version</b>
+          </td>
+          <td>
+            <input placeholder="Enter version"
+              ng-blur="setVersion(project.version)" type="text"
+              ng-model="project.version">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Language</b>
+          </td>
+          <td>
+            <span>
+              <select ng-disabled="!project.language"
+                ng-model="project.language"
+                ng-options="item.key as item.value for item in languages"></select>
+            </span>
+            <span>{{project.language}}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Editing enabled</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="project.editingEnabled"
+              title="Project is editable.">
+          </td>
+        </tr>
 
-    </table>
+        <tr>
+          <td>
+            <b>Automations enabled</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="project.automationsEnabled"
+              title="Automations enabled.">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Workflow path</b>
+          </td>
+          <td>
+            <span ng-show="workflowPaths.length == 1">{{project.workflowPath}}</span>
+            <select ng-show="workflowPaths.length > 1"
+              ng-model="project.workflowPath"
+              ng-options="item for item in workflowPaths"></select>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>
+  <span ng-show="action == 'Add'" style="display: block;"
+    class="alert alert-danger">Validation checks and precedence list
+    order must be edited through the Edit Project interface. After adding the
+    project, click on the Edit (pencil) icon in the Projects list.</span>
+  <uib-accordion ng-show="action == 'Edit'"> <uib-accordion-group>
+  <uib-accordion-heading>Validation Checks</uib-accordion-heading>
   <div class="row">
     <div class="col-md-6 col-xs-12">
-      <table class="table">
+      <table class="slim table">
         <thead>
           <tr>
             <th class="col-md-9 col-xs-9">Available Validation Checks</th>
@@ -61,19 +132,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="check in availableChecks">
+          <tr ng-repeat="check in availableChecks | orderBy">
             <td>{{check}}</td>
             <td>
-              <i ng-click="selectValidationCheck(check)"
+              <button ng-click="selectValidationCheck(check)"
                 title="Select validation check for project"
-                class="noul glyphicon glyphicon-plus"></i>
+                class="btn btn-xs btn-primary">Add</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="col-md-6 col-xs-12">
-      <table class="table">
+      <table class="slim table">
         <thead>
           <tr>
             <th class="col-md-9 col-xs-9">Selected Validation Checks</th>
@@ -81,7 +152,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="check in selectedChecks">
+          <tr ng-repeat="check in selectedChecks | orderBy">
             <td>{{check}}</td>
             <td>
               <i ng-click="removeValidationCheck(check)"
@@ -93,29 +164,54 @@
       </table>
     </div>
   </div>
-  <div ng-show="errors.length > 0" class="row">
-    <table class="table">
+  </uib-accordion-group> <uib-accordion-group> <uib-accordion-heading>Validation
+  Data</uib-accordion-heading>
+  <div>
+    <span style="float: right;">
+      <button ng-click="openAddValidationCheckModal()"
+        title="Add validation check" class="btn btn-xs btn-primary">Add</button>
+    </span>
+  </div>
+  <table class="slim table">
+    <thead>
       <tr>
+        <th class="col-md-6 col-xs-6">Validation Check</th>
+        <th class="col-md-3 col-xs-3">Value 1</th>
+        <th class="col-md-2 col-xs-2">Value 2</th>
+        <th class="col-md-1 col-xs-1"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="data in project.validationData | orderBy">
+        <td>{{data.type}}</td>
+        <td>{{data.key}}</td>
+        <td>{{data.value}}</td>
         <td>
-          <div class="alert alert-danger alert-error"
-            ng-repeat="error in errors">
-            {{error}}
-            <!-- DO NOT SUPPORT clearing error <div
-              style="cursor: pointer; display: inline; float: right; width: 3%;">
-              <i class="glyphicon glyphicon-remove" ng-click="clearError()"></i>
-            </div> -->
-          </div>
+          <i ng-click="removeValidationData(data)"
+            title="Remove validation check data"
+            class="noul glyphicon glyphicon-trash"></i>
         </td>
       </tr>
-    </table>
+    </tbody>
+  </table>
+  </uib-accordion-group> <uib-accordion-group> <uib-accordion-heading>Precedence
+  List</uib-accordion-heading>
+  <div edit-precedence selected="selected" lists="lists" callbacks="callbacks"></div>
+  </uib-accordion-group> </uib-accordion>
+
+
+
+  <!-- Errors -->
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <div errors="errors"></div>
+    </div>
   </div>
 </div>
 
 
 <div class="modal-footer">
-  <button ng-show="action == 'Add'" class="btn btn-primary"
-    ng-click="submitProject(project);">Add</button>
-  <button ng-show="action == 'Edit'" class="btn btn-primary"
-    ng-click="submitProject(project);">Save</button>
+  <button ng-click="submitProject(project)" class="btn btn-primary"
+    ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 </div>

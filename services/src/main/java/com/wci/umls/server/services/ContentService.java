@@ -1,15 +1,18 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
  */
 package com.wci.umls.server.services;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import com.wci.umls.server.Project;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ComponentInfo;
-import com.wci.umls.server.helpers.ComponentInfoList;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
@@ -40,6 +43,7 @@ import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.ComponentHasDefinitions;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.GeneralConceptAxiom;
@@ -53,10 +57,11 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.ExpressionHandler;
 import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
-import com.wci.umls.server.services.handlers.SearchHandler;
+import com.wci.umls.server.services.handlers.NormalizedStringHandler;
 
 /**
  * Represents a service for interacting with content.
@@ -188,7 +193,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the subset members for atom
    */
-  public SubsetMemberList getSubsetMembersForAtom(String atomId,
+  public SubsetMemberList getAtomSubsetMembers(String atomId,
     String terminology, String version, String branch);
 
   /**
@@ -200,7 +205,7 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the subset members for concept
    */
-  public SubsetMemberList getSubsetMembersForConcept(String conceptId,
+  public SubsetMemberList getConceptSubsetMembers(String conceptId,
     String terminology, String version, String branch);
 
   /**
@@ -216,12 +221,12 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptRelationships(String conceptId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
   /**
-   * Find deep relationships for concept.
+   * Find deep relationships for concept by terminology id.
    *
    * @param conceptId the concept id
    * @param terminology the terminology
@@ -229,13 +234,17 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @param filter the filter
    * @param inverseFlag the inverse flag
+   * @param includeConceptRels the include concept rels
+   * @param preferredOnly the preferred only
+   * @param includeSelfReferential the include self referential
    * @param pfs the pfs
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findDeepRelationshipsForConcept(String conceptId,
+  public RelationshipList findConceptDeepRelationships(String conceptId,
     String terminology, String version, String branch, String filter,
-    boolean inverseFlag, PfsParameter pfs) throws Exception;
+    boolean inverseFlag, boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential, PfsParameter pfs) throws Exception;
 
   /**
    * Find relationships for descriptor.
@@ -250,7 +259,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForDescriptor(String descriptorId,
+  public RelationshipList findDescriptorRelationships(String descriptorId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -267,7 +276,7 @@ public interface ContentService extends MetadataService {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForCode(String codeId,
+  public RelationshipList findCodeRelationships(String codeId,
     String terminology, String version, String branch, String query,
     boolean inverseFlag, PfsParameter pfs) throws Exception;
 
@@ -289,8 +298,8 @@ public interface ContentService extends MetadataService {
    * @return the descriptors
    * @throws Exception the exception
    */
-  public DescriptorList getDescriptors(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DescriptorList getDescriptors(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the descriptor.
@@ -566,94 +575,54 @@ public interface ContentService extends MetadataService {
     PfsParameter pfs) throws Exception;
 
   /**
-   * Find tree positions for concept.
+   * Find descendant atoms.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param childrenOnly the children only
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the atom list
+   * @throws Exception the exception
+   */
+  public AtomList findDescendantAtoms(String terminologyId, String terminology,
+    String version, boolean childrenOnly, String branch, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find ancestor atoms.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param parentsOnly the parents only
+   * @param branch the branch
+   * @param pfs the pfs
+   * @return the atom list
+   * @throws Exception the exception
+   */
+  public AtomList findAncestorAtoms(String terminologyId, String terminology,
+    String version, boolean parentsOnly, String branch, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find tree positions for the specified type.
    *
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForConcept(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find concept tree positions for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
    * @param query the query
+   * @param clazz the clazz
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find tree positions for descriptor.
-   *
-   * @param descriptorId the descriptor id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForDescriptor(String descriptorId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find descriptor tree positions for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findDescriptorTreePositionsForQuery(
+  @SuppressWarnings("rawtypes")
+  public TreePositionList findTreePositions(String terminologyId,
     String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
-
-  /**
-   * Find tree positions for code.
-   *
-   * @param codeId the code id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findTreePositionsForCode(String codeId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find code tree positions for query.
-   *
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param query the query
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findCodeTreePositionsForQuery(String terminology,
-    String version, String branch, String query, PfsParameter pfs)
-    throws Exception;
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception;
 
   /**
    * Find descendant descriptors.
@@ -779,14 +748,25 @@ public interface ContentService extends MetadataService {
   public void removeAtom(Long id) throws Exception;
 
   /**
+   * Move atoms.
+   *
+   * @param toConcept the to concept
+   * @param fromConcept the from concept
+   * @param fromAtoms the from atoms
+   * @throws Exception the exception
+   */
+  public void moveAtoms(Concept toConcept, Concept fromConcept,
+    List<Atom> fromAtoms) throws Exception;
+
+  /**
    * Add relationship.
    *
    * @param relationship the relationship
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> addRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> addRelationship(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
@@ -796,7 +776,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public void updateRelationship(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
@@ -806,9 +786,8 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeRelationship(
-    Long id,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+  public void removeRelationship(Long id,
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -852,8 +831,7 @@ public interface ContentService extends MetadataService {
    * @param relationshipClass the relationship class
    * @throws Exception the exception
    */
-  public void removeTransitiveRelationship(
-    Long id,
+  public void removeTransitiveRelationship(Long id,
     Class<? extends TransitiveRelationship<? extends AtomClass>> relationshipClass)
     throws Exception;
 
@@ -865,9 +843,9 @@ public interface ContentService extends MetadataService {
    * @return the tree position
    * @throws Exception the exception
    */
-  public TreePosition<? extends AtomClass> getTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception;
+  @SuppressWarnings("rawtypes")
+  public TreePosition<?> getTreePosition(Long id,
+    Class<? extends TreePosition> treeposClass) throws Exception;
 
   /**
    * Add tree position.
@@ -876,8 +854,7 @@ public interface ContentService extends MetadataService {
    * @return the tree position
    * @throws Exception the exception
    */
-  public TreePosition<? extends ComponentHasAttributesAndName> addTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
+  public TreePosition<?> addTreePosition(TreePosition<?> treepos)
     throws Exception;
 
   /**
@@ -886,9 +863,7 @@ public interface ContentService extends MetadataService {
    * @param treepos the treepos
    * @throws Exception the exception
    */
-  public void updateTreePosition(
-    TreePosition<? extends ComponentHasAttributesAndName> treepos)
-    throws Exception;
+  public void updateTreePosition(TreePosition<?> treepos) throws Exception;
 
   /**
    * Remove tree position.
@@ -897,9 +872,9 @@ public interface ContentService extends MetadataService {
    * @param treeposClass the treepos class
    * @throws Exception the exception
    */
+  @SuppressWarnings("rawtypes")
   public void removeTreePosition(Long id,
-    Class<? extends TreePosition<? extends AtomClass>> treeposClass)
-    throws Exception;
+    Class<? extends TreePosition> treeposClass) throws Exception;
 
   /**
    * Add subset.
@@ -956,13 +931,12 @@ public interface ContentService extends MetadataService {
    * @param memberClass the member class
    * @throws Exception the exception
    */
-  public void removeSubsetMember(
-    Long id,
+  public void removeSubsetMember(Long id,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
   /**
-   * Find concepts for query.
+   * Find concept search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -972,9 +946,23 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String terminology,
+  public SearchResultList findConceptSearchResults(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
+
+  /**
+   * Find concepts.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the concept list
+   * @throws Exception the exception
+   */
+  public ConceptList findConcepts(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete concepts.
@@ -989,7 +977,7 @@ public interface ContentService extends MetadataService {
     String searchTerm) throws Exception;
 
   /**
-   * Find descriptors for query.
+   * Find descriptor search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -999,9 +987,23 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String terminology,
+  public SearchResultList findDescriptorSearchResults(String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
+
+  /**
+   * Find descriptors.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the descriptor list
+   * @throws Exception the exception
+   */
+  public DescriptorList findDescriptors(String terminology, String version,
+    String branch, String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -1016,7 +1018,7 @@ public interface ContentService extends MetadataService {
     String searchTerm) throws Exception;
 
   /**
-   * Find codes for query.
+   * Find code search results for query.
    *
    * @param terminology the terminology
    * @param version the version
@@ -1026,8 +1028,23 @@ public interface ContentService extends MetadataService {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology, String version,
-    String branch, String query, PfsParameter pfs) throws Exception;
+  public SearchResultList findCodeSearchResults(String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
+
+  /**
+   * Find codes.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the code list
+   * @throws Exception the exception
+   */
+  public CodeList findCodes(String terminology, String version, String branch,
+    String query, PfsParameter pfs) throws Exception;
 
   /**
    * Autocomplete codes.
@@ -1053,6 +1070,18 @@ public interface ContentService extends MetadataService {
     String branch);
 
   /**
+   * Returns the all concept ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all concept ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllConceptIds(String terminology, String version,
+    String branch) throws Exception;
+
+  /**
    * Gets the all descriptors.
    *
    * @param terminology the terminology
@@ -1064,6 +1093,18 @@ public interface ContentService extends MetadataService {
     String branch);
 
   /**
+   * Returns the all descriptor ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all descriptor ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllDescriptorIds(String terminology, String version,
+    String branch) throws Exception;
+
+  /**
    * Gets the all codes.
    *
    * @param terminology the terminology
@@ -1071,7 +1112,20 @@ public interface ContentService extends MetadataService {
    * @param branch the branch
    * @return the all codes
    */
-  public CodeList getAllCodes(String terminology, String version, String branch);
+  public CodeList getAllCodes(String terminology, String version,
+    String branch);
+
+  /**
+   * Returns the all code ids.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @return the all code ids
+   * @throws Exception the exception
+   */
+  public List<Long> getAllCodeIds(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Gets the all subsets.
@@ -1201,6 +1255,16 @@ public interface ContentService extends MetadataService {
     ComponentHasDefinitions component) throws Exception;
 
   /**
+   * Returns the semantic type component.
+   *
+   * @param id the id
+   * @return the semantic type component
+   * @throws Exception the exception
+   */
+  public SemanticTypeComponent getSemanticTypeComponent(Long id)
+    throws Exception;
+
+  /**
    * Remove semantic type component.
    *
    * @param id the id
@@ -1244,8 +1308,8 @@ public interface ContentService extends MetadataService {
    * @param component the component
    * @throws Exception the exception
    */
-  public void updateAttribute(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public void updateAttribute(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Add attribute.
@@ -1255,8 +1319,8 @@ public interface ContentService extends MetadataService {
    * @return the attribute
    * @throws Exception the exception
    */
-  public Attribute addAttribute(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public Attribute addAttribute(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Gets the attribute.
@@ -1314,8 +1378,8 @@ public interface ContentService extends MetadataService {
    * @return the definitions
    * @throws Exception the exception
    */
-  public DefinitionList getDefinitions(String terminologyId,
-    String terminology, String version) throws Exception;
+  public DefinitionList getDefinitions(String terminologyId, String terminology,
+    String version) throws Exception;
 
   /**
    * Gets the definition.
@@ -1337,12 +1401,9 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
+    String terminologyId, String terminology, String version, String branch,
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -1355,11 +1416,9 @@ public interface ContentService extends MetadataService {
    * @return the relationships
    * @throws Exception the exception
    */
-  public RelationshipList getRelationships(
-    String terminologyId,
-    String terminology,
-    String version,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+  public RelationshipList getRelationships(String terminologyId,
+    String terminology, String version,
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
 
   /**
@@ -1370,10 +1429,48 @@ public interface ContentService extends MetadataService {
    * @return the relationship
    * @throws Exception the exception
    */
-  public Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> getRelationship(
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getRelationship(
     Long id,
-    Class<? extends Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> relationshipClass)
+    Class<? extends Relationship<? extends ComponentInfo, ? extends ComponentInfo>> relationshipClass)
     throws Exception;
+
+  /**
+   * Returns the inverse relationships.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param relationship the relationship
+   * @return the inverse relationships
+   * @throws Exception the exception
+   */
+  public RelationshipList getInverseRelationships(String terminology,
+    String version,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+
+  /**
+   * Find inverse relationship.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param relationship the relationship
+   * @return the relationship<? extends component info,? extends component info>
+   * @throws Exception the exception
+   */
+  public Relationship<? extends ComponentInfo, ? extends ComponentInfo> getInverseRelationship(
+    String terminology, String version,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
+    throws Exception;
+
+  /**
+   * Creates the inverse concept relationship.
+   *
+   * @param relationship the relationship
+   * @return the concept relationship
+   * @throws Exception the exception
+   */
+  public ConceptRelationship createInverseConceptRelationship(
+    ConceptRelationship relationship) throws Exception;
 
   /**
    * Get subset member.
@@ -1387,10 +1484,7 @@ public interface ContentService extends MetadataService {
    * @throws Exception the exception
    */
   public SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> getSubsetMember(
-    String terminologyId,
-    String terminology,
-    String version,
-    String branch,
+    String terminologyId, String terminology, String version, String branch,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1404,10 +1498,8 @@ public interface ContentService extends MetadataService {
    * @return the subset members
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembers(
-    String terminologyId,
-    String terminology,
-    String version,
+  public SubsetMemberList getSubsetMembers(String terminologyId,
+    String terminology, String version,
     Class<? extends SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset>> memberClass)
     throws Exception;
 
@@ -1428,40 +1520,40 @@ public interface ContentService extends MetadataService {
    * Find codes for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param JPQLQuery the JPQL query
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findCodesForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find concepts for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param JPQLQuery the JPQL query
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findConceptsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Find descriptors for general query.
    *
    * @param luceneQuery the lucene query
-   * @param jqlQuery the jql query
-   * @param rOOT the r oot
+   * @param JPQLQuery the JPQL query
+   * @param branch the branch
    * @param pfs the pfs
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String luceneQuery,
-    String jqlQuery, String rOOT, PfsParameter pfs) throws Exception;
+    String JPQLQuery, String branch, PfsParameter pfs) throws Exception;
 
   /**
    * Gets the tree for tree position.
@@ -1470,53 +1562,26 @@ public interface ContentService extends MetadataService {
    * @return the tree for tree position
    * @throws Exception the exception
    */
-  public Tree getTreeForTreePosition(
-    TreePosition<? extends AtomClass> treePosition) throws Exception;
+  public Tree getTreeForTreePosition(TreePosition<?> treePosition)
+    throws Exception;
 
   /**
    * Find concept tree position children.
    *
+   * @param nodeId the node id
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
    * @param branch the branch
+   * @param clazz the clazz
    * @param pfs the pfs
    * @return the tree position list
    * @throws Exception the exception
    */
-  public TreePositionList findConceptTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find code tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findCodeTreePositionChildren(String terminologyId,
-    String terminology, String version, String branch, PfsParameter pfs)
-    throws Exception;
-
-  /**
-   * Find descriptor tree position children.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param branch the branch
-   * @param pfs the pfs
-   * @return the tree position list
-   * @throws Exception the exception
-   */
-  public TreePositionList findDescriptorTreePositionChildren(
+  @SuppressWarnings("rawtypes")
+  public TreePositionList findTreePositionChildren(Long nodeId,
     String terminologyId, String terminology, String version, String branch,
-    PfsParameter pfs) throws Exception;
+    Class<? extends TreePosition> clazz, PfsParameter pfs) throws Exception;
 
   /**
    * Add general concept axiom.
@@ -1556,15 +1621,6 @@ public interface ContentService extends MetadataService {
    */
   public GeneralConceptAxiomList getGeneralConceptAxioms(String terminology,
     String version, String branch) throws Exception;
-
-  /**
-   * Gets the search handler.
-   *
-   * @param key the key
-   * @return the search handler
-   * @throws Exception the exception
-   */
-  public SearchHandler getSearchHandler(String key) throws Exception;
 
   /**
    * Add mapping.
@@ -1622,8 +1678,8 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForMapSet(Long mapSetId, String query,
-    PfsParameter pfs) throws Exception;
+  public MappingList findMappings(Long mapSetId, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Add map set.
@@ -1681,8 +1737,8 @@ public interface ContentService extends MetadataService {
    * @return the map sets
    * @throws Exception the exception
    */
-  public MapSetList getMapSets(String terminology, String version, String branch)
-    throws Exception;
+  public MapSetList getMapSets(String terminology, String version,
+    String branch) throws Exception;
 
   /**
    * Find mappings for concept.
@@ -1696,9 +1752,9 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForConcept(String conceptId,
-    String terminology, String version, String branch, String query,
-    PfsParameter pfs) throws Exception;
+  public MappingList findConceptMappings(String conceptId, String terminology,
+    String version, String branch, String query, PfsParameter pfs)
+    throws Exception;
 
   /**
    * Find mappings for code.
@@ -1712,7 +1768,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForCode(String codeId, String terminology,
+  public MappingList findCodeMappings(String codeId, String terminology,
     String version, String branch, String query, PfsParameter pfs)
     throws Exception;
 
@@ -1728,7 +1784,7 @@ public interface ContentService extends MetadataService {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForDescriptor(String descriptorId,
+  public MappingList findDescriptorMappings(String descriptorId,
     String terminology, String version, String branch, String query,
     PfsParameter pfs) throws Exception;
 
@@ -1774,47 +1830,6 @@ public interface ContentService extends MetadataService {
   public void removeNote(Long id, Class<? extends Note> type) throws Exception;
 
   /**
-   * Add the component info.
-   *
-   * @param componentInfo the the component info
-   * @return the the component info
-   * @throws Exception the exception
-   */
-  public ComponentInfo addComponentInfo(ComponentInfo componentInfo)
-    throws Exception;
-
-  /**
-   * Update the component info.
-   *
-   * @param componentInfo the the component info
-   * @throws Exception the exception
-   */
-  public void updateComponentInfo(ComponentInfo componentInfo) throws Exception;
-
-  /**
-   * Remove the component info.
-   *
-   * @param id the id
-   * @throws Exception the exception
-   */
-  public void removeComponentInfo(Long id) throws Exception;
-
-  /**
-   * Find the component infos for query.
-   *
-   * @param userName the user name
-   * @param terminology the terminology
-   * @param version the version
-   * @param queryStr the query str
-   * @param pfs the pfs
-   * @return the the component info list
-   * @throws Exception the exception
-   */
-  public ComponentInfoList findComponentInfosForQuery(String userName,
-    String terminology, String version, String queryStr, PfsParameter pfs)
-    throws Exception;
-
-  /**
    * Gets the note.
    *
    * @param id the id
@@ -1833,7 +1848,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findCodeNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findCodeNotes(String query, PfsParameter pfs)
     throws Exception;
 
   /**
@@ -1844,7 +1859,7 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findDescriptorNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findDescriptorNotes(String query, PfsParameter pfs)
     throws Exception;
 
   /**
@@ -1855,7 +1870,119 @@ public interface ContentService extends MetadataService {
    * @return the note list
    * @throws Exception the exception
    */
-  public NoteList findConceptNotesForQuery(String query, PfsParameter pfs)
+  public NoteList findConceptNotes(String query, PfsParameter pfs)
     throws Exception;
 
+  /**
+   * Find relationships for component info.
+   *
+   * @param componentInfoId the component info id
+   * @param terminology the terminology
+   * @param version the version
+   * @param type the type
+   * @param branch the branch
+   * @param query the query
+   * @param inverseFlag the inverse flag
+   * @param pfs the pfs
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findComponentInfoRelationships(String componentInfoId,
+    String terminology, String version, IdType type, String branch,
+    String query, boolean inverseFlag, PfsParameter pfs) throws Exception;
+
+  /**
+   * Validate concept.
+   *
+   * @param validationChecks the validation checks
+   * @param concept the concept
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateConcept(List<String> validationChecks,
+    Concept concept) throws Exception;
+
+  /**
+   * Validate concepts.
+   *
+   * @param project the project
+   * @param check the check
+   * @param conceptIds the concept ids
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public Set<Long> validateConcepts(Project project, String check, Set<Long> conceptIds)
+    throws Exception;
+
+  /**
+   * Validate atom.
+   *
+   * @param validationChecks the validation checks
+   * @param atom the atom
+   * @return the validation result
+   */
+  public ValidationResult validateAtom(List<String> validationChecks,
+    Atom atom);
+
+  /**
+   * Validate descriptor.
+   *
+   * @param validationChecks the validation checks
+   * @param descriptor the descriptor
+   * @return the validation result
+   */
+  public ValidationResult validateDescriptor(List<String> validationChecks,
+    Descriptor descriptor);
+
+  /**
+   * Validate code.
+   *
+   * @param validationChecks the validation checks
+   * @param code the code
+   * @return the validation result
+   */
+  public ValidationResult validateCode(List<String> validationChecks,
+    Code code);
+
+  /**
+   * Returns the ambiguous atom ids.
+   *
+   * @param concept the concept
+   * @return the ambiguous atom ids
+   */
+  public List<Long> getAmbiguousAtomIds(Concept concept);
+
+  /**
+   * New identifier assignment handler.
+   *
+   * @param terminology the terminology
+   * @return the identifier assignment handler
+   * @throws Exception the exception
+   */
+  IdentifierAssignmentHandler newIdentifierAssignmentHandler(String terminology)
+    throws Exception;
+
+  /**
+   * Find concept deep tree positions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param pfs the pfs
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptDeepTreePositions(String terminologyId,
+    String terminology, String version, String branch, String query,
+    PfsParameter pfs) throws Exception;
+
+  /**
+   * Gets the normalized string handler.
+   *
+   * @return the normalized string handler
+   * @throws Exception the exception
+   */
+  public NormalizedStringHandler getNormalizedStringHandler() throws Exception;
 }

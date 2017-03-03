@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.helpers;
 
@@ -19,6 +19,9 @@ public class ProgressEvent {
 
   /** The note. */
   private String note = null;
+  
+  /**  The warning. */
+  private boolean warning = false;
 
   /**
    * Instantiates a {@link ProgressEvent} from the specified information.
@@ -33,6 +36,18 @@ public class ProgressEvent {
     this.note = note;
     this.source = source;
   }
+  
+
+  /**
+   * Instantiates a {@link ProgressEvent} from the specified information.
+   *
+   * @param note progress note
+   * @param warning the warning
+   */
+  public ProgressEvent(String note, boolean warning) {
+    this.note = note;
+    this.warning = warning;
+  }  
 
   /**
    * Returns the percentage completed.
@@ -81,5 +96,14 @@ public class ProgressEvent {
    */
   public Object getSource() {
     return source;
+  }
+
+  /**
+   * Indicates whether or not warning is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isWarning() {
+    return warning;
   }
 }

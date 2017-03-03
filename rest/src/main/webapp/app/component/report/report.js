@@ -1,25 +1,33 @@
-// Content controller
-tsApp.directive('report', [ '$window', '$routeParams', 'metadataService',
-  function($window, $routeParams, metadataService) {
-    console.debug('configure report directive');
-    return {
-      restrict : 'A',
-      scope : {
-        // the metadata for the terminology
-        metadata : '=',
+// Report directive
+tsApp.directive('report', [ '$window', '$routeParams', function($window, $routeParams) {
+  return {
+    restrict : 'A',
+    scope : {
+      // selected features
+      selected : '=',
+      lists : '=',
+      // callbacks functions
+      callbacks : '='
+    },
+    templateUrl : 'app/component/report/report.html',
+    controller : [ '$scope', 'reportService', function($scope, reportService) {
+      // Scope vars
+      $scope.config = {
+        showHidden : true
+      };
 
-        // the component to display
-        component : '=',
-
-        // callback functions
-        callbacks : '=',
-
-      },
-      templateUrl : 'app/component/report/report.html',
-      link : function(scope, element, attrs) {
-
-        // declare the show hidden variable (suppressible/obsolete)
-        scope.showHidden = false;
+      $scope.removeConcept = function() {
+        if ($scope.callbacks.hasOwnProperty('removeConcept')) {
+          $scope.callbacks.removeConcept($scope.selected.project.id, concept.id).then(function() {
+            // do nothing
+          })
+        } else {
+          editService.removeConcept($scope.selected.project.id, concept.id).then(function() {
+            $scope.selected.component = null;
+          });
+        }
       }
-    };
-  } ]);
+
+    } ]
+  };
+} ]);

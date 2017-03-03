@@ -1,8 +1,10 @@
 <!-- Attributes -->
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
-  <h4>{{metadata.attributesLabel}} ({{pagedData.totalCount}})</h4>
+  <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
+    ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <h5 class="ml10">{{metadata.attributesLabel}} ({{pagedData.totalCount}})</h5>
   <div pager paging="paging" count="pagedData.totalCount"
-    callback="pageCallback"></div>
+    callbacks="pageCallbacks"></div>
   <ul class="icon-list">
     <li class="cr-list" ng-repeat="item in pagedData.data"><span
         class="label label-warning"
@@ -11,7 +13,7 @@
       <span class="label label-default" ng-show="item.obsolete"
         uib-tooltip="{{metadata.obsoleteLabel}}">{{metadata.obsoleteIndicator}}</span>
       <span class="label label-info"
-        uib-tooltip="{{callbacks.getAttributeNameName(item.name)}}">{{item.name}}</span>
+        uib-tooltip="{{callbacks.getAttributeNameName(item.name,metadata)}}">{{item.name}}</span>
       = {{item.value}}
   </ul>
 </div>

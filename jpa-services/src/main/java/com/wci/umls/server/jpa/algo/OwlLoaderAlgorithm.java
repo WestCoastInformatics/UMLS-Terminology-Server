@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -50,14 +50,17 @@ import org.semanticweb.owlapi.model.OWLSubObjectPropertyOfAxiom;
 import org.semanticweb.owlapi.model.OWLSubPropertyChainOfAxiom;
 import org.semanticweb.owlapi.util.SimpleRootClassChecker;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -103,6 +106,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.TermTypeStyle;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.meta.UsageType;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Implementation of an algorithm to import Owl data.
@@ -114,12 +118,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /** The commit count. */
   private final static int commitCt = 2000;
-
-  /** The terminology. */
-  private String terminology;
-
-  /** The version. */
-  private String version;
 
   /** release version. */
   private String releaseVersion;
@@ -175,9 +173,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   /** The loader. */
   private final String loader = "loader";
 
-  /** The published. */
-  private final String published = "PUBLISHED";
-
   /** The current date. */
   private final Date currentDate = new Date();
 
@@ -189,13 +184,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private final String dl2Profile =
       "http://www.w3.org/TR/owl2-profiles/#OWL_2_DL";
 
-  /** The tree pos algorithm. */
-  final TreePositionAlgorithm treePosAlgorithm = new TreePositionAlgorithm();
-
-  /** The trans closure algorithm. */
-  final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
-
   /**
    * Instantiates an empty {@link OwlLoaderAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -204,44 +192,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     super();
   }
 
-  /**
-   * Sets the terminology.
-   *
-   * @param terminology the terminology
-   */
-  @Override
-  public void setTerminology(String terminology) {
-    this.terminology = terminology;
-  }
-
-  /**
-   * Sets the version.
-   *
-   * @param version the version
-   */
-  @Override
-  public void setVersion(String version) {
-    this.version = version;
-  }
-
-  /**
-   * Returns the input file.
-   *
-   * @return the input file
-   */
-  public String getInputFile() {
-    return inputFile;
-  }
-
-  /**
-   * Sets the input file.
-   *
-   * @param inputFile the input file
-   */
-  public void setInputFile(String inputFile) {
-    this.inputFile = inputFile;
-  }
-
+  /* see superclass */
   @Override
   public String getFileVersion() throws Exception {
     final FileInputStream in = new FileInputStream(new File(inputFile));
@@ -262,8 +213,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void compute() throws Exception {
     logInfo("Starting loading Owl terminology");
     logInfo("  inputFile = inputFile");
-    logInfo("  terminology = " + terminology);
-    logInfo("  version = " + version);
+    logInfo("  terminology = " + getTerminology());
+    logInfo("  version = " + getVersion());
 
     long startTimeOrig = System.nanoTime();
 
@@ -271,9 +222,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       throw new Exception("Specified input file does not exist");
     }
 
-    setAssignIdentifiersFlag(false);
-    setLastModifiedFlag(false);
+    // control transaction scope
     setTransactionPerOperation(false);
+    // Turn of ID computation when loading a terminology
+    setAssignIdentifiersFlag(false);
+    // Let loader set last modified flags.
+    setLastModifiedFlag(false);
+    // Turn off action handling
+    setMolecularActionFlag(false);
+
     beginTransaction();
 
     //
@@ -286,10 +243,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Check compliance
     //
     logInfo("Testing compliance ");
-    logInfo("  profile = " + getConfigurableValue(terminology, "profile"));
-    if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
+    logInfo("  profile = " + getConfigurableValue(getTerminology(), "profile"));
+    if ("EL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       OwlUtility.checkOWL2ELProfile(directOntology);
-    } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
+    } else if ("DL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       OwlUtility.checkOWL2DLProfile(directOntology);
     } else {
       // no profile checking - other assumptions will be tested
@@ -306,7 +263,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         releaseVersionDate = new Date();
       }
     } else {
-      releaseVersion = version;
+      releaseVersion = getVersion();
       releaseVersionDate = currentDate;
     }
     logInfo("  release version = " + releaseVersion);
@@ -315,12 +272,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Set "load as inferred" flag
     //
     loadInferred =
-        "true".equals(getConfigurableValue(terminology, "loadInferred"));
+        "true".equals(getConfigurableValue(getTerminology(), "loadInferred"));
 
     //
     // Add the root concept, if configured to do so
     //
-    if ("true".equals(getConfigurableValue(terminology, "top"))) {
+    if ("true".equals(getConfigurableValue(getTerminology(), "top"))) {
       loadTopConcept(directOntology);
     }
 
@@ -333,7 +290,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     // Load ontology import closure
     //
-    for (OWLOntology ontology : directOntology.getImportsClosure()) {
+    for (final OWLOntology ontology : directOntology.getImportsClosure()) {
       logInfo("Processing ontology - " + ontology);
       loadOntology(ontology);
     }
@@ -346,8 +303,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     // Handle reasoner and inferences
     //
-    if ("true".equals(getConfigurableValue(terminology, "computeInferred"))) {
-      for (OWLOntology ontology : directOntology.getImportsClosure()) {
+    if ("true"
+        .equals(getConfigurableValue(getTerminology(), "computeInferred"))) {
+      for (final OWLOntology ontology : directOntology.getImportsClosure()) {
         logInfo("Processing inferred ontology - " + ontology);
         loadInferred(ontology);
       }
@@ -371,60 +329,6 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // do nothing
   }
 
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-
-    try {
-      Logger.getLogger(getClass()).info("Computing tree positions");
-      treePosAlgorithm.setCycleTolerant(false);
-      treePosAlgorithm.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      treePosAlgorithm.setCycleTolerant(true);
-      treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(terminology);
-      treePosAlgorithm.setVersion(version);
-      treePosAlgorithm.reset();
-      treePosAlgorithm.compute();
-      treePosAlgorithm.close();
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + terminology + "/" + version);
-    try {
-      transClosureAlgorithm.setCycleTolerant(false);
-      transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(terminology);
-      transClosureAlgorithm.setVersion(version);
-      transClosureAlgorithm.reset();
-      transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
-
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() throws Exception {
-    // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-
-    // invoke superclass cancel
-    super.cancel();
-  }
-
   /**
    * Load metadata.
    *
@@ -442,13 +346,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     RelationshipType ro = null;
     RelationshipType unionOf = null;
     RelationshipType hasUnion = null;
-    for (String rel : relTypes) {
+    for (final String rel : relTypes) {
       final RelationshipType type = new RelationshipTypeJpa();
       setCommonFields(type);
       type.setAbbreviation(rel);
+      type.setHierarchical(false);
       if (rel.equals("subClassOf")) {
         chd = type;
         type.setExpandedForm("Sub class of");
+        type.setHierarchical(true);
       } else if (rel.equals("superClassOf")) {
         par = type;
         type.setExpandedForm("Super class of");
@@ -476,7 +382,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     updateRelationshipType(ro);
 
     // Term types
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
 
       final TermType termType = new TermTypeJpa();
       setCommonFields(termType);
@@ -495,14 +401,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Build precedence list
     final PrecedenceList list = new PrecedenceListJpa();
-    list.setDefaultList(true);
 
     final List<KeyValuePair> lkvp = new ArrayList<>();
     // Start with "preferred"
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (isPreferredType(tty)) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -510,20 +415,20 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Next, do label (unless already done)
     if (!isPreferredType(label)) {
       KeyValuePair pr = new KeyValuePair();
-      pr.setKey(terminology);
+      pr.setKey(getTerminology());
       pr.setValue(label);
       lkvp.add(pr);
     }
     // then comment
     KeyValuePair pr = new KeyValuePair();
-    pr.setKey(terminology);
+    pr.setKey(getTerminology());
     pr.setValue(comment);
     lkvp.add(pr);
     // next do anything else that is not the preferred type or label or comment
-    for (String tty : termTypes) {
+    for (final String tty : termTypes) {
       if (!isPreferredType(tty) && !tty.equals(label) && !tty.equals(comment)) {
         final KeyValuePair pair = new KeyValuePair();
-        pair.setKey(terminology);
+        pair.setKey(getTerminology());
         pair.setValue(tty);
         lkvp.add(pair);
       }
@@ -536,13 +441,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     list.setLastModified(releaseVersionDate);
     list.setLastModifiedBy(loader);
     list.setName("DEFAULT");
-    list.setTerminology(terminology);
-    list.setVersion(version);
+    list.setTerminology(getTerminology());
+    list.setVersion(getVersion());
     addPrecedenceList(list);
 
     // Root Terminology
     RootTerminology root = new RootTerminologyJpa();
-    root.setFamily(terminology);
+    root.setFamily(getTerminology());
     root.setHierarchicalName(topConcept.getName());
     // Unable to determine overall "language" from OWL (unless maybe in headers)
     root.setLanguage(null);
@@ -550,24 +455,25 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     root.setLastModified(releaseVersionDate);
     root.setLastModifiedBy(loader);
     root.setPolyhierarchy(true);
+    root.setHierarchyComputable(true);
     root.setPreferredName(topConcept.getName());
     root.setRestrictionLevel(-1);
-    root.setTerminology(terminology);
+    root.setTerminology(getTerminology());
     addRootTerminology(root);
 
     // Terminology
     Terminology term = new TerminologyJpa();
-    term.setTerminology(terminology);
-    term.setVersion(version);
+    term.setTerminology(getTerminology());
+    term.setVersion(getVersion());
     term.setTimestamp(releaseVersionDate);
     term.setLastModified(releaseVersionDate);
     term.setLastModifiedBy(loader);
     term.setAssertsRelDirection(true);
     term.setCurrent(true);
     term.setDescriptionLogicTerminology(true);
-    if ("EL".equals(getConfigurableValue(terminology, "profile"))) {
+    if ("EL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       term.setDescriptionLogicProfile(el2Profile);
-    } else if ("DL".equals(getConfigurableValue(terminology, "profile"))) {
+    } else if ("DL".equals(getConfigurableValue(getTerminology(), "profile"))) {
       term.setDescriptionLogicProfile(dl2Profile);
     }
     term.setOrganizingClassType(IdType.CONCEPT);
@@ -587,8 +493,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         "nodeName", "Labels", "Properties"
     };
     int i = 0;
-    for (String label : labels) {
-      GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
+    for (final String label : labels) {
+      final GeneralMetadataEntry entry = new GeneralMetadataEntryJpa();
       setCommonFields(entry);
       entry.setAbbreviation(label);
       entry.setExpandedForm(labelValues[i++]);
@@ -604,8 +510,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     lat.setTimestamp(releaseVersionDate);
     lat.setLastModified(releaseVersionDate);
     lat.setLastModifiedBy(loader);
-    lat.setTerminology(terminology);
-    lat.setVersion(version);
+    lat.setTerminology(getTerminology());
+    lat.setVersion(getVersion());
     lat.setPublished(true);
     lat.setPublishable(true);
     lat.setISO3Code("ENG");
@@ -627,13 +533,13 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private String getRootTerminologyPreferredName(OWLOntology ontology)
     throws Exception {
     // Get the rdfs:label property of the ontology itself
-    for (OWLAnnotation annotation : ontology.getAnnotations()) {
+    for (final OWLAnnotation annotation : ontology.getAnnotations()) {
       if (annotation.getProperty().isLabel()) {
         return getValue(annotation);
       }
     }
     // otherwise, just use the terminology name
-    return terminology;
+    return getTerminology();
   }
 
   /**
@@ -650,7 +556,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     classifier.setIdMap(idMap);
     classifier.setExprMap(exprMap);
     // perform classification (or precompute inferences)
-    classifier.preClassify(terminology, version, null);
+    classifier.preClassify(getTerminology(), getVersion(), null);
     classifier.compute();
 
     // verify consistent
@@ -665,7 +571,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     if (classifier.getEquivalentClasses().size() > 0) {
       // throw new Exception("Unexpected equivalent classes.");
-      for (Set<Concept> concepts : classifier.getEquivalentClasses()) {
+      for (final Set<Concept> concepts : classifier.getEquivalentClasses()) {
         Logger.getLogger(getClass())
             .error("  EQUIVALENCE detected " + concepts);
       }
@@ -694,20 +600,21 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   private void loadReleaseInfo() throws Exception {
-    ReleaseInfo info = getReleaseInfo(terminology, releaseVersion);
+    ReleaseInfo info = getReleaseInfo(getTerminology(), releaseVersion);
     if (info == null) {
       info = new ReleaseInfoJpa();
       info.setName(releaseVersion);
-      info.setDescription(terminology + " " + releaseVersion + " release");
+      info.setDescription(getTerminology() + " " + releaseVersion + " release");
       info.setPlanned(false);
       info.setPublished(true);
       info.setReleaseBeginDate(releaseVersionDate);
       info.setReleaseFinishDate(releaseVersionDate);
-      info.setTerminology(terminology);
+      info.setTerminology(getTerminology());
       info.setVersion(releaseVersion);
       info.setLastModified(releaseVersionDate);
       info.setLastModified(new Date());
       info.setLastModifiedBy(loader);
+      info.setTimestamp(new Date());
       addReleaseInfo(info);
     }
     commitClearBegin();
@@ -722,7 +629,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   private String getComment(OWLOntology ontology) throws Exception {
-    for (OWLAnnotation annotation : ontology.getAnnotations()) {
+    for (final OWLAnnotation annotation : ontology.getAnnotations()) {
       if (annotation.getProperty().isComment()) {
         return getValue(annotation);
       }
@@ -745,9 +652,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       version = ontology.getOntologyID().getVersionIRI().toString();
     } else {
       // check versionInfo
-      for (OWLAnnotation annotation : ontology.getAnnotations()) {
-        if (getTerminologyId(annotation.getProperty().getIRI()).equals(
-            "versionInfo")) {
+      for (final OWLAnnotation annotation : ontology.getAnnotations()) {
+        if (getTerminologyId(annotation.getProperty().getIRI())
+            .equals("versionInfo")) {
           version = getValue(annotation);
         }
       }
@@ -756,21 +663,20 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // This is the list of available patterns for extracting a date.
     // Try each one
-    String[] patterns =
-        new String[] {
-            // e.g.
-            // http://snomed.info/sct/900000000000207008/version/20150131
-            ".*\\/(\\d{8})$",
-            // e.g.
-            // http://purl.obolibrary.org/obo/go/releases/2015-07-28/go.owl
-            ".*\\/(\\d\\d\\d\\d-\\d\\d-\\d\\d)$",
-            ".*\\/(\\d\\d\\d\\d-\\d\\d-\\d\\d\\/)$"
-        };
+    String[] patterns = new String[] {
+        // e.g.
+        // http://snomed.info/sct/900000000000207008/version/20150131
+        ".*\\/(\\d{8})$",
+        // e.g.
+        // http://purl.obolibrary.org/obo/go/releases/2015-07-28/go.owl
+        ".*\\/(\\d\\d\\d\\d-\\d\\d-\\d\\d)$",
+        ".*\\/(\\d\\d\\d\\d-\\d\\d-\\d\\d\\/)$"
+    };
 
     // Iterate through patterns
-    for (String pattern : patterns) {
-      Pattern pattern2 = Pattern.compile(pattern);
-      Matcher matcher = pattern2.matcher(version);
+    for (final String pattern : patterns) {
+      final Pattern pattern2 = Pattern.compile(pattern);
+      final Matcher matcher = pattern2.matcher(version);
       // Assume if it matches, the pattern has a group 1, extract and
       // prepare it.
       if (matcher.matches()) {
@@ -806,9 +712,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (ontology.getEquivalentClassesAxioms(owlClass).size() > 0) {
       Logger.getLogger(getClass()).debug("  EQUIVALENT class detected");
 
-      OWLEquivalentClassesAxiom axiom =
+      final OWLEquivalentClassesAxiom axiom =
           ontology.getEquivalentClassesAxioms(owlClass).iterator().next();
-      for (OWLClassExpression expr : axiom.getClassExpressions()) {
+      for (final OWLClassExpression expr : axiom.getClassExpressions()) {
 
         // Skip this class
         if (expr.equals(owlClass)) {
@@ -818,17 +724,17 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         // Any OWLClass encountered here is simply subClassOf relationship
         if (expr instanceof OWLClass) {
           OwlUtility.logOwlClass((OWLClass) expr, ontology, 1);
-          Concept toConcept =
-              getConcept(idMap
-                  .get(getTerminologyId(((OWLClass) expr).getIRI())));
+          Concept toConcept = getConcept(
+              idMap.get(getTerminologyId(((OWLClass) expr).getIRI())));
           rels.add(getSubClassOfRelationship(concept, toConcept));
         }
 
         // Otherwise it is an embedded class expression from which
         // we will borrow relationships
         else {
-          Concept concept2 = getConceptForOwlClassExpression(expr, ontology, 1);
-          for (ConceptRelationship rel : concept2.getRelationships()) {
+          final Concept concept2 =
+              getConceptForOwlClassExpression(expr, ontology, 1);
+          for (final ConceptRelationship rel : concept2.getRelationships()) {
             rel.setFrom(concept);
             rels.add(rel);
           }
@@ -852,27 +758,25 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     if (ontology.getSubClassAxiomsForSubClass(owlClass).size() > 0) {
 
       // Iterate through, add super classes
-      for (OWLSubClassOfAxiom axiom : ontology
+      for (final OWLSubClassOfAxiom axiom : ontology
           .getSubClassAxiomsForSubClass(owlClass)) {
 
         Logger.getLogger(getClass()).debug("  subClassOfAxiom = " + axiom);
 
         // Handle axioms that point to an OWLClass
         if (axiom.getSuperClass() instanceof OWLClass) {
-          Concept toConcept =
-              getConcept(idMap.get(getTerminologyId(((OWLClass) axiom
-                  .getSuperClass()).getIRI())));
+          final Concept toConcept = getConcept(idMap.get(
+              getTerminologyId(((OWLClass) axiom.getSuperClass()).getIRI())));
           rels.add(getSubClassOfRelationship(concept, toConcept));
 
         }
 
         // Handle intersections
         else if (axiom.getSuperClass() instanceof OWLObjectIntersectionOf) {
-          Concept concept2 =
-              getConceptForOwlClassExpression(axiom.getSuperClass(), ontology,
-                  1);
+          Concept concept2 = getConceptForOwlClassExpression(
+              axiom.getSuperClass(), ontology, 1);
           // Wire relationships to this concept and save
-          for (ConceptRelationship rel : concept2.getRelationships()) {
+          for (final ConceptRelationship rel : concept2.getRelationships()) {
 
             rel.setFrom(concept);
             rels.add(rel);
@@ -882,11 +786,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         // Handle intersections
         else if (axiom.getSuperClass() instanceof OWLObjectUnionOf) {
-          Concept concept2 =
-              getConceptForOwlClassExpression(axiom.getSuperClass(), ontology,
-                  1);
+          final Concept concept2 = getConceptForOwlClassExpression(
+              axiom.getSuperClass(), ontology, 1);
           // Wire relationships to this concept and save
-          for (ConceptRelationship rel : concept2.getRelationships()) {
+          for (final ConceptRelationship rel : concept2.getRelationships()) {
 
             rel.setFrom(concept);
             rels.add(rel);
@@ -896,11 +799,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
         // Handle someValuesFrom
         else if (axiom.getSuperClass() instanceof OWLObjectSomeValuesFrom) {
-          Concept concept2 =
-              getConceptForOwlClassExpression(axiom.getSuperClass(), ontology,
-                  1);
+          final Concept concept2 = getConceptForOwlClassExpression(
+              axiom.getSuperClass(), ontology, 1);
           // Wire relationships to this concept and save
-          for (ConceptRelationship rel : concept2.getRelationships()) {
+          for (final ConceptRelationship rel : concept2.getRelationships()) {
             rel.setFrom(concept);
             rels.add(rel);
           }
@@ -916,8 +818,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     // ASSUMPTION: no duplicate relationships
-    for (ConceptRelationship rel : rels) {
-      for (ConceptRelationship rel2 : rels) {
+    for (final ConceptRelationship rel : rels) {
+      for (final ConceptRelationship rel2 : rels) {
         // Avoid comparing to itself
         if (rel == rel2) {
           continue;
@@ -954,13 +856,14 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Standard "isa" relationship
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
+    rel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     // blank terminology id
     rel.setFrom(fromConcept);
     rel.setTo(toConcept);
     // This is an "isa" rel.
     rel.setRelationshipType("subClassOf");
     rel.setHierarchical(true);
-    String subClassOfRel = getConfigurableValue(terminology, "subClassOf");
+    String subClassOfRel = getConfigurableValue(getTerminology(), "subClassOf");
     if (subClassOfRel == null) {
       rel.setAdditionalRelationshipType("");
     } else if (relaMap.containsKey(subClassOfRel)) {
@@ -983,9 +886,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private String getPreferredName(IRI iri, OWLOntology ontology)
     throws Exception {
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(iri)) {
-      OWLAnnotation annotation = axiom.getAnnotation();
+      final OWLAnnotation annotation = axiom.getAnnotation();
       if (!isAtomAnnotation(annotation)) {
         continue;
       }
@@ -1007,14 +910,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private Set<Atom> getAtoms(OWLClass owlClass, OWLOntology ontology)
     throws Exception {
     Set<Atom> atoms = new HashSet<>();
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(owlClass.getIRI())) {
-      OWLAnnotation annotation = axiom.getAnnotation();
+      final OWLAnnotation annotation = axiom.getAnnotation();
       if (!isAtomAnnotation(annotation)) {
         continue;
       }
       final Atom atom = new AtomJpa();
       setCommonFields(atom);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       // everything after the #
       atom.setConceptId(getTerminologyId(owlClass.getIRI()));
       atom.setDescriptorId("");
@@ -1028,7 +932,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       generalEntryValues.add(atom.getTermType());
       termTypes.add(atom.getTermType());
       atom.setName(getValue(annotation));
-      atom.setWorkflowStatus(published);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atoms.add(atom);
 
     }
@@ -1043,12 +947,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @return the definitions
    * @throws Exception the exception
    */
-  private Set<Definition> getDefinitions(OWLClass owlClass, OWLOntology ontology)
-    throws Exception {
+  private Set<Definition> getDefinitions(OWLClass owlClass,
+    OWLOntology ontology) throws Exception {
     Set<Definition> defs = new HashSet<>();
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(owlClass.getIRI())) {
-      OWLAnnotation annotation = axiom.getAnnotation();
+      final OWLAnnotation annotation = axiom.getAnnotation();
       if (!isDefinitionAnnotation(annotation)) {
         continue;
       }
@@ -1072,10 +976,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private Set<Attribute> getAttributes(OWLClass owlClass, OWLOntology ontology)
     throws Exception {
     Set<Attribute> attributes = new HashSet<>();
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(owlClass.getIRI())) {
 
-      OWLAnnotation annotation = axiom.getAnnotation();
+      final OWLAnnotation annotation = axiom.getAnnotation();
       if (isAtomAnnotation(annotation)) {
         continue;
       }
@@ -1139,14 +1043,16 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     topConcept = new ConceptJpa();
 
     setCommonFields(topConcept);
+    topConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     topConcept.setTerminologyId("Thing");
     topConcept.setAnonymous(false);
     topConcept.setFullyDefined(false);
     topConcept.setUsesRelationshipIntersection(true);
     topConcept.setName(getRootTerminologyPreferredName(ontology));
-    topConcept.setWorkflowStatus(published);
+    topConcept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     Atom atom = new AtomJpa();
     setCommonFields(atom);
+    atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     atom.setName(getRootTerminologyPreferredName(ontology));
     atom.setDescriptorId("");
     atom.setCodeId("");
@@ -1156,7 +1062,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     atom.setTerminologyId("");
     atom.setLanguage("");
     atom.setTermType(label);
-    atom.setWorkflowStatus(published);
+    atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     addAtom(atom);
     topConcept.getAtoms().add(atom);
     addConcept(topConcept);
@@ -1190,7 +1096,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Load concepts, atoms, definitions, and attributes
     //
     logInfo("  Load Concepts, atoms, and attributes");
-    for (OWLClass owlClass : ontology.getClassesInSignature()) {
+    for (final OWLClass owlClass : ontology.getClassesInSignature()) {
 
       // If we've already encountered this class, just skip it
       if (idMap.containsKey(getTerminologyId(owlClass.getIRI()))) {
@@ -1207,15 +1113,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
           getConceptForOwlClassExpression(owlClass, ontology, 0);
 
       // Persist the concept object
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         Logger.getLogger(getClass()).debug("  add atom = " + atom);
         addAtom(atom);
       }
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         Logger.getLogger(getClass()).debug("  add definition = " + def);
         addDefinition(def, concept);
       }
-      for (Attribute attribute : concept.getAttributes()) {
+      for (final Attribute attribute : concept.getAttributes()) {
         Logger.getLogger(getClass()).debug("  add attribute = " + attribute);
         addAttribute(attribute, concept);
       }
@@ -1226,7 +1132,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // Check whether to add a link to "top concept"
       if (rootClassChecker.isRootClass(owlClass)) {
-        if ("true".equals(getConfigurableValue(terminology, "top"))) {
+        if ("true".equals(getConfigurableValue(getTerminology(), "top"))) {
           ConceptRelationship rel =
               getSubClassOfRelationship(concept, topConcept);
           Logger.getLogger(getClass()).debug("  add top relationship = " + rel);
@@ -1247,7 +1153,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     logInfo("  Load relationships");
     objectCt = 0;
     Set<String> visited = new HashSet<>();
-    for (OWLClass owlClass : ontology.getClassesInSignature()) {
+    for (final OWLClass owlClass : ontology.getClassesInSignature()) {
       final String terminologyId = getTerminologyId(owlClass.getIRI());
       if (visited.contains(terminologyId)) {
         continue;
@@ -1295,14 +1201,14 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   private boolean isObsolete(OWLClass owlClass, OWLOntology ontology)
     throws Exception {
     String obsoletePattern =
-        getConfigurableValue(terminology, "obsoletePattern");
+        getConfigurableValue(getTerminology(), "obsoletePattern");
     String obsoleteAnnotation =
-        getConfigurableValue(terminology, "obsoleteAnnotation");
+        getConfigurableValue(getTerminology(), "obsoleteAnnotation");
     if (obsoletePattern == null || obsoleteAnnotation == null) {
       return false;
     }
 
-    for (OWLAnnotationAssertionAxiom axiom : ontology
+    for (final OWLAnnotationAssertionAxiom axiom : ontology
         .getAnnotationAssertionAxioms(owlClass.getIRI())) {
       OWLAnnotation annotation = axiom.getAnnotation();
       if (!isAtomAnnotation(annotation)) {
@@ -1330,24 +1236,26 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Assume at most one "super" property
     Map<String, String> chdPar = new HashMap<>();
     // Add object properties
-    for (OWLObjectProperty prop : ontology.getObjectPropertiesInSignature()) {
+    for (final OWLObjectProperty prop : ontology
+        .getObjectPropertiesInSignature()) {
       OwlUtility.logObjectProperty(prop, ontology);
 
       final AdditionalRelationshipType rela =
           new AdditionalRelationshipTypeJpa();
       setCommonFields(rela);
 
+      rela.setHierarchical(false);
       rela.setAbbreviation(getPreferredName(prop.getIRI(), ontology));
-      rela.setAsymmetric(ontology.getAsymmetricObjectPropertyAxioms(prop)
-          .size() != 0);
+      rela.setAsymmetric(
+          ontology.getAsymmetricObjectPropertyAxioms(prop).size() != 0);
       // domain
       if (ontology.getObjectPropertyDomainAxioms(prop).size() == 1) {
         OWLObjectPropertyDomainAxiom axiom =
             ontology.getObjectPropertyDomainAxioms(prop).iterator().next();
         // Expect a class with an IRI
         if (axiom.getDomain() instanceof OWLClass) {
-          rela.setDomainId(getTerminologyId(((OWLClass) axiom.getDomain())
-              .getIRI()));
+          rela.setDomainId(
+              getTerminologyId(((OWLClass) axiom.getDomain()).getIRI()));
         }
         // ASSUMPTION: object property domain is an OWLClass
         else {
@@ -1365,8 +1273,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             ontology.getObjectPropertyRangeAxioms(prop).iterator().next();
         // Expect a class with an IRI
         if (axiom.getRange() instanceof OWLClass) {
-          rela.setRangeId(getTerminologyId(((OWLClass) axiom.getRange())
-              .getIRI()));
+          rela.setRangeId(
+              getTerminologyId(((OWLClass) axiom.getRange()).getIRI()));
         }
         // ASSUMPTION: object property rangeis an OWLClass
         else {
@@ -1388,10 +1296,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       rela.setExpandedForm(prop.getIRI().toString());
 
-      rela.setReflexive(ontology.getReflexiveObjectPropertyAxioms(prop).size() != 0);
+      rela.setReflexive(
+          ontology.getReflexiveObjectPropertyAxioms(prop).size() != 0);
 
-      Logger.getLogger(getClass()).debug(
-          "    terminologyId = " + getTerminologyId(prop.getIRI()));
+      Logger.getLogger(getClass())
+          .debug("    terminologyId = " + getTerminologyId(prop.getIRI()));
 
       // ASSUMPTION: object property has no annotations
       // Only works in OWLAPI 4
@@ -1423,11 +1332,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       }
       // equivalent
       if (ontology.getEquivalentObjectPropertiesAxioms(prop).size() == 1) {
-        OWLEquivalentObjectPropertiesAxiom axiom =
-            ontology.getEquivalentObjectPropertiesAxioms(prop).iterator()
-                .next();
-        for (OWLObjectPropertyExpression prop2 : axiom.getProperties()) {
-          String abbr = getTerminologyId(prop2.getNamedProperty().getIRI());
+        OWLEquivalentObjectPropertiesAxiom axiom = ontology
+            .getEquivalentObjectPropertiesAxioms(prop).iterator().next();
+        for (final OWLObjectPropertyExpression prop2 : axiom.getProperties()) {
+          final String abbr =
+              getTerminologyId(prop2.getNamedProperty().getIRI());
           // Skip this property
           if (abbr.equals(rela.getAbbreviation())) {
             continue;
@@ -1449,16 +1358,16 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       // par/chd
       if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size() == 1) {
-        OWLSubObjectPropertyOfAxiom axiom =
-            ontology.getObjectSubPropertyAxiomsForSubProperty(prop).iterator()
-                .next();
+        OWLSubObjectPropertyOfAxiom axiom = ontology
+            .getObjectSubPropertyAxiomsForSubProperty(prop).iterator().next();
         OWLObjectProperty superProp =
             axiom.getSuperProperty().getNamedProperty();
-        chdPar
-            .put(rela.getAbbreviation(), getTerminologyId(superProp.getIRI()));
+        chdPar.put(rela.getAbbreviation(),
+            getTerminologyId(superProp.getIRI()));
       }
       // ASSUMPTION: object property has at most one super property
-      else if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop).size() > 1) {
+      else if (ontology.getObjectSubPropertyAxiomsForSubProperty(prop)
+          .size() > 1) {
         throw new Exception("Unexpected more than one super property");
       }
 
@@ -1472,9 +1381,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     commitClearBegin();
 
     // Iterate through inverses, set and update
-    for (String key : inverses.keySet()) {
-      AdditionalRelationshipType type1 = relaMap.get(key);
-      AdditionalRelationshipType type2 = relaMap.get(inverses.get(key));
+    for (final String key : inverses.keySet()) {
+      final AdditionalRelationshipType type1 = relaMap.get(key);
+      final AdditionalRelationshipType type2 = relaMap.get(inverses.get(key));
       type1.setInverse(type2);
       type2.setInverse(type1);
       updateAdditionalRelationshipType(type1);
@@ -1484,9 +1393,9 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Iterate through additional rel types and create fake inverses
     // for those without inverses
-    for (AdditionalRelationshipType type : relaMap.values()) {
+    for (final AdditionalRelationshipType type : relaMap.values()) {
       if (type.getInverse() == null) {
-        AdditionalRelationshipType inv =
+        final AdditionalRelationshipType inv =
             new AdditionalRelationshipTypeJpa(type);
         inv.setId(null);
         inv.setAbbreviation("Inverse " + type.getAbbreviation());
@@ -1500,17 +1409,17 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     commitClearBegin();
 
     // Iterate through parChd properties, set and update
-    for (String key : chdPar.keySet()) {
-      AdditionalRelationshipType par = relaMap.get(chdPar.get(key));
-      AdditionalRelationshipType chd = relaMap.get(key);
+    for (final String key : chdPar.keySet()) {
+      final AdditionalRelationshipType par = relaMap.get(chdPar.get(key));
+      final AdditionalRelationshipType chd = relaMap.get(key);
       chd.setSuperType(par);
       updateAdditionalRelationshipType(chd);
     }
 
     // Iterate through equiv properties, set and update
-    for (String key : equiv.keySet()) {
-      AdditionalRelationshipType rela1 = relaMap.get(key);
-      AdditionalRelationshipType rela2 = relaMap.get(equiv.get(key));
+    for (final String key : equiv.keySet()) {
+      final AdditionalRelationshipType rela1 = relaMap.get(key);
+      final AdditionalRelationshipType rela2 = relaMap.get(equiv.get(key));
       rela1.setEquivalentType(rela2);
       rela2.setEquivalentType(rela1);
       updateAdditionalRelationshipType(rela1);
@@ -1519,15 +1428,15 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Add property chains
     // Only way I could find to access property chains
-    for (OWLSubPropertyChainOfAxiom prop : ontology.getAxioms(
-        AxiomType.SUB_PROPERTY_CHAIN_OF, false)) {
+    for (final OWLSubPropertyChainOfAxiom prop : ontology
+        .getAxioms(AxiomType.SUB_PROPERTY_CHAIN_OF, false)) {
       OwlUtility.logPropertyChain(prop, ontology);
 
-      String superProp =
+      final String superProp =
           getTerminologyId(prop.getSuperProperty().getNamedProperty().getIRI());
-      List<String> links = new ArrayList<>();
-      List<AdditionalRelationshipType> types = new ArrayList<>();
-      for (OWLObjectPropertyExpression link : prop.getPropertyChain()) {
+      final List<String> links = new ArrayList<>();
+      final List<AdditionalRelationshipType> types = new ArrayList<>();
+      for (final OWLObjectPropertyExpression link : prop.getPropertyChain()) {
         String name = getTerminologyId(link.getNamedProperty().getIRI());
         links.add(name);
         types.add(relaMap.get(name));
@@ -1536,11 +1445,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       PropertyChain chain = new PropertyChainJpa();
       setCommonFields(chain);
       StringBuilder abbreviation = new StringBuilder();
-      for (String link : links) {
+      for (final String link : links) {
         abbreviation.append(link).append(" o ");
       }
-      chain.setAbbreviation(abbreviation.toString().replaceAll(" o $", " => ")
-          + superProp);
+      chain.setAbbreviation(
+          abbreviation.toString().replaceAll(" o $", " => ") + superProp);
       chain.setChain(types);
       chain.setExpandedForm(chain.getAbbreviation());
       chain.setResult(relaMap.get(superProp));
@@ -1560,7 +1469,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   public void loadAnnotationProperties(OWLOntology ontology) throws Exception {
     logInfo("  Loading annotation properties");
-    for (OWLAnnotationProperty prop : ontology
+    for (final OWLAnnotationProperty prop : ontology
         .getAnnotationPropertiesInSignature()) {
 
       OwlUtility.logAnnotationProperty(prop, ontology);
@@ -1573,8 +1482,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // NOT in OWL EL 2
       atn.setUniversalQuantification(false);
       atn.setExpandedForm(prop.getIRI().toString());
-      Logger.getLogger(getClass()).debug(
-          "    terminologyId = " + getTerminologyId(prop.getIRI()));
+      Logger.getLogger(getClass())
+          .debug("    terminologyId = " + getTerminologyId(prop.getIRI()));
 
       // Add rela
       Logger.getLogger(getClass()).debug("  add atn - " + atn);
@@ -1598,7 +1507,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     Map<String, String> equiv = new HashMap<>();
     Map<String, String> parChd = new HashMap<>();
 
-    for (OWLDataProperty prop : ontology.getDataPropertiesInSignature()) {
+    for (final OWLDataProperty prop : ontology.getDataPropertiesInSignature()) {
       OwlUtility.logDataProperty(prop, ontology);
 
       final AttributeName atn = new AttributeNameJpa();
@@ -1611,8 +1520,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             ontology.getDataPropertyDomainAxioms(prop).iterator().next();
         // Expect a class with an IRI
         if (axiom.getDomain() instanceof OWLClass) {
-          atn.setDomainId(getTerminologyId(((OWLClass) axiom.getDomain())
-              .getIRI()));
+          atn.setDomainId(
+              getTerminologyId(((OWLClass) axiom.getDomain()).getIRI()));
         }
         // ASSUMPTION: data property domain is not an OWLClass
         else {
@@ -1628,7 +1537,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       if (ontology.getEquivalentDataPropertiesAxioms(prop).size() == 1) {
         OWLEquivalentDataPropertiesAxiom axiom =
             ontology.getEquivalentDataPropertiesAxioms(prop).iterator().next();
-        for (OWLDataPropertyExpression prop2 : axiom.getProperties()) {
+        for (final OWLDataPropertyExpression prop2 : axiom.getProperties()) {
           String abbr = getTerminologyId(prop2.asOWLDataProperty().getIRI());
           // Skip this property
           if (abbr.equals(atn.getAbbreviation())) {
@@ -1648,22 +1557,23 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // NOT in OWL EL 2
       atn.setUniversalQuantification(false);
       atn.setExpandedForm(prop.getIRI().toString());
-      atn.setFunctional(ontology.getFunctionalDataPropertyAxioms(prop).size() != 0);
+      atn.setFunctional(
+          ontology.getFunctionalDataPropertyAxioms(prop).size() != 0);
 
-      Logger.getLogger(getClass()).debug(
-          "    terminologyId = " + getTerminologyId(prop.getIRI()));
+      Logger.getLogger(getClass())
+          .debug("    terminologyId = " + getTerminologyId(prop.getIRI()));
 
       // par/chd
       if (ontology.getDataSubPropertyAxiomsForSubProperty(prop).size() == 1) {
-        OWLSubDataPropertyOfAxiom axiom =
-            ontology.getDataSubPropertyAxiomsForSubProperty(prop).iterator()
-                .next();
+        OWLSubDataPropertyOfAxiom axiom = ontology
+            .getDataSubPropertyAxiomsForSubProperty(prop).iterator().next();
         OWLDataProperty superProp =
             axiom.getSuperProperty().asOWLDataProperty();
         parChd.put(getTerminologyId(superProp.getIRI()), atn.getAbbreviation());
       }
       // ASSUMPTION: data property has at most one super property
-      else if (ontology.getDataSubPropertyAxiomsForSubProperty(prop).size() > 1) {
+      else if (ontology.getDataSubPropertyAxiomsForSubProperty(prop)
+          .size() > 1) {
         throw new Exception("Unexpected more than one super property");
       }
 
@@ -1677,16 +1587,16 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     commitClearBegin();
 
     // PAR/CHD
-    for (String key : parChd.keySet()) {
-      AttributeName par = atnMap.get(key);
-      AttributeName chd = atnMap.get(parChd.get(key));
+    for (final String key : parChd.keySet()) {
+      final AttributeName par = atnMap.get(key);
+      final AttributeName chd = atnMap.get(parChd.get(key));
       chd.setSuperName(par);
       updateAttributeName(chd);
     }
     // equiv
-    for (String key : equiv.keySet()) {
-      AttributeName atn1 = atnMap.get(key);
-      AttributeName atn2 = atnMap.get(equiv.get(key));
+    for (final String key : equiv.keySet()) {
+      final AttributeName atn1 = atnMap.get(key);
+      final AttributeName atn2 = atnMap.get(equiv.get(key));
       atn1.setEquivalentName(atn2);
       atn2.setEquivalentName(atn1);
       updateAttributeName(atn2);
@@ -1705,7 +1615,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
   public void loadGeneralClassAxioms(OWLOntology ontology) throws Exception {
     logInfo("  Loading general class axioms");
 
-    for (OWLClassAxiom axiom : ontology.getGeneralClassAxioms()) {
+    for (final OWLClassAxiom axiom : ontology.getGeneralClassAxioms()) {
 
       if (axiom instanceof OWLDisjointClassesAxiom) {
         // Create disjointness
@@ -1727,8 +1637,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
                   + axiom2.getSuperClass());
         }
 
-        Concept concept1 =
-            getConceptForOwlClassExpression(axiom2.getSuperClass(), ontology, 1);
+        Concept concept1 = getConceptForOwlClassExpression(
+            axiom2.getSuperClass(), ontology, 1);
         Concept concept2 =
             getConceptForOwlClassExpression(axiom2.getSubClass(), ontology, 1);
         // Reuse if they exist already, otherwise add
@@ -1760,16 +1670,16 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         OWLEquivalentClassesAxiom axiom2 = (OWLEquivalentClassesAxiom) axiom;
         // Each of the class expressions is equivalent,
         // create pairwise "general class axioms" from them
-        for (OWLClassExpression expr : axiom2.getClassExpressions()) {
-          for (OWLClassExpression expr2 : axiom2.getClassExpressions()) {
+        for (final OWLClassExpression expr : axiom2.getClassExpressions()) {
+          for (final OWLClassExpression expr2 : axiom2.getClassExpressions()) {
             // Get concepts
             Concept concept1 =
                 getConceptForOwlClassExpression(expr, ontology, 1);
             Concept concept2 =
                 getConceptForOwlClassExpression(expr2, ontology, 1);
             // Only do in one direction
-            if (concept1.getTerminologyId().compareTo(
-                concept2.getTerminologyId()) >= 0) {
+            if (concept1.getTerminologyId()
+                .compareTo(concept2.getTerminologyId()) >= 0) {
               continue;
             }
             // Reuse if they exist already, otherwise add
@@ -1817,21 +1727,21 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Iterate through disjoint Map
     // Create a subset, wire all subset members, etc.
     int ct = 1;
-    for (String key : disjointMap.keySet()) {
-      ConceptSubset subset = new ConceptSubsetJpa();
+    for (final String key : disjointMap.keySet()) {
+      final ConceptSubset subset = new ConceptSubsetJpa();
       setCommonFields(subset);
       subset.setTerminologyId("");
       subset.setDisjointSubset(true);
       subset.setLabelSubset(false);
-      subset.setName(terminology + " disjoint subset " + ct++);
-      subset.setDescription("Collection of disjoint concepts from "
-          + terminology);
+      subset.setName(getTerminology() + " disjoint subset " + ct++);
+      subset.setDescription(
+          "Collection of disjoint concepts from " + getTerminology());
       Logger.getLogger(getClass()).debug("    subset = " + subset);
       addSubset(subset);
       commitClearBegin();
 
-      for (String id : disjointMap.get(key)) {
-        ConceptSubsetMember member = new ConceptSubsetMemberJpa();
+      for (final String id : disjointMap.get(key)) {
+        final ConceptSubsetMember member = new ConceptSubsetMemberJpa();
         setCommonFields(member);
         member.setTerminologyId("");
         member.setMember(getConcept(idMap.get(id)));
@@ -1845,8 +1755,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Update the subset
       updateSubset(subset);
       commitClearBegin();
-      Logger.getLogger(getClass()).debug(
-          "      count = " + subset.getMembers().size());
+      Logger.getLogger(getClass())
+          .debug("      count = " + subset.getMembers().size());
     }
   }
 
@@ -1908,8 +1818,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @return the concept for owl class
    * @throws Exception the exception
    */
-  private Concept getConceptForOwlClass(OWLClass owlClass,
-    OWLOntology ontology, int level) throws Exception {
+  private Concept getConceptForOwlClass(OWLClass owlClass, OWLOntology ontology,
+    int level) throws Exception {
 
     // If class already exists, simply return it.
     if (idMap.containsKey(getTerminologyId(owlClass.getIRI()))) {
@@ -1920,7 +1830,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Standard settings
     setCommonFields(concept);
-    concept.setWorkflowStatus(published);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
 
     // owl classes always use conjunction
     concept.setUsesRelationshipUnion(false);
@@ -1948,8 +1858,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       } else {
         concept.setTerminologyId(uuid);
       }
-      Logger.getLogger(getClass()).debug(
-          "  anonymous class = " + uuid + ", " + concept);
+      Logger.getLogger(getClass())
+          .debug("  anonymous class = " + uuid + ", " + concept);
 
     } else {
       concept.setAnonymous(owlClass.isAnonymous());
@@ -1962,7 +1872,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     final Set<Atom> atoms = getAtoms(owlClass, ontology);
     boolean flag = true;
-    for (Atom atom : atoms) {
+    for (final Atom atom : atoms) {
       // Use first RDFS label as the preferred name
       if (flag && isPreferredType(atom.getTermType())) {
         concept.setName(atom.getName());
@@ -1975,7 +1885,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Lookup and create definitions (from annotations)
     //
     final Set<Definition> defs = getDefinitions(owlClass, ontology);
-    for (Definition def : defs) {
+    for (final Definition def : defs) {
       concept.getDefinitions().add(def);
     }
 
@@ -1983,7 +1893,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     // Lookup and create attributes (from annotations)
     //
     final Set<Attribute> attributes = getAttributes(owlClass, ontology);
-    for (Attribute attribute : attributes) {
+    for (final Attribute attribute : attributes) {
       concept.getAttributes().add(attribute);
 
     }
@@ -1991,11 +1901,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     // Handle disjoint classes
     //
-    for (OWLDisjointClassesAxiom axiom : ontology
+    for (final OWLDisjointClassesAxiom axiom : ontology
         .getDisjointClassesAxioms(owlClass)) {
 
-      Set<String> disjointSet = new HashSet<>();
-      for (OWLClassExpression expr : axiom.getClassExpressions()) {
+      final Set<String> disjointSet = new HashSet<>();
+      for (final OWLClassExpression expr : axiom.getClassExpressions()) {
         if (expr instanceof OWLClass) {
           final String disjointId =
               getTerminologyId(((OWLClass) expr).getIRI());
@@ -2011,8 +1921,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // If this disjoint set overlaps with another one, add all
       // this way at the end we have fully computed sets
       boolean disjointFlag = false;
-      for (Set<String> set : disjointMap.values()) {
-        for (String id : disjointSet) {
+      for (final Set<String> set : disjointMap.values()) {
+        for (final String id : disjointSet) {
           if (set.contains(id)) {
             disjointFlag = true;
             break;
@@ -2051,6 +1961,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2063,12 +1974,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Iterate through expressions and either add a parent relationship
       // or add relationships from the concept itself. No new anonymous
       // concepts are directly created here.
-      for (OWLClassExpression expr2 : expr.getOperands()) {
+      for (final OWLClassExpression expr2 : expr.getOperands()) {
         final Concept concept2 =
             getConceptForOwlClassExpression(expr2, ontology, level + 1);
         // If it's a restriction, borrow its relationships
         if (expr2 instanceof OWLObjectSomeValuesFrom) {
-          for (ConceptRelationship rel : concept2.getRelationships()) {
+          for (final ConceptRelationship rel : concept2.getRelationships()) {
             // In case this is from a reused inserted anonymous concept, copy it
             // first
             ConceptRelationship rel2 = new ConceptRelationshipJpa(rel, true);
@@ -2139,6 +2050,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2151,7 +2063,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       // Iterate through expressions and either add a parent relationship
       // or add relationships from the concept itself. No new anonymous
       // concepts are directly created here.
-      for (OWLClassExpression expr2 : expr.getOperands()) {
+      for (final OWLClassExpression expr2 : expr.getOperands()) {
         final Concept concept2 =
             getConceptForOwlClassExpression(expr2, ontology, level + 1);
         // If it's a restriction, borrow its relationships
@@ -2195,9 +2107,11 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @throws Exception the exception
    */
   private void addAnonymousConcept(Concept concept) throws Exception {
-    if (concept.isAnonymous() && !idMap.containsKey(concept.getTerminologyId())) {
+    if (concept.isAnonymous()
+        && !idMap.containsKey(concept.getTerminologyId())) {
       Atom atom = new AtomJpa();
       setCommonFields(atom);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setTerminologyId("");
       atom.setTermType(label);
       atom.setConceptId(concept.getTerminologyId());
@@ -2207,6 +2121,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       atom.setStringClassId("");
       atom.setLanguage("en");
       atom.setPublishable(false);
+      atom.setWorkflowStatus(WorkflowStatus.PUBLISHED);
       atom.setPublished(false);
       atom.setName(concept.getName());
       Logger.getLogger(getClass()).debug("  add atom - " + atom);
@@ -2227,7 +2142,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
       List<ConceptRelationship> relsToAdd = concept.getRelationships();
       concept.setRelationships(new ArrayList<ConceptRelationship>());
-      for (ConceptRelationship rel : relsToAdd) {
+      for (final ConceptRelationship rel : relsToAdd) {
         addRelationship(rel);
         concept.getRelationships().add(rel);
         Logger.getLogger(getClass()).debug("  add relationship - " + rel);
@@ -2254,6 +2169,7 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     Concept concept = new ConceptJpa();
     setCommonFields(concept);
+    concept.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     concept.setAnonymous(true);
     concept.setTerminologyId(uuid);
     concept.setName(expr.toString());
@@ -2277,9 +2193,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     OWLObjectProperty property = (OWLObjectProperty) expr.getProperty();
     ConceptRelationship rel = new ConceptRelationshipJpa();
     setCommonFields(rel);
+    rel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     rel.setRelationshipType("other");
-    rel.setAdditionalRelationshipType(relaMap.get(
-        getTerminologyId(property.getIRI())).getAbbreviation());
+    rel.setAdditionalRelationshipType(
+        relaMap.get(getTerminologyId(property.getIRI())).getAbbreviation());
     rel.setFrom(concept);
     rel.setTo(concept2);
     concept.getRelationships().add(rel);
@@ -2301,9 +2218,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     }
 
     String atomAnnotations =
-        getConfigurableValue(terminology, "atomAnnotations");
+        getConfigurableValue(getTerminology(), "atomAnnotations");
     if (atomAnnotations != null) {
-      for (String field : FieldedStringTokenizer.split(atomAnnotations, ",")) {
+      for (final String field : FieldedStringTokenizer.split(atomAnnotations,
+          ",")) {
         if (name.equals(field)) {
           return true;
         }
@@ -2327,9 +2245,10 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     throws Exception {
     String name = getName(annotation);
     String atomAnnotations =
-        getConfigurableValue(terminology, "definitionAnnotations");
+        getConfigurableValue(getTerminology(), "definitionAnnotations");
     if (atomAnnotations != null) {
-      for (String field : FieldedStringTokenizer.split(atomAnnotations, ",")) {
+      for (final String field : FieldedStringTokenizer.split(atomAnnotations,
+          ",")) {
         if (name.equals(field)) {
           return true;
         }
@@ -2357,12 +2276,12 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private boolean isPreferredType(String tty) throws Exception {
 
-    if (tty.equals(getConfigurableValue(terminology, "preferredType"))) {
+    if (tty.equals(getConfigurableValue(getTerminology(), "preferredType"))) {
       return true;
     }
 
     // Don't look further if the configurable type is set
-    if (getConfigurableValue(terminology, "preferredType") != null) {
+    if (getConfigurableValue(getTerminology(), "preferredType") != null) {
       return false;
     }
 
@@ -2400,8 +2319,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    */
   private void setCommonFields(Component component) {
     component.setTerminologyId("");
-    component.setTerminology(terminology);
-    component.setVersion(version);
+    component.setTerminology(getTerminology());
+    component.setVersion(getVersion());
     component.setTimestamp(releaseVersionDate);
     component.setLastModified(releaseVersionDate);
     component.setLastModifiedBy(loader);
@@ -2427,8 +2346,8 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
    * @param abbreviation the common fields
    */
   private void setCommonFields(Abbreviation abbreviation) {
-    abbreviation.setTerminology(terminology);
-    abbreviation.setVersion(version);
+    abbreviation.setTerminology(getTerminology());
+    abbreviation.setVersion(getVersion());
     abbreviation.setTimestamp(releaseVersionDate);
     abbreviation.setLastModified(releaseVersionDate);
     abbreviation.setLastModifiedBy(loader);
@@ -2437,42 +2356,37 @@ public class OwlLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   }
 
-  /**
-   * Returns the configurable value.
-   *
-   * @param terminology the terminology
-   * @param key the key
-   * @return the configurable value
-   * @throws Exception the exception
-   */
-  private String getConfigurableValue(String terminology, String key)
-    throws Exception {
-    Properties p = ConfigUtility.getConfigProperties();
-    String fullKey = getClass().getName() + "." + terminology + "." + key;
-    if (p.containsKey(fullKey)) {
-      return p.getProperty(fullKey);
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "inputFile"
+    }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    if (p.getProperty("inputFile") != null) {
+      setInputPath(p.getProperty("inputFile"));
     }
-    return null;
   }
 
   /* see superclass */
   @Override
-  public String getTerminology() {
-    return terminology;
-  }
+  public List<AlgorithmParameter> getParameters() throws Exception {
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input File",
+        "inputFile", "Input OWL file to load", "", 255,
+        AlgorithmParameter.Type.FILE, "");
+    params.add(param);
+    return params;
 
-  /* see superclass */
-  @Override
-  public String getVersion() {
-    return version;
   }
-
-  @Override
-  public void computeExpressionIndexes() throws Exception {
-    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(getTerminology());
-    algo.setVersion(getVersion());
-    algo.compute();
-  }
-
 }

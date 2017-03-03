@@ -59,6 +59,8 @@
     <hibernate.search.version>5.1.1.Final</hibernate.search.version>
     <hibernate.entitymanager.version>4.1.0.Final</hibernate.entitymanager.version>
     <hibernate.validator.version>5.0.1.Final</hibernate.validator.version>
+    <jersey.version>2.23.1</jersey.version>
+    <jackson.version>2.4.5</jackson.version>
   </properties>
 
   <dependencyManagement>
@@ -164,6 +166,14 @@
         <artifactId>maven-plugin-api</artifactId>
         <version>3.2.5</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>3.4</version>
+        <scope>provided</scope>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-resources-plugin</artifactId>
@@ -186,67 +196,38 @@
       </dependency>
 
       <!-- Required for Jersey and JSON -->
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-server</artifactId>
-        <version>2.2</version>
-      </dependency>
+
       <dependency>
         <groupId>org.glassfish.jersey.core</groupId>
         <artifactId>jersey-client</artifactId>
-        <version>2.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-common</artifactId>
-        <version>2.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-jaxb</artifactId>
-        <version>2.20</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-json-processing</artifactId>
-        <version>2.2</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-json-jackson</artifactId>
-        <version>2.2</version>
+        <version>${jersey.version}</version>
       </dependency>
+      <!-- Keep this to launch the servlet -->
       <dependency>
         <groupId>org.glassfish.jersey.containers</groupId>
         <artifactId>jersey-container-servlet</artifactId>
-        <version>2.2</version>
+        <version>${jersey.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.containers</groupId>
+        <artifactId>jersey-container-servlet-core</artifactId>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>org.glassfish.jersey.media</groupId>
         <artifactId>jersey-media-multipart</artifactId>
-        <version>2.2</version>
+        <version>${jersey.version}</version>
       </dependency>
 
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>2.5.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>2.5.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.1</version>
-      </dependency>
-      <dependency>
-        <groupId>com.wordnik</groupId>
-        <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
-        <version>1.3.12</version>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-jersey2-jaxrs</artifactId>
+        <version>1.5.9</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -281,7 +262,11 @@
         <artifactId>guava</artifactId>
         <version>11.0.1</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.9.10</version>
+      </dependency>
 
       <!-- Classifier -->
       <dependency>
@@ -300,7 +285,7 @@
       <dependency>
         <groupId>gov.nih.nlm.nls.lvg</groupId>
         <artifactId>lvgdist</artifactId>
-        <version>2015</version>
+        <version>2017.0</version>
       </dependency>
 
       <!-- Trove -->
@@ -335,9 +320,21 @@
       </dependency>
 
       <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.5</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-vfs2</artifactId>
         <version>2.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.10</version>
       </dependency>
 
       <!-- ANTLR Expression Parser -->
@@ -544,6 +541,5 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
 
 </project>

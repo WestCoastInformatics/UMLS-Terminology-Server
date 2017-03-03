@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -34,8 +34,8 @@ import org.apache.log4j.Logger;
 public class NotificationWebsocket {
 
   /** The sessions. */
-  private Set<Session> sessions = Collections
-      .synchronizedSet(new HashSet<Session>());
+  private Set<Session> sessions =
+      Collections.synchronizedSet(new HashSet<Session>());
 
   /**
    * Instantiates an empty {@link NotificationWebsocket}.
@@ -51,6 +51,7 @@ public class NotificationWebsocket {
    */
   @OnOpen
   public void onOpen(Session session) {
+
     // Add to sessions list
     synchronized (sessions) {
       sessions.add(session);
@@ -84,13 +85,11 @@ public class NotificationWebsocket {
   /**
    * Echo text.
    *
-   * @param name the name
-   * @return the string
+   * @param text the text
    */
-  @SuppressWarnings("static-method")
   @OnMessage
-  public String echoText(String name) {
-    return name;
+  public void echoText(String text) {
+    Logger.getLogger(getClass()).debug("message: " + text);
   }
 
   /**
@@ -100,30 +99,32 @@ public class NotificationWebsocket {
    */
   public void send(String message) {
     // Remove closed sessions
-    Set<Session> copy = new HashSet<>(sessions);
-    for (Session session : copy) {
+    final Set<Session> copy = new HashSet<>(sessions);
+    for (final Session session : copy) {
       if (!session.isOpen()) {
         sessions.remove(session);
       }
     }
 
     // Send message to all listeners
-    synchronized (sessions) {
-      for (Session session : sessions) {
+
+    for (final Session session : new HashSet<>(sessions)) {
+      try {
+
+        // Send synch message
+        // TODO: performance not ideal
+        session.getBasicRemote().sendText(message);
+
+      } catch (Exception e) {
+        e.printStackTrace();
+        // if anything went wrong, close the session and remove it
         try {
-          // Send async message
-          session.getAsyncRemote().sendText(message);
-        } catch (Exception e) {
-          e.printStackTrace();
-          // if anything went wrong, close the session and remove it
-          try {
-            session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
-                "Closing"));
-          } catch (Exception e2) {
-            // do nothing
-          }
-          sessions.remove(session);
+          session.close(
+              new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Closing"));
+        } catch (Exception e2) {
+          // do nothing
         }
+        sessions.remove(session);
       }
     }
 

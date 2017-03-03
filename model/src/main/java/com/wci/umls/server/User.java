@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
@@ -32,6 +32,13 @@ public interface User {
   public String getName();
 
   /**
+   * Sets the name.
+   *
+   * @param fullName the name
+   */
+  public void setName(String fullName);
+
+  /**
    * Returns the email.
    *
    * @return the email
@@ -60,11 +67,18 @@ public interface User {
   public void setUserName(String userName);
 
   /**
-   * Sets the name.
+   * Returns the team.
    *
-   * @param fullName the name
+   * @return the team
    */
-  public void setName(String fullName);
+  public String getTeam();
+
+  /**
+   * Sets the team.
+   *
+   * @param team the team
+   */
+  public void setTeam(String team);
 
   /**
    * Sets the email.
@@ -121,4 +135,19 @@ public interface User {
    * @param projectRoleMap the project role map
    */
   public void setProjectRoleMap(Map<Project, UserRole> projectRoleMap);
+
+  /**
+   * Returns the editor level. This is to support additional behavior and/or
+   * fine-grained access control beyond AUTHOR/REVIEWER/ADMIN.
+   *
+   * @return the editor level
+   */
+  public int getEditorLevel();
+
+  /**
+   * Sets the editor level.
+   *
+   * @param editorLevel the editor level
+   */
+  public void setEditorLevel(int editorLevel);
 }

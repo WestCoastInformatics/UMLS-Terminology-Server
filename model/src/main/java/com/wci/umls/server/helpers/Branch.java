@@ -34,9 +34,9 @@ public class Branch {
    */
   public static List<String> getSubBranches(String branch) {
     String[] tokens = FieldedStringTokenizer.split(branch, ".");
-    List<String> result = new ArrayList<>();
-    StringBuilder sb = new StringBuilder();
-    for (String token : tokens) {
+    final List<String> result = new ArrayList<>();
+    final StringBuilder sb = new StringBuilder();
+    for (final String token : tokens) {
       sb.append(token);
       result.add(sb.toString());
       sb.append(".");

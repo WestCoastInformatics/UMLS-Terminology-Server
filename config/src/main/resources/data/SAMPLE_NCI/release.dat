@@ -1,0 +1,8 @@
+# Release Metadata 
+#Tue Nov 29 13:46:51 PST 2016
+umls.lvg.version=2016
+umls.release.name=201604
+umls.release.date=20160601
+mmsys.build.date=2013_02_12_20_13_39
+mmsys.version=MMSYS-201212-20130212
+umls.release.description=Base Release for 201604

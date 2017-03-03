@@ -10,36 +10,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ReleaseInfo;
-import com.wci.umls.server.helpers.Branch;
-import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
-import com.wci.umls.server.model.content.ConceptSubset;
-import com.wci.umls.server.model.content.Subset;
-import com.wci.umls.server.model.meta.IdType;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
 public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
-
-  /** The tree pos algorithm. */
-  private final TreePositionAlgorithm treePosAlgorithm =
-      new TreePositionAlgorithm();
-
-  /** The trans closure algorithm. */
-  private final TransitiveClosureAlgorithm transClosureAlgorithm =
-      new TransitiveClosureAlgorithm();
-
-  /** The label set algorithm. */
-  private final LabelSetMarkedParentAlgorithm labelSetAlgorithm =
-      new LabelSetMarkedParentAlgorithm();
 
   /**
    * Instantiates an empty {@link Rf2FullLoaderAlgorithm}.
@@ -89,9 +76,8 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     //
     Logger.getLogger(getClass()).info("  Get release getVersion()s");
     Rf2FileSorter sorter = new Rf2FileSorter();
-    final File conceptsFile =
-        sorter
-            .findFile(new File(getInputPath(), "Terminology"), "sct2_Concept");
+    final File conceptsFile = sorter
+        .findFile(new File(getInputPath(), "Terminology"), "sct2_Concept");
     final Set<String> releaseSet = new HashSet<>();
     BufferedReader reader = new BufferedReader(new FileReader(conceptsFile));
     String line;
@@ -184,8 +170,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
     // Load deltas
     for (final String release : releases) {
-      // Refresh caches for metadata handlers
-      new MetadataServiceJpa().refreshCaches();
 
       if (release.equals(releases.get(0))) {
         continue;
@@ -203,7 +187,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
       algorithm2.setInputPath(getInputPath());
       algorithm2.compute();
       algorithm2.close();
-      algorithm2.closeFactory();
       algorithm2 = null;
 
     }
@@ -212,71 +195,6 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     ConfigUtility
         .deleteDirectory(new File(getInputPath(), "/RF2-sorted-temp/"));
 
-    // Refresh caches for metadata handlers
-    new MetadataServiceJpa().refreshCaches();
-    // session no longer active, probably because of "closeFactory" call
-    // logInfo("      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTreePositions() throws Exception {
-
-    try {
-      Logger.getLogger(getClass()).info("Computing tree positions");
-      treePosAlgorithm.setCycleTolerant(false);
-      treePosAlgorithm.setIdType(IdType.CONCEPT);
-      // some terminologies may have cycles, allow these for now.
-      treePosAlgorithm.setCycleTolerant(true);
-      treePosAlgorithm.setComputeSemanticType(true);
-      treePosAlgorithm.setTerminology(getTerminology());
-      treePosAlgorithm.setVersion(getVersion());
-      treePosAlgorithm.reset();
-      treePosAlgorithm.compute();
-      treePosAlgorithm.close();
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
-
-  }
-
-  /* see superclass */
-  @Override
-  public void computeTransitiveClosures() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "  Compute transitive closure from  " + getTerminology() + "/"
-            + getVersion());
-    try {
-      transClosureAlgorithm.setCycleTolerant(false);
-      transClosureAlgorithm.setIdType(IdType.CONCEPT);
-      transClosureAlgorithm.setTerminology(getTerminology());
-      transClosureAlgorithm.setVersion(getVersion());
-      transClosureAlgorithm.reset();
-      transClosureAlgorithm.compute();
-      transClosureAlgorithm.close();
-
-      // Compute label sets - after transitive closure
-      // for each subset, compute the label set
-      for (final Subset subset : getConceptSubsets(getTerminology(),
-          getVersion(), Branch.ROOT).getObjects()) {
-        final ConceptSubset conceptSubset = (ConceptSubset) subset;
-        if (conceptSubset.isLabelSubset()) {
-          Logger.getLogger(getClass()).info(
-              "  Create label set for subset = " + subset);
-
-          labelSetAlgorithm.setTerminology(getTerminology());
-          labelSetAlgorithm.setVersion(getVersion());
-          labelSetAlgorithm.setSubset(conceptSubset);
-          labelSetAlgorithm.compute();
-          labelSetAlgorithm.close();
-        }
-      }
-    } catch (CancelException e) {
-      Logger.getLogger(getClass()).info("Cancel request detected");
-      throw new CancelException("Tree position computation cancelled");
-    }
   }
 
   /* see superclass */
@@ -287,28 +205,43 @@ public class Rf2FullLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
 
   /* see superclass */
   @Override
-  public void cancel() throws Exception {
-    // cancel any currently running local algorithms
-    treePosAlgorithm.cancel();
-    transClosureAlgorithm.cancel();
-    labelSetAlgorithm.cancel();
-
-    // invoke superclass cancel
-    super.cancel();
-  }
-
-  /* see superclass */
-  @Override
   public void close() throws Exception {
     super.close();
   }
 
+  /* see superclass */
   @Override
-  public void computeExpressionIndexes() throws Exception {
-    final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(getTerminology());
-    algo.setVersion(getVersion());
-    algo.compute();
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
 
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "inputFile"
+    }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters()  throws Exception{
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input RF2 Full directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY, "");
+    params.add(param);
+    return params;
+
+  }
 }

@@ -1,4 +1,5 @@
 // Security service
+var securityUrl = 'security';
 tsApp.service('securityService', [
   '$http',
   '$location',
@@ -6,19 +7,19 @@ tsApp.service('securityService', [
   '$cookies',
   'utilService',
   'gpService',
-  'projectService',
   'appConfig',
-  function($http, $location, $q, $cookies, utilService, gpService, projectService, appConfig) {
-    console.debug('configure securityService');
+  function($http, $location, $q, $cookies, utilService, gpService, appConfig) {
 
     // Declare the user
     var user = {
       userName : null,
       password : null,
       name : null,
+      email : null,
       authToken : null,
       applicationRole : null,
-      userPreferences : null
+      userPreferences : null,
+      editorLevel : null
     };
 
     // Search results
@@ -27,16 +28,75 @@ tsApp.service('securityService', [
       query : null
     };
 
+    // Configure tabs
+    this.saveTab = function(prefs, tab) {
+      if (prefs && prefs.lastTab != tab) {
+        prefs.lastTab = tab;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure role
+    this.saveRole = function(prefs, role) {
+      if (prefs && prefs.lastProjectRole != role) {
+        prefs.lastProjectRole = role;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure projectId
+    this.saveProjectId = function(prefs, projectId) {
+      if (prefs && prefs.lastProjectId != projectId) {
+        prefs.lastProjectId = projectId;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // Configure role
+    this.saveProjectIdAndRole = function(prefs, projectId, role) {
+      if (prefs && (prefs.lastProjectId != projectId || prefs.lastProjectRole != role)) {
+        prefs.lastProjectId = projectId;
+        prefs.lastProjectRole = role;
+        this.updateUserPreferences(prefs);
+      }
+    };
+
+    // save properties
+    this.saveProperty = function(prefs, key, value) {
+      if (prefs && prefs.properties[key] != value) {
+        prefs.properties[key] = value;
+        this.updateUserPreferences(prefs);
+      }
+    }
+
+    // get property
+    this.getProperty = function(prefs, key, defaultValue) {
+      if (prefs && prefs.properties[key]) {
+        return prefs.properties[key];
+      } else {
+        return defaultValue;
+      }
+    }
+
+    // reset user preferences
+    this.resetUserPreferences = function(user) {
+      user.userPreferences.properties = {};
+      user.userPreferences.lastProjectId = null;
+      user.userPreferences.lastProjectRole = null;
+      user.userPreferences.lastTerminology = null;
+      user.userPreferences.lastTab = null;
+      this.updateUserPreferences(user.userPreferences);
+    }
+
     // accepts the license
     this.acceptLicense = function() {
       var deferred = $q.defer();
       var expireDate = new Date();
       expireDate.setDate(expireDate.getDate() + 30);
-      $cookies.put('WCI ' + appConfig.deployTitle, 'license_accepted', {
+      $cookies.put('WCI ' + appConfig['deploy.title'], 'license_accepted', {
         expires : expireDate
       });
-      var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-      // console.debug('Set cookie:', cookie);
+      var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
       deferred.resolve();
       return deferred.promise;
     };
@@ -45,12 +105,11 @@ tsApp.service('securityService', [
     this.checkLicense = function() {
       var deferred = $q.defer();
 
-      if (appConfig.licenseEnabled !== 'true') {
+      if (appConfig['deploy.license.enabled'] !== 'true') {
         deferred.resolve();
       } else {
 
-        var cookie = $cookies.get('WCI ' + appConfig.deployTitle);
-        // console.debug('License cookie', cookie);
+        var cookie = $cookies.get('WCI ' + appConfig['deploy.title']);
         if (!cookie) {
           deferred.reject();
         } else {
@@ -66,7 +125,8 @@ tsApp.service('securityService', [
     this.getUser = function() {
 
       // if login is not enabled, set and return the Guest user
-      if (appConfig.loginEnabled !== 'true') {
+      if (appConfig['deploy.login.enabled'] === 'true'
+        && appConfig['deploy.login.enabled'] !== 'true') {
         this.setGuestUser();
       }
       // otherwise, determine if user is already logged in
@@ -89,14 +149,15 @@ tsApp.service('securityService', [
     this.setUser = function(data) {
       user.userName = data.userName;
       user.name = data.name;
+      user.email = data.email;
       user.authToken = data.authToken;
       user.password = "";
       user.applicationRole = data.applicationRole;
       user.userPreferences = data.userPreferences;
+      user.editorLevel = data.editorLevel;
       $http.defaults.headers.common.Authorization = data.authToken;
-      projectService.getUserHasAnyRole();
 
-      // Whenver set user is called, we should save a cookie
+      // Whenever set user is called, we should save a cookie
       $cookies.put('user', JSON.stringify(user));
     };
 
@@ -118,20 +179,6 @@ tsApp.service('securityService', [
     // Determine if guest user
     this.isGuestUser = function() {
       return $http.defaults.headers.common.Authorization == 'guest';
-    };
-
-    // Set admin user
-    this.setAdminUser = function() {
-      user.userName = 'admin';
-      user.name = 'Administrator';
-      user.authToken = 'admin';
-      user.password = 'admin';
-      user.applicationRole = 'VIEWER';
-      user.userPreferences = {};
-
-      // Whenever set user is called, we should save a cookie
-      $cookies.put('user', JSON.stringify(user));
-
     };
 
     // Clears the user
@@ -169,24 +216,43 @@ tsApp.service('securityService', [
       default:
         return true;
       }
-      console.debug('fail');
+      console.trace();
       return false;
     };
 
     // isAdmin function
     this.isAdmin = function() {
-      return user.userRole === 'ADMINISTRATOR';
+      return user.applicationRole === 'ADMINISTRATOR';
     };
 
     // isUser function
     this.isUser = function() {
-      return user.userRole === 'USER';
+      return user.applicationRole === 'USER';
     };
 
     // isViewer function
     this.isViewer = function() {
-      return user.userRole === 'VIEWER';
+      return user.applicationRole === 'VIEWER';
     };
+    // See permissions.js for permissions
+
+    this.hasPermissions = function(action) {
+      var userProjectRole = user.userPreferences.lastProjectRole;
+      if (userProjectRole == 'AUTHOR' && user.editorLevel == 5) {
+        userProjectRole = 'EDITOR5';
+      }
+
+      // console.debug('permissions', action, userProjectRole);
+      return this.permissions[action][userProjectRole]
+        || this.permissions[action]['APP_' + user.applicationRole];
+    }
+
+    // add a new action and roleMap to the permissions map
+    this.permissions = {};
+    this.addPermission = function(action, roleMap) {
+      this.permissions[action] = roleMap;
+    }
+
     // Authenticate user
     this.authenticate = function(userName, password) {
 
@@ -196,7 +262,7 @@ tsApp.service('securityService', [
 
       // login
       $http({
-        url : securityUrl + 'authenticate/' + userName,
+        url : securityUrl + '/authenticate/' + userName,
         method : 'POST',
         data : password,
         headers : {
@@ -228,7 +294,7 @@ tsApp.service('securityService', [
         gpService.increment();
 
         // logout
-        $http.get(securityUrl + 'logout/' + user.authToken).then(
+        $http.get(securityUrl + '/logout/' + user.authToken).then(
         // success
         function(response) {
 
@@ -251,13 +317,36 @@ tsApp.service('securityService', [
       }
     };
 
+    // Get user by name
+    this.getUserByName = function(userName) {
+
+      var deferred = $q.defer();
+
+      gpService.increment();
+
+      // logout
+      $http.get(securityUrl + '/user/name/' + userName).then(
+      // success
+      function(response) {
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    }
+
     // get all users
     this.getUsers = function() {
       var deferred = $q.defer();
 
       // Get users
       gpService.increment();
-      $http.get(securityUrl + 'user/users').then(
+      $http.get(securityUrl + '/user/users').then(
       // success
       function(response) {
         gpService.decrement();
@@ -278,7 +367,7 @@ tsApp.service('securityService', [
 
       // Get users
       gpService.increment();
-      $http.get(securityUrl + 'user').then(
+      $http.get(securityUrl + '/user').then(
       // success
       function(response) {
         gpService.decrement();
@@ -299,7 +388,7 @@ tsApp.service('securityService', [
 
       // Add user
       gpService.increment();
-      $http.put(securityUrl + 'user/add', user).then(
+      $http.put(securityUrl + '/user/add', user).then(
       // success
       function(response) {
         gpService.decrement();
@@ -320,7 +409,7 @@ tsApp.service('securityService', [
 
       // Add user
       gpService.increment();
-      $http.post(securityUrl + 'user/update', user).then(
+      $http.post(securityUrl + '/user/update', user).then(
       // success
       function(response) {
         gpService.decrement();
@@ -336,12 +425,12 @@ tsApp.service('securityService', [
     };
 
     // removes user
-    this.removeUser = function(user) {
+    this.removeUser = function(id) {
       var deferred = $q.defer();
 
       // Add user
       gpService.increment();
-      $http['delete'](securityUrl + 'user/remove/' + user.id).then(
+      $http['delete'](securityUrl + '/user/remove/' + id).then(
       // success
       function(response) {
         gpService.decrement();
@@ -362,7 +451,7 @@ tsApp.service('securityService', [
 
       // Get application roles
       gpService.increment();
-      $http.get(securityUrl + 'roles').then(
+      $http.get(securityUrl + '/roles').then(
       // success
       function(response) {
         gpService.decrement();
@@ -384,7 +473,7 @@ tsApp.service('securityService', [
 
       // Make POST call
       gpService.increment();
-      $http.post(securityUrl + 'user/find?query=' + utilService.prepQuery(query),
+      $http.post(securityUrl + '/user/find?query=' + utilService.prepQuery(query),
         utilService.prepPfs(pfs)).then(
       // success
       function(response) {
@@ -405,22 +494,24 @@ tsApp.service('securityService', [
     // User Favorites
     //
 
-    // TODO Add null checks on user, user preferences to all functions
-
     // Create the base user favorite string, without timestamp
-    function getUserFavoriteStr(type, terminology, version, terminologyId, name) {
+    function getUserFavoriteStr(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name ? component.name : component.value;
       return type + '~~' + terminology + '~~' + version + '~~' + terminologyId + '~~' + name;
     }
 
     // Gets the user favorite string object without reference to name or
     // timestamp
-    function getUserFavorite(type, terminology, version, terminologyId) {
+    function getUserFavorite(component) {
 
       if (!user || !user.userPreferences || !user.userPreferences.favorites) {
         return null;
       }
-
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+      var delimitedStr = getUserFavoriteStr(component);
 
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
@@ -433,8 +524,8 @@ tsApp.service('securityService', [
 
     // Determines whether object is in favorites (without reference to name or
     // timestamp)
-    this.isUserFavorite = function(type, terminology, version, terminologyId) {
-      var favorite = getUserFavorite(type, terminology, version, terminologyId);
+    this.isUserFavorite = function(component) {
+      var favorite = getUserFavorite(component);
       if (favorite) {
         return true;
       } else {
@@ -444,21 +535,27 @@ tsApp.service('securityService', [
     };
 
     // Adds a user favorite
-    this.addUserFavorite = function(type, terminology, version, terminologyId, name) {
+    this.addUserFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
 
       var deferred = $q.defer();
       if (this.isGuestUser()) {
         $q.reject('Cannot add favorites for guest user');
+        utilService.handleError('Guest users cannot add favorites');
       } else {
         if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
           deferred.reject('Insufficient arguments');
         }
-        var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+        var delimitedStr = getUserFavoriteStr(component);
         if (!user.userPreferences.favorites) {
           user.userPreferences.favorites = [];
         }
 
-        if (!this.isUserFavorite(type, terminology, version, terminologyId)) {
+        if (!this.isUserFavorite(component)) {
 
           // add the timestamp after verifying this component info is not
           // matched
@@ -479,18 +576,27 @@ tsApp.service('securityService', [
     };
 
     // Removes a user favorite
-    this.removeUserFavorite = function(type, terminology, version, terminologyId, name) {
-
-      console.debug('remove user favorite', type, terminology, version, terminologyId, name);
+    this.removeUserFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name ? component.name : component.value;
+      
+      console.debug('remove user favorite', component, type, terminology, version, terminologyId, name);
 
       var deferred = $q.defer();
       if (!user.userPreferences || !type || !terminology || !version || !terminologyId || !name) {
-        deferred.reject('Insufficient arguments');
+        utilService.handleError({
+          data : 'Unexpected error removing favorite: insufficient arguments'
+        });
+        deferred.reject('Unexpected error removing favorite');
       }
-      var delimitedStr = getUserFavoriteStr(type, terminology, version, terminologyId, name);
+      var delimitedStr = getUserFavoriteStr(component);
 
       var matchFound = false;
       for (var i = 0; i < user.userPreferences.favorites.length; i++) {
+        console.debug(user.userPreferences.favorites[i], delimitedStr)
         if (user.userPreferences.favorites[i].indexOf(delimitedStr) != -1) {
           console.debug('match found: ', user.userPreferences.favorites[i]);
           matchFound = true;
@@ -505,7 +611,10 @@ tsApp.service('securityService', [
           deferred.reject(response);
         });
       } else {
-        deferred.reject('Favorite not in list');
+        utilService.handleError({
+          data : 'Unexpected error removing favorite: favorite not found'
+        });
+        deferred.reject('Unexpected error removing favorite: favorite not found');
       }
 
       return deferred.promise;
@@ -514,7 +623,7 @@ tsApp.service('securityService', [
 
     // update user preferences
     this.updateUserPreferences = function(userPreferences) {
-
+      console.debug('updateUserPreferences', userPreferences);
       // Whenever we update user preferences, we need to update the cookie
       $cookies.put('user', JSON.stringify(user));
 
@@ -533,7 +642,7 @@ tsApp.service('securityService', [
       } else {
 
         gpService.increment();
-        $http.post(securityUrl + 'user/preferences/update', userPreferences).then(
+        $http.post(securityUrl + '/user/preferences/update', userPreferences).then(
         // success
         function(response) {
           gpService.decrement();
@@ -550,7 +659,12 @@ tsApp.service('securityService', [
     };
 
     // Get favorite
-    this.getFavorite = function(type, terminology, version, terminologyId) {
+    this.getFavorite = function(component) {
+      var type = component.type;
+      var terminology = component.terminology;
+      var version = component.version;
+      var terminologyId = component.terminologyId;
+      var name = component.name;
       return this.getUser().userPreferences.favorites.filter(function(item) {
         return item.terminology === terminology && item.terminologyId === terminologyId
           && item.version === version && item.type === type;

@@ -1,13 +1,13 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -17,21 +17,17 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.reflections.Reflections;
 
-import com.wci.umls.server.algo.Algorithm;
-import com.wci.umls.server.jpa.services.RootServiceJpa;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
+import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 
 /**
- * Implementation of an algorithm to reindex all classes annotated with @Indexed
+ * Implementation of an algorithm to reindex all classes annotated
+ * with @Indexed.
  */
-public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm {
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
-
-  /** The request cancel flag. */
-  boolean requestCancel = false;
+public class LuceneReindexAlgorithm extends AbstractAlgorithm {
 
   /** The terminology. */
   private String indexedObjects;
@@ -59,6 +55,7 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
     if (fullTextEntityManager == null) {
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
@@ -113,13 +110,13 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
       String[] objects = indexedObjects.replaceAll(" ", "").split(",");
 
       // add each value to the set
-      for (String object : objects)
+      for (final String object : objects)
         objectsToReindex.add(object);
 
     }
 
     Logger.getLogger(getClass()).info("Starting reindexing for:");
-    for (String objectToReindex : objectsToReindex) {
+    for (final String objectToReindex : objectsToReindex) {
       Logger.getLogger(getClass()).info("  " + objectToReindex);
     }
 
@@ -162,41 +159,43 @@ public class LuceneReindexAlgorithm extends RootServiceJpa implements Algorithm 
     }
   }
 
-  /**
-   * Fires a {@link ProgressEvent}.
-   * @param pct percent done
-   * @param note progress note
-   */
-  public void fireProgressEvent(int pct, String note) {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
   }
 
   /* see superclass */
   @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    requestCancel = true;
-  }
-
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
+  public void checkProperties(Properties p) throws Exception {
     // n/a
   }
 
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    if (p.getProperty("indexedObjects") != null) {
+      indexedObjects = p.getProperty("indexedObjects");
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters() throws Exception {
+    final List<AlgorithmParameter> params = super.getParameters();
+    final AlgorithmParameter param =
+        new AlgorithmParameterJpa("Indexed Objects", "indexedObjects",
+            "Comma-separated list of simple object class names to reindex.", "",
+            255, AlgorithmParameter.Type.STRING, "");
+    params.add(param);
+    return params;
+
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

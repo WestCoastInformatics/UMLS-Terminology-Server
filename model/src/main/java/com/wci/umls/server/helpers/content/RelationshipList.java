@@ -3,8 +3,8 @@
  */
 package com.wci.umls.server.helpers.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.ResultList;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Relationship;
 
 /**
@@ -12,6 +12,6 @@ import com.wci.umls.server.model.content.Relationship;
  */
 public interface RelationshipList
     extends
-    ResultList<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> {
+    ResultList<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> {
   // nothing extra, a simple wrapper for easy serialization
 }

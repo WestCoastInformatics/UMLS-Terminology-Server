@@ -3,6 +3,57 @@ body {
 	padding-bottom: 100px;
 }
 
+hr {
+	width: 100%;
+	color: lightgrey;
+	height: 1px;
+	background-color: lightgrey;
+}
+
+h5 {
+	font-weight: 500;
+	font-size: 16px;
+}
+
+/* Override the 8px default table td padding */
+.slim>tbody>tr>td {
+	padding: 2px;
+}
+
+.slim>tbody>tr>td {
+	padding: 2px;
+}
+
+.slim>tr>td {
+	padding: 2px;
+}
+
+.slim>thead>tr>th {
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.slim>tr>th {
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.panel-heading {
+	padding-top: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+}
+
+.minibtn {
+	transform: scale(.8, .8);
+	padding-left: 5px;
+}
+
 .loginField {
 	margin: 5px;
 }
@@ -25,6 +76,10 @@ body {
 
 .selected {
 	background-color: #e9e9e9;
+}
+
+.bold {
+	font-weight: bold;
 }
 
 .swagger-ui-wrap p {
@@ -68,7 +123,7 @@ body {
 	/* override from inline-block to allow multiple items per line */
 	padding-left: 0;
 	padding-right: 10px;
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 	padding-left: 0px;
 	border-radius: 4px;
 }
@@ -88,7 +143,7 @@ body {
 }
 
 .hidden {
-	opacity : 0;
+	opacity: 0;
 }
 
 /* Angular UI Tree overrides */
@@ -98,11 +153,15 @@ body {
 }
 
 .glyphicon-muted {
-	opacity : 0.8;
+	opacity: 0.8;
 }
 
 .glyphicon-leaf {
 	opacity: 0.5;
+}
+
+.nocontent {
+	opacity: 0.2;
 }
 
 .green {
@@ -120,7 +179,20 @@ body {
 .grey {
 	color: grey;
 }
-	
+
+.drop-box {
+	background: #F8F8F8;
+	border: 5px dashed #DDD;
+	width: 200px;
+	height: 65px;
+	text-align: center;
+	padding-top: 25px;
+	margin: 10px;
+}
+
+.dragover {
+	border: 5px dashed blue;
+}
 
 .noul {
 	color: #337ab7;
@@ -129,11 +201,10 @@ body {
 }
 
 .nolink {
-	color: black;	
+	color: black;
 	cursor: none;
 	text-decoration: none;
 }
-
 
 .nobreak {
 	display: inline-block;
@@ -148,7 +219,7 @@ body {
 	text-overflow: ellipsis;
 }
 
-.table-select-row {
+.pointer {
 	cursor: pointer;
 }
 
@@ -158,9 +229,48 @@ body {
 	margin-left: 5px;
 }
 
+.m25 {
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.ml10 {
+	margin-left: 10px;
+}
+
+.ml20 {
+	margin-left: 20px;
+}
+
+.mr20 {
+	margin-right: 20px;
+}
+
+.mb10 {
+	margin-bottom: 10px;
+}
+
+.mt5 {
+	margin-top: 5px;
+}
+
+.mt10 {
+	margin-top: 10px;
+}
+
+.w100 {
+	width: 100%;
+	max-width: 100%;
+}
+
+.w80 {
+	width: 80%;
+	max-width: 80%;
+}
+
 .tab-disabled {
-	color : gray;
-	cursor : pointer;
+	color: gray;
+	cursor: pointer;
 }
 
 /* Makes table section headers medium blue background */
@@ -184,12 +294,11 @@ body {
 	border: dotted 3px red;
 	padding: 10px;
 } /* Default class applied to drop zones on over */
-
 .landing-img {
 	border-radius: 10px;
 	border: 1px solid gray;
 	max-width: 100%;
-	display:block;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -213,7 +322,95 @@ body {
 .w30 {
 	max-width: 30%;
 }
+
 .m10 {
 	margin-top: 10px;
 }
+
+.truncate {
+	max-width: 250px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.preformatted {
+	font-family: monospace;
+	white-space: pre;
+	background-color: #f5f5f5;
+	overflow-x: scroll;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	display: block;
+	padding: 9.5px;
+	margin: 0 0 10px;
+	font-size: 13px;
+}
+
+.READY_FOR_PUBLICATION {
+	color: black;
+}
+
+.PUBLISHED {
+	color: black;
+}
+
+.NEEDS_REVIEW {
+	color: red;
+}
+
+.DEMOTION {
+	color: blue;
+}
+
+.EMBRYO {
+	color: green;
+}
+
+.OBSOLETE {
+	color: purple;
+}
+
+.UNRELEASABLE {
+	color: green;
+}
+
+.RXNORM {
+	color: orange;
+}
+
+/* For vertical centering */
+.v-wrap {
+	height: 100%;
+	white-space: nowrap;
+	text-align: center;
+}
+
+.v-wrap:before {
+	content: "";
+	display: inline-block;
+	vertical-align: middle;
+	width: 0;
+	/* adjust for white space between pseudo element and next sibling */
+	margin-right: -.25em;
+	/* stretch line height */
+	height: 100%;
+}
+
+.v-box {
+	display: inline-block;
+	vertical-align: middle;
+	white-space: normal;
+}
+
+/* Make the pagination control smaller so it works with btn-xs */
+.pagination-sm>li>a, .pagination-sm>li>span {
+	padding: 3px 5.5px;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.yscroll {
+	overflow-y: scroll;
 }

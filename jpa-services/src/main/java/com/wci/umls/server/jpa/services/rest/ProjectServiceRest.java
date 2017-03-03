@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -7,11 +7,18 @@
 package com.wci.umls.server.jpa.services.rest;
 
 import com.wci.umls.server.Project;
+import com.wci.umls.server.UserRole;
+import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.helpers.StringList;
+import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
 import com.wci.umls.server.helpers.UserList;
 import com.wci.umls.server.jpa.ProjectJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.model.actions.AtomicActionList;
+import com.wci.umls.server.model.actions.MolecularActionList;
 
 /**
  * Represents a content available via a REST service.
@@ -59,15 +66,6 @@ public interface ProjectServiceRest {
   public Project getProject(Long id, String authToken) throws Exception;
 
   /**
-   * Returns the projects.
-   *
-   * @param authToken the auth token
-   * @return the projects
-   * @throws Exception the exception
-   */
-  public ProjectList getProjects(String authToken) throws Exception;
-
-  /**
    * Assign users to project.
    *
    * @param id the id
@@ -77,7 +75,7 @@ public interface ProjectServiceRest {
    * @return the project
    * @throws Exception the exception
    */
-  public Project assignUserToProject(Long id, String userName, String role,
+  public Project assignUserToProject(Long id, String userName, UserRole role,
     String authToken) throws Exception;
 
   /**
@@ -145,14 +143,26 @@ public interface ProjectServiceRest {
    * @return the project list
    * @throws Exception the exception
    */
-  public ProjectList findProjectsForQuery(String query, PfsParameterJpa pfs,
+  public ProjectList findProjects(String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
   /**
-   * Gets the log.
+   * Returns the log.
    *
    * @param projectId the project id
    * @param objectId the object id
+   * @param message the message
+   * @param lines the lines
+   * @param authToken the auth token
+   * @return the log
+   * @throws Exception the exception
+   */
+  public String getLog(Long projectId, Long objectId, String message, int lines,
+    String authToken) throws Exception;
+
+  /**
+   * Returns the log.
+   *
    * @param terminology the terminology
    * @param version the version
    * @param activity the activity
@@ -161,8 +171,125 @@ public interface ProjectServiceRest {
    * @return the log
    * @throws Exception the exception
    */
-  public String getLog(Long projectId, Long objectId, String terminology,
-    String version, String activity, int lines, String authToken)
+  public String getLog(String terminology, String version, String activity,
+    int lines, String authToken) throws Exception;
+
+  /**
+   * Finds molecular actions for concept and query.
+   *
+   * @param componentId the component id
+   * @param terminology the terminology
+   * @param version the version
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the molecular actions for concept
+   * @throws Exception the exception
+   */
+  public MolecularActionList findMolecularActions(Long componentId,
+    String terminology, String version, String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Find atomic actions.
+   *
+   * @param molecularActionId the molecular action id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the atomic action list
+   * @throws Exception the exception
+   */
+  public AtomicActionList findAtomicActions(Long molecularActionId,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Returns the validation checks.
+   *
+   * @param authToken the auth token
+   * @return the validation checks
+   * @throws Exception the exception
+   */
+  public KeyValuePairList getValidationChecks(String authToken)
+    throws Exception;
+
+  /**
+   * Returns the query types.
+   *
+   * @param authToken the auth token
+   * @return the query types
+   * @throws Exception the exception
+   */
+  public StringList getQueryTypes(String authToken) throws Exception;
+
+  /**
+   * Force an exception.
+   *
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void reloadConfigProperties(String authToken) throws Exception;
+
+  /**
+   * Force an exception.
+   *
+   * @param localFlag the local flag
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void forceException(Boolean localFlag, String authToken)
+    throws Exception;
+
+  /**
+   * Find type key values.
+   *
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the type key value list
+   * @throws Exception the exception
+   */
+  public TypeKeyValueList findTypeKeyValues(String query, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
+   * Removes the type key value.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeTypeKeyValue(Long id, String authToken) throws Exception;
+
+  /**
+   * Gets the type key value.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue getTypeKeyValue(Long id, String authToken) throws Exception;
+
+  /**
+   * Update type key value.
+   *
+   * @param tkv the tkv
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void updateTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
+    throws Exception;
+
+  /**
+   * Adds the type key value.
+   *
+   * @param tkv the tkv
+   * @param authToken the auth token
+   * @return the type key value
+   * @throws Exception the exception
+   */
+  public TypeKeyValue addTypeKeyValue(TypeKeyValueJpa tkv, String authToken)
     throws Exception;
 
 }

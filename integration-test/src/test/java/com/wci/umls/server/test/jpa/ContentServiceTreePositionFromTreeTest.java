@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.test.jpa;
 
@@ -15,16 +15,19 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceTreePositionFromTreeTest {
+public class ContentServiceTreePositionFromTreeTest
+    extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -44,6 +47,8 @@ public class ContentServiceTreePositionFromTreeTest {
   @Before
   public void setup() throws Exception {
     service = new ContentServiceJpa();
+    service.setLastModifiedBy("admin");
+    service.setMolecularActionFlag(false);
   }
 
   /**
@@ -53,17 +58,17 @@ public class ContentServiceTreePositionFromTreeTest {
    */
   @Test
   public void testConceptTreePositionFromTree() throws Exception {
-    Logger.getLogger(getClass()).info("Start test");
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
 
     // Start by obtaining tree positions for a concept
-    TreePositionList list =
-        service.findTreePositionsForConcept("10944007", "SNOMEDCT_US",
-            "2014_09_01", Branch.ROOT, new PfsParameterJpa());
+    TreePositionList list = service.findTreePositions("10944007", "SNOMEDCT_US",
+        "2016_03_01", Branch.ROOT, null, ConceptTreePositionJpa.class,
+        new PfsParameterJpa());
 
-    TreePosition<? extends AtomClass> treepos = list.getObjects().get(0);
-    Logger.getLogger(getClass()).info(
-        " first treepos = " + treepos.getNode().getId() + ", "
-            + treepos.getAncestorPath());
+    TreePosition<? extends ComponentHasAttributesAndName> treepos =
+        list.getObjects().get(0);
+    Logger.getLogger(getClass()).info(" first treepos = "
+        + treepos.getNode().getId() + ", " + treepos.getAncestorPath());
 
     Tree tree = service.getTreeForTreePosition(treepos);
     Logger.getLogger(getClass()).debug("  tree = " + tree);

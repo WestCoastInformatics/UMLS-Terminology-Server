@@ -3,6 +3,8 @@
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.model.workflow.WorkflowStatus;
+
 /**
  * A semantic type {@link ComponentHasAttributes}.
  */
@@ -27,13 +29,13 @@ public interface SemanticTypeComponent extends Component {
    *
    * @return the workflow status
    */
-  public String getWorkflowStatus();
+  public WorkflowStatus getWorkflowStatus();
 
   /**
    * Sets the workflow status.
    *
    * @param workflowStatus the workflow status
    */
-  public void setWorkflowStatus(String workflowStatus);
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
 
 }

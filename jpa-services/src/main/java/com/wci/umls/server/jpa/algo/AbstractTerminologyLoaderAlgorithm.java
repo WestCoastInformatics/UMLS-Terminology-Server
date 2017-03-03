@@ -1,14 +1,19 @@
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
+ */
 package com.wci.umls.server.jpa.algo;
+
+import java.util.Properties;
 
 import com.wci.umls.server.algo.TerminologyLoaderAlgorithm;
 import com.wci.umls.server.helpers.CancelException;
-import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.helpers.ConfigUtility;
 
 /**
  * Abstract support for loader algorithms.
  */
-public abstract class AbstractTerminologyLoaderAlgorithm extends
-    AbstractTerminologyAlgorithm implements TerminologyLoaderAlgorithm {
+public abstract class AbstractTerminologyLoaderAlgorithm
+    extends AbstractAlgorithm implements TerminologyLoaderAlgorithm {
 
   /** LOADER constant for use as userName. */
   public final static String LOADER = "loader";
@@ -28,7 +33,8 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
    * @throws Exception the exception
    */
   public AbstractTerminologyLoaderAlgorithm() throws Exception {
-    // n/a
+    setLastModifiedBy(LOADER);
+    setWorkId("LOADER");
   }
 
   /* see superclass */
@@ -75,17 +81,6 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
 
   /* see superclass */
   @Override
-  public abstract void computeTransitiveClosures() throws Exception;
-
-  /* see superclass */
-  @Override
-  public abstract void computeTreePositions() throws Exception;
-
-  @Override
-  public abstract void computeExpressionIndexes() throws Exception;
-
-  /* see superclass */
-  @Override
   public void commitClearBegin() throws Exception {
 
     if (isCancelled()) {
@@ -111,7 +106,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     }
 
     if (objectCt % logCt == 0) {
-      addLogEntry(LOADER, getTerminology(), getVersion(), LogActivity.LOADER,
+      addLogEntry(LOADER, getTerminology(), getVersion(), null, "LOADER",
           "    count = " + objectCt);
     }
     super.logAndCommit(objectCt, logCt, commitCt);
@@ -124,7 +119,7 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
    * @return the total elapsed time str
    */
   @SuppressWarnings({
-    "boxing"
+      "boxing"
   })
   protected static String getTotalElapsedTimeStr(long time) {
     Long resultnum = (System.nanoTime() - time) / 1000000000;
@@ -136,4 +131,28 @@ public abstract class AbstractTerminologyLoaderAlgorithm extends
     return result;
   }
 
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception the exception
+   */
+  @Override
+  public String getConfigurableValue(String terminology, String key)
+    throws Exception {
+    Properties p = ConfigUtility.getConfigProperties();
+    String fullKey = getClass().getName() + "." + terminology + "." + key;
+    if (p.containsKey(fullKey)) {
+      return p.getProperty(fullKey);
+    }
+    return null;
+  }
+  
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

@@ -4,10 +4,14 @@
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -15,7 +19,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.envers.Audited;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Store;
 
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
@@ -44,6 +54,12 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   @OneToMany(mappedBy = "subset", targetEntity = ConceptSubsetMemberJpa.class)
   private List<ConceptSubsetMember> members = null;
 
+  /** The alternate terminology ids. */
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
+  private Map<String, String> alternateTerminologyIds;
+
   /**
    * Instantiates an empty {@link ConceptSubsetJpa}.
    */
@@ -55,16 +71,17 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
    * Instantiates a {@link ConceptSubsetJpa} from the specified parameters.
    *
    * @param subset the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptSubsetJpa(ConceptSubset subset, boolean deepCopy) {
-    super(subset, deepCopy);
+  public ConceptSubsetJpa(ConceptSubset subset, boolean collectionCopy) {
+    super(subset, collectionCopy);
     disjointSubset = subset.isDisjointSubset();
     labelSubset = subset.isLabelSubset();
-    if (deepCopy) {
-      for (ConceptSubsetMember member : subset.getMembers()) {
-        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
-      }
+    alternateTerminologyIds =
+        new HashMap<>(subset.getAlternateTerminologyIds());
+
+    if (collectionCopy) {
+      members = new ArrayList<>(subset.getMembers());
     }
 
   }
@@ -117,6 +134,24 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
 
   /* see superclass */
   @Override
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
+  @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+  public Map<String, String> getAlternateTerminologyIds() {
+    if (alternateTerminologyIds == null) {
+      alternateTerminologyIds = new HashMap<>(2);
+    }
+    return alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
+  public void setAlternateTerminologyIds(
+    Map<String, String> alternateTerminologyIds) {
+    this.alternateTerminologyIds = alternateTerminologyIds;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -145,9 +180,8 @@ public class ConceptSubsetJpa extends AbstractSubset implements ConceptSubset {
   /* see superclass */
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " [name=" + getName()
-        + ", description=" + getDescription() + ", disjointSubset="
-        + disjointSubset + "]";
+    return getClass().getSimpleName() + " [name=" + getName() + ", description="
+        + getDescription() + ", disjointSubset=" + disjointSubset + "]";
   }
 
 }

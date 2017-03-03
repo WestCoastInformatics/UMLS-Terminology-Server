@@ -11,8 +11,10 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.wci.umls.server.SourceData;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.LocalException;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -50,8 +52,10 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
 
   /**
    * Instantiates an empty {@link RrfSourceDataHandler}.
+   *
+   * @throws Exception the exception
    */
-  public RrfSourceDataHandler() {
+  public RrfSourceDataHandler() throws Exception {
     // n/a
   }
 
@@ -100,8 +104,8 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     }
 
     if (!new File(inputDir).isDirectory()) {
-      throw new LocalException("Source data directory is not a directory: "
-          + inputDir);
+      throw new LocalException(
+          "Source data directory is not a directory: " + inputDir);
     }
 
     // instantiate service
@@ -111,12 +115,7 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     final RrfLoaderAlgorithm algorithm = new RrfLoaderAlgorithm();
     algorithm.setTerminology(sourceData.getTerminology());
     algorithm.setVersion(sourceData.getVersion());
-    if (codeFlag == null || codeFlag) {
-      algorithm.setCodesFlag(true);
-    } else {
-      algorithm.setCodesFlag(false);
-    }
-    algorithm.setSingleMode(singleMode);
+    algorithm.setStyle(RrfLoaderAlgorithm.Style.SINGLE);
     algorithm.compute();
     algorithm.close();
 
@@ -268,26 +267,36 @@ public class RrfSourceDataHandler extends AbstractSourceDataHandler {
     return this.inputDir;
   }
 
+  /* see superclass */
   @Override
-  public boolean checkPreconditions() throws Exception {
+  public ValidationResult checkPreconditions() throws Exception {
+
+    final ValidationResult result = new ValidationResultJpa();
     ContentService contentService = null;
     try {
       contentService = new ContentServiceJpa();
 
-      // concepts must not exist with this terminology/version
-      if (contentService.findConceptsForQuery(sourceData.getTerminology(),
+      // concepts must exist with this terminology/version
+      if (contentService.findConceptSearchResults(sourceData.getTerminology(),
           sourceData.getVersion(), Branch.ROOT, null, new PfsParameterJpa())
-          .getTotalCount() == 0) {
-        return true;
-      } else {
-        return false;
+          .getTotalCount() > 0) {
+        result.addError("Unexpected lack of concepts for "
+            + sourceData.getTerminology() + ", " + sourceData.getVersion());
       }
+
+      return result;
     } catch (Exception e) {
       throw e;
     } finally {
       if (contentService != null)
         contentService.close();
     }
+
   }
 
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
 }

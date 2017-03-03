@@ -1,9 +1,12 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
 import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -34,6 +37,12 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
   /** The u2. */
   private User u2;
 
+  /** The fixture m1. */
+  private Map<String, String> m1;
+
+  /** The fixture m2. */
+  private Map<String, String> m2;
+
   /**
    * Setup class.
    */
@@ -53,6 +62,11 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     ProxyTester tester = new ProxyTester(new UserJpa());
     u1 = (User) tester.createObject(1);
     u2 = (User) tester.createObject(2);
+    m1 = new HashMap<>();
+    m1.put("1", "1");
+    m2 = new HashMap<>();
+    m2.put("2", "3");
+    m2.put("4", "5");
   }
 
   /**
@@ -61,7 +75,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelGetSet030() throws Exception {
+  public void testModelGetSet() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     GetterSetterTester tester = new GetterSetterTester(object);
     tester.exclude("userName");
@@ -76,17 +90,21 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelEqualsHashcode030() throws Exception {
+  public void testModelEqualsHashcode() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     EqualsHashcodeTester tester = new EqualsHashcodeTester(object);
     tester.include("user");
     tester.include("feedbackEmail");
     tester.include("lastTab");
     tester.include("lastProjectId");
+    tester.include("lastProjectRole");
     tester.include("lastTerminology");
+    tester.include("properties");
 
     tester.proxy(User.class, 1, u1);
     tester.proxy(User.class, 2, u2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
 
     assertTrue(tester.testNonIdentityFieldEquals());
     // the "setUserName" is actually changing the u1 object to have a username
@@ -96,6 +114,9 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     u2 = (UserJpa) tester2.createObject(2);
     tester.proxy(User.class, 1, u1);
     tester.proxy(User.class, 2, u2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
+
     assertTrue(tester.testIdentityFieldNotEquals());
     assertTrue(tester.testIdentityFieldHashcode());
     assertTrue(tester.testNonIdentityFieldHashcode());
@@ -104,6 +125,9 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     // of u2 so we need to recreate
     u1 = (UserJpa) tester2.createObject(1);
     u2 = (UserJpa) tester2.createObject(2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
+
     tester.proxy(User.class, 1, u1);
     tester.proxy(User.class, 2, u2);
     assertTrue(tester.testIdentityFieldDifferentHashcode());
@@ -115,13 +139,15 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelCopy030() throws Exception {
+  public void testModelCopy() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     CopyConstructorTester tester = new CopyConstructorTester(object);
 
     // Set up objects
     tester.proxy(User.class, 1, u1);
     tester.proxy(User.class, 2, u2);
+    tester.proxy(Map.class, 1, m1);
+    tester.proxy(Map.class, 2, m2);
 
     assertTrue(tester.testCopyConstructor(UserPreferences.class));
   }
@@ -132,7 +158,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelXmlSerialization030() throws Exception {
+  public void testModelXmlSerialization() throws Exception {
     Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     XmlSerializationTester tester = new XmlSerializationTester(object);
 
@@ -141,7 +167,7 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
     u.setId(1L);
     u.setUserName("1");
     tester.proxy(User.class, 1, u);
-
+    tester.proxy(Map.class, 1, m1);
 
     assertTrue(tester.testXmlSerialization());
   }
@@ -152,11 +178,8 @@ public class UserPreferencesJpaUnitTest extends ModelUnitSupport {
    * @throws Exception the exception
    */
   @Test
-  public void testModelNotNullField030() throws Exception {
-    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
-    // NullableFieldTester tester = new NullableFieldTester(object);
-    // no not nullable fields
-    // assertTrue(tester.testNotNullFields());
+  public void testModelNotNullField() throws Exception {
+    // n/a
   }
 
   /**

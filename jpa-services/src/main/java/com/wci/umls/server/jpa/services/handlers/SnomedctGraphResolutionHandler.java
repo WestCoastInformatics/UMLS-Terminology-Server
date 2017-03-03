@@ -1,11 +1,12 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.meta.GeneralMetadataEntryList;
 import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.model.content.Atom;
@@ -27,8 +28,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class SnomedctGraphResolutionHandler extends
-    DefaultGraphResolutionHandler {
+public class SnomedctGraphResolutionHandler
+    extends DefaultGraphResolutionHandler {
 
   /** The atv prop. */
   private static Properties prop = null;
@@ -50,12 +51,13 @@ public class SnomedctGraphResolutionHandler extends
       MetadataService service = new MetadataServiceJpa();
       GeneralMetadataEntryList list =
           service.getGeneralMetadataEntries(terminology, version);
-      for (GeneralMetadataEntry entry : list.getObjects()) {
+      for (final GeneralMetadataEntry entry : list.getObjects()) {
         prop.setProperty(entry.getAbbreviation(), entry.getExpandedForm());
       }
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(Concept concept) throws Exception {
     cacheProperties();
@@ -66,7 +68,7 @@ public class SnomedctGraphResolutionHandler extends
       concept.getLabels().size();
 
       // subset members
-      for (ConceptSubsetMember member : concept.getMembers()) {
+      for (final ConceptSubsetMember member : concept.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
@@ -74,13 +76,16 @@ public class SnomedctGraphResolutionHandler extends
       // Attributes
       resolveAttributes(concept, nullId);
 
+      // Component History
+      resolveComponentHistory(concept, nullId);
+
       // Definitions
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Semantic type components
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (nullId) {
           sty.setId(null);
         }
@@ -89,7 +94,7 @@ public class SnomedctGraphResolutionHandler extends
       }
 
       // Atoms
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -100,7 +105,7 @@ public class SnomedctGraphResolutionHandler extends
       // Relationships
       // Default behavior -- do not return relationships, require paging calls
       concept.setRelationships(new ArrayList<ConceptRelationship>());
-      
+
       // lazy initialization of user annotations
       concept.getNotes().size();
 
@@ -109,6 +114,7 @@ public class SnomedctGraphResolutionHandler extends
     }
   }
 
+  /* see superclass */
   @Override
   public void resolve(Atom atom) throws Exception {
     cacheProperties();
@@ -117,7 +123,7 @@ public class SnomedctGraphResolutionHandler extends
       boolean nullId = atom.getId() == null;
 
       // subset members
-      for (AtomSubsetMember member : atom.getMembers()) {
+      for (final AtomSubsetMember member : atom.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
@@ -132,13 +138,17 @@ public class SnomedctGraphResolutionHandler extends
       // Attributes
       resolveAttributes(atom, nullId);
 
+      // Component History
+      resolveComponentHistory(atom, nullId);
+
       // Definitions
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // skip rels
       atom.setRelationships(new ArrayList<AtomRelationship>());
+      atom.getNotes().size();
 
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");
@@ -146,9 +156,10 @@ public class SnomedctGraphResolutionHandler extends
 
   }
 
+  /* see superclass */
   @Override
   public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     cacheProperties();
     if (relationship != null) {
@@ -162,9 +173,10 @@ public class SnomedctGraphResolutionHandler extends
         relationship.getAlternateTerminologyIds().keySet();
       }
 
-      if (prop.getProperty(relationship.getAdditionalRelationshipType()) != null) {
-        relationship.setAdditionalRelationshipType(prop
-            .getProperty(relationship.getAdditionalRelationshipType()));
+      if (prop
+          .getProperty(relationship.getAdditionalRelationshipType()) != null) {
+        relationship.setAdditionalRelationshipType(
+            prop.getProperty(relationship.getAdditionalRelationshipType()));
       }
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
@@ -177,20 +189,23 @@ public class SnomedctGraphResolutionHandler extends
    *
    * @param component the component
    * @param nullId the null id
+   * @throws Exception the exception
    */
   @Override
   protected void resolveAttributes(ComponentHasAttributes component,
-    boolean nullId) {
-    for (Attribute att : component.getAttributes()) {
+    boolean nullId) throws Exception {
+    cacheProperties();
+    for (final Attribute att : component.getAttributes()) {
       att.getName();
       att.getAlternateTerminologyIds().keySet();
       if (nullId) {
         att.setId(null);
       }
       if (prop.getProperty(att.getValue()) != null) {
-        att.setValue(prop.getProperty(att.getValue()) + " (" + att.getValue()
-            + ")");
+        att.setValue(
+            prop.getProperty(att.getValue()) + " (" + att.getValue() + ")");
       }
     }
   }
+
 }

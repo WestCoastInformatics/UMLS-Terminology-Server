@@ -30,6 +30,12 @@
 
     <dependency>
       <groupId>com.wcinformatics.umls.server</groupId>
+      <artifactId>term-server-rest</artifactId>
+      <classifier>classes</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>com.wcinformatics.umls.server</groupId>
       <artifactId>term-server-model</artifactId>
     </dependency>
 
@@ -43,6 +49,7 @@
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -128,10 +135,10 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <includes>
-                <include>**/com/wci/umls/server/test/mojo/RrfU*Test.java</include>
+                <include>**/com/wci/umls/server/test/mojo/*Test.java</include>
               </includes>
               <excludes>
-                <exclude>**/com/wci/umls/server/test/mojo/Reset*Test.java
+                <exclude>**/com/wci/umls/server/test/mojo/Reset*.java
                 </exclude>
               </excludes>
               <additionalClasspathElements>
@@ -144,7 +151,52 @@
       </build>
     </profile>
 
-    <!-- Reset dev database to stock conditions -->
+    <!-- Reset META dev database to stock conditions -->
+    <profile>
+      <id>reset-meta</id>
+      <build>
+        <plugins>
+          <!-- Add src/main/resources to the classpath -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/com/wci/umls/server/test/mojo/ResetNciMetaDatabase.java</include>
+              </includes>
+              <additionalClasspathElements>
+                <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+              </additionalClasspathElements>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Reset demo database to stock conditions -->
+    <profile>
+      <id>reset-demo</id>
+      <build>
+        <plugins>
+          <!-- Add src/main/resources to the classpath -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/com/wci/umls/server/test/mojo/ResetDemoDatabase.java</include>
+              </includes>
+              <additionalClasspathElements>
+                <additionalClasspathElement>src/main/resources</additionalClasspathElement>
+              </additionalClasspathElements>
+              <skipTests>${skipTests}</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>reset</id>
       <build>

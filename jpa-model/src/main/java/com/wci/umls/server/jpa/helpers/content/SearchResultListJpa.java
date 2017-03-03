@@ -31,7 +31,7 @@ public class SearchResultListJpa extends AbstractResultList<SearchResult>
   @Override
   public String toString() {
     return "SearchResultListJpa [searchResults=" + getObjects()
-        + ", getCount()=" + getCount() + "]";
+        + ", getCount()=" + size() + "]";
   }
 
 }

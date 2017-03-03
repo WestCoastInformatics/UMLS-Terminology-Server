@@ -1,11 +1,13 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,8 +43,8 @@ import com.wci.umls.server.model.meta.Terminology;
 }))
 @Audited
 @XmlRootElement(name = "terminology")
-public class TerminologyJpa extends AbstractHasLastModified implements
-    Terminology {
+public class TerminologyJpa extends AbstractHasLastModified
+    implements Terminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -80,6 +82,10 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
+  /** The related terminologies. */
+  @ElementCollection
+  private List<String> relatedTerminologies = new ArrayList<>();
+
   /** The version. */
   @Column(nullable = false)
   private String version;
@@ -104,6 +110,28 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = true)
   private String descriptionLogicProfile = null;
 
+  /** email address of the Apelon inverter. */
+  @Column(nullable = true)
+  private String inverterEmail = null;
+
+  /** context type value describing what to do with siblings. */
+  @Column(nullable = false)
+  private boolean includeSiblings = false;
+
+  /** One or more URLs providing more information about this source. */
+  @Column(nullable = true)
+  private String url = null;
+
+  /** The first releases. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  private Map<String, String> firstReleases;
+
+  /** The last releases. */
+  @ElementCollection(fetch = FetchType.EAGER)
+  @Column(nullable = true)
+  private Map<String, String> lastReleases;
+
   /**
    * Instantiates an empty {@link TerminologyJpa}.
    */
@@ -114,24 +142,30 @@ public class TerminologyJpa extends AbstractHasLastModified implements
   /**
    * Instantiates a {@link TerminologyJpa} from the specified parameters.
    *
-   * @param terminology the terminology
+   * @param copy the terminology
    */
-  public TerminologyJpa(Terminology terminology) {
-    super(terminology);
-    this.terminology = terminology.getTerminology();
-    citation = terminology.getCitation();
-    endDate = terminology.getEndDate();
-    organizingClassType = terminology.getOrganizingClassType();
-    preferredName = terminology.getPreferredName();
-    rootTerminology = terminology.getRootTerminology();
-    startDate = terminology.getStartDate();
-    synonymousNames = terminology.getSynonymousNames();
-    version = terminology.getVersion();
-    assertsRelDirection = terminology.isAssertsRelDirection();
-    current = terminology.isCurrent();
-    metathesaurus = terminology.isMetathesaurus();
-    descriptionLogicTerminology = terminology.isDescriptionLogicTerminology();
-    descriptionLogicProfile = terminology.getDescriptionLogicProfile();
+  public TerminologyJpa(Terminology copy) {
+    super(copy);
+    terminology = copy.getTerminology();
+    citation = copy.getCitation();
+    endDate = copy.getEndDate();
+    organizingClassType = copy.getOrganizingClassType();
+    preferredName = copy.getPreferredName();
+    rootTerminology = copy.getRootTerminology();
+    startDate = copy.getStartDate();
+    synonymousNames = new ArrayList<>(copy.getSynonymousNames());
+    relatedTerminologies = new ArrayList<>(copy.getRelatedTerminologies());
+    version = copy.getVersion();
+    assertsRelDirection = copy.isAssertsRelDirection();
+    current = copy.isCurrent();
+    metathesaurus = copy.isMetathesaurus();
+    descriptionLogicTerminology = copy.isDescriptionLogicTerminology();
+    descriptionLogicProfile = copy.getDescriptionLogicProfile();
+    inverterEmail = copy.getInverterEmail();
+    includeSiblings = copy.isIncludeSiblings();
+    url = copy.getUrl();
+    firstReleases = new HashMap<>(copy.getFirstReleases());
+    lastReleases = new HashMap<>(copy.getLastReleases());
   }
 
   /* see superclass */
@@ -267,6 +301,21 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
+  public List<String> getRelatedTerminologies() {
+    if (relatedTerminologies == null) {
+      relatedTerminologies = new ArrayList<>();
+    }
+    return relatedTerminologies;
+  }
+
+  /* see superclass */
+  @Override
+  public void setRelatedTerminologies(List<String> relatedTerminologies) {
+    this.relatedTerminologies = relatedTerminologies;
+  }
+
+  /* see superclass */
+  @Override
   public String getTerminology() {
     return terminology;
   }
@@ -351,6 +400,74 @@ public class TerminologyJpa extends AbstractHasLastModified implements
 
   /* see superclass */
   @Override
+  public String getInverterEmail() {
+    return inverterEmail;
+  }
+
+  /* see superclass */
+  @Override
+  public void setInverterEmail(String inverterEmail) {
+    this.inverterEmail = inverterEmail;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isIncludeSiblings() {
+    return includeSiblings;
+  }
+
+  /* see superclass */
+  @Override
+  public void setIncludeSiblings(boolean includeSiblings) {
+    this.includeSiblings = includeSiblings;
+  }
+
+  /* see superclass */
+  @Override
+  public String getUrl() {
+    return url;
+  }
+
+  /* see superclass */
+  @Override
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getFirstReleases() {
+    if (firstReleases == null) {
+      firstReleases = new HashMap<>();
+    }
+    return firstReleases;
+  }
+
+  /* see superclass */
+  @Override
+  public void setFirstReleases(Map<String, String> firstReleases) {
+    this.firstReleases = firstReleases;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getLastReleases() {
+    if (lastReleases == null) {
+      lastReleases = new HashMap<>();
+    }
+    return lastReleases;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLastReleases(Map<String, String> lastReleases) {
+    this.lastReleases = lastReleases;
+  }
+
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -359,27 +476,23 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     result = prime * result + (current ? 1231 : 1237);
     result = prime * result + (metathesaurus ? 1231 : 1237);
     result = prime * result + (descriptionLogicTerminology ? 1231 : 1237);
-    result =
-        prime
-            * result
-            + ((descriptionLogicProfile == null) ? 0 : descriptionLogicProfile
-                .hashCode());
+    result = prime * result + ((descriptionLogicProfile == null) ? 0
+        : descriptionLogicProfile.hashCode());
     result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
-    result =
-        prime
-            * result
-            + ((organizingClassType == null) ? 0 : organizingClassType
-                .hashCode());
-    result =
-        prime * result
-            + ((preferredName == null) ? 0 : preferredName.hashCode());
+    result = prime * result
+        + ((organizingClassType == null) ? 0 : organizingClassType.hashCode());
+    result = prime * result
+        + ((preferredName == null) ? 0 : preferredName.hashCode());
     result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
-    result =
-        prime * result
-            + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result = prime * result
+        + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     result = prime * result + ((version == null) ? 0 : version.hashCode());
+    result = prime * result
+        + ((inverterEmail == null) ? 0 : inverterEmail.hashCode());
+    result = prime * result + (includeSiblings ? 1231 : 1237);
+    result = prime * result + ((url == null) ? 0 : url.hashCode());
     return result;
   }
 
@@ -431,11 +544,6 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         return false;
     } else if (!startDate.equals(other.startDate))
       return false;
-    if (synonymousNames == null) {
-      if (other.synonymousNames != null)
-        return false;
-    } else if (!synonymousNames.equals(other.synonymousNames))
-      return false;
     if (terminology == null) {
       if (other.terminology != null)
         return false;
@@ -446,6 +554,19 @@ public class TerminologyJpa extends AbstractHasLastModified implements
         return false;
     } else if (!version.equals(other.version))
       return false;
+    if (inverterEmail == null) {
+      if (other.inverterEmail != null)
+        return false;
+    } else if (!inverterEmail.equals(other.inverterEmail))
+      return false;
+    if (includeSiblings != other.includeSiblings)
+      return false;
+
+    if (url == null) {
+      if (other.url != null)
+        return false;
+    } else if (!url.equals(other.url))
+      return false;
     return true;
   }
 
@@ -455,12 +576,12 @@ public class TerminologyJpa extends AbstractHasLastModified implements
     return "TerminologyJpa [terminology=" + terminology + ", citation="
         + citation + ", endDate=" + endDate + ", organizingClassType="
         + organizingClassType + ", preferredName=" + preferredName
-        + ", startDate=" + startDate + ", synonymousNames=" + synonymousNames
-        + ", version=" + version + ", assertsRelDirection="
-        + assertsRelDirection + ", current=" + current + ", metathesaurus="
+        + ", startDate=" + startDate + ", version=" + version
+        + ", assertsRelDirection=" + assertsRelDirection + ", metathesaurus="
         + metathesaurus + ", descriptionLogicTerminology="
         + descriptionLogicTerminology + ", descriptionLogicProfile="
-        + descriptionLogicProfile + "]";
+        + descriptionLogicProfile + ", inverterEmail=" + inverterEmail
+        + ", includeSiblings=" + includeSiblings + ", url=" + url + "]";
   }
 
 }

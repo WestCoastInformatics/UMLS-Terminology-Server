@@ -7,22 +7,23 @@ tsApp.directive('favorites', [
   '$uibModal',
   '$timeout',
   function($rootScope, utilService, contentService, securityService, $uibModal, $timeout) {
-    console.debug('configure favorites directive');
     return {
       restrict : 'A',
       scope : {
         // NOTE: metadata used for non-matching terminology display in html only
         metadata : '=',
+        component : '=',
         favorites : '=',
         callbacks : '='
       },
       templateUrl : 'app/util/favorites/favorites.html',
       link : function(scope, element, attrs) {
 
-        // instantiate paging and paging callback function
+        // instantiate paging and paging callbacks function
         scope.pagedData = null;
+        scope.pageSizes = utilService.getPageSizes();
         scope.paging = utilService.getPaging();
-        scope.pageCallback = {
+        scope.pageCallbacks = {
           getPagedList : getPagedList
         };
 
@@ -52,7 +53,9 @@ tsApp.directive('favorites', [
         function getPagedList() {
 
           // Request from service
-          contentService.getUserFavorites(scope.paging).then(function(response) {
+          contentService.getUserFavorites(scope.paging).then(
+          // Success
+          function(response) {
             scope.pagedData = response;
 
           });
@@ -98,11 +101,13 @@ tsApp.directive('favorites', [
         };
 
         scope.removeFavorite = function(favorite) {
-          securityService.removeUserFavorite(favorite.type, favorite.terminology, favorite.version,
-            favorite.terminologyId, favorite.value).then(function(response) {
+        	console.debug('remove favorite', favorite);
+          securityService.removeUserFavorite(favorite).then(
+          // Success
+          function(response) {
             getPagedList();
             scope.callbacks.checkFavoriteStatus();
-
+            websocketService.fireFavoriteChange();
           });
         };
 

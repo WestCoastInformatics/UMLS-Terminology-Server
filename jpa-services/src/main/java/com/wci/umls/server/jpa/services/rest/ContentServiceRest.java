@@ -1,11 +1,15 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
  */
 package com.wci.umls.server.jpa.services.rest;
 
+import java.io.InputStream;
+import java.util.Set;
+
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.content.CodeList;
@@ -18,14 +22,22 @@ import com.wci.umls.server.helpers.content.SubsetList;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
+import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.CodeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
+import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.StringClass;
+import com.wci.umls.server.model.meta.IdType;
 
+// TODO: Auto-generated Javadoc
 /**
  * Represents a service for managing content.
  */
@@ -37,12 +49,25 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the concept
    * @throws Exception the exception
    */
   public Concept getConcept(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
+
+  /**
+   * Returns the concept.
+   *
+   * @param conceptId the concept id
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the concept
+   * @throws Exception the exception
+   */
+  public Concept getConcept(Long conceptId, Long projectId, String authToken)
+    throws Exception;
 
   /**
    * Find concepts for query.
@@ -55,21 +80,20 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+  public SearchResultList findConcepts(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find concepts for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findConceptsForGeneralQuery(String query, String jql,
+  public SearchResultList findConceptsForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -123,12 +147,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the descriptor
    * @throws Exception the exception
    */
   public Descriptor getDescriptor(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Gets the subset members for atom.
@@ -140,7 +165,7 @@ public interface ContentServiceRest {
    * @return the subset members for atom
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForAtom(String terminologyId,
+  public SubsetMemberList getAtomSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
 
   /**
@@ -153,24 +178,8 @@ public interface ContentServiceRest {
    * @return the subset members for concept
    * @throws Exception the exception
    */
-  public SubsetMemberList getSubsetMembersForConcept(String terminologyId,
+  public SubsetMemberList getConceptSubsetMembers(String terminologyId,
     String terminology, String version, String authToken) throws Exception;
-
-  /**
-   * Find deep relationships for concept.
-   *
-   * @param terminologyId the terminology id
-   * @param terminology the terminology
-   * @param version the version
-   * @param pfs the pfs
-   * @param filter the filter
-   * @param authToken the auth token
-   * @return the relationship list
-   * @throws Exception the exception
-   */
-  public RelationshipList findDeepRelationshipsForConcept(String terminologyId,
-    String terminology, String version, PfsParameterJpa pfs, String filter,
-    String authToken) throws Exception;
 
   /**
    * Find relationships for descriptor.
@@ -184,7 +193,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForDescriptor(String terminologyId,
+  public RelationshipList findDescriptorRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -200,7 +209,7 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForCode(String terminologyId,
+  public RelationshipList findCodeRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -216,9 +225,26 @@ public interface ContentServiceRest {
    * @return the relationship list
    * @throws Exception the exception
    */
-  public RelationshipList findRelationshipsForConcept(String terminologyId,
+  public RelationshipList findConceptRelationships(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
+
+  /**
+   * Find relationships for component info.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param type the type
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findComponentInfoRelationships(String terminologyId,
+    String terminology, String version, IdType type, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptors for query.
@@ -231,22 +257,21 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findDescriptorsForQuery(String terminology,
-    String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+  public SearchResultList findDescriptors(String terminology, String version,
+    String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptors for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
   public SearchResultList findDescriptorsForGeneralQuery(String query,
-    String jql, PfsParameterJpa pfs, String authToken) throws Exception;
+    String JPQL, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Autocomplete descriptors.
@@ -299,12 +324,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the code
    * @throws Exception the exception
    */
   public Code getCode(String terminologyId, String terminology, String version,
-    String authToken) throws Exception;
+    Long projectId, String authToken) throws Exception;
 
   /**
    * Find codes for query.
@@ -317,20 +343,20 @@ public interface ContentServiceRest {
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForQuery(String terminology, String version,
+  public SearchResultList findCodes(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find codes for general query.
    *
    * @param query the query
-   * @param jql the jql
+   * @param JPQL the JPQL
    * @param pfs the pfs
    * @param authToken the auth token
    * @return the search result list
    * @throws Exception the exception
    */
-  public SearchResultList findCodesForGeneralQuery(String query, String jql,
+  public SearchResultList findCodesForGeneralQuery(String query, String JPQL,
     PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -384,12 +410,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the lexical class
    * @throws Exception the exception
    */
   public LexicalClass getLexicalClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Gets the string class.
@@ -397,12 +424,13 @@ public interface ContentServiceRest {
    * @param terminologyId the terminology id
    * @param terminology the terminology
    * @param version the version
+   * @param projectId the project id
    * @param authToken the auth token
    * @return the string class
    * @throws Exception the exception
    */
   public StringClass getStringClass(String terminologyId, String terminology,
-    String version, String authToken) throws Exception;
+    String version, Long projectId, String authToken) throws Exception;
 
   /**
    * Lucene reindex.
@@ -437,20 +465,43 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Load terminology simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void loadTerminologySimple(String terminology, String version,
+    String inputDir, String authToken) throws Exception;
+
+  /**
+   * Export terminology simple.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param authToken the auth token
+   * @return the input stream
+   * @throws Exception the exception
+   */
+  public InputStream exportTerminologySimple(String terminology, String version,
+    String authToken) throws Exception;
+
+  /**
    * Load terminology rrf.
    *
    * @param terminology the terminology
    * @param version the version
-   * @param singleMode the single mode
-   * @param codeFlag the code flag
+   * @param style the style
    * @param prefix the prefix
    * @param inputDir the input dir
    * @param authToken the auth token
    * @throws Exception the exception
    */
   public void loadTerminologyRrf(String terminology, String version,
-    Boolean singleMode, Boolean codeFlag, String prefix, String inputDir,
-    String authToken) throws Exception;
+    String style, String prefix, String inputDir, String authToken)
+    throws Exception;
 
   /**
    * Load terminology rf2 snapshot.
@@ -524,6 +575,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Find atom trees.
+   *
+   * @param atomId the atom id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  public TreeList findAtomTrees(Long atomId, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
    * Find concept trees.
    *
    * @param terminologyId the terminology id
@@ -576,8 +639,8 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findConceptTreeForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public Tree findConceptTree(String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Find descriptor tree for query.
@@ -590,7 +653,7 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findDescriptorTreeForQuery(String terminology, String version,
+  public Tree findDescriptorTree(String terminology, String version,
     String query, PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
@@ -604,8 +667,8 @@ public interface ContentServiceRest {
    * @return the tree
    * @throws Exception the exception
    */
-  public Tree findCodeTreeForQuery(String terminology, String version,
-    String query, PfsParameterJpa pfs, String authToken) throws Exception;
+  public Tree findCodeTree(String terminology, String version, String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
 
   /**
    * Gets the atom subsets.
@@ -664,6 +727,18 @@ public interface ContentServiceRest {
     String authToken) throws Exception;
 
   /**
+   * Find atom tree children.
+   *
+   * @param atomId the atom id
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the tree list
+   * @throws Exception the exception
+   */
+  public TreeList findAtomTreeChildren(Long atomId, PfsParameterJpa pfs,
+    String authToken) throws Exception;
+
+  /**
    * Find concept tree children.
    *
    * @param terminology the terminology
@@ -676,7 +751,7 @@ public interface ContentServiceRest {
    */
   public TreeList findConceptTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find descriptor tree children.
@@ -691,7 +766,7 @@ public interface ContentServiceRest {
    */
   public TreeList findDescriptorTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find code tree children.
@@ -706,7 +781,7 @@ public interface ContentServiceRest {
    */
   public TreeList findCodeTreeChildren(String terminology, String version,
     String terminologyId, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find concept tree roots.
@@ -784,9 +859,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForMapSet(String mapSetId, String terminology,
+  public MappingList findMappings(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find mappings for concept.
@@ -800,9 +875,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForConcept(String mapSetId, String terminology,
+  public MappingList findConceptMappings(String mapSetId, String terminology,
     String version, String query, PfsParameterJpa pfs, String authToken)
-      throws Exception;
+    throws Exception;
 
   /**
    * Find mappings for code.
@@ -816,9 +891,9 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForCode(String terminologyId,
-    String terminology, String version, String query, PfsParameterJpa pfs,
-    String authToken) throws Exception;
+  public MappingList findCodeMappings(String terminologyId, String terminology,
+    String version, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
 
   /**
    * Find mappings for descriptor.
@@ -832,7 +907,7 @@ public interface ContentServiceRest {
    * @return the mapping list
    * @throws Exception the exception
    */
-  public MappingList findMappingsForDescriptor(String terminologyId,
+  public MappingList findDescriptorMappings(String terminologyId,
     String terminology, String version, String query, PfsParameterJpa pfs,
     String authToken) throws Exception;
 
@@ -873,7 +948,6 @@ public interface ContentServiceRest {
   public SearchResultList getEclExpressionResults(String terminology,
     String version, String query, String authToken) throws Exception;
 
-
   /**
    * Remove concept note.
    *
@@ -886,28 +960,24 @@ public interface ContentServiceRest {
   /**
    * Add concept note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addConceptNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addConceptNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Add code note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addCodeNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addCodeNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Remove code note.
@@ -921,15 +991,13 @@ public interface ContentServiceRest {
   /**
    * Add descriptor note.
    *
-   * @param terminology the terminology
-   * @param version the version
-   * @param terminologyId the terminology id
+   * @param id the id
    * @param noteText the note text
    * @param authToken the auth token
    * @throws Exception the exception
    */
-  public void addDescriptorNote(String terminology, String version,
-    String terminologyId, String noteText, String authToken) throws Exception;
+  public void addDescriptorNote(Long id, String noteText, String authToken)
+    throws Exception;
 
   /**
    * Remove descriptor note.
@@ -941,7 +1009,6 @@ public interface ContentServiceRest {
   public void removeDescriptorNote(Long noteId, String authToken)
     throws Exception;
 
-
   /**
    * Gets favorite components for a user.
    *
@@ -950,19 +1017,169 @@ public interface ContentServiceRest {
    * @return the favorites for user
    * @throws Exception the exception
    */
-  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs, String authToken)
-    throws Exception;
+  public SearchResultList getFavoritesForUser(PfsParameterJpa pfs,
+    String authToken) throws Exception;
 
   /**
    * Gets the components with notes for user.
    *
-   * @param pfs the pfs
    * @param query the query
+   * @param pfs the pfs
    * @param authToken the auth token
    * @return the components with notes for user
    * @throws Exception the exception
    */
-  public SearchResultList getComponentsWithNotesForQuery(String query, PfsParameterJpa pfs,
+  public SearchResultList getComponentsWithNotes(String query,
+    PfsParameterJpa pfs, String authToken) throws Exception;
+
+  /**
+   * Validates the specified concept. Checks are defined the "run.config.umls"
+   * setting for the deployed server.
+   *
+   * @param projectId the project id
+   * @param concept the concept
+   * @param check the check name
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateConcept(Long projectId, ConceptJpa concept, String check,
     String authToken) throws Exception;
+  
+  /**
+   * Validate concepts.
+   *
+   * @param projectId the project id
+   * @param check the check
+   * @param authToken the auth token
+   * @return the sets the
+   * @throws Exception the exception
+   */
+  public Set<Long> validateConcepts(Long projectId, String check, String authToken)
+    throws Exception;
+
+  /**
+   * Validate atom.
+   *
+   * @param projectId the project id
+   * @param atom the atom
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateAtom(Long projectId, AtomJpa atom,
+    String authToken) throws Exception;
+
+  /**
+   * Validate descriptor.
+   *
+   * @param projectId the project id
+   * @param descriptor the descriptor
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateDescriptor(Long projectId,
+    DescriptorJpa descriptor, String authToken) throws Exception;
+
+  /**
+   * Validate code.
+   *
+   * @param projectId the project id
+   * @param code the code
+   * @param authToken the auth token
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult validateCode(Long projectId, CodeJpa code,
+    String authToken) throws Exception;
+
+  /**
+   * Find concept deep relationships.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param inverseFlag the inverse flag
+   * @param includeConceptRels the include concept rels
+   * @param preferredOnly the preferred only
+   * @param includeSelfReferential the include self referential
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the relationship list
+   * @throws Exception the exception
+   */
+  public RelationshipList findConceptDeepRelationships(String terminologyId,
+    String terminology, String version, boolean inverseFlag,
+    boolean includeConceptRels, boolean preferredOnly,
+    boolean includeSelfReferential, PfsParameterJpa pfs, String query,
+    String authToken) throws Exception;
+
+  /**
+   * Find concept deep tree positions.
+   *
+   * @param terminologyId the terminology id
+   * @param terminology the terminology
+   * @param version the version
+   * @param pfs the pfs
+   * @param query the query
+   * @param authToken the auth token
+   * @return the tree position list
+   * @throws Exception the exception
+   */
+  public TreePositionList findConceptDeepTreePositions(String terminologyId,
+    String terminology, String version, PfsParameterJpa pfs, String query,
+    String authToken) throws Exception;
+
+  /**
+   * Add atom note.
+   *
+   * @param id the id
+   * @param noteText the note text
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void addAtomNote(Long id, String noteText, String authToken)
+    throws Exception;
+
+  /**
+   * Remove atom note.
+   *
+   * @param noteId the note id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeAtomNote(Long noteId, String authToken) throws Exception;
+
+  /**
+   * Gets the atom.
+   *
+   * @param atomId the atom id
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @return the atom
+   * @throws Exception the exception
+   */
+  public Atom getAtom(Long atomId, Long projectId, String authToken)
+    throws Exception;
+
+  /**
+   * Gets the concepts for query.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param projectId the project id
+   * @param query the query
+   * @param pfs the pfs
+   * @param authToken the auth token
+   * @return the concepts for query
+   * @throws Exception the exception
+   */
+  public ConceptList getConceptsForQuery(String terminology, String version,
+    Long projectId, String query, PfsParameterJpa pfs, String authToken)
+    throws Exception;
+
+
 
 }

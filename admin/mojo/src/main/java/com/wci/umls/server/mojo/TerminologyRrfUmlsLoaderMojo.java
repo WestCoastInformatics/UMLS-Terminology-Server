@@ -1,15 +1,17 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
+import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -19,51 +21,50 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads a set of RRF into a database.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rrf-umls
- * 
- * @phase package
  */
-public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
+@Mojo(name = "load-rrf-umls", defaultPhase = LifecyclePhase.PACKAGE)
+public class TerminologyRrfUmlsLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * The version.
-   * @parameter
    */
+  @Parameter
   private String prefix;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
-   * Mode - for recreating db
-   * @parameter
+   * Whether to run this in edit mode.
    */
+  @Parameter
+  private boolean editMode = false;
+
+  /**
+   * Mode - for recreating db.
+   */
+  @Parameter
   private String mode = null;
 
   /**
@@ -84,24 +85,27 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
       getLog().info("  Terminology        : " + terminology);
       getLog().info("  version: " + version);
       getLog().info("  Input directory    : " + inputDir);
+      getLog().info("  Edit Mode          : " + editMode);
       getLog().info("  Expect server up   : " + server);
       getLog().info("  Mode               : " + mode);
 
       Properties properties = ConfigUtility.getConfigProperties();
 
+      // Rebuild the database
       if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
+        createDb(ConfigUtility.isServerActive());
       }
 
+      // authenticate
+      SecurityService service = new SecurityServiceJpa();
+      String authToken =
+          service.authenticate(properties.getProperty("admin.user"),
+              properties.getProperty("admin.password")).getAuthToken();
+      service.close();
+
       boolean serverRunning = ConfigUtility.isServerActive();
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -113,24 +117,13 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
             "Mojo expects server to be running, but server is down");
       }
 
-      // authenticate
-      SecurityService service = new SecurityServiceJpa();
-      String authToken =
-          service.authenticate(properties.getProperty("admin.user"),
-              properties.getProperty("admin.password")).getAuthToken();
-      service.close();
-
       if (!serverRunning) {
         getLog().info("Running directly");
 
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
-
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService.loadTerminologyRrf(terminology, version, false, true,
+        contentService.loadTerminologyRrf(terminology, version,
+            editMode ? RrfLoaderAlgorithm.Style.META_EDIT.toString()
+                : RrfLoaderAlgorithm.Style.META_BROWSE.toString(),
             prefix == null ? "MR" : prefix, inputDir, authToken);
 
       } else {
@@ -139,12 +132,10 @@ public class TerminologyRrfUmlsLoaderMojo extends AbstractMojo {
         // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
 
-        // handle reindexing
-        if (mode != null && mode.equals("create")) {
-          client.luceneReindex(null, authToken);
-        }
-
-        client.loadTerminologyRrf(terminology, version, false, true,
+        // load terminology
+        client.loadTerminologyRrf(terminology, version,
+            editMode ? RrfLoaderAlgorithm.Style.META_EDIT.toString()
+                : RrfLoaderAlgorithm.Style.META_BROWSE.toString(),
             prefix == null ? "MR" : prefix, inputDir, authToken);
       }
 

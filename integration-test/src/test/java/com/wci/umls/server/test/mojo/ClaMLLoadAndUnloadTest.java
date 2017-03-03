@@ -69,6 +69,7 @@ public class ClaMLLoadAndUnloadTest {
    *   TEST: verify that it is gone
    * Re-run "createdb" to restore database
    * </pre>
+   * 
    * @throws Exception the exception
    */
   @Test
@@ -81,7 +82,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     Properties p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     DefaultInvoker invoker = new DefaultInvoker();
@@ -97,7 +98,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Reindex"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();
@@ -110,7 +111,7 @@ public class ClaMLLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no contents");
     ContentService service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -121,7 +122,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("ClaML"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
@@ -140,7 +141,7 @@ public class ClaMLLoadAndUnloadTest {
     service = new ContentServiceJpa();
     // Test a non-UMLS terminology too
     Assert.assertEquals(103974,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -158,7 +159,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Project"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("name", "Sample project2");
     p.setProperty("description", "Sample project2.");
@@ -204,7 +205,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("StartEditingCycle"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("release.version", "2016");
     p.setProperty("terminology", "ICD10CM");
@@ -220,10 +221,10 @@ public class ClaMLLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify ICD10CM release info");
     historyService = new HistoryServiceJpa();
     Assert.assertNotNull(historyService.getReleaseInfo("ICD10CM", "2016"));
-    Assert.assertFalse(historyService.getReleaseInfo("ICD10CM", "2016")
-        .isPublished());
-    Assert.assertTrue(historyService.getReleaseInfo("ICD10CM", "2016")
-        .isPlanned());
+    Assert.assertFalse(
+        historyService.getReleaseInfo("ICD10CM", "2016").isPublished());
+    Assert.assertTrue(
+        historyService.getReleaseInfo("ICD10CM", "2016").isPlanned());
     historyService.close();
     historyService.closeFactory();
 
@@ -234,7 +235,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Database"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     request.setProperties(p);
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
@@ -249,7 +250,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Terminology"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     p.setProperty("terminology", "ICD10CM");
     p.setProperty("version", "latest");
@@ -264,7 +265,7 @@ public class ClaMLLoadAndUnloadTest {
     Logger.getLogger(getClass()).info("Verify no ICD10CM contents");
     service = new ContentServiceJpa();
     Assert.assertEquals(0,
-        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).getCount());
+        service.getAllConcepts("ICD10CM", "latest", Branch.ROOT).size());
     service.close();
     service.closeFactory();
 
@@ -275,7 +276,7 @@ public class ClaMLLoadAndUnloadTest {
     request.setProfiles(Arrays.asList("Createdb"));
     request.setGoals(Arrays.asList("clean", "install"));
     p = new Properties();
-    p.setProperty("run.config.umls", System.getProperty("run.config.claml"));
+    p.setProperty("run.config.umls", System.getProperty("run.config.umls"));
     p.setProperty("server", server);
     request.setProperties(p);
     invoker = new DefaultInvoker();

@@ -1,26 +1,15 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
+
+import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
 
 /**
  * Represents a subset of content asserted by a terminology.
  */
-public interface Subset extends ComponentHasAttributes {
-
-  /**
-   * Returns the name.
-   * 
-   * @return the name
-   */
-  public String getName();
-
-  /**
-   * Sets the name.
-   * 
-   * @param name the name
-   */
-  public void setName(String name);
+public interface Subset
+    extends ComponentHasAttributes, HasAlternateTerminologyIds {
 
   /**
    * Returns the description.

@@ -5,20 +5,27 @@ package com.wci.umls.server.jpa.services;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Random;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.Table;
 import javax.persistence.spi.PersistenceProvider;
 
 import org.apache.log4j.Logger;
@@ -28,15 +35,42 @@ import org.apache.lucene.search.BooleanQuery;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.search.jpa.FullTextQuery;
 
+import com.wci.umls.server.Project;
 import com.wci.umls.server.User;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.algo.action.MolecularActionAlgorithm;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.HasLastModified;
+import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.KeyValuePairList;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.LogEntry;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.helpers.TypeKeyValue;
+import com.wci.umls.server.helpers.TypeKeyValueList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionJpa;
+import com.wci.umls.server.jpa.actions.AtomicActionListJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionJpa;
+import com.wci.umls.server.jpa.actions.MolecularActionListJpa;
+import com.wci.umls.server.jpa.algo.action.AbstractMolecularAction;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.LogEntryJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueJpa;
+import com.wci.umls.server.jpa.helpers.TypeKeyValueListJpa;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
-import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.model.actions.AtomicAction;
+import com.wci.umls.server.model.actions.AtomicActionList;
+import com.wci.umls.server.model.actions.MolecularAction;
+import com.wci.umls.server.model.actions.MolecularActionList;
+import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.SecurityService;
+import com.wci.umls.server.services.handlers.SearchHandler;
+import com.wci.umls.server.services.handlers.ValidationCheck;
 
 /**
  * The root service for managing the entity manager factory and hibernate search
@@ -44,8 +78,23 @@ import com.wci.umls.server.services.RootService;
  */
 public abstract class RootServiceJpa implements RootService {
 
+  /** The config properties. */
+  protected static Properties config = null;
+
+  /** The search handlers. */
+  protected static Map<String, SearchHandler> searchHandlers = new HashMap<>();
+
+  /** The molecular action flag. */
+  private boolean molecularActionFlag = true;
+
+  /** The molecular action. */
+  private MolecularAction molecularAction = null;
+
   /** The last modified flag. */
-  protected boolean lastModifiedFlag = true;
+  private boolean lastModifiedFlag = true;
+
+  /** The last modified by. */
+  private String lastModifiedBy = null;
 
   /** The user map. */
   protected static Map<String, User> userMap = new HashMap<>();
@@ -53,18 +102,77 @@ public abstract class RootServiceJpa implements RootService {
   /** The factory. */
   protected static EntityManagerFactory factory = null;
 
+  /** The search handlers. */
+  protected static Set<String> searchHandlerNames = null;
+
+  /** The validation handlers. */
+  private static Map<String, ValidationCheck> validationHandlersMap = null;
+
   static {
+    init();
+  }
+
+  /**
+   * Static initialization (also used by refreshCaches).
+   */
+  private static void init() {
+
+    // Clear user map
+    userMap = new HashMap<>();
+
     Logger.getLogger(RootServiceJpa.class)
         .info("Setting root service entity manager factory.");
-    Properties config;
+    Properties config = null;
     try {
       config = ConfigUtility.getConfigProperties();
+      // TODO: this fixes a bug.
       PersistenceProvider provider = new HibernatePersistenceProvider();
       factory = provider.createEntityManagerFactory("TermServiceDS", config);
     } catch (Exception e) {
       e.printStackTrace();
       factory = null;
     }
+    Logger.getLogger(RootServiceJpa.class).info("Loading search handlers");
+    searchHandlerNames = new HashSet<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "search.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        searchHandlerNames.add(handlerName);
+
+      }
+      if (!searchHandlerNames.contains(ConfigUtility.DEFAULT)) {
+        throw new Exception("search.handler." + ConfigUtility.DEFAULT
+            + " expected and does not exist.");
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      searchHandlerNames = null;
+    }
+
+    validationHandlersMap = new HashMap<>();
+    try {
+      if (config == null)
+        config = ConfigUtility.getConfigProperties();
+      final String key = "validation.service.handler";
+      for (final String handlerName : config.getProperty(key).split(",")) {
+        if (handlerName.isEmpty())
+          continue;
+        // Add handlers to map
+        final ValidationCheck handlerService =
+            ConfigUtility.newStandardHandlerInstanceWithConfiguration(key,
+                handlerName, ValidationCheck.class);
+        validationHandlersMap.put(handlerName, handlerService);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      validationHandlersMap = null;
+    }
+
   }
 
   /** The manager. */
@@ -92,6 +200,8 @@ public abstract class RootServiceJpa implements RootService {
       final Properties config = ConfigUtility.getConfigProperties();
       factory = Persistence.createEntityManagerFactory("TermServiceDS", config);
     }
+
+    validateInit();
 
     // created on each instantiation
     manager = factory.createEntityManager();
@@ -148,6 +258,7 @@ public abstract class RootServiceJpa implements RootService {
       throw new IllegalStateException(
           "Error attempting to begin a transaction when there "
               + "is already an active transaction");
+
     tx = manager.getTransaction();
     tx.begin();
   }
@@ -177,9 +288,7 @@ public abstract class RootServiceJpa implements RootService {
       throw new IllegalStateException(
           "Error attempting to rollback a transaction when using transactions per operation mode.");
     } else if (tx != null && !tx.isActive()) {
-      throw new IllegalStateException(
-          "Error attempting to rollback a transaction when there "
-              + "is no active transaction");
+      // Allow this to do nothing
     } else if (tx != null) {
       tx.rollback();
       manager.clear();
@@ -202,12 +311,6 @@ public abstract class RootServiceJpa implements RootService {
     }
   }
 
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
-    // n/a
-  }
-
   /**
    * Returns the entity manager.
    *
@@ -226,7 +329,7 @@ public abstract class RootServiceJpa implements RootService {
    * @return the javax.persistence. query
    * @throws Exception the exception
    */
-  public javax.persistence.Query applyPfsToJqlQuery(final String queryStr,
+  public javax.persistence.Query applyPfsToJPQLQuery(final String queryStr,
     final PfsParameter pfs) throws Exception {
     final StringBuilder localQueryStr = new StringBuilder();
     localQueryStr.append(queryStr);
@@ -235,7 +338,7 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null) {
       if (pfs.getQueryRestriction() != null
           && !pfs.getQueryRestriction().equals("")) {
-        throw new Exception("Query restriction not supported for JQL queries");
+        throw new Exception("Query restriction not supported for JPQL queries");
       }
 
       if (pfs.getActiveOnly()) {
@@ -293,9 +396,11 @@ public abstract class RootServiceJpa implements RootService {
     // verify that final object is actually a string, enum, or date
     if (!finalMethod.getReturnType().equals(String.class)
         && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Long.class)
         && !finalMethod.getReturnType().equals(Date.class)) {
       throw new Exception(
-          "Requested sort field value is not string, enum, or date value");
+          "Requested sort field value is not string, enum, or date value "
+              + finalMethod.getReturnType().getName());
     }
     return finalObject;
 
@@ -333,9 +438,11 @@ public abstract class RootServiceJpa implements RootService {
     // verify that final object is actually a string, enum, or date
     if (!finalMethod.getReturnType().equals(String.class)
         && !finalMethod.getReturnType().isEnum()
+        && !finalMethod.getReturnType().equals(Long.class)
         && !finalMethod.getReturnType().equals(Date.class)) {
       throw new Exception(
-          "Requested sort field value is not string, enum, or date value");
+          "Requested sort field value is not string, enum, or date value "
+              + finalMethod.getReturnType().getName());
     }
     return finalMethod.getReturnType();
 
@@ -368,17 +475,27 @@ public abstract class RootServiceJpa implements RootService {
     // handle filtering based on query restriction
     if (pfs != null && pfs.getQueryRestriction() != null
         && !pfs.getQueryRestriction().isEmpty()) {
-      result = new ArrayList<>();
-      for (T t : list) {
-        StringBuilder sb = new StringBuilder();
-        for (Method m : t.getClass().getMethods()) {
 
+      if (pfs.getQueryRestriction().contains(" OR ")) {
+        throw new LocalException("Query with OR clause not supported here = "
+            + pfs.getQueryRestriction());
+      }
+
+      result = new ArrayList<>();
+      for (final T t : list) {
+        final StringBuilder sb = new StringBuilder();
+        for (final Method m : t.getClass().getMethods()) {
           // TODO Add annotation check for @Field, @Fields...
-          if (m.getName().startsWith("get")) {
+          if (m.getName().startsWith("get") && (m
+              .isAnnotationPresent(org.hibernate.search.annotations.Field.class)
+              || m.isAnnotationPresent(
+                  org.hibernate.search.annotations.Fields.class))) {
             try {
 
               Object val = m.invoke(t);
-              if (val != null && val instanceof String) {
+              // Support long, string, and enum
+              if (val != null && (val instanceof String || val instanceof Long
+                  || m.getReturnType().isEnum())) {
 
                 sb.append(val.toString()).append(" ");
               }
@@ -393,10 +510,6 @@ public abstract class RootServiceJpa implements RootService {
           result.add(t);
         }
 
-        // old method
-        /*
-         * if (t.toString().toLowerCase() { result.add(t); }
-         */
       }
     }
 
@@ -416,7 +529,7 @@ public abstract class RootServiceJpa implements RootService {
       }
 
       // if one or more sort fields found, apply sorting
-      if (!pfsSortFields.isEmpty()) {
+      if (!pfsSortFields.isEmpty() && !pfsSortFields.contains("RANDOM")) {
 
         // declare the final ascending flag and sort fields for comparator
         final boolean ascending = (pfs != null) ? pfs.isAscending() : true;
@@ -430,20 +543,23 @@ public abstract class RootServiceJpa implements RootService {
             // if an exception is returned, simply pass equality
             try {
 
-              for (String sortField : sortFields) {
+              for (final String sortField : sortFields) {
                 final Object s1 = getSortFieldValue(t1, sortField);
                 final Object s2 = getSortFieldValue(t2, sortField);
 
-                final boolean isDate =
-                    getSortFieldType(t1, sortField).equals(Date.class);
+                final boolean isDate = s1 instanceof Date;
+                final boolean isLong = s1 instanceof Long;
 
                 // if both values null, skip to next sort field
                 if (s1 != null || s2 != null) {
 
                   // handle date comparison by long value
-                  if (isDate) {
-                    final Long l1 = s1 == null ? null : ((Date) s1).getTime();
-                    final Long l2 = s2 == null ? null : ((Date) s2).getTime();
+                  if (isDate || isLong) {
+                    final Long l1 = s1 == null ? null
+                        : (isDate ? ((Date) s1).getTime() : ((Long) s1));
+                    final Long l2 = s2 == null ? null
+                        : (isDate ? ((Date) s2).getTime() : ((Long) s2));
+
                     if (ascending) {
                       if (l1 == null && s2 != null) {
                         return -1;
@@ -481,8 +597,8 @@ public abstract class RootServiceJpa implements RootService {
                       return -1;
                     }
                     if (s2 != null
-                        && ((String) s2).compareTo((String) s1) != 0) {
-                      return ((String) s2).compareTo((String) s1);
+                        && (s2.toString()).compareTo(s1.toString()) != 0) {
+                      return (s2.toString()).compareTo(s1.toString());
                     } else {
                       return 0;
                     }
@@ -498,6 +614,18 @@ public abstract class RootServiceJpa implements RootService {
           }
         });
       }
+
+      // support RANDOM
+      else if (pfsSortFields.contains("RANDOM")) {
+        final Random random = new Random(new Date().getTime());
+        Collections.sort(result, new Comparator<T>() {
+
+          @Override
+          public int compare(T arg0, T arg1) {
+            return random.nextInt();
+          }
+        });
+      }
     }
 
     // set the total count
@@ -510,13 +638,10 @@ public abstract class RootServiceJpa implements RootService {
     if (pfs != null && pfs.getStartIndex() != -1) {
       startIndex = pfs.getStartIndex();
       toIndex = Math.min(result.size(), startIndex + pfs.getMaxResults());
-      if (startIndex > toIndex)
-
-      {
+      if (startIndex > toIndex) {
         startIndex = 0;
       }
       result = result.subList(startIndex, toIndex);
-
     }
 
     return result;
@@ -625,6 +750,67 @@ public abstract class RootServiceJpa implements RootService {
 
   /* see superclass */
   @Override
+  public boolean isLastModifiedFlag() {
+    return lastModifiedFlag;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isMolecularActionFlag() {
+    return molecularActionFlag;
+  }
+
+  /* see superclass */
+  @Override
+  public void setMolecularActionFlag(boolean molecularActionFlag) {
+    this.molecularActionFlag = molecularActionFlag;
+  }
+
+  /* see superclass */
+  @Override
+  public SearchHandler getSearchHandler(String key) throws Exception {
+    if (searchHandlers.containsKey(key)) {
+      return searchHandlers.get(key);
+    }
+    if (searchHandlerNames.contains(key)) {
+      // Add handlers to map
+      SearchHandler searchHandler =
+          ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+              "search.handler", key, SearchHandler.class);
+      searchHandlers.put(key, searchHandler);
+      return searchHandler;
+    }
+    final SearchHandler searchHandler =
+        ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+            "search.handler", ConfigUtility.DEFAULT, SearchHandler.class);
+    searchHandlers.put(key, searchHandler);
+    return searchHandler;
+  }
+
+  /* see superclass */
+  @Override
+  public MolecularAction getMolecularAction() throws Exception {
+    if (isMolecularActionFlag() && molecularAction == null) {
+      throw new Exception(
+          "Molecular action flag is set but molecular action is null");
+    }
+    // If desired, can remove this to allow molecular action logging of single
+    // transaction per operation mode
+    if (isMolecularActionFlag() && getTransactionPerOperation()) {
+      throw new Exception(
+          "Molecular action flag is set, but transaction per operation set to true");
+    }
+    return molecularAction;
+  }
+
+  /* see superclass */
+  @Override
+  public void setMolecularAction(MolecularAction molecularAction) {
+    this.molecularAction = molecularAction;
+  }
+
+  /* see superclass */
+  @Override
   public void commitClearBegin() throws Exception {
     commit();
     clear();
@@ -636,9 +822,19 @@ public abstract class RootServiceJpa implements RootService {
   public void logAndCommit(final int objectCt, final int logCt,
     final int commitCt) throws Exception {
     // log at regular intervals
-    if (objectCt % logCt == 0) {
+    if (objectCt % logCt == 0 && objectCt > 0) {
       Logger.getLogger(getClass()).info("    count = " + objectCt);
     }
+    if (objectCt % commitCt == 0) {
+      commitClearBegin();
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public void silentIntervalCommit(final int objectCt, final int logCt,
+    final int commitCt) throws Exception {
+    // commit at regular intervals
     if (objectCt % commitCt == 0) {
       commitClearBegin();
     }
@@ -649,16 +845,15 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param <T> the
    * @param query the query
-   * @param fieldNamesKey the field names key
    * @param clazz the clazz
    * @param pfs the pfs
    * @param totalCt the total ct
    * @return the query results
    * @throws Exception the exception
    */
-  public <T> List<?> getQueryResults(final String query,
-    final Class<?> fieldNamesKey, final Class<T> clazz, final PfsParameter pfs,
-    int[] totalCt) throws Exception {
+  // TODO This should no longer exist, use search handlers from RootServiceJpa
+  public <T> List<?> getQueryResults(final String query, final Class<T> clazz,
+    final PfsParameter pfs, int[] totalCt) throws Exception {
 
     if (query == null || query.isEmpty()) {
       throw new Exception("Unexpected empty query.");
@@ -666,15 +861,15 @@ public abstract class RootServiceJpa implements RootService {
 
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
-          query, pfs, manager);
+      fullTextQuery =
+          IndexUtility.applyPfsToLuceneQuery(clazz, query, pfs, manager);
     } catch (ParseException e) {
       // If parse exception, try a literal query
       final StringBuilder escapedQuery = new StringBuilder();
       if (query != null && !query.isEmpty()) {
         escapedQuery.append(QueryParserBase.escape(query));
       }
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           escapedQuery.toString(), pfs, manager);
     }
 
@@ -691,14 +886,25 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T addHasLastModified(
+  public <T extends HasLastModified> T addHasLastModified(
     final T hasLastModified) throws Exception {
-    // Set last modified date
-    if (lastModifiedFlag) {
+
+    // set last modified fields (user, timestamp)
+    if (isLastModifiedFlag()) {
+      if (getLastModifiedBy() == null) {
+        throw new Exception(
+            "Service cannot add object, name of modifying user required");
+      } else {
+        hasLastModified.setLastModifiedBy(getLastModifiedBy());
+      }
       hasLastModified.setLastModified(new Date());
+      // Set timestamp if not set
+      if (hasLastModified.getTimestamp() == null) {
+        hasLastModified.setTimestamp(hasLastModified.getLastModified());
+      }
+
     }
     return addObject(hasLastModified);
-
   }
 
   /**
@@ -736,10 +942,17 @@ public abstract class RootServiceJpa implements RootService {
    * @param hasLastModified the has last modified
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> void updateHasLastModified(
+  public <T extends HasLastModified> void updateHasLastModified(
     final T hasLastModified) throws Exception {
-    // Set modification date
-    if (lastModifiedFlag) {
+
+    // set last modified fields (user, timestamp)
+    if (isLastModifiedFlag()) {
+      if (getLastModifiedBy() == null) {
+        throw new Exception(
+            "Service cannot update object, name of modifying user required");
+      } else {
+        hasLastModified.setLastModifiedBy(getLastModifiedBy());
+      }
       hasLastModified.setLastModified(new Date());
     }
     updateObject(hasLastModified);
@@ -783,15 +996,21 @@ public abstract class RootServiceJpa implements RootService {
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends HasLastModified> T removeHasLastModified(final Long id,
+  public <T extends HasLastModified> T removeHasLastModified(final Long id,
     final Class<T> clazz) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
       T hasLastModified = manager.find(clazz, id);
 
-      // Set modification date
-      if (lastModifiedFlag) {
+      // set last modified fields (user, timestamp)
+      if (isLastModifiedFlag()) {
+        if (getLastModifiedBy() == null) {
+          throw new Exception(
+              "Service cannot remove object, name of modifying user required");
+        } else {
+          hasLastModified.setLastModifiedBy(getLastModifiedBy());
+        }
         hasLastModified.setLastModified(new Date());
       }
 
@@ -826,12 +1045,10 @@ public abstract class RootServiceJpa implements RootService {
    *
    * @param <T> the
    * @param object the object
-   * @param clazz the clazz
    * @return the t
    * @throws Exception the exception
    */
-  protected <T extends Object> T removeObject(final T object,
-    final Class<T> clazz) throws Exception {
+  protected <T extends Object> T removeObject(final T object) throws Exception {
     try {
       // Get transaction and object
       tx = manager.getTransaction();
@@ -889,6 +1106,9 @@ public abstract class RootServiceJpa implements RootService {
    */
   protected <T extends HasLastModified> T getHasLastModified(final Long id,
     final Class<T> clazz) throws Exception {
+    if (id == null) {
+      return null;
+    }
     // Get transaction and object
     tx = manager.getTransaction();
     final T component = manager.find(clazz, id);
@@ -925,8 +1145,11 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public List<LogEntry> findLogEntriesForQuery(final String query,
+  public List<LogEntry> findLogEntries(final String query,
     final PfsParameter pfs) throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("Root Service - find log Entries " + query + ", " + pfs);
 
     final StringBuilder sb = new StringBuilder();
     if (query != null && !query.equals("")) {
@@ -935,7 +1158,7 @@ public abstract class RootServiceJpa implements RootService {
 
     final int[] totalCt = new int[1];
     final List<LogEntry> list = (List<LogEntry>) getQueryResults(sb.toString(),
-        LogEntryJpa.class, LogEntryJpa.class, pfs, totalCt);
+        LogEntryJpa.class, pfs, totalCt);
 
     return list;
   }
@@ -943,19 +1166,24 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final LogEntry logEntry) throws Exception {
-    return addHasLastModified(logEntry);
+    // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
+    return addObject(logEntry);
   }
 
   /* see superclass */
   @Override
   public void updateLogEntry(final LogEntry logEntry) throws Exception {
-    updateHasLastModified(logEntry);
+    // Use add object to bypass the last modified checks
+    logEntry.setLastModified(new Date());
+    updateObject(logEntry);
   }
 
   /* see superclass */
   @Override
   public void removeLogEntry(final Long id) throws Exception {
-    removeHasLastModified(id, LogEntry.class);
+    // Use add object to bypass the last modified checks
+    removeObject(getObject(id, LogEntryJpa.class));
   }
 
   /* see superclass */
@@ -967,16 +1195,16 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final Long projectId,
-    final Long objectId, final String message) throws Exception {
+    final Long objectId, final String activityId, final String workId,
+    final String message) throws Exception {
     final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setObjectId(objectId);
     entry.setProjectId(projectId);
     entry.setTimestamp(new Date());
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
     entry.setMessage(message);
-
-    // Leave activity null
-    entry.setActivity(null);
 
     // Add component
     return addLogEntry(entry);
@@ -986,18 +1214,1162 @@ public abstract class RootServiceJpa implements RootService {
   /* see superclass */
   @Override
   public LogEntry addLogEntry(final String userName, final String terminology,
-    final String version, final LogActivity activity, final String message)
-    throws Exception {
-    LogEntry entry = new LogEntryJpa();
+    final String version, final String activityId, final String workId,
+    final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
     entry.setLastModifiedBy(userName);
     entry.setTerminology(terminology);
     entry.setVersion(version);
     entry.setTimestamp(new Date());
     entry.setMessage(message);
-    entry.setActivity(activity);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
 
     // Add component
     return addLogEntry(entry);
+
+  }
+
+  /**
+   * Adds the log entry.
+   *
+   * @param projectId the project id
+   * @param userName the user name
+   * @param terminology the terminology
+   * @param version the version
+   * @param activityId the activity id
+   * @param workId the work id
+   * @param message the message
+   * @return the log entry
+   * @throws Exception the exception
+   */
+  public LogEntry addLogEntry(final Long projectId, final String userName,
+    final String terminology, final String version, final String activityId,
+    final String workId, final String message) throws Exception {
+    final LogEntry entry = new LogEntryJpa();
+    entry.setProjectId(projectId);
+    entry.setLastModifiedBy(userName);
+    entry.setTerminology(terminology);
+    entry.setVersion(version);
+    entry.setTimestamp(new Date());
+    entry.setMessage(message);
+    entry.setActivityId(activityId);
+    entry.setWorkId(workId);
+
+    // Add component
+    return addLogEntry(entry);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void lockObject(Object object) throws Exception {
+    manager.lock(object, LockModeType.PESSIMISTIC_WRITE);
+  }
+
+  /* see superclass */
+  @Override
+  public void unlockObject(Object object) {
+    manager.lock(object, LockModeType.NONE);
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isObjectLocked(Object object) throws Exception {
+    return manager.getLockMode(object).equals(LockModeType.PESSIMISTIC_WRITE);
+  }
+
+  /**
+   * Returns the last modified by.
+   *
+   * @return the last modified by
+   */
+  @Override
+  public String getLastModifiedBy() {
+    return lastModifiedBy;
+  }
+
+  /**
+   * Sets the last modified by.
+   *
+   * @param lastModifiedBy the last modified by
+   */
+  @Override
+  public void setLastModifiedBy(String lastModifiedBy) {
+    this.lastModifiedBy = lastModifiedBy;
+  }
+
+  /* see superclass */
+  @Override
+  public MolecularAction addMolecularAction(MolecularAction action)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add molecular action " + action);
+    return addHasLastModified(action);
+  }
+
+  /**
+   * Update molecular action.
+   *
+   * @param action the action
+   * @throws Exception the exception
+   */
+  public void updateMolecularAction(MolecularAction action) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - update molecular action " + action);
+    updateHasLastModified(action);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove molecular action " + id);
+    removeHasLastModified(id, MolecularActionJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public MolecularAction getMolecularAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get molecular action " + id);
+
+    return getHasLastModified(id, MolecularActionJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public MolecularActionList findMolecularActions(Long componentId,
+    String terminology, String version, String query, PfsParameter pfs)
+    throws Exception {
+
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+
+    int totalCt[] = new int[1];
+    final MolecularActionList results = new MolecularActionListJpa();
+
+    final List<String> clauses = new ArrayList<>();
+    if (!ConfigUtility.isEmpty(query)) {
+      clauses.add(query);
+    }
+    if (componentId != null) {
+      clauses.add("(componentId:" + componentId + " OR componentId2:"
+          + componentId + ")");
+    }
+    String fullQuery = ConfigUtility.composeQuery("AND", clauses);
+
+    for (final MolecularActionJpa ma : searchHandler.getQueryResults(
+        terminology, version, Branch.ROOT, fullQuery, null,
+        MolecularActionJpa.class, pfs, totalCt, manager)) {
+      results.getObjects().add(ma);
+    }
+    results.setTotalCount(totalCt[0]);
+
+    return results;
+
+  }
+
+  /* see superclass */
+  @Override
+  public AtomicAction addAtomicAction(AtomicAction action) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - add atomic action " + action);
+    return addObject(action);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - remove atomic action " + id);
+    AtomicActionJpa action = getObject(id, AtomicActionJpa.class);
+    removeObject(action);
+  }
+
+  /* see superclass */
+  @Override
+  public AtomicAction getAtomicAction(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Action Service - get atomic action " + id);
+    return getObject(id, AtomicActionJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public AtomicActionList findAtomicActions(Long molecularActionId,
+    String query, PfsParameter pfs) throws Exception {
+
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+
+    // Compose the query
+    final StringBuilder sb = new StringBuilder();
+    if (molecularActionId != null) {
+      sb.append("molecularActionId:" + molecularActionId);
+    }
+    if (!ConfigUtility.isEmpty(query)) {
+      sb.append(sb.length() == 0 ? "" : " AND ").append(query);
+    }
+
+    int totalCt[] = new int[1];
+    final AtomicActionList results = new AtomicActionListJpa();
+    for (final AtomicActionJpa aa : searchHandler.getQueryResults(null, null,
+        Branch.ROOT, sb.toString(), null, AtomicActionJpa.class, pfs, totalCt,
+        manager)) {
+      results.getObjects().add(aa);
+    }
+    results.setTotalCount(totalCt[0]);
+
+    return results;
+
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult validateAction(MolecularActionAlgorithm action) {
+    final ValidationResult result = new ValidationResultJpa();
+    for (final String key : getValidationHandlersMap().keySet()) {
+      List<String> validationChecks = null;
+      // If action algorithm has checks specified, use them
+      if (action.getValidationChecks() != null) {
+        validationChecks = action.getValidationChecks();
+      }
+      // Otherwise use project default validation checks
+      else {
+        validationChecks = action.getProject().getValidationChecks();
+      }
+
+      if (validationChecks != null && validationChecks.contains(key)) {
+        result
+            .merge(getValidationHandlersMap().get(key).validateAction(action));
+      }
+    }
+
+    return result;
+  }
+
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    init();
+    closeFactory();
+    openFactory();
+  }
+
+  /**
+   * Perform molecular action.
+   *
+   * @param action the action
+   * @param userName the user name
+   * @param performMaintanence the perform maintanence
+   * @return the validation result
+   * @throws Exception the exception
+   */
+  public ValidationResult performMolecularAction(AbstractMolecularAction action,
+    String userName, boolean performMaintanence) throws Exception {
+
+    // Start transaction
+    action.beginTransaction();
+
+    // Do some standard intialization and precondition checking
+    // action and prep services
+    action.initialize(action.getProject(), action.getConceptId(),
+        action.getConceptId2(), action.getLastModified(), molecularActionFlag);
+
+    //
+    // Check prerequisites
+    //
+    final ValidationResult validationResult = action.checkPreconditions();
+    // if prerequisites fail, return validation result
+
+    if (!validationResult.isValid()
+        || (!validationResult.getWarnings().isEmpty()
+            && !action.isOverrideWarnings())) {
+
+      // IF the user is level 5 editor or greater, make all errors into warnings
+      final SecurityService service = new SecurityServiceJpa();
+      try {
+        final User user = service.getUser(userName);
+        if (user != null && user.getEditorLevel() >= 5) {
+          for (final String error : validationResult.getErrors()) {
+            if (!validationResult.getWarnings().contains(error)) {
+              validationResult.getWarnings().add(error);
+            }
+            validationResult.getErrors().clear();
+          }
+        }
+      } catch (Exception e) {
+        throw e;
+      } finally {
+        service.close();
+      }
+
+      // Check again in case all errors were turned into warnings and we're
+      // overriding warnings
+      if (!validationResult.isValid()
+          || (!validationResult.getWarnings().isEmpty()
+              && !action.isOverrideWarnings())) {
+        // rollback -- unlocks the concept and closes transaction
+        action.rollback();
+        return validationResult;
+      }
+    }
+
+    //
+    // Perform the action
+    //
+    action.compute();
+
+    // create the log entries
+    action.logAction();
+
+    // commit (also removes the lock)
+    action.commit();
+
+    // Perform post-action maintenance on affected concept(s)
+    // DO this in a separate transaction - maybe some issues with
+    if (performMaintanence) {
+      action.postActionMaintenance();
+    }
+
+    // no errors/warnings at this point.
+    return new ValidationResultJpa();
+
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue addTypeKeyValue(TypeKeyValue typeKeyValue)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Add type, key, value - " + typeKeyValue);
+    return addHasLastModified(typeKeyValue);
+  }
+
+  /* see superclass */
+  @Override
+  public void updateTypeKeyValue(TypeKeyValue typeKeyValue) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Update type, key, value - " + typeKeyValue);
+    updateHasLastModified(typeKeyValue);
+  }
+
+  /* see superclass */
+  @Override
+  public void removeTypeKeyValue(Long typeKeyValueId) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Remove type, key, value - " + typeKeyValueId);
+    removeHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValue getTypeKeyValue(Long typeKeyValueId) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Get type, key, value - " + typeKeyValueId);
+    return getHasLastModified(typeKeyValueId, TypeKeyValueJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public TypeKeyValueList findTypeKeyValuesForQuery(String query,
+    PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass()).debug("Find type, key, values - " + query);
+    final SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
+    final int[] totalCt = new int[1];
+    List<TypeKeyValue> results = new ArrayList<TypeKeyValue>(
+        searchHandler.getQueryResults(null, null, Branch.ROOT, query, "key",
+            TypeKeyValueJpa.class, pfs, totalCt, getEntityManager()));
+    TypeKeyValueList list = new TypeKeyValueListJpa();
+    list.setTotalCount(totalCt[0]);
+    list.setObjects(results);
+    return list;
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (validationHandlersMap == null) {
+      throw new Exception(
+          "Validation handlers did not properly initialize, serious error.");
+    }
+
+    if (searchHandlerNames == null) {
+      throw new Exception(
+          "Search handler names did not properly initialize, serious error.");
+    }
+  }
+
+  /* see superclass */
+  @Override
+  public KeyValuePairList getValidationCheckNames() {
+    final KeyValuePairList keyValueList = new KeyValuePairList();
+    for (final Entry<String, ValidationCheck> entry : validationHandlersMap
+        .entrySet()) {
+      final KeyValuePair pair =
+          new KeyValuePair(entry.getKey(), entry.getValue().getName());
+      keyValueList.addKeyValuePair(pair);
+    }
+    return keyValueList;
+  }
+
+  /* see superclass */
+  @Override
+  public Map<String, ValidationCheck> getValidationHandlersMap() {
+    return validationHandlersMap;
+  }
+
+  /* see superclass */
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<Long[]> executeComponentIdPairQuery(String query,
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz, boolean test) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+      // Perform search
+      final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
+          .getIdResults(params.get("terminology"), params.get("version"),
+              Branch.ROOT, null, null, clazz, pfs, new int[1], manager);
+
+      // Return the result list as arrays of component ids
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long id : components) {
+        results.add(new Long[] {
+            id, id
+        });
+      }
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // check for correct number and type of returned objects
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.*ID.*,.*ID.*FROM.*")) {
+      throw new LocalException("Query must be constructed to return two ids");
+    }
+
+    // if a SQL query, ensure the result ids have been aliased
+    // Otherwise it will throw a Hibernate NonUniqueDiscoveredSqlAliasException
+    if (queryType == QueryType.SQL
+        && !query.toUpperCase().replaceAll("[\\n\\r]", "")
+            .matches("SELECT.*ID[ ]+[^ ]+.*,.*ID[ ]+[^ ]+.*FROM.*")) {
+      throw new LocalException("Query must be constructed to return two ids");
+    }
+
+    // check to ensure the query returns objects of the correct passed-in class
+    // For SQL, grab the class' Table-name annotation, and make sure query
+    // contains it
+    if (queryType == QueryType.SQL) {
+      Table table = clazz.getAnnotation(Table.class);
+      String tableName = table.name();
+      if (!query.contains(tableName)) {
+        throw new LocalException(
+            "Query must be constructed to return ids for specified object type: "
+                + clazz.getSimpleName());
+      }
+    }
+
+    // Note: return object type-checking was removed, since it could not be
+    // done in a way that could handle every way a query could be written.
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list as a pair of component id longs.
+    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Long[]> results = new ArrayList<>();
+    final Set<String> addedResults = new HashSet<>();
+    for (final Object[] entry : list) {
+
+      Long componentId1 = null;
+      if (entry[0] instanceof BigInteger) {
+        componentId1 = ((BigInteger) entry[0]).longValue();
+      } else if (entry[0] instanceof Long) {
+        componentId1 = (Long) entry[0];
+      }
+
+      Long componentId2 = null;
+      if (entry[1] instanceof BigInteger) {
+        componentId2 = ((BigInteger) entry[1]).longValue();
+      } else if (entry[1] instanceof Long) {
+        componentId2 = (Long) entry[1];
+      }
+
+      final Long[] result = new Long[] {
+          componentId1, componentId2
+      };
+      // Duplicate check
+      if (!addedResults.contains(componentId1 + "|" + componentId2)) {
+        results.add(result);
+        addedResults.add(componentId1 + "|" + componentId2);
+      }
+
+    }
+
+    return results;
+  }
+
+  /* see superclass */
+  @Override
+  @SuppressWarnings({
+      "unchecked"
+  })
+  public List<Long> executeSingleComponentIdQuery(String query,
+    QueryType queryType, Map<String, String> params,
+    Class<? extends Component> clazz, boolean test) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+      // Perform search
+      final List<Long> components = getSearchHandler(ConfigUtility.DEFAULT)
+          .getIdResults(params.get("terminology"), params.get("version"),
+              Branch.ROOT, null, null, clazz, pfs, new int[1], manager);
+
+      // Return the result list as arrays of component ids
+      return components;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Handle SQL and JPQL queries here
+    // Check for JPQL/SQL errors
+    // ensure that query begins with SELECT (i.e. prevent injection
+    // problems)
+    if (!query.toUpperCase().startsWith("SELECT")) {
+      throw new LocalException(
+          "Query has bad format:  does not begin with SELECT");
+    }
+
+    // check for multiple commands (i.e. multiple semi-colons)
+    if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+      throw new LocalException(
+          "Query has bad format:  multiple queries detected");
+    }
+
+    // crude check: check for data manipulation commands
+    if (query.toUpperCase()
+        .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+      throw new LocalException("Query has bad format:  DDL request detected");
+    }
+
+    // check for proper format for insertion into reports
+
+    if (query.toUpperCase().indexOf("FROM") == -1) {
+      throw new LocalException("Query must contain the term FROM");
+    }
+
+    // check for correct number and type of returned objects
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.*ID.*FROM.*")
+        || query.toUpperCase().replaceAll("[\\n\\r]", "")
+            .matches("SELECT.*ID.*ID.*FROM.*")) {
+      throw new LocalException(
+          "Query must be constructed to return a single id");
+    }
+
+    // check to ensure the query returns objects of the correct passed-in class
+    // For SQL, grab the class' Table-name annotation, and make sure query
+    // contains it
+    if (queryType == QueryType.SQL) {
+      Table table = clazz.getAnnotation(Table.class);
+      String tableName = table.name();
+      if (!query.contains(tableName)) {
+        throw new LocalException(
+            "Query must be constructed to return ids for specified object type: "
+                + clazz.getSimpleName());
+      }
+    }
+
+    // For JPQL, make a testQuery, removing all instances of .id before "FROM",
+    // so it returns the object, and confirm that object matches the passed-in
+    // class
+    if (queryType == QueryType.JPQL) {
+      final int fromIndex = query.toUpperCase().indexOf("FROM");
+      final String testQuery =
+          query.substring(0, fromIndex).replaceAll("\\.id", "")
+              + query.substring(fromIndex);
+
+      javax.persistence.Query jpaTestQuery =
+          getEntityManager().createQuery(testQuery);
+      jpaTestQuery.setMaxResults(1);
+
+      // Handle special query key-words
+      if (params != null) {
+        for (final String key : params.keySet()) {
+          if (testQuery.contains(":" + key)) {
+            jpaTestQuery.setParameter(key, params.get(key));
+          }
+        }
+      }
+
+      // check the test query to ensure its returned objects are of the
+      // specified
+      // return class type
+      final List<Object[]> testList = jpaTestQuery.getResultList();
+      if (!testList.isEmpty()) {
+        final Object returnedObject = testList.get(0);
+        if (returnedObject != null && !(clazz.isInstance(returnedObject))) {
+          throw new LocalException(
+              "Query must be constructed to return ids for specified object type: "
+                  + clazz.getSimpleName());
+        }
+      }
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list as a single component id longs.
+    final List<Object> list = jpaQuery.getResultList();
+    final List<Long> results = new ArrayList<>();
+    final Set<Long> addedResults = new HashSet<>();
+
+    for (final Object entry : list) {
+      Long componentId1 = null;
+
+      if (entry instanceof BigInteger) {
+        componentId1 = ((BigInteger) entry).longValue();
+      } else if (entry instanceof Long) {
+        componentId1 = (Long) entry;
+      }
+
+      // Duplicate check
+      if (!addedResults.contains(componentId1)) {
+        results.add(componentId1);
+        addedResults.add(componentId1);
+      }
+    }
+
+    return results;
+
+  }
+
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Object[]> executeReportQuery(String query, QueryType queryType,
+    Map<String, String> params, boolean test) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+      // Perform search
+      final List<ConceptJpa> concepts =
+          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<Object[]> results = new ArrayList<>();
+      for (final ConceptJpa c : concepts) {
+        final Object[] result = new Object[2];
+        result[0] = c.getId();
+        result[1] = c.getName();
+        results.add(result);
+      }
+      // Return the result list as arrays of component ids
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // check for correct number and type of returned objects
+    if (!query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.*ITEMID.*ITEMNAME.*VALUE.*FROM.*")) {
+      throw new LocalException(
+          "Query must be in the form 'SELECT x itemId, y itemName, z value FROM ...'");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list
+    return jpaQuery.getResultList();
+
+  }
+
+  /* see superclass */
+  @SuppressWarnings({
+      "unchecked"
+  })
+  @Override
+  public List<Object[]> executeQuery(String query, QueryType queryType,
+    Map<String, String> params, boolean test) throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+
+      // Perform search
+      final List<ConceptJpa> concepts =
+          getSearchHandler(ConfigUtility.DEFAULT).getQueryResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+      final List<Object[]> results = new ArrayList<>();
+      for (final ConceptJpa c : concepts) {
+        final Object[] result = new Object[2];
+        result[0] = c.getId();
+        result[1] = c.getName();
+        results.add(result);
+      }
+      // Return the result list as arrays of component ids
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = this.getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = this.getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    // Handle special query key-words
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Return the result list
+    return jpaQuery.getResultList();
+
+  }
+
+  /* see superclass */
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<Long[]> executeClusteredConceptQuery(String query,
+    QueryType queryType, Map<String, String> params, boolean test)
+    throws Exception {
+
+    // If query type is not filled out, return an empty List.
+    if (ConfigUtility.isEmpty(query)) {
+      return new ArrayList<>();
+    }
+    // Validate parameters and query
+    validateQueryAndParams(query, queryType, params);
+
+    // Handle the LUCENE case
+    if (queryType == QueryType.LUCENE) {
+      final PfsParameter pfs = new PfsParameterJpa();
+      pfs.setQueryRestriction(query);
+      if (test) {
+        pfs.setStartIndex(0);
+        pfs.setMaxResults(1);
+      }
+
+      // Perform search
+      final List<Long> ids =
+          this.getSearchHandler(ConfigUtility.DEFAULT).getIdResults(
+              params.get("terminology"), params.get("version"), Branch.ROOT,
+              null, null, ConceptJpa.class, pfs, new int[1], manager);
+
+      // Cluster results
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long id : ids) {
+        final Long[] result = new Long[] {
+            id, id
+        };
+
+        results.add(result);
+      }
+      return results;
+    }
+
+    // Handle PROGRAM queries
+    if (queryType == QueryType.PROGRAM) {
+      throw new Exception("PROGRAM queries not yet supported");
+    }
+
+    // Handle SQL and JPQL queries here
+    // Check for JPQL/SQL errors
+
+    boolean conceptQuery = false;
+    boolean dualConceptQuery = false;
+    boolean clusterQuery = false;
+
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CONCEPTID.*FROM.*")) {
+      conceptQuery = true;
+    }
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CONCEPTID1.*CONCEPTID2.*FROM.*")) {
+      dualConceptQuery = true;
+    }
+    if (query.toUpperCase().replaceAll("[\\n\\r]", "")
+        .matches("SELECT.* CLUSTERID.*FROM.*")) {
+      clusterQuery = true;
+    }
+
+    if (!conceptQuery && !dualConceptQuery && !clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    if (dualConceptQuery && clusterQuery) {
+      throw new LocalException(
+          "Query must have either clusterId,conceptId OR conceptId OR conceptId1,conceptId2 fields in the SELECT statement");
+    }
+
+    // Execute the query
+    javax.persistence.Query jpaQuery = null;
+    if (queryType == QueryType.SQL) {
+      jpaQuery = getEntityManager().createNativeQuery(query);
+    } else if (queryType == QueryType.JPQL) {
+      jpaQuery = getEntityManager().createQuery(query);
+    } else {
+      throw new Exception("Unsupported query type " + queryType);
+    }
+    if (params != null) {
+      for (final String key : params.keySet()) {
+        if (query.contains(":" + key)) {
+          jpaQuery.setParameter(key, params.get(key));
+        }
+      }
+    }
+    if (test) {
+      jpaQuery.setMaxResults(1);
+    }
+    Logger.getLogger(getClass()).info("  query = " + query);
+
+    // Handle simple concept type
+    if (conceptQuery && !dualConceptQuery && !clusterQuery) {
+      final List<Object> list = jpaQuery.getResultList();
+      final List<Long[]> results = new ArrayList<>();
+      for (final Object entry : list) {
+        Long conceptId = null;
+        if (entry instanceof BigInteger) {
+          conceptId = ((BigInteger) entry).longValue();
+        } else if (entry instanceof Long) {
+          conceptId = (Long) entry;
+        }
+        final Long[] result = new Long[2];
+        result[0] = conceptId;
+        result[1] = conceptId;
+        results.add(result);
+      }
+      return results;
+    }
+
+    // Handle concept,concept type
+    if (dualConceptQuery) {
+      final List<Object[]> list = jpaQuery.getResultList();
+
+      final Map<Long, Set<Long>> parChd = new HashMap<>();
+      final Map<Long, Set<Long>> chdPar = new HashMap<>();
+      for (final Object[] entry : list) {
+        Long conceptId1 = null;
+        if (entry[0] instanceof BigInteger) {
+          conceptId1 = ((BigInteger) entry[0]).longValue();
+        } else if (entry[0] instanceof Long) {
+          conceptId1 = (Long) entry[0];
+        }
+        Long conceptId2 = null;
+        if (entry[1] instanceof BigInteger) {
+          conceptId2 = ((BigInteger) entry[1]).longValue();
+        } else if (entry[1] instanceof Long) {
+          conceptId2 = (Long) entry[1];
+        }
+        final Long par = Math.min(conceptId1, conceptId2);
+        final Long chd = Math.max(conceptId1, conceptId2);
+
+        // skip self-ref
+        if (par.equals(chd)) {
+          continue;
+        }
+        if (!parChd.containsKey(par)) {
+          parChd.put(par, new HashSet<>());
+        }
+        parChd.get(par).add(chd);
+        if (!chdPar.containsKey(chd)) {
+          chdPar.put(chd, new HashSet<>());
+        }
+        chdPar.get(chd).add(par);
+      }
+
+      // Recurse down the parChd tree for each key that isn't also a child (e.g.
+      // these are the roots and also the cluster ids)
+      final List<Long[]> results = new ArrayList<>();
+      for (final Long par : parChd.keySet()) {
+        // Skip keys that are themselves children of other nodes
+        if (chdPar.containsKey(par)) {
+          continue;
+        }
+        // Put the parent itself into the results
+        final Long[] result = new Long[2];
+        result[0] = par;
+        result[1] = par;
+        results.add(result);
+        // recurse down the entire parChd graph for "root" keys
+        final Set<Long> descendants = new HashSet<>();
+        getDescendants(par, parChd, descendants);
+        for (final Long desc : descendants) {
+          // Create and add results for each descendatn
+          final Long[] result2 = new Long[2];
+          result2[0] = par;
+          result2[1] = desc;
+          results.add(result2);
+        }
+      }
+      return results;
+    }
+
+    // Otherwise, just return the result list as longs.
+    // this is just the regular clusterQuery case
+    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Long[]> results = new ArrayList<>();
+    for (final Object[] entry : list) {
+      final Long clusterId = new Long(Long.parseLong(entry[0].toString())) ;//Long.valueOf(entry[0].toString());    
+      final Long conceptId = Long.valueOf(entry[1].toString());
+      
+      final Long[] result = new Long[] {
+          clusterId, conceptId
+      };
+      results.add(result);
+    }
+
+    return results;
+
+  }
+
+  /**
+   * Returns the default query params.
+   *
+   * @param project the project
+   * @return the default query params
+   */
+  @SuppressWarnings("static-method")
+  public Map<String, String> getDefaultQueryParams(Project project) {
+    final Map<String, String> params = new HashMap<>();
+    params.put("projectTerminology", project.getTerminology());
+    params.put("terminology", project.getTerminology());
+    params.put("version", project.getVersion());
+    return params;
+  }
+
+  /**
+   * Validate query and params.
+   *
+   * @param query the query
+   * @param type the type
+   * @param params the params
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateQueryAndParams(String query, QueryType type,
+    Map<String, String> params) throws Exception {
+
+    if (type == QueryType.LUCENE) {
+      // precondition check for lucene queries
+      if (params == null || !params.containsKey("terminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("version")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'version'"
+                + params);
+      }
+
+    }
+
+    else {
+      // precondition check for lucene queries
+      if (params == null || !params.containsKey("projectTerminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'projectTerminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("terminology")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'terminology'"
+                + params);
+      }
+      if (params == null || !params.containsKey("version")) {
+        throw new Exception(
+            "Execute query should be passed params with the key 'version'"
+                + params);
+      }
+      // Handle SQL and JPQL queries here
+      // Check for JPQL/SQL errors
+      // ensure that query begins with SELECT (i.e. prevent injection
+      // problems)
+      if (!query.toUpperCase().startsWith("SELECT")) {
+        throw new LocalException(
+            "Query has bad format:  does not begin with SELECT");
+      }
+
+      // check for multiple commands (i.e. multiple semi-colons)
+      if (query.indexOf(";") != query.length() - 1 && query.endsWith(";")) {
+        throw new LocalException(
+            "Query has bad format:  multiple queries detected");
+      }
+
+      // crude check: check for data manipulation commands
+      if (query.toUpperCase()
+          .matches("ALTER |CREATE |DROP |DELETE |INSERT |TRUNCATE |UPDATE ")) {
+        throw new LocalException("Query has bad format:  DDL request detected");
+      }
+
+      if (query.toUpperCase().indexOf("FROM") == -1) {
+        throw new LocalException("Query must contain the term FROM");
+      }
+    }
+  }
+
+  /**
+   * get all descendants of the parent node.
+   *
+   * @param par the par
+   * @param parChd the par chd
+   * @param result the result
+   */
+  private void getDescendants(Long par, Map<Long, Set<Long>> parChd,
+    Set<Long> result) {
+    if (!parChd.containsKey(par)) {
+      return;
+    }
+    // Iterate through all children, add and recurse
+    for (final Long chd : parChd.get(par)) {
+      result.add(chd);
+      getDescendants(chd, parChd, result);
+    }
 
   }
 

@@ -38,10 +38,10 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetCurrentTerminologies() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
     try {
-      metadataService.getTerminologies("InvalidAuthToken");
+      metadataService.getCurrentTerminologies("InvalidAuthToken");
       fail("Getting all terminology/version pairs without authorization token succeeded.");
     } catch (Exception e) {
       // do nothing
@@ -50,33 +50,12 @@ public class MetadataServiceRestDegenerateUseTest extends
   }
 
   /**
-   * Tests retrieval of all terminology and latest version pairs
-   * 
-   * NOTE: Test is identical to testDegenerateUseRestMetadata001 but uses
-   * different API call.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testDegenerateUseRestMetadata002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
-
-    // test bad authorization
-    try {
-      metadataService.getAllTerminologiesLatestVersions("InvalidAuthToken");
-      fail("Getting latest version for all terminologies without authorization token succeeded.");
-    } catch (Exception e) {
-      // do nothing
-    }
-  }
-
-  /**
    * Test retrieving all metadata for a terminology
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata003() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetAllMetadata() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {
@@ -110,8 +89,8 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception
    */
   @Test
-  public void testDegenerateUseRestMetadata004() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetTerminology() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {
@@ -129,8 +108,8 @@ public class MetadataServiceRestDegenerateUseTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestMetadata005() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetDefaultPrecedenceList() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // test bad authorization
     try {

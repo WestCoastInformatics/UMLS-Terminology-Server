@@ -1,0 +1,142 @@
+
+<div class="modal-header">
+  <h4 style="display: inline">{{action}} {{algorithm.name}}</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <table class="table">
+    <tbody>
+      <tr>
+        <td class="col-md-3 col-xs-3">
+          <b>Name</b>
+        </td>
+        <td class="col-md-9 col-xs-9">
+          <input autofocus type="text" ng-model="algorithm.name" size="40" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <textarea class="w100" ng-model="algorithm.description"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Key</b>
+        </td>
+        <td>{{algorithm.algorithmKey}}</td>
+      </tr>
+
+      <tr ng-repeat="parameter in algorithm.parameters">
+        <td>
+          <b>{{parameter.name}}</b>
+        </td>
+        <td ng-show="parameter.type == 'STRING'">
+          <input type="text" ng-model="parameter.value" class="w100"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false" />
+        </td>
+        <!-- textarea -->
+        <td
+          ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+        </td>
+        <!-- textarea for a query returning an id -->
+        <td
+          ng-show="parameter.type == 'QUERY_ID' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+          <span ng-show="parameter.name.indexOf('Query') != -1">
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName,'ID')">Test</span>
+          </span>
+        </td>
+        <!-- textarea for a query returning a pair of ids -->
+        <td
+          ng-show="parameter.type == 'QUERY_ID_PAIR' && parameter.name.indexOf('Query') != -1">
+          <textarea ng-model="parameter.value" rows="4" class="w80"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+          <span ng-show="parameter.name.indexOf('Query') != -1">
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName, 'ID_PAIR')">Test</span>
+          </span>
+        </td>
+        <!-- normal textarea -->
+        <td
+          ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') == -1">
+          <textarea ng-model="parameter.value" rows="4" class="w100"
+            title="{{parameter.description}}"
+            placeholder="{{parameter.placeholder}}"
+            ng-change="validated = false"></textarea>
+        </td>
+        <td ng-show="parameter.type == 'BOOLEAN'">
+          <input type="checkbox" string-to-boolean ng-model="parameter.value"
+            title="{{parameter.description}}" ng-change="validated = false" />
+
+        </td>
+        <td ng-show="parameter.type == 'MULTI'">
+          <span title="{{parameter.description}}">
+            <select multiple ng-model="parameter.values"
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"
+              ng-change="validated = false">
+            </select>
+            <span>
+              <span class="btn btn-xs btn-primary"
+                ng-click="parameter.values = parameter.possibleValues"
+                title="All">All</span>
+              <span class="btn btn-xs btn-primary"
+                ng-click="parameter.values = []" title="All">None</span>
+            </span>
+          </span>
+        </td>
+        <td ng-show="parameter.type == 'INTEGER'">
+          <input type="number" string-to-number class="w100"
+            ng-model="parameter.value" placeholder="{{parameter.placeholder}}"
+            title="{{parameter.description}}" ng-change="validated = false" />
+
+        </td>
+        <td ng-show="parameter.type == 'ENUM'">
+          <span title="{{parameter.description}}">
+            <select ng-model="parameter.value"
+              ng-options="possibleValue for possibleValue in parameter.possibleValues"
+              ng-change="validated = false">
+            </select>
+          </span>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+  <!-- messages -->
+  <div class="col-md-12 col-xs-12">
+    <div class="alert alert-success" ng-repeat="message in messages">
+      {{message}}
+      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-success" ng-click="validate(algorithm)">Validate</button>
+  <button ng-disabled="!validated" ng-click="submitAlgorithm(algorithm)"
+    class="btn btn-primary" ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

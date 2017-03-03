@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
@@ -19,6 +19,7 @@ import org.hibernate.search.jpa.FullTextQuery;
 
 import com.wci.umls.server.helpers.HasId;
 import com.wci.umls.server.helpers.PfsParameter;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.services.helper.IndexUtility;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
@@ -26,7 +27,8 @@ import com.wci.umls.server.services.handlers.SearchHandler;
  * Default implementation of {@link SearchHandler}. This provides an algorithm
  * to aide in lucene searches.
  */
-public class DefaultSearchHandler implements SearchHandler {
+public class DefaultSearchHandler extends AbstractConfigurable
+    implements SearchHandler {
 
   /** The score map. */
   private Map<Long, Float> scoreMap = new HashMap<>();
@@ -41,9 +43,86 @@ public class DefaultSearchHandler implements SearchHandler {
   @Override
   public <T extends HasId> List<T> getQueryResults(String terminology,
     String version, String branch, String query, String literalField,
-    Class<?> fieldNamesKey, Class<T> clazz, PfsParameter pfs, int[] totalCt,
-    EntityManager manager) throws Exception {
+    Class<T> clazz, PfsParameter pfs, int[] totalCt, EntityManager manager)
+    throws Exception {
 
+    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
+        query, literalField, clazz, pfs, manager);
+    totalCt[0] = fullTextQuery.getResultSize();
+
+    // Perform the final query and save score values
+    fullTextQuery.setProjection(ProjectionConstants.SCORE,
+        ProjectionConstants.THIS);
+    final List<T> classes = new ArrayList<>();
+    @SuppressWarnings("unchecked")
+    final List<Object[]> results = fullTextQuery.getResultList();
+    for (final Object[] result : results) {
+      Object score = result[0];
+      @SuppressWarnings("unchecked")
+      T t = (T) result[1];
+
+      // TODO is this needed? or is it dangerous
+      if (t == null) {
+        continue;
+      }
+
+      classes.add(t);
+
+      // normalize results to a "good match" (lucene score of 5.0+)
+      // Double normScore = Math.log(Math.max(5, scoreMap.get(sr.getId())) /
+      // Math.log(5));
+
+      // cap the score to a maximum of 5.0 and normalize to the range [0,1]
+
+      Float normScore = Math.min(5, Float.valueOf(score.toString())) / 5;
+
+      // store the score
+      scoreMap.put(t.getId(), normScore.floatValue());
+    }
+
+    return classes;
+  }
+
+  /* see superclass */
+  @Override
+  public List<Long> getIdResults(String terminology, String version,
+    String branch, String query, String literalField, Class<?> clazz,
+    PfsParameter pfs, int[] totalCt, EntityManager manager) throws Exception {
+
+    final FullTextQuery fullTextQuery = helper(terminology, version, branch,
+        query, literalField, clazz, pfs, manager);
+    totalCt[0] = fullTextQuery.getResultSize();
+
+    // Perform the final query and save score values
+    fullTextQuery.setProjection(ProjectionConstants.ID);
+    final List<Long> ids = new ArrayList<>();
+    @SuppressWarnings("unchecked")
+    final List<Object[]> results = fullTextQuery.getResultList();
+    for (final Object[] result : results) {
+      Long l = (Long) result[0];
+      ids.add(l);
+    }
+
+    return ids;
+  }
+
+  /**
+   * Helper.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param branch the branch
+   * @param query the query
+   * @param literalField the literal field
+   * @param clazz the clazz
+   * @param pfs the pfs
+   * @param manager the manager
+   * @return the full text query
+   * @throws Exception the exception
+   */
+  public FullTextQuery helper(String terminology, String version, String branch,
+    String query, String literalField, Class<?> clazz, PfsParameter pfs,
+    EntityManager manager) throws Exception {
     // Default Search Handler algorithm
     // If empty query or ":" detected, perform query as written
     // If no results, perform tokenized/quoted search
@@ -60,7 +139,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     escapedQuery = "\"" + QueryParserBase.escape(escapedQuery) + "\"";
 
-    // A slash character indicats a regex in lucene, fix that
+    // A slash character indicates a regex in lucene, fix that
     final String fixedQuery = query == null ? "" : query.replaceAll("\\/", " ");
 
     // Build a combined query with an OR between query typed and exact match
@@ -79,7 +158,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Add terminology conditions if supplied
-    StringBuilder terminologyClause = new StringBuilder();
+    final StringBuilder terminologyClause = new StringBuilder();
     if (terminology != null && !terminology.equals("") && version != null
         && !version.equals("")) {
       terminologyClause.append(
@@ -87,7 +166,7 @@ public class DefaultSearchHandler implements SearchHandler {
     }
 
     // Assemble query
-    StringBuilder finalQuery = new StringBuilder();
+    final StringBuilder finalQuery = new StringBuilder();
     if (fixedQuery.isEmpty()) {
       if (terminologyClause.length() > 0) {
         // Just use PFS and skip the leading "AND"
@@ -104,43 +183,17 @@ public class DefaultSearchHandler implements SearchHandler {
     }
     FullTextQuery fullTextQuery = null;
     try {
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           finalQuery.toString(), pfs, manager);
     } catch (ParseException | IllegalArgumentException e) {
       e.printStackTrace();
       // If there's a parse exception, try the literal query
       Logger.getLogger(getClass()).debug("PE query = " + finalQuery);
-      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz, fieldNamesKey,
+      fullTextQuery = IndexUtility.applyPfsToLuceneQuery(clazz,
           escapedQuery + terminologyClause, pfs, manager);
     }
 
-    totalCt[0] = fullTextQuery.getResultSize();
-
-    // Perform the final query and save score values
-    fullTextQuery.setProjection(ProjectionConstants.SCORE,
-        ProjectionConstants.THIS);
-    final List<T> classes = new ArrayList<>();
-    @SuppressWarnings("unchecked")
-    final List<Object[]> results = fullTextQuery.getResultList();
-    for (final Object[] result : results) {
-      Object score = result[0];
-      @SuppressWarnings("unchecked")
-      T t = (T) result[1];
-      classes.add(t);
-
-      // normalize results to a "good match" (lucene score of 5.0+)
-      // Double normScore = Math.log(Math.max(5, scoreMap.get(sr.getId())) /
-      // Math.log(5));
-
-      // cap the score to a maximum of 5.0 and normalize to the range [0,1]
-
-      Float normScore = Math.min(5, Float.valueOf(score.toString())) / 5;
-
-      // store the score
-      scoreMap.put(t.getId(), normScore.floatValue());
-    }
-
-    return classes;
+    return fullTextQuery;
 
   }
 

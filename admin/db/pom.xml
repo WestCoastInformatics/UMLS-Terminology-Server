@@ -73,5 +73,30 @@
       </build>
     </profile>
 
+    <!-- Ad Hoc, specify -Drun.config.umls=... -->
+    <profile>
+      <id>AdHoc</id>
+      <build>
+        <plugins>
+
+          <!-- Create the database schema (or create it) -->
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>ad-hoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>ad-hoc</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 </project>

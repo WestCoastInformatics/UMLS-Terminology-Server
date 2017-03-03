@@ -1,0 +1,48 @@
+<div class="modal-header">
+  <h4 style="display: inline">{{type}} Log</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="close()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+
+    <div ng-show="errors.length > 0" class="alert alert-danger alert-error">
+      {{errors[0]}}
+      <div style="display: inline; float: right;">
+        <i ng-show="errors[1]"
+          title="{{error.expand ? 'Show' : 'Hide'}} long eror"
+          ng-click="error.expand = !error.expand;"
+          class="noul glyphicon glyphicon-paperclip"></i>
+      </div>
+      <p ng-show="errors[1] && error.expand">
+        <br />{{errors[1]}}
+      </p>
+    </div>
+
+    <div class="col-md-12 col-xs-12">
+      <div ng-show="log.length > 0"
+        style="max-height: 600px; overflow-y: scroll;">
+        <pre>{{log}}</pre>
+        <a id="bottom"></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-footer">
+  <span style="float: left">
+    <input placeholder="Search log"
+      ng-show="(type == 'Project' || type == 'Process' || type == 'Step') && poll != 'true'"
+      type="text" ng-model="filter" ng-model-options="{ debounce: 300 }"
+      ng-change="getLog()">
+    <button class="btn btn-xs btn-warning" ng-show="filter"
+      ng-click="filter = ''; getLog()" title="Click to clear filter text">Clear</button>
+  </span>
+
+  <button class="btn btn-primary" ng-show="poll == 'true'"
+    ng-click="stopPolling()">Stop polling</button>
+  <button class="btn btn-warning" ng-click="close()">Close</button>
+</div>

@@ -1,9 +1,11 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.content;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * Represents a relationship between two {@link ComponentHasAttributes}s.
@@ -11,9 +13,9 @@ import com.wci.umls.server.helpers.HasAlternateTerminologyIds;
  * @param <S> the "from" object type
  * @param <T> the "to" object type
  */
-public interface Relationship<S extends ComponentHasAttributes, T extends ComponentHasAttributes>
+public interface Relationship<S extends ComponentInfo, T extends ComponentInfo>
     extends ComponentHasAttributes, HasAlternateTerminologyIds {
-  
+
   /**
    * Returns the from.
    *
@@ -25,8 +27,9 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    * Sets the from.
    *
    * @param component the from
+   * @throws Exception the exception
    */
-  public void setFrom(S component);
+  public void setFrom(S component) throws Exception;
 
   /**
    * Returns the to.
@@ -39,8 +42,9 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    * Sets the to.
    *
    * @param component the to
+   * @throws Exception the exception
    */
-  public void setTo(T component);
+  public void setTo(T component) throws Exception;
 
   /**
    * Returns the relationship label.
@@ -142,5 +146,32 @@ public interface Relationship<S extends ComponentHasAttributes, T extends Compon
    * @param hierarchical the hierarchical flag
    */
   public void setHierarchical(boolean hierarchical);
+
+  /**
+   * Returns the workflow status.
+   *
+   * @return the workflow status
+   */
+  public WorkflowStatus getWorkflowStatus();
+
+  /**
+   * Sets the workflow status.
+   *
+   * @param workflowStatus the workflow status
+   */
+  public void setWorkflowStatus(WorkflowStatus workflowStatus);
+
+  /**
+   * Creates the inverse relationship.
+   *
+   * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the relationship
+   * @throws Exception the exception
+   */
+  public Relationship<S, T> createInverseRelationship(
+    Relationship<S, T> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception;
 
 }

@@ -6,29 +6,35 @@ tsApp.controller('MetadataCtrl', [
   'gpService',
   'utilService',
   'tabService',
-  'securityService',
-  'metadataService',
   'configureService',
-  function($scope, $http, $location, gpService, utilService, tabService, securityService,
-    metadataService, configureService) {
+  'securityService',
+  'projectService',
+  'metadataService',
+  function($scope, $http, $location, gpService, utilService, tabService, configureService,
+    securityService, projectService, metadataService) {
     console.debug("configure MetadataCtrl");
 
-    // Clear error
+    // Set up tabs and controller
+    tabService.setShowing(true);
     utilService.clearError();
-
-    // Handle resetting tabs on "back" button
+    $scope.user = securityService.getUser();
+    projectService.getUserHasAnyRole();
     tabService.setSelectedTabByLabel('Metadata');
 
-    // the currently viewed terminology (set by default or user)
-    $scope.user = securityService.getUser();
-    $scope.metadata = metadataService.getModel();
+    // Scope vars
+    $scope.selected = {
+      metadata : metadataService.getModel(),
+      precedenceList : []
+    }
+
     $scope.resultsCollapsed = {};
 
-    // Configure tab and accordion
-    $scope.configureTab = function() {
-      $scope.user.userPreferences.lastTab = '/metadata';
-      securityService.updateUserPreferences($scope.user.userPreferences);
-    };
+    // pretty print
+    $scope.getItemName = function(item) {
+      if (item) {
+        return item.name.replace(/_/g, ' ');
+      }
+    }
 
     //
     // Initialize
@@ -37,14 +43,22 @@ tsApp.controller('MetadataCtrl', [
     $scope.initialize = function() {
 
       // If terminology is blank, then redirect to /content to set a terminology
-      if (!$scope.metadata.terminologies) {
+      if (!$scope.selected.metadata.terminology) {
         $location.path("/content");
       }
 
-      // Handle users with user preferences
-      else if ($scope.user.userPreferences) {
-        $scope.configureTab();
+      // configure tab
+      securityService.saveTab($scope.user.userPreferences, '/metadata');
+
+      if ($scope.selected.metadata.terminology) {
+        metadataService.getPrecedenceList($scope.selected.metadata.terminology.terminology,
+          $scope.selected.metadata.terminology.version).then(
+        // Success
+        function(data) {
+          $scope.selected.precedenceList = data.precedence;
+        });
       }
+
     };
 
     //

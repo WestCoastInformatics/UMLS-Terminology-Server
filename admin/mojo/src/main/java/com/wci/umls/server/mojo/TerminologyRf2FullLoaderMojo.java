@@ -1,15 +1,16 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.impl.ContentServiceRestImpl;
@@ -19,44 +20,38 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which loads an RF2 Full of SNOMED CT data into a database.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal load-rf2-full
- * 
- * @phase package
  */
-public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
+@Mojo(name = "load-rf2-full", defaultPhase = LifecyclePhase.PACKAGE)
+public class TerminologyRf2FullLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
-   * Whether to run this mojo against an active server
-   * @parameter
+   * Whether to run this mojo against an active server.
    */
+  @Parameter
   private boolean server = false;
 
   /**
-   * Mode - for recreating db
-   * @parameter
+   * Mode - for recreating db.
    */
+  @Parameter
   private String mode = null;
 
   /**
@@ -82,20 +77,10 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-      }
-
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -105,6 +90,11 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       if (!serverRunning && server) {
         throw new MojoFailureException(
             "Mojo expects server to be running, but server is down");
+      }
+
+      // Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
       }
 
       // authenticate
@@ -117,12 +107,6 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
-
         // Reopen content service rest after reindex
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
         // Load terminology
@@ -132,15 +116,12 @@ public class TerminologyRf2FullLoaderMojo extends AbstractMojo {
       } else {
         getLog().info("Running against server");
 
-        // handle reindexing
+        // invoke the client
         ContentClientRest client = new ContentClientRest(properties);
-        if (mode != null && mode.equals("create")) {
-          client.luceneReindex(null, authToken);
-        }
 
         // load terminology
-        client
-            .loadTerminologyRf2Full(terminology, version, inputDir, authToken);
+        client.loadTerminologyRf2Full(terminology, version, inputDir,
+            authToken);
       }
 
     } catch (Exception e) {

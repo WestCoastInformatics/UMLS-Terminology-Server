@@ -1,0 +1,329 @@
+ATNL|Attribute name list for a source||0|32.47|1049|MRSAB.RRF|varchar(4000)|
+ATN|Attribute name||2|8.80|62|MRSAT.RRF|varchar(100)|
+ATUI|Unique identifier for attribute||10|10.54|11|MRSTY.RRF|varchar(11)|
+ATUI|Unique identifier for attribute||10|10.78|11|MRDEF.RRF|varchar(11)|
+ATUI|Unique identifier for attribute||10|10.80|11|MRSAT.RRF|varchar(11)|
+ATV|Attribute value||1|17.59|62192|MRSAT.RRF|varchar(65000)|
+AUI1|Unique identifier for first atom||0|8.38|9|MRREL.RRF|varchar(9)|
+AUI1|Unique identifier for first atom||8|8.47|9|MRAUI.RRF|varchar(9)|
+AUI2|Unique identifier for second atom||0|8.38|9|MRREL.RRF|varchar(9)|
+AUI2|Unique identifier for second atom||8|8.47|9|MRAUI.RRF|varchar(9)|
+AUI|Unique identifier for atom||8|8.37|9|MRHIER.RRF|varchar(9)|
+AUI|Unique identifier for atom||8|8.69|9|MRDEF.RRF|varchar(9)|
+AUI|Unique identifier for atom||8|8.74|9|MRCONSO.RRF|varchar(9)|
+AV|Average Length, Characters||4|4.11|6|MRCOLS.RRF|numeric(5,2)|
+BTS|Size in Bytes||1|6.10|10|MRFILES.RRF|integer|
+CENC|Character encoding of a source as specified by IANA||5|5.00|5|MRSAB.RRF|varchar(20)|
+CFR|CUI frequency for a source||1|2.56|7|MRSAB.RRF|integer|
+CHANGEKEY|CONCEPTSTATUS (if history relates to a SNOMED CT concept) or DESCRIPTIONSTATUS (if history relates to a SNOMED CT atom or "description")||0|0.00|0|MRHIST.RRF|varchar(1000)|
+CHANGETYPE|Source asserted code for type of change||0|0.00|0|MRHIST.RRF|varchar(1000)|
+CHANGEVAL|SNOMED CT CONCEPTSTATUS or DESCRIPTIONSTATUS value after the change took place||0|0.00|0|MRHIST.RRF|varchar(1000)|
+CLS|Number of columns||1|1.12|2|MRFILES.RRF|integer|
+CODE|Unique Identifier or code for string in source||0|5.73|50|MRSAT.RRF|varchar(100)|
+CODE|Unique Identifier or code for string in source||1|7.39|63|MRCONSO.RRF|varchar(100)|
+COL|Column or data element name||2|3.74|11|MRCOLS.RRF|varchar(20)|
+CUI1|Unique identifier for first concept||8|8.00|8|MRAUI.RRF|char(8)|
+CUI1|Unique identifier for first concept||8|8.00|8|MRCUI.RRF|char(8)|
+CUI1|Unique identifier for first concept||8|8.00|8|MRREL.RRF|char(8)|
+CUI2|Unique identifier for second concept||0|4.37|8|MRCUI.RRF|char(8)|
+CUI2|Unique identifier for second concept||8|8.00|8|MRAUI.RRF|char(8)|
+CUI2|Unique identifier for second concept||8|8.00|8|MRREL.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRHIST.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRXW_CZE.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRXW_JPN.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRXW_LAV.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRXW_POL.RRF|char(8)|
+CUI|Unique identifier for concept||0|0.00|0|MRXW_SCR.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|AMBIGLUI.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|AMBIGSUI.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|CHANGE/MERGEDCUI.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRCONSO.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRDEF.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRHIER.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRSAT.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRSTY.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXNS_ENG.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXNW_ENG.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_BAQ.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_CHI.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_DAN.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_DUT.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_ENG.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_EST.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_FIN.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_FRE.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_GER.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_GRE.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_HEB.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_HUN.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_ITA.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_KOR.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_NOR.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_POR.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_RUS.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_SPA.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_SWE.RRF|char(8)|
+CUI|Unique identifier for concept||8|8.00|8|MRXW_TUR.RRF|char(8)|
+CURVER|Current Version flag||1|1.00|1|MRSAB.RRF|char(1)|
+CVF|Content view flag||0|0.00|0|MRHIST.RRF|varchar(50)|
+CVF|Content view flag||0|0.00|0|MRMAP.RRF|varchar(50)|
+CVF|Content view flag||0|0.00|0|MRSMAP.RRF|varchar(50)|
+CVF|Content view flag||0|0.00|4|MRDEF.RRF|varchar(50)|
+CVF|Content view flag||0|0.20|4|MRHIER.RRF|varchar(50)|
+CVF|Content view flag||0|0.29|4|MRSAT.RRF|varchar(50)|
+CVF|Content view flag||0|0.45|4|MRREL.RRF|varchar(50)|
+CVF|Content view flag||0|1.68|5|MRCONSO.RRF|varchar(50)|
+CVF|Content view flag||0|2.24|5|MRSTY.RRF|varchar(50)|
+CXN|The context number if the atom has multiple contexts||1|2.04|4|MRHIER.RRF|integer|
+CXTY|Context type for a source||0|5.20|31|MRSAB.RRF|varchar(50)|
+DEF|Definition||3|194.99|10258|MRDEF.RRF|varchar(16000)|
+DES|Descriptive Name||5|28.95|136|MRCOLS.RRF|varchar(200)|
+DES|Descriptive Name||8|18.24|42|MRFILES.RRF|varchar(200)|
+DIR|Source asserted directionality flag||0|0.19|1|MRREL.RRF|varchar(1)|
+DOCKEY|Key to be documented||2|3.63|8|MRDOC.RRF|varchar(50)|
+DTY|SQL-92 data type for this column||7|10.02|14|MRCOLS.RRF|varchar(20)|
+EXPL|Detailed explanation||0|25.16|308|MRDOC.RRF|varchar(1000)|
+FIL|Physical FILENAME||9|10.96|21|MRCOLS.RRF|varchar(50)|
+FIL|Physical FILENAME||9|12.12|21|MRFILES.RRF|varchar(50)|
+FMT|Comma separated list of COL||7|30.16|190|MRFILES.RRF|varchar(300)|
+FROMEXPR|The expression that a mapping is mapped from||3|7.07|8|MRSMAP.RRF|varchar(4000)|
+FROMEXPR|The expression that a mapping is mapped from||3|7.69|17|MRMAP.RRF|varchar(4000)|
+FROMID|Metathesaurus identifier for the entity being mapped from||4|7.08|17|MRMAP.RRF|varchar(50)|
+FROMRES|Restriction applicable to the entity being mapped from||0|0.00|0|MRMAP.RRF|varchar(4000)|
+FROMRULE|Machine processible rule applicable to the entity being mapped from||0|0.00|0|MRMAP.RRF|varchar(4000)|
+FROMSID|Source asserted identifier for the entity being mapped from||0|0.00|0|MRMAP.RRF|varchar(50)|
+FROMTYPE|The type of expression that a mapping is mapped from||3|3.98|4|MRSMAP.RRF|varchar(50)|
+FROMTYPE|The type of expression that a mapping is mapped from||3|3.99|4|MRMAP.RRF|varchar(50)|
+HCD|Source asserted hierarchical number or code of context member (if it exists)||0|0.11|47|MRHIER.RRF|varchar(50)|
+IMETA|Version of the Metathesaurus that a source was added||6|6.00|6|MRSAB.RRF|varchar(10)|
+ISPREF|Indicates whether AUI is preferred||1|1.00|1|MRCONSO.RRF|char(1)|
+LAT|Language of Term(s)||0|0.00|0|CHANGE/DELETEDSUI.RRF|char(3)|
+LAT|Language of Term(s)||0|0.00|0|MRXW_CZE.RRF|char(3)|
+LAT|Language of Term(s)||0|0.00|0|MRXW_JPN.RRF|char(3)|
+LAT|Language of Term(s)||0|0.00|0|MRXW_LAV.RRF|char(3)|
+LAT|Language of Term(s)||0|0.00|0|MRXW_POL.RRF|char(3)|
+LAT|Language of Term(s)||0|0.00|0|MRXW_SCR.RRF|char(3)|
+LAT|Language of Term(s)||0|2.97|3|MRSAB.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRCONSO.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXNS_ENG.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXNW_ENG.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_BAQ.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_CHI.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_DAN.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_DUT.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_ENG.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_EST.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_FIN.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_FRE.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_GER.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_GRE.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_HEB.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_HUN.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_ITA.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_KOR.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_NOR.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_POR.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_RUS.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_SPA.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_SWE.RRF|char(3)|
+LAT|Language of Term(s)||3|3.00|3|MRXW_TUR.RRF|char(3)|
+LUI|Unique identifier for term||0|0.00|0|CHANGE/MERGEDLUI.RRF|varchar(10)|
+LUI|Unique identifier for term||0|0.00|0|MRXW_CZE.RRF|varchar(10)|
+LUI|Unique identifier for term||0|0.00|0|MRXW_JPN.RRF|varchar(10)|
+LUI|Unique identifier for term||0|0.00|0|MRXW_LAV.RRF|varchar(10)|
+LUI|Unique identifier for term||0|0.00|0|MRXW_POL.RRF|varchar(10)|
+LUI|Unique identifier for term||0|0.00|0|MRXW_SCR.RRF|varchar(10)|
+LUI|Unique identifier for term||0|5.64|9|MRSAT.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_BAQ.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_DAN.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_FIN.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_HEB.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_HUN.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_NOR.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.00|8|MRXW_SWE.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.16|9|AMBIGLUI.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.27|9|MRXW_ENG.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.28|9|MRXNS_ENG.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.28|9|MRXNW_ENG.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.31|9|MRCONSO.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.98|9|MRXW_GER.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.98|9|MRXW_ITA.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.99|9|MRXW_DUT.RRF|varchar(10)|
+LUI|Unique identifier for term||8|8.99|9|MRXW_FRE.RRF|varchar(10)|
+LUI|Unique identifier for term||8|9.00|9|MRXW_KOR.RRF|varchar(10)|
+LUI|Unique identifier for term||8|9.00|9|MRXW_POR.RRF|varchar(10)|
+LUI|Unique identifier for term||8|9.00|9|MRXW_SPA.RRF|varchar(10)|
+LUI|Unique identifier for term||9|9.00|9|MRXW_CHI.RRF|varchar(10)|
+LUI|Unique identifier for term||9|9.00|9|MRXW_EST.RRF|varchar(10)|
+LUI|Unique identifier for term||9|9.00|9|MRXW_GRE.RRF|varchar(10)|
+LUI|Unique identifier for term||9|9.00|9|MRXW_RUS.RRF|varchar(10)|
+LUI|Unique identifier for term||9|9.00|9|MRXW_TUR.RRF|varchar(10)|
+MAPATN|Mapping attribute name (for future use)||0|2.41|6|MRMAP.RRF|varchar(20)|
+MAPATV|Mapping attribute value (for future use)||0|0.14|1|MRMAP.RRF|varchar(4000)|
+MAPID|Metathesaurus asserted identifier for mapping||10|10.98|11|MRSMAP.RRF|varchar(50)|
+MAPID|Metathesaurus asserted identifier for mapping||10|10.99|11|MRMAP.RRF|varchar(50)|
+MAPIN|Mapping in current subset||0|0.55|1|MRCUI.RRF|char(1)|
+MAPIN|Mapping in current subset||1|1.00|1|MRAUI.RRF|char(1)|
+MAPRANK|Order in which mappings in a subset should be applied||0|0.42|2|MRMAP.RRF|integer|
+MAPREASON|Reason for mapping||0|0.00|4|MRCUI.RRF|varchar(4000)|
+MAPREASON|Reason for mapping||4|4.00|4|MRAUI.RRF|varchar(4000)|
+MAPRES|Restriction applicable to this mapping||0|17.07|452|MRMAP.RRF|varchar(4000)|
+MAPRULE|Machine processible rule applicable to this mapping||0|4.50|298|MRMAP.RRF|varchar(4000)|
+MAPSETCUI|CUI of the map set||8|8.00|8|MRMAP.RRF|char(8)|
+MAPSETCUI|CUI of the map set||8|8.00|8|MRSMAP.RRF|char(8)|
+MAPSETSAB|SAB of the map set||3|6.13|8|MRSMAP.RRF|varchar(40)|
+MAPSETSAB|SAB of the map set||3|8.40|11|MRMAP.RRF|varchar(40)|
+MAPSID|Source asserted identifier for mapping||0|0.00|0|MRSMAP.RRF|varchar(50)|
+MAPSID|Source asserted identifier for mapping||0|4.93|36|MRMAP.RRF|varchar(50)|
+MAPSUBSETID|Map subset identifier used to identify a subset of related mappings within a map set||0|0.92|3|MRMAP.RRF|varchar(10)|
+MAPTYPE|Type of mapping||0|3.64|9|MRMAP.RRF|varchar(50)|
+MAX|Maximum Length||1|1.35|5|MRCOLS.RRF|integer|
+METAUI|Metathesaurus asserted unique identifier||0|6.96|10|MRSAT.RRF|varchar(50)|
+MIN|Minimum Length||1|1.02|2|MRCOLS.RRF|integer|
+NSTR|Normalized string||1|34.89|2528|MRXNS_ENG.RRF|varchar(3000)|
+NWD|Normalized word||1|6.51|80|MRXNW_ENG.RRF|varchar(100)|
+PAUI|Unique identifier for parent atom||0|8.26|9|MRHIER.RRF|varchar(9)|
+PCUI|Concept unique identifier in the previous Metathesaurus||8|8.00|8|CHANGE/DELETEDCUI.RRF|char(8)|
+PCUI|Concept unique identifier in the previous Metathesaurus||8|8.00|8|CHANGE/MERGEDCUI.RRF|char(8)|
+PLUI|Lexical unique identifier in the previous Metathesaurus||0|0.00|0|CHANGE/DELETEDLUI.RRF|varchar(10)|
+PLUI|Lexical unique identifier in the previous Metathesaurus||0|0.00|0|CHANGE/MERGEDLUI.RRF|varchar(10)|
+PSTR|Preferred name in the previous Metathesaurus||0|0.00|0|CHANGE/DELETEDLUI.RRF|varchar(3000)|
+PSTR|Preferred name in the previous Metathesaurus||0|0.00|0|CHANGE/DELETEDSUI.RRF|varchar(3000)|
+PSTR|Preferred name in the previous Metathesaurus||4|4.00|4|CHANGE/DELETEDCUI.RRF|varchar(3000)|
+PSUI|String unique identifier in the previous Metathesaurus||0|0.00|0|CHANGE/DELETEDSUI.RRF|varchar(10)|
+PTR|Path to root||0|103.03|347|MRHIER.RRF|varchar(1000)|
+RANK|Termgroup ranking||4|4.00|4|MRRANK.RRF|integer|
+RCUI|Unique identifier for root SRC concept||0|4.47|8|MRSAB.RRF|char(8)|
+REASON|Explanation of change, if present||0|0.00|0|MRHIST.RRF|varchar(1000)|
+REF|Documentation Section Number||0|0.00|0|MRCOLS.RRF|varchar(20)|
+RELA|Additional relationship label||0|0.00|0|MRAUI.RRF|varchar(100)|
+RELA|Additional relationship label||0|0.00|0|MRCUI.RRF|varchar(100)|
+RELA|Additional relationship label||0|12.00|13|MRSMAP.RRF|varchar(100)|
+RELA|Additional relationship label||0|12.05|23|MRMAP.RRF|varchar(100)|
+RELA|Additional relationship label||0|2.70|12|MRHIER.RRF|varchar(100)|
+RELA|Additional relationship label||0|9.24|54|MRREL.RRF|varchar(100)|
+REL|Relationship label||0|0.00|0|MRAUI.RRF|varchar(4)|
+REL|Relationship label||2|2.00|2|MRMAP.RRF|varchar(4)|
+REL|Relationship label||2|2.00|2|MRSMAP.RRF|varchar(4)|
+REL|Relationship label||2|2.37|3|MRREL.RRF|varchar(4)|
+REL|Relationship label||2|2.88|4|MRCUI.RRF|varchar(4)|
+RG|Relationship group||0|0.09|3|MRREL.RRF|varchar(10)|
+RMETA|Version of the Metathesaurus where a version is removed||0|0.26|6|MRSAB.RRF|varchar(10)|
+RSAB|Root source abbreviation||2|6.13|15|MRSAB.RRF|varchar(40)|
+RUI|Unique identifier for relationship||9|9.64|10|MRREL.RRF|varchar(10)|
+RWS|Number of rows||1|4.76|8|MRFILES.RRF|integer|
+SABIN|Source in current subset||1|1.00|1|MRSAB.RRF|char(1)|
+SAB|Source abbreviation||0|0.00|0|MRHIST.RRF|varchar(40)|
+SAB|Source abbreviation||2|3.95|13|MRDEF.RRF|varchar(40)|
+SAB|Source abbreviation||2|5.43|12|MRREL.RRF|varchar(40)|
+SAB|Source abbreviation||2|5.75|13|MRRANK.RRF|varchar(40)|
+SAB|Source abbreviation||2|5.87|13|MRCONSO.RRF|varchar(40)|
+SAB|Source abbreviation||2|6.77|11|MRSAT.RRF|varchar(40)|
+SAB|Source abbreviation||2|8.95|11|MRHIER.RRF|varchar(40)|
+SATUI|Source asserted attribute identifier||0|0.08|15|MRDEF.RRF|varchar(50)|
+SATUI|Source asserted attribute identifier||0|6.72|36|MRSAT.RRF|varchar(50)|
+SAUI|Source asserted atom identifier||0|2.10|18|MRCONSO.RRF|varchar(50)|
+SCC|Content contact info for a source||0|149.63|332|MRSAB.RRF|varchar(1000)|
+SCIT|Source citation||42|156.84|445|MRSAB.RRF|varchar(4000)|
+SCUI|Source asserted concept identifier||0|6.43|50|MRCONSO.RRF|varchar(50)|
+SDUI|Source asserted descriptor identifier||0|1.31|13|MRCONSO.RRF|varchar(50)|
+SF|Source Family||2|4.06|13|MRSAB.RRF|varchar(40)|
+SLC|License contact info for a source||0|174.84|362|MRSAB.RRF|varchar(1000)|
+SL|Source of relationship labels||2|5.43|12|MRREL.RRF|varchar(40)|
+SON|Source Official Name||10|47.02|145|MRSAB.RRF|varchar(3000)|
+SOURCEUI|Source asserted unique identifier||0|0.00|0|MRHIST.RRF|varchar(50)|
+SRL|Source Restriction Level||1|1.00|1|MRCONSO.RRF|integer|
+SRL|Source Restriction Level||1|1.00|1|MRSAB.RRF|integer|
+SRUI|Source attributed relationship identifier||0|2.01|36|MRREL.RRF|varchar(50)|
+SSN|Source short name||3|23.33|89|MRSAB.RRF|varchar(3000)|
+STN|Semantic type tree number||1|7.83|14|MRSTY.RRF|varchar(100)|
+STR|String||1|38.29|2916|MRCONSO.RRF|varchar(3000)|
+STT|String type||2|2.01|3|MRCONSO.RRF|varchar(3)|
+STYPE1|The name of the column in MRCONSO.RRF that contains the first identifier to which the relationship is attached||3|3.65|4|MRREL.RRF|varchar(50)|
+STYPE2|The name of the column in MRCONSO.RRF that contains the second identifier to which the relationship is attached||3|3.65|4|MRREL.RRF|varchar(50)|
+STYPE|The name of the column in MRCONSO.RRF or MRREL.RRF that contains the identifier to which the attribute is attached||3|3.35|4|MRSAT.RRF|varchar(50)|
+STY|Semantic type||4|16.29|39|MRSTY.RRF|varchar(50)|
+SUI|Unique identifier for string||0|0.00|0|MRXW_CZE.RRF|varchar(10)|
+SUI|Unique identifier for string||0|0.00|0|MRXW_JPN.RRF|varchar(10)|
+SUI|Unique identifier for string||0|0.00|0|MRXW_LAV.RRF|varchar(10)|
+SUI|Unique identifier for string||0|0.00|0|MRXW_POL.RRF|varchar(10)|
+SUI|Unique identifier for string||0|0.00|0|MRXW_SCR.RRF|varchar(10)|
+SUI|Unique identifier for string||0|5.74|9|MRSAT.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_BAQ.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_DAN.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_FIN.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_HEB.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_HUN.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_NOR.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.00|8|MRXW_SWE.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.29|9|AMBIGSUI.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.50|9|MRCONSO.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.52|9|MRXNS_ENG.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.54|9|MRXW_ENG.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.55|9|MRXNW_ENG.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.98|9|MRXW_GER.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.98|9|MRXW_ITA.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.99|9|MRXW_DUT.RRF|varchar(10)|
+SUI|Unique identifier for string||8|8.99|9|MRXW_FRE.RRF|varchar(10)|
+SUI|Unique identifier for string||8|9.00|9|MRXW_POR.RRF|varchar(10)|
+SUI|Unique identifier for string||8|9.00|9|MRXW_SPA.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_CHI.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_EST.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_GRE.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_KOR.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_RUS.RRF|varchar(10)|
+SUI|Unique identifier for string||9|9.00|9|MRXW_TUR.RRF|varchar(10)|
+SUPPRESS|Suppressible flag||1|1.00|1|MRCONSO.RRF|char(1)|
+SUPPRESS|Suppressible flag||1|1.00|1|MRDEF.RRF|char(1)|
+SUPPRESS|Suppressible flag||1|1.00|1|MRRANK.RRF|char(1)|
+SUPPRESS|Suppressible flag||1|1.00|1|MRREL.RRF|char(1)|
+SUPPRESS|Suppressible flag||1|1.00|1|MRSAT.RRF|char(1)|
+SVER|Release date or version number of a source||0|0.00|0|MRHIST.RRF|varchar(20)|
+SVER|Release date or version number of a source||0|5.16|19|MRSAB.RRF|varchar(20)|
+TFR|Term frequency for a source||1|2.62|7|MRSAB.RRF|integer|
+TOEXPR|The expression that a mapping is mapped to||0|4.38|242|MRSMAP.RRF|varchar(4000)|
+TOEXPR|The expression that a mapping is mapped to||0|4.80|242|MRMAP.RRF|varchar(4000)|
+TOID|Metathesaurus identifier for the entity being mapped to||0|5.05|8|MRMAP.RRF|varchar(50)|
+TORES|Restriction applicable to the entity being mapped to||0|0.00|0|MRMAP.RRF|varchar(4000)|
+TORULE|Machine processible rule applicable to the entity being mapped to||0|0.00|0|MRMAP.RRF|varchar(4000)|
+TOSID|Source asserted identifier for the entity being mapped to||0|0.00|0|MRMAP.RRF|varchar(50)|
+TOTYPE|The type of expression that a mapping is mapped to||0|3.95|23|MRMAP.RRF|varchar(50)|
+TOTYPE|The type of expression that a mapping is mapped to||0|4.40|23|MRSMAP.RRF|varchar(50)|
+TS|Term status||1|1.00|1|MRCONSO.RRF|char(1)|
+TTYL|Term type list for a source||0|6.86|129|MRSAB.RRF|varchar(400)|
+TTY|Term type in source||2|2.44|11|MRCONSO.RRF|varchar(20)|
+TTY|Term type in source||2|2.64|11|MRRANK.RRF|varchar(20)|
+TUI|Unique identifier of Semantic type||4|4.00|4|MRSTY.RRF|char(4)|
+TYPE|Type of information||3|12.94|21|MRDOC.RRF|varchar(50)|
+VALUE|Value||0|15.03|62|MRDOC.RRF|varchar(200)|
+VCUI|Unique identifier for versioned SRC concept||0|4.17|8|MRSAB.RRF|char(8)|
+VEND|Valid end date for a source||0|0.00|0|MRSAB.RRF|char(8)|
+VER|Last release version in which CUI1 was valid||6|6.00|6|MRAUI.RRF|varchar(10)|
+VER|Last release version in which CUI1 was valid||6|6.00|6|MRCUI.RRF|varchar(10)|
+VSAB|Versioned source abbreviation||3|12.00|23|MRSAB.RRF|varchar(40)|
+VSTART|Valid start date for a source||0|0.00|0|MRSAB.RRF|char(8)|
+WD|Word in lower-case||0|0.00|0|MRXW_CZE.RRF|varchar(500)|
+WD|Word in lower-case||0|0.00|0|MRXW_JPN.RRF|varchar(500)|
+WD|Word in lower-case||0|0.00|0|MRXW_LAV.RRF|varchar(500)|
+WD|Word in lower-case||0|0.00|0|MRXW_POL.RRF|varchar(500)|
+WD|Word in lower-case||0|0.00|0|MRXW_SCR.RRF|varchar(500)|
+WD|Word in lower-case||1|3.35|38|MRXW_KOR.RRF|varchar(500)|
+WD|Word in lower-case||1|3.65|88|MRXW_CHI.RRF|varchar(500)|
+WD|Word in lower-case||1|4.64|35|MRXW_EST.RRF|varchar(500)|
+WD|Word in lower-case||1|4.90|38|MRXW_POR.RRF|varchar(500)|
+WD|Word in lower-case||1|4.91|35|MRXW_GER.RRF|varchar(500)|
+WD|Word in lower-case||1|5.13|38|MRXW_ITA.RRF|varchar(500)|
+WD|Word in lower-case||1|5.15|37|MRXW_TUR.RRF|varchar(500)|
+WD|Word in lower-case||1|5.78|38|MRXW_RUS.RRF|varchar(500)|
+WD|Word in lower-case||1|6.12|19|MRXW_HEB.RRF|varchar(500)|
+WD|Word in lower-case||1|6.18|80|MRXW_ENG.RRF|varchar(500)|
+WD|Word in lower-case||1|6.35|38|MRXW_SPA.RRF|varchar(500)|
+WD|Word in lower-case||1|6.38|25|MRXW_DAN.RRF|varchar(500)|
+WD|Word in lower-case||1|6.42|26|MRXW_NOR.RRF|varchar(500)|
+WD|Word in lower-case||1|7.01|38|MRXW_FRE.RRF|varchar(500)|
+WD|Word in lower-case||1|7.17|18|MRXW_BAQ.RRF|varchar(500)|
+WD|Word in lower-case||1|7.17|20|MRXW_HUN.RRF|varchar(500)|
+WD|Word in lower-case||1|7.18|21|MRXW_GRE.RRF|varchar(500)|
+WD|Word in lower-case||1|7.41|51|MRXW_DUT.RRF|varchar(500)|
+WD|Word in lower-case||1|7.44|23|MRXW_SWE.RRF|varchar(500)|
+WD|Word in lower-case||2|8.64|28|MRXW_FIN.RRF|varchar(500)|

@@ -1,14 +1,15 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
-import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.ComponentInfo;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.AtomSubsetMember;
 import com.wci.umls.server.model.content.Attribute;
@@ -16,8 +17,8 @@ import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
-import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -39,7 +40,8 @@ import com.wci.umls.server.services.handlers.GraphResolutionHandler;
  * Default implementation of {@link GraphResolutionHandler}. This connects
  * graphs at the level at which CascadeType.ALL is used in the data model.
  */
-public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
+public class DefaultGraphResolutionHandler extends AbstractConfigurable
+    implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
@@ -52,25 +54,26 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   public void resolve(Concept concept) throws Exception {
     if (concept != null) {
       boolean nullId = concept.getId() == null;
-      
+
       // subset members
-      for (ConceptSubsetMember member : concept.getMembers()) {
+      for (final ConceptSubsetMember member : concept.getMembers()) {
         member.getTerminology();
         resolveAttributes(member, nullId);
       }
-      
-      concept.getLabels().size();
 
       // Attributes
       resolveAttributes(concept, nullId);
 
+      // Component History
+      resolveComponentHistory(concept, nullId);
+
       // Definitions
-      for (Definition def : concept.getDefinitions()) {
+      for (final Definition def : concept.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Semantic type components
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
+      for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
         if (nullId) {
           sty.setId(null);
         }
@@ -79,7 +82,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Atoms
-      for (Atom atom : concept.getAtoms()) {
+      for (final Atom atom : concept.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -88,7 +91,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       }
 
       // Subsets
-      for (ConceptSubsetMember subset : concept.getMembers()) {
+      for (final ConceptSubsetMember subset : concept.getMembers()) {
         if (nullId) {
           subset.setId(null);
         }
@@ -97,10 +100,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Relationships
       // default behavior -- require paging of relationships
-      concept.setRelationships(new ArrayList<ConceptRelationship>());
+      concept.setRelationships(new ArrayList<>(0));
+      concept.setTreePositions(new ArrayList<>(0));
 
       // user annotations -- lazy initialize
       concept.getNotes().size();
+      concept.getLabels().size();
 
     } else if (concept == null) {
       throw new Exception("Cannot resolve a null concept.");
@@ -110,32 +115,33 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public void resolveEmpty(Concept concept) {
-    concept.setAtoms(new ArrayList<Atom>());
-    concept.setSemanticTypes(new ArrayList<SemanticTypeComponent>());
-    concept.setDefinitions(new ArrayList<Definition>());
-    concept.setAttributes(new ArrayList<Attribute>());
-    concept.setRelationships(new ArrayList<ConceptRelationship>());
-    concept.setMembers(new ArrayList<ConceptSubsetMember>());
-    concept.setNotes(new ArrayList<Note>());
+    concept.setAtoms(new ArrayList<>(0));
+    concept.setSemanticTypes(new ArrayList<>(0));
+    concept.setDefinitions(new ArrayList<>(0));
+    concept.setAttributes(new ArrayList<>(0));
+    concept.setRelationships(new ArrayList<>(0));
+    concept.setMembers(new ArrayList<>(0));
+    concept.setNotes(new ArrayList<>(0));
+    concept.setComponentHistory(new ArrayList<>(0));
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Descriptor descriptor) {
-    descriptor.setAtoms(new ArrayList<Atom>());
-    descriptor.setDefinitions(new ArrayList<Definition>());
-    descriptor.setAttributes(new ArrayList<Attribute>());
-    descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
-    descriptor.setNotes(new ArrayList<Note>());
+    descriptor.setAtoms(new ArrayList<>(0));
+    descriptor.setDefinitions(new ArrayList<>(0));
+    descriptor.setAttributes(new ArrayList<>(0));
+    descriptor.setRelationships(new ArrayList<>(0));
+    descriptor.setNotes(new ArrayList<>(0));
   }
 
   /* see superclass */
   @Override
   public void resolveEmpty(Code code) {
-    code.setAtoms(new ArrayList<Atom>());
-    code.setAttributes(new ArrayList<Attribute>());
-    code.setRelationships(new ArrayList<CodeRelationship>());
-    code.setNotes(new ArrayList<Note>());
+    code.setAtoms(new ArrayList<>(0));
+    code.setAttributes(new ArrayList<>(0));
+    code.setRelationships(new ArrayList<>(0));
+    code.setNotes(new ArrayList<>(0));
   }
 
   /* see superclass */
@@ -145,29 +151,38 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = atom.getId() == null;
 
       atom.getName();
-      atom.getConceptTerminologyIds().keySet();
-      atom.getAlternateTerminologyIds().keySet();
-      atom.setMembers(new ArrayList<AtomSubsetMember>());
+      // atom.getConceptTerminologyIds().keySet();
+      // atom.getAlternateTerminologyIds().keySet();
+      atom.setConceptTerminologyIds(new HashMap<>(0));
+      atom.setAlternateTerminologyIds(new HashMap<>(0));
+
+      atom.setMembers(new ArrayList<AtomSubsetMember>(0));
 
       // Attributes
       resolveAttributes(atom, nullId);
 
+      // Component History
+      resolveComponentHistory(atom, nullId);
+
       // Definitions
-      for (Definition def : atom.getDefinitions()) {
+      for (final Definition def : atom.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
-      for (AtomSubsetMember member : atom.getMembers()) {
+      for (final AtomSubsetMember member : atom.getMembers()) {
         resolve(member);
       }
 
       // Relationships
-      for (AtomRelationship rel : atom.getRelationships()) {
+      for (final AtomRelationship rel : atom.getRelationships()) {
         if (nullId) {
           rel.setId(null);
         }
         resolve(rel);
       }
+
+      atom.setTreePositions(new ArrayList<>(0));
+      atom.getNotes().size();
 
     } else if (atom == null) {
       throw new Exception("Cannot resolve a null atom.");
@@ -178,7 +193,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
   /* see superclass */
   @Override
   public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception {
     if (relationship != null) {
       if (relationship.getFrom() != null) {
@@ -187,9 +202,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       if (relationship.getTo() != null) {
         relationship.getTo().getTerminology();
       }
-      if (relationship.getAlternateTerminologyIds() != null) {
-        relationship.getAlternateTerminologyIds().keySet();
-      }
+      // relationship.getAlternateTerminologyIds().keySet();
+      relationship.setAlternateTerminologyIds(new HashMap<>(0));
       resolveAttributes(relationship, relationship.getId() == null);
     } else if (relationship == null) {
       throw new Exception("Cannot resolve a null relationship.");
@@ -198,13 +212,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
   /* see superclass */
   @Override
-  public void resolve(TreePosition<? extends AtomClass> treepos)
-    throws Exception {
+  public void resolve(TreePosition<?> treepos) throws Exception {
     if (treepos != null) {
       treepos.getAncestorPath();
 
       // Tree positions don't have attributes yet.
-      treepos.setAttributes(new ArrayList<Attribute>());
+      treepos.setAttributes(new ArrayList<Attribute>(0));
     }
 
   }
@@ -225,12 +238,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(descriptor, nullId);
 
       // Definitions
-      for (Definition def : descriptor.getDefinitions()) {
+      for (final Definition def : descriptor.getDefinitions()) {
         resolveDefinition(def, nullId);
       }
 
       // Atoms
-      for (Atom atom : descriptor.getAtoms()) {
+      for (final Atom atom : descriptor.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -240,10 +253,12 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Relationships
       // default behavior -- require paging of relationships
-      descriptor.setRelationships(new ArrayList<DescriptorRelationship>());
+      descriptor.setRelationships(new ArrayList<DescriptorRelationship>(0));
+      descriptor.setTreePositions(new ArrayList<>(0));
 
       // user annotations -- lazy initialize
       descriptor.getNotes().size();
+      descriptor.getLabels().size();
 
     } else if (descriptor == null) {
       throw new Exception("Cannot resolve a null descriptor.");
@@ -260,7 +275,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(code, nullId);
 
       // Atoms
-      for (Atom atom : code.getAtoms()) {
+      for (final Atom atom : code.getAtoms()) {
         // if the concept is "new", then the atom must be too
         if (nullId) {
           atom.setId(null);
@@ -270,10 +285,11 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // Relationships
       // default behavior -- require paging of relationships
-      code.setRelationships(new ArrayList<CodeRelationship>());
-
+      code.setRelationships(new ArrayList<CodeRelationship>(0));
+      code.setTreePositions(new ArrayList<>(0));
       // user annotations -- lazy initialize
-      // code.getNotes().size();
+      code.getNotes().size();
+      code.getLabels().size();
 
     } else if (code == null) {
       throw new Exception("Cannot resolve a null code.");
@@ -289,15 +305,17 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(lexicalClass, false);
 
       // Atoms but none of the members
-      for (Atom atom : lexicalClass.getAtoms()) {
+      for (final Atom atom : lexicalClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
+        // atom.getConceptTerminologyIds().keySet();
+        // atom.getAlternateTerminologyIds().keySet();
+        atom.setConceptTerminologyIds(new HashMap<>(0));
+        atom.setAlternateTerminologyIds(new HashMap<>(0));
 
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setAttributes(new ArrayList<Attribute>(0));
+        atom.setDefinitions(new ArrayList<Definition>(0));
+        atom.setRelationships(new ArrayList<AtomRelationship>(0));
       }
 
     } else if (lexicalClass == null) {
@@ -315,15 +333,17 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       resolveAttributes(stringClass, false);
 
       // Atoms but none of the members
-      for (Atom atom : stringClass.getAtoms()) {
+      for (final Atom atom : stringClass.getAtoms()) {
         // if the concept is "new", then the atom must be too
         atom.getName();
-        atom.getConceptTerminologyIds().keySet();
-        atom.getAlternateTerminologyIds().keySet();
+        // atom.getConceptTerminologyIds().keySet();
+        // atom.getAlternateTerminologyIds().keySet();
+        atom.setConceptTerminologyIds(new HashMap<>(0));
+        atom.setAlternateTerminologyIds(new HashMap<>(0));
 
-        atom.setAttributes(new ArrayList<Attribute>());
-        atom.setDefinitions(new ArrayList<Definition>());
-        atom.setRelationships(new ArrayList<AtomRelationship>());
+        atom.setAttributes(new ArrayList<Attribute>(0));
+        atom.setDefinitions(new ArrayList<Definition>(0));
+        atom.setRelationships(new ArrayList<AtomRelationship>(0));
       }
 
     } else if (stringClass == null) {
@@ -359,6 +379,8 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
 
       // skip mappings
       mapSet.clearMappings();
+      // clear ids
+      mapSet.setAlternateTerminologyIds(new HashMap<>(0));
 
     } else if (mapSet == null) {
       throw new Exception("Cannot resolve a null mapSet.");
@@ -372,6 +394,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
       boolean nullId = mapping.getId() == null;
       // Attributes
       resolveAttributes(mapping, nullId);
+      mapping.setAlternateTerminologyIds(new HashMap<>(0));
 
     } else if (mapping == null) {
       throw new Exception("Cannot resolve a null mapping.");
@@ -403,15 +426,52 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    *
    * @param component the component
    * @param nullId the null id
+   * @throws Exception
    */
   @SuppressWarnings("static-method")
   protected void resolveAttributes(ComponentHasAttributes component,
-    boolean nullId) {
-    for (Attribute att : component.getAttributes()) {
+    boolean nullId) throws Exception {
+    component.getAttributes().size();
+    for (final Attribute att : component.getAttributes()) {
       att.getName();
-      att.getAlternateTerminologyIds().keySet();
+      // no ATUI
+      att.setAlternateTerminologyIds(new HashMap<>(0));
       if (nullId) {
         att.setId(null);
+      }
+    }
+  }
+
+  /**
+   * Resolve component history.
+   *
+   * @param component the component
+   * @param nullId the null id
+   */
+  @SuppressWarnings("static-method")
+  protected void resolveComponentHistory(Atom component, boolean nullId) {
+    component.getComponentHistory().size();
+    for (final ComponentHistory history : component.getComponentHistory()) {
+      history.getReferencedTerminologyId();
+      if (nullId) {
+        history.setId(null);
+      }
+    }
+  }
+
+  /**
+   * Resolve component history.
+   *
+   * @param component the component
+   * @param nullId the null id
+   */
+  @SuppressWarnings("static-method")
+  protected void resolveComponentHistory(Concept component, boolean nullId) {
+    component.getComponentHistory().size();
+    for (final ComponentHistory history : component.getComponentHistory()) {
+      history.getReferencedTerminologyId();
+      if (nullId) {
+        history.setId(null);
       }
     }
   }
@@ -421,10 +481,13 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
    *
    * @param definition the definition
    * @param nullId the null id
+   * @throws Exception the exception
    */
-  protected void resolveDefinition(Definition definition, boolean nullId) {
+  protected void resolveDefinition(Definition definition, boolean nullId)
+    throws Exception {
     definition.getValue();
-    definition.getAlternateTerminologyIds().keySet();
+    // no ATUI
+    definition.setAlternateTerminologyIds(new HashMap<>(0));
     if (nullId) {
       definition.setId(null);
     }
@@ -438,6 +501,7 @@ public class DefaultGraphResolutionHandler implements GraphResolutionHandler {
     if (terminology != null) {
       terminology.getSynonymousNames().size();
       terminology.getRootTerminology().getTerminology();
+      terminology.getRelatedTerminologies().size();
     }
   }
 

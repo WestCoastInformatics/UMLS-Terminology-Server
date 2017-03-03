@@ -3,11 +3,10 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
-import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
@@ -24,10 +23,10 @@ import com.wci.umls.server.model.meta.RootTerminology;
 import com.wci.umls.server.model.meta.Terminology;
 
 /**
- * Represents an algorithm for reading objects to a certain depth
- * before sending them across the wire. It also handles wiring objects together
- * that have been sent in from across the wire. Thus the "depth" of the graph is
- * controlled by the implementation of this algortihm
+ * Represents an algorithm for reading objects to a certain depth before sending
+ * them across the wire. It also handles wiring objects together that have been
+ * sent in from across the wire. Thus the "depth" of the graph is controlled by
+ * the implementation of this algortihm
  */
 public interface GraphResolutionHandler extends Configurable {
 
@@ -70,8 +69,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param descriptor the descriptor
    * @throws Exception the exception
    */
-  public void resolve(Descriptor descriptor)
-    throws Exception;
+  public void resolve(Descriptor descriptor) throws Exception;
 
   /**
    * Resolve.
@@ -79,8 +77,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param descriptor the descriptor
    * @throws Exception the exception
    */
-  public void resolve(Code descriptor)
-    throws Exception;
+  public void resolve(Code descriptor) throws Exception;
 
   /**
    * Resolve.
@@ -113,7 +110,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @throws Exception the exception
    */
   public void resolve(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship)
     throws Exception;
 
   /**
@@ -122,8 +119,7 @@ public interface GraphResolutionHandler extends Configurable {
    * @param treepos the treepos
    * @throws Exception the exception
    */
-  public void resolve(TreePosition<? extends AtomClass> treepos)
-    throws Exception;
+  public void resolve(TreePosition<?> treepos) throws Exception;
 
   /**
    * Resolve.

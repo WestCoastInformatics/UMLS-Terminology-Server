@@ -53,9 +53,9 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     // Find concepts using a simple query
     Logger.getLogger(getClass()).info("Find concepts for 'aspirin'");
     SearchResultList list =
-        contentClient.findConceptsForQuery(terminology, version, "aspirin",
+        contentClient.findConcepts(terminology, version, "aspirin",
             null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -63,9 +63,9 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     Logger.getLogger(getClass()).info(
         "Find concepts for 'gestational diabetes'");
     list =
-        contentClient.findConceptsForQuery(terminology, version,
+        contentClient.findConcepts(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -77,11 +77,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
+        contentClient.findConcepts(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -93,11 +93,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     pfs.setMaxResults(10);
     pfs.setSortField("name");
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
+        contentClient.findConcepts(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -111,15 +111,15 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
   public void findUmlsConceptsByStringQueryTest() throws Exception {
 
     // Terminology/version
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // Find concepts using a simple query
     Logger.getLogger(getClass()).info("Find concepts for 'aspirin'");
     SearchResultList list =
-        contentClient.findConceptsForQuery(terminology, version, "aspirin",
+        contentClient.findConcepts(terminology, version, "aspirin",
             null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -127,9 +127,9 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     Logger.getLogger(getClass()).info(
         "Find concepts for 'gestational diabetes'");
     list =
-        contentClient.findConceptsForQuery(terminology, version,
+        contentClient.findConcepts(terminology, version,
             "gestational diabetes", null, authToken);
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -141,11 +141,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
+        contentClient.findConcepts(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -157,11 +157,11 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     pfs.setMaxResults(10);
     pfs.setSortField("name");
     list =
-        contentClient.findConceptsForQuery(terminology, version, "ge*", pfs,
+        contentClient.findConcepts(terminology, version, "ge*", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -174,14 +174,14 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findConceptsForQuery(terminology, version,
+        contentClient.findConcepts(terminology, version,
             "\"gestational diabetes\" atoms.terminology:SNOMEDCT_US", pfs,
             authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
     Logger.getLogger(getClass()).info(
         "  NOTE large number of results, but top pick is the expected one.");
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -191,12 +191,12 @@ public class FindConceptsByStringQueryTest extends ExampleSupport {
     Logger.getLogger(getClass()).info(
         "Find concepts for 'gestational diabetes' but only within SNOMEDCT_US");
     list =
-        contentClient.findConceptsForQuery(terminology, version,
+        contentClient.findConcepts(terminology, version,
             "+\"gestational diabetes\" +atoms.terminology:SNOMEDCT_US", null,
             authToken);
     Logger.getLogger(getClass()).info(
         "  NOTE this time there is only one result");
-    for (SearchResult result : list.getObjects()) {
+    for (final SearchResult result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
   }

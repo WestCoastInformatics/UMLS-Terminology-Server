@@ -3,7 +3,7 @@
 <meta http-equiv="Content-Language" content="en" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Terminology Server Demo</title>
+<title>{{deploy.title}}</title>
 <style type="text/css" media="all"></style>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="images/favicon.png" />
@@ -15,11 +15,9 @@
   rel="stylesheet">
 <!-- Angular core and standard plugins -->
 <script type="text/javascript"
-  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.js"></script>
 <script
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-cookies.min.js"></script>
-<script
-  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
 <!-- Angular ngRoute -->
 <script type="text/javascript"
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.min.js"></script>
@@ -38,9 +36,14 @@
 <script type="text/javascript" src="ui/components/tinymce/tinymce.min.js"></script>
 <script type="text/javascript"
   src="ui/components/angular-ui-tinymce/src/tinymce.js"></script>
+
 <!-- Library : Angular File Upload -->
 <script type="text/javascript"
   src="lib/angular-file-upload/angular-file-upload.min.js"></script>
+
+<!-- Angular file upload script must be after angular.js -->
+<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
+
 <!-- Library: ngTable -->
 <script type="text/javascript" src="lib/ng-table/ng-table.min.js"></script>
 <link href="lib/ng-table/ng-table.css" rel="stylesheet">
@@ -50,31 +53,74 @@
 <script src="app/app.js"></script>
 <script src="app/appConfig.js"></script>
 <script src="app/routes.js"></script>
+<script src="app/permissions.js"></script>
 <!-- UTS services -->
 <script src="app/util/general/services.js"></script>
 <script src="app/util/general/tabService.js"></script>
 <script src="app/util/general/tabController.js"></script>
+<script src="app/util/websocket/websocketService.js"></script>
 <script src="app/util/highlight/highlightFilters.js"></script>
+<script src="app/util/security/securityService.js"></script>
 <script src="app/util/metadata/metadataService.js"></script>
 <script src="app/util/project/projectService.js"></script>
 <script src="app/util/content/contentService.js"></script>
-<script src="app/util/security/securityService.js"></script>
 <script src="app/util/source-data/sourceDataService.js"></script>
-<script src="app/util/validation/validationService.js"></script>
 <script src="app/util/configure/configureService.js"></script>
+<script src="app/util/workflow/workflowService.js"></script>
+<script src="app/util/process/processService.js"></script>
+<script src="app/util/report/reportService.js"></script>
+<script src="app/util/edit/metaEditingService.js"></script>
+<script src="app/util/edit/editService.js"></script>
 <!-- UTS page elements and controllers -->
-<script src="app/page/header/headerController.js"></script>
-<script src="app/page/footer/footerController.js"></script>
+<script src="app/page/header/headerDirective.js"></script>
+<script src="app/page/footer/footerDirective.js"></script>
 <script src="app/page/landing/landingController.js"></script>
 <script src="app/page/license/licenseController.js"></script>
 <script src="app/page/login/loginController.js"></script>
 <script src="app/page/metadata/metadataController.js"></script>
+<script src="app/page/terminology/terminologyController.js"></script>
 <script src="app/page/content/contentController.js"></script>
+<script src="app/page/content/editAtom.js"></script>
+<script src="app/page/content/addSemanticType.js"></script>
 <script src="app/page/admin/adminController.js"></script>
+<script src="app/page/admin/editProject.js"></script>
+<script src="app/page/admin/editUser.js"></script>
+<script src="app/page/admin/addValidationCheck.js"></script>
 <script src="app/page/source/sourceController.js"></script>
 <script src="app/page/configure/configureController.js"></script>
-<!-- UTS Component Report Directives -->
+<script src="app/page/process/processController.js"></script>
+<script src="app/page/workflow/workflowController.js"></script>
+<script src="app/page/workflow/importWorkflow.js"></script>
+<script src="app/page/process/importProcess.js"></script>
+<script src="app/page/process/editProcess.js"></script>
+<script src="app/page/process/editAlgorithm.js"></script>
+<script src="app/page/edit/editController.js"></script>
+<script src="app/page/edit/semantic-types/semanticTypesController.js"></script>
+<script src="app/page/edit/atoms/atomsController.js"></script>
+<script src="app/page/edit/relationships/relationshipsController.js"></script>
+<script src="app/page/edit/relationships/editRelationship.js"></script>
+<script src="app/page/edit/contexts/contextsController.js"></script>
+<!-- Modal Controllers -->
+<script src="app/page/workflow/addChecklist.js"></script>
+<script src="app/page/workflow/import.js"></script>
+<script src="app/page/workflow/addWorklist.js"></script>
+<script src="app/page/workflow/assignWorklist.js"></script>
+<script src="app/page/workflow/editConfig.js"></script>
+<script src="app/page/workflow/editBin.js"></script>
+<script src="app/page/workflow/editEpoch.js"></script>
+<script src="app/page/edit/mergeMoveSplit.js"></script>
+<script src="app/page/edit/finishWorkflow.js"></script>
+<script src="app/page/edit/atoms/editAtom.js"></script>
+<script src="app/page/edit/metadata/editTermType.js"></script>
+<script src="app/page/edit/metadata/editRootTerminology.js"></script>
+<script src="app/page/edit/metadata/editTerminology.js"></script>
+<script src="app/page/edit/metadata/editRelationshipType.js"></script>
+<script src="app/page/admin/editPrecedence.js"></script>
+<!-- Reusable Components -->
 <script src="app/component/report/report.js"></script>
+<script src="app/component/report/reportPre.js"></script>
+<script src="app/component/report/reportAction.js"></script>
+<script src="app/component/report/reportPanel.js"></script>
 <script src="app/component/semantic-types/semanticTypes.js"></script>
 <script src="app/component/definitions/definitions.js"></script>
 <script src="app/component/atoms/atoms.js"></script>
@@ -84,55 +130,75 @@
 <script src="app/component/relationships-deep/relationshipsDeep.js"></script>
 <script src="app/component/tree-component/treeComponent.js"></script>
 <script src="app/component/mappings/mappings.js"></script>
-<script src="app/component/log/log.js"></script>
+<script src="app/component/records/recordsTable.js"></script>
+<script src="app/component/worklists/worklistsTable.js"></script>
+<!-- Icon/actions usually with modals -->
+<script src="app/actions/log/log.js"></script>
+<script src="app/actions/notes/notes.js"></script>
+<script src="app/actions/finder/finder.js"></script>
 <!-- UTS utilities and misc directives -->
 <script src="app/util/pager/pager.js"></script>
+<script src="app/util/errors/errors.js"></script>
 <script src="app/util/tree-search-result/treeSearchResult.js"></script>
-<script src="app/util/select-component-modal/selectComponentModal.js"></script>
 <script src="app/util/component-note-modal/componentNoteModal.js"></script>
 <script src="app/util/favorites/favorites.js"></script>
 <script src="app/util/annotated-content/annotatedContent.js"></script>
+<script src="app/util/edit/actionErrorsWarnings.js"></script>
 </head>
 <body>
   <a id="top"></a>
   <!--  Javascript detection -->
   <noscript>
     <div class="alert alert-danger">You must have Javascript enabled to
-      use the Terminology Server Demo</div>
+      use the {{deploy.title}}</div>
   </noscript>
   <!-- Header -->
   <div ts-header></div>
   <!-- Main container -->
   <div class="container-fluid">
     <div class="row">
-      <!-- Universal left padding -->
+      <!-- Universal left padding 
       <div class="col-md-1 col-xs-0"></div>
-      <!-- Main body -->
-      <div class="col-md-10 col-xs-12">
-        <!-- Show global error message -->
-        <div ng-include src="'app/page/general/error.html'"></div>
-        <!-- Tab controller -->
-        <div ng-controller="TabCtrl">
+      -->
 
-          <ul ng-show="isShowing()" class="table-select-row nav nav-tabs">
-            <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)"
-              ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
-                {{tab.label}} </a></li>
-          </ul>
+      <!-- Main body - use this style for additional spacing on the sides -->
+      <div class="col-md-12 col-xs-12">
+        <div class="col-md-12 col-xs-12">
+          <!-- Show global error message -->
+          <div ng-include src="'app/page/general/error.html'"></div>
+          <!-- Tab controller -->
+          <div ng-controller="TabCtrl">
+
+            <ul ng-show="isShowing()" class="pointer nav nav-tabs">
+              <li ng-show="isTabShowing(tab)" ng-class="tabClass(tab)"
+                ng-repeat="tab in tabs"><a ng-click="setSelectedTab(tab)">
+                  {{tab.label}} </a></li>
+            </ul>
+          </div>
+          <!-- Application content -->
+          <div ng-view=""></div>
         </div>
-        <!-- Application content -->
-        <div ng-view=""></div>
       </div>
-      <!-- Universal right padding -->
+
+      <!-- Universal right padding
       <div class="col-md-1 col-xs-0"></div>
+      -->
+
     </div>
   </div>
   <!-- Footer -->
   <div ts-footer></div>
+
   <!-- Glass Pane -->
-  <div ng-controller="GlassPaneCtrl" ng-show="glassPane.counter > 0"
-    class="top-layer"></div>
-  <!-- Analytics -->
-  {{siteTrackingCode}}
+  <div ng-controller="GlassPaneCtrl" ng-show="glassPane.enabled"
+    class="top-layer">
+    <div class="v-wrap">
+      <div class="v-box top-layer-message">
+        <h5 ng-repeat="message in glassPane.messages"
+          class="alert alert-success">{{message}}</h5>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

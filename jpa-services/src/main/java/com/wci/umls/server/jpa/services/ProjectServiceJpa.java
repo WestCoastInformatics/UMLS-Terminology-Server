@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.NoResultException;
 
@@ -26,7 +27,11 @@ import com.wci.umls.server.services.ProjectService;
 /**
  * JPA and JAXB enabled implementation of {@link ProjectService}.
  */
-public class ProjectServiceJpa extends RootServiceJpa implements ProjectService {
+public class ProjectServiceJpa extends RootServiceJpa
+    implements ProjectService {
+
+  /** The config properties. */
+  protected static Properties config = null;
 
   /**
    * Instantiates an empty {@link ProjectServiceJpa}.
@@ -41,8 +46,8 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public ConceptList findConceptsInScope(Project project, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - get project scope - " + project);
+    Logger.getLogger(getClass())
+        .info("Project Service - get project scope - " + project);
 
     return null;
   }
@@ -80,9 +85,9 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   @Override
   public UserRole getUserRoleForProject(String username, Long projectId)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - get user role for project - " + username + ", "
-            + projectId);
+    Logger.getLogger(getClass())
+        .debug("Project Service - get user role for project - " + username
+            + ", " + projectId);
     final Project project = getProject(projectId);
     if (project == null) {
       throw new Exception("No project found for " + projectId);
@@ -138,98 +143,26 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
 
   /* see superclass */
   @Override
-  public Project addProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - add project - " + project);
-    try {
-      // Set last modified date
-      project.setLastModified(new Date());
-
-      // add the project
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(project);
-        tx.commit();
-      } else {
-        manager.persist(project);
-      }
-      return project;
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+  public Project addProject(Project project) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Project Service - add project - " + project);
+    return addHasLastModified(project);
   }
 
   /* see superclass */
   @Override
-  public void updateProject(Project project) {
-    Logger.getLogger(getClass()).debug(
-        "Project Service - update project - " + project);
-
-    try {
-      // Set modification date
-      project.setLastModified(new Date());
-
-      // update
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(project);
-        tx.commit();
-      } else {
-        manager.merge(project);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+  public void updateProject(Project project) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Project Service - update project - " + project);
+    updateHasLastModified(project);
   }
 
   /* see superclass */
   @Override
-  public void removeProject(Long id) {
+  public void removeProject(Long id) throws Exception {
     Logger.getLogger(getClass())
         .debug("Project Service - remove project " + id);
-    try {
-      // Get transaction and object
-      tx = manager.getTransaction();
-      final Project project = manager.find(ProjectJpa.class, id);
-
-      // if project doesn't exist, return
-      if (project == null)
-        return;
-
-      // Set modification date
-      project.setLastModified(new Date());
-
-      // Remove
-      if (getTransactionPerOperation()) {
-        // remove refset member
-        tx.begin();
-        if (manager.contains(project)) {
-          manager.remove(project);
-        } else {
-          manager.remove(manager.merge(project));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(project)) {
-          manager.remove(project);
-        } else {
-          manager.remove(manager.merge(project));
-        }
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    removeHasLastModified(id, ProjectJpa.class);
   }
 
   /**
@@ -237,12 +170,20 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
    *
    * @param project the project
    */
-  @SuppressWarnings("static-method")
-  private void handleLazyInit(Project project) {
+  @Override
+  public void handleLazyInit(Project project) {
     if (project == null) {
       return;
     }
     project.getUserRoleMap().size();
+    project.getValidationChecks().size();
+    project.getSemanticTypeCategoryMap().size();
+    if (project.getPrecedenceList() != null) {
+      project.getPrecedenceList().getName();
+      project.getPrecedenceList().getPrecedence().getKeyValuePairs();
+    }
+    project.getValidCategories().size();
+    project.getValidationData().size();
   }
 
   /**
@@ -274,12 +215,12 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
@@ -290,23 +231,25 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
       } else {
         // make comparator
         return new Comparator<T>() {
+
           @Override
           public int compare(T o2, T o1) {
             try {
               // handle dates explicitly
               if (o2 instanceof Date) {
-                return ((Date) sortField.get(o1)).compareTo((Date) sortField
-                    .get(o2));
+                return ((Date) sortField.get(o1))
+                    .compareTo((Date) sortField.get(o2));
               } else {
                 // otherwise, sort based on conversion to string
-                return (sortField.get(o1).toString()).compareTo(sortField.get(
-                    o2).toString());
+                return (sortField.get(o1).toString())
+                    .compareTo(sortField.get(o2).toString());
               }
             } catch (IllegalAccessException e) {
               // on exception, return equality
               return 0;
             }
           }
+
         };
       }
 
@@ -318,29 +261,22 @@ public class ProjectServiceJpa extends RootServiceJpa implements ProjectService 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public ProjectList findProjectsForQuery(String query, PfsParameter pfs)
+  public ProjectList findProjects(String query, PfsParameter pfs)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Project Service - find projects " + "/" + query);
+    Logger.getLogger(getClass())
+        .info("Project Service - find projects " + "/" + query);
 
     int[] totalCt = new int[1];
-    List<Project> list =
-        (List<Project>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, ProjectJpa.class, ProjectJpa.class, pfs,
-            totalCt);
-    ProjectList result = new ProjectListJpa();
+    List<Project> list = (List<Project>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query,
+        ProjectJpa.class, pfs, totalCt);
+    final ProjectList result = new ProjectListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
-    for (Project project : result.getObjects()) {
+    for (final Project project : result.getObjects()) {
       handleLazyInit(project);
     }
     return result;
-  }
-
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
-    // n/a
   }
 
 }

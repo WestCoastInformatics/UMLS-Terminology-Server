@@ -5,28 +5,22 @@ package com.wci.umls.server.test.rest;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.content.ConceptList;
-import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
-import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.rest.client.MetadataClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
-import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Implementation of the "Metadata Service REST Normal Use" Test Cases.
  */
 @Ignore
-public class MetadataServiceRestTest {
+public class MetadataServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static MetadataClientRest metadataService;
@@ -42,6 +36,12 @@ public class MetadataServiceRestTest {
 
   /** The test password. */
   protected static String testPassword;
+
+  /** The test password. */
+  protected static String adminUser;
+
+  /** The test password. */
+  protected static String adminPassword;
 
   /**
    * Create test fixtures for class.
@@ -60,11 +60,11 @@ public class MetadataServiceRestTest {
 
     /**
      * Test prerequisites Terminology SNOMEDCT exists in database Terminology
-     * ICD9CM exists in database The run.config.ts has "viewer.user" and
+     * ICD9CM exists in database The run.config.umls has "viewer.user" and
      * "viewer.password" specified
      */
 
-    // test run.config.ts has viewer user
+    // test run.config.umls has viewer user
     testUser = properties.getProperty("viewer.user");
     testPassword = properties.getProperty("viewer.password");
 
@@ -76,53 +76,17 @@ public class MetadataServiceRestTest {
           "Test prerequisite: viewer.password must be specified");
     }
 
-    // test that some terminology objects exist for both SNOMEDCT and ICD9CM
-    ContentService contentService = new ContentServiceJpa();
-    PfsParameter pfs = new PfsParameterJpa();
-    pfs.setMaxResults(1);
-    ConceptList conceptList;
+    // admin run.config.umls has viewer user
+    adminUser = properties.getProperty("admin.user");
+    adminPassword = properties.getProperty("admin.password");
 
-    // check UMLS (support both SAMPLE_2014AB and SCTMTH_2014AB)
-    Logger.getLogger(MetadataServiceRestTest.class).info("Count UMLS concepts");
-    conceptList = contentService.getAllConcepts("UMLS", "latest", Branch.ROOT);
-    Logger.getLogger(MetadataServiceRestTest.class).info(
-        "  count = " + conceptList.getTotalCount());
-    if (conceptList.getCount() == 0)
-      throw new Exception("Could not retrieve any concepts for UMLS");
-    if (conceptList.getTotalCount() != 2863
-        && conceptList.getTotalCount() != 2013) {
+    if (adminUser == null || adminUser.isEmpty()) {
+      throw new Exception("admin prerequisite: admin.user must be specified");
+    }
+    if (adminPassword == null || adminPassword.isEmpty()) {
       throw new Exception(
-          "Metadata service requires UMLS loaded from the config project data.");
+          "admin prerequisite: admin.password must be specified");
     }
-
-    // check SNOMEDCT
-    Logger.getLogger(MetadataServiceRestTest.class).info(
-        "Count SNOMEDCT_US concepts");
-    conceptList =
-        contentService.getAllConcepts("SNOMEDCT_US", "2014_09_01", Branch.ROOT);
-    Logger.getLogger(MetadataServiceRestTest.class).info(
-        "  count = " + conceptList.getTotalCount());
-    if (conceptList.getCount() == 0)
-      throw new Exception("Could not retrieve any concepts for SNOMEDCT_US");
-    if (conceptList.getTotalCount() != 3902) {
-      throw new Exception(
-          "Metadata service requires SNOMEDCT_US loaded from the config project data.");
-    }
-
-    // check MSH
-    Logger.getLogger(MetadataServiceRestTest.class).info("Count MSH concepts");
-    conceptList =
-        contentService.getAllConcepts("MSH", "2015_2014_09_08", Branch.ROOT);
-    Logger.getLogger(MetadataServiceRestTest.class).info(
-        "  count = " + conceptList.getTotalCount());
-    if (conceptList.getCount() == 0) {
-      throw new Exception("Could not retrieve any concepts for MSH");
-    }
-    if (conceptList.getTotalCount() != 1027) {
-      throw new Exception(
-          "Metadata service requires MSH loaded from config project data.");
-    }
-    contentService.close();
 
   }
 

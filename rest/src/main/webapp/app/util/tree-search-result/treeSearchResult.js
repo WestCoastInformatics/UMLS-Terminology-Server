@@ -10,17 +10,17 @@ tsApp.directive('treeSearchResult', [
     return {
       restrict : 'A',
       scope : {
-        
+
         // metadata
         metadata : '=',
-        
+
         // set search results if viewing trees for search
         searchResults : '=',
 
         // pass parameters for styling (e.g. extension highlighting)
         parameters : '=',
 
-        // callback functions from parent scope
+        // callbacks functions from parent scope
         callbacks : '='
       },
       templateUrl : 'app/util/tree-search-result/treeSearchResult.html',
@@ -51,7 +51,7 @@ tsApp.directive('treeSearchResult', [
             } else {
               return 1;
             }
-            
+
           });
 
           return newSiblings;
@@ -65,7 +65,8 @@ tsApp.directive('treeSearchResult', [
         // workaround used to get around $sce.trustAsHtml infinite digest loops
         scope.getDerivedLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue) + '</div>');
+            + metadataService.getDerivedLabelSetsValue(nodeScope.$modelValue, scope.metadata)
+            + '</div>');
 
         };
 
@@ -82,7 +83,7 @@ tsApp.directive('treeSearchResult', [
         // workaround used to get around $sce.trustAsHtml infinite digest loops
         scope.getLabelSetsValueFromTree = function(nodeScope) {
           scope.labelTooltipHtml = $sce.trustAsHtml('<div style="text-align:left;">'
-            + metadataService.getLabelSetsValue(nodeScope.$modelValue) + '</div>');
+            + metadataService.getLabelSetsValue(nodeScope.$modelValue, scope.metadata) + '</div>');
         };
 
         scope.isLabelSetFromTree = function(nodeScope) {
@@ -112,11 +113,12 @@ tsApp.directive('treeSearchResult', [
             deferred.resolve([]);
           }
 
-          // get the next page of children based on start index of current
-          // children length
-          // NOTE: Offset by 1 to incorporate the (possibly) already loaded item
+          // compute the start index based on retrieved children and page size
+          var startIndex = tree.children.length != tree.childCt
+            && tree.children.length < scope.pageSizeSibling ? 0 : tree.children.length - 1;
 
-          contentService.getChildTrees(tree, scope.metadata.terminology.organizingClassType, tree.children.length - 1).then(function(data) {
+          contentService.getChildTrees(tree, scope.metadata.terminology.organizingClassType,
+            startIndex).then(function(data) {
             deferred.resolve(data.trees);
           }, function(error) {
             utilService.setError('Unexpected error retrieving children');

@@ -37,6 +37,8 @@
     <input.file></input.file>
     <!-- Whether to run against server (default false) -->
     <server>false</server>
+    <!-- Set to 'true' for loaders into dbs for editing, false for browsers -->
+    <edit.mode>false</edit.mode>
     <!-- Set to 'create' for loaders if db should be reset -->
     <mode></mode>
     <!-- Prefix for RRF -->
@@ -76,6 +78,66 @@
       </build>
     </profile>
 
+    <!-- Load multiple RRF terminologies, but no Metathesaurus, specify -Drun.config.umls=... 
+      -Dterminology=... -->
+    <profile>
+      <id>RRF-multi</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-rrf-multi</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-rrf-multi</goal>
+                </goals>
+                <configuration>
+                  <prefix>${prefix}</prefix>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Load Simple, specify -Drun.config.umls=... -Dterminology=... -->
+    <profile>
+      <id>Simple</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>load-simple</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>load-simple</goal>
+                </goals>
+                <configuration>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
+                  <server>${server}</server>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- Load RRF UMLS, specify -Drun.config.umls=... -Dterminology=... -->
     <profile>
       <id>RRF-umls</id>
@@ -98,6 +160,7 @@
                   <prefix>${prefix}</prefix>
                   <inputDir>${input.dir}</inputDir>
                   <server>${server}</server>
+                  <editMode>${edit.mode}</editMode>
                   <mode>${mode}</mode>
                 </configuration>
               </execution>
@@ -343,9 +406,9 @@
       </build>
     </profile>
 
-    <!-- Add a project, specify -Drun.config=... -Dterminology=... -->
+    <!-- Generate sample data, specify -Drun.config=... -Dterminology=... -->
     <profile>
-      <id>Project</id>
+      <id>GenerateSampleData</id>
       <build>
         <plugins>
           <plugin>
@@ -354,22 +417,98 @@
             <version>${project.version}</version>
             <executions>
               <execution>
-                <id>add-project</id>
+                <id>generate-nci-meta-data</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>add-project</goal>
+                  <goal>generate-sample-data</goal>
                 </goals>
                 <configuration>
-                  <name>${name}</name>
-                  <description>${description}</description>
+                  <mode>${mode}</mode>
                   <terminology>${terminology}</terminology>
                   <version>${version}</version>
-                  <adminUser>${admin.user}</adminUser>
-                  <scopeConcepts>${scope.concepts}</scopeConcepts>
-                  <scopeDescendantsFlag>${scope.descendants.flag}</scopeDescendantsFlag>
-                  <scopeExcludesConcepts>${scope.excludes.concepts}</scopeExcludesConcepts>
-                  <scopeExcludesDescendantsFlag>${scope.excludes.descendants.flag}</scopeExcludesDescendantsFlag>
-                  <server>${server}</server>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Generate NCI Metathesaurus data, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>GenerateNciMetaData</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>generate-nci-meta-data</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>generate-nci-meta-data</goal>
+                </goals>
+                <configuration>
+                  <mode>${mode}</mode>
+                  <terminology>${terminology}</terminology>
+                  <version>${version}</version>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Generate demo data, specify -Drun.config=... -Dterminology=... -->
+    <profile>
+      <id>GenerateDemoData</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>generate-demo-data</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>generate-demo-data</goal>
+                </goals>
+                <configuration>
+                  <mode>${mode}</mode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Run a custom patch function, for updating the DB when things change, -Drefset.config=... -->
+    <profile>
+      <id>Patch</id>
+      <build>
+        <plugins>
+
+          <!-- Update the database schema (or create it) -->
+          <plugin>
+            <groupId>com.wcinformatics.umls.server</groupId>
+            <artifactId>term-server-admin-mojo</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <id>patch</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>patch</goal>
+                </goals>
+                <configuration>
+                  <start>${start}</start>
+                  <end>${end}</end>
                 </configuration>
               </execution>
             </executions>

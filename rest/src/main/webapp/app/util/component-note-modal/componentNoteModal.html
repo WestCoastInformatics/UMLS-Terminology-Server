@@ -1,6 +1,10 @@
 <div class="modal-header">
-  <h4>{{component.terminology}} {{metadata.terminology.organizingClassType}} Notes:
+  <h4 style="display: inline">{{component.terminology}}
+    {{metadata.terminology.organizingClassType}} Notes:
     {{component.terminologyId}} {{component.name}}</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
 </div>
 <div class="modal-body">
   <div>
@@ -8,19 +12,17 @@
       <b>Notes<span ng-show="pagedData.data.length > 0">
           ({{pagedData.totalCount}})</span></b>
     </h5>
-    
+
     <div pager paging="paging" count="pagedData.totalCount"
-      callback="pageCallback"></div>
-    <table ng-show="pagedData.data.length > 0" class="table table-hover">
+      callbacks="pageCallbacks"></div>
+    <table ng-show="pagedData.data.length > 0" class="slim table table-hover">
       <tbody>
         <tr ng-repeat="note in pagedData.data"
           ng-mouseenter="note.hover = true;" ng-mouseleave="note.hover = false;">
           <td class="col-md-8 col-xs-8">
             <div ng-bind-html="getNoteValue(note)"></div>
           </td>
-          <td class="col-m3-2 col-xs-2">
-            {{note.lastModifiedBy}}
-          </td>
+          <td class="col-m3-2 col-xs-2">{{note.lastModifiedBy}}</td>
           <td class="col-md-3 col-xs-3">
             <span>{{toDate(note.lastModified)}}</span>
           </td>

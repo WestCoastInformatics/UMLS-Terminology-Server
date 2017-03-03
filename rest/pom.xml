@@ -18,6 +18,7 @@
 
   <properties>
     <!-- Specify the config artifact parameters -->
+    <run.config.label>umls</run.config.label>
     <config.groupId>com.wcinformatics.umls.server</config.groupId>
     <config.artifactId>term-server-config-dev-windows</config.artifactId>
     <config.version>${project.version}</config.version>
@@ -29,7 +30,7 @@
     <deploy.footer.copyright>(c)2016</deploy.footer.copyright>
     <deploy.feedback.email>info@westcoastinformatics.com</deploy.feedback.email>
     <deploy.presented.by>Presented by West Coast Informatics, LLC</deploy.presented.by>
-    <deploy.enabled.tabs>content,metadata</deploy.enabled.tabs>
+    <deploy.enabled.tabs>content,metadata,workflow</deploy.enabled.tabs>
     <deploy.landing.enabled>true</deploy.landing.enabled>
     <deploy.login.enabled>true</deploy.login.enabled>
     <deploy.license.enabled>true</deploy.license.enabled>
@@ -109,32 +110,16 @@
 
     <!-- Required for Jersey and JSON -->
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-server</artifactId>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-servlet</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-common</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-jaxb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-json-processing</artifactId>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-servlet-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
       <artifactId>jersey-media-json-jackson</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-servlet</artifactId>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.media</groupId>
@@ -142,21 +127,14 @@
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.module</groupId>
-      <artifactId>jackson-module-jaxb-annotations</artifactId>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jersey2-jaxrs</artifactId>
     </dependency>
 
+    <!-- Commons IO -->
     <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.wordnik</groupId>
-      <artifactId>swagger-jersey2-jaxrs_2.10</artifactId>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
 
   </dependencies>
@@ -164,8 +142,9 @@
   <!-- Always build, use dev configuration by default -->
   <build>
 
-    <!-- Unpack config -->
     <plugins>
+
+      <!-- Unpack config -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -192,26 +171,6 @@
         </executions>
       </plugin>
 
-      <!-- Configure environment-specific build time information -->
-      <!-- In particular, this is for base.url -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>properties-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>read-project-properties</goal>
-            </goals>
-            <configuration>
-              <files>
-                <file>${project.build.directory}/config/resources/config.properties</file>
-              </files>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Configure .war settings -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -222,6 +181,7 @@
           <attachClasses>false</attachClasses>
           <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
           <webResources>
+            <!-- Import deploy-specific files -->
             <resource>
               <directory>${project.build.directory}/config/resources</directory>
               <!-- avoid unnecessary stuff -->
@@ -230,33 +190,18 @@
                 <exclude>config*.properties</exclude>
               </excludes>
             </resource>
-
             <resource>
               <directory>src/main/webapp</directory>
               <filtering>true</filtering>
               <includes>
-
-                <!-- Webapp config -->
-                -->
                 <include>app/appConfig.js</include>
-
-                <!-- Non-webapp config -->
-                <include>swagger.html</include>
-                <include>WEB-INF/web.xml</include>
               </includes>
             </resource>
             <resource>
               <directory>src/main/webapp</directory>
               <filtering>false</filtering>
               <excludes>
-
-                <!-- Webapp config -->
-                -->
                 <exclude>app/appConfig.js</exclude>
-
-                <!-- Non-webapp config -->
-                <exclude>swagger.html</exclude>
-                <exclude>WEB-INF/web.xml</exclude>
               </excludes>
             </resource>
             <resource>

@@ -15,27 +15,6 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
   public void setInputPath(String inputPath);
 
   /**
-   * Compute transitive closures.
-   *
-   * @throws Exception the exception
-   */
-  public void computeTransitiveClosures() throws Exception;
-
-  /**
-   * Compute tree positions.
-   *
-   * @throws Exception the exception
-   */
-  public void computeTreePositions() throws Exception;
-
-  /**
-   * Create expression indexes.
-   *
-   * @throws Exception the exception
-   */
-  public void computeExpressionIndexes() throws Exception;
-
-  /**
    * Gets the input path.
    *
    * @return the input path
@@ -66,4 +45,14 @@ public interface TerminologyLoaderAlgorithm extends Algorithm, HasTerminology {
    */
   public void setReleaseVersion(String releaseVersion);
 
+  /**
+   * Returns the configurable value.
+   *
+   * @param terminology the terminology
+   * @param key the key
+   * @return the configurable value
+   * @throws Exception the exception
+   */
+  public String getConfigurableValue(String terminology, String key)
+    throws Exception;
 }

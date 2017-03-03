@@ -242,11 +242,11 @@ public class EclExpressionHandlerTest {
     PfsParameter pfs = new PfsParameterJpa();
     pfs.setExpression("< 91723000");
     SearchResultList results =
-        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+        contentService.findConceptSearchResults("SNOMEDCT", "latest", Branch.ROOT,
             null, pfs);
     assertTrue(results.getTotalCount() == 1512);
     results =
-        contentService.findConceptsForQuery("SNOMEDCT", "latest", Branch.ROOT,
+        contentService.findConceptSearchResults("SNOMEDCT", "latest", Branch.ROOT,
             "joint", pfs);
     assertTrue(results.getTotalCount() == 56);
 
@@ -267,9 +267,9 @@ public class EclExpressionHandlerTest {
         "Expecting " + expectedCount + " results:" + eclQuery);
     try {
       SearchResultList results = handler.resolve(eclQuery);
-      if (expectedCount != results.getCount()) {
+      if (expectedCount != results.size()) {
         fail("Expected/actual count: " + expectedCount + "/"
-            + results.getCount() + " for query: " + eclQuery);
+            + results.size() + " for query: " + eclQuery);
       }
       return results;
     } catch (Exception e) {

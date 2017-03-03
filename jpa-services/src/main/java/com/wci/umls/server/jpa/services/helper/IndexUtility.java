@@ -1,8 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services.helper;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -24,6 +26,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -40,6 +44,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 
 /**
@@ -57,6 +62,22 @@ public class IndexUtility {
   /** The field names map. */
   private static Map<Class<?>, Set<String>> allFieldNames = new HashMap<>();
 
+  /** The all fields map. */
+  private static Map<Class<?>, java.lang.reflect.Field[]> allFields =
+      new HashMap<>();
+
+  /** The all column methods. */
+  private static Map<Class<?>, List<Method>> allColumnGetMethods =
+      new HashMap<>();
+
+  /** The all column set methods. */
+  private static Map<Class<?>, List<Method>> allColumnSetMethods =
+      new HashMap<>();
+
+  /** The all @OneToMany methods. */
+  private static Map<Class<?>, List<Method>> allOneToManyGetMethods =
+      new HashMap<>();
+
   // Initialize the field names maps
   static {
     try {
@@ -65,7 +86,7 @@ public class IndexUtility {
           ConfigUtility.getConfigProperties().getProperty("index.packages");
       final String[] packages =
           indexProp != null ? indexProp.split(";") : new String[] {
-            "com.wci.umls.server"
+              "com.wci.umls.server"
           };
       final Reflections reflections =
           new Reflections(new ConfigurationBuilder().forPackages(packages));
@@ -73,9 +94,9 @@ public class IndexUtility {
           .getTypesAnnotatedWith(Indexed.class)) {
         reindexMap.put(clazz.getSimpleName(), clazz);
       }
-      Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
+      final Class<?>[] classes = reindexMap.values().toArray(new Class<?>[0]);
 
-      for (Class<?> clazz : classes) {
+      for (final Class<?> clazz : classes) {
         stringFieldNames.put(clazz,
             IndexUtility.getIndexedFieldNames(clazz, true));
         allFieldNames.put(clazz,
@@ -117,10 +138,10 @@ public class IndexUtility {
     stringExclusions.add("definitions");
     stringExclusions.add("branch");
 
-    Set<String> fieldNames = new HashSet<>();
+    final Set<String> fieldNames = new HashSet<>();
 
     // first cycle over all methods
-    for (Method m : clazz.getMethods()) {
+    for (final Method m : clazz.getMethods()) {
 
       // if no annotations, skip
       if (m.getAnnotations().length == 0) {
@@ -159,8 +180,8 @@ public class IndexUtility {
 
       // check for @Fields annotation
       if (m.isAnnotationPresent(Fields.class)) {
-        for (Field field : m.getAnnotation(Fields.class).value()) {
-          String fieldName = getFieldNameFromMethod(m, field);
+        for (final Field field : m.getAnnotation(Fields.class).value()) {
+          final String fieldName = getFieldNameFromMethod(m, field);
 
           fieldNames.add(fieldName);
         }
@@ -168,7 +189,7 @@ public class IndexUtility {
     }
 
     // second cycle over all fields
-    for (java.lang.reflect.Field f : getAllFields(clazz)) {
+    for (final java.lang.reflect.Field f : getAllFields(clazz)) {
       // check for @IndexedEmbedded
       if (f.isAnnotationPresent(IndexedEmbedded.class)) {
 
@@ -191,7 +212,8 @@ public class IndexUtility {
 
         }
 
-        for (String embeddedField : getIndexedFieldNames(jpaType, stringOnly)) {
+        for (final String embeddedField : getIndexedFieldNames(jpaType,
+            stringOnly)) {
           fieldNames.add(f.getName() + "." + embeddedField);
         }
       }
@@ -218,8 +240,8 @@ public class IndexUtility {
 
       // check for @Fields annotation
       if (f.isAnnotationPresent(Fields.class)) {
-        for (Field field : f.getAnnotation(Fields.class).value()) {
-          String fieldName = getFieldNameFromField(f, field);
+        for (final Field field : f.getAnnotation(Fields.class).value()) {
+          final String fieldName = getFieldNameFromField(f, field);
           fieldNames.add(fieldName);
         }
       }
@@ -228,13 +250,13 @@ public class IndexUtility {
 
     // Apply filters
     Set<String> filteredFieldNames = new HashSet<>();
-    OUTER: for (String fieldName : fieldNames) {
-      for (String exclusion : exclusions) {
+    OUTER: for (final String fieldName : fieldNames) {
+      for (final String exclusion : exclusions) {
         if (fieldName.contains(exclusion)) {
           continue OUTER;
         }
       }
-      for (String exclusion : stringExclusions) {
+      for (final String exclusion : stringExclusions) {
         if (stringOnly && fieldName.contains(exclusion)) {
           continue OUTER;
         }
@@ -253,10 +275,11 @@ public class IndexUtility {
    * @param annotationField the annotation field
    * @return the indexed field name
    */
-  private static String getFieldNameFromMethod(Method m, Field annotationField) {
+  public static String getFieldNameFromMethod(Method m, Field annotationField) {
     // iannotationField annotationFieldield has a speciannotationFieldied name,
     // use that
-    if (annotationField.name() != null && !annotationField.name().isEmpty())
+    if (annotationField != null && annotationField.name() != null
+        && !annotationField.name().isEmpty())
       return annotationField.name();
 
     // otherwise, assume method name of form getannotationFieldName
@@ -265,6 +288,8 @@ public class IndexUtility {
       return StringUtils.uncapitalize(m.getName().substring(3));
     } else if (m.getName().startsWith("is")) {
       return StringUtils.uncapitalize(m.getName().substring(2));
+    } else if (m.getName().startsWith("set")) {
+      return StringUtils.uncapitalize(m.getName().substring(3));
     } else
       return m.getName();
 
@@ -292,12 +317,166 @@ public class IndexUtility {
    * @param type the type
    * @return the all fields
    */
-  private static java.lang.reflect.Field[] getAllFields(Class<?> type) {
-    if (type.getSuperclass() != null) {
-      return ArrayUtils.addAll(getAllFields(type.getSuperclass()),
-          type.getDeclaredFields());
+  public static java.lang.reflect.Field[] getAllFields(Class<?> type) {
+
+    // If already initialized, return computed values
+    if (allFields.containsKey(type)) {
+      return allFields.get(type);
     }
-    return type.getDeclaredFields();
+
+    if (type.getSuperclass() != null) {
+      java.lang.reflect.Field[] allFieldsArray = ArrayUtils
+          .addAll(getAllFields(type.getSuperclass()), type.getDeclaredFields());
+      allFields.put(type, allFieldsArray);
+      return allFieldsArray;
+    }
+    java.lang.reflect.Field[] allFieldsArray = type.getDeclaredFields();
+    allFields.put(type, allFieldsArray);
+    return allFieldsArray;
+  }
+
+  /**
+   * Returns the getXXX methods for @Column annotated fields.
+   *
+   * @param clazz the clazz
+   * @return the all methods
+   * @throws Exception the exception
+   */
+  public static List<Method> getAllColumnGetMethods(Class<?> clazz)
+    throws Exception {
+
+    // If already initialized, return computed values
+    if (allColumnGetMethods.containsKey(clazz)) {
+      return allColumnGetMethods.get(clazz);
+    }
+
+    final List<Method> allClassMethods = new ArrayList<Method>();
+
+    // exclude fields that can't be modified directly from the UI
+    final Set<String> excludedFields = new HashSet<>();
+    excludedFields.add("id");
+    excludedFields.add("timestamp");
+    excludedFields.add("lastModified");
+    excludedFields.add("lastModifiedBy");
+    excludedFields.add("lastApproved");
+    excludedFields.add("lastApprovedBy");
+    excludedFields.add("terminology");
+    excludedFields.add("branch");
+    excludedFields.add("branchedTo");
+
+    for (final java.lang.reflect.Field field : getAllFields(clazz)) {
+
+      if (excludedFields.contains(field.getName())) {
+        continue;
+      }
+      if (!field.isAnnotationPresent(Column.class)) {
+        continue;
+      }
+
+      // Try get first - find a getXXX method that takes no parameters
+      final String accessorName1 =
+          "get" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method getMethod;
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+
+      if (getMethod != null) {
+        allClassMethods.add(getMethod);
+        continue;
+      }
+      // Otherwise, use is - find an isXXX method that takes no parameters
+      final String accessorName2 =
+          "is" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method isMethod;
+      try {
+        isMethod = clazz.getMethod(accessorName2, new Class<?>[] {});
+      } catch (Exception e) {
+        isMethod = null;
+      }
+
+      if (isMethod != null) {
+        allClassMethods.add(isMethod);
+        continue;
+      }
+    }
+
+    // Cache for later runs
+    allColumnGetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
+
+  }
+
+  /**
+   * Returns the setXXX methods for @Column annotated fields.
+   *
+   * @param clazz the clazz
+   * @return the all methods
+   * @throws Exception the exception
+   */
+  public static List<Method> getAllColumnSetMethods(Class<?> clazz)
+    throws Exception {
+
+    // If already initialized, return computed values
+    if (allColumnSetMethods.containsKey(clazz)) {
+      return allColumnSetMethods.get(clazz);
+    }
+
+    final List<Method> allClassMethods = new ArrayList<Method>();
+
+    // exclude fields that can't be modified directly from the UI
+    final Set<String> excludedFields = new HashSet<>();
+    excludedFields.add("id");
+    excludedFields.add("timestamp");
+    excludedFields.add("lastModified");
+    excludedFields.add("lastModifiedBy");
+    excludedFields.add("lastApproved");
+    excludedFields.add("lastApprovedBy");
+    excludedFields.add("terminology");
+    excludedFields.add("branch");
+    excludedFields.add("branchedTo");
+
+    for (final java.lang.reflect.Field field : getAllFields(clazz)) {
+      if (excludedFields.contains(field.getName())) {
+        continue;
+      }
+      if (!field.isAnnotationPresent(Column.class)) {
+        continue;
+      }
+
+      // Try get first - find a setXXX method that takes 1 parameter
+      final String accessorName1 =
+          "set" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method setMethod = null;
+      // Iterate through methods
+      for (final Method m : clazz.getMethods()) {
+        // Find matching name with 1 paramter
+        if (m.getName().equals(accessorName1)
+            && m.getParameterTypes().length == 1) {
+          setMethod = m;
+          break;
+        }
+      }
+
+      if (setMethod != null) {
+        allClassMethods.add(setMethod);
+      }
+    }
+
+    // Cache for later runs
+    allColumnSetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
+
   }
 
   /**
@@ -310,8 +489,8 @@ public class IndexUtility {
    * @throws SecurityException the security exception
    */
   public static Map<String, Boolean> getNameAnalyzedPairsFromAnnotation(
-    Class<?> clazz, String sortField) throws NoSuchMethodException,
-    SecurityException {
+    Class<?> clazz, String sortField)
+    throws NoSuchMethodException, SecurityException {
     final String key = clazz.getName() + "." + sortField;
     if (sortFieldAnalyzedMap.containsKey(key)) {
       return sortFieldAnalyzedMap.get(key);
@@ -320,32 +499,32 @@ public class IndexUtility {
     // initialize the name->analyzed pair map
     Map<String, Boolean> nameAnalyzedPairs = new HashMap<>();
 
-    Method m =
-        clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
-            + sortField.substring(1), new Class<?>[] {});
+    Method m = clazz.getMethod("get" + sortField.substring(0, 1).toUpperCase()
+        + sortField.substring(1), new Class<?>[] {});
 
     Set<org.hibernate.search.annotations.Field> annotationFields =
         new HashSet<>();
 
     // check for Field annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Field.class)) {
-      annotationFields.add(m
-          .getAnnotation(org.hibernate.search.annotations.Field.class));
+      annotationFields
+          .add(m.getAnnotation(org.hibernate.search.annotations.Field.class));
     }
 
     // check for Fields annotation
     if (m.isAnnotationPresent(org.hibernate.search.annotations.Fields.class)) {
       // add all specified fields
-      for (org.hibernate.search.annotations.Field f : m.getAnnotation(
-          org.hibernate.search.annotations.Fields.class).value()) {
+      for (final org.hibernate.search.annotations.Field f : m
+          .getAnnotation(org.hibernate.search.annotations.Fields.class)
+          .value()) {
         annotationFields.add(f);
       }
     }
 
     // cycle over discovered fields and put name and analyze == YES into map
-    for (org.hibernate.search.annotations.Field f : annotationFields) {
-      nameAnalyzedPairs.put(f.name(), f.analyze().equals(Analyze.YES) ? true
-          : false);
+    for (final org.hibernate.search.annotations.Field f : annotationFields) {
+      nameAnalyzedPairs.put(f.name(),
+          f.analyze().equals(Analyze.YES) ? true : false);
     }
 
     sortFieldAnalyzedMap.put(key, nameAnalyzedPairs);
@@ -357,7 +536,6 @@ public class IndexUtility {
    * Apply pfs to lucene query2.
    *
    * @param clazz the clazz
-   * @param fieldNamesKey the field names key
    * @param query the query
    * @param pfs the pfs
    * @param manager the manager
@@ -365,13 +543,12 @@ public class IndexUtility {
    * @throws Exception the exception
    */
   public static FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    Class<?> fieldNamesKey, String query, PfsParameter pfs,
-    EntityManager manager) throws Exception {
+    String query, PfsParameter pfs, EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 
     // Build up the query
-    StringBuilder pfsQuery = new StringBuilder();
+    final StringBuilder pfsQuery = new StringBuilder();
     pfsQuery.append(query);
     if (pfs != null) {
       if (pfs.getActiveOnly()) {
@@ -387,42 +564,47 @@ public class IndexUtility {
     }
 
     // Set up the "full text query"
-    FullTextEntityManager fullTextEntityManager =
+    final FullTextEntityManager fullTextEntityManager =
         Search.getFullTextEntityManager(manager);
-    SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+    final SearchFactory searchFactory =
+        fullTextEntityManager.getSearchFactory();
 
     Query luceneQuery;
-    QueryParser queryParser =
-        new MultiFieldQueryParser(IndexUtility.getIndexedFieldNames(
-            fieldNamesKey, true).toArray(new String[] {}),
-            searchFactory.getAnalyzer(clazz));
+    final QueryParser queryParser = new MultiFieldQueryParser(
+        IndexUtility.getIndexedFieldNames(clazz, true).toArray(new String[] {}),
+        searchFactory.getAnalyzer(clazz));
 
     // preserve capitalization from incoming query (in order to correctly match
     // capitalized terms)
     queryParser.setLowercaseExpandedTerms(false);
 
     // construct the query
-    String finalQuery = pfsQuery.toString();
-    if (pfsQuery.toString().startsWith(" AND ")) {
-      finalQuery = finalQuery.substring(5);
+    final String finalQuery = (pfsQuery.toString().startsWith(" AND "))
+        ? pfsQuery.toString().substring(5) : pfsQuery.toString();
+
+    // ONLY log this if in dev mode
+    if ("DEV".equals(
+        ConfigUtility.getConfigProperties().getProperty("deploy.mode"))) {
+      Logger.getLogger(IndexUtility.class)
+          .info("  query = " + finalQuery + ", " + pfs);
     }
-    Logger.getLogger(IndexUtility.class).info("  query = " + finalQuery);
-    luceneQuery = queryParser.parse(finalQuery);
+    try {
+      luceneQuery = queryParser.parse(finalQuery);
+    } catch (ParseException e) {
+      throw new LocalException("Unable to parse query");
+    }
 
     // Validate query terms
-    luceneQuery =
-        luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
-            .getIndexReaderAccessor().open(clazz));
-    Set<Term> terms = new HashSet<>();
+    luceneQuery = luceneQuery.rewrite(fullTextEntityManager.getSearchFactory()
+        .getIndexReaderAccessor().open(clazz));
+    final Set<Term> terms = new HashSet<>();
     luceneQuery.extractTerms(terms);
-    for (Term t : terms) {
-      if (t.field() != null
-          && !t.field().isEmpty()
-          && !IndexUtility.getIndexedFieldNames(fieldNamesKey, false).contains(
-              t.field())) {
-        throw new ParseException("Query references invalid field name "
-            + t.field() + ", "
-            + IndexUtility.getIndexedFieldNames(fieldNamesKey, false));
+    for (final Term t : terms) {
+      if (t.field() != null && !t.field().isEmpty() && !IndexUtility
+          .getIndexedFieldNames(clazz, false).contains(t.field())) {
+        throw new ParseException(
+            "Query references invalid field name " + t.field() + ", "
+                + IndexUtility.getIndexedFieldNames(clazz, false));
       }
     }
 
@@ -436,8 +618,26 @@ public class IndexUtility {
         fullTextQuery.setMaxResults(pfs.getMaxResults());
       }
 
-      // if sort specified (single or multi-field sort), set sorting
-      if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
+      if (pfs.getSortField() != null && !pfs.getSortField().isEmpty()
+          && pfs.getSortField().equals("RANDOM")) {
+
+        // Randomly sort
+        final Sort sort =
+            new Sort(new SortField("", new FieldComparatorSource() {
+
+              @Override
+              public FieldComparator<Long> newComparator(String fieldname,
+                int numHits, int sortPos, boolean reversed) throws IOException {
+                return new RandomOrderFieldComparator(numHits, fieldname, null,
+                    null);
+              }
+
+            }));
+
+        fullTextQuery.setSort(sort);
+
+        // if sort specified (single or multi-field sort), set sorting
+      } else if ((pfs.getSortFields() != null && !pfs.getSortFields().isEmpty())
           || (pfs.getSortField() != null && !pfs.getSortField().isEmpty())) {
 
         // convenience container for sort field names (from either method)
@@ -452,41 +652,51 @@ public class IndexUtility {
         }
 
         // the constructed sort fields to sort on
-        List<SortField> sortFields = new ArrayList<>();
+        final List<SortField> sortFields = new ArrayList<>();
 
-        for (String sortFieldName : sortFieldNames) {
-          Map<String, Boolean> nameToAnalyzedMap =
-              IndexUtility.getNameAnalyzedPairsFromAnnotation(clazz,
-                  sortFieldName);
+        for (final String sortFieldName : sortFieldNames) {
 
           // the computed string name of the indexed field to sort by
           String sortFieldStr = null;
 
-          // check existence of the annotated get[SortFieldName]() method
-          if (nameToAnalyzedMap.size() == 0) {
-            throw new Exception(clazz.getName()
-                + " does not have declared, annotated method for field "
-                + sortFieldName);
-          }
-
-          // first check the default name (rendered as ""), if not analyzed, use
-          // this as sort
-          if (nameToAnalyzedMap.get("") != null
-              && nameToAnalyzedMap.get("").equals(false)) {
+          // if a subfield search (e.g. FIELD1.FIELD2) skip preconditions
+          if (sortFieldName.contains(".")) {
             sortFieldStr = sortFieldName;
           }
 
-          // otherwise check explicit [SortFieldName]Sort index
-          else if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
-              && nameToAnalyzedMap.get(sortFieldName + "Sort").equals(false)) {
-            sortFieldStr = sortFieldName + "Sort";
-          }
+          // otherwise, check preconditions
+          else {
 
-          // if an indexed sort field could not be found, throw exception
-          if (sortFieldStr == null) {
-            throw new Exception(
-                "Could not retrieve a non-analyzed Field annotation for get method for variable name "
-                    + sortFieldName);
+            final Map<String, Boolean> nameToAnalyzedMap = IndexUtility
+                .getNameAnalyzedPairsFromAnnotation(clazz, sortFieldName);
+
+            // check existence of the annotated get[SortFieldName]() method
+            if (nameToAnalyzedMap.size() == 0) {
+              throw new Exception(clazz.getName()
+                  + " does not have declared, annotated method for field "
+                  + sortFieldName);
+            }
+
+            // first, check explicit [SortFieldName]Sort index
+            if (nameToAnalyzedMap.get(sortFieldName + "Sort") != null
+                && !nameToAnalyzedMap.get(sortFieldName + "Sort")) {
+              sortFieldStr = sortFieldName + "Sort";
+            }
+
+            // next check the default name (rendered as ""), if not analyzed,
+            // use
+            // this as sort
+            else if (nameToAnalyzedMap.get("") != null
+                && nameToAnalyzedMap.get("").equals(false)) {
+              sortFieldStr = sortFieldName;
+            }
+
+            // if an indexed sort field could not be found, throw exception
+            if (sortFieldStr == null) {
+              throw new Exception(
+                  "Could not retrieve a non-analyzed Field annotation for get method for variable name "
+                      + sortFieldName);
+            }
           }
 
           // construct the sort field object
@@ -494,27 +704,27 @@ public class IndexUtility {
 
           // check for LONG fields
           if (sortFieldStr.equals("lastModified")
-              || sortFieldStr.equals("timestamp") || sortFieldStr.equals("id")) {
-            sortField =
-                new SortField(sortFieldStr, SortField.Type.LONG,
-                    !pfs.isAscending());
+              || sortFieldStr.equals("effectiveTime")
+              || sortFieldStr.equals("timestamp")
+              || (sortFieldStr.toLowerCase().endsWith("id")
+                  && !sortFieldStr.toLowerCase().endsWith("terminologyid"))
+              || sortFieldStr.toLowerCase().endsWith("idsort") && !sortFieldStr
+                  .toLowerCase().endsWith("terminologyidsort")) {
+            sortField = new SortField(sortFieldStr, SortField.Type.LONG,
+                !pfs.isAscending());
           }
 
           // otherwise, sort by STRING value
           else {
-            sortField =
-                new SortField(sortFieldStr, SortField.Type.STRING,
-                    !pfs.isAscending());
+            sortField = new SortField(sortFieldStr, SortField.Type.STRING,
+                !pfs.isAscending());
           }
 
           // add the field
           sortFields.add(sortField);
         }
 
-        SortField[] sfs = new SortField[sortFields.size()];
-        for (int i = 0; i < sortFields.size(); i++) {
-          sfs[i] = sortFields.get(i);
-        }
+        final SortField[] sfs = sortFields.toArray(new SortField[] {});
         fullTextQuery.setSort(new Sort(sfs));
 
       }
@@ -522,4 +732,68 @@ public class IndexUtility {
     }
     return fullTextQuery;
   }
+
+  /**
+   * Returns the methods for @OneToMany annotated fields.
+   *
+   * @param clazz the clazz
+   * @return the all methods
+   * @throws Exception the exception
+   */
+  public static List<Method> getAllCollectionGetMethods(Class<?> clazz)
+    throws Exception {
+
+    // If already initialized, return computed values
+    if (allOneToManyGetMethods.containsKey(clazz)) {
+      return allOneToManyGetMethods.get(clazz);
+    }
+
+    final List<Method> allClassMethods = new ArrayList<Method>();
+
+    // exclude fields that can't be modified directly from the UI
+    final Set<String> excludedFields = new HashSet<>();
+    excludedFields.add("inverseRelationships");
+    // no excluded fields for the moment
+
+    for (final java.lang.reflect.Field field : getAllFields(clazz)) {
+
+      if (excludedFields.contains(field.getName())) {
+        continue;
+      }
+      if (!field.isAnnotationPresent(OneToMany.class)
+          && !field.isAnnotationPresent(ManyToMany.class)) {
+        continue;
+      }
+
+      // Try get first - find a getXXX method that takes no parameters
+      final String accessorName1 =
+          "get" + field.getName().substring(0, 1).toUpperCase()
+              + field.getName().substring(1);
+      Method getMethod;
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+      try {
+        getMethod = clazz.getMethod(accessorName1, new Class<?>[] {});
+      } catch (Exception e) {
+        getMethod = null;
+      }
+
+      if (getMethod != null) {
+        allClassMethods.add(getMethod);
+        continue;
+      }
+
+      // No need to worry about "is" here because these are collection methods
+
+    }
+
+    // Cache for later runs
+    allOneToManyGetMethods.put(clazz, allClassMethods);
+    return allClassMethods;
+
+  }
+
 }

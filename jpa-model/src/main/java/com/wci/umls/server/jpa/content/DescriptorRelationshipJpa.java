@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -27,9 +26,10 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link DescriptorRelationship}.
@@ -41,9 +41,9 @@ import com.wci.umls.server.model.content.DescriptorRelationship;
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptorRelationship")
-public class DescriptorRelationshipJpa extends
-    AbstractRelationship<Descriptor, Descriptor> implements
-    DescriptorRelationship {
+public class DescriptorRelationshipJpa
+    extends AbstractRelationship<Descriptor, Descriptor>
+    implements DescriptorRelationship {
 
   /** The from concept. */
   @ManyToOne(targetEntity = DescriptorJpa.class, optional = false)
@@ -56,7 +56,7 @@ public class DescriptorRelationshipJpa extends
   private Descriptor to;
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection
   @Column(nullable = true)
   private Map<String, String> alternateTerminologyIds;
 
@@ -72,17 +72,24 @@ public class DescriptorRelationshipJpa extends
    * parameters.
    *
    * @param relationship the concept relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public DescriptorRelationshipJpa(DescriptorRelationship relationship,
-      boolean deepCopy) {
-    super(relationship, deepCopy);
+      boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
+  /**
+   * Returns the from.
+   *
+   * @return the from
+   */
   /* see superclass */
   @Override
   @XmlTransient
@@ -90,6 +97,11 @@ public class DescriptorRelationshipJpa extends
     return from;
   }
 
+  /**
+   * Sets the from.
+   *
+   * @param component the from
+   */
   /* see superclass */
   @Override
   public void setFrom(Descriptor component) {
@@ -208,6 +220,11 @@ public class DescriptorRelationshipJpa extends
     from.setName(term);
   }
 
+  /**
+   * Returns the to.
+   *
+   * @return the to
+   */
   /* see superclass */
   @Override
   @XmlTransient
@@ -215,6 +232,11 @@ public class DescriptorRelationshipJpa extends
     return to;
   }
 
+  /**
+   * Sets the to.
+   *
+   * @param component the to
+   */
   /* see superclass */
   @Override
   public void setTo(Descriptor component) {
@@ -333,9 +355,14 @@ public class DescriptorRelationshipJpa extends
     to.setName(term);
   }
 
+  /**
+   * Returns the alternate terminology ids.
+   *
+   * @return the alternate terminology ids
+   */
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
@@ -344,6 +371,11 @@ public class DescriptorRelationshipJpa extends
     return alternateTerminologyIds;
   }
 
+  /**
+   * Sets the alternate terminology ids.
+   *
+   * @param alternateTerminologyIds the alternate terminology ids
+   */
   /* see superclass */
   @Override
   public void setAlternateTerminologyIds(
@@ -351,55 +383,45 @@ public class DescriptorRelationshipJpa extends
     this.alternateTerminologyIds = alternateTerminologyIds;
   }
 
-  /* see superclass */
-  @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
-  }
+  /**
+   * Put alternate terminology id.
+   *
+   * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the relationship
+   * @throws Exception the exception
+   */
 
   /* see superclass */
   @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
+  public Relationship<Descriptor, Descriptor> createInverseRelationship(
+    Relationship<Descriptor, Descriptor> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    final DescriptorRelationship inverseRelationship =
+        new DescriptorRelationshipJpa((DescriptorRelationship) relationship,
+            false);
 
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /**
-   * CUSTOM to support to/from/alternateTerminologyIds.
+   * Hash code.
    *
    * @return the int
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
    */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((from == null || from.getTerminologyId() == null) ? 0 : from
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((to == null || to.getTerminologyId() == null) ? 0 : to
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
+    result = prime * result + ((from == null) ? 0 : from.hashCode());
+    result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
   /**
-   * Custom equals method for to/from.getTerminologyId
+   * Equals.
    *
    * @param obj the obj
    * @return true, if successful
@@ -416,25 +438,16 @@ public class DescriptorRelationshipJpa extends
     if (from == null) {
       if (other.from != null)
         return false;
-    } else if (from.getTerminologyId() == null) {
-      if (other.from != null && other.from.getTerminologyId() != null)
-        return false;
-    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
+    } else if (!from.equals(other.from))
       return false;
     if (to == null) {
       if (other.to != null)
         return false;
-    } else if (to.getTerminologyId() == null) {
-      if (other.to != null && other.to.getTerminologyId() != null)
-        return false;
-    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
-      return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+    } else if (!to.equals(other.to))
       return false;
     return true;
   }
+
+  // Use superclass toString()
 
 }

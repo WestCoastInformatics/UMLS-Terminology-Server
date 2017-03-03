@@ -1,0 +1,94 @@
+<span ng-show="!selected.project.editingEnabled" style="display: block;"
+  class="alert alert-danger">Editing is disabled.</span>
+<h4>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.relationshipsLabel}}
+    ({{pagedRelationships.totalCount}})</b>
+  <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
+    {{selected.component.id}}</span>
+</h4>
+<span ng-show="pagedRelationships.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['relationships'].pageSize"
+    title="Page Size"
+    ng-change="paging['relationships'].callbacks.getPagedList()"
+    ng-options="item.value as item.name for item in pageSizes">
+  </select>
+</span>
+
+<div pager paging="paging['relationships']"
+  count="pagedRelationships.totalCount"
+  callbacks="paging['relationships'].callbacks"></div>
+
+<table class="slim table pointer">
+  <thead>
+    <tr>
+      <th class="col-md-4 col-xs-4"><span
+          ng-click="setSortField('relationships','toName')">To Name</span> <span
+          ng-bind="getSortIndicator('relationships','toName')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('relationships','toId')"> Concept</span> <span
+          ng-bind="getSortIndicator('relationships','toId')"></span></th>
+      <th class="col-md-2 col-xs-2"><span
+          ng-click="setSortField('relationships','relationshipType')">Rel
+          Type</span> <span
+          ng-bind="getSortIndicator('relationships','relationshipType')"></span></th>
+      <th class="col-md-1 col-xs-1">Lvl</th>
+      <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('relationships','terminology')">Terminology</span>
+        <span ng-bind="getSortIndicator('relationships','terminology')"></span></th>
+      <th class="col-md-1 col-xs-1"><span
+          ng-click="setSortField('relationships','lastModifiedBy')">Editor</span>
+        <span ng-bind="getSortIndicator('relationships','lastModifiedBy')"></span></th>
+      <th class="col-md-1 col-xs-1"><span style="float: right;">
+          <button ng-click="openInsertModal()" title="Add relationship"
+            ng-disabled="editingDisabled()" class="btn btn-xs btn-primary">Add
+            Rel</button>
+        </span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="relationship in pagedRelationships"
+      ng-click="selectRelationship($event, relationship)"
+      class="{{getRelationshipClass(relationship)}}"
+      ng-class="{selected: isRowSelected(relationship)}">
+      <td>{{relationship.toName}}</td>
+      <td>{{relationship.toId}}</td>
+      <td>{{relationship.relationshipType}}&nbsp;
+        {{relationship.additionalRelationshipType}}</td>
+      <td>{{relationship.level}}</td>
+      <td>{{relationship.terminology}}</td>
+      <td>{{relationship.lastModifiedBy}}</td>
+      <td class="nobreak">
+
+        <i
+          confirm="Are you sure you want to remove the relationship ({{relationship.name}})?"
+          ng-show="relationship.level != 'S' && relationship.workflowStatus != 'DEMOTION' && selected.project.editingEnabled"
+          ng-click="removeRelationshipFromConcept(relationship); $event.stopPropagation()"
+          title="Delete" class="noul glyphicon glyphicon-trash"></i>
+
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Controls in floating footer -->
+<nav style="background-color: #ffffff"
+  class="navbar navbar-default navbar-fixed-bottom">
+  <div class="container-fluid">
+
+    <span style="float: left;">
+      <button ng-click="reloadConcept()" title="Refresh concept"
+        class="btn btn-xs btn-primary">Refresh</button>
+    </span>
+    <span style="float: right;">
+      <input type="checkbox" ng-model="preferredOnly"
+        ng-disabled="editingDisabled()" ng-click="getPagedRelationships()"
+        title="Show preferred only">
+      <span>Show preferred only</span>
+      <button ng-click="transferConceptToEditor()"
+        ng-disabled="!selected.relationship || editingDisabled()"
+        title="Transfer concept to editor" class="btn btn-xs btn-primary">Transfer</button>
+      <button ng-click="openMergeModal()" ng-disabled="editingDisabled()"
+        title="Merge" class="btn btn-xs btn-primary">Merge</button>
+    </span>
+  </div>
+</nav>

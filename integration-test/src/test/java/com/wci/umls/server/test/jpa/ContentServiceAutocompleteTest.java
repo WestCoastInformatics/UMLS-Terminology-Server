@@ -6,6 +6,7 @@ package com.wci.umls.server.test.jpa;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -15,11 +16,12 @@ import org.junit.Test;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
 import com.wci.umls.server.services.ContentService;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Sample test to get auto complete working
  */
-public class ContentServiceAutocompleteTest {
+public class ContentServiceAutocompleteTest extends IntegrationUnitSupport {
 
   /** The service. */
   ContentService service = null;
@@ -48,16 +50,17 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "lett");
-    assertEquals(13, results.getObjects().size());
-    results = service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "let");
-    assertEquals(17, results.getObjects().size());
+        service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "lett");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "let");
+    assertTrue(results.getObjects().size()>10);
 
-    results = service.autocompleteConcepts("UMLS", "latest", "lett");
-    assertEquals(20, results.getObjects().size());
-    results = service.autocompleteConcepts("UMLS", "latest", "let");
-    assertEquals(20, results.getObjects().size());
+    results = service.autocompleteConcepts("MTH", "latest", "lett");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteConcepts("MTH", "latest", "let");
+    assertTrue(results.getObjects().size()>10);
   }
 
   /**
@@ -67,15 +70,16 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testDescriptorAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dipa");
+        service.autocompleteDescriptors("MSH", "2016_2016_02_26", "infr");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "inf");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "in");
     assertEquals(7, results.getObjects().size());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "dip");
-    assertEquals(7, results.getObjects().size());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "di");
-    assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteDescriptors("MSH", "2015_2014_09_08", "d");
-    assertTrue(results.getObjects().isEmpty());
+    results = service.autocompleteDescriptors("MSH", "2016_2016_02_26", "i");
+    assertEquals(6, results.getObjects().size());
 
   }
 
@@ -86,23 +90,25 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testCodeAutocompleteNormalUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "lett");
-    assertEquals(13, results.getObjects().size());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "let");
-    assertEquals(17, results.getObjects().size());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "le");
+        service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "lett");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "let");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteCodes("SNOMEDCT_US", "2014_09_01", "l");
+    results = service.autocompleteCodes("SNOMEDCT_US", "2016_03_01", "l");
+    assertEquals(2, results.getObjects().size());
+
+    results = service.autocompleteCodes("MTH", "latest", "lett");
+    assertTrue(results.getObjects().isEmpty());
+    results = service.autocompleteCodes("MTH", "latest", "let");
     assertTrue(results.getObjects().isEmpty());
 
-    results = service.autocompleteCodes("UMLS", "latest", "lett");
-    assertEquals(0, results.getObjects().size());
-    results = service.autocompleteCodes("UMLS", "latest", "let");
-    assertEquals(0, results.getObjects().size());
-    results = service.autocompleteCodes("UMLS", "latest", "le");
+    results = service.autocompleteCodes("MTH", "latest", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteCodes("UMLS", "latest", "l");
+    results = service.autocompleteCodes("MTH", "latest", "l");
     assertTrue(results.getObjects().isEmpty());
   }
 
@@ -113,16 +119,17 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteEdgeCases() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results =
-        service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "le");
+        service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "le");
     assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteConcepts("SNOMEDCT_US", "2014_09_01", "l");
-    assertTrue(results.getObjects().isEmpty());
+    results = service.autocompleteConcepts("SNOMEDCT_US", "2016_03_01", "l");
+    assertEquals(2, results.getObjects().size());
+    results = service.autocompleteConcepts("MTH", "latest", "le");
+    assertTrue(results.getObjects().size()>10);
+    results = service.autocompleteConcepts("MTH", "latest", "l");
+    assertTrue(results.getObjects().size()>10);
 
-    results = service.autocompleteConcepts("UMLS", "latest", "le");
-    assertTrue(results.getObjects().isEmpty());
-    results = service.autocompleteConcepts("UMLS", "latest", "l");
-    assertTrue(results.getObjects().isEmpty());
   }
 
   /**
@@ -132,6 +139,7 @@ public class ContentServiceAutocompleteTest {
    */
   @Test
   public void testConceptAutocompleteDegenerateUse() throws Exception {
+    Logger.getLogger(getClass()).info("TEST " + name.getMethodName());
     StringList results = service.autocompleteConcepts(null, null, null);
     assertTrue(results.getObjects().isEmpty());
   }

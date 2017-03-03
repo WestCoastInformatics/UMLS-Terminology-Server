@@ -1,19 +1,22 @@
 <!-- NOTE: Two types of trees consolidated to take advantage of common tree functions -->
 <!-- Hierarchical Tree -->
 <div ng-if="treeCount > 0">
-  <h4>
+  <i ng-show="callbacks" style="float: left" class="noul glyphicon"
+    ng-click="showing = !showing"
+    ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <h5 class="ml10">
     {{metadata.hierarchiesLabel}}
     <span ng-show="treeCount > 1">
       (
-      <i class="noul glyphicon glyphicon-step-backward" title="Previous tree position"
-        ng-click="getTreeByOffset(-1)"></i>
+      <i class="noul glyphicon glyphicon-step-backward"
+        title="Previous tree position" ng-click="getTreeByOffset(-1)"></i>
       {{treeViewed+1}} of {{treeCount}}
-      <i class="noul glyphicon glyphicon-step-forward" 
-      title="Next tree position" ng-click="getTreeByOffset(1)"></i>
+      <i class="noul glyphicon glyphicon-step-forward"
+        title="Next tree position" ng-click="getTreeByOffset(1)"></i>
       )
     </span>
-  </h4>
-  <div ui-tree>
+  </h5>
+  <div class="ml10" ng-show="showing" ui-tree>
     <ol ui-tree-nodes="" ng-model="componentTree" id="tree-root"
       data-nodrop-enabled="true">
       <li ng-repeat="tree in componentTree" ui-tree-node data-nodrag
@@ -21,3 +24,4 @@
     </ol>
   </div>
 </div>
+

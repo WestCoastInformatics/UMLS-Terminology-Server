@@ -1,8 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
@@ -23,11 +24,12 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TransitiveRelationship;
 import com.wci.umls.server.model.content.TreePosition;
+import com.wci.umls.server.services.Transactionable;
 
 /**
  * Represents an algorithm for assigning identifiers.
  */
-public interface IdentifierAssignmentHandler extends Configurable {
+public interface IdentifierAssignmentHandler extends Configurable, Transactionable{
 
   /**
    * Returns the terminology id.
@@ -91,8 +93,8 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @return the string
    * @throws Exception the exception
    */
-  public String getTerminologyId(Attribute attribute,
-    ComponentHasAttributes component) throws Exception;
+  public String getTerminologyId(Attribute attribute, ComponentInfo component)
+    throws Exception;
 
   /**
    * Returns the terminology id.
@@ -109,11 +111,28 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * Returns the terminology id.
    *
    * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
    * @return the string
    * @throws Exception the exception
    */
   public String getTerminologyId(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship)
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType,
+    String inverseAdditionalRelType)
+    throws Exception;
+
+  /**
+   * Returns the inverse terminology id.
+   *
+   * @param relationship the relationship
+   * @param inverseRelType the inverse rel type
+   * @param inverseAdditionalRelType the inverse additional rel type
+   * @return the inverse terminology id
+   * @throws Exception the exception
+   */
+  public String getInverseTerminologyId(
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship, String inverseRelType,
+    String inverseAdditionalRelType)
     throws Exception;
 
   /**
@@ -148,7 +167,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(Subset subset) throws Exception;
-  
+
   /**
    * Gets the terminology id.
    *
@@ -157,7 +176,7 @@ public interface IdentifierAssignmentHandler extends Configurable {
    * @throws Exception the exception
    */
   public String getTerminologyId(Mapping mapping) throws Exception;
-  
+
   /**
    * Gets the terminology id.
    *

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.helpers;
 
@@ -29,7 +29,7 @@ public class ProxyTester {
   protected Set<String> excludes = new TreeSet<String>();
 
   /** Set of fields to include. */
-  protected Set<String> includes = null;
+  protected Set<String> includes = new TreeSet<String>();
 
   /** Class of object under test. */
   protected Class<?> clazz;
@@ -55,8 +55,6 @@ public class ProxyTester {
    * @param field Field name whose getter/setter should be tested.
    */
   public void include(String field) {
-    if (includes == null)
-      includes = new TreeSet<String>();
     includes.add(field.toLowerCase());
   }
 
@@ -80,7 +78,7 @@ public class ProxyTester {
     if (!proxyMap.containsKey(clazz)) {
       proxyMap.put(clazz, new HashMap<Integer, Object>());
     }
-    Map<Integer, Object> initializerMap = proxyMap.get(clazz);
+    final Map<Integer, Object> initializerMap = proxyMap.get(clazz);
     initializerMap.put(i, o);
   }
 
@@ -101,7 +99,7 @@ public class ProxyTester {
       throw new Exception("Class " + clazz
           + " unexpectedly does not have a no-argument constructor");
     }
-    setFields(o, true, false, initializer);
+    setFields(o, false, false, initializer);
     return o;
   }
 
@@ -109,41 +107,48 @@ public class ProxyTester {
    * Sets the fields.
    *
    * @param o the object
-   * @param includeFlag the include flag
+   * @param reverseIncludes the reverse includes
    * @param logField the log set
    * @param initializer the initializer
    * @throws Exception the exception
    */
-  protected void setFields(Object o, boolean includeFlag, boolean logField,
+  protected void setFields(Object o, boolean reverseIncludes, boolean logField,
     int initializer) throws Exception {
-    Set<String> includesSeen = new HashSet<>();
-    Method[] methods = clazz.getMethods();
+    final Set<String> fieldsSeen = new HashSet<>();
+    final Method[] methods = clazz.getMethods();
     for (int i = 0; i < methods.length; i++) {
 
       /* We're looking for single-argument setters. */
-      Method m = methods[i];
-      if (!m.getName().startsWith("set"))
+      final Method m = methods[i];
+      if (!m.getName().startsWith("set")) {
         continue;
-      String fieldName = m.getName().substring(3);
-      Class<?>[] args = m.getParameterTypes();
-      if (args.length != 1)
-        continue;
-
-      // indicate we've seen it
-      if (includes != null && includes.contains(fieldName.toLowerCase())) {
-        includesSeen.add(fieldName.toLowerCase());
       }
 
-      includesSeen.add(fieldName.toLowerCase());
+      final String fieldName = m.getName().substring(3);
+      final Class<?>[] args = m.getParameterTypes();
+      if (args.length != 1) {
+        continue;
+      }
+
+      // indicate we've seen it
+      fieldsSeen.add(fieldName.toLowerCase());
+
       /* Check the field name against our include/exclude list. */
-      if (includeFlag) {
-        if (includes != null && !includes.contains(fieldName.toLowerCase()))
-          continue;
-        if (excludes.contains(fieldName.toLowerCase()))
-          continue;
-      } else {
-        if (includes != null && includes.contains(fieldName.toLowerCase()))
-          continue;
+      if (!includes.isEmpty() && !includes.contains(fieldName.toLowerCase())
+          && !reverseIncludes) {
+        // skip if includes are explicit and none are listed
+        continue;
+      }
+
+      if (!includes.isEmpty() && includes.contains(fieldName.toLowerCase())
+          && reverseIncludes) {
+        // skip if includes are explicit and none are listed
+        continue;
+      }
+
+      if (excludes.contains(fieldName.toLowerCase())) {
+        // skip excludes always
+        continue;
       }
 
       /* Is there a getter that returns the same type? */
@@ -167,16 +172,28 @@ public class ProxyTester {
       setField(o, getter, m, args[0], initializer);
     }
 
-    // If includes contains entries and not all have been seen - error\
-    if (includes != null) {
-      Set<String> notSeen = new HashSet<>();
-      for (String field : includes) {
-        if (!includesSeen.contains(field.toLowerCase())) {
+    // If includes contains entries and not all have been seen - error
+    if (!includes.isEmpty()) {
+      final Set<String> notSeen = new HashSet<>();
+      for (final String field : includes) {
+        if (!fieldsSeen.contains(field.toLowerCase())) {
           notSeen.add(field);
         }
       }
       if (notSeen.size() > 0) {
         throw new Exception("Some included fields were not found: " + notSeen);
+      }
+    }
+
+    if (!excludes.isEmpty()) {
+      final Set<String> notSeen = new HashSet<>();
+      for (final String field : excludes) {
+        if (!fieldsSeen.contains(field.toLowerCase())) {
+          notSeen.add(field);
+        }
+      }
+      if (notSeen.size() > 0) {
+        throw new Exception("Some excluded fields were not found: " + notSeen);
       }
     }
   }
@@ -213,16 +230,18 @@ public class ProxyTester {
   protected void setField(Object o, Method get, Method set, Class<?> argType,
     int initializer) throws Exception {
     Object proxy = makeProxy(argType, initializer);
-    // Logger.getLogger(getClass()).debug(
-    // "  " + set.getName() + " = " + proxy.toString());
+
+    // Logger.getLogger(getClass())
+    // .info(" " + set.getName() + " = " + proxy.toString());
     try {
       set.invoke(o, new Object[] {
-        proxy
+          proxy
       });
     } catch (InvocationTargetException e) {
       e.printStackTrace();
-      throw new RuntimeException("Setter " + set.getDeclaringClass().getName()
-          + "." + set.getName() + " threw " + e.getTargetException().toString());
+      throw new RuntimeException(
+          "Setter " + set.getDeclaringClass().getName() + "." + set.getName()
+              + " threw " + e.getTargetException().toString());
     } catch (IllegalArgumentException e) {
       Logger.getLogger(getClass()).debug("o=" + o.getClass().getName());
       Logger.getLogger(getClass()).debug("proxy=" + proxy.getClass().getName());
@@ -242,7 +261,7 @@ public class ProxyTester {
    * @throws Exception the exception
    */
   @SuppressWarnings({
-    "rawtypes"
+      "rawtypes"
   })
   protected Object makeProxy(Class<?> type, int initializer) throws Exception {
     // Return anything passed in first
@@ -289,7 +308,7 @@ public class ProxyTester {
     /* Use JDK dynamic proxy if the argument is an interface. */
     if (type.isInterface())
       return Proxy.newProxyInstance(type.getClassLoader(), new Class[] {
-        type
+          type
       }, new DummyInvocationHandler());
 
     /* Get the CGLib classes we need. */
@@ -301,15 +320,16 @@ public class ProxyTester {
       callbackClass = Class.forName("net.sf.cglib.proxy.Callback");
       fixedValueClass = Class.forName("net.sf.cglib.proxy.FixedValue");
     } catch (ClassNotFoundException e) {
-      throw new ClassNotFoundException("Need cglib to make a dummy "
-          + type.getName() + ". Make sure cglib.jar is on " + "your classpath.");
+      throw new ClassNotFoundException(
+          "Need cglib to make a dummy " + type.getName()
+              + ". Make sure cglib.jar is on " + "your classpath.");
     }
 
     /* Make a dummy callback (proxies within proxies!) */
     Object callback;
     callback =
         Proxy.newProxyInstance(callbackClass.getClassLoader(), new Class[] {
-          fixedValueClass
+            fixedValueClass
         }, new DummyInvocationHandler());
 
     Method createMethod = enhancerClass.getMethod("create", new Class[] {

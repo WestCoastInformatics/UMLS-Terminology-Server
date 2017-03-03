@@ -9,9 +9,9 @@ tsApp.controller('LandingCtrl', [ '$scope', '$anchorScroll', '$location', 'utilS
 
     // function to launch application
     $scope.launchApp = function() {
-      if (appConfig.loginEnabled === 'true') {
+      if (appConfig['deploy.login.enabled'] === 'true') {
         $location.path('/login');
-      } else if (appConfig.licenseEnabled === 'true') {
+      } else if (appConfig['deploy.license.enabled'] === 'true') {
         $location.path('/license');
       } 
       // Assume no user preferences (always guest user), route to first tab

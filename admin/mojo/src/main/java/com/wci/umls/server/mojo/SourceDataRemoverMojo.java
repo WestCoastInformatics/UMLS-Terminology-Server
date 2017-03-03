@@ -4,6 +4,9 @@
 package com.wci.umls.server.mojo;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 
@@ -12,31 +15,26 @@ import com.wci.umls.server.helpers.ConfigUtility;
  * database.
  * 
  * See admin/pom.xml for sample usage
- * 
- * @goal remove-sd-terminology
- * 
- * @phase package
  */
+@Mojo(name = "remove-sd-terminology", defaultPhase = LifecyclePhase.PACKAGE)
 public class SourceDataRemoverMojo extends SourceDataMojo {
 
   /**
    * Name of terminology to be removed.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * Version to remove.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -58,8 +56,8 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
       // Properties properties = ConfigUtility.getConfigProperties();
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -80,17 +78,16 @@ public class SourceDataRemoverMojo extends SourceDataMojo {
       if (!serverRunning) {
         getLog().info("Running directly");
 
-
         /*
          * final RemoveSourceDataAlgorithm algo = new
          * RemoveSourceDataAlgorithm(); final SourceDataService sdService = new
          * SourceDataServiceJpa(); try {
          * 
          * SourceData sourceData = null; List<SourceData> data = sdService
-         * .findSourceDatasForQuery( "nameSort:\"" + getName(terminology,
-         * version) + "\"", null) .getObjects(); if (data.size() == 1) {
-         * sourceData = data.get(0); } else if (data.size() == 0) { // no source
-         * data, proceed } else { throw new Exception(
+         * .findSourceDatas( "nameSort:\"" + getName(terminology, version) +
+         * "\"", null) .getObjects(); if (data.size() == 1) { sourceData =
+         * data.get(0); } else if (data.size() == 0) { // no source data,
+         * proceed } else { throw new Exception(
          * "Unexpected number of results searching for source data: " +
          * data.size()); } algo.setTerminology(terminology);
          * algo.setVersion(version); algo.setSourceData(sourceData);

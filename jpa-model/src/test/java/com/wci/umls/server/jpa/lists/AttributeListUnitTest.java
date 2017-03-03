@@ -60,7 +60,7 @@ public class AttributeListUnitTest extends AbstractListUnit<Attribute> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse006() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, a1, a2);
   }
 
@@ -71,7 +71,7 @@ public class AttributeListUnitTest extends AbstractListUnit<Attribute> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse006() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, a1, a2);
   }
 
@@ -81,7 +81,7 @@ public class AttributeListUnitTest extends AbstractListUnit<Attribute> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases006() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, a1, a2);
   }
 
@@ -92,7 +92,7 @@ public class AttributeListUnitTest extends AbstractListUnit<Attribute> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization006() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, a1, a2);
   }
 

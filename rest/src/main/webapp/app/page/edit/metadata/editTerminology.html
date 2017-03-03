@@ -1,0 +1,185 @@
+<div class="modal-header">
+  <h4 style="display: inline">Edit {{terminology.terminology}}
+    {{terminology.version}}</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-12 col-xs-12">
+      <table class="slim table">
+        <tr>
+          <td class="col-md-3 col-xs-3">
+            <b>Terminology</b>
+          </td>
+          <td class="col-md-9 col-xs-9">{{terminology.terminology}}
+            {{terminology.version}}</td>
+        </tr>
+        <tr>
+          <td>
+            <b>Inverter Email</b>
+          </td>
+          <td>
+            <input autofocus ng-model="terminology.inverterEmail" size="40" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>Asserts Rels Direction</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="terminology.assertsRelsDirection"
+              title="Terminology asserts rels direction.">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Current</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="terminology.current"
+              title="Terminology is current.">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Include Siblings</b>
+          </td>
+          <td>
+            <input type="checkbox" ng-model="terminology.includeSiblings"
+              title="Terminology includes siblings.">
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <b>Citation</b>
+          </td>
+          <td>
+            <ul class="pointer nav nav-tabs">
+              <li ng-class="{active : tab != 'Raw'}"><a
+                  ng-click="tab = 'Structured'"> Structured</a></li>
+              <li ng-class="{active : tab == 'Raw'}"><a
+                  ng-click="tab = 'Raw'"> Raw Value</a></li>
+            </ul>
+            <table ng-show="tab == 'Raw'" class="slim table">
+              <tr>
+                <td>
+                  <br />
+                  <textarea ng-model="terminology.citation.unstructuredValue"
+                    rows="10" style="width: 100%"></textarea>
+                </td>
+              </tr>
+            </table>
+            <table ng-show="tab != 'Raw'" class="slim table">
+              <thead>
+                <tr>
+                  <th class="col-md-3 col-xs-3">&nbsp;</th>
+                  <th class="col-md-9 col-md-9">&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Organization</td>
+                  <td>
+                    <input ng-model="terminology.citation.organization"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Place of Publication</td>
+                  <td>
+                    <input ng-model="terminology.citation.placeOfPublication"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Editor</td>
+                  <td>
+                    <input ng-model="terminology.citation.editor" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Edition</td>
+                  <td>
+                    <input ng-model="terminology.citation.edition" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Content Designator</td>
+                  <td>
+                    <input ng-model="terminology.citation.contentDesignator"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Author</td>
+                  <td>
+                    <input ng-model="terminology.citation.author" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Series</td>
+                  <td>
+                    <input ng-model="terminology.citation.series" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Title</td>
+                  <td>
+                    <input ng-model="terminology.citation.title" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Notes</td>
+                  <td>
+                    <input ng-model="terminology.citation.notes" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Location</td>
+                  <td>
+                    <input ng-model="terminology.citation.location" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Extent</td>
+                  <td>
+                    <input ng-model="terminology.citation.extent" size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Availability Statement</td>
+                  <td>
+                    <input ng-model="terminology.citation.availabilityStatement"
+                      size="40" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Date of Revision</td>
+                  <td>
+                    <input ng-model="terminology.citation.dateOfRevision"
+                      size="40" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+</div>
+
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="submitTerminology();">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

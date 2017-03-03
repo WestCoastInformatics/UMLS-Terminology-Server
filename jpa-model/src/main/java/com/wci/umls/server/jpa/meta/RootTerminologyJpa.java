@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 /*
  * 
@@ -26,16 +26,16 @@ import com.wci.umls.server.model.meta.ContactInfo;
 import com.wci.umls.server.model.meta.RootTerminology;
 
 /**
- * JPA and JAXB enabled implementation of {@link RootTerminology}.
+ * The Class RootTerminologyJpa.
  */
 @Entity
 @Table(name = "root_terminologies", uniqueConstraints = @UniqueConstraint(columnNames = {
-  "terminology"
+    "terminology"
 }))
 @Audited
 @XmlRootElement(name = "rootTerminology")
-public class RootTerminologyJpa extends AbstractHasLastModified implements
-    RootTerminology {
+public class RootTerminologyJpa extends AbstractHasLastModified
+    implements RootTerminology {
 
   /** The terminology. */
   @Column(nullable = false)
@@ -49,9 +49,13 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   @OneToOne(targetEntity = ContactInfoJpa.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = true)
   private ContactInfo contentContact;
 
-  /** The polyhierarchy flag. */
+  /** The polyhierarchy. */
   @Column(nullable = false)
   private boolean polyhierarchy;
+
+  /** The hierarchy computable. */
+  @Column(nullable = false)
+  private boolean hierarchyComputable = true;
 
   /** The family. */
   @Column(nullable = false)
@@ -81,7 +85,7 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   @Column(nullable = true, length = 3000)
   private String shortName;
 
-  /** The short name. */
+  /** The synonymous names. */
   @ElementCollection
   private List<String> synonymousNames = new ArrayList<>();
 
@@ -95,22 +99,24 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   /**
    * Instantiates a {@link RootTerminologyJpa} from the specified parameters.
    *
-   * @param rootTerminology the terminology
+   * @param copy the root terminology
    */
-  public RootTerminologyJpa(RootTerminology rootTerminology) {
-    super(rootTerminology);
-    terminology = rootTerminology.getTerminology();
-    acquisitionContact = rootTerminology.getAcquisitionContact();
-    contentContact = rootTerminology.getContentContact();
-    family = rootTerminology.getFamily();
-    hierarchicalName = rootTerminology.getHierarchicalName();
-    language = rootTerminology.getLanguage();
-    licenseContact = rootTerminology.getLicenseContact();
-    preferredName = rootTerminology.getPreferredName();
-    restrictionLevel = rootTerminology.getRestrictionLevel();
-    shortName = rootTerminology.getShortName();
-    synonymousNames = rootTerminology.getSynonymousNames();
-    polyhierarchy = rootTerminology.isPolyhierarchy();
+  public RootTerminologyJpa(RootTerminology copy) {
+    super(copy);
+    terminology = copy.getTerminology();
+    acquisitionContact = copy.getAcquisitionContact();
+    contentContact = copy.getContentContact();
+    family = copy.getFamily();
+    hierarchicalName = copy.getHierarchicalName();
+    language = copy.getLanguage();
+    licenseContact = copy.getLicenseContact();
+    preferredName = copy.getPreferredName();
+    restrictionLevel = copy.getRestrictionLevel();
+    shortName = copy.getShortName();
+    synonymousNames = new ArrayList<>(copy.getSynonymousNames());
+    polyhierarchy = copy.isPolyhierarchy();
+    hierarchyComputable = copy.isHierarchyComputable();
+
   }
 
   /* see superclass */
@@ -155,6 +161,18 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   @Override
   public void setPolyhierarchy(boolean polyhierarchy) {
     this.polyhierarchy = polyhierarchy;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isHierarchyComputable() {
+    return hierarchyComputable;
+  }
+
+  /* see superclass */
+  @Override
+  public void setHierarchyComputable(boolean hierarchyComputable) {
+    this.hierarchyComputable = hierarchyComputable;
   }
 
   /* see superclass */
@@ -269,30 +287,24 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result =
-        prime
-            * result
-            + ((acquisitionContact == null) ? 0 : acquisitionContact.hashCode());
-    result =
-        prime * result
-            + ((contentContact == null) ? 0 : contentContact.hashCode());
+    result = prime * result
+        + ((acquisitionContact == null) ? 0 : acquisitionContact.hashCode());
+    result = prime * result
+        + ((contentContact == null) ? 0 : contentContact.hashCode());
     result = prime * result + ((family == null) ? 0 : family.hashCode());
-    result =
-        prime * result
-            + ((hierarchicalName == null) ? 0 : hierarchicalName.hashCode());
+    result = prime * result
+        + ((hierarchicalName == null) ? 0 : hierarchicalName.hashCode());
     result = prime * result + ((language == null) ? 0 : language.hashCode());
-    result =
-        prime * result
-            + ((licenseContact == null) ? 0 : licenseContact.hashCode());
+    result = prime * result
+        + ((licenseContact == null) ? 0 : licenseContact.hashCode());
     result = prime * result + (polyhierarchy ? 1231 : 1237);
-    result =
-        prime * result
-            + ((preferredName == null) ? 0 : preferredName.hashCode());
+    result = prime * result + (hierarchyComputable ? 1231 : 1237);
+    result = prime * result
+        + ((preferredName == null) ? 0 : preferredName.hashCode());
     result = prime * result + restrictionLevel;
     result = prime * result + ((shortName == null) ? 0 : shortName.hashCode());
-    result =
-        prime * result
-            + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
+    result = prime * result
+        + ((synonymousNames == null) ? 0 : synonymousNames.hashCode());
     result =
         prime * result + ((terminology == null) ? 0 : terminology.hashCode());
     return result;
@@ -340,7 +352,8 @@ public class RootTerminologyJpa extends AbstractHasLastModified implements
       return false;
     if (polyhierarchy != other.polyhierarchy)
       return false;
-    if (preferredName == null) {
+    if (hierarchyComputable != other.hierarchyComputable)
+      return false;    if (preferredName == null) {
       if (other.preferredName != null)
         return false;
     } else if (!preferredName.equals(other.preferredName))

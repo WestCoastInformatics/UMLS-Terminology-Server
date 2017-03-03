@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -15,7 +15,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -24,15 +27,20 @@ import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.DescriptorRelationship;
+import com.wci.umls.server.model.content.DescriptorTreePosition;
 import com.wci.umls.server.model.meta.IdType;
 
 /**
  * JPA and JAXB enabled implementation of {@link Descriptor}.
  */
 @Entity
-@Table(name = "descriptors", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "descriptors", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
+    })
+})
 @Audited
 @Indexed
 @XmlRootElement(name = "descriptor")
@@ -46,9 +54,18 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   @OneToMany(mappedBy = "from", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
   private List<DescriptorRelationship> relationships = new ArrayList<>(1);
 
+  /** The tree positions. */
+  @OneToMany(mappedBy = "node", orphanRemoval = true, targetEntity = DescriptorTreePositionJpa.class)
+  private List<DescriptorTreePosition> treePositions = new ArrayList<>(1);
+
+  /** The inverse relationships. */
+  @OneToMany(mappedBy = "to", orphanRemoval = true, targetEntity = DescriptorRelationshipJpa.class)
+  private List<DescriptorRelationship> inverseRelationships =
+      new ArrayList<>(1);
+
   /** The labels. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(FetchMode.JOIN)
+  @Fetch(FetchMode.JOIN)
   @Column(nullable = true)
   List<String> labels;
 
@@ -68,23 +85,17 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
    * Instantiates a new descriptor jpa.
    *
    * @param descriptor the descriptor
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public DescriptorJpa(Descriptor descriptor, boolean deepCopy) {
-    super(descriptor, deepCopy);
+  public DescriptorJpa(Descriptor descriptor, boolean collectionCopy) {
+    super(descriptor, collectionCopy);
     if (descriptor.getLabels() != null) {
       labels = new ArrayList<>(descriptor.getLabels());
     }
-
-    if (deepCopy) {
-      for (Definition definition : descriptor.getDefinitions()) {
-        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
-      }
-      for (DescriptorRelationship relationship : descriptor.getRelationships()) {
-        getRelationships().add(
-            new DescriptorRelationshipJpa(relationship, deepCopy));
-      }
-
+    if (collectionCopy) {
+      definitions = new ArrayList<>(descriptor.getDefinitions());
+      relationships = new ArrayList<>(descriptor.getRelationships());
+      treePositions = new ArrayList<>(descriptor.getTreePositions());
     }
   }
 
@@ -115,9 +126,36 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   }
 
   /* see superclass */
+  @XmlTransient
+  @Override
+  public List<DescriptorRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
+  }
+
+  /* see superclass */
   @Override
   public void setRelationships(List<DescriptorRelationship> relationships) {
     this.relationships = relationships;
+
+  }
+
+  /* see superclass */
+  @XmlElement(type = DescriptorTreePositionJpa.class)
+  @Override
+  public List<DescriptorTreePosition> getTreePositions() {
+    if (treePositions == null) {
+      treePositions = new ArrayList<>(1);
+    }
+    return treePositions;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTreePositions(List<DescriptorTreePosition> treePositions) {
+    this.treePositions = treePositions;
 
   }
 
@@ -151,15 +189,16 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
     return this.notes;
   }
 
+  /* see superclass */
   @Override
   public void setType(IdType type) {
     // N/A
   }
 
+  /* see superclass */
   @Override
   public IdType getType() {
     return IdType.DESCRIPTOR;
   }
-
 
 }

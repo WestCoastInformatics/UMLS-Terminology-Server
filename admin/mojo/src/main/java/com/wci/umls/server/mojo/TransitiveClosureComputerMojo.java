@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
@@ -19,32 +22,26 @@ import com.wci.umls.server.services.SecurityService;
  * specified terminology.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal compute-transitive-closure
- * 
- * @phase package
  */
+@Mojo(name = "compute-transitive-closure", defaultPhase = LifecyclePhase.PACKAGE)
 public class TransitiveClosureComputerMojo extends AbstractMojo {
 
   /**
    * Name of terminology to compute transitive closure for.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * Version of terminology to compute transitive closure for..
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -69,8 +66,8 @@ public class TransitiveClosureComputerMojo extends AbstractMojo {
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -93,8 +90,8 @@ public class TransitiveClosureComputerMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-        contentService
-            .computeTransitiveClosure(terminology, version, authToken);
+        contentService.computeTransitiveClosure(terminology, version,
+            authToken);
       } else {
         getLog().info("Running against server");
 

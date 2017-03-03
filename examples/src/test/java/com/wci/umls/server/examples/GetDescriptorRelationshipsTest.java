@@ -51,7 +51,7 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
 
     // contentClient is defined and initialized in the superclass
     Descriptor descriptor =
-        contentClient.getDescriptor(terminologyId, terminology, version,
+        contentClient.getDescriptor(terminologyId, terminology, version, null,
             authToken);
 
     // The descriptor has no relationships at this point
@@ -62,11 +62,11 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the descriptor
     RelationshipList list =
-        contentClient.findRelationshipsForDescriptor(terminologyId,
+        contentClient.findDescriptorRelationships(terminologyId,
             terminology, version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -76,11 +76,11 @@ public class GetDescriptorRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findRelationshipsForDescriptor(terminologyId,
+        contentClient.findDescriptorRelationships(terminologyId,
             terminology, version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

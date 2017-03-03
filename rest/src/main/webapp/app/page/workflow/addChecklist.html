@@ -1,0 +1,93 @@
+<div class="modal-header">
+  <h4 style="display: inline">Create Checklist</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+
+  <table class="slim table">
+    <tr>
+      <td>
+        <b>Bin</b>
+      </td>
+      <td>
+        {{bin.name}}
+        <span ng-show="clusterType != 'default'"> ({{clusterType}})</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>
+        <input autofocus ng-model="name" size="40"
+          placeholder="e.g. chk_test_list" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Description</b>
+      </td>
+      <td>
+        <textarea rows="4" cols="40" ng-model="description"
+          placeholder="(required)... description of the checklist"></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Cluster Count</b>
+      </td>
+      <td>
+        <input type="number" size="4" ng-model="clusterCt" list="clusterCtList"
+          placeholder="e.g. 100, 200" />
+        <datalist id="clusterCtList">
+          <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
+        </datalist>
+        <button class="btn btn-xs btn-warning" ng-show="clusterCt"
+          ng-click="clusterCt = ''">Clear</button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Skip Clusters</b>
+      </td>
+      <td>
+        <input type="number" ng-model="skipClusterCt" size="4" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Sort order</b>
+      </td>
+      <td>
+        <select ng-model="sortOrder" title="Sort order for creating checklist">
+          <option value="clusterId">Cluster id</option>
+          <option value="indexedData">Name</option>
+          <option value="RANDOM">Randomize</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Exclude records on worklists</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="excludeOnWorklist"
+          title="Exclude content already on worklists.">
+      </td>
+    </tr>
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+</div>
+
+
+<div class="modal-footer">
+  <button ng-disabled="!name || !description" class="btn btn-primary"
+    ng-click="createChecklist();">Add</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

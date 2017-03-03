@@ -52,7 +52,7 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // The concept has no relationships at this point
     // because we use a graph resolver that does not pre-load
@@ -62,11 +62,11 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -76,11 +76,11 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -96,13 +96,13 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Identify
     String terminologyId = "C0000294";
-    String terminology = "UMLS";
+    String terminology = "MTH";
     String version = "latest";
 
     // contentClient is defined and initialized in the superclass
     Concept concept =
         contentClient
-            .getConcept(terminologyId, terminology, version, authToken);
+            .getConcept(terminologyId, terminology, version, null, authToken);
 
     // The concept has no relationships at this point
     // because we use a graph resolver that does not pre-load
@@ -112,11 +112,11 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
 
     // Loading all relationships for the concept
     RelationshipList list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", null, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 
@@ -126,11 +126,11 @@ public class GetConceptRelationshipsTest extends ExampleSupport {
     pfs.setStartIndex(0);
     pfs.setMaxResults(10);
     list =
-        contentClient.findRelationshipsForConcept(terminologyId, terminology,
+        contentClient.findConceptRelationships(terminologyId, terminology,
             version, "", pfs, authToken);
     Logger.getLogger(getClass()).info(
         "  Total results = " + list.getTotalCount());
-    for (Relationship<?, ?> result : list.getObjects()) {
+    for (final Relationship<?, ?> result : list.getObjects()) {
       Logger.getLogger(getClass()).info("  " + result);
     }
 

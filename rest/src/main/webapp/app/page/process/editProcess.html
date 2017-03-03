@@ -1,0 +1,92 @@
+
+<div class="modal-header">
+  <h4 style="display: inline">{{action}} Process</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <table class="slim table">
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>
+        <input autofocus class="w100" ng-model="process.name"
+          placeholder="e.g. demotions" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Description</b>
+      </td>
+      <td>
+        <textarea class="w100" rows="2" ng-model="process.description"
+          placeholder="Basic description of the process"></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Input path</b>
+      </td>
+      <td>
+        <input class="w100" ng-model="process.inputPath" size="60"
+          placeholder="e.g. NCI_2016_10E/insert" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Feedback Email</b>
+      </td>
+      <td>
+        <input class="w100" ng-model="process.feedbackEmail" size="60"
+          placeholder="e.g. user@example.com" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Terminology</b>
+      </td>
+      <td>
+        <input placeholder="Enter terminology"
+          ng-change="setTerminology(process.terminology)" type="text"
+          ng-model="process.terminology" list="project-terminologies">
+        <datalist id="project-terminologies">
+          <option
+            ng-repeat="terminology in lists.terminologies | filter:{current:true} | orderBy:'terminology'">{{terminology.terminology}}</option>
+        </datalist>
+        <button class="btn btn-xs btn-warning" ng-show="process.terminology"
+          ng-click="process.terminology=''">Clear</button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Version</b>
+      </td>
+      <td>
+        <input placeholder="Enter version" ng-blur="setVersion(process.version)"
+          type="text" ng-model="process.version">
+      </td>
+    </tr>
+
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+  <!-- messages -->
+  <div class="col-md-12 col-xs-12">
+    <div class="alert alert-success" ng-repeat="message in messages">
+      {{message}}
+      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button ng-click="submitProcess(process)" class="btn btn-primary"
+    ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

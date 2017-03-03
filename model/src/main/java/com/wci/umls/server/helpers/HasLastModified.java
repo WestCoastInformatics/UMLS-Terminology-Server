@@ -52,4 +52,6 @@ public interface HasLastModified extends HasId {
    */
   public void setLastModifiedBy(String lastModifiedBy);
 
+
+
 }

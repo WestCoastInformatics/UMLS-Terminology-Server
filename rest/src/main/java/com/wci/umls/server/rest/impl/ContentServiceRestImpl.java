@@ -1,11 +1,16 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -21,16 +26,17 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.User;
+import com.wci.umls.server.Project;
 import com.wci.umls.server.UserPreferences;
 import com.wci.umls.server.UserRole;
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.Note;
 import com.wci.umls.server.helpers.NoteList;
 import com.wci.umls.server.helpers.PfsParameter;
-import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
 import com.wci.umls.server.helpers.StringList;
@@ -45,9 +51,11 @@ import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.content.Tree;
 import com.wci.umls.server.helpers.content.TreeList;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ComponentInfoJpa;
 import com.wci.umls.server.jpa.algo.ClamlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.EclConceptIndexingAlgorithm;
+import com.wci.umls.server.jpa.algo.LabelSetMarkedParentAlgorithm;
 import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
 import com.wci.umls.server.jpa.algo.OwlLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RemoveTerminologyAlgorithm;
@@ -55,15 +63,22 @@ import com.wci.umls.server.jpa.algo.Rf2DeltaLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2FullLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.Rf2SnapshotLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.RrfLoaderAlgorithm;
+import com.wci.umls.server.jpa.algo.SimpleLoaderAlgorithm;
 import com.wci.umls.server.jpa.algo.TransitiveClosureAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomNoteJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeNoteJpa;
+import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptNoteJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
+import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorNoteJpa;
+import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.content.LexicalClassJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.StringClassJpa;
@@ -82,36 +97,42 @@ import com.wci.umls.server.jpa.helpers.content.TreeJpa;
 import com.wci.umls.server.jpa.helpers.content.TreeListJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.EclExpressionHandler;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
+import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.ConceptSubset;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.LexicalClass;
 import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.content.Mapping;
 import com.wci.umls.server.model.content.Relationship;
+import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.content.StringClass;
 import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 import com.wci.umls.server.model.content.TreePosition;
 import com.wci.umls.server.model.meta.IdType;
-import com.wci.umls.server.model.meta.LogActivity;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.services.ContentService;
-import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SecurityService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+import com.wci.umls.server.services.handlers.GraphResolutionHandler;
+import com.wci.umls.server.services.handlers.SearchHandler;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
- * REST implementation for {@link ContentServiceRest}..
+ * Reference implementation of {@link ContentServiceRest}. Includes hibernate
+ * tags for MEME database.
  */
 @Path("/content")
 @Consumes({
@@ -120,7 +141,8 @@ import com.wordnik.swagger.annotations.ApiParam;
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-@Api(value = "/content", description = "Operations to retrieve RF2 content for a terminology.")
+@Api(value = "/content")
+@SwaggerDefinition(info = @Info(description = "Operations to retrieve content for a terminology.", title = "Content API", version = "1.0.1"))
 public class ContentServiceRestImpl extends RootServiceRestImpl
     implements ContentServiceRest {
 
@@ -146,7 +168,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /reindex "
+        .info("RESTful call (Content): /reindex "
             + (indexedObjects == null ? "with no objects specified"
                 : "with specified objects " + indexedObjects));
 
@@ -154,8 +176,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     long startTimeOrig = System.nanoTime();
     final LuceneReindexAlgorithm algo = new LuceneReindexAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "reindex",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "reindex", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
       algo.setIndexedObjects(indexedObjects);
       algo.compute();
       algo.close();
@@ -174,6 +197,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   }
 
+  /* see superclass */
+
   @Override
   @GET
   @Path("/expression/count/{terminology}/{version}/{query}")
@@ -185,7 +210,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /expression/count/" + terminology
+        .info("RESTful call (Content): /expression/count/" + terminology
             + "/version/" + query);
 
     try {
@@ -203,6 +228,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+
   @Override
   @GET
   @Path("/expression/query/{terminology}/{version}/{query}")
@@ -214,7 +241,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /expression/count/" + terminology
+        .info("RESTful call (Content): /expression/count/" + terminology
             + "/version/" + query);
 
     try {
@@ -243,22 +270,22 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /reindex/ecl/" + terminology + "/"
-            + version);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /reindex/ecl/" + terminology + "/" + version);
 
     final ContentServiceJpa contentService = new ContentServiceJpa();
 
     // NOTE: Currently only ECL indexing supported
     final EclConceptIndexingAlgorithm algo = new EclConceptIndexingAlgorithm();
-    algo.setTerminology(terminology);
-    algo.setVersion(version);
-    algo.setContentService(contentService);
-
     try {
-      authorizeApp(securityService, authToken, "create ECL indexes",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "create ECL indexes", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
       algo.compute();
+      algo.close();
+
     } catch (Exception e) {
       handleException(e, "trying to create ECL indexes");
     } finally {
@@ -270,6 +297,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/terminology/closure/compute/{terminology}/{version}")
@@ -282,7 +310,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/closure/compute/"
+        .info("RESTful call (Content): /terminology/closure/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -290,8 +318,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final TransitiveClosureAlgorithm algo = new TransitiveClosureAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "compute transitive closure",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "compute transitive closure", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
 
       // Compute transitive closure
       Logger.getLogger(getClass()).info(
@@ -317,6 +346,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/terminology/treepos/compute/{terminology}/{version}")
@@ -329,7 +359,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/treepos/compute/"
+        .info("RESTful call (Content): /terminology/treepos/compute/"
             + terminology + "/" + version);
 
     // Track system level information
@@ -337,8 +367,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
     final TreePositionAlgorithm algo = new TreePositionAlgorithm();
     try {
-      authorizeApp(securityService, authToken, "compute tree positions ",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "compute tree positions ", UserRole.ADMINISTRATOR);
+      algo.setLastModifiedBy(userName);
 
       // Compute tree positions
       Logger.getLogger(getClass())
@@ -372,51 +403,247 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @PUT
+  @Path("/terminology/load/simple")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @ApiOperation(value = "Load simple terminology from directory", notes = "Loads simple terminology from specified directory")
+  public void loadTerminologySimple(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Input directory", required = true) String inputDir,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /terminology/load/simple " + terminology
+            + ", " + version + " from input directory " + inputDir);
+
+    // Track system level information
+    ContentService contentService = null;
+    SimpleLoaderAlgorithm algo = new SimpleLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "load simple", UserRole.ADMINISTRATOR);
+
+      algo = new SimpleLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      algo.setTerminology(terminology);
+      algo.setVersion(version);
+      algo.setInputPath(inputDir);
+      algo.compute();
+      algo.close();
+
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      contentService = new ContentServiceJpa();
+      // final TerminologyList list =
+      // contentService.getTerminologyLatestVersions();
+      // for (final Terminology t : list.getObjects()) {
+      // // Only compute for organizing class types
+      // if (t.getOrganizingClassType() != null) {
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setTerminology(t.getTerminology());
+      // algo2.setVersion(t.getVersion());
+      // algo2.setIdType(t.getOrganizingClassType());
+      // // some terminologies may have cycles, allow these for now.
+      // algo2.setCycleTolerant(true);
+      // algo2.compute();
+      // algo2.close();
+      // }
+      // }
+
+      //
+      // Compute tree positions
+      //
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
+      algo3.setTerminology(terminology);
+      algo3.setVersion(version);
+      algo3.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo3.setCycleTolerant(true);
+      // compute "semantic types" for concept hierarchies
+      algo3.setComputeSemanticType(true);
+      algo3.compute();
+      algo3.close();
+
+    } catch (Exception e) {
+      handleException(e, "trying to load simple terminology from directory");
+    } finally {
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
+
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /**
+   * Load terminology rrf.
+   *
+   * @param terminology the terminology
+   * @param version the version
+   * @param style the load style
+   * @param prefix the prefix
+   * @param inputDir the input dir
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  /* see superclass */
+  @Override
+  @PUT
   @Path("/terminology/load/rrf")
   @Consumes(MediaType.TEXT_PLAIN)
   @ApiOperation(value = "Load all terminologies from an RRF directory", notes = "Loads terminologies from an RRF directory for specified terminology and version")
   public void loadTerminologyRrf(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @QueryParam("version") String version,
-    @ApiParam(value = "Single mode, e.g. false", required = true) @QueryParam("singleMode") Boolean singleMode,
-    @ApiParam(value = "Code flag, e.g. false", required = true) @QueryParam("codeFlag") Boolean codeFlag,
+    @ApiParam(value = "Style, e.g. SINGLE", required = true) @QueryParam("style") String style,
     @ApiParam(value = "Prefix, e.g. MR or RXN", required = false) @QueryParam("prefix") String prefix,
     @ApiParam(value = "RRF input directory", required = true) String inputDir,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rrf/umls/"
-            + terminology + "/" + version + " from input directory "
-            + inputDir);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/load/rrf/umls/" + terminology
+            + "/" + version + " from input directory " + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
+    LabelSetMarkedParentAlgorithm algo4 = null;
     try {
-      authorizeApp(securityService, authToken, "load rrf",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load rrf", UserRole.ADMINISTRATOR);
 
-      RrfLoaderAlgorithm algo = new RrfLoaderAlgorithm();
-      algo.setSingleMode(singleMode);
-      algo.setCodesFlag(codeFlag);
+      algo = new RrfLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      algo.setStyle(RrfLoaderAlgorithm.Style.valueOf(style));
       algo.setPrefix(prefix);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
 
-    } catch (Exception e) {
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      contentService = new ContentServiceJpa();
+      final TerminologyList list =
+          contentService.getTerminologyLatestVersions();
+      // for (final Terminology t : list.getObjects()) {
+      // // Only compute for organizing class types
+      // if (t.getOrganizingClassType() != null) {
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setTerminology(t.getTerminology());
+      // algo2.setVersion(t.getVersion());
+      // algo2.setIdType(t.getOrganizingClassType());
+      // // some terminologies may have cycles, allow these for now.
+      // algo2.setCycleTolerant(true);
+      // algo2.compute();
+      // algo2.close();
+      // }
+      // }
+
+      //
+      // Compute tree positions
+      // Refresh caches after metadata has changed in loader
+      for (final Terminology t : list.getObjects()) {
+
+        // if SINGLE, skip unless it matches this terminology
+        if (style == RrfLoaderAlgorithm.Style.SINGLE.toString()
+            && !t.getTerminology().equals(t.getTerminology())) {
+          continue;
+        }
+
+        // Only compute for organizing class types
+        if (t.getOrganizingClassType() != null) {
+          algo3 = new TreePositionAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(t.getTerminology());
+          algo3.setVersion(t.getVersion());
+          algo3.setIdType(t.getOrganizingClassType());
+          // some terminologies may have cycles, allow these for now.
+          algo3.setCycleTolerant(true);
+          // compute "semantic types" for concept hierarchies
+          // but only for "concept" oriented terminologies, and only for browser
+          // mode
+          if (t.getOrganizingClassType() == IdType.CONCEPT) {
+            algo3.setComputeSemanticType(
+                !style.equals(RrfLoaderAlgorithm.Style.META_EDIT.toString()));
+          }
+          algo3.compute();
+          algo3.close();
+
+          // Also try "atom" just in case the organizing class
+          // type doesn't have PAR/CHD - this handles legacy terminologies
+          algo3 = new TreePositionAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(t.getTerminology());
+          algo3.setVersion(t.getVersion());
+          algo3.setIdType(IdType.ATOM);
+          // some terminologies may have cycles, allow these for now.
+          algo3.setCycleTolerant(true);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      for (final Terminology t : list.getObjects()) {
+        for (final Subset subset : contentService
+            .getConceptSubsets(t.getTerminology(), t.getVersion(), Branch.ROOT)
+            .getObjects()) {
+          final ConceptSubset conceptSubset = (ConceptSubset) subset;
+          if (conceptSubset.isLabelSubset()) {
+            Logger.getLogger(getClass())
+                .info("  Create label set for subset = " + subset);
+            algo4 = new LabelSetMarkedParentAlgorithm();
+            algo4.setLastModifiedBy(userName);
+            algo4.setTerminology(t.getTerminology());
+            algo4.setVersion(t.getVersion());
+            algo4.setSubset(conceptSubset);
+            algo4.compute();
+            algo4.close();
+          }
+        }
+      }
+
+    } catch (
+
+    Exception e) {
       handleException(e, "trying to load terminology from RRF directory");
     } finally {
-      contentService.close();
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      if (algo3 != null) {
+        algo3.close();
+      }
+      if (algo4 != null) {
+        algo4.close();
+      }
+      if (contentService != null) {
+        contentService.close();
+      }
       securityService.close();
     }
   }
 
   /* see superclass */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/delta/{terminology}")
@@ -429,38 +656,100 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/delta/"
+        .info("RESTful call (Content): /terminology/load/rf2/delta/"
             + terminology + " from input directory " + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2DeltaLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load delta",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load delta", UserRole.ADMINISTRATOR);
 
-      // get the latest verison for this terminology
-      MetadataService metadataService = new MetadataServiceJpa();
-      String version = metadataService.getLatestVersion(terminology);
-      metadataService.close();
-
-      Rf2DeltaLoaderAlgorithm algo = new Rf2DeltaLoaderAlgorithm();
+      algo = new Rf2DeltaLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
+      String version = algo.getLatestVersion(terminology);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(terminology);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : getConceptSubsets(terminology, version,
+          Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          Logger.getLogger(getClass())
+              .info("  Create label set for subset = " + subset);
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // Expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology delta from RF2 directory");
     } finally {
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
   }
 
   /* see superclass */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/snapshot/{terminology}/{version}")
@@ -476,29 +765,94 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/snapshot/"
+        .info("RESTful call (Content): /terminology/load/rf2/snapshot/"
             + terminology + "/" + version + " from input directory "
             + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2SnapshotLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load snapshot",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load snapshot", UserRole.ADMINISTRATOR);
 
-      Rf2SnapshotLoaderAlgorithm algo = new Rf2SnapshotLoaderAlgorithm();
+      algo = new Rf2SnapshotLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : contentService
+          .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e,
           "trying to load terminology snapshot from RF2 directory");
     } finally {
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      if (algo3 != null) {
+        algo3.close();
+      }
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
@@ -506,6 +860,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @PUT
   @Path("/terminology/load/rf2/full/{terminology}/{version}")
@@ -520,34 +875,91 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/rf2/full/"
-            + terminology + "/" + version + " from input directory "
-            + inputDir);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/load/rf2/full/" + terminology
+            + "/" + version + " from input directory " + inputDir);
 
     // Track system level information
-    final ContentService contentService = new ContentServiceJpa();
-
+    ContentService contentService = null;
+    Rf2FullLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    LabelSetMarkedParentAlgorithm algo3 = null;
+    TreePositionAlgorithm algo4 = null;
+    EclConceptIndexingAlgorithm algo5 = null;
     try {
-      authorizeApp(securityService, authToken, "load full",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "load full", UserRole.ADMINISTRATOR);
 
-      Rf2FullLoaderAlgorithm algo = new Rf2FullLoaderAlgorithm();
+      algo = new Rf2FullLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.setInputPath(inputDir);
       algo.compute();
-      // Re-open algorithm because entity manager is closed at this point
-      algo = new Rf2FullLoaderAlgorithm();
-      algo.setTerminology(terminology);
-      algo.setVersion(version);
-      algo.setInputPath(inputDir);
-      algo.computeTransitiveClosures();
-      algo.computeTreePositions();
+      algo.close();
+
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setCycleTolerant(false);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.reset();
+      // algo2.compute();
+      // algo2.close();
+
+      // Compute label sets - after transitive closure
+      // for each subset, compute the label set
+      contentService = new ContentServiceJpa();
+      for (final Subset subset : contentService
+          .getConceptSubsets(terminology, version, Branch.ROOT).getObjects()) {
+        final ConceptSubset conceptSubset = (ConceptSubset) subset;
+        if (conceptSubset.isLabelSubset()) {
+          algo3 = new LabelSetMarkedParentAlgorithm();
+          algo3.setLastModifiedBy(userName);
+          algo3.setTerminology(terminology);
+          algo3.setVersion(version);
+          algo3.setSubset(conceptSubset);
+          algo3.compute();
+          algo3.close();
+        }
+      }
+
+      // Tree positions
+      algo4 = new TreePositionAlgorithm();
+      algo4.setLastModifiedBy(userName);
+      algo4.setCycleTolerant(false);
+      algo4.setIdType(IdType.CONCEPT);
+      // some terminologies may have cycles, allow these for now.
+      algo4.setCycleTolerant(true);
+      algo4.setComputeSemanticType(true);
+      algo4.setTerminology(terminology);
+      algo4.setVersion(version);
+      algo4.reset();
+      algo4.compute();
+      algo4.close();
+
+      // expressions
+      algo5 = new EclConceptIndexingAlgorithm();
+      algo5.setLastModifiedBy(userName);
+      algo5.setTerminology(terminology);
+      algo5.setVersion(version);
+      algo5.compute();
+      algo5.close();
 
     } catch (Exception e) {
       handleException(e, "trying to load terminology full from RF2 directory");
     } finally {
+      algo.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
+      algo4.close();
+      algo5.close();
       contentService.close();
       securityService.close();
     }
@@ -570,36 +982,47 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/claml/"
-            + terminology + "/" + version + " from input file " + inputFile);
+        .info("RESTful call (Content): /terminology/load/claml/" + terminology
+            + "/" + version + " from input file " + inputFile);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    final ClamlLoaderAlgorithm algo = new ClamlLoaderAlgorithm();
-    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    ClamlLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
     try {
-      authorizeApp(securityService, authToken, "loading claml",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "loading claml", UserRole.ADMINISTRATOR);
+
+      // TODO: this really has the hallmarks of a "process"
 
       // Load data
       Logger.getLogger(getClass()).info("Load ClaML data from " + inputFile);
+      algo = new ClamlLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setInputFile(inputFile);
+      algo.setInputPath(inputFile);
       algo.compute();
+      algo.close();
 
-      // Let service begin its own transaction
-      Logger.getLogger(getClass()).info("Start computing transtive closure");
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setCycleTolerant(false);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // Logger.getLogger(getClass()).info("Start computing transtive closure");
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setCycleTolerant(false);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.compute();
+      // algo2.close();
 
       // compute tree positions
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
       algo3.setComputeSemanticType(true);
@@ -617,12 +1040,16 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology from ClaML file");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
       securityService.close();
     }
   }
 
   /* see superclass */
+
   @Override
   @PUT
   @Path("/terminology/load/owl/{terminology}/{version}")
@@ -638,39 +1065,45 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     throws Exception {
 
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Content): /terminology/load/owl/"
-            + terminology + "/" + version + " from input file " + inputFile);
+        .info("RESTful call (Content): /terminology/load/owl/" + terminology
+            + "/" + version + " from input file " + inputFile);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
-    final OwlLoaderAlgorithm algo = new OwlLoaderAlgorithm();
-    final TransitiveClosureAlgorithm algo2 = new TransitiveClosureAlgorithm();
-    final TreePositionAlgorithm algo3 = new TreePositionAlgorithm();
+    OwlLoaderAlgorithm algo = null;
+    TransitiveClosureAlgorithm algo2 = null;
+    TreePositionAlgorithm algo3 = null;
     try {
-      authorizeApp(securityService, authToken, "loading owl",
-          UserRole.ADMINISTRATOR);
+      final String userName = authorizeApp(securityService, authToken,
+          "loading owl", UserRole.ADMINISTRATOR);
 
       // Load snapshot
       Logger.getLogger(getClass()).info("Load Owl data from " + inputFile);
+      algo = new OwlLoaderAlgorithm();
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
-      algo.setInputFile(inputFile);
+      algo.setInputPath(inputFile);
       algo.compute();
+      algo.close();
 
-      final MetadataService service = new MetadataServiceJpa();
-      service.refreshCaches();
-
-      // Let service begin its own transaction
-      Logger.getLogger(getClass()).info("Start computing transtive closure");
-      algo2.setIdType(IdType.CONCEPT);
-      algo2.setCycleTolerant(false);
-      algo2.setTerminology(terminology);
-      algo2.setVersion(version);
-      algo2.compute();
-      algo2.close();
+      //
+      // Compute transitive closure - CURRENTLY DISABLED
+      //
+      // Logger.getLogger(getClass()).info("Start computing transtive closure");
+      // algo2 = new TransitiveClosureAlgorithm();
+      // algo2.setLastModifiedBy(userName);
+      // algo2.setIdType(IdType.CONCEPT);
+      // algo2.setCycleTolerant(false);
+      // algo2.setTerminology(terminology);
+      // algo2.setVersion(version);
+      // algo2.compute();
+      // algo2.close();
 
       // compute tree positions
+      algo3 = new TreePositionAlgorithm();
+      algo3.setLastModifiedBy(userName);
       algo3.setCycleTolerant(false);
       algo3.setIdType(IdType.CONCEPT);
       algo3.setComputeSemanticType(true);
@@ -688,15 +1121,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       handleException(e, "trying to load terminology from Owl file");
     } finally {
       algo.close();
-      algo2.close();
+      if (algo2 != null) {
+        algo2.close();
+      }
+      algo3.close();
       securityService.close();
     }
   }
 
   /* see superclass */
+
   @Override
   @DELETE
-  @Path("/terminology/remove/{terminology}/{version}")
+  @Path("/terminology/{terminology}/{version}")
   @ApiOperation(value = "Remove a terminology", notes = "Removes all elements for a specified terminology and version")
   public boolean removeTerminology(
     @ApiParam(value = "Terminology, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
@@ -704,21 +1141,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass())
-        .info("RESTful GET call (Content): /terminology/remove/" + terminology
-            + "/" + version);
+    Logger.getLogger(getClass()).info(
+        "RESTful call (Content): /terminology/" + terminology + "/" + version);
 
     // Track system level information
     long startTimeOrig = System.nanoTime();
 
     final RemoveTerminologyAlgorithm algo = new RemoveTerminologyAlgorithm();
     try {
-      String authUser = authorizeApp(securityService, authToken,
+      String userName = authorizeApp(securityService, authToken,
           "remove terminology", UserRole.ADMINISTRATOR);
 
       // Remove terminology
       Logger.getLogger(getClass())
           .info("  Remove terminology for  " + terminology + "/" + version);
+      algo.setLastModifiedBy(userName);
       algo.setTerminology(terminology);
       algo.setVersion(version);
       algo.compute();
@@ -729,8 +1166,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "      elapsed time = " + getTotalElapsedTimeStr(startTimeOrig));
       Logger.getLogger(getClass()).info("done ...");
 
-      securityService.addLogEntry(authUser, terminology, version,
-          LogActivity.RELEASE, "Remove terminology");
+      securityService.addLogEntry(userName, terminology, version, null,
+          "REMOVER", "Remove terminology");
 
       return true;
 
@@ -752,6 +1189,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -764,14 +1202,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final Concept concept = contentService.getConcept(terminologyId,
           terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (concept != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, userName, concept);
         contentService.getGraphResolutionHandler(terminology).resolve(concept);
-        concept.setAtoms(contentService
-            .getComputePreferredNameHandler(concept.getTerminology())
-            .sortByPreference(concept.getAtoms(), list));
+        sortAtoms(securityService, contentService, userName, concept, project);
       }
       return concept;
     } catch (Exception e) {
@@ -785,6 +1221,79 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
+  @Override
+  @GET
+  @Path("/concept/{conceptId}")
+  @ApiOperation(value = "Get concept by concept id", notes = "Get the root branch concept matching the specified parameters", response = ConceptJpa.class)
+  public Concept getConcept(
+    @ApiParam(value = "Concept id, e.g. 2145", required = true) @PathParam("conceptId") Long conceptId,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + conceptId);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "retrieve the concept", UserRole.VIEWER);
+      final Concept concept = contentService.getConcept(conceptId);
+
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
+
+      if (concept != null) {
+        final String terminology = concept.getTerminology();
+        contentService.getGraphResolutionHandler(terminology).resolve(concept);
+        sortAtoms(securityService, contentService, userName, concept, project);
+      }
+      return concept;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @Override
+  @GET
+  @Path("/atom/{atomId}")
+  @ApiOperation(value = "Get atom by atom id", notes = "Get the root branch atom matching the specified parameters", response = AtomJpa.class)
+  public Atom getAtom(
+    @ApiParam(value = "Atom id, e.g. 2145", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId);
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "retrieve the atom",
+          UserRole.VIEWER);
+      final Atom atom = contentService.getAtom(atomId);
+
+      if (atom != null) {
+        final String terminology = atom.getTerminology();
+        contentService.getGraphResolutionHandler(terminology).resolve(atom);
+      }
+      return atom;
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve a atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+
   @Override
   @GET
   @Path("/mapset/{terminology}/{version}/{terminologyId}")
@@ -822,6 +1331,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/mapset/all/{terminology}/{version}")
@@ -840,7 +1350,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final MapSetList list =
           contentService.getMapSets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -855,11 +1365,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}")
   @ApiOperation(value = "Find concepts matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findConceptsForQuery(
+  public SearchResultList findConcepts(
     @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -880,9 +1391,62 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findConceptsForQuery(
+      final SearchResultList sr = contentService.findConceptSearchResults(
           terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find the concepts by query");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/get")
+  @ApiOperation(value = "Get full concepts matching a search query", notes = "Gets a list of concepts that match the lucene query for the root branch", response = SearchResultListJpa.class)
+  public ConceptList getConceptsForQuery(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "project id, e.g. 1 (optional)", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFSC Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    // Fix query
+    final String queryStr = query == null ? "" : query;
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "?query=" + queryStr + " with PFS parameter "
+            + (pfs == null ? "empty" : pfs.toString()));
+    final ContentService contentService = new ContentServiceJpa();
+    final Project project =
+        projectId == null ? null : contentService.getProject(projectId);
+
+    try {
+      String username = authorizeApp(securityService, authToken,
+          "get concepts by query", UserRole.VIEWER);
+
+      // Empty queries return all results
+      final ConceptList cl = contentService.findConcepts(terminology, version,
+          Branch.ROOT, queryStr, pfs);
+
+      for (Concept concept : cl.getObjects()) {
+
+        if (concept != null) {
+          contentService.getGraphResolutionHandler(terminology)
+              .resolve(concept);
+          sortAtoms(securityService, contentService, username, concept,
+              project);
+        }
+
+      }
+      return cl;
 
     } catch (Exception e) {
       handleException(e, "trying to find the concepts by query");
@@ -897,21 +1461,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/concept")
-  @ApiOperation(value = "Find concepts matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultListJpa.class)
+  @ApiOperation(value = "Find concepts matching a lucene or JPQL search query", notes = "Gets a list of search results that match the lucene or JPQL query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findConceptsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
+    @ApiParam(value = "JPQL Query", required = true) @QueryParam("JPQL") String JPQL,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
-    final String jqlStr = jql == null ? "" : jql;
+    final String JPQLStr = JPQL == null ? "" : JPQL;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /concept?" + "query=" + queryStr
-            + "&jql=" + jqlStr + " with PFS parameter "
+            + "&JPQL=" + JPQLStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -919,7 +1483,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final SearchResultList sr = contentService
-          .findConceptsForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
+          .findConceptsForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -935,20 +1499,20 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Override
   @POST
   @Path("/code")
-  @ApiOperation(value = "Find codes matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultListJpa.class)
+  @ApiOperation(value = "Find codes matching a lucene or JPQL search query", notes = "Gets a list of search results that match the lucene or JPQL query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findCodesForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("JPQL") String JPQL,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
-    final String jqlStr = jql == null ? "" : jql;
+    final String JPQLStr = JPQL == null ? "" : JPQL;
     Logger.getLogger(getClass())
-        .info("RESTful call (Content): /code?" + "query=" + queryStr + "&jql="
-            + jqlStr + " with PFS parameter "
+        .info("RESTful call (Content): /code?" + "query=" + queryStr + "&JPQL="
+            + JPQLStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -956,7 +1520,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final SearchResultList sr = contentService
-          .findCodesForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
+          .findCodesForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1000,6 +1564,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/{terminologyId}")
@@ -1008,6 +1573,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Descriptor terminology id, e.g. D003933", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1020,16 +1586,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final Descriptor descriptor = contentService.getDescriptor(terminologyId,
           terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (descriptor != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, userName, descriptor);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(descriptor);
-        descriptor.setAtoms(contentService
-            .getComputePreferredNameHandler(descriptor.getTerminology())
-            .sortByPreference(descriptor.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, descriptor,
+            project);
       }
       return descriptor;
     } catch (Exception e) {
@@ -1043,11 +1607,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}")
   @ApiOperation(value = "Find descriptors matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findDescriptorsForQuery(
+  public SearchResultList findDescriptors(
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -1068,7 +1633,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries return all results
-      final SearchResultList sr = contentService.findDescriptorsForQuery(
+      final SearchResultList sr = contentService.findDescriptorSearchResults(
           terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
@@ -1082,24 +1647,25 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/")
-  @ApiOperation(value = "Find descriptors matching a lucene or jql search query", notes = "Gets a list of search results that match the lucene or jql query for the root branch", response = SearchResultListJpa.class)
+  @ApiOperation(value = "Find descriptors matching a lucene or JPQL search query", notes = "Gets a list of search results that match the lucene or JPQL query for the root branch", response = SearchResultListJpa.class)
   public SearchResultList findDescriptorsForGeneralQuery(
     @ApiParam(value = "Lucene Query", required = true) @QueryParam("query") String query,
-    @ApiParam(value = "HQL Query", required = true) @QueryParam("jql") String jql,
+    @ApiParam(value = "HQL Query", required = true) @QueryParam("JPQL") String JPQL,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
     // Fix query
     final String queryStr = query == null ? "" : query;
-    final String jqlStr = jql == null ? "" : jql;
+    final String JPQLStr = JPQL == null ? "" : JPQL;
 
     Logger.getLogger(getClass())
         .info("RESTful call (Content): /descriptor" + "?query=" + queryStr
-            + "&jql=" + jqlStr + " with PFS parameter "
+            + "&JPQL=" + JPQLStr + " with PFS parameter "
             + (pfs == null ? "empty" : pfs.toString()));
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -1107,7 +1673,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final SearchResultList sr = contentService
-          .findDescriptorsForGeneralQuery(queryStr, jqlStr, Branch.ROOT, pfs);
+          .findDescriptorsForGeneralQuery(queryStr, JPQLStr, Branch.ROOT, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1120,6 +1686,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/descriptor/{terminology}/{version}/autocomplete/{searchTerm}")
@@ -1151,6 +1718,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/code/{terminology}/{version}/{terminologyId}")
@@ -1159,6 +1727,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Code terminology id, e.g. U002135", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1171,16 +1740,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final Code code = contentService.getCode(terminologyId, terminology,
           version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (code != null) {
-        final PrecedenceList list =
-            getPrecedenceList(securityService, contentService, userName, code);
-
         contentService.getGraphResolutionHandler(terminology).resolve(code);
-        code.setAtoms(
-            contentService.getComputePreferredNameHandler(code.getTerminology())
-                .sortByPreference(code.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, code, project);
       }
       return code;
     } catch (Exception e) {
@@ -1194,11 +1759,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}")
   @ApiOperation(value = "Find codes matching a search query", notes = "Gets a list of search results that match the lucene query for the root branch", response = SearchResultListJpa.class)
-  public SearchResultList findCodesForQuery(
+  public SearchResultList findCodes(
     @ApiParam(value = "Code terminology name, e.g. MTH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014AB", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query, e.g. 'aspirin'", required = true) @QueryParam("query") String query,
@@ -1219,8 +1785,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       // Empty queries returns all results
-      final SearchResultList sr = contentService.findCodesForQuery(terminology,
-          version, Branch.ROOT, queryStr, pfs);
+      final SearchResultList sr = contentService.findCodeSearchResults(
+          terminology, version, Branch.ROOT, queryStr, pfs);
       return sr;
 
     } catch (Exception e) {
@@ -1262,6 +1828,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/lui/{terminology}/{version}/{terminologyId}")
@@ -1270,6 +1837,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Lexical class terminology id, e.g. L0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Lexical class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Lexical class version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1282,22 +1850,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final LexicalClass lexicalClass = contentService
           .getLexicalClass(terminologyId, terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (lexicalClass != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, userName, lexicalClass);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(lexicalClass);
-        lexicalClass.setAtoms(contentService
-            .getComputePreferredNameHandler(lexicalClass.getTerminology())
-            .sortByPreference(lexicalClass.getAtoms(), list));
-
+        sortAtoms(securityService, contentService, userName, lexicalClass,
+            project);
       }
       return lexicalClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a lexicalClass");
       return null;
     } finally {
+      contentService.close();
       contentService.close();
       securityService.close();
     }
@@ -1313,6 +1880,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "String class terminology id, e.g. S0356926", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "String class terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "String class version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
@@ -1325,21 +1893,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final StringClass stringClass = contentService
           .getStringClass(terminologyId, terminology, version, Branch.ROOT);
+      final Project project =
+          projectId == null ? null : contentService.getProject(projectId);
 
       if (stringClass != null) {
-        final PrecedenceList list = getPrecedenceList(securityService,
-            contentService, userName, stringClass);
         contentService.getGraphResolutionHandler(terminology)
             .resolve(stringClass);
-        stringClass.setAtoms(contentService
-            .getComputePreferredNameHandler(stringClass.getTerminology())
-            .sortByPreference(stringClass.getAtoms(), list));
+        sortAtoms(securityService, contentService, userName, stringClass,
+            project);
       }
       return stringClass;
     } catch (Exception e) {
       handleException(e, "trying to retrieve a stringClass");
       return null;
     } finally {
+      contentService.close();
       contentService.close();
       securityService.close();
     }
@@ -1373,7 +1941,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminologyId, terminology, version, parentsOnly, Branch.ROOT, pfs);
 
       for (final Concept concept : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(concept);
+        contentService.getGraphResolutionHandler(terminology)
+            .resolveEmpty(concept);
       }
 
       return list;
@@ -1388,6 +1957,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1414,7 +1984,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminologyId, terminology, version, childrenOnly, Branch.ROOT, pfs);
 
       for (final Concept concept : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(concept);
+        contentService.getGraphResolutionHandler(terminology)
+            .resolveEmpty(concept);
       }
 
       return list;
@@ -1429,6 +2000,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1456,7 +2028,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       for (final Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology)
-            .resolve(descriptor);
+            .resolveEmpty(descriptor);
       }
 
       return list;
@@ -1470,6 +2042,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1497,7 +2070,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       for (final Descriptor descriptor : list.getObjects()) {
         contentService.getGraphResolutionHandler(terminology)
-            .resolve(descriptor);
+            .resolveEmpty(descriptor);
       }
 
       return list;
@@ -1511,6 +2084,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/ancestors/{parentsOnly}")
@@ -1536,7 +2110,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminology, version, parentsOnly, Branch.ROOT, pfs);
 
       for (final Code code : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(code);
+        contentService.getGraphResolutionHandler(terminology)
+            .resolveEmpty(code);
       }
 
       return list;
@@ -1550,6 +2125,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/descendants/{childrenOnly}")
@@ -1576,7 +2152,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           terminology, version, childrenOnly, Branch.ROOT, pfs);
 
       for (final Code code : list.getObjects()) {
-        contentService.getGraphResolutionHandler(terminology).resolve(code);
+        contentService.getGraphResolutionHandler(terminology)
+            .resolveEmpty(code);
       }
 
       return list;
@@ -1590,11 +2167,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/concept/{terminology}/{version}/{terminologyId}/members")
   @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given concept id", response = SubsetMemberListJpa.class)
-  public SubsetMemberList getSubsetMembersForConcept(
+  public SubsetMemberList getConceptSubsetMembers(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1608,7 +2186,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve subset members for the concept", UserRole.VIEWER);
 
-      final SubsetMemberList list = contentService.getSubsetMembersForConcept(
+      final SubsetMemberList list = contentService.getConceptSubsetMembers(
           terminologyId, terminology, version, Branch.ROOT);
 
       for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
@@ -1628,11 +2206,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/aui/{terminology}/{version}/{terminologyId}/members")
   @ApiOperation(value = "Get subset members with this terminologyId", notes = "Get the subset members with the given atom id", response = SubsetMemberListJpa.class)
-  public SubsetMemberList getSubsetMembersForAtom(
+  public SubsetMemberList getAtomSubsetMembers(
     @ApiParam(value = "Atom terminology id, e.g. 102751015", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Atom terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Atom version, e.g. latest", required = true) @PathParam("version") String version,
@@ -1646,7 +2225,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve subset members for the atom", UserRole.VIEWER);
 
-      final SubsetMemberList list = contentService.getSubsetMembersForAtom(
+      final SubsetMemberList list = contentService.getAtomSubsetMembers(
           terminologyId, terminology, version, Branch.ROOT);
 
       for (final SubsetMember<? extends ComponentHasAttributesAndName, ? extends Subset> member : list
@@ -1665,6 +2244,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @SuppressWarnings({
       "rawtypes", "unchecked"
   })
@@ -1672,7 +2252,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given concept id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForConcept(
+  public RelationshipList findConceptRelationships(
     @ApiParam(value = "Concept terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -1692,11 +2272,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve relationships for the concept", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForConcept(terminologyId, terminology,
+          contentService.findConceptRelationships(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -1758,14 +2338,19 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/relationships/deep")
   @ApiOperation(value = "Get deep relationships with this terminologyId", notes = "Get the relationships for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = RelationshipListJpa.class)
-  public RelationshipList findDeepRelationshipsForConcept(
+  public RelationshipList findConceptDeepRelationships(
     @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Inverse flag", required = false) @QueryParam("inverseFlag") boolean inverseFlag,
+    @ApiParam(value = "Include concept rels", required = false) @QueryParam("includeConceptRels") boolean includeConceptRels,
+    @ApiParam(value = "Preferred only", required = false) @QueryParam("preferredOnly") boolean preferredOnly,
+    @ApiParam(value = "Include self referential", required = false) @QueryParam("includeSelfReferential") boolean includeSelfReferential,
     @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
@@ -1779,8 +2364,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve deep relationships for the concept", UserRole.VIEWER);
 
-      return contentService.findDeepRelationshipsForConcept(terminologyId,
-          terminology, version, Branch.ROOT, query, false, pfs);
+      return contentService.findConceptDeepRelationships(terminologyId,
+          terminology, version, Branch.ROOT, query, inverseFlag,
+          includeConceptRels, preferredOnly, includeSelfReferential, pfs);
 
     } catch (Exception e) {
       handleException(e, "trying to retrieve deep relationships for a concept");
@@ -1793,11 +2379,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given descriptor id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForDescriptor(
+  public RelationshipList findDescriptorRelationships(
     @ApiParam(value = "Descriptor terminology id, e.g. D042033", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Descriptor terminology name, e.g. MSH", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2015_2014_09_08", required = true) @PathParam("version") String version,
@@ -1817,11 +2404,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve relationships for the descriptor", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, queryStr, false, pfs);
+          contentService.findDescriptorRelationships(terminologyId, terminology,
+              version, Branch.ROOT, queryStr, false, pfs);
 
       // Use graph resolver
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -1839,11 +2426,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/relationships")
   @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given code id", response = RelationshipListJpa.class)
-  public RelationshipList findRelationshipsForCode(
+  public RelationshipList findCodeRelationships(
     @ApiParam(value = "Code terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -1863,10 +2451,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve relationships for the code", UserRole.VIEWER);
 
       final RelationshipList list =
-          contentService.findRelationshipsForCode(terminologyId, terminology,
+          contentService.findCodeRelationships(terminologyId, terminology,
               version, Branch.ROOT, queryStr, false, pfs);
 
-      for (final Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> rel : list
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
           .getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(rel);
       }
@@ -1883,6 +2471,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/aui/subset/all/{terminology}/{version}")
@@ -1902,7 +2491,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       final SubsetList list =
           contentService.getAtomSubsets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -1917,6 +2506,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @GET
   @Path("/concept/subset/all/{terminology}/{version}")
@@ -1935,7 +2525,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
       final SubsetList list =
           contentService.getConceptSubsets(terminology, version, Branch.ROOT);
-      for (int i = 0; i < list.getCount(); i++) {
+      for (int i = 0; i < list.size(); i++) {
         contentService.getGraphResolutionHandler(terminology)
             .resolve(list.getObjects().get(i));
       }
@@ -1950,6 +2540,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Produces({
       MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
   })
@@ -1994,6 +2585,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/concept/subset/{subsetId}/{terminology}/{version}/members")
@@ -2037,6 +2629,47 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
+  @Path("/atom/{atomId}/trees")
+  @ApiOperation(value = "Get trees with this atom Id", notes = "Get the trees with the specified atom id", response = TreeListJpa.class)
+  public TreeList findAtomTrees(
+    @ApiParam(value = "Atom id, e.g. 275105", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId + "/trees");
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve trees for the concept ", UserRole.VIEWER);
+
+      final TreePositionList list =
+          contentService.findTreePositions(null, null, null, Branch.ROOT,
+              "nodeId:" + atomId, AtomTreePositionJpa.class, pfs);
+
+      final TreeList treeList = new TreeListJpa();
+      for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
+          .getObjects()) {
+        final Tree tree = contentService.getTreeForTreePosition(treepos);
+        treeList.getObjects().add(tree);
+      }
+      treeList.setTotalCount(list.getTotalCount());
+      return treeList;
+
+    } catch (Exception e) {
+      handleException(e, "trying to retrieve trees for an atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees")
   @ApiOperation(value = "Get trees with this terminologyId", notes = "Get the trees with the given concept id", response = TreeListJpa.class)
   public TreeList findConceptTrees(
@@ -2054,8 +2687,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken,
           "retrieve trees for the concept ", UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findTreePositionsForConcept(
-          terminologyId, terminology, version, Branch.ROOT, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, ConceptTreePositionJpa.class, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2077,6 +2711,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/")
@@ -2096,8 +2731,8 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           "retrieve trees for the descriptor ", UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findTreePositionsForDescriptor(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, DescriptorTreePositionJpa.class, pfs);
 
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
@@ -2120,6 +2755,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees")
@@ -2139,8 +2775,10 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "retrieve trees for the code",
           UserRole.VIEWER);
 
-      final TreePositionList list = contentService.findTreePositionsForCode(
-          terminologyId, terminology, version, Branch.ROOT, pfs);
+      final TreePositionList list =
+          contentService.findTreePositions(terminologyId, terminology, version,
+              Branch.ROOT, null, CodeTreePositionJpa.class, pfs);
+
       final TreeList treeList = new TreeListJpa();
       for (final TreePosition<? extends ComponentHasAttributesAndName> treepos : list
           .getObjects()) {
@@ -2162,11 +2800,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/concept/{terminology}/{version}/trees")
   @ApiOperation(value = "Find concept trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findConceptTreeForQuery(
+  public Tree findConceptTree(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
@@ -2185,13 +2824,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findConceptTreePositionsForQuery(terminology, version,
-              Branch.ROOT, queryStr, pfs);
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, ConceptTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2236,11 +2876,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/trees")
   @ApiOperation(value = "Find descriptor trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findDescriptorTreeForQuery(
+  public Tree findDescriptorTree(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @QueryParam("query") String query,
@@ -2259,13 +2900,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
           UserRole.VIEWER);
 
       final TreePositionList list =
-          contentService.findDescriptorTreePositionsForQuery(terminology,
-              version, Branch.ROOT, queryStr, pfs);
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, DescriptorTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2311,11 +2953,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees")
   @ApiOperation(value = "Find code trees matching the query", notes = "Finds all merged trees matching the specified parameters", response = TreeJpa.class)
-  public Tree findCodeTreeForQuery(
+  public Tree findCodeTree(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
     @ApiParam(value = "Query search term, e.g. 'vitamin'", required = true) @PathParam("query") String query,
@@ -2332,13 +2975,15 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
 
-      TreePositionList list = contentService.findCodeTreePositionsForQuery(
-          terminology, version, Branch.ROOT, queryStr, pfs);
+      TreePositionList list =
+          contentService.findTreePositions(null, terminology, version,
+              Branch.ROOT, queryStr, CodeTreePositionJpa.class, pfs);
 
       // dummy variables for construction of artificial root
       final Tree dummyTree = new TreeJpa();
       dummyTree.setTerminology(terminology);
       dummyTree.setVersion(version);
+      dummyTree.setNodeId(0L);
       dummyTree.setNodeTerminologyId("dummy id");
       dummyTree.setNodeName("Root");
       dummyTree.setTotalCount(list.getTotalCount());
@@ -2386,8 +3031,52 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   /* see superclass */
   @Override
   @POST
+  @Path("/atom/{atomId}/trees/children")
+  @ApiOperation(value = "Find children trees for an atom", notes = "Returns paged children trees for n atom. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
+  public TreeList findAtomTreeChildren(
+    @ApiParam(value = "Atom id, e.g. 483123", required = true) @PathParam("atomId") Long atomId,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /atom/" + atomId + "/trees/children");
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "find trees for the code",
+          UserRole.VIEWER);
+
+      // the TreeList to return
+      final TreeList childTrees = new TreeListJpa();
+
+      // instantiate child tree positions array, used to construct trees
+      final TreePositionList childTreePositions =
+          contentService.findTreePositionChildren(atomId, null, null, null,
+              Branch.ROOT, ConceptTreePositionJpa.class, pfs);
+
+      // for each tree position, construct a tree
+      for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
+          .getObjects()) {
+        final Tree childTree = new TreeJpa(childTreePosition);
+        childTrees.getObjects().add(childTree);
+      }
+
+      childTrees.setTotalCount(childTreePositions.getTotalCount());
+      return childTrees;
+
+    } catch (Exception e) {
+      handleException(e, "trying to find tree children");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  @Override
+  @POST
   @Path("/concept/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a concept", notes = "Returns paged children trees for a concept. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a concept", notes = "Returns paged children trees for a concept. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findConceptTreeChildren(
     @ApiParam(value = "Concept terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Concept version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2408,9 +3097,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findConceptTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2432,10 +3121,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a code", notes = "Returns paged children trees for a code. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a code", notes = "Returns paged children trees for a code. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findCodeTreeChildren(
     @ApiParam(value = "Code terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Code version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2456,9 +3146,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findCodeTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2480,10 +3170,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminology}/{version}/{terminologyId}/trees/children")
-  @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = TreeJpa.class)
+  @ApiOperation(value = "Find children trees for a descriptor", notes = "Returns paged children trees for a descriptor. Note: not ancestorPath-sensitive", response = TreeListJpa.class)
   public TreeList findDescriptorTreeChildren(
     @ApiParam(value = "Descriptor terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Descriptor version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2504,9 +3195,9 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final TreeList childTrees = new TreeListJpa();
 
       // instantiate child tree positions array, used to construct trees
-      final TreePositionList childTreePositions =
-          contentService.findDescriptorTreePositionChildren(terminologyId,
-              terminology, version, Branch.ROOT, pfs);
+      final TreePositionList childTreePositions = contentService
+          .findTreePositionChildren(null, terminologyId, terminology, version,
+              Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
       // for each tree position, construct a tree
       for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2542,7 +3233,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /concept/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -2551,21 +3241,23 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findConceptTreePositionsForQuery(
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          ConceptTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
       // if a terminology with a single root concept
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findConceptTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(null,
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, ConceptTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2617,7 +3309,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -2626,22 +3317,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findDescriptorTreePositionsForQuery(
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          DescriptorTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
 
       // if a terminology with a single root descriptor
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findDescriptorTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(null,
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, DescriptorTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2679,6 +3372,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   }
 
   /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminology}/{version}/trees/roots")
@@ -2693,7 +3387,6 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     Logger.getLogger(getClass()).info("RESTful call (Content): /code/"
         + terminology + "/" + version + "/" + "/trees/roots");
     final ContentService contentService = new ContentServiceJpa();
-
     try {
       authorizeApp(securityService, authToken, "find trees for the code",
           UserRole.VIEWER);
@@ -2702,22 +3395,24 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       TreePositionList rootTreePositions = new TreePositionListJpa();
 
       // get tree positions where ancestor path is empty
-      rootTreePositions = contentService.findCodeTreePositionsForQuery(
-          terminology, version, Branch.ROOT, "-ancestorPath:[* TO *]", pfs);
+      rootTreePositions = contentService.findTreePositions(null, terminology,
+          version, Branch.ROOT, "-ancestorPath:[* TO *]",
+          CodeTreePositionJpa.class, pfs);
 
       Tree rootTree = null;
 
       // if a terminology with a single root code
-      if (rootTreePositions.getCount() == 1) {
+      if (rootTreePositions.size() == 1) {
 
         // construct root tree from single root
         rootTree = new TreeJpa(rootTreePositions.getObjects().get(0));
         rootTree.setTotalCount(rootTreePositions.getTotalCount());
 
         // get the children tree positions
-        final TreePositionList childTreePositions = contentService
-            .findCodeTreePositionChildren(rootTree.getNodeTerminologyId(),
-                terminology, version, Branch.ROOT, pfs);
+        final TreePositionList childTreePositions =
+            contentService.findTreePositionChildren(null,
+                rootTree.getNodeTerminologyId(), terminology, version,
+                Branch.ROOT, CodeTreePositionJpa.class, pfs);
 
         // construct and add children
         for (final TreePosition<? extends ComponentHasAttributesAndName> childTreePosition : childTreePositions
@@ -2754,11 +3449,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+
   @Override
   @POST
   @Path("/mapset/{mapSetId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated mapset", response = MappingListJpa.class)
-  public MappingList findMappingsForMapSet(
+  public MappingList findMappings(
     @ApiParam(value = "MapSet terminology id, e.g. 341823003", required = true) @PathParam("mapSetId") String mapSetId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2781,7 +3478,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       final MapSet mapSet =
           contentService.getMapSet(mapSetId, terminology, version, Branch.ROOT);
       final MappingList mappingList =
-          contentService.findMappingsForMapSet(mapSet.getId(), query, pfs);
+          contentService.findMappings(mapSet.getId(), query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
       }
@@ -2795,11 +3492,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+
   @Override
   @POST
   @Path("/concept/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated concept", response = MappingListJpa.class)
-  public MappingList findMappingsForConcept(
+  public MappingList findConceptMappings(
     @ApiParam(value = "Concept terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2819,7 +3518,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find mappings",
           UserRole.VIEWER);
 
-      final MappingList mappingList = contentService.findMappingsForConcept(
+      final MappingList mappingList = contentService.findConceptMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
@@ -2834,11 +3533,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+
   @Override
   @POST
   @Path("/code/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated code", response = MappingListJpa.class)
-  public MappingList findMappingsForCode(
+  public MappingList findCodeMappings(
     @ApiParam(value = "Code terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2858,7 +3559,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find mappings",
           UserRole.VIEWER);
 
-      final MappingList mappingList = contentService.findMappingsForCode(
+      final MappingList mappingList = contentService.findCodeMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
@@ -2873,11 +3574,13 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+  /* see superclass */
+
   @Override
   @POST
   @Path("/descriptor/{terminologyId}/{terminology}/{version}/mappings")
   @ApiOperation(value = "Find mappings", notes = "Get the mappings for the indicated descriptor", response = MappingListJpa.class)
-  public MappingList findMappingsForDescriptor(
+  public MappingList findDescriptorMappings(
     @ApiParam(value = "Descriptor terminology id, e.g. 341823003", required = true) @PathParam("terminologyId") String terminologyId,
     @ApiParam(value = "Terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
     @ApiParam(value = "Terminology version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
@@ -2897,7 +3600,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find mappings",
           UserRole.VIEWER);
 
-      final MappingList mappingList = contentService.findMappingsForDescriptor(
+      final MappingList mappingList = contentService.findDescriptorMappings(
           terminologyId, terminology, version, Branch.ROOT, query, pfs);
       for (final Mapping member : mappingList.getObjects()) {
         contentService.getGraphResolutionHandler(terminology).resolve(member);
@@ -2912,30 +3615,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     }
   }
 
-  /**
-   * Returns the precedence list.
-   *
-   * @param service the service
-   * @param metadataService the metadata service
-   * @param userName the user name
-   * @param obj the obj
-   * @return the precedence list
-   * @throws Exception
-   */
-  @SuppressWarnings("static-method")
-  private PrecedenceList getPrecedenceList(SecurityService service,
-    MetadataService metadataService, String userName, AtomClass obj)
-    throws Exception {
-    final User user = service.getUser(userName);
-    if (user.getUserPreferences() != null
-        && user.getUserPreferences().getPrecedenceList() != null) {
-      return user.getUserPreferences().getPrecedenceList();
-    } else
-      return metadataService.getDefaultPrecedenceList(obj.getTerminology(),
-          obj.getVersion());
-  }
-
   /* see superclass */
+  /**
+   * NOTE: Located in Content Service as codes/concepts/descriptors are directly
+   * retrieved for note details
+   */
   @POST
   @Path("/favorites")
   @ApiOperation(value = "Get user favorites", notes = "Gets user favorites for a terminology and version", response = String.class)
@@ -2945,36 +3629,37 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /content/favorites for authToken "
+        .info("RESTful call (Content): /content/favorites for authToken "
             + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
-      String userName = authorizeApp(securityService, authToken,
+      final String userName = authorizeApp(securityService, authToken,
           "get user favorites", UserRole.VIEWER);
 
-      UserPreferences preferences =
+      final UserPreferences preferences =
           securityService.getUser(userName).getUserPreferences();
 
-      List<ComponentInfo> favorites = new ArrayList<>();
+      // bail if no preference
       if (preferences == null) {
         return new SearchResultListJpa();
       }
-      for (String str : preferences.getFavorites()) {
+      List<ComponentInfo> favorites = new ArrayList<>();
+      for (final String str : preferences.getFavorites()) {
         ComponentInfo favorite = new ComponentInfoJpa(str);
         favorites.add(favorite);
       }
 
       // apply pfs to list
-      int[] totalCt = new int[1];
+      final int[] totalCt = new int[1];
       favorites = contentService.applyPfsToList(favorites, ComponentInfo.class,
           totalCt, pfs);
 
       // declare results list and set total count
-      SearchResultList results = new SearchResultListJpa();
+      final SearchResultList results = new SearchResultListJpa();
       results.setTotalCount(totalCt[0]);
 
-      for (ComponentInfo info : favorites) {
+      for (final ComponentInfo info : favorites) {
         boolean hasNotes = false;
         AtomClass atomClass = null;
         IdType type = null;
@@ -3007,7 +3692,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
                 "Non atom-class object on favorites list: " + info.toString());
         }
 
-        SearchResult searchResult = new SearchResultJpa();
+        final SearchResult searchResult = new SearchResultJpa();
         searchResult.setId(atomClass.getId());
         searchResult.setType(type);
         searchResult.setTerminology(atomClass.getTerminology());
@@ -3031,84 +3716,42 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/concept/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/concept/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a concept", notes = "Adds a user note to a concept", response = String.class)
   @Override
   public void addConceptNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /concept/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /concept/" + id
+        + "note for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
-      authorizeApp(securityService, authToken, "add concept note",
-          UserRole.VIEWER);
-
-      Concept concept = contentService.getConcept(terminologyId, terminology,
-          version, Branch.ROOT);
+      final String userName = authorizeApp(securityService, authToken,
+          "add concept note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+      final Concept concept = contentService.getConcept(id);
 
       if (concept == null) {
         throw new Exception("Could not retrieve concept for note addition");
       }
-      ConceptNoteJpa note = new ConceptNoteJpa();
+      final ConceptNoteJpa note = new ConceptNoteJpa();
       note.setNote(noteText);
-      note.setLastModifiedBy(authToken);
+      note.setLastModifiedBy(userName);
       note.setTimestamp(new Date());
       note.setConcept(concept);
 
       // add the note, add it to the concept, and update the concept
-      Note newNote = contentService.addNote(note);
+      final Note newNote = contentService.addNote(note);
       concept.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateConcept(concept);
 
     } catch (Exception e) {
-      handleException(e, "trying to add user favorite");
-    } finally {
-      securityService.close();
-    }
-
-  }
-
-  /* see superclass */
-  @DELETE
-  @Path("/concept/note/{id}/remove")
-  @Produces("text/plain")
-  @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
-  @Override
-  public void removeConceptNote(
-    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
-    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
-    throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /concept/note" + noteId
-            + "/remove for authToken " + authToken);
-
-    final SecurityService securityService = new SecurityServiceJpa();
-    final ContentService contentService = new ContentServiceJpa();
-
-    try {
-      authorizeApp(securityService, authToken, "remove concept note",
-          UserRole.VIEWER);
-
-      ConceptNoteJpa note =
-          (ConceptNoteJpa) contentService.getNote(noteId, ConceptNoteJpa.class);
-      Concept concept = note.getConcept();
-
-      concept.getNotes().remove(note);
-      contentService.updateConcept(concept);
-      contentService.removeNote(noteId, ConceptNoteJpa.class);
-
-    } catch (Exception e) {
-      handleException(e, "trying to remove note from concept");
+      handleException(e, "trying to add concept note");
     } finally {
       securityService.close();
     }
@@ -3117,43 +3760,158 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/code/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/atom/{id}/note")
+  @Produces("text/plain")
+  @ApiOperation(value = "Adds a user note to a atom", notes = "Adds a user note to a atom", response = String.class)
+  @Override
+  public void addAtomNote(
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Note to add", required = true) String noteText,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /atom/" + id
+        + "note for authToken " + authToken);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "add atom note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+      final Atom atom = contentService.getAtom(id);
+
+      if (atom == null) {
+        throw new Exception("Could not retrieve atom for note addition");
+      }
+      final AtomNoteJpa note = new AtomNoteJpa();
+      note.setNote(noteText);
+      note.setLastModifiedBy(userName);
+      note.setTimestamp(new Date());
+      note.setAtom(atom);
+
+      // add the note, add it to the atom, and update the atom
+      final Note newNote = contentService.addNote(note);
+      atom.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
+      contentService.updateAtom(atom);
+
+    } catch (Exception e) {
+      handleException(e, "trying to add atom note");
+    } finally {
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+
+  @DELETE
+  @Path("/concept/note/{id}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a concept", notes = "Remove a note from a concept", response = String.class)
+  @Override
+  public void removeConceptNote(
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /concept/note"
+        + noteId + " for authToken " + authToken);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "remove concept note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+
+      final ConceptNoteJpa note =
+          (ConceptNoteJpa) contentService.getNote(noteId, ConceptNoteJpa.class);
+      final Concept concept = note.getConcept();
+
+      concept.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
+      contentService.updateConcept(concept);
+      contentService.removeNote(noteId, ConceptNoteJpa.class);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove note from concept");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  @DELETE
+  @Path("/atom/note/{id}")
+  @Produces("text/plain")
+  @ApiOperation(value = "Remove a note from a atom", notes = "Remove a note from a atom", response = String.class)
+  @Override
+  public void removeAtomNote(
+    @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Content): /atom/note"
+        + noteId + " for authToken " + authToken);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      final String userName = authorizeApp(securityService, authToken,
+          "remove atom note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
+
+      final AtomNoteJpa note =
+          (AtomNoteJpa) contentService.getNote(noteId, AtomNoteJpa.class);
+      final Atom atom = note.getAtom();
+
+      atom.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
+      contentService.updateAtom(atom);
+      contentService.removeNote(noteId, AtomNoteJpa.class);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove note from atom");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+
+  @POST
+  @Path("/code/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a code", notes = "Adds a user note to a code", response = String.class)
   @Override
   public void addCodeNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /code/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /code/" + id
+        + "note for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
-      authorizeApp(securityService, authToken, "add code note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "add code note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
-      Code code = contentService.getCode(terminologyId, terminology, version,
-          Branch.ROOT);
+      Code code = contentService.getCode(id);
 
       if (code == null) {
         throw new Exception("Could not retrieve code for note addition");
       }
       CodeNoteJpa note = new CodeNoteJpa();
       note.setNote(noteText);
-      note.setLastModifiedBy(authToken);
+      note.setLastModifiedBy(userName);
       note.setTimestamp(new Date());
       note.setCode(code);
 
       // add the note, add it to the code, and update the code
       Note newNote = contentService.addNote(note);
       code.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateCode(code);
 
     } catch (Exception e) {
@@ -3166,7 +3924,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @DELETE
-  @Path("/code/note/{id}/remove")
+  @Path("/code/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a code", notes = "Remove a note from a code", response = String.class)
   @Override
@@ -3174,21 +3932,21 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful POST call (Project): /code/note"
-        + noteId + "/remove for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /code/note"
+        + noteId + " for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
-      authorizeApp(securityService, authToken, "remove code note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove code note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
-      CodeNoteJpa note =
+      final CodeNoteJpa note =
           (CodeNoteJpa) contentService.getNote(noteId, CodeNoteJpa.class);
-      Code code = note.getCode();
+      final Code code = note.getCode();
 
       code.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
       contentService.updateCode(code);
       contentService.removeNote(noteId, CodeNoteJpa.class);
 
@@ -3202,43 +3960,39 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @POST
-  @Path("/descriptor/note/{terminology}/{version}/{terminologyId}/add")
+  @Path("/descriptor/{id}/note")
   @Produces("text/plain")
   @ApiOperation(value = "Adds a user note to a descriptor", notes = "Adds a user note to a descriptor", response = String.class)
   @Override
   public void addDescriptorNote(
-    @ApiParam(value = "Terminology, e.g. SNOMED_CT", required = true) @PathParam("terminology") String terminology,
-    @ApiParam(value = "Version, e.g. 20150131", required = true) @PathParam("version") String version,
-    @ApiParam(value = "Terminology id, e.g. 12345", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "id, e.g. 12345", required = true) @PathParam("id") Long id,
     @ApiParam(value = "Note to add", required = true) String noteText,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /descriptor/" + terminology + "/"
-            + terminologyId + "/" + version + " for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/"
+        + id + "note for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
-      authorizeApp(securityService, authToken, "add descriptor note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "add descriptor note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
-      Descriptor descriptor = contentService.getDescriptor(terminologyId,
-          terminology, version, Branch.ROOT);
+      Descriptor descriptor = contentService.getDescriptor(id);
 
       if (descriptor == null) {
         throw new Exception("Could not retrieve descriptor for note addition");
       }
       DescriptorNoteJpa note = new DescriptorNoteJpa();
       note.setNote(noteText);
-      note.setLastModifiedBy(authToken);
+      note.setLastModifiedBy(userName);
       note.setTimestamp(new Date());
       note.setDescriptor(descriptor);
 
       // add the note, add it to the descriptor, and update the descriptor
       Note newNote = contentService.addNote(note);
       descriptor.getNotes().add(newNote);
+      contentService.setMolecularActionFlag(false);
       contentService.updateDescriptor(descriptor);
 
     } catch (Exception e) {
@@ -3251,7 +4005,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @DELETE
-  @Path("/descriptor/note/{id}/remove")
+  @Path("/descriptor/note/{id}")
   @Produces("text/plain")
   @ApiOperation(value = "Remove a note from a descriptor", notes = "Remove a note from a descriptor", response = String.class)
   @Override
@@ -3259,28 +4013,28 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Id of note to remove", required = true) @PathParam("id") Long noteId,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /descriptor/note" + noteId
-            + "/remove for authToken " + authToken);
+    Logger.getLogger(getClass()).info("RESTful call (Content): /descriptor/note"
+        + noteId + " for authToken " + authToken);
 
-    final SecurityService securityService = new SecurityServiceJpa();
     final ContentService contentService = new ContentServiceJpa();
-
     try {
-      authorizeApp(securityService, authToken, "remove descriptor note",
-          UserRole.VIEWER);
+      final String userName = authorizeApp(securityService, authToken,
+          "remove descriptor note", UserRole.VIEWER);
+      contentService.setLastModifiedBy(userName);
 
-      DescriptorNoteJpa note = (DescriptorNoteJpa) contentService
+      final DescriptorNoteJpa note = (DescriptorNoteJpa) contentService
           .getNote(noteId, DescriptorNoteJpa.class);
-      Descriptor descriptor = note.getDescriptor();
+      final Descriptor descriptor = note.getDescriptor();
 
       descriptor.getNotes().remove(note);
+      contentService.setMolecularActionFlag(false);
       contentService.updateDescriptor(descriptor);
       contentService.removeNote(noteId, DescriptorNoteJpa.class);
 
     } catch (Exception e) {
       handleException(e, "trying to remove note from descriptor");
     } finally {
+      contentService.close();
       securityService.close();
     }
 
@@ -3291,14 +4045,14 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
   @Path("/component/notes")
   @ApiOperation(value = "Get components annotated by a user", notes = "Gets user favorites for a terminology and version", response = String.class)
   @Override
-  public SearchResultList getComponentsWithNotesForQuery(
+  public SearchResultList getComponentsWithNotes(
     @ApiParam(value = "Query text", required = false) @QueryParam("query") String query,
     @ApiParam(value = "Paging/filtering/sorting object", required = false) PfsParameterJpa pfs,
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
     Logger.getLogger(getClass())
-        .info("RESTful POST call (Project): /content/component/notes/?query="
-            + query + " for authToken " + authToken);
+        .info("RESTful call (Content): /content/component/notes/?query=" + query
+            + " for authToken " + authToken);
 
     final ContentService contentService = new ContentServiceJpa();
     try {
@@ -3314,11 +4068,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // get concept notes for this user with no paging
       final NoteList conceptNotes =
-          contentService.findConceptNotesForQuery(query, pfsUser);
+          contentService.findConceptNotes(query, pfsUser);
 
-      for (Note note : conceptNotes.getObjects()) {
-        ConceptNoteJpa conceptNote = (ConceptNoteJpa) note;
-        SearchResult sr = new SearchResultJpa();
+      for (final Note note : conceptNotes.getObjects()) {
+        final ConceptNoteJpa conceptNote = (ConceptNoteJpa) note;
+        final SearchResult sr = new SearchResultJpa();
         sr.setId(conceptNote.getConcept().getId());
         sr.setTerminology(conceptNote.getConcept().getTerminology());
         sr.setVersion(conceptNote.getConcept().getVersion());
@@ -3333,11 +4087,11 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
 
       // get descriptor notes for this user with no paging
       final NoteList descriptorNotes =
-          contentService.findDescriptorNotesForQuery(query, pfsUser);
+          contentService.findDescriptorNotes(query, pfsUser);
 
-      for (Note note : descriptorNotes.getObjects()) {
-        DescriptorNoteJpa descriptorNote = (DescriptorNoteJpa) note;
-        SearchResult sr = new SearchResultJpa();
+      for (final Note note : descriptorNotes.getObjects()) {
+        final DescriptorNoteJpa descriptorNote = (DescriptorNoteJpa) note;
+        final SearchResult sr = new SearchResultJpa();
         sr.setId(descriptorNote.getDescriptor().getId());
         sr.setTerminology(descriptorNote.getDescriptor().getTerminology());
         sr.setVersion(descriptorNote.getDescriptor().getVersion());
@@ -3351,13 +4105,12 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       // get code notes for this user with no paging
-      final NoteList codeNotes =
-          contentService.findCodeNotesForQuery(query, pfsUser);
+      final NoteList codeNotes = contentService.findCodeNotes(query, pfsUser);
       results
           .setTotalCount(results.getTotalCount() + codeNotes.getTotalCount());
-      for (Note note : codeNotes.getObjects()) {
-        CodeNoteJpa codeNote = (CodeNoteJpa) note;
-        SearchResult sr = new SearchResultJpa();
+      for (final Note note : codeNotes.getObjects()) {
+        final CodeNoteJpa codeNote = (CodeNoteJpa) note;
+        final SearchResult sr = new SearchResultJpa();
         sr.setId(codeNote.getCode().getId());
         sr.setTerminology(codeNote.getCode().getTerminology());
         sr.setVersion(codeNote.getCode().getVersion());
@@ -3385,7 +4138,7 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
       }
 
       // set total count
-      results.setTotalCount(results.getCount());
+      results.setTotalCount(results.size());
 
       // apply paging/sorting
       final int totalCt[] = new int[1];
@@ -3403,4 +4156,342 @@ public class ContentServiceRestImpl extends RootServiceRestImpl
     return null;
   }
 
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/component/{type}/{terminology}/{version}/{terminologyId}/relationships")
+  @ApiOperation(value = "Get relationships with this terminologyId", notes = "Get the relationships with the given component info id", response = RelationshipListJpa.class)
+  public RelationshipList findComponentInfoRelationships(
+    @ApiParam(value = "Component info terminology id, e.g. 102751005", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Component info terminology name, e.g. SNOMEDCT_US", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Component info version, e.g. 2014_09_01", required = true) @PathParam("version") String version,
+    @ApiParam(value = "Component info type, e.g. CODE", required = true) @PathParam("type") IdType type,
+    @ApiParam(value = "Query for searching relationships, e.g. component info id or concept name", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /component/" + type + "/" + terminology
+            + "/" + version + "/" + terminologyId + "/relationships?query="
+            + query);
+    final String queryStr = query == null ? "" : query;
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve relationships for the component info", UserRole.VIEWER);
+
+      final RelationshipList list =
+          contentService.findComponentInfoRelationships(terminologyId,
+              terminology, version, type, Branch.ROOT, queryStr, false, pfs);
+
+      // Use graph resolver
+      for (final Relationship<? extends ComponentInfo, ? extends ComponentInfo> rel : list
+          .getObjects()) {
+        contentService.getGraphResolutionHandler(terminology).resolve(rel);
+      }
+
+      return list;
+
+    } catch (Exception e) {
+      handleException(e,
+          "trying to retrieve relationships for a component info");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/descriptor")
+  @ApiOperation(value = "Validate Descriptor", notes = "Validates a descriptor")
+  public ValidationResult validateDescriptor(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Descriptor", required = true) DescriptorJpa descriptor,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/descriptor " + descriptor);
+
+    final ContentService conceptService = new ContentServiceJpa();
+    try {
+      authorizeProject(conceptService, projectId, securityService, authToken,
+          "validate descriptor", UserRole.USER);
+      final Project project = conceptService.getProject(projectId);
+      return conceptService.validateDescriptor(project.getValidationChecks(),
+          descriptor);
+    } catch (Exception e) {
+      handleException(e, "trying to validate descriptor");
+      return null;
+    } finally {
+      conceptService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/atom")
+  @ApiOperation(value = "Validate Atom", notes = "Validates a atom")
+  public ValidationResult validateAtom(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Atom", required = true) AtomJpa atom,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/atom " + atom);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate atom", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      return contentService.validateAtom(project.getValidationChecks(), atom);
+    } catch (Exception e) {
+      handleException(e, "trying to validate atom");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/code")
+  @ApiOperation(value = "Validate Code", notes = "Validates a code")
+  public ValidationResult validateCode(
+    @ApiParam(value = "The project id (optional), e.g. 1", required = false) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Code", required = true) CodeJpa code,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/code " + code);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate code", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      return contentService.validateCode(project.getValidationChecks(), code);
+    } catch (Exception e) {
+      handleException(e, "trying to validate code");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/concept")
+  @ApiOperation(value = "Validate Concept", notes = "Validates a concept against a specific check or all project checks")
+  public ValidationResult validateConcept(
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "Concept", required = true) ConceptJpa concept,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @PathParam("checkId") String check,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/concept " + concept);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate conceptm", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+
+      if (check == null) {
+        return contentService.validateConcept(project.getValidationChecks(),
+            concept);
+      } else {
+        if (!project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService
+              .validateConcept(new ArrayList<>(Arrays.asList(check)), concept);
+        }
+
+      }
+
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to validate concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/validate/concepts")
+  @ApiOperation(value = "Validate All Concepts", notes = "Validates all concept against a specific check or all project checks")
+  public Set<Long> validateConcepts(
+    @ApiParam(value = "The project id, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
+    @ApiParam(value = "The validation check (e.g. DEFAULT)", required = false) @QueryParam("checkId") String check,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /validate/concepts " + projectId);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeProject(contentService, projectId, securityService, authToken,
+          "validate concepts", UserRole.USER);
+      final Project project = contentService.getProject(projectId);
+      final Set<Long> conceptIds = new HashSet<>(
+          contentService.getAllConceptIds(project.getTerminology(),
+              project.getVersion(), project.getBranch()));
+      if (check == null) {
+        return contentService.validateConcepts(project, null, conceptIds);
+      } else {
+        if (!project.getValidationChecks().contains(check)) {
+          throw new Exception("Check " + check + " not valid for project");
+        } else {
+          return contentService.validateConcepts(project, check, conceptIds);
+        }
+      }
+    } catch (
+
+    Exception e) {
+      handleException(e, "trying to validate concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  @POST
+  @Path("/concept/{terminology}/{version}/{terminologyId}/treePositions/deep")
+  @ApiOperation(value = "Get deep tree positions with this terminologyId", notes = "Get the tree positions for the concept and also for any other atoms, concepts, descirptors, or codes in its graph for the specified concept id", response = TreePositionListJpa.class)
+  public TreePositionList findConceptDeepTreePositions(
+    @ApiParam(value = "Concept terminology id, e.g. C0000039", required = true) @PathParam("terminologyId") String terminologyId,
+    @ApiParam(value = "Concept terminology name, e.g. UMLS", required = true) @PathParam("terminology") String terminology,
+    @ApiParam(value = "Concept version, e.g. latest", required = true) @PathParam("version") String version,
+    @ApiParam(value = "PFS Parameter, e.g. '{ \"startIndex\":\"1\", \"maxResults\":\"5\" }'", required = false) PfsParameterJpa pfs,
+    @ApiParam(value = "Query for searching relationships, e.g. concept id or concept name", required = true) @QueryParam("query") String query,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call (Content): /concept/" + terminology + "/" + version
+            + "/" + terminologyId + "/treePositions/deep with query: " + query);
+
+    final ContentService contentService = new ContentServiceJpa();
+    try {
+      authorizeApp(securityService, authToken,
+          "retrieve deep tree positionsfor the concept", UserRole.VIEWER);
+
+      final TreePositionList results =
+          contentService.findConceptDeepTreePositions(terminologyId,
+              terminology, version, Branch.ROOT, query, pfs);
+      final GraphResolutionHandler handler =
+          contentService.getGraphResolutionHandler(terminology);
+      for (final TreePosition<?> treePos : results.getObjects()) {
+        handler.resolve(treePos);
+      }
+      return results;
+    } catch (Exception e) {
+      handleException(e,
+          "trying to retrieve deep tree positions for a concept");
+      return null;
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+  }
+
+  /* see superclass */
+  @GET
+  @Override
+  @Produces("application/octet-stream")
+  @Path("/terminology/export/simple")
+  @ApiOperation(value = "Export termionlogy to simple code file", notes = "Exports terminology to a simple codes file", response = InputStream.class)
+  public InputStream exportTerminologySimple(
+    @ApiParam(value = "Terminology, e.g. UMLS", required = true) @QueryParam("terminology") String terminology,
+    @ApiParam(value = "Version, e.g. latest", required = true) @QueryParam("version") String version,
+    @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+
+    Logger.getLogger(getClass())
+        .info("RESTful call GET (Translation):  /terminology/export/simple"
+            + terminology + ", " + version);
+
+    final ContentServiceJpa contentService = new ContentServiceJpa();
+
+    try {
+      authorizeApp(securityService, authToken, "export simple",
+          UserRole.VIEWER);
+
+      final Terminology t = contentService.getTerminology(terminology, version);
+      if (t == null) {
+        throw new LocalException(
+            "Invalid terminology: " + terminology + ", " + version);
+      }
+
+      StringBuilder sb = new StringBuilder();
+      if (t.getOrganizingClassType() == IdType.CONCEPT) {
+        final SearchHandler handler =
+            contentService.getSearchHandler(terminology);
+        List<ConceptJpa> list = handler.getQueryResults(terminology, version,
+            Branch.ROOT, null, null, ConceptJpa.class, null, new int[1],
+            contentService.getEntityManager());
+        for (final Concept concept : list) {
+          if (!concept.isPublishable()) {
+            continue;
+          }
+          sb.append(concept.getTerminologyId()).append("|");
+          for (final SemanticTypeComponent sty : concept.getSemanticTypes()) {
+            sb.append(sty.getSemanticType());
+            break;
+          }
+          sb.append("|").append(concept.getName()).append("|");
+          final Set<String> seen = new HashSet<>();
+          for (final Atom atom : concept.getAtoms()) {
+            if (!atom.getName().equals(concept.getName())
+                && !seen.contains(atom.getName())) {
+              if (seen.size() > 0) {
+                sb.append("|");
+              }
+              sb.append(atom.getName());
+            }
+          }
+          sb.append("|\n");
+        }
+      } else {
+        throw new LocalException(
+            "Currently exportSimple only supports CONCEPT-based terminologies");
+      }
+
+      return new ByteArrayInputStream(sb.toString().getBytes("UTF-8"));
+    } catch (Exception e) {
+      handleException(e, "Trying to export terminology ");
+    } finally {
+      contentService.close();
+      securityService.close();
+    }
+
+    return new ByteArrayInputStream("".getBytes("UTF-8"));
+  }
 }

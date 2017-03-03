@@ -5,18 +5,17 @@ package com.wci.umls.server.mojo;
 
 import java.io.File;
 import java.util.Date;
-import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.SourceData;
 import com.wci.umls.server.SourceDataFile;
-import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.SourceDataFileJpa;
 import com.wci.umls.server.jpa.SourceDataJpa;
-import com.wci.umls.server.jpa.algo.LuceneReindexAlgorithm;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SourceDataServiceJpa;
 import com.wci.umls.server.jpa.services.handlers.Rf2SnapshotSourceDataHandler;
 import com.wci.umls.server.services.SourceDataService;
@@ -27,37 +26,32 @@ import com.wci.umls.server.services.handlers.ExceptionHandler;
  * source data object.
  * 
  * See admin/pom.xml for a sample execution.
- * 
- * @goal loadsd-rf2-snapshot
- * @phase package
  */
-public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
+@Mojo(name = "loadsd-rf2-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
+public class Rf2SnapshotSourceDataLoaderMojo extends AbstractLoaderMojo {
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * The version.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * create or update mode.
-   * @parameter
    */
+  @Parameter
   private String mode;
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
@@ -77,20 +71,9 @@ public class Rf2SnapshotSourceDataLoaderMojo extends SourceDataMojo {
     SourceDataService service = null;
     try {
 
-      final Properties properties = ConfigUtility.getConfigProperties();
-
       // Create DB
       if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-        // Rebuild Indexes
-        final LuceneReindexAlgorithm reindex = new LuceneReindexAlgorithm();
-        reindex.compute();
+        createDb(false);
       }
 
       // setup sample data

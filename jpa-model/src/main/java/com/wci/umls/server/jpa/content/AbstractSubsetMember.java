@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -13,8 +13,8 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Abstract JPA and JAXB enabled implementation of {@link SubsetMember}. Used mostly to
- * define the table.
+ * Abstract JPA and JAXB enabled implementation of {@link SubsetMember}. Used
+ * mostly to define the table.
  * @param <T> the member type
  * @param <S> the subset type
  */
@@ -37,16 +37,31 @@ public abstract class AbstractSubsetMember<T extends ComponentHasAttributesAndNa
    * Instantiates a {@link AbstractSubsetMember} from the specified parameters.
    *
    * @param member the subset
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public AbstractSubsetMember(SubsetMember<T, S> member, boolean deepCopy) {
-    super(member, deepCopy);
+  public AbstractSubsetMember(SubsetMember<T, S> member,
+      boolean collectionCopy) {
+    super(member, collectionCopy);
   }
 
+  /* see superclass */
+  @Override
+  public String getName() {
+    return null;
+  }
+
+  /* see superclass */
+  @Override
+  public void setName(String name) {
+    // n/a
+  }
+
+  /* see superclass */
   @Override
   public String toString() {
     return getClass().getSimpleName() + " [" + super.toString() + ", member="
-        + getMember() + ", subset=" + getSubset() + "]";
+        + getMember().getId() + " - " + getMember().getName() + ", subset="
+        + getSubset() + "]";
   }
 
 }

@@ -8,6 +8,7 @@ package com.wci.umls.server.test.rest;
 
 import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,16 +54,17 @@ public class ProjectServiceRestRoleCheckTest extends ProjectServiceRestTest {
    */
   @Test
   public void testRoleCheckRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("RUN testRoleCheckRestProject001");
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Attempt to add a project with viewer authorization level
     ProjectJpa project = new ProjectJpa();
     Set<String> values = new HashSet<>();
     values.add("PUBLISHED");
 
-    project.setDescription("Sample");
+    project.setDescription("Sample " + new Date().getTime());
     project.setName("Sample");
-    project.setTerminology("UMLS");
+    project.setTerminology("MTH");
+    project.setWorkflowPath("DEFAULT");
 
     try {
       projectService.addProject(project, viewerAuthToken);

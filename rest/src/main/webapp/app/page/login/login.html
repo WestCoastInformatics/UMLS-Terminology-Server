@@ -3,16 +3,16 @@
 <div class="row">
   <div class="col-md-12 col-xs-12">
     <strong>Enter User and Password</strong><br>
-    <form>
+    <form ng-submit="login(user.userName, user.password)">
       <input autofocus class="loginField" id="userField"
         ng-model="user.userName" type="text" placeholder="Username" /><br>
       <input class="loginField" id="passwordField" type="password"
         placeholder="Password" ng-model="user.password" /><br>
-      <button class="loginField" id="userLoginButton" type="submit"
-        ng-click="login(user.userName, user.password)">Login</button>
+      <button class="loginField btn btn-xs btn-primary" id="userLoginButton"
+        type="submit">Login</button>
       <p>
         <br />
-        <a href="{{appConfig.deployPasswordReset}}">Forgot Password?</a>
+        <a href="{{appConfig['deploy.password.reset']}}">Forgot Password?</a>
         <br /> <br />
       </p>
       <div ng-include src="'app/page/general/loginContent.html'"></div>

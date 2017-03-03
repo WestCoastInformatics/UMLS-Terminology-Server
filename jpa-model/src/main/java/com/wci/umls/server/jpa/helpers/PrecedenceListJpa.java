@@ -1,13 +1,15 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.helpers;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -17,6 +19,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -32,11 +35,11 @@ import com.wci.umls.server.helpers.KeyValuePairList;
 import com.wci.umls.server.helpers.PrecedenceList;
 
 /**
- * JPA and JAXB enabled implementation of {@link PrecedenceList}. This is a list of TTYs
- * used for a particular context. Individual editors can have their own TTY
- * perspectives, projects can have their own TTY perspectives, and the release
- * can have its own TTY perspective. This mechanism is used to determine which
- * atoms represent preferred names.
+ * JPA and JAXB enabled implementation of {@link PrecedenceList}. This is a list
+ * of TTYs used for a particular context. Individual editors can have their own
+ * TTY perspectives, projects can have their own TTY perspectives, and the
+ * release can have its own TTY perspective. This mechanism is used to determine
+ * which atoms represent preferred names.
  */
 @Entity
 @Audited
@@ -68,7 +71,7 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String terminology;
 
-  /** The expandedForm. */
+  /** The version. */
   @Column(nullable = false)
   private String version;
 
@@ -80,20 +83,18 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Column(nullable = false)
   private String name;
 
-  /** The default list. */
-  @Column(nullable = false)
-  private boolean defaultList = false;
-
   /** The terminology list. */
   @ElementCollection
   @CollectionTable(name = "precedence_list_terminologies")
   @JoinColumn(nullable = false)
+  @OrderColumn
   private List<String> terminologies;
 
   /** The term types. */
   @ElementCollection
   @CollectionTable(name = "precedence_list_term_types")
   @JoinColumn(nullable = false)
+  @OrderColumn
   private List<String> termTypes;
 
   /**
@@ -110,6 +111,9 @@ public class PrecedenceListJpa implements PrecedenceList {
    */
   public PrecedenceListJpa(PrecedenceList precedenceList) {
     id = precedenceList.getId();
+    timestamp = precedenceList.getTimestamp();
+    lastModified = precedenceList.getLastModified();
+    lastModifiedBy = precedenceList.getLastModifiedBy();
     name = precedenceList.getName();
     setPrecedence(precedenceList.getPrecedence());
     terminology = precedenceList.getTerminology();
@@ -119,7 +123,6 @@ public class PrecedenceListJpa implements PrecedenceList {
 
   /* see superclass */
   @Override
-  @XmlTransient
   public Long getId() {
     return this.id;
   }
@@ -128,18 +131,6 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public void setId(Long id) {
     this.id = id;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean isDefaultList() {
-    return defaultList;
-  }
-
-  /* see superclass */
-  @Override
-  public void setDefaultList(boolean defaultList) {
-    this.defaultList = defaultList;
   }
 
   /* see superclass */
@@ -198,7 +189,7 @@ public class PrecedenceListJpa implements PrecedenceList {
     if (precedence == null) {
       return;
     }
-    for (KeyValuePair pair : precedence.getKeyValuePairs()) {
+    for (final KeyValuePair pair : precedence.getKeyValuePairs()) {
       terminologies.add(pair.getKey());
       termTypes.add(pair.getValue());
     }
@@ -207,12 +198,14 @@ public class PrecedenceListJpa implements PrecedenceList {
   /* see superclass */
   @Override
   public KeyValuePairList getPrecedence() {
-    KeyValuePairList precedence = new KeyValuePairList();
-    for (int i = 0; i < termTypes.size(); i++) {
-      final KeyValuePair pair = new KeyValuePair();
-      pair.setKey(terminologies.get(i));
-      pair.setValue(termTypes.get(i));
-      precedence.addKeyValuePair(pair);
+    final KeyValuePairList precedence = new KeyValuePairList();
+    if (termTypes != null) {
+      for (int i = 0; i < termTypes.size(); i++) {
+        final KeyValuePair pair = new KeyValuePair();
+        pair.setKey(terminologies.get(i));
+        pair.setValue(termTypes.get(i));
+        precedence.addKeyValuePair(pair);
+      }
     }
     return precedence;
   }
@@ -279,9 +272,8 @@ public class PrecedenceListJpa implements PrecedenceList {
     return "PrecedenceListJpa [id=" + id + ", timestamp=" + timestamp
         + ", lastModified=" + lastModified + ", lastModifiedBy="
         + lastModifiedBy + ", terminology=" + terminology + ", version="
-        + version + ", branch=" + branch + ", name=" + name + ", defaultList="
-        + defaultList + ", terminologies=" + terminologies + ", termTypes="
-        + termTypes + "]";
+        + version + ", branch=" + branch + ", name=" + name + ", terminologies="
+        + terminologies + ", termTypes=" + termTypes + "]";
   }
 
   /* see superclass */
@@ -289,14 +281,12 @@ public class PrecedenceListJpa implements PrecedenceList {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (defaultList ? 1231 : 1237);
     result = prime * result + ((name == null) ? 0 : name.hashCode());
     result = prime * result + ((terminology == null) ? 0 : version.hashCode());
     result = prime * result + ((version == null) ? 0 : terminology.hashCode());
     result = prime * result + ((termTypes == null) ? 0 : termTypes.hashCode());
-    result =
-        prime * result
-            + ((terminologies == null) ? 0 : terminologies.hashCode());
+    result = prime * result
+        + ((terminologies == null) ? 0 : terminologies.hashCode());
     return result;
   }
 
@@ -310,8 +300,6 @@ public class PrecedenceListJpa implements PrecedenceList {
     if (getClass() != obj.getClass())
       return false;
     PrecedenceListJpa other = (PrecedenceListJpa) obj;
-    if (defaultList != other.defaultList)
-      return false;
     if (name == null) {
       if (other.name != null)
         return false;
@@ -345,8 +333,8 @@ public class PrecedenceListJpa implements PrecedenceList {
   @Override
   public Map<String, String> getTermTypeRankMap() {
     // Otherwise, build the TTY map
-    Map<String, String> ttyRankMap = new HashMap<>();
-    List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
+    final Map<String, String> ttyRankMap = new HashMap<>();
+    final List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
     int ct = 1;
     for (int i = list2.size() - 1; i >= 0; i--) {
       String padded = "0000" + ct++;
@@ -355,6 +343,28 @@ public class PrecedenceListJpa implements PrecedenceList {
       ttyRankMap.put(pair.getKey() + "/" + pair.getValue(), padded);
     }
     return ttyRankMap;
+  }
+
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public Map<String, String> getTerminologyRankMap() {
+    // Otherwise, build the terminology map
+    final Map<String, String> terminologyRankMap = new HashMap<>();
+    final List<KeyValuePair> list2 = getPrecedence().getKeyValuePairs();
+    int ct = 1;
+    final Set<String> seen = new HashSet<>();
+    for (int i = list2.size() - 1; i >= 0; i--) {
+      final KeyValuePair pair = list2.get(i);
+      if (seen.contains(pair.getKey())) {
+        continue;
+      }
+      seen.add(pair.getKey());
+      String padded = "0000" + ct++;
+      padded = padded.substring(padded.length() - 4);
+      terminologyRankMap.put(pair.getKey(), padded);
+    }
+    return terminologyRankMap;
   }
 
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
@@ -36,29 +36,35 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   @Column(nullable = true)
   List<String> labels;
 
+  /** The language. */
+  @Column(nullable = false)
+  String language;
+
   /**
    * Instantiates a new string class jpa.
    */
   public StringClassJpa() {
-    // do nothing
+    setPublishable(true);
   }
 
   /**
    * Instantiates a new string class jpa.
    *
    * @param stringClass the string class
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public StringClassJpa(StringClass stringClass, boolean deepCopy) {
-    super(stringClass, deepCopy);
-    if (stringClass.getLabels() != null) {
-      labels = new ArrayList<>(stringClass.getLabels());
-    }
+  public StringClassJpa(StringClass stringClass, boolean collectionCopy) {
+    super(stringClass, collectionCopy);
+    labels = new ArrayList<>(stringClass.getLabels());
+    language = stringClass.getLanguage();
   }
 
   /* see superclass */
   @Override
   public List<String> getLabels() {
+    if (labels == null) {
+      labels = new ArrayList<>();
+    }
     return labels;
   }
 
@@ -67,6 +73,43 @@ public class StringClassJpa extends AbstractAtomClass implements StringClass {
   public void setLabels(List<String> labels) {
     this.labels = labels;
 
+  }
+
+  /* see superclass */
+  @Override
+  public String getLanguage() {
+    return language;
+  }
+
+  /* see superclass */
+  @Override
+  public void setLanguage(String language) {
+    this.language = language;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((language == null) ? 0 : language.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    StringClassJpa other = (StringClassJpa) obj;
+    if (language == null) {
+      if (other.language != null)
+        return false;
+    } else if (!language.equals(other.language))
+      return false;
+    return true;
   }
 
 }

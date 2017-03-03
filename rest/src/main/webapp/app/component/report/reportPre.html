@@ -1,0 +1,23 @@
+
+<!-- Title -->
+<h5>
+  {{selected.component.terminologyId}} {{selected.component.name}}
+  <span class="label label-warning"
+    ng-show="selected.metadata.terminology.metathesaurus && selected.component.suppressible"
+    uib-tooltip="{{selected.metadata.suppressibleLabel}}">{{selected.metadata.suppressibleIndicator}}</span>
+  <span class="label label-default" ng-show="selected.component.obsolete"
+    uib-tooltip="{{selected.metadata.obsoleteLabel}}">{{selected.metadata.obsoleteIndicator}}</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.anonymous"
+    class="label label-info" uib-tooltip="Anonymous">A</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && !selected.component.fullyDefined && !selected.component.anonymous"
+    class="label label-info" uib-tooltip="Primitive">P</span>
+  <span style="padding-bottom: 2px;"
+    ng-show="selected.metadata.terminology.descriptionLogicTerminology && selected.component.fullyDefined"
+    class="label label-info" uib-tooltip="Necessary and sufficient definition">D</span>
+</h5>
+
+<!-- See tsApp.css for preformatted style -->
+<!-- <div class="preformatted" ng-show="selected.component">{{report}}</div> -->
+<div class="preformatted" ng-show="selected.component" ng-bind-html="getTrustedReport()">{{message}}</div>

@@ -72,7 +72,7 @@ public class TreeListUnitTest extends AbstractListUnit<Tree> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse026() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, t1, t2);
   }
 
@@ -83,7 +83,7 @@ public class TreeListUnitTest extends AbstractListUnit<Tree> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse026() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, t1, t2);
   }
 
@@ -93,7 +93,7 @@ public class TreeListUnitTest extends AbstractListUnit<Tree> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases026() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, t1, t2);
     list1 = new TreeListJpa();
 
@@ -106,7 +106,7 @@ public class TreeListUnitTest extends AbstractListUnit<Tree> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization026() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, t1, t2);
   }
 

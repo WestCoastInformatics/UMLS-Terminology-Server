@@ -1,8 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,9 +33,9 @@ import com.wci.umls.server.ReleaseProperty;
  */
 @Entity
 @Table(name = "release_infos", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {
-      "name", "terminology"
-  })
+    @UniqueConstraint(columnNames = {
+        "name", "terminology"
+    })
 })
 @Audited
 @XmlRootElement(name = "releaseInfo")
@@ -94,6 +95,11 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, targetEntity = ReleasePropertyJpa.class)
   private List<ReleaseProperty> properties;
 
+  /** the timestamp. */
+  @Column(nullable = false)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date timestamp = null;
+  
   /**
    * Instantiates an empty {@link ReleaseInfoJpa}.
    */
@@ -108,6 +114,8 @@ public class ReleaseInfoJpa implements ReleaseInfo {
    */
   public ReleaseInfoJpa(ReleaseInfo releaseInfo) {
     id = releaseInfo.getId();
+    lastModified = releaseInfo.getLastModified();
+    lastModifiedBy = releaseInfo.getLastModifiedBy();
     name = releaseInfo.getName();
     description = releaseInfo.getDescription();
     releaseBeginDate = releaseInfo.getReleaseBeginDate();
@@ -116,6 +124,8 @@ public class ReleaseInfoJpa implements ReleaseInfo {
     published = releaseInfo.isPublished();
     terminology = releaseInfo.getTerminology();
     version = releaseInfo.getVersion();
+    properties = new ArrayList<>(releaseInfo.getProperties());
+    timestamp = releaseInfo.getTimestamp();
   }
 
   /* see superclass */
@@ -253,6 +263,18 @@ public class ReleaseInfoJpa implements ReleaseInfo {
 
   /* see superclass */
   @Override
+  public Date getTimestamp() {
+    return timestamp;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTimestamp(Date timestamp) {
+    this.timestamp = timestamp;
+  }
+  
+  /* see superclass */
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -321,7 +343,7 @@ public class ReleaseInfoJpa implements ReleaseInfo {
   @Override
   public String toString() {
     return name + ", " + description + ", " + effectiveTime + ", " + planned
-        + ", " + published + ", " + terminology + ", " + version;
+        + ", " + published + ", " + terminology + ", " + version + ", " + timestamp;
   }
 
 }

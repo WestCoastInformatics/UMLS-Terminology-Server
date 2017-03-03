@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.persistence.NoResultException;
 
@@ -31,22 +30,43 @@ import com.wci.umls.server.services.handlers.SecurityServiceHandler;
 /**
  * Reference implementation of the {@link SecurityService}.
  */
-public class SecurityServiceJpa extends RootServiceJpa implements
-    SecurityService {
+public class SecurityServiceJpa extends RootServiceJpa
+    implements SecurityService {
 
   /** The token username . */
-  private static Map<String, String> tokenUsernameMap = Collections
-      .synchronizedMap(new HashMap<String, String>());
+  private static Map<String, String> tokenUsernameMap =
+      Collections.synchronizedMap(new HashMap<String, String>());
 
   /** The token login time . */
-  private static Map<String, Date> tokenTimeoutMap = Collections
-      .synchronizedMap(new HashMap<String, Date>());
+  private static Map<String, Date> tokenTimeoutMap =
+      Collections.synchronizedMap(new HashMap<String, Date>());
 
   /** The handler. */
   private static SecurityServiceHandler handler = null;
 
   /** The timeout. */
   private static int timeout;
+
+  static {
+    init();
+  }
+
+  /**
+   * Initializes the handlers.
+   */
+  private static void init() {
+    try {
+      if (config == null) {
+        config = ConfigUtility.getConfigProperties();
+      }
+      timeout = Integer.valueOf(config.getProperty("security.timeout"));
+      String handlerName = config.getProperty("security.handler");
+      handler = ConfigUtility.newStandardHandlerInstanceWithConfiguration(
+          "security.handler", handlerName, SecurityServiceHandler.class);
+    } catch (Exception e) {
+      handler = null;
+    }
+  }
 
   /**
    * Instantiates an empty {@link SecurityServiceJpa}.
@@ -65,16 +85,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       throw new LocalException("Invalid username: null");
     if (password == null || password.isEmpty())
       throw new LocalException("Invalid password: null");
-
-    Properties config = ConfigUtility.getConfigProperties();
-
-    if (handler == null) {
-      timeout = Integer.valueOf(config.getProperty("security.timeout"));
-      String handlerName = config.getProperty("security.handler");
-      handler =
-          ConfigUtility.newStandardHandlerInstanceWithConfiguration(
-              "security.handler", handlerName, SecurityServiceHandler.class);
-    }
+    validateInit();
 
     //
     // Call the security service
@@ -95,9 +106,9 @@ public class SecurityServiceJpa extends RootServiceJpa implements
       return null;
 
     // check if authenticated user matches one of our users
-    UserList userList = getUsers();
+    final UserList userList = getUsers();
     User userFound = null;
-    for (User user : userList.getObjects()) {
+    for (final User user : userList.getObjects()) {
       if (user.getUserName().equals(authUser.getUserName())) {
         userFound = user;
         break;
@@ -145,15 +156,14 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     tokenUsernameMap.put(token, authUser.getUserName());
     tokenTimeoutMap.put(token, new Date(new Date().getTime() + timeout));
 
-    Logger.getLogger(getClass()).debug(
-        "User = " + authUser.getUserName() + ", " + authUser);
+    Logger.getLogger(getClass())
+        .debug("User = " + authUser.getUserName() + ", " + authUser);
 
     // Reload the user to populate UserPreferences
     final User result = getUser(userId);
     handleLazyInit(result);
-    Logger.getLogger(getClass()).info(
-        "Result = " + authUser.getUserName() + ", "
-            + result.getUserPreferences());
+    Logger.getLogger(getClass()).info("Result = " + authUser.getUserName()
+        + ", " + result.getUserPreferences());
     result.setAuthToken(token);
 
     return result;
@@ -192,16 +202,15 @@ public class SecurityServiceJpa extends RootServiceJpa implements
           throw new LocalException(
               "AuthToken has expired. Please reload and log in again.");
         }
-        tokenTimeoutMap.put(parsedToken, new Date(new Date().getTime()
-            + timeout));
+        tokenTimeoutMap.put(parsedToken,
+            new Date(new Date().getTime() + timeout));
       }
       return username;
     } else {
 
       // handle guest user unless
-      if (authToken.equals("guest")
-          && "false".equals(ConfigUtility.getConfigProperties().getProperty(
-              "deploy.login.enabled"))) {
+      if (authToken.equals("guest") && "false".equals(ConfigUtility
+          .getConfigProperties().getProperty("deploy.login.enabled"))) {
         return "guest";
       }
 
@@ -211,16 +220,16 @@ public class SecurityServiceJpa extends RootServiceJpa implements
 
   /* see superclass */
   @Override
-  public UserRole getApplicationRoleForToken(String authToken) throws Exception {
+  public UserRole getApplicationRoleForToken(String authToken)
+    throws Exception {
 
     if (authToken == null) {
       throw new LocalException(
           "Attempt to access a service without an AuthToken, the user is likely not logged in.");
     }
     // Handle "guest" user
-    if (authToken.equals("guest")
-        && "true".equals(ConfigUtility.getConfigProperties().getProperty(
-            "security.guest.disabled"))) {
+    if (authToken.equals("guest") && "true".equals(ConfigUtility
+        .getConfigProperties().getProperty("security.guest.disabled"))) {
       return UserRole.VIEWER;
     }
 
@@ -230,7 +239,7 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     if (username == null) {
       throw new LocalException("Unable to find user for the AuthToken");
     }
-    User user = getUser(username.toLowerCase());
+    User user = getUser(username);
     if (user == null) {
       return UserRole.VIEWER;
     }
@@ -259,18 +268,21 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public User getUser(Long id) throws Exception {
-    return manager.find(UserJpa.class, id);
+    final User user = manager.find(UserJpa.class, id);
+    handleLazyInit(user);
+    return user;
   }
 
   /* see superclass */
   @Override
   public User getUser(String username) throws Exception {
-    javax.persistence.Query query =
-        manager
-            .createQuery("select u from UserJpa u where userName = :userName");
+    javax.persistence.Query query = manager
+        .createQuery("select u from UserJpa u where userName = :userName");
     query.setParameter("userName", username);
     try {
-      return (User) query.getSingleResult();
+      final User user = (User) query.getSingleResult();
+      handleLazyInit(user);
+      return user;
     } catch (NoResultException e) {
       return null;
     }
@@ -367,12 +379,6 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     return mapUserList;
   }
 
-  /* see superclass */
-  @Override
-  public void refreshCaches() throws Exception {
-    // n/a
-  }
-
   /**
    * Handle lazy init.
    *
@@ -383,20 +389,23 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     if (user.getProjectRoleMap() != null) {
       user.getProjectRoleMap().size();
     }
+    if (user.getUserPreferences() != null) {
+      user.getUserPreferences().getFavorites().size();
+      user.getUserPreferences().getProperties().size();
+    }
   }
 
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public UserList findUsersForQuery(String query, PfsParameter pfs)
-    throws Exception {
-    Logger.getLogger(getClass()).info(
-        "Security Service - find users " + query + ", pfs= " + pfs);
+  public UserList findUsers(String query, PfsParameter pfs) throws Exception {
+    Logger.getLogger(getClass())
+        .info("Security Service - find users " + query + ", pfs= " + pfs);
 
     int[] totalCt = new int[1];
-    final List<User> list =
-        (List<User>) getQueryResults(query == null || query.isEmpty()
-            ? "id:[* TO *]" : query, UserJpa.class, UserJpa.class, pfs, totalCt);
+    final List<User> list = (List<User>) getQueryResults(
+        query == null || query.isEmpty() ? "id:[* TO *]" : query, UserJpa.class,
+        pfs, totalCt);
     final UserList result = new UserListJpa();
     result.setTotalCount(totalCt[0]);
     result.setObjects(list);
@@ -409,8 +418,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public UserPreferences addUserPreferences(UserPreferences userPreferences) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - add user preferences " + userPreferences);
+    Logger.getLogger(getClass())
+        .debug("Security Service - add user preferences " + userPreferences);
     try {
       if (getTransactionPerOperation()) {
         tx = manager.getTransaction();
@@ -433,8 +442,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void removeUserPreferences(Long id) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - remove user preferences " + id);
+    Logger.getLogger(getClass())
+        .debug("Security Service - remove user preferences " + id);
     tx = manager.getTransaction();
     // retrieve this user
     final UserPreferences mu = manager.find(UserPreferencesJpa.class, id);
@@ -467,8 +476,8 @@ public class SecurityServiceJpa extends RootServiceJpa implements
   /* see superclass */
   @Override
   public void updateUserPreferences(UserPreferences userPreferences) {
-    Logger.getLogger(getClass()).debug(
-        "Security Service - update user preferences " + userPreferences);
+    Logger.getLogger(getClass())
+        .debug("Security Service - update user preferences " + userPreferences);
     try {
       if (getTransactionPerOperation()) {
         tx = manager.getTransaction();
@@ -486,4 +495,26 @@ public class SecurityServiceJpa extends RootServiceJpa implements
     }
   }
 
+  /* see superclass */
+  @Override
+  public void refreshCaches() throws Exception {
+    super.refreshCaches();
+    init();
+    validateInit();
+  }
+
+  /**
+   * Validate init.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void validateInit() throws Exception {
+    if (handler == null) {
+      throw new Exception(
+          "security.handler " + " expected and does not exist.");
+
+    }
+
+  }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.rest.impl;
 
@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.Consumes;
@@ -35,23 +36,27 @@ import com.wci.umls.server.jpa.services.rest.HistoryServiceRest;
 import com.wci.umls.server.jpa.services.rest.SourceDataServiceRest;
 import com.wci.umls.server.services.MetadataService;
 import com.wci.umls.server.services.SourceDataService;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
-import com.wordnik.swagger.annotations.ApiParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * REST implementation for {@link HistoryServiceRest}.
  */
 @Path("/configure")
-@Api(value = "/configure", description = "Operations to configure application")
+@Api(value = "/configure")
+@SwaggerDefinition(info = @Info(description = "Operations to configure application", title = "Configure API", version = "1.0.1"))
 @Consumes({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
 @Produces({
     MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML
 })
-public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
-    ConfigureServiceRest {
+public class ConfigureServiceRestImpl extends RootServiceRestImpl
+    implements ConfigureServiceRest {
 
   /**
    * Instantiates an empty {@link ConfigureServiceRestImpl}.
@@ -59,6 +64,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
    * @throws Exception the exception
    */
   public ConfigureServiceRestImpl() throws Exception {
+    // n/a
   }
 
   /**
@@ -69,7 +75,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private void validateProperty(String name, Properties props) throws Exception {
+  private void validateProperty(String name, Properties props)
+    throws Exception {
     if (props == null) {
       throw new Exception("Properties are null");
     }
@@ -95,14 +102,13 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   @Path("/configured")
   @ApiOperation(value = "Checks if application is configured", notes = "Returns true if application is configured, false if not", response = Boolean.class)
   public boolean isConfigured() throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/configured");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/configured");
 
     try {
       String configFileName = ConfigUtility.getLocalConfigFile();
-      boolean configured =
-          ConfigUtility.getConfigProperties() != null
-              || (new File(configFileName).exists());
+      boolean configured = ConfigUtility.getConfigProperties() != null
+          || (new File(configFileName).exists());
       return configured;
 
     } catch (Exception e) {
@@ -111,12 +117,6 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     }
   }
 
-  /**
-   * Configure.
-   *
-   * @param parameters the parameters
-   * @throws Exception the exception
-   */
   /* see superclass */
   @POST
   @Override
@@ -126,7 +126,7 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     @ApiParam(value = "Configuration parameters as JSON string", required = true) HashMap<String, String> parameters)
     throws Exception {
     Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/configure with parameters "
+        "RESTful call (Configure): /configure/configure with parameters "
             + parameters.toString());
 
     // NOTE: Configure calls do not require authorization
@@ -134,9 +134,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
     try {
 
       // get the starting configuration
-      InputStream in =
-          ConfigureServiceRestImpl.class
-              .getResourceAsStream("/config.properties.start");
+      InputStream in = ConfigureServiceRestImpl.class
+          .getResourceAsStream("/config.properties.start");
 
       if (in == null) {
         throw new Exception("Could not open starting configuration file");
@@ -146,31 +145,30 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       String configFileName = ConfigUtility.getLocalConfigFile();
 
       if (new File(configFileName).exists()) {
-        throw new LocalException("System is already configured from file: "
-            + configFileName);
+        throw new LocalException(
+            "System is already configured from file: " + configFileName);
       }
 
       // get the starting properties
-      Properties properties = new Properties();
+      final Properties properties = new Properties();
       properties.load(in);
 
       // directly replace parameters by key
-      for (String key : parameters.keySet()) {
+      for (final String key : parameters.keySet()) {
         if (properties.containsKey(key)) {
           properties.setProperty(key, parameters.get(key));
         }
       }
 
       // replace config file property values based on replacement pattern ${...}
-      for (Object key : new HashSet<>(properties.keySet())) {
-        for (String param : parameters.keySet()) {
+      for (final Object key : new HashSet<>(properties.keySet())) {
+        for (final String param : parameters.keySet()) {
 
-          if (properties.getProperty(key.toString()).contains(
-              "${" + param + "}")) {
-            properties.setProperty(
-                key.toString(),
-                properties.getProperty(key.toString()).replace(
-                    "${" + param + "}", parameters.get(param)));
+          if (properties.getProperty(key.toString())
+              .contains("${" + param + "}")) {
+            properties.setProperty(key.toString(),
+                properties.getProperty(key.toString())
+                    .replace("${" + param + "}", parameters.get(param)));
           }
         }
       }
@@ -215,8 +213,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
             + parameters.get("app.dir"));
       }
 
-      Logger.getLogger(getClass()).info(
-          "Writing configuration file: " + configFileName);
+      Logger.getLogger(getClass())
+          .info("Writing configuration file: " + configFileName);
 
       File configFile = new File(configFileName);
 
@@ -260,8 +258,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         if (metadataService != null) {
           metadataService.close();
         }
-        ConfigUtility.getConfigProperties().setProperty(
-            "hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
       }
 
     } catch (Exception e) {
@@ -277,8 +275,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
   public void destroy(
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info(
-        "RESTful call (History): /configure/destroy");
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/destroy");
 
     // NOTE: Configure calls do not require authorization
 
@@ -321,9 +319,9 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
       // Delete all uploaded files using SourceDataServiceRet
       // NOTE: REST service used for file deletion
       //
-      SourceDataServiceRest sourceDataServiceRest =
+      final SourceDataServiceRest sourceDataServiceRest =
           new SourceDataServiceRestImpl();
-      for (SourceData sd : sourceDatas) {
+      for (final SourceData sd : sourceDatas) {
         sourceDataServiceRest.removeSourceData(sd.getId(), authToken);
       }
 
@@ -347,8 +345,8 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         }
 
         // return mode to update
-        ConfigUtility.getConfigProperties().setProperty(
-            "hibernate.hbm2ddl.auto", "update");
+        ConfigUtility.getConfigProperties()
+            .setProperty("hibernate.hbm2ddl.auto", "update");
 
       }
 
@@ -359,5 +357,31 @@ public class ConfigureServiceRestImpl extends RootServiceRestImpl implements
         sourceDataService.close();
       }
     }
+  }
+
+  /* see superclass */
+  @GET
+  @Override
+  @Path("/properties")
+  @Produces({
+      MediaType.APPLICATION_JSON
+  })
+  @ApiOperation(value = "Get configuration properties", notes = "Gets user interface-relevant configuration properties", response = String.class, responseContainer = "Map")
+  public Map<String, String> getConfigProperties() {
+    Logger.getLogger(getClass())
+        .info("RESTful call (Configure): /configure/properties");
+    try {
+      Map<String, String> map = new HashMap<>();
+      for (final Map.Entry<Object, Object> o : ConfigUtility
+          .getUiConfigProperties().entrySet()) {
+        map.put(o.getKey().toString(), o.getValue().toString());
+      }
+      return map;
+    } catch (Exception e) {
+      handleException(e, "getting ui config properties");
+    } finally {
+      // n/a
+    }
+    return null;
   }
 }

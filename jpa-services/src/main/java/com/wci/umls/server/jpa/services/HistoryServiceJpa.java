@@ -4,7 +4,6 @@
 package com.wci.umls.server.jpa.services;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.NoResultException;
@@ -13,16 +12,20 @@ import org.apache.log4j.Logger;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.ReleaseInfoList;
+import com.wci.umls.server.helpers.content.ComponentHistoryList;
 import com.wci.umls.server.jpa.ReleaseInfoJpa;
+import com.wci.umls.server.jpa.content.ComponentHistoryJpa;
 import com.wci.umls.server.jpa.helpers.ReleaseInfoListJpa;
+import com.wci.umls.server.jpa.helpers.content.ComponentHistoryListJpa;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.services.ContentService;
 import com.wci.umls.server.services.HistoryService;
 
 /**
  * JPA and JAXB enabled implementation of {@link ContentService}.
  */
-public class HistoryServiceJpa extends ContentServiceJpa implements
-    HistoryService {
+public class HistoryServiceJpa extends ContentServiceJpa
+    implements HistoryService {
 
   /**
    * Instantiates an empty {@link HistoryServiceJpa}.
@@ -37,12 +40,12 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   /* see superclass */
   @SuppressWarnings("unchecked")
   @Override
-  public ReleaseInfoList getReleaseHistory(String terminology) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History Service - get release history " + terminology);
-    javax.persistence.Query query =
-        manager
-            .createQuery("select a from ReleaseInfoJpa a where terminology = :terminology order by a.effectiveTime");
+  public ReleaseInfoList getReleaseHistory(String terminology)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("History Service - get release history " + terminology);
+    javax.persistence.Query query = manager.createQuery(
+        "select a from ReleaseInfoJpa a where terminology = :terminology order by a.effectiveTime");
     /*
      * Try to retrieve the single expected result If zero or more than one
      * result are returned, log error and set result to null
@@ -60,9 +63,10 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
-  public ReleaseInfo getCurrentReleaseInfo(String terminology) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History Service - get current release info " + terminology);
+  public ReleaseInfo getCurrentReleaseInfo(String terminology)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("History Service - get current release info " + terminology);
     List<ReleaseInfo> results = getReleaseHistory(terminology).getObjects();
     // get max release that is published and not planned
     for (int i = results.size() - 1; i >= 0; i--) {
@@ -78,8 +82,8 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   @Override
   public ReleaseInfo getPreviousReleaseInfo(String terminology)
     throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History Service - get previous release info " + terminology);
+    Logger.getLogger(getClass())
+        .debug("History Service - get previous release info " + terminology);
     List<ReleaseInfo> results = getReleaseHistory(terminology).getObjects();
     // get one before the max release that is published
     for (int i = results.size() - 1; i >= 0; i--) {
@@ -97,11 +101,12 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
 
   /* see superclass */
   @Override
-  public ReleaseInfo getPlannedReleaseInfo(String terminology) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History Service - get planned release info " + terminology);
+  public ReleaseInfo getPlannedReleaseInfo(String terminology)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("History Service - get planned release info " + terminology);
     List<ReleaseInfo> results = getReleaseHistory(terminology).getObjects();
-    // get one before the max release that is published
+    // get the max (only) planned history
     for (int i = results.size() - 1; i >= 0; i--) {
       if (!results.get(i).isPublished() && results.get(i).isPlanned()
           && results.get(i).getTerminology().equals(terminology)) {
@@ -136,28 +141,10 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   /* see superclass */
   @Override
   public ReleaseInfo addReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History Service - add release info " + releaseInfo.getName());
-    if (lastModifiedFlag) {
-      releaseInfo.setLastModified(new Date());
-    }
-    try {
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.persist(releaseInfo);
-        tx.commit();
-      } else {
-        manager.persist(releaseInfo);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    Logger.getLogger(getClass())
+        .debug("History Service - add release info " + releaseInfo.getName());
 
-    return releaseInfo;
+    return addHasLastModified(releaseInfo);
   }
 
   /* see superclass */
@@ -165,58 +152,85 @@ public class HistoryServiceJpa extends ContentServiceJpa implements
   public void updateReleaseInfo(ReleaseInfo releaseInfo) throws Exception {
     Logger.getLogger(getClass()).debug(
         "History Service - update release info " + releaseInfo.getName());
-    if (lastModifiedFlag) {
-      releaseInfo.setLastModified(new Date());
-    }
-    try {
-      if (getTransactionPerOperation()) {
-        tx = manager.getTransaction();
-        tx.begin();
-        manager.merge(releaseInfo);
-        tx.commit();
-      } else {
-        manager.merge(releaseInfo);
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    updateHasLastModified(releaseInfo);
   }
 
   /* see superclass */
   @Override
   public void removeReleaseInfo(Long id) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "History  Service - remove release info " + id);
-    tx = manager.getTransaction();
-    // retrieve this release info
-    ReleaseInfo releaseInfo = manager.find(ReleaseInfoJpa.class, id);
-    try {
-      if (getTransactionPerOperation()) {
-        // remove description
-        tx.begin();
-        if (manager.contains(releaseInfo)) {
-          manager.remove(releaseInfo);
-        } else {
-          manager.remove(manager.merge(releaseInfo));
-        }
-        tx.commit();
-      } else {
-        if (manager.contains(releaseInfo)) {
-          manager.remove(releaseInfo);
-        } else {
-          manager.remove(manager.merge(releaseInfo));
-        }
-      }
-    } catch (Exception e) {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      throw e;
-    }
+    Logger.getLogger(getClass())
+        .debug("History  Service - remove release info " + id);
+    removeHasLastModified(id, ReleaseInfoJpa.class);
 
   }
 
+  /* see superclass */
+  @Override
+  public ComponentHistory addComponentHistory(ComponentHistory componentHistory)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - add componentHistory " + componentHistory);
+
+    // Add component
+    return addComponent(componentHistory);
+  }
+
+  /* see superclass */
+  @Override
+  public ComponentHistory getComponentHistory(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get componentHistory " + id);
+    return getComponent(id, ComponentHistoryJpa.class);
+  }
+
+  /* see superclass */
+  @SuppressWarnings("unchecked")
+  @Override
+  public ComponentHistoryList getComponentHistory(String terminologyId,
+    String terminology, String version) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - get componentHistorys " + terminologyId + "/"
+            + terminology + "/" + version);
+    final List<ComponentHistory> componentHistories = getComponents(
+        terminologyId, terminology, version, ComponentHistoryJpa.class);
+    if (componentHistories == null) {
+      return null;
+    }
+    final ComponentHistoryList list = new ComponentHistoryListJpa();
+    list.setTotalCount(componentHistories.size());
+    list.setObjects(componentHistories);
+    return list;
+  }
+
+  /* see superclass */
+  @Override
+  public ComponentHistory getComponentHistory(String terminologyId,
+    String terminology, String version, String branch) throws Exception {
+    Logger.getLogger(getClass()).debug("Content Service - get componentHistory "
+        + terminologyId + "/" + terminology + "/" + version + "/" + branch);
+    return getComponent(terminologyId, terminology, version, branch,
+        ComponentHistoryJpa.class);
+  }
+
+  /* see superclass */
+  @Override
+  public void updateComponentHistory(ComponentHistory componentHistory)
+    throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - update componentHistory " + componentHistory);
+
+    // update component
+    updateComponent(componentHistory);
+
+  }
+
+  /* see superclass */
+  @Override
+  public void removeComponentHistory(Long id) throws Exception {
+    Logger.getLogger(getClass())
+        .debug("Content Service - remove componentHistory " + id);
+    // Remove the component
+    removeComponent(id, ComponentHistoryJpa.class);
+
+  }
 }

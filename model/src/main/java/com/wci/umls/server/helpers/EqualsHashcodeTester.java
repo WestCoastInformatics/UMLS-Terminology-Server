@@ -29,11 +29,17 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testIdentityFieldEquals() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test identity field equals - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test identity field equals - " + clazz.getName());
     Object o1 = createObject(1);
     Object o2 = createObject(1);
-    return o1.equals(o2);
+    if (o1.equals(o2)) {
+      return true;
+    } else {
+      Logger.getLogger(getClass()).info("o1 = " + o1.hashCode() + ", " + o1);
+      Logger.getLogger(getClass()).info("o2 = " + o2.hashCode() + ", " + o2);
+      return false;
+    }
   }
 
   /**
@@ -44,12 +50,18 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testNonIdentityFieldEquals() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test non identity field equals - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test non identity field equals - " + clazz.getName());
     Object o1 = createObject(1);
     Object o2 = createObject(1);
-    setFields(o2, false, true, 2);
-    return o1.equals(o2);
+    setFields(o2, true, true, 2);
+    if (o1.equals(o2)) {
+      return true;
+    } else {
+      Logger.getLogger(getClass()).info("o1 = " + o1.hashCode() + ", " + o1);
+      Logger.getLogger(getClass()).info("o2 = " + o2.hashCode() + ", " + o2);
+      return false;
+    }
   }
 
   /**
@@ -60,8 +72,8 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testIdentityFieldNotEquals() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test identity field not equals - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test identity field not equals - " + clazz.getName());
 
     // Create an object
     Object o1 = createObject(1);
@@ -71,19 +83,23 @@ public class EqualsHashcodeTester extends ProxyTester {
 
       /* We're looking for single-argument setters. */
       Method m = methods[i];
-      if (!m.getName().startsWith("set"))
+      if (!m.getName().startsWith("set")) {
         continue;
+      }
 
       String fieldName = m.getName().substring(3);
       Class<?>[] args = m.getParameterTypes();
-      if (args.length != 1)
+      if (args.length != 1) {
         continue;
+      }
 
       /* Check the field name against our include/exclude list. */
-      if (includes != null && !includes.contains(fieldName.toLowerCase()))
+      if (!includes.isEmpty() && !includes.contains(fieldName.toLowerCase())) {
         continue;
-      if (excludes.contains(fieldName.toLowerCase()))
+      }
+      if (excludes.contains(fieldName.toLowerCase())) {
         continue;
+      }
 
       /* Is there a getter that returns the same type? */
       Method getter;
@@ -109,12 +125,12 @@ public class EqualsHashcodeTester extends ProxyTester {
 
       if (o1.equals(o2)) {
         // if equals, fail here
-        Logger.getLogger(getClass()).debug(
-            "  o1 = " + o1.hashCode() + ", " + o1);
-        Logger.getLogger(getClass()).debug(
-            "  o2 = " + o2.hashCode() + ", " + o2);
-        throw new Exception("Equality did not change when field " + fieldName
-            + " was changed");
+        Logger.getLogger(getClass())
+            .info("  o1 = " + o1.hashCode() + ", " + o1);
+        Logger.getLogger(getClass())
+            .info("  o2 = " + o2.hashCode() + ", " + o2);
+        throw new Exception(
+            "Equality did not change when field " + fieldName + " was changed");
       }
 
     }
@@ -129,8 +145,8 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testIdentityFieldHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test identity field hashcode - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test identity field hashcode - " + clazz.getName());
     Object o1 = createObject(1);
     Object o2 = createObject(1);
     return o1.hashCode() == o2.hashCode();
@@ -144,11 +160,15 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testNonIdentityFieldHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test non identity field hashcode - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test non identity field hashcode - " + clazz.getName());
     Object o1 = createObject(1);
     Object o2 = createObject(1);
-    setFields(o2, false, true, 2);
+    setFields(o2, true, true, 2);
+    if (o1.hashCode() != o2.hashCode()) {
+      Logger.getLogger(getClass()).info("o1 = " + o1.hashCode() + ", " + o1);
+      Logger.getLogger(getClass()).info("o2 = " + o2.hashCode() + ", " + o2);
+    }
     return o1.hashCode() == o2.hashCode();
   }
 
@@ -160,8 +180,8 @@ public class EqualsHashcodeTester extends ProxyTester {
    * @throws Exception the exception
    */
   public boolean testIdentityFieldDifferentHashcode() throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "Test identity field different hashcode - " + clazz.getName());
+    Logger.getLogger(getClass())
+        .debug("Test identity field different hashcode - " + clazz.getName());
 
     // Create an object
     Object o1 = createObject(1);
@@ -180,7 +200,7 @@ public class EqualsHashcodeTester extends ProxyTester {
         continue;
 
       /* Check the field name against our include/exclude list. */
-      if (includes != null && !includes.contains(fieldName.toLowerCase()))
+      if (!includes.isEmpty() && !includes.contains(fieldName.toLowerCase()))
         continue;
       if (excludes.contains(fieldName.toLowerCase()))
         continue;
@@ -211,10 +231,12 @@ public class EqualsHashcodeTester extends ProxyTester {
 
       if (o1.hashCode() == o2.hashCode()) {
         // if equals, fail here
-        Logger.getLogger(getClass()).debug("  o1 = " + o1);
-        Logger.getLogger(getClass()).debug("  o2 = " + o2);
-        throw new Exception("Hashcode did not change when field " + fieldName
-            + " was changed");
+        Logger.getLogger(getClass())
+            .info("  o1 = " + o1.hashCode() + ", " + o1);
+        Logger.getLogger(getClass())
+            .info("  o2 = " + o2.hashCode() + ", " + o2);
+        throw new Exception(
+            "Hashcode did not change when field " + fieldName + " was changed");
       }
 
     }

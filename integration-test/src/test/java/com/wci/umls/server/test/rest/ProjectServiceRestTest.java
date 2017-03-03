@@ -12,17 +12,22 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.rest.client.ContentClientRest;
 import com.wci.umls.server.rest.client.ProjectClientRest;
 import com.wci.umls.server.rest.client.SecurityClientRest;
+import com.wci.umls.server.test.helpers.IntegrationUnitSupport;
 
 /**
  * Superclass for "Project Service REST" Test Cases.
  */
 @Ignore
-public class ProjectServiceRestTest {
+public class ProjectServiceRestTest extends IntegrationUnitSupport {
 
   /** The service. */
   protected static ProjectClientRest projectService;
+  
+  /** The content service. */
+  protected static ContentClientRest contentService;
 
   /** The security service. */
   protected static SecurityClientRest securityService;
@@ -55,6 +60,7 @@ public class ProjectServiceRestTest {
 
     // instantiate required services
     projectService = new ProjectClientRest(properties);
+    contentService = new ContentClientRest(properties);
     securityService = new SecurityClientRest(properties);
 
     // test run.config.ts has viewer user

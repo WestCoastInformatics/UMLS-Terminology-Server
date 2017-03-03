@@ -1,11 +1,12 @@
 /*
- *    Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,9 @@ public class RrfReaders {
     /** The mrrel. */
     MRREL,
 
+    /** The mrhier. */
+    MRHIER,
+
     /** The mrsab. */
     MRSAB,
 
@@ -54,6 +58,12 @@ public class RrfReaders {
 
     /** The mrsty. */
     MRSTY,
+
+    /** The mrcui. */
+    MRCUI,
+
+    /** The mraui. */
+    MRAUI,
 
     /** The srdef. */
     SRDEF;
@@ -77,16 +87,21 @@ public class RrfReaders {
    */
   public void openReaders() throws Exception {
 
-    readers.put(Keys.MRCONSO, getReader("consoByConcept.sort"));
-    readers.put(Keys.MRDEF, getReader("defByConcept.sort"));
-    readers.put(Keys.MRDOC, getReader("docByKey.sort"));
-    readers.put(Keys.MRMAP, getReader("mapByConcept.sort"));
-    readers.put(Keys.MRRANK, getReader("rankByRank.sort"));
-    readers.put(Keys.MRREL, getReader("relByConcept.sort"));
-    readers.put(Keys.MRSAB, getReader("sabBySab.sort"));
-    readers.put(Keys.MRSAT, getReader("satByConcept.sort"));
-    readers.put(Keys.MRSTY, getReader("styByConcept.sort"));
-    readers.put(Keys.SRDEF, getReader("srdef.sort"));
+    // N/A - sorting is assumed
+
+    // readers.put(Keys.MRCONSO, getReader("consoByConcept.sort"));
+    // readers.put(Keys.MRDEF, getReader("defByConcept.sort"));
+    // readers.put(Keys.MRDOC, getReader("docByKey.sort"));
+    // readers.put(Keys.MRMAP, getReader("mapByConcept.sort"));
+    // readers.put(Keys.MRRANK, getReader("rankByRank.sort"));
+    // readers.put(Keys.MRREL, getReader("relByConcept.sort"));
+    // readers.put(Keys.MRHIER, getReader("relByConcept.sort"));
+    // readers.put(Keys.MRSAB, getReader("sabBySab.sort"));
+    // readers.put(Keys.MRSAT, getReader("satByConcept.sort"));
+    // readers.put(Keys.MRSTY, getReader("styByConcept.sort"));
+    // readers.put(Keys.SRDEF, getReader("srdef.sort"));
+    // readers.put(Keys.MRCUI, getReader("cuiHistory.sort"));
+    // readers.put(Keys.MRAUI, getReader("auiHistory.sort"));
 
   }
 
@@ -98,9 +113,9 @@ public class RrfReaders {
    */
   public void openOriginalReaders(String prefix) throws Exception {
 
-    for (Keys key : Keys.values()) {
-      readers
-          .put(key, getReader(key.toString().replace("MR", prefix) + ".RRF"));
+    for (final Keys key : Keys.values()) {
+      readers.put(key,
+          getReader(key.toString().replace("MR", prefix) + ".RRF"));
     }
     readers.put(Keys.SRDEF, getReader("SRDEF"));
   }
@@ -111,7 +126,7 @@ public class RrfReaders {
    * @throws Exception the exception
    */
   public void closeReaders() throws Exception {
-    for (BufferedReader reader : readers.values()) {
+    for (final BufferedReader reader : readers.values()) {
       try {
         reader.close();
       } catch (Exception e) {
@@ -130,7 +145,8 @@ public class RrfReaders {
   private PushBackReader getReader(String filename) throws Exception {
     File file = new File(inputDir, filename);
     if (file != null && file.exists()) {
-      return new PushBackReader(new BufferedReader(new FileReader(file)));
+      return new PushBackReader(new BufferedReader(
+          new InputStreamReader(new FileInputStream(file), "UTF-8")));
     } else {
       // if no file, return an empty stream
       return new PushBackReader(new StringReader(""));

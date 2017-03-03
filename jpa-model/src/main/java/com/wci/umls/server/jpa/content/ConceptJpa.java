@@ -1,21 +1,28 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
@@ -26,10 +33,13 @@ import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.Store;
 
 import com.wci.umls.server.helpers.Note;
+import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.jpa.helpers.CollectionToCsvBridge;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
 import com.wci.umls.server.model.content.ConceptSubsetMember;
+import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.SemanticTypeComponent;
 import com.wci.umls.server.model.meta.IdType;
@@ -38,9 +48,14 @@ import com.wci.umls.server.model.meta.IdType;
  * JPA and JAXB enabled implementation of {@link Concept}.
  */
 @Entity
-@Table(name = "concepts", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "concepts", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    }), @UniqueConstraint(columnNames = {
+        "terminology", "version", "id"
+    })
+})
+
 @Audited
 @XmlRootElement(name = "concept")
 @Indexed
@@ -53,6 +68,18 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   /** The relationships. */
   @OneToMany(mappedBy = "from", targetEntity = ConceptRelationshipJpa.class)
   private List<ConceptRelationship> relationships = null;
+
+  /** The inverse relationships. */
+  @OneToMany(mappedBy = "to", targetEntity = ConceptRelationshipJpa.class)
+  private List<ConceptRelationship> inverseRelationships = null;
+
+  /** The tree positions. */
+  @OneToMany(mappedBy = "node", targetEntity = ConceptTreePositionJpa.class)
+  private List<ConceptTreePosition> treePositions = null;
+
+  /** The component histories. */
+  @OneToMany(targetEntity = ComponentHistoryJpa.class)
+  private List<ComponentHistory> componentHistories = null;
 
   /** The semantic type components. */
   @IndexedEmbedded(targetElement = SemanticTypeComponentJpa.class)
@@ -70,9 +97,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   /** The concept terminology id map. */
   @ElementCollection(fetch = FetchType.EAGER)
-  // consider this: @Fetch(sFetchMode.JOIN)
-  @Column(nullable = true)
-  List<String> labels;
+  @Fetch(FetchMode.JOIN)
+  @JoinColumn(nullable = true)
+  private List<String> labels;
 
   /** The fully defined. */
   @Column(nullable = false)
@@ -90,6 +117,15 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @Column(nullable = false)
   private boolean usesRelationshipUnion = false;
 
+  /** The last approved. */
+  @Column(nullable = true)
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date lastApproved;
+
+  /** The last approved by. */
+  @Column(nullable = true)
+  private String lastApprovedBy;
+
   /**
    * Instantiates an empty {@link ConceptJpa}.
    */
@@ -101,33 +137,40 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
    * Instantiates a {@link ConceptJpa} from the specified parameters.
    *
    * @param concept the concept
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
-  public ConceptJpa(Concept concept, boolean deepCopy) {
-    super(concept, deepCopy);
+  public ConceptJpa(Concept concept, boolean collectionCopy) {
+    super(concept, collectionCopy);
     anonymous = concept.isAnonymous();
     fullyDefined = concept.isFullyDefined();
     usesRelationshipIntersection = concept.getUsesRelationshipIntersection();
     usesRelationshipUnion = concept.getUsesRelationshipUnion();
-    if (concept.getLabels() != null) {
-      labels = new ArrayList<>(concept.getLabels());
-    }
+    lastApproved = concept.getLastApproved();
+    lastApprovedBy = concept.getLastApprovedBy();
+    labels = new ArrayList<>(concept.getLabels());
 
-    if (deepCopy) {
-      for (Definition definition : concept.getDefinitions()) {
-        getDefinitions().add(new DefinitionJpa(definition, deepCopy));
-      }
-      for (ConceptRelationship relationship : concept.getRelationships()) {
-        getRelationships().add(
-            new ConceptRelationshipJpa(relationship, deepCopy));
-      }
-      for (SemanticTypeComponent sty : concept.getSemanticTypes()) {
-        getSemanticTypes().add(new SemanticTypeComponentJpa(sty));
-      }
-      for (ConceptSubsetMember member : concept.getMembers()) {
-        getMembers().add(new ConceptSubsetMemberJpa(member, deepCopy));
-      }
+    if (collectionCopy) {
+      definitions = new ArrayList<>(concept.getDefinitions());
+      relationships = new ArrayList<>(concept.getRelationships());
+      semanticTypes = new ArrayList<>(concept.getSemanticTypes());
+      members = new ArrayList<>(concept.getMembers());
+      componentHistories = new ArrayList<>(concept.getComponentHistory());
+      treePositions = new ArrayList<>(concept.getTreePositions());
     }
+  }
+
+  /**
+   * Instantiates a {@link ConceptJpa} from the specified parameters.
+   *
+   * @param result the result
+   */
+  public ConceptJpa(SearchResult result) {
+    setName(result.getValue());
+    setId(result.getId());
+    setTerminology(result.getTerminology());
+    setTerminologyId(result.getTerminologyId());
+    setVersion(result.getVersion());
+    setWorkflowStatus(result.getWorkflowStatus());
   }
 
   /**
@@ -154,11 +197,6 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.definitions = definitions;
   }
 
-  /**
-   * Returns the relationships.
-   *
-   * @return the relationships
-   */
   @XmlElement(type = ConceptRelationshipJpa.class)
   @Override
   public List<ConceptRelationship> getRelationships() {
@@ -168,14 +206,35 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return relationships;
   }
 
-  /**
-   * Sets the relationships.
-   *
-   * @param relationships the relationships
-   */
+  /* see superclass */
+  @XmlTransient
+  @Override
+  public List<ConceptRelationship> getInverseRelationships() {
+    if (inverseRelationships == null) {
+      inverseRelationships = new ArrayList<>(1);
+    }
+    return inverseRelationships;
+  }
+
   @Override
   public void setRelationships(List<ConceptRelationship> relationships) {
     this.relationships = relationships;
+
+  }
+
+  @XmlElement(type = ConceptTreePositionJpa.class)
+  @Override
+  public List<ConceptTreePosition> getTreePositions() {
+    if (treePositions == null) {
+      treePositions = new ArrayList<>(1);
+    }
+    return treePositions;
+  }
+
+  /* see superclass */
+  @Override
+  public void setTreePositions(List<ConceptTreePosition> treePositions) {
+    this.treePositions = treePositions;
 
   }
 
@@ -283,6 +342,9 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
   @FieldBridge(impl = CollectionToCsvBridge.class)
   @Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public List<String> getLabels() {
+    if (labels == null) {
+      labels = new ArrayList<>();
+    }
     return labels;
   }
 
@@ -292,14 +354,15 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     this.labels = labels;
 
   }
-  
 
+  /* see superclass */
   @Override
   public void setNotes(List<Note> notes) {
     this.notes = notes;
 
   }
 
+  /* see superclass */
   @Override
   @XmlElement(type = ConceptNoteJpa.class)
   public List<Note> getNotes() {
@@ -309,17 +372,57 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     return this.notes;
   }
 
+  /* see superclass */
   @Override
   public void setType(IdType type) {
-   // N/A
-    
+    // N/A
   }
 
+  /* see superclass */
   @Override
   public IdType getType() {
     return IdType.CONCEPT;
   }
 
+  /**
+   * Returns the last approved.
+   *
+   * @return the last approved
+   */
+  @Override
+  public Date getLastApproved() {
+    return lastApproved;
+  }
+
+  /**
+   * Sets the last approved.
+   *
+   * @param lastApproved the last approved
+   */
+  @Override
+  public void setLastApproved(Date lastApproved) {
+    this.lastApproved = lastApproved;
+  }
+
+  /**
+   * Returns the last approved by.
+   *
+   * @return the last approved by
+   */
+  @Override
+  public String getLastApprovedBy() {
+    return lastApprovedBy;
+  }
+
+  /**
+   * Sets the last approved by.
+   *
+   * @param lastApprovedBy the last approved by
+   */
+  @Override
+  public void setLastApprovedBy(String lastApprovedBy) {
+    this.lastApprovedBy = lastApprovedBy;
+  }
 
   /* see superclass */
   @Override
@@ -352,6 +455,22 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
     if (usesRelationshipUnion != other.usesRelationshipUnion)
       return false;
     return true;
+  }
+
+  /* see superclass */
+  @Override
+  @XmlElement(type = ComponentHistoryJpa.class)
+  public List<ComponentHistory> getComponentHistory() {
+    if (componentHistories == null) {
+      componentHistories = new ArrayList<ComponentHistory>();
+    }
+    return componentHistories;
+  }
+
+  /* see superclass */
+  @Override
+  public void setComponentHistory(List<ComponentHistory> componentHistory) {
+    this.componentHistories = componentHistory;
   }
 
 }

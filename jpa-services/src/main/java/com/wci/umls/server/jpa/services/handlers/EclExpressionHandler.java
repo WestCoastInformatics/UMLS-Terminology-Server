@@ -32,6 +32,7 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.jpa.AbstractConfigurable;
 import com.wci.umls.server.jpa.helpers.SearchResultJpa;
 import com.wci.umls.server.jpa.helpers.SearchResultListJpa;
 import com.wci.umls.server.jpa.services.handlers.expr.EclConceptFieldNames;
@@ -41,7 +42,8 @@ import com.wci.umls.server.services.handlers.ExpressionHandler;
 /**
  * The Class EclExpressionHandler.
  */
-public class EclExpressionHandler implements ExpressionHandler {
+public class EclExpressionHandler extends AbstractConfigurable
+    implements ExpressionHandler {
 
   /** The terminology. */
   private String terminology = null;
@@ -91,7 +93,7 @@ public class EclExpressionHandler implements ExpressionHandler {
 
     // compute the internal functions from the modified SQS lucene converter
     // NOTE: Kept out of Converter to minimize SQS code modification
-    for (ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : ExpressionConstraintToLuceneConverter.InternalFunction
+    for (final ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : ExpressionConstraintToLuceneConverter.InternalFunction
         .values()) {
       internalFunctionPatternMap.put(internalFunction,
           Pattern.compile(".*(" + internalFunction + "\\(([^\\)]+)\\)).*"));
@@ -133,8 +135,8 @@ public class EclExpressionHandler implements ExpressionHandler {
       String luceneQuery;
       try {
         luceneQuery = parse(ecQuery);
-        Logger.getLogger(getClass()).info(
-            "EC Query: " + ecQuery + " -> parsed: " + luceneQuery);
+        Logger.getLogger(getClass())
+            .info("EC Query: " + ecQuery + " -> parsed: " + luceneQuery);
 
       } catch (RecognitionException e) {
         throw new LocalException(
@@ -143,7 +145,7 @@ public class EclExpressionHandler implements ExpressionHandler {
         throw new LocalException(e.getMessage(), e);
       }
       try {
-        for (ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : internalFunctionPatternMap
+        for (final ExpressionConstraintToLuceneConverter.InternalFunction internalFunction : internalFunctionPatternMap
             .keySet()) {
           while (luceneQuery.contains(internalFunction.name())) {
             luceneQuery =
@@ -170,15 +172,15 @@ public class EclExpressionHandler implements ExpressionHandler {
           ScoreDoc scoreDoc = scoreDocs[a];
           Document conceptDoc = getDocument(scoreDoc);
           SearchResult result = new SearchResultJpa();
-          result.setId(Long.parseLong(conceptDoc
-              .get(EclConceptFieldNames.INTERNAL_ID)));
+          result.setId(
+              Long.parseLong(conceptDoc.get(EclConceptFieldNames.INTERNAL_ID)));
           result.setTerminology(terminology);
           result.setVersion(version);
           result.setTerminologyId(conceptDoc.get(EclConceptFieldNames.ID));
           results.getObjects().add(result);
         }
-        Logger.getLogger(getClass()).info(
-            "  results = " + results.getCount() + ", query = " + luceneQuery);
+        Logger.getLogger(getClass())
+            .info("  results = " + results.size() + ", query = " + luceneQuery);
         return results;
       } catch (ParseException e) {
         throw new InternalError("Error parsing internal search query.", e);
@@ -205,9 +207,8 @@ public class EclExpressionHandler implements ExpressionHandler {
 
     // if no match, log and throw error
     if (!matcher.matches() || matcher.groupCount() != 2) {
-      final String message =
-          "Failed to extract the id from the function " + internalFunction
-              + " in internal query '" + luceneQuery + "'";
+      final String message = "Failed to extract the id from the function "
+          + internalFunction + " in internal query '" + luceneQuery + "'";
       Logger.getLogger(getClass()).error(message);
       throw new IllegalStateException(message);
     }
@@ -220,21 +221,20 @@ public class EclExpressionHandler implements ExpressionHandler {
     if (internalFunction.isAncestorType()) {
 
       // get the list of ancestors for this concept
-      conceptRelatives =
-          Lists.newArrayList(getConceptDocument(terminologyId).getValues(
-              EclConceptFieldNames.ANCESTOR));
+      conceptRelatives = Lists.newArrayList(getConceptDocument(terminologyId)
+          .getValues(EclConceptFieldNames.ANCESTOR));
     }
 
     // if not ancestor function
     else {
 
       // get the concepts for which this concept is an ancestor
-      final TopDocs topDocs =
-          indexSearcher.search(new TermQuery(new Term(
-              EclConceptFieldNames.ANCESTOR, terminologyId)), maxResults);
+      final TopDocs topDocs = indexSearcher.search(
+          new TermQuery(new Term(EclConceptFieldNames.ANCESTOR, terminologyId)),
+          maxResults);
 
       conceptRelatives = new ArrayList<>();
-      for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+      for (final ScoreDoc scoreDoc : topDocs.scoreDocs) {
         conceptRelatives
             .add(getDocument(scoreDoc).get(EclConceptFieldNames.ID));
       }
@@ -244,10 +244,8 @@ public class EclExpressionHandler implements ExpressionHandler {
     }
 
     String newLuceneQuery =
-        luceneQuery.replace(
-            matcher.group(1),
-            buildOptionsList(conceptRelatives,
-                !internalFunction.isAttributeType()));
+        luceneQuery.replace(matcher.group(1), buildOptionsList(conceptRelatives,
+            !internalFunction.isAttributeType()));
 
     return newLuceneQuery;
   }
@@ -262,11 +260,11 @@ public class EclExpressionHandler implements ExpressionHandler {
   @SuppressWarnings("static-method")
   private String buildOptionsList(List<String> conceptRelatives,
     boolean includeIdFieldName) {
-    StringBuilder relativesIdBuilder = new StringBuilder();
+    final StringBuilder relativesIdBuilder = new StringBuilder();
     if (!conceptRelatives.isEmpty()) {
       relativesIdBuilder.append("(");
       boolean first = true;
-      for (String conceptRelative : conceptRelatives) {
+      for (final String conceptRelative : conceptRelatives) {
         if (first) {
           first = false;
         } else {
@@ -292,9 +290,8 @@ public class EclExpressionHandler implements ExpressionHandler {
   private Document getConceptDocument(String conceptId) throws Exception {
 
     // get the top document (i.e. restrict to 1 result)
-    final TopDocs docs =
-        indexSearcher.search(new TermQuery(new Term(EclConceptFieldNames.ID,
-            conceptId)), 1);
+    final TopDocs docs = indexSearcher
+        .search(new TermQuery(new Term(EclConceptFieldNames.ID, conceptId)), 1);
     if (docs.totalHits < 1) {
       throw new Exception(conceptId + " has no index document");
     }

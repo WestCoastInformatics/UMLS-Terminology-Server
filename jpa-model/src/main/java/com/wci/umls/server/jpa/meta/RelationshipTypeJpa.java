@@ -1,8 +1,9 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.meta;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -24,10 +25,14 @@ import com.wci.umls.server.model.meta.RelationshipType;
 }))
 @Audited
 @XmlRootElement(name = "relationshipType")
-public class RelationshipTypeJpa extends AbstractAbbreviation implements
-    RelationshipType {
+public class RelationshipTypeJpa extends AbstractAbbreviation
+    implements RelationshipType {
 
-  /** The concept. */
+  /** The hierarchical. */
+  @Column(nullable = false)
+  private boolean hierarchical;
+
+  /** The inverse. */
   @OneToOne(targetEntity = RelationshipTypeJpa.class, optional = true)
   private RelationshipType inverse;
 
@@ -41,11 +46,12 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
   /**
    * Instantiates a {@link RelationshipTypeJpa} from the specified parameters.
    *
-   * @param rela the rela
+   * @param rel the rela
    */
-  public RelationshipTypeJpa(RelationshipType rela) {
-    super(rela);
-    inverse = rela.getInverse();
+  public RelationshipTypeJpa(RelationshipType rel) {
+    super(rel);
+    inverse = rel.getInverse();
+    hierarchical = rel.isHierarchical();
   }
 
   /* see superclass */
@@ -59,6 +65,18 @@ public class RelationshipTypeJpa extends AbstractAbbreviation implements
   @Override
   public void setInverse(RelationshipType inverse) {
     this.inverse = inverse;
+  }
+
+  /* see superclass */
+  @Override
+  public boolean isHierarchical() {
+    return hierarchical;
+  }
+
+  /* see superclass */
+  @Override
+  public void setHierarchical(boolean hierarchicial) {
+    this.hierarchical = hierarchicial;
   }
 
   /**

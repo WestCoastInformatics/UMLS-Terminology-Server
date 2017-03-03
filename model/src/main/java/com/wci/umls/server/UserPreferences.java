@@ -1,9 +1,10 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server;
 
 import java.util.List;
+import java.util.Map;
 
 import com.wci.umls.server.helpers.PrecedenceList;
 
@@ -83,6 +84,20 @@ public interface UserPreferences {
   public void setLastProjectId(Long lastProjectId);
 
   /**
+   * Returns the last project role accessed.
+   *
+   * @return the lastProjectRole
+   */
+  public UserRole getLastProjectRole();
+
+  /**
+   * Sets the last project role accessed.
+   *
+   * @param lastProjectRole the last project role accessed
+   */
+  public void setLastProjectRole(UserRole lastProjectRole);
+
+  /**
    * Gets the feedback email.
    *
    * @return the feedback email
@@ -123,5 +138,19 @@ public interface UserPreferences {
    * @return the favorites
    */
   public List<String> getFavorites();
+
+  /**
+   * Returns the properties.
+   *
+   * @return the properties
+   */
+  public Map<String, String> getProperties();
+
+  /**
+   * Sets the properties.
+   *
+   * @param properties the properties
+   */
+  public void setProperties(Map<String, String> properties);
 
 }

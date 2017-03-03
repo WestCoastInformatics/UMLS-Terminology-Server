@@ -7,6 +7,9 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.ReleaseInfo;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -23,31 +26,26 @@ import com.wci.umls.server.services.SecurityService;
  * Goal which removes a terminology from a database.
  * 
  * See admin/remover/pom.xml for sample usage
- * 
- * @goal remove-terminology
- * 
- * @phase package
  */
+@Mojo(name = "remove-terminology", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRemoverMojo extends AbstractMojo {
 
   /**
    * Name of terminology to be removed.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String terminology;
 
   /**
    * version to remove.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -67,7 +65,7 @@ public class TerminologyRemoverMojo extends AbstractMojo {
     getLog().info("  version = " + version);
     try {
 
-      Properties properties = ConfigUtility.getConfigProperties();
+      final Properties properties = ConfigUtility.getConfigProperties();
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
@@ -85,8 +83,8 @@ public class TerminologyRemoverMojo extends AbstractMojo {
       }
 
       // authenticate
-      SecurityService service = new SecurityServiceJpa();
-      String authToken =
+      final SecurityService service = new SecurityServiceJpa();
+      final String authToken =
           service.authenticate(properties.getProperty("admin.user"),
               properties.getProperty("admin.password")).getAuthToken();
 
@@ -94,13 +92,13 @@ public class TerminologyRemoverMojo extends AbstractMojo {
         getLog().info("Running directly");
 
         getLog().info("  Remove concepts");
-        ContentServiceRest contentService = new ContentServiceRestImpl();
+        final ContentServiceRest contentService = new ContentServiceRestImpl();
         contentService.removeTerminology(terminology, version, authToken);
 
         getLog().info("  Remove release info");
-        HistoryServiceRest historyService = new HistoryServiceRestImpl();
-        for (ReleaseInfo info : historyService.getReleaseHistory(terminology,
-            authToken).getObjects()) {
+        final HistoryServiceRest historyService = new HistoryServiceRestImpl();
+        for (final ReleaseInfo info : historyService.getReleaseHistory(
+            terminology, authToken).getObjects()) {
           // Need to open a second one to reopen security service
           HistoryServiceRest historyService2 = new HistoryServiceRestImpl();
           if (info.getTerminology().equals(terminology)
@@ -113,13 +111,15 @@ public class TerminologyRemoverMojo extends AbstractMojo {
         getLog().info("Running against server");
 
         getLog().info("  Remove concepts");
-        ContentClientRest contentService = new ContentClientRest(properties);
+        final ContentClientRest contentService =
+            new ContentClientRest(properties);
         contentService.removeTerminology(terminology, version, authToken);
 
         getLog().info("  Remove release info");
-        HistoryClientRest historyService = new HistoryClientRest(properties);
-        for (ReleaseInfo info : historyService.getReleaseHistory(terminology,
-            authToken).getObjects()) {
+        final HistoryClientRest historyService =
+            new HistoryClientRest(properties);
+        for (final ReleaseInfo info : historyService.getReleaseHistory(
+            terminology, authToken).getObjects()) {
           if (info.getTerminology().equals(terminology)
               && info.getVersion().equals(version)) {
             historyService.removeReleaseInfo(info.getId(), authToken);

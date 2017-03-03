@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2016 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -8,12 +8,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.content.SubsetMemberList;
 import com.wci.umls.server.helpers.meta.LabelSetList;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.meta.LabelSetJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptSubset;
@@ -26,7 +30,7 @@ import com.wci.umls.server.services.RootService;
  * Implementation of an algorithm to compute label set marked parents using the
  * {@link ContentService}. Currently only concept label sets are supported.
  */
-public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm {
+public class LabelSetMarkedParentAlgorithm extends AbstractAlgorithm {
 
   /** The concept to generate label set data from. */
   private ConceptSubset subset;
@@ -50,6 +54,9 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     logInfo("  subset = " + subset);
     fireProgressEvent(0, "Starting...");
 
+    setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
+    setMolecularActionFlag(false);
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -81,9 +88,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
       ancestorLabelSet.setAbbreviation("LABELFOR:" + subset.getTerminologyId());
       ancestorLabelSet.setDescription("label parent for " + subset.getName());
       ancestorLabelSet.setExpandedForm(subset.getName());
-      ancestorLabelSet.setLastModified(startDate);
       ancestorLabelSet.setTimestamp(startDate);
-      ancestorLabelSet.setLastModifiedBy("loader");
       ancestorLabelSet.setPublishable(false);
       ancestorLabelSet.setPublished(false);
       ancestorLabelSet.setTerminology(subset.getTerminology());
@@ -95,9 +100,7 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
       labelSet.setAbbreviation(subset.getTerminologyId());
       labelSet.setDescription("Concept in " + subset.getName());
       labelSet.setExpandedForm(subset.getName());
-      labelSet.setLastModified(startDate);
       labelSet.setTimestamp(startDate);
-      labelSet.setLastModifiedBy("loader");
       labelSet.setPublishable(false);
       labelSet.setPublished(false);
       labelSet.setTerminology(subset.getTerminology());
@@ -110,31 +113,30 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     // Check cancel flag
     if (isCancelled()) {
       rollback();
-      throw new CancelException("Label set marked parent computation cancelled");
+      throw new CancelException(
+          "Label set marked parent computation cancelled");
     }
 
     // Get subset members
     fireProgressEvent(3, "Get subset members");
-    final SubsetMemberList members =
-        findConceptSubsetMembers(subset.getTerminologyId(),
-            subset.getTerminology(), subset.getVersion(), Branch.ROOT, "", null);
-    logInfo("  subset members = " + members.getCount());
+    final SubsetMemberList members = findConceptSubsetMembers(
+        subset.getTerminologyId(), subset.getTerminology(), subset.getVersion(),
+        Branch.ROOT, "", null);
+    logInfo("  subset members = " + members.size());
 
     // Look up ancestors
     fireProgressEvent(5, "Look up ancestors");
     final String tableName = "ConceptRelationshipJpa";
     final String tableName2 = "ConceptJpa";
     @SuppressWarnings("unchecked")
-    final List<Object[]> relationships =
-        manager
-            .createQuery(
-                "select r.from.id, r.to.id from " + tableName + " r where "
-                    + "version = :version and terminology = :terminology "
-                    + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
-                    + "and r.from in (select o from " + tableName2
-                    + " o where obsolete = 0)")
-            .setParameter("terminology", getTerminology())
-            .setParameter("version", getVersion()).getResultList();
+    final List<Object[]> relationships = manager
+        .createQuery("select r.from.id, r.to.id from " + tableName + " r where "
+            + "version = :version and terminology = :terminology "
+            + "and hierarchical = 1 and inferred = 1 and obsolete = 0 "
+            + "and r.from in (select o from " + tableName2
+            + " o where obsolete = 0)")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion()).getResultList();
 
     int ct = 0;
     final Map<Long, Set<Long>> chdPar = new HashMap<>();
@@ -189,7 +191,8 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
     // Check cancel flag
     if (isCancelled()) {
       rollback();
-      throw new CancelException("Label set marked parent computation cancelled");
+      throw new CancelException(
+          "Label set marked parent computation cancelled");
     }
 
     fireProgressEvent(25, "Tag concepts with label set");
@@ -257,6 +260,30 @@ public class LabelSetMarkedParentAlgorithm extends AbstractTerminologyAlgorithm 
    */
   public void setSubset(ConceptSubset subset) {
     this.subset = subset;
+    this.getName();
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

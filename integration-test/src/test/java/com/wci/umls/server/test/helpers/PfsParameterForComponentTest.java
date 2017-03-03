@@ -66,7 +66,7 @@ public class PfsParameterForComponentTest {
 
     List<Object> components = new ArrayList<>();
 
-    for (Object result : results.getObjects()) {
+    for (final Object result : results.getObjects()) {
       Object obj = null;
       SearchResult sr = (SearchResult) result;
       if (LexicalClassJpa.class.isAssignableFrom(sortClass)) {
@@ -136,7 +136,7 @@ public class PfsParameterForComponentTest {
         return false;
     }
 
-    for (Object c : components) {
+    for (final Object c : components) {
 
       thisValue = field.get(c);
 
@@ -177,18 +177,18 @@ public class PfsParameterForComponentTest {
         (int) (Math.floor(pfs.getStartIndex() / pfs.getMaxResults()) + 1);
     int pageSize = pfs.getMaxResults();
 
-    if (results.getCount() > pageSize)
+    if (results.size() > pageSize)
       return false;
 
     // check bounds
     if ((page - 1) * pageSize < 0)
       return false;
-    if ((page - 1) * pageSize + results.getCount() > fullResults
+    if ((page - 1) * pageSize + results.size() > fullResults
         .getTotalCount())
       return false;
 
     // check paging
-    for (int i = 0; i < results.getCount(); i++) {
+    for (int i = 0; i < results.size(); i++) {
       if (!results.getObjects().get(i)
           .equals(fullResults.getObjects().get((page - 1) * pageSize + i)))
         return false;

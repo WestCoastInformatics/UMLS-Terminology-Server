@@ -9,17 +9,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.CancelException;
+import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.jpa.ValidationResultJpa;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptTransitiveRelationshipJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTransitiveRelationshipJpa;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomTransitiveRelationship;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTransitiveRelationship;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
@@ -36,7 +44,7 @@ import com.wci.umls.server.services.RootService;
  * Implementation of an algorithm to compute transitive closure using the
  * {@link ContentService}.
  */
-public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
+public class TransitiveClosureAlgorithm extends AbstractAlgorithm {
 
   /** The descendants map. */
   private Map<Long, Set<Long>> descendantsMap = new HashMap<>();
@@ -71,9 +79,9 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
    */
   public void setIdType(IdType idType) {
     if (idType != IdType.CONCEPT && idType != IdType.DESCRIPTOR
-        && idType != IdType.CODE) {
+        && idType != IdType.CODE && idType != IdType.ATOM) {
       throw new IllegalArgumentException(
-          "Only CONCEPT, DESCRIPTOR, and CODE types are allowed.");
+          "Only CONCEPT, DESCRIPTOR, ATOM and CODE types are allowed.");
     }
     this.idType = idType;
   }
@@ -131,15 +139,16 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     if (idType == IdType.CODE) {
       tableName = "CodeRelationshipJpa";
     }
-    final javax.persistence.Query query =
-        manager
-            .createQuery(
-                "select r.from.id, r.to.id from " + tableName
-                    + " r where obsolete = 0 and inferred = 1 "
-                    + "and terminology = :terminology "
-                    + "and version = :version " + "and hierarchical = 1")
-            .setParameter("terminology", getTerminology())
-            .setParameter("version", getVersion());
+    if (idType == IdType.ATOM) {
+      tableName = "AtomRelationshipJpa";
+    }
+    final javax.persistence.Query query = manager
+        .createQuery("select r.from.id, r.to.id from " + tableName
+            + " r where obsolete = 0 and inferred = 1 "
+            + "and terminology = :terminology " + "and version = :version "
+            + "and hierarchical = 1")
+        .setParameter("terminology", getTerminology())
+        .setParameter("version", getVersion());
 
     @SuppressWarnings("unchecked")
     final List<Object[]> rels = query.getResultList();
@@ -175,6 +184,9 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
 
     // Disable transaction per operation and start transaction
     // Keep this below the read query above
+    setLastModifiedBy("admin");
+    setLastModifiedFlag(true);
+    setMolecularActionFlag(false);
     setTransactionPerOperation(false);
     beginTransaction();
 
@@ -213,14 +225,20 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         ctr.setSuperType(superType);
         ctr.setSubType(ctr.getSuperType());
         tr = ctr;
+      } else if (idType == IdType.ATOM) {
+        final AtomTransitiveRelationship atr =
+            new AtomTransitiveRelationshipJpa();
+        final Atom superType = new AtomJpa();
+        superType.setId(code);
+        atr.setSuperType(superType);
+        atr.setSubType(atr.getSuperType());
+        tr = atr;
       } else {
         throw new Exception("Unexpected id type " + idType);
       }
 
       tr.setObsolete(false);
       tr.setTimestamp(startDate);
-      tr.setLastModified(startDate);
-      tr.setLastModifiedBy("admin");
       tr.setPublishable(true);
       tr.setPublished(false);
       tr.setTerminologyId("");
@@ -288,6 +306,16 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
           ctr.setSuperType(superType);
           ctr.setSubType(subType);
           tr = ctr;
+        } else if (idType == IdType.ATOM) {
+          final AtomTransitiveRelationship atr =
+              new AtomTransitiveRelationshipJpa();
+          final Atom superType = new AtomJpa();
+          superType.setId(code);
+          final Atom subType = new AtomJpa();
+          subType.setId(desc);
+          atr.setSuperType(superType);
+          atr.setSubType(subType);
+          tr = atr;
         } else {
           throw new Exception("Illegal id type: " + idType);
         }
@@ -299,8 +327,6 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         }
         tr.setObsolete(false);
         tr.setTimestamp(startDate);
-        tr.setLastModified(startDate);
-        tr.setLastModifiedBy("admin");
         tr.setPublishable(true);
         tr.setPublished(false);
         tr.setTerminologyId("");
@@ -338,8 +364,8 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
    */
   private Set<Long> getDescendants(Long par, Map<Long, Set<Long>> parChd,
     List<Long> ancPath) throws Exception {
-    Logger.getLogger(getClass()).debug(
-        "  Get descendants for " + par + ", " + ancPath);
+    Logger.getLogger(getClass())
+        .debug("  Get descendants for " + par + ", " + ancPath);
 
     if (isCancelled()) {
       rollback();
@@ -362,7 +388,7 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
         return new HashSet<>(0);
       }
       // Iterate through children, mark as descendant and recursively call
-      for (Long chd : children) {
+      for (final Long chd : children) {
         if (ancPath.contains(chd)) {
           if (cycleTolerant) {
             return new HashSet<>(0);
@@ -383,4 +409,34 @@ public class TransitiveClosureAlgorithm extends AbstractTerminologyAlgorithm {
     return descendants;
   }
 
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    // n/a
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public String getName() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+    // n/a
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }

@@ -60,7 +60,7 @@ public class ConceptListUnitTest extends AbstractListUnit<Concept> {
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse003() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, c1, c2);
   }
 
@@ -71,7 +71,7 @@ public class ConceptListUnitTest extends AbstractListUnit<Concept> {
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse003() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, c1, c2);
   }
 
@@ -81,7 +81,7 @@ public class ConceptListUnitTest extends AbstractListUnit<Concept> {
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases003() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, c1, c2);
   }
 
@@ -92,7 +92,7 @@ public class ConceptListUnitTest extends AbstractListUnit<Concept> {
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization003() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list, list2, c1, c2);
   }
 

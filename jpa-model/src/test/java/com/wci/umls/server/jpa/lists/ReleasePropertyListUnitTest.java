@@ -62,7 +62,7 @@ public class ReleasePropertyListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse017() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, o1, o2);
   }
 
@@ -73,7 +73,7 @@ public class ReleasePropertyListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse017() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, o1, o2);
   }
 
@@ -83,7 +83,7 @@ public class ReleasePropertyListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases017() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, o1, o2);
   }
 
@@ -94,7 +94,7 @@ public class ReleasePropertyListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization017() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, o1, o2);
   }
 

@@ -15,6 +15,9 @@ import javax.persistence.Query;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.services.ContentServiceJpa;
@@ -24,20 +27,17 @@ import com.wci.umls.server.services.ContentService;
  * QA Check for Properly Numbered Map Groups
  * 
  * See admin/qa/pom.xml for a sample execution.
- * 
- * @goal qa-database
- * @phase package
  */
+@Mojo(name = "qa-database", defaultPhase = LifecyclePhase.PACKAGE)
 public class QaDatabase extends AbstractMojo {
 
   /**
    * The queries
-   * @parameter
-   * @required
    */
+  @Parameter
   private Properties queries;
 
-  /** The manager. */
+  /** The manager. package visibility. */
   EntityManager manager;
 
   /**
@@ -54,13 +54,13 @@ public class QaDatabase extends AbstractMojo {
     try {
 
       // Obtain an entity manager;
-      ContentService service = new ContentServiceJpa() {
+      final ContentService service = new ContentServiceJpa() {
         {
           QaDatabase.this.manager = manager;
         }
       };
 
-      Map<String, List<String>> errors = new HashMap<>();
+      final Map<String, List<String>> errors = new HashMap<>();
 
       // Bail if no queries
       if (queries == null) {
@@ -68,44 +68,49 @@ public class QaDatabase extends AbstractMojo {
       }
 
       // Iterate through queries, execute and report
-      for (Object property : queries.keySet()) {
+      for (final Object property : queries.keySet()) {
         String queryStr =
             queries.getProperty(property.toString()).replace(";", "");
         getLog().info("  " + property);
         getLog().info("    " + queryStr);
 
-        // Get and execute query (truncate any trailing semi-colon)
-        Query query = manager.createNativeQuery(queryStr);
-        query.setMaxResults(10);
-        List<Object[]> objects = query.getResultList();
+        try {
+          // Get and execute query (truncate any trailing semi-colon)
+          final Query query = manager.createNativeQuery(queryStr);
+          query.setMaxResults(10);
+          final List<Object[]> objects = query.getResultList();
 
-        // Expect zero count, any results are failures
-        if (objects.size() > 0) {
-          List<String> results = new ArrayList<>();
-          for (Object[] array : objects) {
-            StringBuilder sb = new StringBuilder();
-            for (Object o : array) {
-              sb.append((o != null ? o.toString() : "null")).append(",");
+          // Expect zero count, any results are failures
+          if (objects.size() > 0) {
+            final List<String> results = new ArrayList<>();
+            for (final Object[] array : objects) {
+              StringBuilder sb = new StringBuilder();
+              for (final Object o : array) {
+                sb.append((o != null ? o.toString() : "null")).append(",");
+              }
+              results.add(sb.toString().replace(",$", ""));
             }
-            results.add(sb.toString().replace(",$", ""));
+            errors.put(property.toString(), results);
           }
-          errors.put(property.toString(), results);
+        } catch (Exception e) {
+          e.printStackTrace();
+          // If the query failed, just go to the next one
         }
-
       }
 
       // Check for errors and report the
       if (!errors.isEmpty()) {
-        StringBuilder msg = new StringBuilder();
+        final StringBuilder msg = new StringBuilder();
         msg.append("\r\n");
-        msg.append("The automated database QA mojo has found some issues with the following checks:\r\n");
+        msg.append(
+            "The automated database QA mojo has found some issues with the following checks:\r\n");
         msg.append("\r\n");
 
-        for (String key : errors.keySet()) {
+        for (final String key : errors.keySet()) {
           msg.append("  CHECK: ").append(key).append("\r\n");
           msg.append("  QUERY: ").append(queries.getProperty(key))
               .append("\r\n");
-          for (String result : errors.get(key)) {
+          for (final String result : errors.get(key)) {
             msg.append("    " + result).append("\r\n");
           }
           if (errors.get(key).size() > 9) {
@@ -115,16 +120,22 @@ public class QaDatabase extends AbstractMojo {
 
         }
 
-        Properties config = ConfigUtility.getConfigProperties();
+        final Properties config = ConfigUtility.getConfigProperties();
         if (config.getProperty("mail.enabled") != null
             && config.getProperty("mail.enabled").equals("true")
             && config.getProperty("mail.smtp.to") != null) {
           try {
+            String from = null;
+            if (config.containsKey("mail.smtp.from")) {
+              from = config.getProperty("mail.smtp.from");
+            } else {
+              from = config.getProperty("mail.smtp.user");
+            }
             ConfigUtility.sendEmail("[Terminology Server] Database QA Results",
-                config.getProperty("mail.smtp.user"),
-                config.getProperty("mail.smtp.to"), msg.toString(), config,
-                "true".equals(config.get("mail.smtp.auth")));
+                from, config.getProperty("mail.smtp.to"), msg.toString(),
+                config);
           } catch (Exception e) {
+            e.printStackTrace();
             // do nothing - this just means email couldn't be sent
           }
 

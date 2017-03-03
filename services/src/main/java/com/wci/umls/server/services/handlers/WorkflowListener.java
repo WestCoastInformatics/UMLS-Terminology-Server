@@ -3,11 +3,13 @@
  */
 package com.wci.umls.server.services.handlers;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.Configurable;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.ComponentHasAttributes;
+import com.wci.umls.server.model.content.ComponentHistory;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Definition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -21,7 +23,7 @@ import com.wci.umls.server.model.content.Subset;
 import com.wci.umls.server.model.content.SubsetMember;
 
 /**
- * Represents a validation check on a concept.
+ * Represents a listner for tracking changes.
  */
 public interface WorkflowListener extends Configurable {
 
@@ -95,6 +97,16 @@ public interface WorkflowListener extends Configurable {
    * @throws Exception the exception
    */
   public void conceptChanged(Concept concept, Action action) throws Exception;
+
+  /**
+   * Component history changed.
+   *
+   * @param componentHistory the component history
+   * @param action the action
+   * @throws Exception the exception
+   */
+  public void componentHistoryChanged(ComponentHistory componentHistory,
+    Action action) throws Exception;
 
   /**
    * Descriptor of atom changed.
@@ -172,7 +184,7 @@ public interface WorkflowListener extends Configurable {
    * @throws Exception the exception
    */
   public void relationshipChanged(
-    Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes> relationship,
+    Relationship<? extends ComponentInfo, ? extends ComponentInfo> relationship,
     Action action) throws Exception;
 
   /**
@@ -192,7 +204,7 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void subsetChanged(Subset subset, Action action);
-  
+
   /**
    * Mapping changed.
    *
@@ -200,7 +212,7 @@ public interface WorkflowListener extends Configurable {
    * @param action the action
    */
   public void mappingChanged(Mapping mapping, Action action);
-  
+
   /**
    * Map set changed.
    *

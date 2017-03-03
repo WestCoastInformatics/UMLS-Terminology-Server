@@ -1,10 +1,12 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.content;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,11 +14,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.EnumBridge;
 
 import com.wci.umls.server.model.content.SemanticTypeComponent;
+import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
  * JPA and JAXB enabled implementation of {@link SemanticTypeComponent}.
@@ -28,16 +33,17 @@ import com.wci.umls.server.model.content.SemanticTypeComponent;
 @Audited
 @Indexed
 @XmlRootElement(name = "semanticTypeComponent")
-public class SemanticTypeComponentJpa extends AbstractComponent implements
-    SemanticTypeComponent {
+public class SemanticTypeComponentJpa extends AbstractComponent
+    implements SemanticTypeComponent {
 
   /** The semantic type. */
   @Column(nullable = false, length = 4000)
   private String semanticType;
 
   /** The workflow status. */
-  @Column(nullable = true)
-  private String workflowStatus;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private WorkflowStatus workflowStatus;
 
   /**
    * Instantiates an empty {@link SemanticTypeComponentJpa}.
@@ -50,46 +56,12 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
    * Instantiates a {@link SemanticTypeComponentJpa} from the specified
    * parameters.
    *
-   * @param semanticType the semantic type
+   * @param sty the sty
    */
-  public SemanticTypeComponentJpa(SemanticTypeComponent semanticType) {
-    super(semanticType);
-    this.semanticType = semanticType.getSemanticType();
-    workflowStatus = semanticType.getWorkflowStatus();
-  }
-
-  /* see superclass */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result =
-        prime * result + ((semanticType == null) ? 0 : semanticType.hashCode());
-    return result;
-  }
-
-  /* see superclass */
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (!super.equals(obj))
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    SemanticTypeComponentJpa other = (SemanticTypeComponentJpa) obj;
-    if (semanticType == null) {
-      if (other.semanticType != null)
-        return false;
-    } else if (!semanticType.equals(other.semanticType))
-      return false;
-    return true;
-  }
-
-  /* see superclass */
-  @Override
-  public String toString() {
-    return "SemanticTypeComponentJpa [value=" + semanticType + "]";
+  public SemanticTypeComponentJpa(SemanticTypeComponent sty) {
+    super(sty);
+    semanticType = sty.getSemanticType();
+    workflowStatus = sty.getWorkflowStatus();
   }
 
   /* see superclass */
@@ -107,15 +79,49 @@ public class SemanticTypeComponentJpa extends AbstractComponent implements
 
   /* see superclass */
   @Override
-  public String getWorkflowStatus() {
+  @FieldBridge(impl = EnumBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+  public WorkflowStatus getWorkflowStatus() {
     return workflowStatus;
   }
 
   /* see superclass */
   @Override
-  public void setWorkflowStatus(String workflowStatus) {
+  public void setWorkflowStatus(WorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
 
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result =
+        prime * result + ((semanticType == null) ? 0 : semanticType.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SemanticTypeComponentJpa other = (SemanticTypeComponentJpa) obj;
+    if (semanticType == null) {
+      if (other.semanticType != null)
+        return false;
+    } else if (!semanticType.equals(other.semanticType))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "SemanticTypeComponentJpa [semanticType=" + semanticType
+        + ", workflowStatus=" + workflowStatus + "]";
   }
 
 }

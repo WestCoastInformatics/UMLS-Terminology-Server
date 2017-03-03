@@ -2,18 +2,20 @@
 <div class="row">
 
   <div class="col-md-3 col-xs-3 alert alert-warning" style="margin-left: 25px;"
-    ng-show="!metadata.terminology.terminology">No terminology selected.</div>
+    ng-show="!selected.metadata.terminology.terminology">No terminology
+    selected.</div>
 
   <!-- Metadata -->
-  <div class="col-md-12 col-xs-12" ng-show="metadata.terminology.terminology">
+  <div class="col-md-12 col-xs-12"
+    ng-show="selected.metadata.terminology.terminology">
 
 
-    <h3>Metadata for {{metadata.terminology.terminology}}</h3>
+    <h4>Metadata for {{selected.metadata.terminology.terminology}}</h4>
     <ul>
-      <li>Preferred Name: {{metadata.terminology.preferredName}}</li>
-      <li>Version: {{metadata.terminology.version}}</li>
+      <li>Preferred Name: {{selected.metadata.terminology.preferredName}}</li>
+      <li>Version: {{selected.metadata.terminology.version}}</li>
       <li>Organizing Class Type:
-        {{metadata.terminology.organizingClassType}}</li>
+        {{selected.metadata.terminology.organizingClassType}}</li>
     </ul>
 
     <!-- PrecedenceList -->
@@ -24,22 +26,30 @@
           ng-class="[{'glyphicon-chevron-right' : !resultsExpanded['pl']}, {'glyphicon-chevron-down' : resultsExpanded['pl']}]"></i>
         &nbsp; Precedence List (in rank order)
       </div>
-      <ul ng-show="resultsExpanded['pl']">
-        <li ng-repeat="pair in metadata.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
+      <ul ng-show="resultsExpanded['pl'] && selected.precedenceList">
+        <li ng-repeat="pair in selected.precedenceList.keyValuePairs">{{pair.key}}/{{pair.value}}</li>
       </ul>
+      <span ng-show="resultsExpanded['pl'] && !selected.precedenceList"
+        class="alert alert-warning"> This terminology load does not use a
+        precedence list. </span>
     </div>
 
     <!-- Other metadata -->
-    <div ng-repeat="item in metadata.entries">
+    <div ng-repeat="item in selected.metadata.entries">
       <div ng-click="resultsExpanded[item.name] = !resultsExpanded[item.name]"
         class="alert alert-success">
         <i class="glyphicon"
           ng-class="[{'glyphicon-chevron-right' : !resultsExpanded[item.name]}, {'glyphicon-chevron-down' : resultsExpanded[item.name]}]"></i>
-        &nbsp; {{item.name}}
+        &nbsp; {{getItemName(item)}}
       </div>
-      <ul ng-show="resultsExpanded[item.name]">
+      <ul ng-show="resultsExpanded[item.name] && item.keyValuePairs.length>0">
         <li ng-repeat="pair in item.keyValuePairs"><span
             class="label label-info">{{pair.key}}</span>&nbsp;{{pair.value}}</li>
+      </ul>
+      <ul
+        ng-show="resultsExpanded[item.name]  && item.keyValuePairs.length == 0"
+        class="alert alert-warning">
+        <li>No {{item.name}} metadata found.</li>
       </ul>
     </div>
   </div>

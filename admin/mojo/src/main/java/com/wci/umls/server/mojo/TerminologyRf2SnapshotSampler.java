@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.mojo;
 
@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.jpa.algo.Rf2FileCopier;
@@ -22,39 +25,32 @@ import com.wci.umls.server.jpa.algo.Rf2SnapshotSamplerAlgorithm;
  * Goal which samples an RF2 Snapshot of SNOMED CT data and outputs RF2.
  * 
  * See admin/loader/pom.xml for sample usage
- * 
- * @goal sample-rf2-snapshot
- * 
- * @phase package
  */
+@Mojo(name = "sample-rf2-snapshot", defaultPhase = LifecyclePhase.PACKAGE)
 public class TerminologyRf2SnapshotSampler extends AbstractMojo {
 
   /**
    * Input directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputDir;
 
   /**
    * Input concepts file.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String inputFile = null;
 
   /**
    * Output directory.
-   * @parameter
-   * @required
    */
+  @Parameter
   private String outputDir;
 
   /**
    * Whether to run this mojo against an active server.
-   *
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
@@ -69,19 +65,22 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
   /* see superclass */
   @Override
   public void execute() throws MojoFailureException {
-
+    boolean keepInferred = true;
+    boolean keepDescendants = false;
     try {
       getLog().info("RF2 Snapshot Terminology Sampler called via mojo.");
       getLog().info("  Input directory    : " + inputDir);
       getLog().info("  Input file    : " + inputFile);
       getLog().info("  Expect server up   : " + server);
+      getLog().info("  Keep inferred      : " + keepInferred);
+      getLog().info("  Keep descendants   : " + keepDescendants);
 
       // Properties properties = ConfigUtility.getConfigProperties();
 
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -121,7 +120,9 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       sorter.setSortByEffectiveTime(true);
       sorter.setRequireAllFiles(true);
       File sortDir = new File(inputDirFile, "/RF2-sorted-temp/");
-      // sorter.sortFiles(inputDirFile, sortDir);
+      sorter.setInputDir(inputDir);
+      sorter.setOutputDir(sortDir.getPath());
+      sorter.compute();
 
       // Open readers
       getLog().info("  Open RF2 Readers");
@@ -131,7 +132,9 @@ public class TerminologyRf2SnapshotSampler extends AbstractMojo {
       // Load initial snapshot - first release version
       getLog().info("  Run RF2 sampling algorithm");
       Rf2SnapshotSamplerAlgorithm algorithm = new Rf2SnapshotSamplerAlgorithm();
+      algorithm.setLastModifiedBy("admin");
       algorithm.setKeepInferred(true);
+      algorithm.setKeepDescendants(false);
       algorithm.setReaders(readers);
       algorithm.setInputConcepts(inputConcepts);
       algorithm.compute();

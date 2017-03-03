@@ -9,9 +9,9 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,20 +26,25 @@ import org.hibernate.search.annotations.Fields;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.LongBridge;
 
-import com.wci.umls.server.jpa.helpers.MapValueToCsvBridge;
+import com.wci.umls.server.jpa.helpers.MapKeyValueToCsvBridge;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.content.Relationship;
 
 /**
  * JPA and JAXB enabled implementation of {@link ConceptRelationship}.
  */
 @Entity
-@Table(name = "concept_relationships", uniqueConstraints = @UniqueConstraint(columnNames = {
-    "terminologyId", "terminology", "version", "id"
-}))
+@Table(name = "concept_relationships", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "terminologyId", "terminology", "version", "id"
+    })
+})
 @Audited
 @Indexed
+
 @XmlRootElement(name = "conceptRelationship")
 public class ConceptRelationshipJpa extends
     AbstractRelationship<Concept, Concept> implements ConceptRelationship {
@@ -56,8 +61,9 @@ public class ConceptRelationshipJpa extends
   private Concept to; // index all methods
 
   /** The alternate terminology ids. */
-  @ElementCollection(fetch = FetchType.EAGER)
-  @Column(nullable = true)
+  @ElementCollection
+  @MapKeyColumn(length = 100)
+  @Column(nullable = true, length = 100)
   private Map<String, String> alternateTerminologyIds; // index
 
   /**
@@ -72,15 +78,17 @@ public class ConceptRelationshipJpa extends
    * parameters.
    *
    * @param relationship the relationship
-   * @param deepCopy the deep copy
+   * @param collectionCopy the deep copy
    */
   public ConceptRelationshipJpa(ConceptRelationship relationship,
-      boolean deepCopy) {
-    super(relationship, deepCopy);
+      boolean collectionCopy) {
+    super(relationship, collectionCopy);
     to = relationship.getTo();
     from = relationship.getFrom();
-    alternateTerminologyIds =
-        new HashMap<>(relationship.getAlternateTerminologyIds());
+    if (collectionCopy) {
+      alternateTerminologyIds =
+          new HashMap<>(relationship.getAlternateTerminologyIds());
+    }
   }
 
   /* see superclass */
@@ -101,6 +109,8 @@ public class ConceptRelationshipJpa extends
    *
    * @return the from id
    */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getFromId() {
     return from == null ? null : from.getId();
   }
@@ -226,6 +236,8 @@ public class ConceptRelationshipJpa extends
    *
    * @return the to id
    */
+  @FieldBridge(impl = LongBridge.class)
+  @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
   public Long getToId() {
     return to == null ? null : to.getId();
   }
@@ -335,7 +347,7 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
-  @FieldBridge(impl = MapValueToCsvBridge.class)
+  @FieldBridge(impl = MapKeyValueToCsvBridge.class)
   @Field(name = "alternateTerminologyIds", index = Index.YES, analyze = Analyze.YES, store = Store.NO)
   public Map<String, String> getAlternateTerminologyIds() {
     if (alternateTerminologyIds == null) {
@@ -353,57 +365,27 @@ public class ConceptRelationshipJpa extends
 
   /* see superclass */
   @Override
-  public void putAlternateTerminologyId(String terminology, String terminologyId) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.put(terminology, terminologyId);
+  public Relationship<Concept, Concept> createInverseRelationship(
+    Relationship<Concept, Concept> relationship, String inverseRelType,
+    String inverseAdditionalRelType) throws Exception {
+    final ConceptRelationship inverseRelationship =
+        new ConceptRelationshipJpa((ConceptRelationship) relationship, false);
+
+    return populateInverseRelationship(relationship, inverseRelationship,
+        inverseRelType, inverseAdditionalRelType);
   }
 
   /* see superclass */
   @Override
-  public void removeAlternateTerminologyId(String terminology) {
-    if (alternateTerminologyIds == null) {
-      alternateTerminologyIds = new HashMap<>(2);
-    }
-    alternateTerminologyIds.remove(terminology);
-
-  }
-
-  /**
-   * CUSTOM to support to/from/alternateTerminologyIds.
-   *
-   * @return the int
-   * @see com.wci.umls.server.jpa.content.AbstractRelationship#hashCode()
-   */
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result =
-        prime
-            * result
-            + ((from == null || from.getTerminologyId() == null) ? 0 : from
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((to == null || to.getTerminologyId() == null) ? 0 : to
-                .getTerminologyId().hashCode());
-    result =
-        prime
-            * result
-            + ((alternateTerminologyIds == null) ? 0 : alternateTerminologyIds
-                .toString().hashCode());
+    result = prime * result + ((from == null) ? 0 : from.hashCode());
+    result = prime * result + ((to == null) ? 0 : to.hashCode());
     return result;
   }
 
-  /**
-   * Custom equals method for to/from.getTerminologyId
-   *
-   * @param obj the obj
-   * @return true, if successful
-   */
+  /* see superclass */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -416,56 +398,15 @@ public class ConceptRelationshipJpa extends
     if (from == null) {
       if (other.from != null)
         return false;
-    } else if (from.getTerminologyId() == null) {
-      if (other.from != null && other.from.getTerminologyId() != null)
-        return false;
-    } else if (!from.getTerminologyId().equals(other.from.getTerminologyId()))
+    } else if (!from.equals(other.from))
       return false;
     if (to == null) {
       if (other.to != null)
         return false;
-    } else if (to.getTerminologyId() == null) {
-      if (other.to != null && other.to.getTerminologyId() != null)
-        return false;
-    } else if (!to.getTerminologyId().equals(other.to.getTerminologyId()))
-      return false;
-    if (alternateTerminologyIds == null) {
-      if (other.alternateTerminologyIds != null)
-        return false;
-    } else if (!alternateTerminologyIds.equals(other.alternateTerminologyIds))
+    } else if (!to.equals(other.to))
       return false;
     return true;
   }
 
-  @Override
-  public String toString() {
-    return "ConceptRelationshipJpa [from=" + from + ", to=" + to
-        + ", alternateTerminologyIds=" + alternateTerminologyIds
-        + ", getFrom()=" + getFrom() + ", getFromId()=" + getFromId()
-        + ", getFromTerminology()=" + getFromTerminology()
-        + ", getFromVersion()=" + getFromVersion()
-        + ", getFromTerminologyId()=" + getFromTerminologyId()
-        + ", getFromName()=" + getFromName() + ", getTo()=" + getTo()
-        + ", getToId()=" + getToId() + ", getToTerminologyId()="
-        + getToTerminologyId() + ", getToTerminology()=" + getToTerminology()
-        + ", getToVersion()=" + getToVersion() + ", getToName()=" + getToName()
-        + ", getAlternateTerminologyIds()=" + getAlternateTerminologyIds()
-        + ", hashCode()=" + hashCode() + ", getRelationshipType()="
-        + getRelationshipType() + ", getAdditionalRelationshipType()="
-        + getAdditionalRelationshipType() + ", getGroup()=" + getGroup()
-        + ", isInferred()=" + isInferred() + ", isStated()=" + isStated()
-        + ", isHierarchical()=" + isHierarchical() + ", isAssertedDirection()="
-        + isAssertedDirection() + ", toString()=" + super.toString()
-        + ", getAttributes()=" + getAttributes() + ", getId()=" + getId()
-        + ", getObjectId()=" + getObjectId() + ", getTimestamp()="
-        + getTimestamp() + ", getLastModified()=" + getLastModified()
-        + ", getLastModifiedBy()=" + getLastModifiedBy()
-        + ", isSuppressible()=" + isSuppressible() + ", isObsolete()="
-        + isObsolete() + ", isPublished()=" + isPublished()
-        + ", isPublishable()=" + isPublishable() + ", getBranch()="
-        + getBranch() + ", getVersion()=" + getVersion()
-        + ", getTerminology()=" + getTerminology() + ", getTerminologyId()="
-        + getTerminologyId() + ", getClass()=" + getClass() + "]";
-  }
-
+  // Use superclass toString()
 }

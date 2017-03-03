@@ -1,9 +1,10 @@
 <!-- Subsets -->
 <div ng-show="pagedData.totalCount > 0 || paging.filter">
-
-  <h4>{{metadata.subsetsLabel}} ({{pagedData.totalCount}})</h4>
+  <i style="float: left" class="noul glyphicon" ng-click="showing = !showing"
+    ng-class="[{'glyphicon-chevron-down' : showing}, {'glyphicon-chevron-right' : !showing}]"></i>
+  <h5 class="ml10">{{metadata.subsetsLabel}} ({{pagedData.totalCount}})</h5>
   <div pager paging="paging" count="pagedData.totalCount"
-    callback="pageCallback"></div>
+    callbacks="pageCallbacks"></div>
   <ul>
     <li class="cr-list" ng-repeat="item in pagedData.data"><span
         class="label label-warning"
@@ -16,7 +17,7 @@
         <ul>
           <li ng-repeat="attribute in item.attributes | orderBy: ['subsetName']">
             <span class="label label-info"
-              uib-tooltip="{{callbacks.getAttributeNameName(attribute.name)">{{attribute.name}}</span>
+              uib-tooltip="{{callbacks.getAttributeNameName(attribute.name,metadata)">{{attribute.name}}</span>
             = {{attribute.value}}
           </li>
         </ul>

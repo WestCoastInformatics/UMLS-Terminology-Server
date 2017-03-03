@@ -23,8 +23,8 @@ public class UserRoleBridge implements StringBridge {
     if (value != null) {
       StringBuilder buf = new StringBuilder();
 
-      Map<User, UserRole> map = (Map<User, UserRole>) value;
-      for (Map.Entry<User, UserRole> entry : map.entrySet()) {
+      final Map<User, UserRole> map = (Map<User, UserRole>) value;
+      for (final Map.Entry<User, UserRole> entry : map.entrySet()) {
         buf.append(entry.getKey().getUserName())
             .append(entry.getValue().toString()).append(",");
       }

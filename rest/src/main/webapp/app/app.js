@@ -1,78 +1,32 @@
 'use strict';
 
-var tsApp = angular
-  .module(
-    'tsApp',
-    [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ui.tinymce', 'ngCookies', 'ngTable',
-      'angularFileUpload' ]).config(function($rootScopeProvider) {
+// For dynamic configuring of routes
+// See:
+// http://blog.brunoscopelliti.com/how-to-defer-route-definition-in-an-angularjs-web-app/
+var $routeProviderReference;
 
-    // Set recursive digest limit higher to handle very deep trees.
-    $rootScopeProvider.digestTtl(15);
+var tsApp = angular.module(
+  'tsApp',
+  [ 'ngRoute', 'ui.bootstrap', 'ui.tree', 'ngFileUpload', 'ui.tinymce', 'ngCookies', 'ngTable',
+    'angularFileUpload' ]).config(function($rootScopeProvider, $routeProvider) {
 
-  });
+  // Set recursive digest limit higher to handle very deep trees.
+  $rootScopeProvider.digestTtl(15);
+  // Save reference to route provider
+  $routeProviderReference = $routeProvider;
 
-// Declare top level URL vars
-var securityUrl = 'security/';
-var metadataUrl = 'metadata/';
-var contentUrl = 'content/';
-var adminUrl = 'admin/';
-var projectUrl = 'project/';
-var validationUrl = 'validation/';
-var sourceDataUrl = 'file/';
-var configureUrl = 'configure/';
+});
 
-tsApp.run(function checkConfig($rootScope, $http, $route, appConfig, configureService, utilService,
-  securityService) {
-
-  var errMsg = '';
-
-  // if appConfig not set or contains nonsensical values, throw error
-  if (!appConfig) {
-    errMsg += 'Application configuration (appConfig.js) could not be found';
-  }
-
-  console.debug('Application configuration variables set:');
-
-  // Iterate through app config variables and verify interpolation
-  for ( var key in appConfig) {
-    if (appConfig.hasOwnProperty(key)) {
-      console.debug('  ' + key + ': ' + appConfig[key]);
-      if (appConfig[key].startsWith('${')) {
-        errMsg += 'Configuration property ' + key + ' not set in project or configuration file';
-      }
-    }
-
-    // if login not enabled, set guest user
-    if (appConfig.loginEnabled !== 'true') {
-      securityService.setGuestUser();
-    }
-    
-  }
-  
-  // TODO Move this into a scope-accessible object of some kind (e.g. site-tracking directive analogous to header/footer)
-  $rootScope.siteTrackingCode = appConfig['siteTrackingCode'];
-  
-  if (errMsg.length > 0) {
-    // Send an embedded 'data' object
-    utilService.handleError({
-      data : 'Configuration Error:\n' + errMsg
-    });
-  }
-
-  // check and set whether application is configured
-  $http.get(configureUrl + 'configured').then(function(response) {
-    $rootScope.isConfigured = response.data;
-  }, function() {
-    console.error('Could not determine configuration status');
-    $rootScope.isConfigured = false;
-  });
+// Declare any $rootScope vars
+tsApp.run(function($rootScope) {
+  // n/a
 });
 
 // Simple glass pane controller
 tsApp.controller('GlassPaneCtrl', [ '$scope', 'gpService', function($scope, gpService) {
   console.debug('configure GlassPaneCtrl');
 
-  $scope.glassPane = gpService.glassPane;
+  $scope.glassPane = gpService.getGlassPane();
 
 } ]);
 
@@ -123,7 +77,7 @@ tsApp
   .value(
     '$confirmModalDefaults',
     {
-      template : '<div class="modal-header"><h3 class="modal-title">Confirm</h3></div><div class="modal-body">{{data.text}}</div><div class="modal-footer"><button class="btn btn-primary" ng-click="ok()">OK</button><button class="btn btn-warning" ng-click="cancel()">Cancel</button></div>',
+      template : '<div class="modal-header"><h3 class="modal-title">Confirm</h3></div><div class="modal-body">{{data.text}}</div><div class="modal-footer"><form name="name" class="form" ng-submit="ok()"><button autofocus type="submit" class="btn btn-primary" >OK</button><button type="button" class="btn btn-warning" ng-click="cancel()">Cancel</button></form></div>',
       controller : 'ConfirmModalCtrl'
     });
 
@@ -183,5 +137,16 @@ tsApp.directive('confirm', function($confirm) {
         reBind(bindConfirm);
       }
     }
+  };
+});
+
+// Filter for ordering by key
+tsApp.filter('toArrayKeys', function() {
+  return function(obj, field, reverse) {
+    var arr = [];
+    if (obj != null) {
+      arr = Object.keys(obj);
+    }
+    return arr;
   };
 });

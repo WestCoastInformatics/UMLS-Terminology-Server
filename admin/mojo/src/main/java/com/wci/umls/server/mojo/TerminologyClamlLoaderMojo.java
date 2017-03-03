@@ -3,11 +3,12 @@ package com.wci.umls.server.mojo;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import com.wci.umls.server.helpers.ConfigUtility;
-import com.wci.umls.server.jpa.services.MetadataServiceJpa;
 import com.wci.umls.server.jpa.services.SecurityServiceJpa;
 import com.wci.umls.server.jpa.services.rest.ContentServiceRest;
 import com.wci.umls.server.rest.client.ContentClientRest;
@@ -19,47 +20,42 @@ import com.wci.umls.server.services.SecurityService;
  * 
  * See admin/loader/pom.xml for a sample execution.
  * 
- * @goal load-claml
- * @phase package
  */
-public class TerminologyClamlLoaderMojo extends AbstractMojo {
+@Mojo(name = "load-claml", defaultPhase = LifecyclePhase.PACKAGE)
+public class TerminologyClamlLoaderMojo extends AbstractLoaderMojo {
 
   /** The date format. */
   final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
 
   /**
    * The input file.
-   *
-   * @parameter
-   * @required
    */
+  @Parameter
   String inputFile = null;
 
   /**
    * Name of terminology to be loaded.
-   * @parameter
-   * @required
    */
+  @Parameter
   String terminology;
 
   /**
    * version.
    *
-   * @parameter
-   * @required
    */
+  @Parameter
   String version;
 
   /**
    * Whether to run this mojo against an active server
-   * @parameter
    */
+  @Parameter
   private boolean server = false;
 
   /**
    * Mode - for recreating db
-   * @parameter
    */
+  @Parameter
   private String mode = null;
 
   /* see superclass */
@@ -76,20 +72,10 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
       Properties properties = ConfigUtility.getConfigProperties();
 
-      if (mode != null && mode.equals("create")) {
-        getLog().info("Recreate database");
-        // This will trigger a rebuild of the db
-        properties.setProperty("hibernate.hbm2ddl.auto", mode);
-        // Trigger a JPA event
-        new MetadataServiceJpa().close();
-        properties.remove("hibernate.hbm2ddl.auto");
-
-      }
-
       boolean serverRunning = ConfigUtility.isServerActive();
 
-      getLog().info(
-          "Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
+      getLog()
+          .info("Server status detected:  " + (!serverRunning ? "DOWN" : "UP"));
 
       if (serverRunning && !server) {
         throw new MojoFailureException(
@@ -101,6 +87,11 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
             "Mojo expects server to be running, but server is down");
       }
 
+      // Create the database
+      if (mode != null && mode.equals("create")) {
+        createDb(serverRunning);
+      }
+
       // authenticate
       SecurityService service = new SecurityServiceJpa();
       String authToken =
@@ -109,12 +100,6 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
       if (!serverRunning) {
         getLog().info("Running directly");
-
-        // Handle reindexing
-        if (mode != null && mode.equals("create")) {
-          ContentServiceRestImpl contentService = new ContentServiceRestImpl();
-          contentService.luceneReindex(null, authToken);
-        }
 
         getLog().info("  Remove concepts");
         ContentServiceRest contentService = new ContentServiceRestImpl();
@@ -126,11 +111,6 @@ public class TerminologyClamlLoaderMojo extends AbstractMojo {
 
         getLog().info("  Remove concepts");
         ContentClientRest contentService = new ContentClientRest(properties);
-
-        // handle reindexing
-        if (mode != null && mode.equals("create")) {
-          contentService.luceneReindex(null, authToken);
-        }
 
         contentService.loadTerminologyClaml(terminology, version, inputFile,
             authToken);

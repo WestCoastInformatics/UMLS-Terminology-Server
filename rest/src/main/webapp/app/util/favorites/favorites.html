@@ -7,29 +7,29 @@
   </div>
   <div ng-show="!favoritesCollapsed">
     <div pager paging="paging" count="pagedData.totalCount"
-      callback="pageCallback"></div>
-    <table class="table table-hover" ng-show="pagedData.results.length > 0">
+      callbacks="pageCallbacks"></div>
+    <table class="slim table table-hover" ng-show="pagedData.results.length > 0">
       <tbody>
         <!-- table-hover makes use of the active class -->
-        <tr ng-class="{active: favorite.active}"
+        <tr ng-class="{selected: favorite.id == component.id}"
           ng-mouseenter="favorite.hover = true;"
           ng-mouseleave="favorite.hover = false;"
           ng-repeat="favorite in pagedData.results">
-          <!--  Only put ng-click callback on first two cells (i.e. not the controls cell) -->
+          <!--  Only put ng-click callbacks on first two cells (i.e. not the controls cell) -->
           <td class="col-md-4 col-xs-4"
-            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+            ng-click="callbacks.getComponent(favorite)">
             <span
               ng-show="favorite.terminology != metadata.terminology.terminology">{{favorite.terminology}}
               /</span>
             <span ng-show="favorite.terminologyId.length < 12">{{favorite.terminologyId}}</span>
             <span ng-show="favorite.terminologyId.length > 11" class="breakword">{{favorite.terminologyId}}</span>
           </td>
-          <td class="col-md-7 col-xs-7"
-            ng-click="callbacks.getComponent(favorite.type, favorite.terminologyId, favorite.terminology, favorite.version)">
+          <td class="col-md-6 col-xs-6"
+            ng-click="callbacks.getComponent(favorite)">
             <span class=""> {{favorite.value}}</span>
             <!-- Always show blue note icon if favorite has notes -->
           </td>
-          <td class="col-md-1 col-xs-1 nobreak">
+          <td class="col-md- col-xs- nobreak">
             <i
               ng-show="favorite.property.key === 'hasNotes' && favorite.property.value === 'true'"
               ng-click="viewNotes(favorite)"

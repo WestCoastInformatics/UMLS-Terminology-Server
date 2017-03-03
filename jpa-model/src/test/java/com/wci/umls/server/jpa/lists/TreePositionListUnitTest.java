@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.wci.umls.server.helpers.ProxyTester;
 import com.wci.umls.server.helpers.content.TreePositionList;
+import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.content.AtomTreePositionJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.CodeTreePositionJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
@@ -18,9 +20,11 @@ import com.wci.umls.server.jpa.content.ConceptTreePositionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
 import com.wci.umls.server.jpa.content.DescriptorTreePositionJpa;
 import com.wci.umls.server.jpa.helpers.content.TreePositionListJpa;
-import com.wci.umls.server.model.content.AtomClass;
+import com.wci.umls.server.model.content.Atom;
+import com.wci.umls.server.model.content.AtomTreePosition;
 import com.wci.umls.server.model.content.Code;
 import com.wci.umls.server.model.content.CodeTreePosition;
+import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptTreePosition;
 import com.wci.umls.server.model.content.Descriptor;
@@ -31,7 +35,7 @@ import com.wci.umls.server.model.content.TreePosition;
  * Unit testing for {@link TreePositionList}.
  */
 public class TreePositionListUnitTest extends
-    AbstractListUnit<TreePosition<? extends AtomClass>> {
+    AbstractListUnit<TreePosition<? extends ComponentHasAttributesAndName>> {
 
   /** test fixture . */
   private TreePositionList list1;
@@ -56,6 +60,12 @@ public class TreePositionListUnitTest extends
 
   /** The codetp2. */
   private CodeTreePosition codetp2;
+  
+  /** The atomtp1. */
+  private AtomTreePosition atomtp1;
+  
+  /** The atomtp2. */
+  private AtomTreePosition atomtp2;
 
   /**
    * Setup class.
@@ -99,6 +109,13 @@ public class TreePositionListUnitTest extends
     codetp1.setNode(code);
     codetp2.setNode(code);
 
+    ProxyTester tester4 = new ProxyTester(new AtomTreePositionJpa());
+    atomtp1 = (AtomTreePosition) tester4.createObject(1);
+    atomtp2 = (AtomTreePosition) tester4.createObject(2);
+    Atom atom = new AtomJpa();
+    atom.setId(1L);
+    atomtp1.setNode(atom);
+    atomtp2.setNode(atom);
   }
 
   /**
@@ -106,7 +123,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testNormalUse026() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -114,6 +131,9 @@ public class TreePositionListUnitTest extends
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
     testNormalUse(list1, list2, codetp1, codetp2);
+    list1 = new TreePositionListJpa();
+    list2 = new TreePositionListJpa();
+    testNormalUse(list1, list2, atomtp1, atomtp2);
   }
 
   /**
@@ -123,7 +143,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUse026() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -131,6 +151,9 @@ public class TreePositionListUnitTest extends
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
     testDegenerateUse(list1, list2, codetp1, codetp2);
+    list1 = new TreePositionListJpa();
+    list2 = new TreePositionListJpa();
+    testDegenerateUse(list1, list2, atomtp1, atomtp2);
   }
 
   /**
@@ -139,7 +162,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testEdgeCases026() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -147,6 +170,9 @@ public class TreePositionListUnitTest extends
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
     testEdgeCases(list1, list2, codetp1, codetp2);
+    list1 = new TreePositionListJpa();
+    list2 = new TreePositionListJpa();
+    testEdgeCases(list1, list2, atomtp1, atomtp2);
   }
 
   /**
@@ -156,7 +182,7 @@ public class TreePositionListUnitTest extends
    * @throws Exception the exception
    */
   @Test
-  public void testXmlSerialization026() throws Exception {
+  public void testXmlSerialization() throws Exception {
     testXmllSerialization(list1, list2, ctp1, ctp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
@@ -166,6 +192,7 @@ public class TreePositionListUnitTest extends
     testXmllSerialization(list1, list2, codetp1, codetp2);
     list1 = new TreePositionListJpa();
     list2 = new TreePositionListJpa();
+    testXmllSerialization(list1, list2, atomtp1, atomtp2);
   }
 
   /**

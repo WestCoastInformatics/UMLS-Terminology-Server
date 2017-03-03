@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 West Coast Informatics, LLC
+/*
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.model.meta;
 
@@ -68,6 +68,20 @@ public interface RootTerminology extends HasLanguage, HasLastModified {
    * @param polyhierarchy the polyhierarchy flag
    */
   public void setPolyhierarchy(boolean polyhierarchy);
+
+  /**
+   * Indicates whether or not hierarchy computable is the case.
+   *
+   * @return <code>true</code> if so, <code>false</code> otherwise
+   */
+  public boolean isHierarchyComputable();
+
+  /**
+   * Sets the hierarchy computable.
+   *
+   * @param hierarchyComputable the hierarchy computable
+   */
+  public void setHierarchyComputable(boolean hierarchyComputable);
 
   /**
    * Returns the acquisition contact.

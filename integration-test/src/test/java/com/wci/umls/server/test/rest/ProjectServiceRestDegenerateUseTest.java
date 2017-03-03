@@ -14,11 +14,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.wci.umls.server.User;
-import com.wci.umls.server.UserRole;
 import com.wci.umls.server.helpers.ProjectList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.UserJpa;
 
 /**
  * Implementation of the "Project Service REST Degenerate Use" Test Cases.
@@ -54,12 +51,12 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestProject001() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetUpdateRemoveProject() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Get all projects and choose the first one.
-    ProjectList projectList = projectService.getProjects(adminAuthToken);
-    Assert.assertTrue(projectList.getCount() > 0);
+    ProjectList projectList = projectService.findProjects(null, null, adminAuthToken);
+    Assert.assertTrue(projectList.size() > 0);
     ProjectJpa project = (ProjectJpa) projectList.getObjects().get(0);
 
     // Call "add project" using this project (attempting to add a duplicate)
@@ -140,54 +137,16 @@ public class ProjectServiceRestDegenerateUseTest extends ProjectServiceRestTest 
    * @throws Exception the exception
    */
   @Test
-  public void testDegenerateUseRestProject002() throws Exception {
-    Logger.getLogger(getClass()).debug("Start test");
+  public void testGetProject() throws Exception {
+    Logger.getLogger(getClass()).debug("TEST " + name.getMethodName());
 
     // Procedure 1
     try {
       projectService.getProject(null, adminAuthToken);
+      fail("Should cause an exception");
     } catch (Exception e) {
       // do nothing
     }
-
-    // Procedure 2
-
-    // Delete user with valid id but used by a project
-    // TEST: Should throw ForeignConstraint exception
-    ProjectJpa project = new ProjectJpa();
-    project.setName("name");
-    project.setDescription("description");
-    project.setPublic(true);
-    project.setTerminology("terminology");
-    project.setLastModifiedBy("some_user");
-
-    User user = new UserJpa();
-    user.setName(properties.getProperty("bad.user"));
-    user.setEmail("no email");
-    user.setUserName(properties.getProperty("bad.user"));
-    user.setApplicationRole(UserRole.VIEWER);
-
-    // add the user
-    user = securityService.addUser((UserJpa) user, adminAuthToken);
-
-    user =
-        securityService.getUser(properties.getProperty("bad.user"),
-            adminAuthToken);
-
-    // add the project
-    project = (ProjectJpa) projectService.addProject(project, adminAuthToken);
-
-    // attempt to delete the user
-    try {
-      securityService.removeUser(user.getId(), adminAuthToken);
-      fail("DELETE user attached to a project did not throw expected exception");
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    // delete the user and project
-    projectService.removeProject(project.getId(), adminAuthToken);
-    securityService.removeUser(user.getId(), adminAuthToken);
 
   }
 

@@ -60,7 +60,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/owl/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-owl clean install
+mvn -Drun.config.label=owl -Dconfig.artifactId=term-server-config-prod-owl clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/owl-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/owl-server-rest

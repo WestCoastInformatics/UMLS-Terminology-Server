@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.wci.umls.server.helpers.ComponentInfo;
 import com.wci.umls.server.helpers.content.RelationshipList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
@@ -21,7 +22,6 @@ import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.helpers.content.RelationshipListJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.ComponentHasAttributes;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.content.Relationship;
@@ -32,7 +32,7 @@ import com.wci.umls.server.model.content.Relationship;
 @SuppressWarnings("rawtypes")
 public class RelationshipListUnitTest
     extends
-    AbstractListUnit<Relationship<? extends ComponentHasAttributes, ? extends ComponentHasAttributes>> {
+    AbstractListUnit<Relationship<? extends ComponentInfo, ? extends ComponentInfo>> {
 
   /** The list test fixture . */
   private RelationshipList list;
@@ -74,10 +74,12 @@ public class RelationshipListUnitTest
 
   /**
    * Setup.
+   *
+   * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
     Concept c = new ConceptJpa();
@@ -140,6 +142,7 @@ public class RelationshipListUnitTest
     r8.setFrom(a);
     r8.setTo(a);
 
+    // TODO: add section for ComponentInfoRelationship
   }
 
   /**
@@ -148,7 +151,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testNormalUse008() throws Exception {
+  public void testNormalUse() throws Exception {
     testNormalUse(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -169,7 +172,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testDegenerateUse008() throws Exception {
+  public void testDegenerateUse() throws Exception {
     testDegenerateUse(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -192,7 +195,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testEdgeCases008() throws Exception {
+  public void testEdgeCases() throws Exception {
     testEdgeCases(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();
@@ -213,7 +216,7 @@ public class RelationshipListUnitTest
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testXmlSerialization008() throws Exception {
+  public void testXmlSerializations() throws Exception {
     testXmllSerialization(list, list2, r1, r2);
     list = new RelationshipListJpa();
     list2 = new RelationshipListJpa();

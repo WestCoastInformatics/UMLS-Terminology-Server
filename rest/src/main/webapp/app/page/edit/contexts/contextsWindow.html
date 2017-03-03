@@ -1,0 +1,56 @@
+<span ng-show="!selected.project.editingEnabled" style="display: block;"
+  class="alert alert-danger">Editing is disabled.</span>
+<h4>
+  <b style="padding-left: 0px" class="mb10 col-md-4 col-xs-4">{{selected.metadata.hierarchiesLabel}}
+    <span ng-show="pagedEntries.totalCount">({{pagedEntries.totalCount}})</span></b>
+  <span class="mb10 col-md-8 col-xs-8 {{selected.component.workflowStatus}}">{{selected.component.name}}
+    {{selected.component.id}}</span>
+</h4>
+<span ng-show="x.totalCount > 10" style="float: right;">
+  Page size: <select ng-model="paging['entries'].pageSize" title="Page Size"
+    ng-change="paging['entries'].callbacks.getPagedList()"
+    ng-options="item.value as item.name for item in pageSizes">
+  </select>
+</span>
+<div pager paging="paging['entries']" count="pagedEntries.totalCount"
+  callbacks="paging['entries'].callbacks"></div>
+
+
+<table class="slim table pointer">
+  <thead>
+    <tr>
+      <th class="col-md-3 col-xs-3"><span
+          ng-click="setSortField('entries','terminology')">Terminology</span> <span
+          ng-bind="getSortIndicator('entries','terminology')"></span></th>
+      <th class="col-md-3 col-xs-3"><span
+          ng-click="setSortField('entries','version')">Version</span> <span
+          ng-bind="getSortIndicator('entries','version')"></span></th>
+      <th class="col-md-3 col-xs-3"><span
+          ng-click="setSortField('entries','type')">Type</span> <span
+          ng-bind="getSortIndicator('entries','type')"></span></th>
+      <th class="col-md-3 col-xs-3"><span
+          ng-click="setSortField('entries','id')">Id</span> <span
+          ng-bind="getSortIndicator('entries','id')"></span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="entry in pagedEntries" ng-click="selectEntry($event, entry)"
+      ng-class="{selected: isRowSelected(entry)}">
+      <td>{{entry.terminology}}</td>
+      <td>{{entry.version}}</td>
+      <td>{{entry.type}}</td>
+      <td>{{entry.nodeTerminologyId}}</td>
+    </tr>
+  </tbody>
+</table>
+<span ng-show="pagedEntries == 0 && !paging['entries'].filter"
+  style="display: block;" class="alert alert-warning">No contexts</span>
+<hr>
+
+<div tree-component component="component" metadata="selected.metadata"></div>
+
+<div ng-if="treeCount == 0">
+  <span style="display: block;" class="alert alert-warning">No
+    hierarchies</span>
+</div>
+

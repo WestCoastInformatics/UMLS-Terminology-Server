@@ -1,0 +1,64 @@
+<div class="modal-header">
+  <h4 style="display: inline">{{action}} Workflow Configuration Type</h4>
+  <span style="float: right">
+    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+  </span>
+</div>
+
+<div class="modal-body">
+  <table class="slim table">
+    <tr>
+      <td>
+        <b>Project</b>
+      </td>
+      <td>{{project.name}}</td>
+    </tr>
+    <tr>
+      <td>
+        <b>Type</b>
+      </td>
+      <td>
+        <input autofocus type="text" ng-model="config.type" size="30"
+          placeholder="e.g. MUTUALLY_EXCLUSIVE"
+          title="Workflow configuration type, e.g. 'QUALITY_ASSURANCE'">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Mutually Exclusive</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="config.mutuallyExclusive">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Admin Config</b>
+      </td>
+      <td>
+        <input type="checkbox" ng-model="config.adminConfig">
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Query Style</b>
+      </td>
+      <td>
+        <select ng-model="config.queryStyle"
+          ng-options="item for item in queryStyles"></select>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Errors -->
+  <div errors="errors"></div>
+
+</div>
+
+<div class="modal-footer">
+  <button ng-show="action == 'Add'" class="btn btn-primary"
+    ng-click="submitConfig(config); ">Add</button>
+  <button ng-show="action == 'Edit'" class="btn btn-primary"
+    ng-click="submitConfig(config); ">Save</button>
+  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>

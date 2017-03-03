@@ -3,35 +3,35 @@
  */
 package com.wci.umls.server.jpa.algo;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.wci.umls.server.algo.Algorithm;
+import com.wci.umls.server.AlgorithmParameter;
+import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
+import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
-import com.wci.umls.server.services.helpers.ProgressEvent;
-import com.wci.umls.server.services.helpers.ProgressListener;
 import com.wci.umls.server.services.helpers.PushBackReader;
 
 /**
  * Implementation of an algorithm to import RF2 snapshot data.
  */
-public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
+public class Rf2SnapshotSamplerAlgorithm extends AbstractAlgorithm {
 
   /** The input path. */
   protected String inputPath = null;
-
-  /** Listeners. */
-  private List<ProgressListener> listeners = new ArrayList<>();
 
   /** The output concepts. */
   private Set<String> outputConcepts;
@@ -48,8 +48,14 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   /** The keep inferred. */
   private boolean keepInferred = false;
 
+  /** The keep descendants. */
+  private boolean keepDescendants = false;
+
   /** The chd par map. */
   Map<String, Set<String>> chdParMap = new HashMap<>();
+
+  /** The chd par map. */
+  Map<String, Set<String>> parChdMap = new HashMap<>();
 
   /** The other map. */
   Map<String, Set<String>> otherMap = new HashMap<>();
@@ -94,9 +100,18 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
       concepts.addAll(inputConcepts);
       Logger.getLogger(getClass()).info("    count = " + concepts.size());
 
+      // 1b. Get descendants if indicated
+      if (keepDescendants) {
+        for (final String concept : new HashSet<>(concepts)) {
+          Set<String> desc = getDescendantsHelper(concept);
+          Logger.getLogger(getClass()).info("    desc count = " + desc.size());
+          concepts.addAll(desc);
+        }
+      }
+
       // 2. Find other related concepts
       Logger.getLogger(getClass()).info("  Add distance 1 related concepts");
-      for (String concept : new HashSet<>(concepts)) {
+      for (final String concept : new HashSet<>(concepts)) {
         if (otherMap.get(concept) != null) {
           Logger.getLogger(getClass())
               .info("    add concepts = " + otherMap.get(concept));
@@ -145,20 +160,20 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
         Logger.getLogger(getClass())
             .info("    count (after simple map) = " + concepts.size());
 
-        // addComplexMapMetadata(concepts);
-        // Logger.getLogger(getClass()).info(
-        // " count (after complex map) = " + concepts.size());
+        addExtendedMapMetadata(concepts);
+        Logger.getLogger(getClass())
+            .info("    count (after extended map) = " + concepts.size());
 
         addLanguageMetadata(concepts, descriptions);
         Logger.getLogger(getClass())
-            .info(" count (after language) = " + concepts.size());
+            .info("    count (after language) = " + concepts.size());
 
         addMetadataMetadata(concepts);
         Logger.getLogger(getClass())
             .info("    count (after metadata) = " + concepts.size());
 
         // 4. Find all concepts on path to root (e.g. walk up ancestors)
-        for (String chd : chdParMap.keySet()) {
+        for (final String chd : chdParMap.keySet()) {
           if (concepts.contains(chd)) {
             concepts.addAll(chdParMap.get(chd));
           }
@@ -166,12 +181,6 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
         Logger.getLogger(getClass())
             .info("    count (after ancestors) = " + concepts.size());
         Logger.getLogger(getClass()).info("    prev count = " + prevCt);
-
-        if (concepts.contains("370570004")) {
-          Logger.getLogger(getClass()).info("Found 370570004");
-        }
-        if (descriptions.contains("1195863013"))
-          Logger.getLogger(getClass()).info("Found 1195863013");
 
       } while (concepts.size() != prevCt);
 
@@ -224,6 +233,25 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
 
     String line = "";
     PushBackReader reader = readers.getReader(Rf2Readers.Keys.DESCRIPTION);
+    while ((line = reader.readLine()) != null) {
+
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+
+      if (!fields[0].equals("id")) {
+
+        // If concept id matches, add description metadata
+        if (concepts.contains(fields[4])) {
+          descriptions.add(fields[0]);
+          concepts.add(fields[3]);
+          concepts.add(fields[6]);
+          concepts.add(fields[8]);
+        }
+
+      }
+    }
+
+    // Add definition metadata too
+    reader = readers.getReader(Rf2Readers.Keys.DEFINITION);
     while ((line = reader.readLine()) != null) {
 
       final String fields[] = FieldedStringTokenizer.split(line, "\t");
@@ -426,44 +454,44 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
    * @param concepts the concepts
    * @throws Exception the exception
    */
-  // private void addComplexMapMetadata(Set<String> concepts) throws Exception {
-  //
-  // String line = "";
-  //
-  // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
-  // while ((line = reader.readLine()) != null) {
-  //
-  // line = line.replace("\r", "");
-  // final String fields[] = FieldedStringTokenizer.split(line, "\t");
-  //
-  // if (!fields[0].equals("id")) {
-  //
-  // if (concepts.contains(fields[5])) {
-  // concepts.add(fields[3]);
-  // concepts.add(fields[4]);
-  // concepts.add(fields[11]);
-  // }
-  // }
-  // }
-  //
-  // // handle extended too
-  //
-  // reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
-  // while ((line = reader.readLine()) != null) {
-  //
-  // line = line.replace("\r", "");
-  // final String fields[] = FieldedStringTokenizer.split(line, "\t");
-  //
-  // if (!fields[0].equals("id")) {
-  //
-  // if (concepts.contains(fields[5])) {
-  // concepts.add(fields[3]);
-  // concepts.add(fields[4]);
-  // concepts.add(fields[11]);
-  // }
-  // }
-  // }
-  // }
+  private void addExtendedMapMetadata(Set<String> concepts) throws Exception {
+
+    String line = "";
+
+    // PushBackReader reader = readers.getReader(Rf2Readers.Keys.COMPLEX_MAP);
+    // while ((line = reader.readLine()) != null) {
+    //
+    // line = line.replace("\r", "");
+    // final String fields[] = FieldedStringTokenizer.split(line, "\t");
+    //
+    // if (!fields[0].equals("id")) {
+    //
+    // if (concepts.contains(fields[5])) {
+    // concepts.add(fields[3]);
+    // concepts.add(fields[4]);
+    // concepts.add(fields[11]);
+    // }
+    // }
+    // }
+
+    // handle extended too
+
+    PushBackReader reader = readers.getReader(Rf2Readers.Keys.EXTENDED_MAP);
+    while ((line = reader.readLine()) != null) {
+
+      line = line.replace("\r", "");
+      final String fields[] = FieldedStringTokenizer.split(line, "\t");
+
+      if (!fields[0].equals("id")) {
+
+        if (concepts.contains(fields[5])) {
+          concepts.add(fields[3]);
+          concepts.add(fields[4]);
+          concepts.add(fields[11]);
+        }
+      }
+    }
+  }
 
   /**
    * Adds the language metadata.
@@ -593,6 +621,13 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
           }
           chdParMap.get(rel.getFrom().getTerminologyId())
               .add(rel.getTo().getTerminologyId());
+
+          if (!parChdMap.containsKey(rel.getTo().getTerminologyId())) {
+            parChdMap.put(rel.getTo().getTerminologyId(),
+                new HashSet<String>());
+          }
+          parChdMap.get(rel.getTo().getTerminologyId())
+              .add(rel.getFrom().getTerminologyId());
         }
 
         // active, not isa => other
@@ -614,39 +649,6 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   @Override
   public void reset() throws Exception {
     // do nothing
-  }
-
-  /**
-   * Fires a {@link ProgressEvent}.
-   *
-   * @param pct percent done
-   * @param note progress note
-   * @throws Exception the exception
-   */
-  public void fireProgressEvent(int pct, String note) throws Exception {
-    ProgressEvent pe = new ProgressEvent(this, pct, pct, note);
-    for (int i = 0; i < listeners.size(); i++) {
-      listeners.get(i).updateProgress(pe);
-    }
-    Logger.getLogger(getClass()).info("    " + pct + "% " + note);
-  }
-
-  /* see superclass */
-  @Override
-  public void addProgressListener(ProgressListener l) {
-    listeners.add(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void removeProgressListener(ProgressListener l) {
-    listeners.remove(l);
-  }
-
-  /* see superclass */
-  @Override
-  public void cancel() {
-    throw new UnsupportedOperationException("cannot cancel.");
   }
 
   /* see superclass */
@@ -692,21 +694,21 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
   }
 
   /**
-   * Returns the keep inferred.
-   *
-   * @return the keep inferred
-   */
-  public boolean getKeepInferred() {
-    return keepInferred;
-  }
-
-  /**
    * Sets the keep inferred.
    *
    * @param keepInferred the keep inferred
    */
   public void setKeepInferred(boolean keepInferred) {
     this.keepInferred = keepInferred;
+  }
+
+  /**
+   * Sets the keep descendants.
+   *
+   * @param keepDescendants the keep descendants
+   */
+  public void setKeepDescendants(boolean keepDescendants) {
+    this.keepDescendants = keepDescendants;
   }
 
   /**
@@ -718,4 +720,74 @@ public class Rf2SnapshotSamplerAlgorithm implements Algorithm {
     this.inputPath = inputPath;
   }
 
+  /**
+   * Returns the descendant concepts.
+   *
+   * @param concept the concept
+   * @return the descendant concepts
+   */
+  public Set<String> getDescendantsHelper(String concept) {
+    final Set<String> descendants = new HashSet<>();
+    if (!parChdMap.containsKey(concept)) {
+      return descendants;
+    }
+    for (final String chd : parChdMap.get(concept)) {
+      descendants.addAll(getDescendantsHelper(chd));
+    }
+    return descendants;
+  }
+
+  /* see superclass */
+  @Override
+  public ValidationResult checkPreconditions() throws Exception {
+    return new ValidationResultJpa();
+  }
+
+  /* see superclass */
+  @Override
+  public void checkProperties(Properties p) throws Exception {
+    checkRequiredProperties(new String[] {
+        "inputDir", "inputConcepts"
+    }, p);
+  }
+
+  /* see superclass */
+  @Override
+  public void setProperties(Properties p) throws Exception {
+
+    if (p.getProperty("inputDir") != null) {
+      setInputPath(p.getProperty("inputDir"));
+    }
+
+    if (p.getProperty("inputConcepts") != null) {
+      setInputConcepts(new HashSet<>(
+          Arrays.asList(p.getProperty("inputConcepts").split(","))));
+    }
+
+    if (p.getProperty("keepDescendants") != null) {
+      setKeepDescendants(Boolean.valueOf(p.getProperty("keepDescendants")));
+    }
+    if (p.getProperty("keepInferred") != null) {
+      setKeepDescendants(Boolean.valueOf(p.getProperty("keepInferred")));
+    }
+
+  }
+
+  /* see superclass */
+  @Override
+  public List<AlgorithmParameter> getParameters()  throws Exception{
+    final List<AlgorithmParameter> params = super.getParameters();
+    AlgorithmParameter param = new AlgorithmParameterJpa("Input Dir",
+        "inputDir", "Input RF2 directory to load", "", 255,
+        AlgorithmParameter.Type.DIRECTORY, "");
+    params.add(param);
+    return params;
+
+  }
+
+  /* see superclass */
+  @Override
+  public String getDescription() {
+    return ConfigUtility.getNameFromClass(getClass());
+  }
 }
