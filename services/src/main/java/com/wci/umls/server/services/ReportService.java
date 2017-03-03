@@ -8,7 +8,6 @@ import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.Descriptor;
 import com.wci.umls.server.model.meta.IdType;
@@ -114,6 +113,11 @@ public interface ReportService extends HistoryService {
     QueryType queryType, IdType resultType)
     throws Exception;
 
+  /**
+   * Handle lazy init.
+   *
+   * @param report the report
+   */
   public void handleLazyInit(Report report);
 
 }

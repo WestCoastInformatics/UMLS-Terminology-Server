@@ -3384,7 +3384,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       return newChecklist;
     } catch (Exception e) {
-      handleException(e, "trying to import checklist");
+      handleException(e, "trying to compute checklist");
       return null;
     } finally {
       workflowService.close();

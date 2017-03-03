@@ -99,4 +99,13 @@ public interface ReportServiceRest {
   public Report generateReport(Long id, String name,
     String query, QueryType queryType,
     IdType resultType, String authToken) throws Exception;
+
+  /**
+   * Remove report.
+   *
+   * @param id the id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  public void removeReport(Long id, String authToken) throws Exception;
 }

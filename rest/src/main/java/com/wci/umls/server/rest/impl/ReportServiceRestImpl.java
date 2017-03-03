@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -25,7 +26,6 @@ import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.WorkflowBinDefinitionList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinDefinitionListJpa;
 import com.wci.umls.server.jpa.report.ReportJpa;
@@ -272,7 +272,15 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       authorizeApp(securityService, authToken, "find reports",
           UserRole.VIEWER);
       Project project = reportService.getProject(projectId);
-      return reportService.findReports(project, query, pfs);
+      ReportList list = reportService.findReports(project, query, pfs);
+      
+      for (Report report : list.getObjects()) {
+        if (report != null) {
+          reportService.handleLazyInit(report);
+        }
+      }
+      
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find reports ");
       return null;
@@ -282,6 +290,38 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/{id}")
+  @ApiOperation(value = "Remove report", notes = "Removes the report with the specified id")
+  public void removeReport(
+    @ApiParam(value = "Report id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Report): /" + id);
+
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      final String userName = authorizeProject(reportService, id,
+          securityService, authToken, "remove report", UserRole.AUTHOR);
+
+      reportService.setLastModifiedBy(userName);
+      // Create service and configure transaction scope
+      reportService.removeReport(id);
+
+      reportService.addLogEntry(userName, id, id, null, null,
+          "REMOVE report " + id);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a report");
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+  
   /* see superclass */
   @Override
   @GET
@@ -325,11 +365,15 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
 
       final ReportService reportService = new ReportServiceJpa();
       try {
-        authorizeApp(securityService, authToken, "generate the report",
+        final String userName = authorizeApp(securityService, authToken, "generate the report",
             UserRole.VIEWER);
+        reportService.setLastModifiedBy(userName);
       
       Project project = reportService.getProject(id);
       Report report = reportService.generateReport(project, name, query, queryType, resultType);
+
+      reportService.addLogEntry(userName, project.getId(), project.getId(),
+          null, null, "GENERATE report - " + name);
       return report;
     } catch (Exception e) {
       handleException(e, "trying to generate a report");

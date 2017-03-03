@@ -230,4 +230,26 @@ public class ReportClientRest extends RootClientRest
         ConfigUtility.getGraphForString(resultString, ReportJpa.class);
     return report;
   }
+  
+  /* see superclass */
+  @Override
+  public void removeReport(Long id, String authToken) throws Exception {
+    Logger.getLogger(getClass()).debug("Report Client - remove report " + id);
+    validateNotEmpty(id, "id");
+    Client client = ClientBuilder.newClient();
+    WebTarget target =
+        client.target(config.getProperty("base.url") + "/report/" + id);
+
+    if (id == null)
+      return;
+
+    Response response = target.request(MediaType.APPLICATION_XML)
+        .header("Authorization", authToken).delete();
+
+    if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+      // do nothing, successful
+    } else {
+      throw new Exception("Unexpected status - " + response.getStatus());
+    }
+  }
 }

@@ -41,7 +41,6 @@ import com.wci.umls.server.model.content.AtomClass;
 import com.wci.umls.server.model.content.AtomRelationship;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
-import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentHasAttributesAndName;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
@@ -1032,6 +1031,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
     report.setDiffReport(false);
     report.setReport1Id(null);
     report.setReport2Id(null);
+    report.setLastModifiedBy(this.getLastModifiedBy());
+    report.setLastModified(new Date());
+    report.setTimestamp(new Date());
     final Map<String, ReportResult> map = new HashMap<>();
     for (final Object[] result : list) {
       final String itemId = result[0].toString();
@@ -1043,6 +1045,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
         rr.setValue(value);
         rr.setCt(1);
         rr.setReport(report);
+        rr.setLastModified(new Date());
+        rr.setLastModifiedBy(this.getLastModifiedBy());
+        rr.setTimestamp(new Date());
         report.getResults().add(rr);
         map.put(value, rr);
       }
@@ -1052,6 +1057,9 @@ public class ReportServiceJpa extends HistoryServiceJpa
       item.setResult(rr);
       item.setItemId(itemId);
       item.setItemName(itemName);
+      item.setLastModified(new Date());
+      item.setLastModifiedBy(this.getLastModifiedBy());
+      item.setTimestamp(new Date());
       rr.getResultItems().add(item);
     }
     // Return the report
@@ -1067,6 +1075,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
   public void handleLazyInit(Report report) {
     if (report == null) {
       return;
+    }
+    report.getResults().size();
+    for (ReportResult rr : report.getResults()) {
+      rr.getCt();
     }
   }
 }
