@@ -1159,7 +1159,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/query/test?projectId=' + projectId + '&query='
-          + utilService.prepQuery(query) + '&queryType=' + queryType + '&queryStyle=' + queryStyle,
+          + encodeURIComponent(query) + '&queryType=' + queryType + '&queryStyle=' + queryStyle,
         '').then(
       // success
       function(response) {

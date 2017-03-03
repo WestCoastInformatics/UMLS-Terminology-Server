@@ -564,7 +564,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("ncithesaurus");
     definition.setDescription("NCI Thesaurus.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
+    definition.setQuery("select distinct a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
         + "  and a.terminology = :terminology and c.terminology='NCI' "
@@ -583,7 +583,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("snomedct_us");
     definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
+    definition.setQuery("select distinct a.id conceptId "
         + "from concepts a, concepts_atoms b, atoms c "
         + "where a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
         + "  and a.terminology = :terminology and c.terminology='SNOMEDCT_US' "
@@ -602,12 +602,11 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("leftovers");
     definition.setDescription("SNOMEDCT_US.");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a where a.workflowStatus = 'NEEDS_REVIEW'");
+    definition.setQuery("workflowStatus:NEEDS_REVIEW");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
+    definition.setQueryType(QueryType.LUCENE);
     definition.setWorkflowConfig(newConfig);
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
