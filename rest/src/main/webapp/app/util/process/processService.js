@@ -684,7 +684,7 @@ tsApp.service('processService', [
       $http.get(
         processUrl + '/testquery?projectId=' + projectId + '&processId=' + processId
           + '&queryType=' + queryType + '&queryStyle=' + queryStyle + '&query='
-          + utilService.prepQuery(query) + (objectType ? '&objectTypeName=' + objectType : ''))
+          + encodeURIComponent(query) + (objectType ? '&objectTypeName=' + objectType : ''))
         .then(
         // success
         function(response) {
