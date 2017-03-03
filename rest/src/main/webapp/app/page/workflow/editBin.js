@@ -38,12 +38,16 @@ tsApp.controller('BinModalCtrl', [
         // Success
         function(data) {
           $scope.definition = data;
+          $scope.allowSave = true;
         });
+    } else {
+      $scope.definition.editable = true;
+      $scope.allowSave = false;
     }
 
     // Turn allow save off when query changed
     $scope.queryChanged = function() {
-      $allowSave = false;
+      $scope.allowSave = false;
     }
     // get position after bin
     $scope.positionAfterBin = function(bin) {
@@ -105,7 +109,6 @@ tsApp.controller('BinModalCtrl', [
       } else if (action == 'Add') {
         definition.workflowConfigId = $scope.config.id;
         definition.enabled = true;
-        definition.editable = true;
         workflowService.addWorkflowBinDefinition($scope.project.id, definition,
           $scope.positionAfterDef ? $scope.positionAfterDef.id : null).then(
         // Success - add definition
