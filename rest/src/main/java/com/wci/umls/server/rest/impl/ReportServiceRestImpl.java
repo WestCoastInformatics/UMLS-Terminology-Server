@@ -370,7 +370,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
             UserRole.VIEWER);
         reportService.setLastModifiedBy(userName);
       
-      Project project = reportService.getProject(id);
+      Project project = reportService.getProject(projectId);
       Report report = reportService.generateReport(project, name, query, queryType, resultType);
 
       reportService.addLogEntry(userName, project.getId(), project.getId(),
