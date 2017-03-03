@@ -294,7 +294,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     metadataService = new MetadataServiceRestImpl();
     list =
         (PrecedenceListJpa) metadataService.addPrecedenceList(list, authToken);
-    project1.setPrecedenceList(list);
+    project1.setPrecedenceListId(list.getId());
 
     // Add project
     project1 = (ProjectJpa) project.addProject(project1, authToken);
@@ -2074,36 +2074,26 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties.put("queryType", "SQL");
     algoProperties.put("query",
         "SELECT a1.atomId atomId1, a2.atomId atomId2 From (SELECT  "
-            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId " 
-            + "FROM "
-            + "    concepts c, " 
-            + "    concepts_atoms ca, " 
-            + "    atoms a, "
-            + "    AtomJpa_conceptTerminologyIds cid " 
-            + "WHERE "
-            + "    c.terminology = :projectTerminology "
+            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId "
+            + "FROM " + "    concepts c, " + "    concepts_atoms ca, "
+            + "    atoms a, " + "    AtomJpa_conceptTerminologyIds cid "
+            + "WHERE " + "    c.terminology = :projectTerminology "
             + "        AND c.id = ca.concepts_id "
             + "        AND ca.atoms_Id = a.id "
             + "        AND a.id = cid.AtomJpa_id "
             + "        AND a.publishable = TRUE "
             + "        AND cid.conceptTerminologyIds_KEY = :latestTerminologyVersion) "
-            + "        a1, " 
-            + "        (SELECT  "
-            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId " 
-            + "FROM "
-            + "    concepts c, " 
-            + "    concepts_atoms ca, " 
-            + "    atoms a, "
-            + "    AtomJpa_conceptTerminologyIds cid " 
-            + "WHERE "
-            + "    c.terminology = :projectTerminology "
+            + "        a1, " + "        (SELECT  "
+            + "    a.id atomId, cid.conceptTerminologyIds CUI, c.id conceptId "
+            + "FROM " + "    concepts c, " + "    concepts_atoms ca, "
+            + "    atoms a, " + "    AtomJpa_conceptTerminologyIds cid "
+            + "WHERE " + "    c.terminology = :projectTerminology "
             + "        AND c.id = ca.concepts_id "
             + "        AND ca.atoms_Id = a.id "
             + "        AND a.id = cid.AtomJpa_id "
             + "        AND a.publishable = TRUE "
             + "        AND cid.conceptTerminologyIds_KEY = :previousTerminologyVersion) "
-            + "        a2 " 
-            + "WHERE a1.CUI = a2.CUI "
+            + "        a2 " + "WHERE a1.CUI = a2.CUI "
             + "AND a1.conceptId != a2.conceptId");
     // Use all checks
     algoProperties.put("checkNames", allChecks);

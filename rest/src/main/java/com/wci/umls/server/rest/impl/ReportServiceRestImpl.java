@@ -25,7 +25,6 @@ import com.wci.umls.server.helpers.QueryStyle;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.helpers.WorkflowBinDefinitionList;
 import com.wci.umls.server.jpa.ProjectJpa;
-import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.jpa.helpers.WorkflowBinDefinitionListJpa;
 import com.wci.umls.server.jpa.report.ReportJpa;
@@ -90,7 +89,8 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Concept id, e.g. UMLS", required = true) @PathParam("id") Long conceptId,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-    Logger.getLogger(getClass()).info("RESTful call (Report): /report " + projectId);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /report " + projectId);
 
     final ReportService reportService = new ReportServiceJpa();
     try {
@@ -202,7 +202,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-  
+
   /* see superclass */
   @Override
   @GET
@@ -230,7 +230,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
           reportDefinitions.addAll(config.getWorkflowBinDefinitions());
         }
       }
-      
+
       for (WorkflowBinDefinition definition : reportDefinitions) {
         if (definition != null) {
           verifyProject(definition.getWorkflowConfig(), projectId);
@@ -238,7 +238,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
         }
       }
       // websocket - n/a
-      
+
       WorkflowBinDefinitionList list = new WorkflowBinDefinitionListJpa();
       list.setObjects(reportDefinitions);
       list.setTotalCount(reportDefinitions.size());
@@ -253,7 +253,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     return null;
 
   }
-  
+
   /* see superclass */
   @Override
   @POST
@@ -266,12 +266,12 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Authorization token, e.g. 'author1'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
 
-    Logger.getLogger(getClass()).info("RESTful call (Report): /find, " + query + " " + pfs);
+    Logger.getLogger(getClass())
+        .info("RESTful call (Report): /find, " + query + " " + pfs);
     final ReportService reportService = new ReportServiceJpa();
     try {
-      authorizeApp(securityService, authToken, "find reports",
-          UserRole.VIEWER);
-      Project project = reportService.getProject(projectId);
+      authorizeApp(securityService, authToken, "find reports", UserRole.VIEWER);
+      final Project project = reportService.getProject(projectId);
       return reportService.findReports(project, query, pfs);
     } catch (Exception e) {
       handleException(e, "trying to find reports ");
@@ -308,7 +308,7 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
       securityService.close();
     }
   }
-  
+
   @Override
   @GET
   @Path("/generate/{id}")
@@ -321,15 +321,16 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     @ApiParam(value = "Object type name, e.g. AtomJpa", required = false) @QueryParam("resultType") IdType resultType,
     @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
     throws Exception {
-      Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
+    Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
 
-      final ReportService reportService = new ReportServiceJpa();
-      try {
-        authorizeApp(securityService, authToken, "generate the report",
-            UserRole.VIEWER);
-      
-      Project project = reportService.getProject(id);
-      Report report = reportService.generateReport(project, name, query, queryType, resultType);
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      authorizeApp(securityService, authToken, "generate the report",
+          UserRole.VIEWER);
+
+      final Project project = reportService.getProject(id);
+      final Report report = reportService.generateReport(project, name, query,
+          queryType, resultType);
       return report;
     } catch (Exception e) {
       handleException(e, "trying to generate a report");

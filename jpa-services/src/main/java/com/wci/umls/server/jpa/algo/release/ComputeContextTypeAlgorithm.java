@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
@@ -21,19 +20,10 @@ import com.wci.umls.server.helpers.meta.RelationshipTypeList;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
-import com.wci.umls.server.jpa.content.AtomRelationshipJpa;
-import com.wci.umls.server.jpa.content.CodeRelationshipJpa;
-import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
-import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
-import com.wci.umls.server.model.content.Component;
-import com.wci.umls.server.model.content.Relationship;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
-import com.wci.umls.server.model.meta.IdType;
 import com.wci.umls.server.model.meta.RelationshipType;
 import com.wci.umls.server.model.meta.Terminology;
-import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
-import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 
 /**
  * Algorithm to compute context types.
@@ -69,8 +59,8 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
     fireProgressEvent(0, "Starting");
 
     // Get id handler
-    final IdentifierAssignmentHandler handler =
-        getIdentifierAssignmentHandler(getProject().getTerminology());
+    // final IdentifierAssignmentHandler handler =
+    // getIdentifierAssignmentHandler(getProject().getTerminology());
 
     // Collect metadata
     logInfo("  Collect metadata");
@@ -176,111 +166,113 @@ public class ComputeContextTypeAlgorithm extends AbstractAlgorithm {
       updateTerminology(term);
     }
 
-    // Iterate through terminologies to determine context type
-    logInfo("  Compute SIB RUIs");
-    fireProgressEvent(20, "Compute siblings");
-
-    int prevProgress = 0;
-    int startProgress = 20;
-    int totalCt = types.length;
-    int objectCt = 0;
-    int typeCt = 0;
-    // Compute RUIs for SIB relationships
-    for (final String type : types) {
-      logInfo("  Compute SIB RUIs for " + type);
-      setMolecularActionFlag(false);
-      final Set<String> terminologies = siblingTypeMap.keySet().stream()
-          .filter(f -> siblingTypeMap.get(f).equals(type))
-          .collect(Collectors.toSet());
-      if (terminologies.isEmpty()) {
-        continue;
-      }
-      final IdType idType = IdType.valueOf(type.toUpperCase());
-
-      final javax.persistence.Query query = manager.createQuery(
-          "select a.node.id, b.node.id, a.additionalRelationshipType, a.terminology from "
-              + type + "TreePositionJpa a, " + type + "TreePositionJpa b "
-              + "where a.ancestorPath = b.ancestorPath "
-              + "  and a.additionalRelationshipType = b.additionalRelationshipType "
-              + "  and a.node.id < b.node.id"
-              + "  and a.terminology = b.terminology "
-              + "  and a.terminology in (:terminologies) "
-              + "  and a.terminology in (select terminology from TerminologyJpa where current = true) ");
-      query.setParameter("terminologies", terminologies);
-      final List<Object[]> results = query.getResultList();
-      checkCancel();
-
-      for (final Object[] result : results) {
-        final Long fromId = Long.valueOf(result[0].toString());
-        final Long toId = Long.valueOf(result[1].toString());
-        final String addRelType = result[2].toString();
-        final String terminology = result[3].toString();
-
-        Component from = null;
-        Component to = null;
-        @SuppressWarnings("rawtypes")
-        Relationship newRel = null;
-        if (idType == IdType.ATOM) {
-          newRel = new AtomRelationshipJpa();
-          from = getAtom(fromId);
-          to = getAtom(toId);
-        } else if (idType == IdType.CONCEPT) {
-          newRel = new ConceptRelationshipJpa();
-          from = getConcept(fromId);
-          to = getConcept(toId);
-        } else if (idType == IdType.CODE) {
-          newRel = new CodeRelationshipJpa();
-          from = getCode(fromId);
-          to = getCode(toId);
-        } else if (idType == IdType.DESCRIPTOR) {
-          newRel = new DescriptorRelationshipJpa();
-          from = getDescriptor(fromId);
-          to = getDescriptor(toId);
-        }
-
-        newRel.setFrom(from);
-        newRel.setTo(to);
-        newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
-        newRel.setTerminology(terminology);
-        newRel.setVersion(terminology);
-        newRel.setRelationshipType("SIB");
-        newRel.setPublishable(true);
-        newRel.setObsolete(false);
-        newRel.setSuppressible(false);
-        newRel.setGroup(null);
-        newRel.setPublished(true);
-        newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
-        newRel.setHierarchical(false);
-        newRel.setAssertedDirection(false);
-        newRel.setInferred(true);
-        newRel.setStated(true);
-        newRel.setTerminologyId("");
-
-        // This is just to assign identifiers
-        final String rui = handler.getTerminologyId(newRel, "SIB",
-            relToInverseMap.get(addRelType));
-        newRel.setTerminologyId(rui);
-
-        // check cancel
-        if (objectCt % RootService.logCt == 0) {
-          checkCancel();
-        }
-
-        logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
-
-      }
-      commitClearBegin();
-
-      // update progress
-      int progress =
-          (int) ((100.0 - startProgress) * ++typeCt / totalCt) + startProgress;
-      if (progress > prevProgress) {
-        fireProgressEvent(progress, "Assigning SIB RUIs");
-        prevProgress = progress;
-      }
-
-    }
-    commitClearBegin();
+    // // Iterate through terminologies to determine context type
+    // logInfo(" Compute SIB RUIs");
+    // fireProgressEvent(20, "Compute siblings");
+    //
+    // int prevProgress = 0;
+    // int startProgress = 20;
+    // int totalCt = types.length;
+    // int objectCt = 0;
+    // int typeCt = 0;
+    // // Compute RUIs for SIB relationships
+    // for (final String type : types) {
+    // logInfo(" Compute SIB RUIs for " + type);
+    // setMolecularActionFlag(false);
+    // final Set<String> terminologies = siblingTypeMap.keySet().stream()
+    // .filter(f -> siblingTypeMap.get(f).equals(type))
+    // .collect(Collectors.toSet());
+    // if (terminologies.isEmpty()) {
+    // continue;
+    // }
+    // final IdType idType = IdType.valueOf(type.toUpperCase());
+    //
+    // final javax.persistence.Query query = manager.createQuery(
+    // "select a.node.id, b.node.id, a.additionalRelationshipType, a.terminology
+    // from "
+    // + type + "TreePositionJpa a, " + type + "TreePositionJpa b "
+    // + "where a.ancestorPath = b.ancestorPath "
+    // + " and a.additionalRelationshipType = b.additionalRelationshipType "
+    // + " and a.node.id < b.node.id"
+    // + " and a.terminology = b.terminology "
+    // + " and a.terminology in (:terminologies) "
+    // + " and a.terminology in (select terminology from TerminologyJpa where
+    // current = true) ");
+    // query.setParameter("terminologies", terminologies);
+    // final List<Object[]> results = query.getResultList();
+    // checkCancel();
+    //
+    // for (final Object[] result : results) {
+    // final Long fromId = Long.valueOf(result[0].toString());
+    // final Long toId = Long.valueOf(result[1].toString());
+    // final String addRelType = result[2].toString();
+    // final String terminology = result[3].toString();
+    //
+    // Component from = null;
+    // Component to = null;
+    // @SuppressWarnings("rawtypes")
+    // Relationship newRel = null;
+    // if (idType == IdType.ATOM) {
+    // newRel = new AtomRelationshipJpa();
+    // from = getAtom(fromId);
+    // to = getAtom(toId);
+    // } else if (idType == IdType.CONCEPT) {
+    // newRel = new ConceptRelationshipJpa();
+    // from = getConcept(fromId);
+    // to = getConcept(toId);
+    // } else if (idType == IdType.CODE) {
+    // newRel = new CodeRelationshipJpa();
+    // from = getCode(fromId);
+    // to = getCode(toId);
+    // } else if (idType == IdType.DESCRIPTOR) {
+    // newRel = new DescriptorRelationshipJpa();
+    // from = getDescriptor(fromId);
+    // to = getDescriptor(toId);
+    // }
+    //
+    // newRel.setFrom(from);
+    // newRel.setTo(to);
+    // newRel.setAdditionalRelationshipType("sib_in_" + addRelType);
+    // newRel.setTerminology(terminology);
+    // newRel.setVersion(terminology);
+    // newRel.setRelationshipType("SIB");
+    // newRel.setPublishable(true);
+    // newRel.setObsolete(false);
+    // newRel.setSuppressible(false);
+    // newRel.setGroup(null);
+    // newRel.setPublished(true);
+    // newRel.setWorkflowStatus(WorkflowStatus.PUBLISHED);
+    // newRel.setHierarchical(false);
+    // newRel.setAssertedDirection(false);
+    // newRel.setInferred(true);
+    // newRel.setStated(true);
+    // newRel.setTerminologyId("");
+    //
+    // // This is just to assign identifiers
+    // final String rui = handler.getTerminologyId(newRel, "SIB",
+    // relToInverseMap.get(addRelType));
+    // newRel.setTerminologyId(rui);
+    //
+    // // check cancel
+    // if (objectCt % RootService.logCt == 0) {
+    // checkCancel();
+    // }
+    //
+    // logAndCommit(++objectCt, RootService.logCt, RootService.commitCt);
+    //
+    // }
+    // commitClearBegin();
+    //
+    // // update progress
+    // int progress =
+    // (int) ((100.0 - startProgress) * ++typeCt / totalCt) + startProgress;
+    // if (progress > prevProgress) {
+    // fireProgressEvent(progress, "Assigning SIB RUIs");
+    // prevProgress = progress;
+    // }
+    //
+    // }
+    // commitClearBegin();
 
     fireProgressEvent(100, "Finished");
     logInfo("Finished " + getName());
