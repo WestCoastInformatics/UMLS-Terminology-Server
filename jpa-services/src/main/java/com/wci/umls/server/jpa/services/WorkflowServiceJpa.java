@@ -986,10 +986,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       clustersEncountered.add(result[0]);
 
       // Keep only prescribed range from the query
-      /*if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
+      if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
           || clustersEncountered.size() > localPfs.getMaxResults()) {
         continue;
-      }*/  // TODO remove
+      } 
 
       if (!entries.containsKey(result[0])) {
         entries.put(result[0], new ArrayList<>());

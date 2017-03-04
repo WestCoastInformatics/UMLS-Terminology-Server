@@ -284,6 +284,7 @@ tsApp.controller('WorkflowCtrl', [
        // Success
        function(data) {
         $scope.selected.report = data;
+        $scope.findPagedReports();
       });
     }
 
@@ -318,7 +319,7 @@ tsApp.controller('WorkflowCtrl', [
         $scope.paging['results']);
     }
     
-    // create a new checklist from report results
+/*    // create a new checklist from report results
     $scope.computeChecklist = function(result) {
       var query = 'select distinct itemId conceptId, itemId clusterId from report_result_items a, ' +
         ' report_results b where b.report_id = ' + $scope.selected.report.id  + ' and b.id = ' + result.id +
@@ -337,7 +338,7 @@ tsApp.controller('WorkflowCtrl', [
         $scope.errors[0] = data;
         utilService.clearError();
       });
-    }
+    }*/
     
     // Table sorting mechanism
     $scope.setSortField = function(table, field, object) {
@@ -575,7 +576,7 @@ tsApp.controller('WorkflowCtrl', [
     };
 
     // Add checklist modal
-    $scope.openAddChecklistModal = function(bin, clusterType) {
+    $scope.openAddChecklistModal = function(bin, clusterType, action, result) {
 
       var modalInstance = $uibModal.open({
         templateUrl : 'app/page/workflow/addChecklist.html',
@@ -596,6 +597,50 @@ tsApp.controller('WorkflowCtrl', [
           },
           clusterType : function() {
             return clusterType;
+          },
+          action : function() {
+            return action;
+          },
+          result : function() {
+            return result;
+          }
+
+        }
+      });
+
+      modalInstance.result.then(
+      // Success
+      function(checklist) {
+        // "checklists" accordion should reload
+        $scope.selected.refreshCt++;
+      });
+    };
+    
+    // Compute checklist modal
+    $scope.openComputeChecklistModal = function(bin, clusterType, action) {
+
+      var modalInstance = $uibModal.open({
+        templateUrl : 'app/page/workflow/createChecklist.html',
+        backdrop : 'static',
+        controller : 'ChecklistModalCtrl',
+        resolve : {
+          selected : function() {
+            return $scope.selected;
+          },
+          lists : function() {
+            return $scope.lists;
+          },
+          user : function() {
+            return $scope.user;
+          },
+          bin : function() {
+            return bin;
+          },
+          clusterType : function() {
+            return clusterType;
+          },
+          action : function() {
+            return action;
           }
 
         }

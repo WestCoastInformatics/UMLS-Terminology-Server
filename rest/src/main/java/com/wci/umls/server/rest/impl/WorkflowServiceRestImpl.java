@@ -1792,7 +1792,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/checklist")
   @ApiOperation(value = "Create checklist", notes = "Create checklist", response = ChecklistJpa.class)
   public Checklist createChecklist(
