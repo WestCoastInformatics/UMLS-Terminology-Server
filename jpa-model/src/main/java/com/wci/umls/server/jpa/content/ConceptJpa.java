@@ -222,7 +222,7 @@ public class ConceptJpa extends AbstractAtomClass implements Concept {
 
   }
 
-  @XmlElement(type = ConceptTreePositionJpa.class)
+  @XmlTransient
   @Override
   public List<ConceptTreePosition> getTreePositions() {
     if (treePositions == null) {
