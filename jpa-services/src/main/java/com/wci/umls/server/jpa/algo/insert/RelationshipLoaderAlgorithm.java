@@ -313,7 +313,7 @@ public class RelationshipLoaderAlgorithm
     final String fields[] = new String[17];
     for (final String line : lineList) {
       FieldedStringTokenizer.split(line, "|", 17, fields);
-      final String concatedFields = fields[2] + fields[14] + fields[14];
+      final String concatedFields = fields[2] + fields[11] + fields[14];
       if (!seenLines.contains(concatedFields)) {
         lines.add(line);
         seenLines.add(concatedFields);
@@ -421,7 +421,8 @@ public class RelationshipLoaderAlgorithm
         toComponent.setTerminology(getProject().getTerminology());
         toComponent.setVersion(getProject().getVersion());
       }
-    } else if (fromClassIdType.equals("SOURCE_CUI") || fromClassIdType.equals("CUI")) {
+    } else if (fromClassIdType.equals("SOURCE_CUI")
+        || fromClassIdType.equals("CUI")) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
     } else if (fromClassIdType.equals("SOURCE_DUI")) {
