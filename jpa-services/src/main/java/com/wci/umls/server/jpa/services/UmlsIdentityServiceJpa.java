@@ -729,6 +729,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
+    super.beginTransaction();
     // Create a new handler for the new transaction
     handler = new DefaultSearchHandler();
   }
