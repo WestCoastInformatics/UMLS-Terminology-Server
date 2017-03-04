@@ -63,7 +63,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/snomed/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-snomedct clean install
+mvn -Drun.config.label=ts -Dconfig.artifactId=term-server-config-prod-snomedct clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/snomed-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest
