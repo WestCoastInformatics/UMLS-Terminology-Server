@@ -169,7 +169,7 @@
                   class="noul glyphicon glyphicon-refresh"></i>
                 <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
-                  ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
+                  ng-click="openAddChecklistModal(bin, stats.clusterType, 'Add', null); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
                 &nbsp;
                 <i
@@ -217,15 +217,76 @@
       <span uib-tooltip="Reports">Reports</span>
     </h5>
     </uib-accordion-heading>
-      <select ng-model="selected.reportType"
-          ng-show="lists.configs.length > 1"
-          ng-options="def as def.name for def in getReportTypeList()"
-          ng-change="setReportType(selected.reportType);"></select>
-      
-      <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate Report</button>
-      <table ng-repeat="report in selected.reports">
-      
-      </table>   
+    <div class="col-md-6 col-xs-12">
+      <div><select ng-model="selected.reportType" ng-show="lists.configs.length > 1"
+        ng-options="def as def.name for def in getReportTypeList()"
+        ng-change="findPagedReports();"></select>
+
+      <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate
+        Report</button></div>
+        
+      <div pager paging="paging['reports']" count="selected.reports.totalCount"
+          callbacks="paging['reports'].callbacks"  style="padding-top: 5px"></div>
+          
+      <table class="slim table table-hover pointer" style="margin-top: 10px;"
+        ng-show="lists.configs.length > 0">
+        <thead>
+          <th class="col-md-7 col-xs-7">Name</th>
+          <th class="col-md-4 col-xs-4">Date</th>
+          <th class="col-md-1 col-xs-1"></th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="report in selected.reports.atoms"
+              ng-click="setSelectedReport(report)"
+              ng-class="{selected: report.id == selected.report.id}">
+            <td>{{report.name}}</td>
+            <td>{{toDate(report.lastModified)}}</td>
+            <td><i       
+                  ng-click="deleteReport(report)"
+                  title="Delete Report" class="noul glyphicon glyphicon-trash"></i></td>
+          </tr>
+        </tbody>
+      </table>
+      <span ng-show="!selected.reportType" style="display: block;"
+          class="alert alert-warning">No report type selected</span>
+      <span ng-show="selected.reportType && selected.reports.totalCount == 0" style="display: block;"
+          class="alert alert-warning">No reports available</span>
+    </div>
+    <div class="col-md-6 col-xs-12">
+      <span ng-show="!pagedResults || pagedResults.totalCount == 0" style="display: block;"
+          class="alert alert-warning">No report selected</span>
+      <span ng-show="pagedResults.totalCount > 0"><b>Report:</b> {{selected.report.name}}</span>
+      <div pager paging="paging['results']" count="pagedResults.totalCount"
+          callbacks="paging['results'].callbacks"></div>
+          
+      <table class="slim table table-hover pointer" style="margin-top: 10px;"
+        ng-show="pagedResults.totalCount > 0">
+        <thead>
+          <th class="col-md-10 col-xs-10"><span
+                ng-click="setSortField('results','value')">
+                Value
+                <span ng-bind="getSortIndicator('results','value')"></span>
+              </span></th>
+          <th class="col-md-1 col-xs-1"><span
+                ng-click="setSortField('results','ct')">
+                Count
+                <span ng-bind="getSortIndicator('results','ct')"></span>
+              </span></th>
+          <th class="col-md-1 col-xs-1"></th>
+        </thead>
+        <tbody>
+          <tr ng-repeat="result in pagedResults.data">
+            <td><ul style="list-style: none; padding-left: 0px;">
+              <li ng-repeat="sty in result.valueArray">{{sty}}</li>
+            </ul></td>
+            <td>{{result.ct}}</td>
+            <td><i       
+                  ng-click="openAddChecklistModal(null, null, 'Compute', result);"
+                  title="Add Checklist" class="noul glyphicon glyphicon-check"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     </uib-accordion-group>
     </uib-accordion>
   </div>

@@ -1792,7 +1792,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/checklist")
   @ApiOperation(value = "Create checklist", notes = "Create checklist", response = ChecklistJpa.class)
   public Checklist createChecklist(
@@ -3384,7 +3384,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       return newChecklist;
     } catch (Exception e) {
-      handleException(e, "trying to import checklist");
+      handleException(e, "trying to compute checklist");
       return null;
     } finally {
       workflowService.close();

@@ -313,45 +313,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
           authToken);
     }
 
-    // Create and set up a process and algorithm configuration for testing
-    ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Process for testing use");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Test Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(terminology);
-    processConfig.setVersion(version);
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("WAIT");
-    algoConfig.setDescription("Algorithm for testing use");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("Test WAIT algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-
-    // Create and set required algorithm properties
-    Map<String, String> algoProperties = new HashMap<String, String>();
-    algoProperties.put("num", "10");
-    algoConfig.setProperties(algoProperties);
-
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    processConfig.getSteps().add(algoConfig);
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-    process = new ProcessServiceRestImpl();
-
     //
     // Create and set up process and algorithm configurations
     //
@@ -796,126 +757,174 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     //
     // Add a QA bins workflow config for the current project
     //
-    getLog().info("  Create a QA workflow config");
-    workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("QUALITY_ASSURANCE");
-    config.setMutuallyExclusive(false);
-    config.setQueryStyle(QueryStyle.CLUSTER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
-
-    // SCUI "merge" bins
-    getLog().info("    Add required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "nci"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(true);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
-
-    // nci_sub_split
-    getLog().info("    Add nci_sub_split bin");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName(terminology + "_merge");
-    definition
-        .setDescription("Split SCUI current version NCI (or sub-source) atoms");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology = :terminology "
-        + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-        + "  and c.terminology='NCI'  "
-        + "group by a.id having count(distinct c.conceptId)>1");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // sct_sepfnpt
-    // cdsty_coc
-    // multsty
-    // styisa
-    // sfo_lfo
-    // deleted_cui
-    //
-
-    //
-    // Non-required
-    //
-
-    // SCUI "merge" bins
-    getLog().info("    Add non-required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "rxnorm", "cbo"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(false);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
-
-    // sct_sepfnpt
-    getLog().info("    Add sct_sepfnpt");
-    // rxnorm_split
-    // nci_pdq_merge
-    // nci_sct_merge
-    // ambig_no_ncimth_pn
-    // ambig_no_mth_pn
-    // ambig_no_rel
-    // pn_pn_ambig
-    // multiple_pn
-    // pn_no_ambig
-    // ambig_pn
-    // pn_orphan
-    // cdsty_coc
-    // nosty
-    // multsty
-    // styisa
-    // cbo_chem
-    // go_chem
-    // mdr_chem
-    // true_orphan
-    // sfo_lfo
-    // deleted_cui_split
+    
+    // TODO load QA workflowConfig and bins from workflow.txt file
+    
+//    getLog().info("  Create a QA workflow config");
+//    workflowService = new WorkflowServiceRestImpl();
+//    config = new WorkflowConfigJpa();
+//    config.setType("QUALITY_ASSURANCE");
+//    config.setMutuallyExclusive(false);
+//    config.setQueryStyle(QueryStyle.CLUSTER);
+//    config.setProjectId(projectId);
+//    workflowService = new WorkflowServiceRestImpl();
+//    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+//
+//    // SCUI "merge" bins
+//    getLog().info("    Add required SCUI merge bins");
+//    for (final String terminology : new String[] {
+//        "nci"
+//    }) {
+//      getLog()
+//          .info("    Add '" + terminology + "_merge' workflow bin definition");
+//      definition = new WorkflowBinDefinitionJpa();
+//      definition.setName(terminology + "_merge");
+//      definition.setDescription("Merged " + terminology.toUpperCase()
+//          + " SCUIs, including merged PTs");
+//      definition.setQuery("select distinct a.id conceptId "
+//          + "from concepts a, concepts_atoms b, atoms c "
+//          + "where a.terminology = :terminology "
+//          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
+//          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+//          + "group by a.id having count(distinct c.conceptId)>1");
+//      definition.setEditable(true);
+//      definition.setEnabled(true);
+//      definition.setRequired(true);
+//      definition.setQueryType(QueryType.SQL);
+//      definition.setWorkflowConfig(newConfig);
+//      workflowService = new WorkflowServiceRestImpl();
+//      workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//          authToken);
+//    }
+//
+//    // nci_sub_split
+//    getLog().info("    Add nci_sub_split bin");
+//    definition = new WorkflowBinDefinitionJpa();
+//    definition.setName("nci_sub_split");
+//    definition
+//        .setDescription("Split SCUI current version NCI (or sub-source) atoms");
+//    definition.setQuery("SELECT "
+//        + "    c.id conceptId1, c1.id conceptId2 " + "FROM "
+//        + "    concepts c, " + "    concepts_atoms ca, " + "    atoms a, "
+//        + "    concepts c1, " + "    concepts_atoms ca1, " + "    atoms a1 "
+//        + "WHERE " + "    c.terminology = :terminology "
+//        + "        AND c1.terminology = :terminology "
+//        + "        AND c.id = ca.concepts_id "
+//        + "        AND ca.atoms_id = a.id "
+//        + "        AND c1.id = ca1.concepts_id "
+//        + "        AND ca1.atoms_id = a1.id "
+//        + "        AND a.terminology = 'NCI' "
+//        + "        AND a1.terminology IN (SELECT  " + "            terminology "
+//        + "        FROM " + "            root_terminologies " + "        WHERE "
+//        + "            family = 'NCI' AND terminology != 'NCI') "
+//        + "        AND a.conceptId = a1.conceptId "
+//        + "        AND c.id != c1.id  ");
+//    definition.setEditable(true);
+//    definition.setEnabled(true);
+//    definition.setRequired(true);
+//    definition.setQueryType(QueryType.SQL);
+//    definition.setWorkflowConfig(newConfig);
+//    workflowService = new WorkflowServiceRestImpl();
+//    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//        authToken);
+//
+//    // sct_sepfnpt
+//    getLog().info("    Add sct_sepfnpt bin");
+//    definition = new WorkflowBinDefinitionJpa();
+//    definition.setName("sct_sepfnpt");
+//    definition
+//        .setDescription("SNOMED concept clusters where the FN and PT terms are separated");
+//    definition.setQuery("SELECT DISTINCT " +
+//        "    c.id conceptId1, c1.id conceptId2 " +
+//        "FROM " +
+//        "    concepts c, " +
+//        "    concepts_atoms ca, " +
+//        "    atoms a, " +
+//        "    concepts c1, " +
+//        "    concepts_atoms ca1, " +
+//        "    atoms a1 " +
+//        "WHERE " +
+//        "    c.terminology = :terminology " +
+//        "        AND c1.terminology = :terminology " +
+//        "        AND a.terminology = 'SNOMEDCT_US' " +
+//        "        AND a1.terminology = 'SNOMEDCT_US' " +
+//        "        AND c.id = ca.concepts_id " +
+//        "        AND ca.atoms_id = a.id " +
+//        "        AND c1.id = ca1.concepts_id " +
+//        "        AND ca1.atoms_id = a1.id " +
+//        "        AND a.termType = 'FN' " +
+//        "        AND a1.termType = 'PT' " +
+//        "        AND a.conceptId = a1.conceptId " +
+//        "        AND c.id != c1.id ");
+//    definition.setEditable(true);
+//    definition.setEnabled(true);
+//    definition.setRequired(true);
+//    definition.setQueryType(QueryType.SQL);
+//    definition.setWorkflowConfig(newConfig);
+//    workflowService = new WorkflowServiceRestImpl();
+//    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//        authToken);    
+//    // cdsty_coc
+//    // multsty
+//    // styisa
+//    // sfo_lfo
+//    // deleted_cui
+//    //
+//
+//    //
+//    // Non-required
+//    //
+//
+//    // SCUI "merge" bins
+//    getLog().info("    Add non-required SCUI merge bins");
+//    for (final String terminology : new String[] {
+//        "rxnorm", "cbo"
+//    }) {
+//      getLog()
+//          .info("    Add '" + terminology + "_merge' workflow bin definition");
+//      definition = new WorkflowBinDefinitionJpa();
+//      definition.setName(terminology + "_merge");
+//      definition.setDescription("Merged " + terminology.toUpperCase()
+//          + " SCUIs, including merged PTs");
+//      definition.setQuery("select a.id clusterId, a.id conceptId "
+//          + "from concepts a, concepts_atoms b, atoms c "
+//          + "where a.terminology = :terminology "
+//          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+//          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+//          + "group by a.id having count(distinct c.conceptId)>1");
+//      definition.setEditable(true);
+//      definition.setEnabled(true);
+//      definition.setRequired(false);
+//      definition.setQueryType(QueryType.SQL);
+//      definition.setWorkflowConfig(newConfig);
+//      workflowService = new WorkflowServiceRestImpl();
+//      workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//          authToken);
+//    }
+//
+//    // sct_sepfnpt
+//    getLog().info("    Add sct_sepfnpt");
+//    // rxnorm_split
+//    // nci_pdq_merge
+//    // nci_sct_merge
+//    // ambig_no_ncimth_pn
+//    // ambig_no_mth_pn
+//    // ambig_no_rel
+//    // pn_pn_ambig
+//    // multiple_pn
+//    // pn_no_ambig
+//    // ambig_pn
+//    // pn_orphan
+//    // cdsty_coc
+//    // nosty
+//    // multsty
+//    // styisa
+//    // cbo_chem
+//    // go_chem
+//    // mdr_chem
+//    // true_orphan
+//    // sfo_lfo
+//    // deleted_cui_split
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate QA bins");
@@ -1018,7 +1027,109 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
+    
+    //
+    // Add REPORT_DEFINITIONS
+    //
+    getLog().info("  Create a REPORT DEFINITIONS config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType("REPORT_DEFINITIONS");
+    config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.REPORT);
+    config.setProjectId(projectId);
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
 
+    // Report for 2 STYS
+    getLog().info("    2 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("2 STYS");
+    definition.setDescription(
+        "Finds concepts with 2 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 3 STYS
+    getLog().info("    3 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("3 STYS");
+    definition.setDescription(
+        "Finds concepts with 3 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 4 STYS
+    getLog().info("    4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("4 STYS");
+    definition.setDescription(
+        "Finds concepts with 4 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+    
+    // Report for >4 STYS
+    getLog().info("    >4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName(">4 STYS");
+    definition.setDescription(
+        "Finds concepts with greater than 4 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+    
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?
 
@@ -1044,7 +1155,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for NCI");
+    processConfig.setDescription("NCI Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for NCI");
     processConfig.setProject(project1);
@@ -1472,7 +1583,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for SNOMEDCT_US");
+    processConfig.setDescription("SNOMEDCT_US Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for SNOMEDCT_US");
     processConfig.setProject(project1);
@@ -1911,7 +2022,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Insertion process for MTH");
+    processConfig.setDescription("UMLS (MTH) Insertion");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("Insertion process for MTH");
     processConfig.setProject(project1);
@@ -2912,11 +3023,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
+    // validate
     algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("NCIMETA");
-    algoConfig.setDescription("NCIMETA Algorithm");
+    algoConfig.setAlgorithmKey("VALIDATERELEASE");
+    algoConfig.setDescription("VALIDATERLEEASE Algorithm");
     algoConfig.setEnabled(true);
-    algoConfig.setName("NCIMETA algorithm");
+    algoConfig.setName("VALIDATE RELEASE algorithm");
     algoConfig.setProcess(processConfig);
     algoConfig.setProject(project1);
     algoConfig.setTimestamp(new Date());
@@ -2926,9 +3038,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add ValidateReleaseAlgorithm
-
-    // TODO - once it's available, add RunMetamorphoSysAlgorithm
+    // RunMetamorphoSysAlgorithm
     algoConfig = new AlgorithmConfigJpa();
     algoConfig.setAlgorithmKey("RUNMMSYS");
     algoConfig.setDescription("RUNMMSYS Algorithm");
@@ -3038,7 +3148,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("ProdMid Cleanup Process");
+    processConfig.setDescription("Prod-Mid Cleanup Process");
     processConfig.setFeedbackEmail(null);
     processConfig.setName("ProdMid Cleanup Process");
     processConfig.setProject(project1);
@@ -3255,39 +3365,6 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
     // This will make two processes, one Insertion, and one Maintenance
     ProcessServiceRest process = new ProcessServiceRestImpl();
-
-    ProcessConfig processConfig = new ProcessConfigJpa();
-    processConfig.setDescription("Remap Component Info Relationships Process");
-    processConfig.setFeedbackEmail(null);
-    processConfig.setName("Remap Component Info Relationships Process");
-    processConfig.setProject(project1);
-    processConfig.setTerminology(project1.getTerminology());
-    processConfig.setVersion(project1.getVersion());
-    processConfig.setTimestamp(new Date());
-    processConfig.setType("Insertion");
-    processConfig = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig, authToken);
-    process = new ProcessServiceRestImpl();
-
-    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
-    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
-    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
-    algoConfig.setEnabled(true);
-    algoConfig.setName("COMPINFORELREMAPPER algorithm");
-    algoConfig.setProcess(processConfig);
-    algoConfig.setProject(project1);
-    algoConfig.setTimestamp(new Date());
-    // Add algorithm and insert as step into process
-    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
-        (AlgorithmConfigJpa) algoConfig, authToken);
-    process = new ProcessServiceRestImpl();
-    processConfig.getSteps().add(algoConfig);
-
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
-        authToken);
-
-    // Now for the Maintenance one
-    process = new ProcessServiceRestImpl();
 
     ProcessConfig processConfig2 = new ProcessConfigJpa();
     processConfig2.setDescription("Remap Component Info Relationships Process");

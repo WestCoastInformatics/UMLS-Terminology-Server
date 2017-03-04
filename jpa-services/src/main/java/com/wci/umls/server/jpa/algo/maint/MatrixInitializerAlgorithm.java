@@ -84,7 +84,7 @@ public class MatrixInitializerAlgorithm extends AbstractAlgorithm {
       final Set<Long> makeUnpublishable =
           new HashSet<>(handler.getIdResults(getProject().getTerminology(),
               getProject().getVersion(), Branch.ROOT,
-              "publishable:true AND NOT atoms.publishable:true", null,
+              "publishable:true AND atoms.publishable:false", null,
               ConceptJpa.class, null, new int[1], manager));
       checkCancel();
       fireProgressEvent(20, "Found concepts to make unpublishable");

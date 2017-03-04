@@ -100,16 +100,39 @@ tsApp.service('reportService', [
       return deferred.promise;
     };
 
+    // remove report
+    this.removeReport = function(id) {
+      console.debug('removeReport', id);
+      var deferred = $q.defer();
+
+      // Add report
+      gpService.increment();
+      $http['delete'](reportUrl + '/' + id).then(
+      // success
+      function(response) {
+        console.debug('  successful remove report');
+        gpService.decrement();
+        deferred.resolve(response.data);
+      },
+      // error
+      function(response) {
+        utilService.handleError(response);
+        gpService.decrement();
+        deferred.reject(response.data);
+      });
+      return deferred.promise;
+    };
+    
     // Generates a report
     this.generateReport = function(projectId, name, query, queryType, resultType) {
 
-      console.debug('generateReport', projectId, query, pfs);
+      console.debug('generateReport', projectId, name, query, queryType, resultType);
       // Setup deferred
       var deferred = $q.defer();
 
       // Make POST call
       gpService.increment();
-      $http.post(reportUrl + '/generate/' + projectId + '?name=' + name + '&query=' + 
+      $http.get(reportUrl + '/generate/' + projectId + '?name=' + name + '&query=' + 
           utilService.prepQuery(query) + '&queryType=' + queryType + '&resultType=' + resultType).then(
       // success
       function(response) {

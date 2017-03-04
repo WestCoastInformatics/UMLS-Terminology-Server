@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Query;
 
 import com.google.common.io.Files;
 import com.wci.umls.server.ValidationResult;
@@ -63,9 +65,8 @@ public class WriteRrfIndexFilesAlgorithm
     openWriters();
 
     // initialize progress monitoring
-    javax.persistence.Query query =
-        manager.createQuery("select count(*) from ConceptJpa c "
-            + "where c.publishable = true and terminology = :terminology");
+    Query query = manager.createQuery("select count(*) from ConceptJpa c "
+        + "where c.publishable = true and terminology = :terminology");
     query.setParameter("terminology", getProject().getTerminology());
     setSteps(Integer.parseInt(query.getSingleResult().toString()));
 
@@ -104,11 +105,16 @@ public class WriteRrfIndexFilesAlgorithm
               && !ConfigUtility.isEmpty(normalizedString)) {
 
             final StringBuilder sb = new StringBuilder();
-            sb.append("ENG").append("|"); // 0 LAT
-            sb.append(normalizedString).append("|"); // 1 NSTR
-            sb.append(c.getTerminologyId()).append("|"); // 2 CUI
-            sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-            sb.append(atom.getStringClassId()).append("|"); // 4 SUI
+            // 0 LAT
+            sb.append("ENG").append("|");
+            // 1 NSTR
+            sb.append(normalizedString).append("|");
+            // 2 CUI
+            sb.append(c.getTerminologyId()).append("|");
+            // 3 LUI
+            sb.append(atom.getLexicalClassId()).append("|");
+            // 4 SUI
+            sb.append(atom.getStringClassId()).append("|");
             sb.append("\n");
             writerMap.get("MRXNS_ENG.RRF").write(sb.toString());
             seen.add("MRXNS" + atom.getStringClassId());
@@ -119,11 +125,16 @@ public class WriteRrfIndexFilesAlgorithm
               if (!wordsSeen
                   .contains("MRXNW" + word + atom.getStringClassId())) {
                 final StringBuilder sb2 = new StringBuilder();
-                sb2.append("ENG").append("|"); // 0 LAT
-                sb2.append(word).append("|"); // 1 WORD
-                sb2.append(c.getTerminologyId()).append("|"); // 2 CUI
-                sb2.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-                sb2.append(atom.getStringClassId()).append("|"); // 4 SUI
+                // 0 LAT
+                sb2.append("ENG").append("|");
+                // 1 WORD
+                sb2.append(word).append("|");
+                // 2 CUI
+                sb2.append(c.getTerminologyId()).append("|");
+                // 3 LUI
+                sb2.append(atom.getLexicalClassId()).append("|");
+                // 4 SUI
+                sb2.append(atom.getStringClassId()).append("|");
                 sb2.append("\n");
                 writerMap.get("MRXNW_ENG.RRF").write(sb2.toString());
                 wordsSeen.add("MRXNW" + word + atom.getStringClassId());
@@ -138,11 +149,16 @@ public class WriteRrfIndexFilesAlgorithm
               if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word
                   + atom.getStringClassId())) {
                 final StringBuilder sb = new StringBuilder();
-                sb.append(atom.getLanguage()).append("|"); // 0 LAT
-                sb.append(word).append("|"); // 1 WORD
-                sb.append(c.getTerminologyId()).append("|"); // 2 CUI
-                sb.append(atom.getLexicalClassId()).append("|"); // 3 LUI
-                sb.append(atom.getStringClassId()).append("|"); // 4 SUI
+                // 0 LAT
+                sb.append(atom.getLanguage()).append("|");
+                // 1 WORD
+                sb.append(word).append("|");
+                // 2 CUI
+                sb.append(c.getTerminologyId()).append("|");
+                // 3 LUI
+                sb.append(atom.getLexicalClassId()).append("|");
+                // 4 SUI
+                sb.append(atom.getStringClassId()).append("|");
                 sb.append("\n");
                 writerMap.get("MRXW_" + atom.getLanguage() + ".RRF")
                     .write(sb.toString());

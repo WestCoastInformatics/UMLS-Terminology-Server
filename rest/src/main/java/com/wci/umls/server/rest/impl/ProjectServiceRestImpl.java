@@ -124,13 +124,26 @@ public class ProjectServiceRestImpl extends RootServiceRestImpl
         throw new LocalException(
             "Project terminology and version must not be null.");
       }
-      final PrecedenceList precList = metadataService
-          .getPrecedenceList(project.getTerminology(), project.getVersion());
-      if (precList != null) {
-        PrecedenceList newPrecList = new PrecedenceListJpa(precList);
-        newPrecList.setId(null);
-        newPrecList = metadataService.addPrecedenceList(newPrecList);
-        project.setPrecedenceList(newPrecList);
+
+      // Create a new precedence list if one isn't specified
+      if (project.getPrecedenceListId() == null) {
+        final PrecedenceList precList = metadataService
+            .getPrecedenceList(project.getTerminology(), project.getVersion());
+        if (precList != null) {
+          PrecedenceList newPrecList = new PrecedenceListJpa(precList);
+          newPrecList.setId(null);
+          newPrecList = metadataService.addPrecedenceList(newPrecList);
+          project.setPrecedenceList(newPrecList);
+        }
+      } else {
+        final PrecedenceList precList =
+            metadataService.getPrecedenceList(project.getPrecedenceListId());
+        if (precList == null) {
+          throw new Exception(
+              "Unexpected nonexistent precedence list id specified = "
+                  + project.getPrecedenceListId());
+        }
+        // here, do nothing, the id is properly set.
       }
 
       // Add project

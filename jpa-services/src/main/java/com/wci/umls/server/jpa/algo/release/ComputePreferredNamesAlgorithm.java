@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo.release;
 
@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
@@ -70,6 +71,8 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     final ComputePreferredNameHandler handler =
         getComputePreferredNameHandler(getProject().getTerminology());
     setMolecularActionFlag(false);
+    final PrecedenceList list = getPrecedenceList(getProject().getTerminology(),
+        getProject().getVersion());
 
     // 1. Collect all atoms from project concepts
     // Normalization is only for English
@@ -90,7 +93,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
       final Concept concept = getConcept(id);
 
       // if something changed, update the concept
-      if (isChanged(concept, handler)) {
+      if (isChanged(concept, handler, list)) {
         updateConcept(concept);
         // // Reindex the concept relationships because the name changed
         // for (final ConceptRelationship rel : concept.getRelationships()) {
@@ -132,11 +135,13 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
    *
    * @param concept the concept
    * @param handler the handler
+   * @param list the list
    * @return true, if successful
    * @throws Exception the exception
    */
+  @SuppressWarnings("static-method")
   private boolean isChanged(Concept concept,
-    ComputePreferredNameHandler handler) throws Exception {
+    ComputePreferredNameHandler handler, PrecedenceList list) throws Exception {
 
     // Calculate publishable
     boolean publishable = false;
@@ -156,8 +161,7 @@ public class ComputePreferredNamesAlgorithm extends AbstractAlgorithm {
     // If there are atoms, recompute the preferred name
     if (hasAtoms) {
       final String computedName =
-          handler.computePreferredName(concept.getAtoms(), getPrecedenceList(
-              getProject().getTerminology(), getProject().getVersion()));
+          handler.computePreferredName(concept.getAtoms(), list);
       if (computedName == null) {
         throw new Exception(
             "Unexpected concept without preferred name - " + concept.getId());

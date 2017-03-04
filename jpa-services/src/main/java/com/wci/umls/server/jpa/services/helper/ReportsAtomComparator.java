@@ -35,11 +35,6 @@ public class ReportsAtomComparator implements Comparator<Atom> {
       throws Exception {
 
     // Set up vars
-    String lui = null;
-    String sui = null;
-    String rank = null;
-    String luiRank = null;
-    String suiRank = null;
 
     // Configure rank handler
     final RrfComputePreferredNameHandler handler =
@@ -53,13 +48,13 @@ public class ReportsAtomComparator implements Comparator<Atom> {
     for (final Atom atom : atoms) {
 
       // Get initial values
-      lui = atom.getLexicalClassId();
-      sui = atom.getStringClassId();
-      rank = handler.getRank(atom, list);
+      final String lui = atom.getLexicalClassId();
+      final String sui = atom.getStringClassId();
+      final String rank = handler.getRank(atom, list);
       atomRanks.put(atom.getId(), rank);
 
       // Look up that atom's lui
-      luiRank = luiRanks.get(lui);
+      final String luiRank = luiRanks.get(lui);
       if (luiRank == null) {
         // Add the current atom's lui and rank to the hashmap.
         luiRanks.put(lui, rank);
@@ -74,7 +69,7 @@ public class ReportsAtomComparator implements Comparator<Atom> {
 
         // Look up that atom's sui in suiRanks
       }
-      suiRank = suiRanks.get(sui);
+      final String suiRank = suiRanks.get(sui);
       if (suiRank == null) {
         // Add the current atom's sui and rank to the hashmap.
         suiRanks.put(sui, rank);

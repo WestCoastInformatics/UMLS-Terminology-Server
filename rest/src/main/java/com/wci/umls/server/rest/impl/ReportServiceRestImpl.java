@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -272,7 +273,15 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     try {
       authorizeApp(securityService, authToken, "find reports", UserRole.VIEWER);
       final Project project = reportService.getProject(projectId);
-      return reportService.findReports(project, query, pfs);
+      ReportList list = reportService.findReports(project, query, pfs);
+      
+      for (Report report : list.getObjects()) {
+        if (report != null) {
+          reportService.handleLazyInit(report);
+        }
+      }
+      
+      return list;
     } catch (Exception e) {
       handleException(e, "trying to find reports ");
       return null;
@@ -282,6 +291,38 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     }
   }
 
+
+  /* see superclass */
+  @Override
+  @DELETE
+  @Path("/{id}")
+  @ApiOperation(value = "Remove report", notes = "Removes the report with the specified id")
+  public void removeReport(
+    @ApiParam(value = "Report id, e.g. 3", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Authorization token, e.g. 'guest'", required = true) @HeaderParam("Authorization") String authToken)
+    throws Exception {
+    Logger.getLogger(getClass()).info("RESTful call (Report): /" + id);
+
+    final ReportService reportService = new ReportServiceJpa();
+    try {
+      final String userName = authorizeProject(reportService, id,
+          securityService, authToken, "remove report", UserRole.AUTHOR);
+
+      reportService.setLastModifiedBy(userName);
+      // Create service and configure transaction scope
+      reportService.removeReport(id);
+
+      reportService.addLogEntry(userName, id, id, null, null,
+          "REMOVE report " + id);
+
+    } catch (Exception e) {
+      handleException(e, "trying to remove a report");
+    } finally {
+      reportService.close();
+      securityService.close();
+    }
+  }
+  
   /* see superclass */
   @Override
   @GET
@@ -311,10 +352,10 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
 
   @Override
   @GET
-  @Path("/generate/{id}")
+  @Path("/generate/{projectId}")
   @ApiOperation(value = "Generates a report", notes = "Generates a report", response = ReportJpa.class)
   public Report generateReport(
-    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("id") Long id,
+    @ApiParam(value = "Project internal id, e.g. 2", required = true) @PathParam("projectId") Long projectId,
     @ApiParam(value = "Name", required = false) @QueryParam("name") String name,
     @ApiParam(value = "Query", required = true) @QueryParam("query") String query,
     @ApiParam(value = "Query Type, e.g. LUCENE", required = true) @QueryParam("queryType") QueryType queryType,
@@ -323,14 +364,17 @@ public class ReportServiceRestImpl extends RootServiceRestImpl
     throws Exception {
     Logger.getLogger(getClass()).info("RESTful call (Report): /generate");
 
-    final ReportService reportService = new ReportServiceJpa();
-    try {
-      authorizeApp(securityService, authToken, "generate the report",
-          UserRole.VIEWER);
+      final ReportService reportService = new ReportServiceJpa();
+      try {
+        final String userName = authorizeApp(securityService, authToken, "generate the report",
+            UserRole.VIEWER);
+        reportService.setLastModifiedBy(userName);
+      
+      Project project = reportService.getProject(projectId);
+      Report report = reportService.generateReport(project, name, query, queryType, resultType);
 
-      final Project project = reportService.getProject(id);
-      final Report report = reportService.generateReport(project, name, query,
-          queryType, resultType);
+      reportService.addLogEntry(userName, project.getId(), project.getId(),
+          null, null, "GENERATE report - " + name);
       return report;
     } catch (Exception e) {
       handleException(e, "trying to generate a report");

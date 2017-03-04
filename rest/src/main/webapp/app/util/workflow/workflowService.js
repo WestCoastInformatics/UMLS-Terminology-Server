@@ -1216,7 +1216,7 @@ tsApp.service('workflowService', [
       gpService.increment();
       $http.post(
         workflowUrl + '/checklist/compute?projectId=' + projectId + '&query='
-          + utilService.prepQuery(query) + '&queryType=' + queryType + '&name=' + name, pfs).then(
+          + encodeURIComponent(query) + '&queryType=' + queryType + '&name=' + name, pfs).then(
       // success
       function(response) {
         console.debug('  checklist computed =', response.data);

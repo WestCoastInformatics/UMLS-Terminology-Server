@@ -10,13 +10,8 @@ import java.util.Map;
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.hibernate.search.jpa.FullTextEntityManager;
-import org.hibernate.search.jpa.FullTextQuery;
-import org.hibernate.search.jpa.Search;
 
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.Identity;
 import com.wci.umls.server.jpa.meta.AtomIdentityJpa;
@@ -24,6 +19,7 @@ import com.wci.umls.server.jpa.meta.LexicalClassIdentityJpa;
 import com.wci.umls.server.jpa.meta.RelationshipIdentityJpa;
 import com.wci.umls.server.jpa.meta.SemanticTypeComponentIdentityJpa;
 import com.wci.umls.server.jpa.meta.StringClassIdentityJpa;
+import com.wci.umls.server.jpa.services.handlers.DefaultSearchHandler;
 import com.wci.umls.server.model.meta.AtomIdentity;
 import com.wci.umls.server.model.meta.AttributeIdentity;
 import com.wci.umls.server.model.meta.LexicalClassIdentity;
@@ -31,6 +27,7 @@ import com.wci.umls.server.model.meta.RelationshipIdentity;
 import com.wci.umls.server.model.meta.SemanticTypeComponentIdentity;
 import com.wci.umls.server.model.meta.StringClassIdentity;
 import com.wci.umls.server.services.UmlsIdentityService;
+import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
  * JPA and JAXB enabled implementation of {@link UmlsIdentityService}.
@@ -710,16 +707,11 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   public long getIdentityId(Identity identity) throws Exception {
 
     // Set up the "full text query"
-    final FullTextEntityManager fullTextEntityManager =
-        Search.getFullTextEntityManager(manager);
+    final SearchHandler handler = new DefaultSearchHandler();
+    final List<Long> results = handler.getIdResults(null, null, Branch.ROOT,
+        "identityCode:" + identity.getIdentityCode(), null, identity.getClass(),
+        null, new int[1], manager);
 
-    final Query query = new TermQuery(
-        new Term("identityCode", "" + identity.getIdentityCode()));
-    final FullTextQuery fullTextQuery =
-        fullTextEntityManager.createFullTextQuery(query, identity.getClass());
-
-    fullTextQuery.setProjection("id");
-    final List<Object[]> results = fullTextQuery.getResultList();
     if (results.isEmpty()) {
       return -1L;
     }
@@ -729,7 +721,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
           + identity.getIdentityCode());
     }
 
-    return (Long) results.get(0)[0];
+    return results.get(0);
   }
 
   /* see superclass */
