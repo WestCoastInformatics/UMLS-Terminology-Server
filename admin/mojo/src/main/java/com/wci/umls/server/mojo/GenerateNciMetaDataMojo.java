@@ -979,7 +979,109 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
+    
+    //
+    // Add REPORT_DEFINITIONS
+    //
+    getLog().info("  Create a REPORT DEFINITIONS config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType("REPORT_DEFINITIONS");
+    config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.REPORT);
+    config.setProjectId(projectId);
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
 
+    // Report for 2 STYS
+    getLog().info("    2 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("2 STYS");
+    definition.setDescription(
+        "Finds concepts with 2 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 3 STYS
+    getLog().info("    3 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("3 STYS");
+    definition.setDescription(
+        "Finds concepts with 3 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 4 STYS
+    getLog().info("    4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("4 STYS");
+    definition.setDescription(
+        "Finds concepts with 4 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+    
+    // Report for >4 STYS
+    getLog().info("    >4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName(">4 STYS");
+    definition.setDescription(
+        "Finds concepts with greater than 4 coocurring stys.");
+    definition
+        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
+            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
+            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
+            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
+            " and csty.semanticTypes_id = sty.id " + 
+            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+    
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?
 

@@ -75,7 +75,7 @@ else if ($target == "MRAUI") then
     set cnt = `cat MRAUI.badfields.$$ | wc -l`
     if ($cnt != 0) then
         echo "ERROR: The following rows have bad field formats"
-        cat MRAUI.badfields.$$ | sed 's/^/  /'
+        cat MRAUI.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRAUI.badfields.$$
 
