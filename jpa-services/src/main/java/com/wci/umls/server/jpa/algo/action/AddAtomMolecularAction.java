@@ -115,7 +115,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // Assign alternateTerminologyId
     final IdentifierAssignmentHandler handler =
-        getIdentifierAssignmentHandler(getConcept().getTerminology());
+        newIdentifierAssignmentHandler(getConcept().getTerminology());
 
     // Add string and lexical classes to get assign their Ids
     final StringClass strClass = new StringClassJpa();
@@ -155,7 +155,7 @@ public class AddAtomMolecularAction extends AbstractMolecularAction {
 
     // update the concept
     updateConcept(getConcept());
-    
+
   }
 
   /* see superclass */

@@ -926,15 +926,16 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 //    // sfo_lfo
 //    // deleted_cui_split
 
-    // Clear and regenerate all bins
-    getLog().info("  Clear and regenerate QA bins");
-    // Clear bins
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
-
-    // Regenerate bins
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE", authToken);
+    // // Clear and regenerate all bins
+    // getLog().info(" Clear and regenerate QA bins");
+    // // Clear bins
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
+    //
+    // // Regenerate bins
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
+    // authToken);
 
     //
     // Add MID VALIDATOIN

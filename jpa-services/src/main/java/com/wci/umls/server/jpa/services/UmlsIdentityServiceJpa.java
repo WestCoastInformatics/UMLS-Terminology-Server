@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.services;
 
@@ -40,6 +40,9 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
   /** The max ids. */
   private static Map<String, Long> maxIds = new HashMap<>();
+
+  /** The handler. */
+  private SearchHandler handler = new DefaultSearchHandler();
 
   /**
    * Instantiates an empty {@link UmlsIdentityServiceJpa}.
@@ -703,11 +706,9 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
    * @return the identity id
    * @throws Exception the exception
    */
-  @SuppressWarnings("unchecked")
   public long getIdentityId(Identity identity) throws Exception {
 
     // Set up the "full text query"
-    final SearchHandler handler = new DefaultSearchHandler();
     final List<Long> results = handler.getIdResults(null, null, Branch.ROOT,
         "identityCode:" + identity.getIdentityCode(), null, identity.getClass(),
         null, new int[1], manager);
@@ -724,6 +725,14 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     return results.get(0);
   }
 
+
+  /* see superclass */
+  @Override
+  public void beginTransaction() throws Exception {
+    // Create a new handler for the new transaction
+    handler = new DefaultSearchHandler();
+  }
+  
   /* see superclass */
   @Override
   public void commit() throws Exception {
