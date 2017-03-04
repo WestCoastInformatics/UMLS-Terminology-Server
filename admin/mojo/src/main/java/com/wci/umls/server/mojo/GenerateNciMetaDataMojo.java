@@ -757,126 +757,174 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     //
     // Add a QA bins workflow config for the current project
     //
-    getLog().info("  Create a QA workflow config");
-    workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("QUALITY_ASSURANCE");
-    config.setMutuallyExclusive(false);
-    config.setQueryStyle(QueryStyle.CLUSTER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
-
-    // SCUI "merge" bins
-    getLog().info("    Add required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "nci"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(true);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
-
-    // nci_sub_split
-    getLog().info("    Add nci_sub_split bin");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName(terminology + "_merge");
-    definition
-        .setDescription("Split SCUI current version NCI (or sub-source) atoms");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology = :terminology "
-        + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-        + "  and c.terminology='NCI'  "
-        + "group by a.id having count(distinct c.conceptId)>1");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
-
-    // sct_sepfnpt
-    // cdsty_coc
-    // multsty
-    // styisa
-    // sfo_lfo
-    // deleted_cui
-    //
-
-    //
-    // Non-required
-    //
-
-    // SCUI "merge" bins
-    getLog().info("    Add non-required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "rxnorm", "cbo"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(false);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
-
-    // sct_sepfnpt
-    getLog().info("    Add sct_sepfnpt");
-    // rxnorm_split
-    // nci_pdq_merge
-    // nci_sct_merge
-    // ambig_no_ncimth_pn
-    // ambig_no_mth_pn
-    // ambig_no_rel
-    // pn_pn_ambig
-    // multiple_pn
-    // pn_no_ambig
-    // ambig_pn
-    // pn_orphan
-    // cdsty_coc
-    // nosty
-    // multsty
-    // styisa
-    // cbo_chem
-    // go_chem
-    // mdr_chem
-    // true_orphan
-    // sfo_lfo
-    // deleted_cui_split
+    
+    // TODO load QA workflowConfig and bins from workflow.txt file
+    
+//    getLog().info("  Create a QA workflow config");
+//    workflowService = new WorkflowServiceRestImpl();
+//    config = new WorkflowConfigJpa();
+//    config.setType("QUALITY_ASSURANCE");
+//    config.setMutuallyExclusive(false);
+//    config.setQueryStyle(QueryStyle.CLUSTER);
+//    config.setProjectId(projectId);
+//    workflowService = new WorkflowServiceRestImpl();
+//    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+//
+//    // SCUI "merge" bins
+//    getLog().info("    Add required SCUI merge bins");
+//    for (final String terminology : new String[] {
+//        "nci"
+//    }) {
+//      getLog()
+//          .info("    Add '" + terminology + "_merge' workflow bin definition");
+//      definition = new WorkflowBinDefinitionJpa();
+//      definition.setName(terminology + "_merge");
+//      definition.setDescription("Merged " + terminology.toUpperCase()
+//          + " SCUIs, including merged PTs");
+//      definition.setQuery("select distinct a.id conceptId "
+//          + "from concepts a, concepts_atoms b, atoms c "
+//          + "where a.terminology = :terminology "
+//          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
+//          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+//          + "group by a.id having count(distinct c.conceptId)>1");
+//      definition.setEditable(true);
+//      definition.setEnabled(true);
+//      definition.setRequired(true);
+//      definition.setQueryType(QueryType.SQL);
+//      definition.setWorkflowConfig(newConfig);
+//      workflowService = new WorkflowServiceRestImpl();
+//      workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//          authToken);
+//    }
+//
+//    // nci_sub_split
+//    getLog().info("    Add nci_sub_split bin");
+//    definition = new WorkflowBinDefinitionJpa();
+//    definition.setName("nci_sub_split");
+//    definition
+//        .setDescription("Split SCUI current version NCI (or sub-source) atoms");
+//    definition.setQuery("SELECT "
+//        + "    c.id conceptId1, c1.id conceptId2 " + "FROM "
+//        + "    concepts c, " + "    concepts_atoms ca, " + "    atoms a, "
+//        + "    concepts c1, " + "    concepts_atoms ca1, " + "    atoms a1 "
+//        + "WHERE " + "    c.terminology = :terminology "
+//        + "        AND c1.terminology = :terminology "
+//        + "        AND c.id = ca.concepts_id "
+//        + "        AND ca.atoms_id = a.id "
+//        + "        AND c1.id = ca1.concepts_id "
+//        + "        AND ca1.atoms_id = a1.id "
+//        + "        AND a.terminology = 'NCI' "
+//        + "        AND a1.terminology IN (SELECT  " + "            terminology "
+//        + "        FROM " + "            root_terminologies " + "        WHERE "
+//        + "            family = 'NCI' AND terminology != 'NCI') "
+//        + "        AND a.conceptId = a1.conceptId "
+//        + "        AND c.id != c1.id  ");
+//    definition.setEditable(true);
+//    definition.setEnabled(true);
+//    definition.setRequired(true);
+//    definition.setQueryType(QueryType.SQL);
+//    definition.setWorkflowConfig(newConfig);
+//    workflowService = new WorkflowServiceRestImpl();
+//    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//        authToken);
+//
+//    // sct_sepfnpt
+//    getLog().info("    Add sct_sepfnpt bin");
+//    definition = new WorkflowBinDefinitionJpa();
+//    definition.setName("sct_sepfnpt");
+//    definition
+//        .setDescription("SNOMED concept clusters where the FN and PT terms are separated");
+//    definition.setQuery("SELECT DISTINCT " +
+//        "    c.id conceptId1, c1.id conceptId2 " +
+//        "FROM " +
+//        "    concepts c, " +
+//        "    concepts_atoms ca, " +
+//        "    atoms a, " +
+//        "    concepts c1, " +
+//        "    concepts_atoms ca1, " +
+//        "    atoms a1 " +
+//        "WHERE " +
+//        "    c.terminology = :terminology " +
+//        "        AND c1.terminology = :terminology " +
+//        "        AND a.terminology = 'SNOMEDCT_US' " +
+//        "        AND a1.terminology = 'SNOMEDCT_US' " +
+//        "        AND c.id = ca.concepts_id " +
+//        "        AND ca.atoms_id = a.id " +
+//        "        AND c1.id = ca1.concepts_id " +
+//        "        AND ca1.atoms_id = a1.id " +
+//        "        AND a.termType = 'FN' " +
+//        "        AND a1.termType = 'PT' " +
+//        "        AND a.conceptId = a1.conceptId " +
+//        "        AND c.id != c1.id ");
+//    definition.setEditable(true);
+//    definition.setEnabled(true);
+//    definition.setRequired(true);
+//    definition.setQueryType(QueryType.SQL);
+//    definition.setWorkflowConfig(newConfig);
+//    workflowService = new WorkflowServiceRestImpl();
+//    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//        authToken);    
+//    // cdsty_coc
+//    // multsty
+//    // styisa
+//    // sfo_lfo
+//    // deleted_cui
+//    //
+//
+//    //
+//    // Non-required
+//    //
+//
+//    // SCUI "merge" bins
+//    getLog().info("    Add non-required SCUI merge bins");
+//    for (final String terminology : new String[] {
+//        "rxnorm", "cbo"
+//    }) {
+//      getLog()
+//          .info("    Add '" + terminology + "_merge' workflow bin definition");
+//      definition = new WorkflowBinDefinitionJpa();
+//      definition.setName(terminology + "_merge");
+//      definition.setDescription("Merged " + terminology.toUpperCase()
+//          + " SCUIs, including merged PTs");
+//      definition.setQuery("select a.id clusterId, a.id conceptId "
+//          + "from concepts a, concepts_atoms b, atoms c "
+//          + "where a.terminology = :terminology "
+//          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
+//          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
+//          + "group by a.id having count(distinct c.conceptId)>1");
+//      definition.setEditable(true);
+//      definition.setEnabled(true);
+//      definition.setRequired(false);
+//      definition.setQueryType(QueryType.SQL);
+//      definition.setWorkflowConfig(newConfig);
+//      workflowService = new WorkflowServiceRestImpl();
+//      workflowService.addWorkflowBinDefinition(projectId, null, definition,
+//          authToken);
+//    }
+//
+//    // sct_sepfnpt
+//    getLog().info("    Add sct_sepfnpt");
+//    // rxnorm_split
+//    // nci_pdq_merge
+//    // nci_sct_merge
+//    // ambig_no_ncimth_pn
+//    // ambig_no_mth_pn
+//    // ambig_no_rel
+//    // pn_pn_ambig
+//    // multiple_pn
+//    // pn_no_ambig
+//    // ambig_pn
+//    // pn_orphan
+//    // cdsty_coc
+//    // nosty
+//    // multsty
+//    // styisa
+//    // cbo_chem
+//    // go_chem
+//    // mdr_chem
+//    // true_orphan
+//    // sfo_lfo
+//    // deleted_cui_split
 
     // Clear and regenerate all bins
     getLog().info("  Clear and regenerate QA bins");

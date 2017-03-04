@@ -134,16 +134,20 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
         QueryType.JPQL, params, AtomJpa.class, false);
 
     for (final Long id : atomIds) {
-      final Atom atom = this.getAtom(id);
-      atom.setPublishable(false);
-      updateAtom(atom);
 
       // Need to update the concept as well otherwise the index does not get
-      // updated.
-      // ASSUME there is a matching project concept
-      final Concept concept = this.findConcepts(getProject().getTerminology(),
-          getProject().getVersion(), Branch.ROOT, "atoms.id:" + atom.getId(),
-          null).getObjects().get(0);
+      // updated. ASSUME there is a matching project concept
+      final Concept concept = this
+          .findConcepts(getProject().getTerminology(),
+              getProject().getVersion(), Branch.ROOT, "atoms.id:" + id, null)
+          .getObjects().get(0);
+      for (final Atom atom : concept.getAtoms()) {
+        if (atom.getId().equals(id)) {
+          atom.setPublishable(false);
+          updateAtom(atom);
+        }
+      }
+      concept.setPublishable(false);
       updateConcept(concept);
 
       // make the project concept unpublishable - e.g. MatrixInitializer at end
