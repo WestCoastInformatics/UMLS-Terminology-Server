@@ -409,7 +409,7 @@ public class MapSetJpa extends AbstractComponentHasAttributes
   /* see superclass */
   @Override
   public String toString() {
-    return "MapSetJpa [mappings=" + mappings + ", name=" + name
+    return "MapSetJpa [name=" + name
         + ", fromComplexity=" + fromComplexity + ", toComplexity="
         + toComplexity + ", fromExhaustive=" + fromExhaustive
         + ", toExhaustive=" + toExhaustive + ", type=" + type
