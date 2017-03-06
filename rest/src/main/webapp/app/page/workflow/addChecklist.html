@@ -1,14 +1,14 @@
 <div class="modal-header">
-  <h4 style="display: inline">Create Checklist</h4>
+  <h4 style="display: inline">{{action}} Checklist</h4>
   <span style="float: right">
-    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    <i class="noul glyphicon glyphicon-remove" ng-click="close()"></i>
   </span>
 </div>
 
 <div class="modal-body">
 
   <table class="slim table">
-    <tr>
+    <tr ng-show="action == 'Add'">
       <td>
         <b>Bin</b>
       </td>
@@ -26,7 +26,7 @@
           placeholder="e.g. chk_test_list" />
       </td>
     </tr>
-    <tr>
+    <tr ng-show="action == 'Add'">
       <td>
         <b>Description</b>
       </td>
@@ -57,7 +57,7 @@
         <input type="number" ng-model="skipClusterCt" size="4" />
       </td>
     </tr>
-    <tr>
+    <tr ng-show="action == 'Add'">
       <td>
         <b>Sort order</b>
       </td>
@@ -69,7 +69,7 @@
         </select>
       </td>
     </tr>
-    <tr>
+    <tr ng-show="action == 'Add'">
       <td>
         <b>Exclude records on worklists</b>
       </td>
@@ -83,11 +83,22 @@
   <!-- Errors -->
   <div errors="errors"></div>
 
+  <!-- Warnings -->
+  <div class="alert alert-warning" ng-repeat="warning in warnings">
+    {{warning}}
+    <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+    </div>
+  </div>
+
 </div>
 
 
 <div class="modal-footer">
   <button ng-disabled="!name || !description" class="btn btn-primary"
+    ng-show="action == 'Add'"
     ng-click="createChecklist();">Add</button>
-  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+  <button ng-disabled="!name || warnings.length > 0" class="btn btn-primary"
+    ng-show="action == 'Compute'"
+    ng-click="computeChecklist();">Compute</button>
+  <button class="btn btn-warning" ng-click="close()">Close</button>
 </div>

@@ -914,7 +914,7 @@ public class WorkflowClientRest extends RootClientRest
                 .replaceAll("\\+", "%20"));
 
     final Response response = target.request(MediaType.APPLICATION_XML)
-        .header("Authorization", authToken).put(Entity.json(pfs));
+        .header("Authorization", authToken).post(Entity.json(pfs));
 
     final String resultString = response.readEntity(String.class);
     if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {

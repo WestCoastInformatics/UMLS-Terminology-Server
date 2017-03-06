@@ -64,7 +64,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/umls/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod clean install
+mvn -Drun.config.label=umls -Dconfig.artifactId=term-server-config-prod clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/umls-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/umls-server-rest
