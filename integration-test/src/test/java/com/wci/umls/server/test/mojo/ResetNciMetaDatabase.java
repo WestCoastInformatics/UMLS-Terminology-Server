@@ -104,6 +104,11 @@ public class ResetNciMetaDatabase {
     p.setProperty("mode", "update");
     request.setProperties(p);
     request.setMavenOpts("-Xmx15G");
+    p.setProperty("input.dir",
+        "../../config/src/main/resources/data/SAMPLE_NCI");
+    if (System.getProperty("input.dir") != null) {
+      p.setProperty("input.dir", System.getProperty("input.dir"));
+    }
     invoker = new DefaultInvoker();
     result = invoker.execute(request);
     if (result.getExitCode() != 0) {
