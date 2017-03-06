@@ -592,6 +592,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     inverseIdentity.setId(identity.getInverseId());
     inverseIdentity.setFromId(identity.getToId());
     inverseIdentity.setFromTerminology(identity.getToTerminology());
+    // Need to duplicate the terminologyId from the source identity.
+    inverseIdentity.setTerminologyId(identity.getTerminologyId());
     inverseIdentity.setFromType(identity.getToType());
     inverseIdentity.setToId(identity.getFromId());
     inverseIdentity.setToTerminology(identity.getFromTerminology());
@@ -710,8 +712,8 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     // Set up the "full text query"
     final List<Long> results = handler.getIdResults(null, null, Branch.ROOT,
-        "identityCode:" + identity.getIdentityCode(), null, identity.getClass(),
-        null, new int[1], manager);
+        "identityCode:\"" + identity.getIdentityCode() + "\"", null,
+        identity.getClass(), null, new int[1], manager);
 
     if (results.isEmpty()) {
       return -1L;
@@ -725,7 +727,6 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     return results.get(0);
   }
 
-
   /* see superclass */
   @Override
   public void beginTransaction() throws Exception {
@@ -733,7 +734,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
     // Create a new handler for the new transaction
     handler = new DefaultSearchHandler();
   }
-  
+
   /* see superclass */
   @Override
   public void commit() throws Exception {
