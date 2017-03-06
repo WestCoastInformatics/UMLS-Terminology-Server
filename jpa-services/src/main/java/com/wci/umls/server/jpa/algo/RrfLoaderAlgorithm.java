@@ -2733,8 +2733,11 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             conceptRel.setTo(toConcept);
           }
           // RUI is the terminologyId for concept relationships, not the alt
-          // terminology id
-          conceptRel.setTerminologyId(fields[8]);
+          // terminology id, for the "project" terminology only.
+          if (conceptRel.getTerminology()
+              .equals(getProject().getTerminology())) {
+            conceptRel.setTerminologyId(fields[8]);
+          }
           setRelationshipFields(fields, conceptRel);
 
           addRelationship(conceptRel);
