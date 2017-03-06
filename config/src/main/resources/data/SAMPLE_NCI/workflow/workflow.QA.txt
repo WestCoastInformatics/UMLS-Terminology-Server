@@ -291,20 +291,6 @@
       "workflowConfigId": 52
     },
     {
-      "id": 1052,
-      "lastModified": 1488820011000,
-      "lastModifiedBy": "RAW",
-      "timestamp": 1488820011000,
-      "name": "ambig_pn",
-      "description": "MTH/PN atom is ambiguous but has no matching ambiguous string",
-      "query": "SELECT c.id conceptId FROM concepts c where c.id = 99999999",
-      "queryType": "SQL",
-      "editable": true,
-      "enabled": true,
-      "required": false,
-      "workflowConfigId": 52
-    },
-    {
       "id": 1053,
       "lastModified": 1488820052000,
       "lastModifiedBy": "RAW",
@@ -409,20 +395,6 @@
       "timestamp": 1488820266000,
       "name": "deleted_cui_split",
       "description": "Complex split/merge case CUIs that are going away - will need bequeathal",
-      "query": "SELECT c.id conceptId from concepts c where c.id=9999999",
-      "queryType": "SQL",
-      "editable": true,
-      "enabled": true,
-      "required": false,
-      "workflowConfigId": 52
-    },
-    {
-      "id": 1061,
-      "lastModified": 1488820298000,
-      "lastModifiedBy": "RAW",
-      "timestamp": 1488820266000,
-      "name": "split_demotions",
-      "description": "Demotions overlapping with a bad merge that was split",
       "query": "SELECT c.id conceptId from concepts c where c.id=9999999",
       "queryType": "SQL",
       "editable": true,

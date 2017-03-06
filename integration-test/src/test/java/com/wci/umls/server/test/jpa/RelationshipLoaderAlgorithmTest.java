@@ -108,6 +108,8 @@ public class RelationshipLoaderAlgorithmTest extends IntegrationUnitSupport {
 
     PrintWriter out = new PrintWriter(new FileWriter(outputFile));
     out.println(
+        "259973|S|386835005|RT|has_active_ingredient|1039008|SNOMEDCT_US_2016_09_01|SNOMEDCT_US_2016_09_01|R|Y|N|N|SOURCE_CUI|SNOMEDCT_US_2016_09_01|SOURCE_CUI|SNOMEDCT_US_2016_09_01|1910721029|0|");
+    out.println(
         "1|S|V-NCI_2016_05E|BT|has_version|V-NCI|SRC|SRC|R|Y|N|N|CODE_SOURCE|SRC|CODE_SOURCE|SRC|||");
     out.println(
         "31|S|C63923|RT|Concept_In_Subset|C98033|NCI_2016_05E|NCI_2016_05E|R|Y|N|N|SOURCE_CUI|NCI_2016_05E|SOURCE_CUI|NCI_2016_05E|||");
