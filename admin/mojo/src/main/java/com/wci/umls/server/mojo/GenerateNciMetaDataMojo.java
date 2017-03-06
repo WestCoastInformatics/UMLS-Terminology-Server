@@ -779,16 +779,17 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
 
-    // // Clear and regenerate all bins
-    // getLog().info(" Clear and regenerate QA bins");
-    // // Clear bins
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
-    //
-    // // Regenerate bins
-    // workflowService = new WorkflowServiceRestImpl();
-    // workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
-    // authToken);
+     // Clear bins
+     getLog().info(" Clear and regenerate QA bins");
+     // Clear bins
+     workflowService = new WorkflowServiceRestImpl();
+     workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
+    
+     // Note: don't regerenate all bins.  Users will do so manually as needed.
+//     // Regenerate bins
+//     workflowService = new WorkflowServiceRestImpl();
+//     workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
+//     authToken);
 
     //
     // Add MID VALIDATOIN
