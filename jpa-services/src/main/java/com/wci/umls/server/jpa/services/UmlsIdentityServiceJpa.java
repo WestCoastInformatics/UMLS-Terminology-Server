@@ -710,7 +710,7 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
 
     // Set up the "full text query"
     final List<Long> results = handler.getIdResults(null, null, Branch.ROOT,
-        "identityCode:" + identity.getIdentityCode(), null, identity.getClass(),
+        "identityCode:\"" + identity.getIdentityCode() + "\"", null, identity.getClass(),
         null, new int[1], manager);
 
     if (results.isEmpty()) {
