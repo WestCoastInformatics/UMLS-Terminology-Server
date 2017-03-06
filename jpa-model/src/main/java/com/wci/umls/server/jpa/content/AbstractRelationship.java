@@ -234,7 +234,8 @@ public abstract class AbstractRelationship<S extends ComponentInfo, T extends Co
             + relationship);
     if (relationship != null && inverseRelationship != null) {
       inverseRelationship.setId(null);
-      inverseRelationship.setTerminologyId("");
+      // Need to duplicate the TerminologyId from the source relationship.
+      inverseRelationship.setTerminologyId(relationship.getTerminologyId());
       inverseRelationship.setFrom((S) relationship.getTo());
       inverseRelationship.setTo((T) relationship.getFrom());
       inverseRelationship.setRelationshipType(inverseRelType);
