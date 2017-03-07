@@ -1792,7 +1792,7 @@ public class WriteRrfContentFilesAlgorithm
         && rel.getTerminology().equals(getProject().getTerminology())) {
       // For project C rels, the RUI is the terminology id
       // 8 RUI
-      sb.append(rel.getTerminologyId());
+      sb.append(rel.getTerminologyId()).append("|");
       // 9 SRUI
       sb.append("|");
 
