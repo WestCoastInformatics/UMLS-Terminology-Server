@@ -1788,11 +1788,24 @@ public class WriteRrfContentFilesAlgorithm
     sb.append(stype2).append("|");
     // 7 RELA
     sb.append(rel.getAdditionalRelationshipType()).append("|");
-    // 8 RUI
-    final String rui = relRuiMap.get(rel.getId());
-    sb.append(rui != null ? rui : "").append("|");
-    // 9 SRUI
-    sb.append(rel.getTerminologyId().replaceAll("~DA:[\\d]+", "")).append("|");
+    if (rel instanceof ConceptRelationship
+        && rel.getTerminology().equals(getProject().getTerminology())) {
+      // For project C rels, the RUI is the terminology id
+      // 8 RUI
+      sb.append(rel.getTerminologyId());
+      // 9 SRUI
+      sb.append("|");
+
+    } else {
+      // for non-project or non C rels, the RUI is the attached RUI
+      final String rui = relRuiMap.get(rel.getId());
+      // 8 RUI
+      sb.append(rui != null ? rui : "").append("|");
+      // 9 SRUI
+      sb.append(rel.getTerminologyId().replaceAll("~DA:[\\d]+", ""))
+          .append("|");
+
+    }
     // 10 SAB
     sb.append(rel.getTerminology()).append("|");
     // 11 SL
