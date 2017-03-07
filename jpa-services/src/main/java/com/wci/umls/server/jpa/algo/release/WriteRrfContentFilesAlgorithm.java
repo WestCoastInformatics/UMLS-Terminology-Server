@@ -205,8 +205,12 @@ public class WriteRrfContentFilesAlgorithm
           for (final Long conceptId : conceptIds) {
             final Concept c = service.getConcept(conceptId);
 
+            String prev = null;
             for (final String line : writeMrsat(c, service)) {
-              writerMap.get("MRSAT.RRF").print(line);
+              if (!line.equals(prev)) {
+                writerMap.get("MRSAT.RRF").print(line);
+              }
+              prev = line;
             }
             if (ct++ % RootService.commitCt == 0) {
               service.commitClearBegin();
@@ -245,8 +249,12 @@ public class WriteRrfContentFilesAlgorithm
           for (final Long conceptId : conceptIds) {
             final Concept c = service.getConcept(conceptId);
 
+            String prev = "";
             for (final String line : writeMrrel(c, service)) {
-              writerMap.get("MRREL.RRF").print(line);
+              if (!line.equals(prev)) {
+                writerMap.get("MRREL.RRF").print(line);
+              }
+              prev = line;
             }
 
             if (ct++ % RootService.commitCt == 0) {
@@ -286,8 +294,12 @@ public class WriteRrfContentFilesAlgorithm
           for (final Long conceptId : conceptIds) {
             final Concept c = service.getConcept(conceptId);
 
+            String prev = "";
             for (final String line : writeMrrel(c, service)) {
-              writerMap.get("MRHIER.RRF").print(line);
+              if (!line.equals(prev)) {
+                writerMap.get("MRHIER.RRF").print(line);
+              }
+              prev = line;
             }
 
             if (ct++ % RootService.commitCt == 0) {
@@ -314,16 +326,28 @@ public class WriteRrfContentFilesAlgorithm
     // Start writing other files
     for (final Long conceptId : conceptIds) {
       final Concept c = getConcept(conceptId);
+      String prev = "";
       for (final String line : writeMrconso(c)) {
-        writerMap.get("MRCONSO.RRF").print(line);
+        if (!line.equals(prev)) {
+          writerMap.get("MRCONSO.RRF").print(line);
+        }
+        prev = line;
       }
 
+      prev = "";
       for (final String line : writeMrdef(c)) {
-        writerMap.get("MRDEF.RRF").print(line);
+        if (!line.equals(prev)) {
+          writerMap.get("MRDEF.RRF").print(line);
+        }
+        prev = line;
       }
 
+      prev = "";
       for (final String line : writeMrsty(c)) {
-        writerMap.get("MRSTY.RRF").print(line);
+        if (!line.equals(prev)) {
+          writerMap.get("MRSTY.RRF").print(line);
+        }
+        prev = line;
       }
       updateProgress();
     }
@@ -1286,9 +1310,10 @@ public class WriteRrfContentFilesAlgorithm
     // C2919943|SNOMEDCT|AT127959272||43498006|SCUI|RQ|mapped_to|276.69|BOOLEAN_EXPRESSION_SDUI||
 
     final List<String> lines = new ArrayList<>();
-
     for (final Mapping mapping : mapset.getMappings()) {
-      if (!mapping.isPublishable()) {
+      if (!mapping.isPublishable() || 
+         (mapping.getGroup().equals("0") && mapping.getRank().equals("0")) ||
+         (mapping.getGroup().equals("")) && mapping.getRank().equals("")) {
         continue;
       }
       final StringBuilder sb = new StringBuilder(200);
@@ -1783,7 +1808,7 @@ public class WriteRrfContentFilesAlgorithm
         && rel.getTerminology().equals(getProject().getTerminology())) {
       // For project C rels, the RUI is the terminology id
       // 8 RUI
-      sb.append(rel.getTerminologyId());
+      sb.append(rel.getTerminologyId()).append("|");
       // 9 SRUI
       sb.append("|");
 
