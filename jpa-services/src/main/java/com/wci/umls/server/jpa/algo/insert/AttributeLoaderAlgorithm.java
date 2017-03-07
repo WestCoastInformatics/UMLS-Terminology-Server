@@ -174,7 +174,7 @@ public class AttributeLoaderAlgorithm
           newDefinition.setPublishable(fields[7].toUpperCase().equals("Y"));
 
           // Load the containing object
-          ComponentHasDefinitions containerComponent =
+          final ComponentHasDefinitions containerComponent =
               (ComponentHasDefinitions) getComponent(fields[10], fields[1],
                   fields[11].equals("") ? null
                       : getCachedTerminology(fields[11]).getTerminology(),

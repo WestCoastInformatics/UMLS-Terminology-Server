@@ -137,18 +137,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       //
       // Load the mergefacts.src file
       //
-      List<String> lines =
+      final List<String> lines =
           loadFileIntoStringList(getSrcDirFile(), "mergefacts.src", null, null);
 
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
 
       // Store all of the atom Id pairs in the file in a list
-      List<Long[]> atomIdPairs = new ArrayList<>();
+      final List<Long[]> atomIdPairs = new ArrayList<>();
 
-      String fields[] = new String[12];
+      final String fields[] = new String[12];
 
-      for (String line : lines) {
+      for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
         if (getStepsCompleted() % 100 == 0) {
@@ -202,8 +202,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         if (component instanceof Atom) {
           atom = (Atom) component;
         } else if (component instanceof AtomClass) {
-          AtomClass atomClass = (AtomClass) component;
-          List<Atom> atoms =
+          final AtomClass atomClass = (AtomClass) component;
+          final List<Atom> atoms =
               prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom = atoms.get(0);
@@ -214,7 +214,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           continue;
         }
 
-        Component component2 = getComponent(fields[10], fields[2],
+        final Component component2 = getComponent(fields[10], fields[2],
             getCachedTerminologyName(fields[11]), null);
         if (component2 == null) {
           logWarn("WARNING - could not find Component for type: " + fields[10]
@@ -226,8 +226,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         if (component2 instanceof Atom) {
           atom2 = (Atom) component2;
         } else if (component2 instanceof AtomClass) {
-          AtomClass atomClass = (AtomClass) component2;
-          List<Atom> atoms =
+          final AtomClass atomClass = (AtomClass) component2;
+          final List<Atom> atoms =
               prefNameHandler.sortAtoms(atomClass.getAtoms(), getPrecedenceList(
                   getProject().getTerminology(), getProject().getVersion()));
           atom2 = atoms.get(0);
@@ -248,7 +248,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       statsMap.put("atomPairsLoadedFromMergefacts", atomIdPairs.size());
 
       // Generate parameters to pass into query executions
-      Map<String, String> params = new HashMap<>();
+      final Map<String, String> params = new HashMap<>();
       params.put("terminology", this.getTerminology());
       params.put("version", this.getVersion());
       params.put("projectTerminology", getProject().getTerminology());
@@ -267,7 +267,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       setSteps(filteredAtomIdPairs.size());
 
       // Attempt to perform the merges given the integrity checks
-      for (Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
+      for (final Pair<Long, Long> atomIdPair : filteredAtomIdPairs) {
         checkCancel();
 
         merge(atomIdPair.getLeft(), atomIdPair.getRight(), checkNames,

@@ -247,11 +247,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private void cacheExistingAtomIds(String terminology) throws Exception {
 
     // Load alternateTerminologyIds
-    Query jpaQuery = getEntityManager().createQuery(
-        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    Query query = getEntityManager().createQuery(
+        "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
+        + "where KEY(b) = :terminology and a.publishable=true");
+    query.setParameter("terminology", terminology);
 
-    List<Object[]> list = jpaQuery.getResultList();
+    List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String alternateTerminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -259,11 +260,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Load terminologyIds
-    jpaQuery = getEntityManager().createQuery(
-        "select a.terminologyId, a.id from AtomJpa a WHERE a.terminology = :terminology AND a.terminologyId <> '' and a.publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    query = getEntityManager().createQuery(
+        "select a.terminologyId, a.id from AtomJpa a "
+        + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
+        + "and a.publishable=true");
+    query.setParameter("terminology", terminology);
 
-    list = jpaQuery.getResultList();
+    list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -286,15 +289,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingAttributeIds(String terminology) throws Exception {
 
-    final Query jpaQuery = getEntityManager().createQuery(
-        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    final Query query = getEntityManager().createQuery(
+        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b "
+            + "where KEY(b) = :terminology and a.publishable=true");
+    query.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading attribute alternate Terminology Ids from database for terminology "
             + terminology);
 
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -314,15 +318,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingDefinitionIds(String terminology) throws Exception {
 
-    final Query jpaQuery = getEntityManager().createQuery(
+    final Query query = getEntityManager().createQuery(
         "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    query.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading definition alternate Terminology Ids from database for terminology "
             + terminology);
 
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -354,19 +358,19 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // Get RUIs for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      final Query jpaQuery = getEntityManager()
+      final Query query = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b "
               + "where KEY(b)  = :altTerminologyKey and "
               + "a.terminology = :terminology and a.publishable=true");
-      jpaQuery.setParameter("terminology", terminology);
-      jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
+      query.setParameter("terminology", terminology);
+      query.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
           + "Relationship Terminology Ids from database for terminology "
           + terminology);
 
-      final List<Object[]> list = jpaQuery.getResultList();
+      final List<Object[]> list = query.getResultList();
       for (final Object[] entry : list) {
         final String terminologyId = entry[0].toString();
         final Long id = Long.valueOf(entry[1].toString());
@@ -472,16 +476,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingCodeIds(String terminology) throws Exception {
 
-    final Query jpaQuery =
+    final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from CodeJpa c where terminology = :terminology AND publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    query.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading code Terminology Ids from database for terminology "
             + terminology);
 
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -501,16 +505,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
-    final Query jpaQuery =
+    final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from ConceptJpa c where terminology = :terminology AND publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    query.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading concept Terminology Ids from database for terminology "
             + terminology);
 
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -530,16 +534,16 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingDescriptorIds(String terminology) throws Exception {
 
-    final Query jpaQuery =
+    final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
             + "from DescriptorJpa c where terminology = :terminology AND publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
+    query.setParameter("terminology", terminology);
 
     logInfo(
         "[SourceLoader] Loading descriptor Terminology Ids from database for terminology "
             + terminology);
 
-    final List<Object[]> list = jpaQuery.getResultList();
+    final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
@@ -1159,13 +1163,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     for (final String relPrefix : relationshipPrefixes) {
 
-      final Query jpaQuery = getEntityManager().createQuery("select a from "
+      final Query query = getEntityManager().createQuery("select a from "
           + relPrefix
           + "RelationshipJpa a join a.alternateTerminologyIds b where KEY(b)  = :terminology and a.publishable=true");
-      jpaQuery.setParameter("terminology",
-          getProject().getTerminology() + "-SRC");
+      query.setParameter("terminology", getProject().getTerminology() + "-SRC");
 
-      final List<Object[]> list = jpaQuery.getResultList();
+      final List<Object[]> list = query.getResultList();
       for (final Object[] entry : list) {
         final Relationship<?, ?> relationship = (Relationship<?, ?>) entry[0];
         relationship.getAlternateTerminologyIds()

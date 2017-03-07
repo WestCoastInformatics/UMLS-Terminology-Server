@@ -535,15 +535,15 @@ public class WriteRrfContentFilesAlgorithm
       }
       // otherwise save fact that atom is preferred id of its concept.
       else {
-        initAtomContents(atom.getId());
         atomContentsMap.get(atom.getId()).setConceptId(concept.getId());
       }
-      initContents(conceptContentsMap, concept.getId());
+      // Verify there is a preferred atom
       if (!atomContentsMap.containsKey(atom.getId())) {
         throw new Exception(
-            "Atom without an AUI, or possibly an unpublishable concept = "
+            "Atom without an AUI, or possibly an publishable concept with unpublishable atom = "
                 + atom.getId() + ", " + concept.getId());
       }
+      initContents(conceptContentsMap, concept.getId());
       conceptContentsMap.get(concept.getId())
           .setAui(atomContentsMap.get(atom.getId()).getAui());
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
@@ -563,9 +563,17 @@ public class WriteRrfContentFilesAlgorithm
 
       // compute preferred atom of the descriptor
       final Atom atom = handler.sortAtoms(descriptor.getAtoms(), list).get(0);
-      initAtomContents(atom.getId());
+      if (!atomContentsMap.containsKey(atom.getId())) {
+        throw new Exception(
+            "Atom without an AUI, or possibly an publishable descriptor with unpublishable atom = "
+                + atom.getId() + ", " + descriptor.getId());
+      }
       atomContentsMap.get(atom.getId()).setDescriptorId(descriptor.getId());
       initContents(descriptorContentsMap, descriptor.getId());
+      // skip if atom is not publishable
+      if (!atom.isPublishable()) {
+        continue;
+      }
       descriptorContentsMap.get(descriptor.getId())
           .setAui(atomContentsMap.get(atom.getId()).getAui());
       logAndCommit(ct++, RootService.logCt, RootService.commitCt);
@@ -583,7 +591,11 @@ public class WriteRrfContentFilesAlgorithm
       final Code code = getCode(codeId);
       // compute preferred atom of the code
       final Atom atom = handler.sortAtoms(code.getAtoms(), list).get(0);
-      initAtomContents(atom.getId());
+      if (!atomContentsMap.containsKey(atom.getId())) {
+        throw new Exception(
+            "Atom without an AUI, or possibly an publishable code with unpublishable atom = "
+                + atom.getId() + ", " + code.getId());
+      }
       atomContentsMap.get(atom.getId()).setCodeId(code.getId());
       initContents(codeContentsMap, code.getId());
       codeContentsMap.get(code.getId())
@@ -668,7 +680,8 @@ public class WriteRrfContentFilesAlgorithm
 
       logInfo("    attributes");
       query = manager.createQuery(
-          "select distinct a.id from " + type + "Jpa a join a.attributes");
+          "select distinct a.id from " + type + "Jpa a join a.attributes b "
+              + "where a.publishable = true and b.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markAttributes();
@@ -678,7 +691,8 @@ public class WriteRrfContentFilesAlgorithm
 
       logInfo("    relationships");
       query = manager.createQuery(
-          "select distinct a.to.id from " + type + "RelationshipJpa a");
+          "select distinct a.to.id from " + type + "RelationshipJpa a "
+              + "where a.publishable = true and a.to.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markRelationships();
@@ -688,7 +702,8 @@ public class WriteRrfContentFilesAlgorithm
 
       logInfo("    tree positions");
       query = manager.createQuery(
-          "select distinct a.node.id from " + type + "TreePositionJpa a");
+          "select distinct a.node.id from " + type + "TreePositionJpa a "
+              + "where a.publishable = true and a.node.publishable = true");
       ct = 0;
       for (final Long id : (List<Long>) query.getResultList()) {
         map.get(id).markTreePositions();
@@ -700,7 +715,8 @@ public class WriteRrfContentFilesAlgorithm
       if (type.equals("concept") || type.equals("Atom")) {
         logInfo("    members");
         query = manager.createQuery(
-            "select distinct a.member.id from " + type + "SubsetMemberJpa a");
+            "select distinct a.member.id from " + type + "SubsetMemberJpa a "
+                + "where a.publishable = true and a.member.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markMembers();
@@ -712,8 +728,8 @@ public class WriteRrfContentFilesAlgorithm
       // Codes don't have definitions
       if (!type.equals("Code")) {
         logInfo("    definitions");
-        query = manager.createQuery(
-            "select distinct a.id from " + type + "Jpa a join a.definitions d");
+        query = manager.createQuery("select distinct a.id from " + type
+            + "Jpa a join a.definitions d" + "where d.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markDefinitions();

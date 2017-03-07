@@ -146,6 +146,11 @@ public class CreateNciPdqMapAlgorithm extends AbstractAlgorithm {
           atom.setPublishable(false);
           updateAtom(atom);
         }
+        // Turn the code off too
+        final Code code = getCode(atom.getCodeId(), atom.getTerminology(),
+            atom.getVersion(), Branch.ROOT);
+        code.setPublishable(false);
+        updateCode(code);
       }
       concept.setPublishable(false);
       updateConcept(concept);
