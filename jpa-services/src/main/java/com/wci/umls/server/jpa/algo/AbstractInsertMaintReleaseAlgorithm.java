@@ -249,7 +249,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     // Load alternateTerminologyIds
     Query query = getEntityManager().createQuery(
         "select value(b), a.id from AtomJpa a join a.alternateTerminologyIds b "
-        + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable=true");
     query.setParameter("terminology", terminology);
 
     List<Object[]> list = query.getResultList();
@@ -260,10 +260,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Load terminologyIds
-    query = getEntityManager().createQuery(
-        "select a.terminologyId, a.id from AtomJpa a "
-        + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
-        + "and a.publishable=true");
+    query = getEntityManager()
+        .createQuery("select a.terminologyId, a.id from AtomJpa a "
+            + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
+            + "and a.publishable=true");
     query.setParameter("terminology", terminology);
 
     list = query.getResultList();
@@ -478,7 +478,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from CodeJpa c where terminology = :terminology AND publishable=true");
+            + "from CodeJpa c where terminology = :terminology AND publishable = true "
+            + "and c.terminologyId != ''");
     query.setParameter("terminology", terminology);
 
     logInfo(
@@ -505,9 +506,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   @SuppressWarnings("unchecked")
   private void cacheExistingConceptIds(String terminology) throws Exception {
 
+    // Skip concepts where terminologyId is blank, no point
+    // TODO: for "CUI" things, we really should be looking at the new version
+    // MTH alternate terminology ids for this., but ONLY for the UMLS
+    // insertion...
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from ConceptJpa c where terminology = :terminology AND publishable=true");
+            + "from ConceptJpa c where terminology = :terminology AND publishable = true "
+            + "and c.terminologyId != ''");
     query.setParameter("terminology", terminology);
 
     logInfo(
@@ -518,6 +524,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
       final Long id = Long.valueOf(entry[1].toString());
+      // Skip concepts where id = terminologyId and the project terminology is
+      // the terminology passed in
+      if (terminology.equals(getProject().getTerminology())
+          && terminologyId.equals(id.toString())) {
+        continue;
+      }
       conceptIdCache.put(terminologyId + terminology, id);
     }
 
@@ -536,7 +548,8 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
 
     final Query query =
         getEntityManager().createQuery("select c.terminologyId, c.id "
-            + "from DescriptorJpa c where terminology = :terminology AND publishable=true");
+            + "from DescriptorJpa c where terminology = :terminology AND publishable = true "
+            + "and c.terminologyId != ''");
     query.setParameter("terminology", terminology);
 
     logInfo(

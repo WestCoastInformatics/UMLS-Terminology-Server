@@ -176,8 +176,10 @@
 1173822|ENG|catechol methyltransferase o|
 1173936|ENG|categorisation|
 1173944|ENG|categorise classify|
+1177683|ENG|category device medical nomenclature product system thesaurus universal|
 1177687|ENG|category disease mesh|
 1177805|ENG|category mesh psychiatry psychology|
+1177830|ENG|category product thesaurus umdns|
 118032|ENG|1 hyaluronidase lotion mg ml topical|
 1181692|ENG|causality|
 1181702|ENG|cause|
@@ -336,6 +338,7 @@
 1259586|ENG|classification disease|
 1259587|ENG|classification disease disorder|
 1259588|ENG|classification disease health international problem relate statistical|
+1259589|ENG|classification disease icd international oncology|
 1259590|ENG|classification disease international|
 1259594|ENG|classification disorder|
 1259597|ENG|classification drug|
@@ -469,7 +472,9 @@
 1327134|ENG|copy process|
 1327176|ENG|cor|
 1329675|ENG|cori disease|
+133520|ENG|10 classification disease health icd international problem relate revision statistical tenth|
 1335958|ENG|costar|
+133616|ENG|10 cm icd|
 1339730|ENG|cp20|
 1339791|ENG|cp62993|
 1340258|ENG|cpd edppc|
@@ -508,6 +513,7 @@
 1356497|ENG|ctxn1 gene|
 1356498|ENG|ctxn2 gene|
 1357172|ENG|cuedc1 gene|
+136157|ENG|10 icd|
 136191|ENG|10 immunoglobulin member superfamily|
 1363155|ENG|cuzd1 gene|
 1363269|ENG|cvag|
@@ -1924,6 +1930,7 @@
 1870414|ENG|mdr|
 1872623|ENG|measurin|
 187270|ENG|132 couple g protein receptor|
+1873233|ENG|meddra|
 1873258|ENG|media|
 1874231|ENG|medical qmr quick reference|
 1874235|ENG|medical quick reference|
@@ -2532,6 +2539,8 @@
 2055238|ENG|ultrasonography|
 2055239|ENG|ultrasonography use|
 2055251|ENG|ultreon|
+2055316|ENG|umd|
+2055318|ENG|umdns|
 2055327|ENG|umls|
 2055713|ENG|upa|
 2055765|ENG|ur|
@@ -2663,6 +2672,7 @@
 2071511|ENG|srpx2|
 2071668|ENG|ut|
 2071739|ENG|zbtb7|
+2071755|ENG|icdo|
 2071765|ENG|bioc|
 207285|ENG|167 6 chromosome frame open read|
 2073039|ENG|1 dystrophia myotonica|
@@ -3141,6 +3151,7 @@
 2126907|ENG|2 finger group polycomb ring|
 2127056|ENG|2 homeobox nanog pseudogene|
 2127176|ENG|2 hydrolase like serine|
+2127234|ENG|2 iso3166|
 2127258|ENG|2 kinase like snf1|
 2127292|ENG|2 like lysosyme|
 2127295|ENG|2 like neurobeachin|
@@ -3602,6 +3613,7 @@
 2519414|ENG|dalrd3 gene|
 2519539|ENG|dand5 gene|
 2519959|ENG|data numerical statistic|
+2519960|ENG|data nurse perioperative set|
 2520298|ENG|dcst1 gene|
 2520336|ENG|ddx26b gene|
 2520343|ENG|ddx59 gene|
@@ -4257,6 +4269,7 @@
 305604|ENG|23390 sch|
 3059011|ENG|pharmacologic therapy|
 3059153|ENG|physiopathological|
+3068919|ENG|pnd|
 3069255|ENG|polaronil|
 3083074|ENG|preventive therapy|
 3110866|ENG|psychology qualifier|
@@ -4499,6 +4512,7 @@
 3599517|ENG|deficiency immuno|
 3599626|ENG|dipalmitoyl phosphatidylcholine|
 3599828|ENG|erbb|
+3600256|ENG|icd10|
 3600265|ENG|il1|
 3600378|ENG|isoleucyl synthetase trna|
 3600507|ENG|mercaptoethane sulfonate|
@@ -8315,6 +8329,7 @@
 4477524|ENG|trx6|
 4477651|ENG|uqcr5|
 4477942|ENG|zmynd23|
+4477967|ENG|3 icd o|
 4478653|ENG|2004 cancer evaluation program therapy|
 4478657|ENG|12 2005 aberration cancer chromosome database mitelman|
 4479247|ENG|1 1 1h 2 2h 3 5 6 dimethyl dione indene ion nitro|
@@ -9645,6 +9660,7 @@
 5347403|ENG|1 250 anhydrous azithromycin coat film mg oral tablet|
 5349151|ENG|dhx35|
 5349169|ENG|dkfzp434i1117|
+5350688|ENG|10th classification clinical disease edition international modification|
 5350851|ENG|lipk|
 5350852|ENG|lix1l|
 5351692|ENG|6 domain family member nop2 sun|
@@ -9837,6 +9853,7 @@
 5418152|ENG|fyttd1|
 5418302|ENG|glod4|
 5418455|ENG|hcg21|
+5418718|ENG|icd10cm|
 5419054|ENG|3 like luc7|
 5419448|ENG|ms4a15|
 5419802|ENG|11 acetyltransferase alfa catalytic n nata subunit|
@@ -9896,6 +9913,7 @@
 546926|ENG|abnormal bleed disorder female from genital menstruation other other tract|
 5473057|ENG|3 chemical ingredient kinase phosphatidylinositol|
 5480446|ENG|1 3 anatomy foundational model ontology|
+5481171|ENG|2nd data edition nurse perioperative set|
 550766|ENG|abnormality|
 5508510|ENG|2a contain domain gene ran|
 5508601|ENG|gene variant|
@@ -10205,6 +10223,7 @@
 5811161|ENG|cahn ingold prelog priority system|
 5811236|ENG|control terminology|
 5811424|ENG|cip system|
+5812039|ENG|2 3166 international organisation standardisation|
 5814402|ENG|3 alkaline ceramidase gene|
 5814565|ENG|aod|
 5816785|ENG|beta class iii tubulin|
@@ -10439,6 +10458,7 @@
 6309135|ENG|hecth2|
 6309260|ENG|committee gene hugo nomenclature|
 6312180|ENG|chain constant immunoglobulin kappa lit region|
+631261|ENG|activity dictionary meddra medical regulatory terminology|
 6320008|ENG|mesnex oral product|
 6320009|ENG|mesnex pill|
 6327078|ENG|pnma7a|

@@ -484,7 +484,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (atom rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from AtomRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     List<Object[]> results4 = query.getResultList();
     ct = 0;
@@ -497,7 +497,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (concept rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from ConceptRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results4 = query.getResultList();
     ct = 0;
@@ -510,7 +510,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (descriptor rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from DescriptorRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results4 = query.getResultList();
     ct = 0;
@@ -523,7 +523,7 @@ public class WriteRrfContentFilesAlgorithm
     logInfo("  Cache relationship->RUI map (code rels)");
     query = getEntityManager().createQuery(
         "select a.id, value(b) from CodeRelationshipJpa a join a.alternateTerminologyIds b "
-            + "where KEY(b) = :terminology and a.publishable=true");
+            + "where KEY(b) = :terminology and a.publishable = true");
     query.setParameter("terminology", getProject().getTerminology());
     results4 = query.getResultList();
     ct = 0;
@@ -1311,9 +1311,9 @@ public class WriteRrfContentFilesAlgorithm
 
     final List<String> lines = new ArrayList<>();
     for (final Mapping mapping : mapset.getMappings()) {
-      if (!mapping.isPublishable() || 
-         (mapping.getGroup().equals("0") && mapping.getRank().equals("0")) ||
-         (mapping.getGroup().equals("")) && mapping.getRank().equals("")) {
+      if (!mapping.isPublishable()
+          || (mapping.getGroup().equals("0") && mapping.getRank().equals("0"))
+          || (mapping.getGroup().equals("")) && mapping.getRank().equals("")) {
         continue;
       }
       final StringBuilder sb = new StringBuilder(200);
@@ -1804,24 +1804,12 @@ public class WriteRrfContentFilesAlgorithm
     sb.append(stype2).append("|");
     // 7 RELA
     sb.append(rel.getAdditionalRelationshipType()).append("|");
-    if (rel instanceof ConceptRelationship
-        && rel.getTerminology().equals(getProject().getTerminology())) {
-      // For project C rels, the RUI is the terminology id
-      // 8 RUI
-      sb.append(rel.getTerminologyId()).append("|");
-      // 9 SRUI
-      sb.append("|");
-
-    } else {
-      // for non-project or non C rels, the RUI is the attached RUI
-      final String rui = relRuiMap.get(rel.getId());
-      // 8 RUI
-      sb.append(rui != null ? rui : "").append("|");
-      // 9 SRUI
-      sb.append(rel.getTerminologyId().replaceAll("~DA:[\\d]+", ""))
-          .append("|");
-
-    }
+    // for non-project or non C rels, the RUI is the attached RUI
+    final String rui = relRuiMap.get(rel.getId());
+    // 8 RUI
+    sb.append(rui != null ? rui : "").append("|");
+    // 9 SRUI
+    sb.append(rel.getTerminologyId().replaceAll("~DA:[\\d]+", "")).append("|");
     // 10 SAB
     sb.append(rel.getTerminology()).append("|");
     // 11 SL
