@@ -10,20 +10,20 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.Checklist;
 
 /**
  * Implementation of an algorithm to create report table checklists.
  */
-public class ReportChecklistAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+public class ReportChecklistAlgorithm
+    extends AbstractInsertMaintReleaseAlgorithm {
 
   /**
    * Instantiates an empty {@link ReportChecklistAlgorithm}.
@@ -86,17 +86,15 @@ public class ReportChecklistAlgorithm extends AbstractInsertMaintReleaseAlgorith
       commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
-      // terminologies.left = Terminology
-      // terminolgoies.right = Version
-      Set<Pair<String, String>> terminologies = new HashSet<>();
+      Set<Terminology> terminologies = new HashSet<>();
       terminologies = getReferencedTerminologies();
 
       setSteps(terminologies.size());
 
       // For each terminology, create four checklists
-      for (Pair<String, String> terminology : terminologies) {
-        final String term = terminology.getLeft();
-        final String version = terminology.getRight();
+      for (final Terminology terminology : terminologies) {
+        final String term = terminology.getTerminology();
+        final String version = terminology.getVersion();
 
         checkCancel();
 
@@ -163,7 +161,8 @@ public class ReportChecklistAlgorithm extends AbstractInsertMaintReleaseAlgorith
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
     // n/a - No reset
-    logInfo("Finished RESET " + getName());  }
+    logInfo("Finished RESET " + getName());
+  }
 
   /* see superclass */
   @Override
@@ -184,7 +183,7 @@ public class ReportChecklistAlgorithm extends AbstractInsertMaintReleaseAlgorith
    */
   /* see superclass */
   @Override
-  public List<AlgorithmParameter> getParameters()  throws Exception {
+  public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
 
     return params;

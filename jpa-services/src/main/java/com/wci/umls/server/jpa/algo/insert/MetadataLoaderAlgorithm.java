@@ -14,8 +14,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
@@ -205,7 +203,9 @@ public class MetadataLoaderAlgorithm
               .indexOf(lowTermGroup) == highTermGroups.indexOf(lowTermGroup))) {
         validationResult.addError("termgroups.src high term group "
             + highTermGroups.get(lowTermGroups.indexOf(lowTermGroup))
-            + " cannot be entered into precedence list: associated low term group " + lowTermGroup + " not found in precedence list or termgroups.src.");
+            + " cannot be entered into precedence list: associated low term group "
+            + lowTermGroup
+            + " not found in precedence list or termgroups.src.");
       }
     }
 
@@ -276,12 +276,10 @@ public class MetadataLoaderAlgorithm
       terminologyNames.add(terminology.getTerminology());
     }
 
-    // Get sources terminologies (the left side of the pair is the terminology
-    // name)
-    final Set<Pair<String, String>> sourcesTerminologies =
-        getReferencedTerminologies();
-    for (final Pair<String, String> terminologyVersion : sourcesTerminologies) {
-      terminologyNames.add(terminologyVersion.getLeft());
+    // Get sources terminologies
+    final Set<Terminology> sourcesTerminologies = getReferencedTerminologies();
+    for (final Terminology terminologyVersion : sourcesTerminologies) {
+      terminologyNames.add(terminologyVersion.getTerminology());
     }
 
   }

@@ -16,9 +16,6 @@ import java.util.Set;
 
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.jpa.content.AtomJpa;
@@ -27,6 +24,7 @@ import com.wci.umls.server.jpa.content.CodeJpa;
 import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.jpa.content.DescriptorJpa;
+import com.wci.umls.server.jpa.meta.TerminologyJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Attribute;
 import com.wci.umls.server.model.content.Code;
@@ -284,11 +282,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingAttributeIds(String terminology) throws Exception {
+  private void cacheExistingAttributeIds(String altTerminologyKey,
+    String terminology) throws Exception {
 
     final Query jpaQuery = getEntityManager().createQuery(
-        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
+        "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b "
+            + "where KEY(b) = :altTerminologyKey and "
+            + "a.terminology = :terminology and a.publishable=true");
     jpaQuery.setParameter("terminology", terminology);
+    jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
     logInfo(
         "[SourceLoader] Loading attribute alternate Terminology Ids from database for terminology "
@@ -302,7 +304,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Add this terminology to the cached set.
-    attributeCachedTerms.add(terminology);
+    attributeCachedTerms.add(altTerminologyKey + terminology);
   }
 
   /**
@@ -312,11 +314,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingDefinitionIds(String terminology) throws Exception {
+  private void cacheExistingDefinitionIds(String altTerminologyKey,
+    String terminology) throws Exception {
 
     final Query jpaQuery = getEntityManager().createQuery(
-        "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b where KEY(b) = :terminology and a.publishable=true");
+        "select value(b), a.id from DefinitionJpa a join a.alternateTerminologyIds b "
+            + "where KEY(b) = :altTerminologyKey and "
+            + "a.terminology = :terminology and a.publishable=true");
     jpaQuery.setParameter("terminology", terminology);
+    jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
 
     logInfo(
         "[SourceLoader] Loading definition alternate Terminology Ids from database for terminology "
@@ -330,7 +336,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     // Add this terminology to the cached set.
-    definitionCachedTerms.add(terminology);
+    definitionCachedTerms.add(altTerminologyKey + terminology);
   }
 
   /**
@@ -643,8 +649,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("ATUI")) {
-      if (!attributeCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingAttributeIds(getProject().getTerminology());
+      if (!attributeCachedTerms
+          .contains(getProject().getTerminology() + terminology)) {
+        cacheExistingAttributeIds(getProject().getTerminology(), terminology);
       }
       // Handle lazy init
       final Attribute attribute =
@@ -681,8 +688,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("DEFINITION")) {
-      if (!definitionCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingDefinitionIds(getProject().getTerminology());
+      if (!definitionCachedTerms
+          .contains(getProject().getTerminology() + terminology)) {
+        cacheExistingDefinitionIds(getProject().getTerminology(), terminology);
       }
       // Handle lazy init
       final Definition definition = getComponent(
@@ -1181,10 +1189,9 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * @return the referenced terminologies
    * @throws Exception the exception
    */
-  public Set<Pair<String, String>> getReferencedTerminologies()
-    throws Exception {
+  public Set<Terminology> getReferencedTerminologies() throws Exception {
 
-    final Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+    final Set<Terminology> referencedTerminologies = new HashSet<>();
 
     //
     // Load the sources.src file
@@ -1195,11 +1202,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final String fields[] = new String[20];
 
     // Each line of sources.src corresponds to one terminology.
-    // Save the each terminology and version as a pair, and add to the results
-    // list
+    // Get the terminology and version from the line, attach it to a terminology
+    // object, and add it to the results set
     for (final String line : lines) {
       FieldedStringTokenizer.split(line, "|", 20, fields);
-      referencedTerminologies.add(new ImmutablePair<>(fields[4], fields[5]));
+      final Terminology referencedTerminology = new TerminologyJpa();
+      referencedTerminology.setTerminology(fields[4]);
+      referencedTerminology.setVersion(fields[5]);
+      referencedTerminologies.add(referencedTerminology);
     }
 
     return referencedTerminologies;
