@@ -22,11 +22,13 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
@@ -320,12 +322,16 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
 
-    // Collect any merges previously performed, and UNDO them
+    // Collect any merges previously performed, and UNDO them in reverse order
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
     final MolecularActionList molecularActions =
         findMolecularActions(null, getProject().getTerminology(),
-            getProject().getVersion(), "activityId:" + getActivityId(), null);
+            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
 
-    for (MolecularAction molecularAction : molecularActions.getObjects()) {
+    for (final MolecularAction molecularAction : molecularActions
+        .getObjects()) {
       // Create and set up an undo action
       final UndoMolecularAction undoAction = new UndoMolecularAction();
 
