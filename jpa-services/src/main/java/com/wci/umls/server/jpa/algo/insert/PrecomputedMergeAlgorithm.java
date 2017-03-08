@@ -190,7 +190,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        Component component = getComponent(fields[8], fields[0],
+        final Component component = getComponent(fields[8], fields[0],
             getCachedTerminologyName(fields[9]), null);
         if (component == null) {
           logWarn("WARNING - could not find Component for type: " + fields[8]
