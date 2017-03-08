@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -18,6 +18,7 @@ import javax.persistence.Query;
 
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.PrecedenceList;
 import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
 import com.wci.umls.server.jpa.content.CodeJpa;
@@ -40,6 +41,7 @@ import com.wci.umls.server.model.meta.TermType;
 import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 import com.wci.umls.server.services.RootService;
+import com.wci.umls.server.services.handlers.ComputePreferredNameHandler;
 import com.wci.umls.server.services.handlers.SearchHandler;
 
 /**
@@ -56,6 +58,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   public AbstractInsertMaintReleaseAlgorithm() throws Exception {
     // n/a
   }
+
+  /** The handler. */
+  private ComputePreferredNameHandler handler =
+      getComputePreferredNameHandler(ConfigUtility.DEFAULT);
+
+  /** The precedence list. */
+  private PrecedenceList precedenceList = null;
 
   /** The search handler. */
   public SearchHandler searchHandler = getSearchHandler(ConfigUtility.DEFAULT);
@@ -128,6 +137,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
    * The terminologies that have already had their concepts loaded and cached.
    */
   private static Set<String> conceptCachedTerms = new HashSet<>();
+
+  /** The project concept preferred atom id cache. */
+  private static Map<String, Long> projectConceptPreferredAtomIdCache =
+      new HashMap<>();
+
+  /** The project concept cached terms. */
+  private static Set<String> projectConceptCachedTerms = new HashSet<>();
 
   /**
    * The code ID cache. Key = terminologyId + terminology; Value = CodeJpa.Id
@@ -281,6 +297,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Cache existing attributes' ATUIs and IDs.
    *
+   * @param altTerminologyKey the alt terminology key
    * @param terminology the terminology
    * @throws Exception the exception
    */
@@ -313,6 +330,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Cache existing definitions' ATUIs and IDs.
    *
+   * @param altTerminologyKey the alt terminology key
    * @param terminology the terminology
    * @throws Exception the exception
    */
@@ -543,6 +561,55 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   }
 
   /**
+   * Cache existing concept Ids.
+   *
+   * @param terminology the terminology
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  private void cacheExistingProjectConceptPreferredAtomIds(String terminology)
+    throws Exception {
+    logInfo(
+        "[SourceLoader] Loading concept preferred atom Terminology Ids from database for "
+            + terminology);
+
+    // Look up matching conceptTerminologyIds
+    final Query query =
+        getEntityManager().createQuery("select value(cid), a.id "
+            + "from AtomJpa a join a.conceptTerminologyIds cid "
+            + "where key(cid) = :terminology AND publishable = true ");
+    query.setParameter("terminology", terminology);
+    final Map<String, Set<Long>> atomsMap = new HashMap<>();
+    final List<Object[]> list = query.getResultList();
+    for (final Object[] entry : list) {
+      final String terminologyId = entry[0].toString();
+      final Long id = Long.valueOf(entry[1].toString());
+      if (!atomsMap.containsKey(terminologyId)) {
+        atomsMap.put(terminologyId, new HashSet<>());
+      }
+      atomsMap.get(terminologyId).add(id);
+    }
+
+    if (precedenceList == null) {
+      precedenceList = this.getPrecedenceList(getProject().getTerminology(),
+          getProject().getVersion());
+    }
+    for (final String key : atomsMap.keySet()) {
+      final Set<Atom> atoms = new HashSet<>();
+      for (final Long id : atomsMap.get(key)) {
+        atoms.add(getAtom(id));
+      }
+      final Atom prefAtom = handler.sortAtoms(atoms, precedenceList).get(0);
+
+      projectConceptPreferredAtomIdCache.put(key + terminology,
+          prefAtom.getId());
+    }
+
+    // Add this terminology to the cached set.
+    projectConceptCachedTerms.add(terminology);
+  }
+
+  /**
    * Cache existing descriptors.
    *
    * @param terminology the terminology
@@ -695,12 +762,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("CUI")) {
-      if (!conceptCachedTerms.contains(getProject().getTerminology())) {
-        cacheExistingConceptIds(getProject().getTerminology());
+      if (!projectConceptCachedTerms.contains(terminology)) {
+        cacheExistingProjectConceptPreferredAtomIds(terminology);
       }
       return getComponent(
-          conceptIdCache.get(terminologyId + getProject().getTerminology()),
-          ConceptJpa.class);
+          projectConceptPreferredAtomIdCache.get(terminologyId + terminology),
+          AtomJpa.class);
     }
 
     else if (type.equals("DEFINITION")) {
