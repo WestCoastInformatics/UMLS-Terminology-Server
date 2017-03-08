@@ -561,7 +561,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     #  Verify MRSMAP matches fields from MRMAP
     #
     echo "    Verify MRSMAP matches fields from MRMAP"
-    set cnt = `awk -F\| '(($3=="" && $4=="") || ($3=="0" && $4=="0")) { print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|" }' $mrmap | sort -u | comm -3 - $mrsmap | wc -l`
+    set cnt = `awk -F\| '!(($3=="" && $4=="") || ($3=="0" && $4=="0")) { print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|" }' $mrmap | sort -u | comm -3 - $mrsmap | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  MRSMAP does not match fields from MRMAP"
 	awk -F\| '(($3=="" && $4=="") || ($3=="0" && $4=="0")) {  print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|"}' $mrmap | sort -u | comm -3 - $mrsmap | sed 's/^/  /'
