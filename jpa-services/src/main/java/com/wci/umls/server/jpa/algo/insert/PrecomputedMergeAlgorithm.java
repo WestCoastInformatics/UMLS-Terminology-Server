@@ -143,6 +143,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       // Set the number of steps to the number of lines to be processed
       setSteps(lines.size());
 
+      logInfo("Looking up atom id pairs for each " + mergeSet
+          + " line in mergefacts.src");
       // Store all of the atom Id pairs in the file in a list
       final List<Long[]> atomIdPairs = new ArrayList<>();
 
@@ -255,6 +257,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
       params.put("projectVersion", getProject().getVersion());
 
       // Remove all atom pairs caught by the filters
+      logInfo("Removing atom id pairs that are caught by the filter.");
       // If no filters specified, it will return all of the atom pairs.
       final List<Pair<Long, Long>> filteredAtomIdPairs = applyFilters(
           atomIdPairs, params, filterQueryType, filterQuery, false, statsMap);

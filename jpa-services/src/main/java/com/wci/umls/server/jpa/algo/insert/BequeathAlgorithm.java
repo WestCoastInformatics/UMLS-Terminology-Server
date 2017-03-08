@@ -22,6 +22,7 @@ import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.ConceptRelationshipJpa;
 import com.wci.umls.server.model.content.Concept;
 import com.wci.umls.server.model.content.ConceptRelationship;
+import com.wci.umls.server.model.meta.Terminology;
 import com.wci.umls.server.model.workflow.WorkflowStatus;
 
 /**
@@ -78,20 +79,18 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
-      // terminologies.left = Terminology
-      // terminolgoies.right = Version
-      Set<Pair<String, String>> terminologies = new HashSet<>();
+      Set<Terminology> terminologies = new HashSet<>();
       terminologies = getReferencedTerminologies();
 
       setSteps(terminologies.size());
 
-      for (final Pair<String, String> terminology : terminologies) {
+      for (final Terminology terminology : terminologies) {
         checkCancel();
 
         final String fromConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:VAB AND atoms.codeId:V-"
-                + terminology.getLeft() + "* AND NOT atoms.codeId:V-"
-                + terminology.getLeft() + "_" + terminology.getRight();
+                + terminology.getTerminology() + "* AND NOT atoms.codeId:V-"
+                + terminology.getTerminology() + "_" + terminology.getVersion();
 
         // Execute query to get from concept Ids
         final List<Long> fromConceptIds =
@@ -100,7 +99,7 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
         final String toConceptQuery =
             "atoms.terminology:SRC AND atoms.termType:RAB AND atoms.codeId:V-"
-                + terminology.getLeft();
+                + terminology.getTerminology();
 
         // Execute query to get to concept Ids
         final List<Long> toConceptIds =
