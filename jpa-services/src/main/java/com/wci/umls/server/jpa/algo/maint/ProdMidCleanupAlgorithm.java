@@ -94,6 +94,8 @@ public class ProdMidCleanupAlgorithm
           algo.setTerminology(nonCurrentTerminology.getTerminology());
           algo.setVersion(nonCurrentTerminology.getVersion());
           algo.setKeepTerminology(true);
+          algo.setWorkId(getWorkId());
+          algo.setActivityId(getActivityId());
           algo.setProject(getProject());
           algo.compute();
           algo.close();

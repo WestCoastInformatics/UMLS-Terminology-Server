@@ -89,7 +89,7 @@ else if ($target == "MRAUI") then
         set cnt = `awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.REL.$$ | wc -l`
         if ($cnt != 0) then
             echo "ERROR:   REL not in MRDOC.SUBKEY where MRDOC.DOCKEY=REL"
-            awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.REL.$$ | sed 's/^/  /'
+            awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.REL.$$ | head -10 | sed 's/^/  /'
         endif
     endif
     rm -f MRAUI.REL.$$
@@ -102,7 +102,7 @@ else if ($target == "MRAUI") then
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.RELA.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  RELA not in MRDOC.VALUE where MRDOC.DOCKEY=RELA"
-	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.RELA.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRAUI.RELA.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRAUI.RELA.$$
 
@@ -114,7 +114,7 @@ else if ($target == "MRAUI") then
     if ($ct != 0) then
         echo "ERROR: AUI1, VER is not unique"
         cut -d\| -f1,3 $mraui |\
-           sort | uniq -d | sed 's/^/  /'
+           sort | uniq -d | head -10 |sed 's/^/  /'
     endif
 
     #
@@ -177,7 +177,7 @@ else if ($target == "AMBIG") then
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
-	cat AMBIG.badfields.$$ | sed 's/^/  /'
+	cat AMBIG.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f AMBIG.badfields.$$
 
@@ -190,7 +190,7 @@ else if ($target == "AMBIG") then
     set cnt = `cat AMBIG.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
-	cat AMBIG.badfields.$$ | sed 's/^/  /'
+	cat AMBIG.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f AMBIG.badfields.$$
 
@@ -222,7 +222,7 @@ else if ($target == "AMBIG") then
     set ct=(`comm -23 AMBIG.cuisui.$$ MRCONSO.uis.cs.$$ | wc -l`)
     if ($ct[1] != 0) then
 	echo "ERROR: CUI,SUI combinations in AMBIG.SUI not in MRCONSO"
-	comm -23 AMBIG.cuisui.$$ MRCONSO.uis.cs.$$ | sed 's/^/  /'
+	comm -23 AMBIG.cuisui.$$ MRCONSO.uis.cs.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.uis.cs.tmp.$$ MRCONSO.ambig.sui.$$ AMBIG.cuisui.$$ MRCONSO.uis.cs.$$
 
@@ -304,7 +304,7 @@ if ($mode != "submission") then
     set cnt = `cat MRHIST.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
-	cat MRHIST.badfields.$$ | sed 's/^/  /'
+	cat MRHIST.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRHIST.badfields.$$
 else
@@ -312,7 +312,7 @@ else
     set cnt = `cat MRHIST.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
-	cat MRHIST.badfields.$$ | sed 's/^/  /'
+	cat MRHIST.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRHIST.badfields.$$
 endif
@@ -326,7 +326,7 @@ endif
     set cnt = `awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRHIST.SAB.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  SAB not in MRSAB.RSAB where MRSAB.SABIN=Y"
-	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRHIST.SAB.$$ | sed 's/^/  /'
+	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRHIST.SAB.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRHIST.SAB.$$
 
@@ -340,7 +340,7 @@ endif
 	set ct=(`comm -23 MRHIST.sabs.$$ MRCONSO.sabs.$$ | wc -l`)
 	if ($ct[1] != 0) then
 	    echo "ERROR: CUI,SAB in MRHIST not in MRCONSO"
-	    comm -23 MRHIST.sabs.$$ MRCONSO.sabs.$$ | sed 's/^/  /'
+	    comm -23 MRHIST.sabs.$$ MRCONSO.sabs.$$ | head -10 | sed 's/^/  /'
 	endif
 	rm -f MRHIST.sabs.$$ MRCONSO.sabs.$$
     endif
@@ -406,7 +406,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `cat MRMAP.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
-	cat MRMAP.badfields.$$ | sed 's/^/  /'
+	cat MRMAP.badfields.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.badfields.$$
 
@@ -418,7 +418,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRMAP.SAB.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  MAPSETSAB not in MRSAB.RSAB where MRSAB.SABIN=Y"
-	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRMAP.SAB.$$ | sed 's/^/  /'
+	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRMAP.SAB.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.SAB.$$
 
@@ -440,7 +440,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="FROMTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  FROMTYPE not in MRDOC.VALUE where MRDOC.DOCKEY=FROMTYPE"
-	awk -F\| '$3=="expanded_form"&&$1=="FROMTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="FROMTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.TYPE.$$
 
@@ -452,7 +452,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.REL.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  REL not in MRDOC.VALUE where MRDOC.DOCKEY=REL"
-	awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.REL.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="REL"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.REL.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.REL.$$
 
@@ -464,7 +464,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.RELA.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  RELA not in MRDOC.VALUE where MRDOC.DOCKEY=RELA"
-	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.RELA.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="RELA"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.RELA.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.RELA.$$
 
@@ -476,7 +476,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="TOTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  TOTYPE not in MRDOC.VALUE where MRDOC.DOCKEY=TOTYPE"
-	awk -F\| '$3=="expanded_form"&&$1=="TOTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="TOTYPE"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.TYPE.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.TYPE.$$
 
@@ -488,7 +488,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="MAPATN"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.ATN.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  MAPATN not in MRDOC.VALUE where MRDOC.DOCKEY=ATN"
-	awk -F\| '$3=="expanded_form"&&$1=="MAPATN"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.ATN.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="MAPATN"{print $2}' $mrdoc | sort -u | comm -13 - MRMAP.ATN.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRMAP.ATN.$$
 
@@ -561,7 +561,7 @@ perl -ne '@_ = split /\|/; print unless /^C.\d{6}\|[^\|]+\|[^\|]*\|[^\|]*\|AT\d*
     #  Verify MRSMAP matches fields from MRMAP
     #
     echo "    Verify MRSMAP matches fields from MRMAP"
-    set cnt = `awk -F\| '(($3=="" && $4=="") || ($3=="0" && $4=="0")) { print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|" }' $mrmap | sort -u | comm -3 - $mrsmap | wc -l`
+    set cnt = `awk -F\| '!(($3=="" && $4=="") || ($3=="0" && $4=="0")) { print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|" }' $mrmap | sort -u | comm -3 - $mrsmap | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  MRSMAP does not match fields from MRMAP"
 	awk -F\| '(($3=="" && $4=="") || ($3=="0" && $4=="0")) {  print $1"|"$2"|"$5"|"$6"|"$9"|"$10"|"$13"|"$14"|"$17"|"$18"|"$26"|"}' $mrmap | sort -u | comm -3 - $mrsmap | sed 's/^/  /'
@@ -676,7 +676,7 @@ endif
 	set cnt=(`comm -13 MRRANK.sts.$$ MRCONSO.sts.$$ | wc -l `)
 	if ($cnt[1] != 0) then
 	    echo "ERROR: SAB,TTY,SUPPRESS from MRRANK not in MRCONSO"
-	    comm -13 MRRANK.sts.$$ MRCONSO.sts.$$ | sed 's/^/  /'
+	    comm -13 MRRANK.sts.$$ MRCONSO.sts.$$ | head -10 | sed 's/^/  /'
 	endif
 	rm -f MRRANK.sts.$$ MRCONSO.sts.$$
     endif
@@ -691,7 +691,7 @@ endif
     set cnt=(`comm -13 MRRANK.sabtty.$$ MRCONSO.sabtty.$$ | wc -l`)
     if ($cnt[1] != 0) then
 	echo "ERROR: SAB,TTY from MRCONSO not in MRRANK"
-	comm -13 MRRANK.sabtty.$$ MRCONSO.sabtty.$$ | sed 's/^/  /'
+	comm -13 MRRANK.sabtty.$$ MRCONSO.sabtty.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRRANK.sabtty.$$ MRCONSO.sabtty.$$
 
@@ -711,7 +711,7 @@ if ($mode != "subset") then
 	set ct=`cut -d\| -f 1,5 $mrsab | grep '^C' | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  MRSAB.VCUI,SON not in CUI,STR"
-	    cut -d\| -f 1,5 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | sed 's/^/  /'
+	    cut -d\| -f 1,5 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
 	endif
     endif
 
@@ -727,7 +727,7 @@ if ($mode != "subset") then
 	set ct=`cut -d\| -f 2,24 $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  MRSAB.RCUI,SSN not in CUI,STR"
-	    cut -d\| -f 2,24 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | sed 's/^/  /'
+	    cut -d\| -f 2,24 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
 	endif
     endif
 
@@ -746,7 +746,7 @@ if ($mode != "subset") then
 	set ct=`cut -d\| -f 1,3 $mrsab | grep '^C' | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  MRSAB.VCUI,VSAB not in CUI,STR"
-	    cut -d\| -f 1,3 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | sed 's/^/  /'
+	    cut -d\| -f 1,3 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
 	endif
     endif
 
@@ -762,7 +762,7 @@ if ($mode != "subset") then
 	set ct=`cut -d\| -f 2,4 $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  CUI,STR not in MRSAB.RCUI,RSAB"
-	    cut -d\| -f 2,4 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | sed 's/^/  /'
+	    cut -d\| -f 2,4 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
 	endif
     endif
     rm -f mrconso.tmp1.$$
@@ -777,7 +777,7 @@ endif
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="LAT"{print $2}' $mrdoc | sort -u | diff - MRCONSO.LAT.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  LAT not equivalent to MRDOC.VALUE where MRDOC.DOCKEY=LAT"
-	awk -F\| '$3=="expanded_form"&&$1=="LAT"{print $2}' $mrdoc | sort -u | diff - MRCONSO.LAT.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="LAT"{print $2}' $mrdoc | sort -u | diff - MRCONSO.LAT.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.LAT.$$
 
@@ -790,7 +790,7 @@ if ($mode == "subset") then
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="TS"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TS.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  TS not in MRDOC.VALUE where MRDOC.DOCKEY=TS"
-	awk -F\| '$3=="expanded_form"&&$1=="TS"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TS.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="TS"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TS.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.TS.$$
 
@@ -802,7 +802,7 @@ if ($mode == "subset") then
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="STT"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.STT.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  STT not in MRDOC.VALUE where MRDOC.DOCKEY=STT"
-	awk -F\| '$3=="expanded_form"&&$1=="STT"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.STT.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="STT"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.STT.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.STT.$$
 endif
@@ -816,7 +816,7 @@ endif
     set cnt = `awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRCONSO.SAB.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  SAB not in MRSAB.RSAB where MRSAB.SABIN=Y"
-	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRCONSO.SAB.$$ | sed 's/^/  /'
+	awk -F\| '$23=="Y"{print $4}' $mrsab | sort -u | comm -13 - MRCONSO.SAB.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.SAB.$$
 
@@ -828,7 +828,7 @@ endif
     set cnt = `awk -F\| '$3=="expanded_form"&&$1=="TTY"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TTY.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR:  TTY not in MRDOC.VALUE where MRDOC.DOCKEY=TTY"
-	awk -F\| '$3=="expanded_form"&&$1=="TTY"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TTY.$$ | sed 's/^/  /'
+	awk -F\| '$3=="expanded_form"&&$1=="TTY"{print $2}' $mrdoc | sort -u | comm -13 - MRCONSO.TTY.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.TTY.$$
 
@@ -977,7 +977,7 @@ endif
     set ct=(`wc -l MRCONSO.mult.pn.$$`)
     if ($ct[1] != 0) then
         echo "ERROR: Multiple NCIMTH/PNs in the following CUIs"
-        cat MRCONSO.mult.pn.$$ | perl -pe 's/^/\t/' | sed 's/^/  /'
+        cat MRCONSO.mult.pn.$$ | perl -pe 's/^/\t/' | head -10 | sed 's/^/  /'
     endif
     rm -f MRCONSO.mult.pn.$$
 
@@ -989,7 +989,7 @@ endif
     if ($ct != 0) then
         echo "ERROR: AUI is not unique"
 	cut -d\| -f8 $mrconso |\
-	    sort | uniq -d | sed 's/^/  /'
+	    sort | uniq -d | head -10 | sed 's/^/  /'
     endif
 
     #
@@ -1000,7 +1000,7 @@ endif
     set cnt=`cut -d\| -f2 MRCONSO.tmp3.$$ | uniq -d | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following SUIs have more than 1 STR"
-	cut -d\| -f2 MRCONSO.tmp3.$$ | uniq -d | sed 's/^/  /'
+	cut -d\| -f2 MRCONSO.tmp3.$$ | uniq -d | head -10 | sed 's/^/  /'
     endif
 
     #
@@ -1011,7 +1011,7 @@ endif
     set cnt=`cut -d\| -f1,3 MRCONSO.tmp3.$$ | uniq -d | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following STRs have more than 1 SUI"
-	cut -d\| -f1,3 MRCONSO.tmp3.$$ | uniq -d | sed 's/^/  /'
+	cut -d\| -f1,3 MRCONSO.tmp3.$$ | uniq -d | head -10 | sed 's/^/  /'
     endif
 
     rm -f MRCONSO.tmp3.$$
@@ -1027,7 +1027,7 @@ endif
 	set ct=`comm -23 mrsab.rsab.$$ mrconso.sab.$$ | wc -l`
 	if ($ct > 0) then
 	    echo "ERROR: MRCONSO.SAB not in MRSAB.RSAB.$$"
-	    comm -23 mrsab.rsab.$$ mrconso.sab.$$ | sed 's/^/  /'
+	    comm -23 mrsab.rsab.$$ mrconso.sab.$$ | head -10 | sed 's/^/  /'
 	endif
 	rm -f mrsab.rsab.$$ mrconso.sab.$$
 
@@ -1042,7 +1042,7 @@ endif
     set ct=`diff sab.lat.$$ rsab.lat.$$ | wc -l`
     if ($ct > 0) then
         echo "ERROR: MRCONSO.SAB,LA does not match MRSAB.RSAB,LAT"
-	    diff sab.lat.$$ rsab.lat.$$ | sed 's/^/  /'
+	    diff sab.lat.$$ rsab.lat.$$ | head -10 | sed 's/^/  /'
     endif
     rm -f rsab.lat.$$ sab.lat.$$
 
@@ -1055,7 +1055,7 @@ endif
     set cnt=`cut -d\| -f12,16 $mrconso | sort -u | cut -d\| -f1 | uniq -d | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following SAB have duplicate SRL"
-	cut -d\| -f12,16 $mrconso | sort -u | cut -d\| -f1 | uniq -d | sed 's/^/  /'
+	cut -d\| -f12,16 $mrconso | sort -u | cut -d\| -f1 | uniq -d |head -10 | sed 's/^/  /'
     endif
 
     #

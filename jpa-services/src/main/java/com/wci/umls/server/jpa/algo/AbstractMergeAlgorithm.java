@@ -172,7 +172,7 @@ public abstract class AbstractMergeAlgorithm
         if (makeDemotion) {
           // If from and to concepts have a relationship between them,
           // do NOT make demotion, and add log entry saying why
-          for (ConceptRelationship rel : fromConcept.getRelationships()) {
+          for (final ConceptRelationship rel : fromConcept.getRelationships()) {
             if (rel.getTo().getId() == toConcept.getId()) {
               addLogEntry(getLastModifiedBy(), getProject().getId(),
                   fromConcept.getId(), getActivityId(), getWorkId(),

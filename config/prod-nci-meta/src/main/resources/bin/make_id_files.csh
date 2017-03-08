@@ -127,7 +127,7 @@ endif
 #  id|normString
 # PREREQUISITE: LVG is installed at LVG_HOME listed below
 echo "  Compute lexical class identity for MRCONSO"
-setenv LVG_HOME c:/data/lvg2017
+setenv LVG_HOME c:/data/lvg2016
 /bin/rm -f lexicalClassIdentity.txt
 # handle win/unix
 if (-e $LVG_HOME/bin/luiNorm.bat) then

@@ -237,11 +237,10 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
           relType.getInverse().getAbbreviation());
     }
 
-    // Get all concept rels
-    // Normalization is only for English
+    // Get all concept rels connected to project concepts
     final List<Long> relIds = executeSingleComponentIdQuery(
         "select r.id from ConceptRelationshipJpa r WHERE r.publishable = true "
-            + "and r.terminology = :terminology",
+            + "and r.from.terminology = :terminology",
         QueryType.JPQL, getDefaultQueryParams(getProject()),
         ConceptRelationshipJpa.class, false);
     commitClearBegin();
@@ -254,14 +253,15 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
           (ConceptRelationship) getRelationship(relId,
               ConceptRelationshipJpa.class);
 
-      final String origRui = rel.getTerminologyId();
-      rel.setTerminologyId("");
-
+      // NOTE: for "new" concept relationships, the origRui could be null
+      final String origRui =
+          rel.getAlternateTerminologyIds().get(getProject().getTerminology());
       final String rui = handler.getTerminologyId(rel,
           relToInverseMap.get(rel.getRelationshipType()),
           relToInverseMap.get(rel.getAdditionalRelationshipType()));
-      if (!origRui.equals(rui)) {
-        rel.setTerminologyId(rui);
+      if (!rui.equals(origRui)) {
+        rel.getAlternateTerminologyIds().put(getProject().getTerminology(),
+            rui);
         updateRelationship(rel);
       }
 

@@ -122,7 +122,8 @@ public class WriteRrfIndexFilesAlgorithm
             // MRXNW_ENG.RRF
             for (final String word : FieldedStringTokenizer
                 .split(normalizedString, ConfigUtility.PUNCTUATION)) {
-              if (!wordsSeen
+              
+              if (!ConfigUtility.isEmpty(word) && !wordsSeen
                   .contains("MRXNW" + word + atom.getStringClassId())) {
                 final StringBuilder sb2 = new StringBuilder();
                 // 0 LAT
@@ -146,7 +147,8 @@ public class WriteRrfIndexFilesAlgorithm
             // for all languages write MRXW_<language>.RRF
             for (final String word : FieldedStringTokenizer
                 .split(atom.getName(), ConfigUtility.PUNCTUATION)) {
-              if (!wordsSeen.contains("MRXW_" + atom.getLanguage() + word
+              if (!ConfigUtility.isEmpty(word) && !wordsSeen.
+                  contains("MRXW_" + atom.getLanguage() + word
                   + atom.getStringClassId())) {
                 final StringBuilder sb = new StringBuilder();
                 // 0 LAT
