@@ -675,8 +675,10 @@ public class WriteRrfContentFilesAlgorithm
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
-        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
-            + rel.getTo().getType();
+        final Atom atom = (Atom) rel.getTo();
+        key =
+            atom.getAlternateTerminologyIds().get(getProject().getTerminology())
+                + rel.getTo().getTerminology() + rel.getTo().getType();
       }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
@@ -753,7 +755,7 @@ public class WriteRrfContentFilesAlgorithm
       if (!type.equals("Code")) {
         logInfo("    definitions");
         query = manager.createQuery("select distinct a.id from " + type
-            + "Jpa a join a.definitions d" + "where d.publishable = true");
+            + "Jpa a join a.definitions d where d.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markDefinitions();
