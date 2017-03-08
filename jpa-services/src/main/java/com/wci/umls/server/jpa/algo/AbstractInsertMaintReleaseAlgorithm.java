@@ -288,12 +288,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private void cacheExistingAttributeIds(String altTerminologyKey,
     String terminology) throws Exception {
 
-    final Query jpaQuery = getEntityManager().createQuery(
+    final Query query = getEntityManager().createQuery(
         "select value(b), a.id from AttributeJpa a join a.alternateTerminologyIds b "
             + "where KEY(b) = :altTerminologyKey and "
             + "a.terminology = :terminology and a.publishable=true");
-    jpaQuery.setParameter("terminology", terminology);
-    jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
+    query.setParameter("terminology", terminology);
+    query.setParameter("altTerminologyKey", altTerminologyKey);
 
     logInfo(
         "[SourceLoader] Loading attribute alternate Terminology Ids from database for terminology "
@@ -325,7 +325,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
             + "where KEY(b) = :altTerminologyKey and "
             + "a.terminology = :terminology and a.publishable=true");
     query.setParameter("terminology", terminology);
-    jpaQuery.setParameter("altTerminologyKey", altTerminologyKey);
+    query.setParameter("altTerminologyKey", altTerminologyKey);
 
     logInfo(
         "[SourceLoader] Loading definition alternate Terminology Ids from database for terminology "

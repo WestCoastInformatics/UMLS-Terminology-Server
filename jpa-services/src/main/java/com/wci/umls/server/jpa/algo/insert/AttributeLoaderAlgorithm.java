@@ -362,6 +362,9 @@ public class AttributeLoaderAlgorithm
       // need them anymore
       clearRelationshipAltTerminologies();
 
+      // Clear the caches to free up memory
+      clearCaches();
+
       commitClearBegin();
       handler.commit();
 
