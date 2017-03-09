@@ -767,7 +767,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       }
       return getComponent(
           projectConceptPreferredAtomIdCache.get(terminologyId + terminology),
-          AtomJpa.class);
+          ConceptJpa.class);
     }
 
     else if (type.equals("DEFINITION")) {

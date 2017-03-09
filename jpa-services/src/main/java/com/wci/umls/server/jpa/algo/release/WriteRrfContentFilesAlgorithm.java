@@ -675,7 +675,29 @@ public class WriteRrfContentFilesAlgorithm
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
-        final Atom atom = (Atom) rel.getTo();
+        // Find the concept with the atom having this AUI
+        final ConceptList clist = findConcepts(getProject().getTerminology(),
+            getProject().getVersion(), Branch.ROOT,
+            "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
+                + "=" + rel.getTo().getTerminology() + "\"",
+            null);
+        // Find the atom
+        Atom atom = null;
+        if (clist.size() == 1) {
+          for (final Atom a : clist.getObjects().get(0).getAtoms()) {
+            if (rel.getTo().getTerminologyId()
+                .equals(a.getAlternateTerminologyIds()
+                    .get(getProject().getTerminology()))) {
+              atom = a;
+              break;
+            }
+          }
+        }
+        // If atom is blank, there is a problem
+        if (atom == null) {
+          throw new Exception(
+              "Unable to find atom for AUI = " + rel.getTo().getTerminology());
+        }
         key =
             atom.getAlternateTerminologyIds().get(getProject().getTerminology())
                 + rel.getTo().getTerminology() + rel.getTo().getType();

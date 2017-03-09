@@ -97,15 +97,16 @@
                   ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Available'"
                   ng-click="assignWorklistToSelf(worklist); $event.stopPropagation();"
                   title="Claim worklist"
-                  class="noul glyphicon glyphicon-hand-right"></i> <i
-                  ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
+                  class="noul glyphicon glyphicon-hand-right"></i>
+                <i
+                  ng-show="worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                   ng-click="unassignWorklist(worklist); $event.stopPropagation(); "
                   title="Unassign worklist"
-                  class="noul glyphicon glyphicon-hand-left"></i> <i
-                  confirm="Are you sure you want to stamp the worklist?"
+                  class="noul glyphicon glyphicon-hand-left"></i>
+                <i confirm="Are you sure you want to stamp the worklist?"
                   ng-show="worklist.reviewers.length > 0 && worklist.workflowStatus != 'REVIEW_DONE' && selected.projectRole == 'REVIEWER' && selected.worklistMode == 'Assigned'"
-                  ng-click="openFinishWorkflowModal(worklist, true); "
-                  title="Stamp" class="noul glyphicon glyphicon-certificate"></i>
+                  ng-click="stampWorklist(worklist); " title="Stamp"
+                  class="noul glyphicon glyphicon-certificate"></i>
                 <i confirm="Are you sure you want to finish the worklist?"
                   ng-show="selected.projectRole != 'ADMINISTRATOR' && selected.worklistMode == 'Assigned'"
                   ng-click="openFinishWorkflowModal(worklist);" title="Finish"
@@ -231,8 +232,8 @@
                 type="Concept"></span>
               <i title="Refresh concept"
                 ng-click="reloadConcept(concept); $event.stopPropagation()"
-                class="noul glyphicon glyphicon-repeat"></i> <i
-                title="Remove from list"
+                class="noul glyphicon glyphicon-repeat"></i>
+              <i title="Remove from list"
                 ng-click="removeConceptFromList(concept); $event.stopPropagation()"
                 class="noul glyphicon glyphicon-remove"></i>
             </td>
@@ -245,22 +246,17 @@
       <span style="float: left;">
         <button ng-click="openStyWindow(null, null)"
           title="{{selected.metadata.semanticTypesLabel}}"
-          ng-disabled="!selected.component"
-          class="btn btn-xs btn-primary">STY</button>
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">STY</button>
         <button ng-click="openAtomsWindow(null, null)"
           title="{{selected.metadata.atomsLabel}}"
-          ng-disabled="!selected.component"
-          class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">{{selected.metadata.atomsLabel}}</button>
         <button ng-click="openRelationshipsWindow(null, null)"
           title="{{selected.metadata.relationshipsLabel}}"
-          ng-disabled="!selected.component"
-          class="btn btn-xs btn-primary">Rels</button>
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Rels</button>
         <button ng-click="openContextsWindow(null, null)"
           title="{{selected.metadata.hierarchiesLabel}}"
-          ng-disabled="!selected.component"
-          class="btn btn-xs btn-primary">Tree</button>
-        <i
-          ng-show="selected.component"
+          ng-disabled="!selected.component" class="btn btn-xs btn-primary">Tree</button>
+        <i ng-show="selected.component"
           ng-click="focusWindows(); $event.stopPropagation(); " title="Focus"
           class="ml10 noul glyphicon glyphicon-fullscreen"></i>
       </span>
@@ -300,9 +296,9 @@
                 ng-options="terminology.rootTerminologyAbbreviation for terminology in lists.terminologies | orderBy:'rootTerminologyAbbreviation'"></select>
               <i ng-click="openEditRootTerminologyModal(selectedTerminology)"
                 title="Edit root {{selectedTerminology.terminology}}"
-                class="noul glyphicon glyphicon-pencil"></i> &nbsp;
-              {{selectedTerminology.version}} <i
-                ng-click="openEditTerminologyModal(selectedTerminology)"
+                class="noul glyphicon glyphicon-pencil"></i>
+              &nbsp; {{selectedTerminology.version}}
+              <i ng-click="openEditTerminologyModal(selectedTerminology)"
                 title="Edit {{selectedTerminology.terminology}}, {{selectedTerminology.version}}"
                 class="noul glyphicon glyphicon-pencil"></i>
             </td>

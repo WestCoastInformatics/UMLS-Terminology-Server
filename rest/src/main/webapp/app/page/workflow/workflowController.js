@@ -288,8 +288,8 @@ tsApp.controller('WorkflowCtrl', [
       });
     }
 
-    // delete report
-    $scope.deleteReport = function(report) {
+    // remove report
+    $scope.removeReport = function(report) {
       reportService.removeReport(report.id).then(
        // Success
        function(data) {
