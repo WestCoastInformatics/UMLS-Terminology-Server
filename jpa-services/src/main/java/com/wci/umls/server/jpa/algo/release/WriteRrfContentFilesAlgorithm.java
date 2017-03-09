@@ -295,7 +295,7 @@ public class WriteRrfContentFilesAlgorithm
             final Concept c = service.getConcept(conceptId);
 
             String prev = "";
-            for (final String line : writeMrrel(c, service)) {
+            for (final String line : writeMrhier(c, service)) {
               if (!line.equals(prev)) {
                 writerMap.get("MRHIER.RRF").print(line);
               }
@@ -675,32 +675,9 @@ public class WriteRrfContentFilesAlgorithm
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
-        // Find the concept with the atom having this AUI
-        final ConceptList clist = findConcepts(getProject().getTerminology(),
-            getProject().getVersion(), Branch.ROOT,
-            "atoms.alternateTerminologyIds:\"" + getProject().getTerminology()
-                + "=" + rel.getTo().getTerminology() + "\"",
-            null);
-        // Find the atom
-        Atom atom = null;
-        if (clist.size() == 1) {
-          for (final Atom a : clist.getObjects().get(0).getAtoms()) {
-            if (rel.getTo().getTerminologyId()
-                .equals(a.getAlternateTerminologyIds()
-                    .get(getProject().getTerminology()))) {
-              atom = a;
-              break;
-            }
-          }
-        }
-        // If atom is blank, there is a problem
-        if (atom == null) {
-          throw new Exception(
-              "Unable to find atom for AUI = " + rel.getTo().getTerminology());
-        }
-        key =
-            atom.getAlternateTerminologyIds().get(getProject().getTerminology())
-                + rel.getTo().getTerminology() + rel.getTo().getType();
+        // AUI+terminology+type
+        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
+            + rel.getTo().getType();
       }
       if (!componentInfoRelMap.containsKey(key)) {
         componentInfoRelMap.put(key, new ArrayList<>());
@@ -1546,8 +1523,8 @@ public class WriteRrfContentFilesAlgorithm
       }
 
       // look up component info relationships where STYPE1=AUI
-      key = atomContentsMap.get(a.getId()).getAui() + a.getTerminology()
-          + a.getType();
+      key = atomContentsMap.get(a.getId()).getAui()
+          + getProject().getTerminology() + a.getType();
       for (final ComponentInfoRelationship rel : getComponentInfoRels(key)) {
         if (!rel.isPublishable()) {
           continue;
@@ -2657,16 +2634,17 @@ public class WriteRrfContentFilesAlgorithm
   private void writeAmbig() throws Exception {
     // Find ambig SUIs, write them out.
     logInfo("  Write AMBIGSUI.RRF");
-    javax.persistence.Query query = manager
+    Query query = manager
         .createQuery("select distinct a.stringClassId, c.terminologyId from "
             + "ConceptJpa c join c.atoms a, ConceptJpa c2 join c2.atoms a2 "
-            + "where c.id != c2.id" + "  and a.stringClassId = a2.stringClassId"
+            + "where c.id != c2.id and a.stringClassId = a2.stringClassId"
             + "  and c.terminology = :terminology and c2.terminology = :terminology"
             + "  and c.version = :version and c2.version = :version"
             + "  and a.publishable = true and a2.publishable = true order by 1,2");
     query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
     List<Object[]> results = query.getResultList();
+    logInfo("    count = " + results.size());
     for (final Object[] result : results) {
       writerMap.get("AMBIGSUI.RRF").print(result[0] + "|" + result[1] + "|\n");
     }
@@ -2682,8 +2660,9 @@ public class WriteRrfContentFilesAlgorithm
             + "  and c.version = :version and c2.version = :version"
             + "  and a.publishable = true and a2.publishable = true order by 1,2");
     query.setParameter("terminology", getProject().getTerminology());
-    query.setParameter("version", getProject().getTerminology());
+    query.setParameter("version", getProject().getVersion());
     results = query.getResultList();
+    logInfo("    count = " + results.size());
     for (final Object[] result : results) {
       writerMap.get("AMBIGLUI.RRF").print(result[0] + "|" + result[1] + "|\n");
     }

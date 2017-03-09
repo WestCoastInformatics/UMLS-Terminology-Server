@@ -3554,8 +3554,7 @@ public class ContentServiceJpa extends MetadataServiceJpa
         && pfs.getQueryRestriction().equals("suppressible:false"))
             ? " and a.suppressible = false " : "";
 
-    final String relTypeClause =
-        " and a.relationshipType not in ('PAR', 'CHD','AQ','QB')";
+    final String relTypeClause = " and a.relationshipType not in ('AQ','QB')";
 
     // Verify no query restriction except for suppressible:false
     if (ConfigUtility.isEmpty(suppressibleClause) && pfs != null

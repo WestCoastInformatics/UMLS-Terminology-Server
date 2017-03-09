@@ -47,7 +47,7 @@ public class ReportResultJpa extends AbstractHasLastModified
   private Report report;
 
   /** The value. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String value;
 
   /** The count of items, defaults to zero. */
