@@ -293,7 +293,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           }
 
           // Set conceptTerminologyId for process terminology/version
-          if (!ConfigUtility.isEmpty(fields[14])) {
+          if (!ConfigUtility.isEmpty(fields[14]) && !oldAtom.getConceptTerminologyIds().get(
+              getProcess().getTerminology() + getProcess().getVersion()).equals(
+              fields[14])) {
 
             // Set previous release CUI for process terminology/version
             oldAtom.getConceptTerminologyIds().put(
