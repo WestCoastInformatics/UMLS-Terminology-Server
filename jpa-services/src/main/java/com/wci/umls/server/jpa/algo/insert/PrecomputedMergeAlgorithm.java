@@ -22,11 +22,13 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 import com.wci.umls.server.model.content.Atom;
@@ -192,8 +194,26 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        Component component = getComponent(fields[8], fields[0],
-            getCachedTerminologyName(fields[9]), null);
+        // If the type is 'CUI', this is a umls CUI, and needs to be handled
+        // differently than any other component.
+        Component component = null;
+        if (!fields[8].equals("CUI")) {
+          component = getComponent(fields[8], fields[0],
+              getCachedTerminologyName(fields[9]), null);
+        } else {
+          // Check for current version CUIs first.
+          // If not found, check for previous version CUIs.
+          // (Can merge FROM an old Or new CUI)
+          component = getComponent(fields[8], fields[0],
+              getProcess().getTerminology() + getProcess().getVersion(), null);
+          if (component == null) {
+            component =
+                getComponent(fields[8], fields[0],
+                    getProcess().getTerminology()
+                        + getPreviousVersion(getProcess().getTerminology()),
+                    null);
+          }
+        }
         if (component == null) {
           logWarn("WARNING - could not find Component for type: " + fields[8]
               + ", terminologyId: " + fields[0]
@@ -216,8 +236,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           continue;
         }
 
-        final Component component2 = getComponent(fields[10], fields[2],
-            getCachedTerminologyName(fields[11]), null);
+        // If the type is 'CUI', this is a umls CUI, and needs to be handled
+        // differently than any other component.
+        Component component2 = null;
+        if (!fields[10].equals("CUI")) {
+          component2 = getComponent(fields[10], fields[2],
+              getCachedTerminologyName(fields[11]), null);
+        } else {
+          // Only need to check for new CUIs (will never merge TO an old
+          // concept)
+          component2 = getComponent(fields[10], fields[2],
+              getProcess().getTerminology() + getProcess().getVersion(), null);
+        }
         if (component2 == null) {
           logWarn("WARNING - could not find Component for type: " + fields[10]
               + ", terminologyId: " + fields[2]
@@ -320,12 +350,16 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
 
-    // Collect any merges previously performed, and UNDO them
+    // Collect any merges previously performed, and UNDO them in reverse order
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
     final MolecularActionList molecularActions =
         findMolecularActions(null, getProject().getTerminology(),
-            getProject().getVersion(), "activityId:" + getActivityId(), null);
+            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
 
-    for (MolecularAction molecularAction : molecularActions.getObjects()) {
+    for (final MolecularAction molecularAction : molecularActions
+        .getObjects()) {
       // Create and set up an undo action
       final UndoMolecularAction undoAction = new UndoMolecularAction();
 

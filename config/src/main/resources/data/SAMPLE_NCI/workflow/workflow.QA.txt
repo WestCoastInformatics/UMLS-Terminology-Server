@@ -115,7 +115,7 @@
       "timestamp": 1488820266000,
       "name": "deleted_cui",
       "description": "CUIs that are going away - will need bequeathal rel.  To remove cases from this bin, add following code to remove ids from tempTable:\n    AND NOT c.id IN (SELECT id from tmp_import)",
-      "query": "SELECT DISTINCT\n    c.id conceptId\nFROM\n    concepts c,\n    concepts_atoms ca,\n    atoms a\nWHERE\n    c.terminology = :terminology\n        AND c.id = ca.concepts_id\n        AND ca.atoms_id = a.id\n        AND a.suppressible = TRUE\n        AND NOT c.id IN (SELECT DISTINCT\n            c.id conceptId\n        FROM\n            concepts c,\n            concepts_atoms ca,\n            atoms a\n        WHERE\n            c.terminology = :terminology\n                AND c.id = ca.concepts_id\n                AND ca.atoms_id = a.id\n                AND a.suppressible = FALSE)",
+      "query": "SELECT DISTINCT\n    c.id conceptId\nFROM\n    concepts c,\n    concepts_atoms ca,\n    atoms a\nWHERE\n    c.terminology = :terminology\n        AND c.id = ca.concepts_id\n        AND ca.atoms_id = a.id\n        AND a.publishable = TRUE\n        AND NOT c.id IN (SELECT DISTINCT\n            c.id conceptId\n        FROM\n            concepts c,\n            concepts_atoms ca,\n            atoms a\n        WHERE\n            c.terminology = :terminology\n                AND c.id = ca.concepts_id\n                AND ca.atoms_id = a.id\n                AND a.publishable = FALSE)",
       "queryType": "SQL",
       "editable": true,
       "enabled": true,
