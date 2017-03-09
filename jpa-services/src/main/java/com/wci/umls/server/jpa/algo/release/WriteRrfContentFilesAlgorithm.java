@@ -295,7 +295,7 @@ public class WriteRrfContentFilesAlgorithm
             final Concept c = service.getConcept(conceptId);
 
             String prev = "";
-            for (final String line : writeMrrel(c, service)) {
+            for (final String line : writeMrhier(c, service)) {
               if (!line.equals(prev)) {
                 writerMap.get("MRHIER.RRF").print(line);
               }
@@ -663,7 +663,8 @@ public class WriteRrfContentFilesAlgorithm
       String key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
           + rel.getTo().getVersion() + rel.getTo().getType();
       if (rel.getTo().getType() == IdType.ATOM) {
-        key = rel.getTo().getTerminologyId() + rel.getTo().getTerminology()
+        Atom atom = ((Atom)this.findComponent(rel.getTo(), atomContentsMap));
+        key = atom.getAlternateTerminologyIds().get(getProject().getTerminology()) + rel.getTo().getTerminology()
             + rel.getTo().getType();
       }
       if (!componentInfoRelMap.containsKey(key)) {
