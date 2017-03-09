@@ -572,6 +572,7 @@ public class ProcessServiceJpa extends WorkflowServiceJpa
       return;
     }
     processExecution.getProject().getId();
+    processExecution.getExecutionInfo().keySet();
     for (AlgorithmExecution algo : processExecution.getSteps()) {
       handleLazyInit(algo);
     }

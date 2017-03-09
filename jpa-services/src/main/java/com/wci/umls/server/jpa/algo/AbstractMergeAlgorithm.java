@@ -75,7 +75,6 @@ public abstract class AbstractMergeAlgorithm
       cacheAtomsConcepts();
     }
 
-    System.out.println("XXX1=" + atomId + ", " + atomId2);
     // Get the two concepts associated with the two atoms
     final Long conceptId = atomsConcepts.get(atomId);
     final Long conceptId2 = atomsConcepts.get(atomId2);
@@ -113,7 +112,7 @@ public abstract class AbstractMergeAlgorithm
 
     final Concept concept = getConcept(conceptId);
     final Concept concept2 = getConcept(conceptId2);
-    System.out.println("XXX=" + conceptId + ", " + conceptId2);
+
     if (concept.getAtoms().size() < concept2.getAtoms().size()) {
       fromConcept = concept;
       fromAtom = getAtom(atomId);
