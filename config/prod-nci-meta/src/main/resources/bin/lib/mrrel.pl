@@ -54,13 +54,14 @@ while(<STDIN>) {
   } 
   # concept level rel
   else {
-  	$terminology = $ARGV[0];
+    # this doesn't work because data contains both MTH and NCIMTH rels
+    # $terminology = $ARGV[0];
   	$toId = $toCui;
   	$toType = "CONCEPT";
-  	$toTerminology = $terminology;
+  	$toTerminology = $ARGV[0];
   	$fromId = $fromCui;
   	$fromType = "CONCEPT";
-  	$fromTerminology = $terminology;
+  	$fromTerminology = $ARGV[0];
   }
   # compute disambiguation flag if needed
   if ($damap{$id}) {

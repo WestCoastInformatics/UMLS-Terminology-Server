@@ -128,9 +128,9 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
         fullTextEntityManager.purgeAll(reindexMap.get(key));
         fullTextEntityManager.flushToIndexes();
         fullTextEntityManager.createIndexer(reindexMap.get(key))
-            .batchSizeToLoadObjects(100).cacheMode(CacheMode.NORMAL)
-            .threadsToLoadObjects(4).startAndWait();
-
+            .batchSizeToLoadObjects(100).cacheMode(CacheMode.IGNORE)
+            .idFetchSize(100).threadsToLoadObjects(10).startAndWait();
+        // optimize flags are default true.
         objectsToReindex.remove(key);
       }
     }

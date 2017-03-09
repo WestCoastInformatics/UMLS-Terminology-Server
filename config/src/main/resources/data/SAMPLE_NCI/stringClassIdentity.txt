@@ -833,6 +833,9 @@
 1434070|ENG|ultrasonic diagnosis|
 1434204|ENG|ultrasonography|
 1434722|ENG|Ultreon|
+1435413|ENG|UMD|
+1435415|ENG|UMDNS|
+1435417|ENG|UMDNS: product category thesaurus|
 1435453|ENG|UMLS|
 1435456|ENG|UMLS Metathesaurus|
 1437312|ENG|UNC50 gene|
@@ -842,6 +845,7 @@
 1441524|ENG|Unified Medical Language System|
 1442942|ENG|Unit, Replication|
 1442986|ENG|Units, Replication|
+1443057|ENG|Universal Medical Device Nomenclature System: product category thesaurus|
 1443120|ENG|University of Washington Digital Anatomist, 1.7.3|
 1443121|ENG|University of Washington Digital Anatomist|
 1444454|ENG|Unspecified disease of white blood cells|
@@ -1120,6 +1124,9 @@
 1614518|ENG|atrioventricular septal defect 1|
 1615047|ENG|2,3 Dithiopropan 1 o1|
 1615058|ENG|2,3-Dithiopropan-1-o1|
+162000|ENG|ICD-10-CM|
+162001|ENG|ICD-10|
+162002|ENG|ICD10|
 162013|ENG|ICD-9-CM|
 162014|ENG|ICD9CM|
 1620597|ENG|Ausobronc|
@@ -2581,9 +2588,11 @@
 2269956|ENG|EVA|
 2270950|ENG|Evidence, Levels of|
 227284|ENG|International Classification of Diseases|
+227285|ENG|International Classification of Diseases for Oncology (ICD)|
 227286|ENG|International Classification of Primary Care, 1993|
 227287|ENG|International Classification of Primary Care|
 227343|ENG|International Statistical Classification of Diseases and Related Health Problems|
+227344|ENG|International Statistical Classification of Diseases and Related Health Problems, Tenth Revision (ICD-10)|
 2274193|ENG|7-Mercapto-1,3,4,6-tetrazaindene|
 2276630|ENG|excision repair complementing defective repair in mouse cells|
 2278152|ENG|exon|
@@ -3191,6 +3200,8 @@
 2468408|ENG|US Department of Veterans Affairs National Drug Formulary Reference Terminology|
 2468417|ENG|US Veterans' Administration National Drug Formulary Reference Terminology|
 2468419|ENG|UT|
+2468703|ENG|ICDO|
+2468709|ENG|International Classification of Disease for Oncology (ICD)|
 2468718|ENG|BioC|
 2470027|ENG|ACAD3|
 2470059|ENG|ACADS|
@@ -3805,6 +3816,7 @@
 3603604|ENG|IQ motif containing G|
 3603608|ENG|IQSEC3 gene|
 3603680|ENG|IRGM gene|
+3604051|ENG|ISO3166-2|
 3604189|ENG|isolation & purification|
 3605024|ENG|JAGN1 gene|
 3605026|ENG|jagunal homolog 1 (Drosophila)|
@@ -4061,6 +4073,7 @@
 3641249|ENG|PDLIM5 gene|
 3641269|ENG|PDZ and LIM domain 5|
 3641273|ENG|PDZ domain containing 11|
+3643317|ENG|Perioperative Nursing Data Set|
 3643473|ENG|peroxisomal, testis specific 1|
 3643486|ENG|Allergic reaction to drug (disorder)|
 3643601|ENG|Allergy to drug|
@@ -4104,6 +4117,7 @@
 3648084|ENG|PLOD1 gene|
 3648111|ENG|PLSCR5 gene|
 3648251|ENG|PNCK gene|
+3648254|ENG|PNDS|
 3648532|ENG|Poisoning aspects|
 3648607|ENG|POLA2 gene|
 3648620|ENG|Polaronil|
@@ -5434,6 +5448,7 @@
 4253362|ENG|GLYCOGEN STORAGE DIS III|
 4253376|ENG|GLYCOGENOSIS 03|
 4253556|ENG|GROWTH A|
+425379|ENG|MedDRA|
 4253975|ENG|HEMATOL DIS|
 4253994|ENG|HEMIC LYMPHATIC DIS|
 4254077|ENG|HEREDITARY DIS|
@@ -5609,6 +5624,7 @@
 4274156|ENG|STAND|
 4274157|ENG|TRENDS|
 4274187|ENG|NITROSOTHIOLS S|
+428775|ENG|Medical Dictionary for Regulatory Activities Terminology (MedDRA)|
 428998|ENG|Medical Information Systems|
 429533|ENG|Medical Subject Headings|
 429606|ENG|Medicament poisoning|
@@ -9940,6 +9956,7 @@
 5150541|ENG|{5 (Ifosfamide 50 MG/ML Injectable Solution) / 3 (Mesna 100 MG/ML Injectable Solution) } Pack|
 5150853|ENG|nucleolus organiser region|
 5150901|ENG|AZITHROMYCIN 250MG TAB PKT 6|
+5151842|ENG|ICD-O-3|
 5151843|ENG|RadLex|
 5152577|ENG|Cancer Therapy Evaluation Program, 2004|
 5152581|ENG|Mitelman Database of Chromosome Aberrations in Cancer, 2005_12|
@@ -11220,6 +11237,7 @@
 6025104|ENG|HSE1 homolog (S. cerevisiae)|
 603185|ENG|NNO1 gene|
 6033091|ENG|ICD-9-CM Entry Terms|
+6033096|ENG|ICD10CM|
 6033112|ENG|ICS1|
 6033159|ENG|IFITMD3|
 6033547|ENG|IGLJCOR18|
@@ -11229,6 +11247,7 @@
 6034207|ENG|IQCF1|
 6034209|ENG|IQCF3|
 6035363|ENG|Ifosfamide / Mesna|
+6039222|ENG|International Classification of Diseases, 10th Edition, Clinical Modification|
 6039225|ENG|International Classification of Diseases, Ninth Revision, Clinical Modification, Metathesaurus additional entry terms|
 6040601|ENG|JAGN1|
 6041706|ENG|KIAA0597|
@@ -11868,6 +11887,7 @@
 628879|ENG|Nucleolus Organizer Region|
 628880|ENG|Nucleolus Organizer Regions|
 628882|ENG|Nucleolus organizer region (substance)|
+6292816|ENG|Perioperative Nursing Data Set, 2nd edition|
 6293575|ENG|Phosphatidylinositol 3-Kinase [Chemical/Ingredient]|
 629387|ENG|nucleotide sequence|
 629388|ENG|Nucleotide Sequence|
@@ -12300,6 +12320,7 @@
 6667204|ENG|Disorder of Immune System|
 6667398|ENG|Inborn Error of Metabolism|
 6667793|ENG|Primary Immune Deficiency Disorder|
+6668633|ENG|International Organization for Standardization 3166-2|
 6671461|ENG|ACER3 Gene|
 6671553|ENG|Alkaline Ceramidase 3 Gene|
 6674065|ENG|Poisoning by drug or medicinal substance|

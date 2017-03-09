@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 /**
  * Copyright (c) 2012 International Health Terminology Standards Development
@@ -111,6 +111,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   @Parameter
   private String version = "latest";
 
+  /**
+   * input dir override
+   */
   @Parameter
   private String inputDir = null;
 
@@ -779,17 +782,17 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.importWorkflowConfig(contentDispositionHeader, in,
         projectId, authToken);
 
-     // Clear bins
-     getLog().info(" Clear and regenerate QA bins");
-     // Clear bins
-     workflowService = new WorkflowServiceRestImpl();
-     workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
-    
-     // Note: don't regenerate all bins.  Users will do so manually as needed.
-//     // Regenerate bins
-//     workflowService = new WorkflowServiceRestImpl();
-//     workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
-//     authToken);
+    // Clear bins
+    getLog().info(" Clear and regenerate QA bins");
+    // Clear bins
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
+
+    // Note: don't regenerate all bins. Users will do so manually as needed.
+    // // Regenerate bins
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
+    // authToken);
 
     //
     // Add MID VALIDATOIN
@@ -882,7 +885,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
-    
+
     //
     // Add REPORT_DEFINITIONS
     //
@@ -901,15 +904,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     getLog().info("    2 STYS");
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("2 STYS");
-    definition.setDescription(
-        "Finds concepts with 2 coocurring stys.");
-    definition
-        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
-            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
-            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
-            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
-            " and csty.semanticTypes_id = sty.id " + 
-            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
+    definition.setDescription("Finds concepts with 2 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -923,15 +924,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     getLog().info("    3 STYS");
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("3 STYS");
-    definition.setDescription(
-        "Finds concepts with 3 coocurring stys.");
-    definition
-        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
-            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
-            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
-            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
-            " and csty.semanticTypes_id = sty.id " + 
-            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
+    definition.setDescription("Finds concepts with 3 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -945,15 +944,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     getLog().info("    4 STYS");
     definition = new WorkflowBinDefinitionJpa();
     definition.setName("4 STYS");
-    definition.setDescription(
-        "Finds concepts with 4 coocurring stys.");
-    definition
-        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
-            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
-            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
-            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
-            " and csty.semanticTypes_id = sty.id " + 
-            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
+    definition.setDescription("Finds concepts with 4 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -962,20 +959,19 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
-    
+
     // Report for >4 STYS
     getLog().info("    >4 STYS");
     definition = new WorkflowBinDefinitionJpa();
     definition.setName(">4 STYS");
-    definition.setDescription(
-        "Finds concepts with greater than 4 coocurring stys.");
     definition
-        .setQuery("SELECT distinct c.id itemId, c.name itemName, " + 
-            " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value " + 
-            " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty " +
-            " WHERE c.terminology = :terminology and c.id = csty.concepts_id " + 
-            " and csty.semanticTypes_id = sty.id " + 
-            " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
+        .setDescription("Finds concepts with greater than 4 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
     definition.setEditable(true);
     definition.setEnabled(true);
     definition.setRequired(true);
@@ -984,7 +980,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService = new WorkflowServiceRestImpl();
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
-    
+
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?
 
@@ -996,7 +992,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
   /**
    * Create and set up a NCI_2016_11D insertion process and algorithm
-   * configurations
+   * configurations.
    *
    * @param project1 the project 1
    * @param projectId the project id

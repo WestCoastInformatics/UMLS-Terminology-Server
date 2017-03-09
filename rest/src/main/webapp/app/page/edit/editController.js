@@ -133,7 +133,6 @@ tsApp
           getPagedList : getPagedAdditionalRelationshipTypes
         };
 
-
         // Handle workflow changes
         $scope.$on('termServer::checklistChange', function(event, data) {
           if (data.id == $scope.selected.project.id) {
@@ -258,7 +257,8 @@ tsApp
         // Remove a concept from the concepts list
         $scope.removeConceptFromList = function(concept) {
           $scope.selected.component = concept;
-          // If this is the only concept on the list, clear selected and close all other windows.
+          // If this is the only concept on the list, clear selected and close
+          // all other windows.
           if ($scope.lists.concepts.length == 1) {
             $scope.lists.concepts = [];
             $scope.selected.component = null;
@@ -269,7 +269,8 @@ tsApp
               if (concept.id == c.id) {
                 // Cut this element out
                 $scope.lists.concepts.splice(i, 1);
-                // If the concept being removed is the selected one, select the previous concept if possible.
+                // If the concept being removed is the selected one, select the
+                // previous concept if possible.
                 if ($scope.selected.component.id = c.id) {
                   if (i != $scope.lists.concepts.length) {
                     $scope.selected.component = $scope.lists.concepts[i];
@@ -410,7 +411,6 @@ tsApp
             $scope.assignedCt = data.totalCount;
           });
         };
-        
 
         // Get done worklists with project and type
         $scope.getDoneWorklists = function() {
@@ -458,7 +458,7 @@ tsApp
           function(data) {
             $scope.doneCt = data.totalCount;
           });
-        };        
+        };
 
         // Find checklists
         $scope.getChecklists = function() {
@@ -698,8 +698,8 @@ tsApp
               $scope.windows[key].close();
             }
           }
-        }        
-        
+        }
+
         // remove windows
         $scope.removeWindows = function() {
           for ( var win in $scope.windows) {
@@ -825,7 +825,8 @@ tsApp
           // If no selected component, then try to recover from last saved
           // if (!$scope.selected.component) {
           if ($scope.selected.worklist
-            && ($scope.selected.worklistMode == 'Available' || $scope.selected.worklistMode == 'Assigned' || $scope.selected.worklistMode == 'Done')) {
+            && ($scope.selected.worklistMode == 'Available'
+              || $scope.selected.worklistMode == 'Assigned' || $scope.selected.worklistMode == 'Done')) {
             workflowService.findTrackingRecordsForWorklist($scope.selected.project.id,
               $scope.selected.worklist.id, pfs).then(
             // Success
@@ -1327,8 +1328,6 @@ tsApp
         }
         ;
 
-
-
         // Get the "max" workflow state
         $scope.getWorkflowState = function(worklist) {
           var maxD = 0;
@@ -1408,9 +1407,20 @@ tsApp
           });
         }
 
+        // Stamp a worklist
+        $scope.stampWorklist = function(worklist) {
+          console.debug('stamp worklist', worklist);
+          workflowService.performWorkflowAction($scope.selected.project.id, worklist.id,
+            $scope.user.userName, $scope.selected.projectRole, 'APPROVE').then(
+          // Success
+          function(data) {
+            $scope.getWorklists();
+          });
+        }
+
         // Add time modal
-        $scope.openFinishWorkflowModal = function(lworklist, stamp) {
-          console.debug('openFinishWorkflowModal ', lworklist, stamp);
+        $scope.openFinishWorkflowModal = function(lworklist) {
+          console.debug('openFinishWorkflowModal ', lworklist);
 
           var modalInstance = $uibModal.open({
             templateUrl : 'app/page/edit/finishWorkflow.html',
@@ -1428,9 +1438,6 @@ tsApp
               },
               worklist : function() {
                 return lworklist;
-              },
-              stamp : function() {
-                return stamp;
               }
             }
           });

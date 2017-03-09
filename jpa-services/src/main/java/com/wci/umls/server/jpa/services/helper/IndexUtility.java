@@ -542,8 +542,8 @@ public class IndexUtility {
    * @return the full text query
    * @throws Exception the exception
    */
-  public static FullTextQuery applyPfsToLuceneQuery(Class<?> clazz,
-    String query, PfsParameter pfs, EntityManager manager) throws Exception {
+  public static FullTextQuery applyPfsToLuceneQuery(final Class<?> clazz,
+    final String query, final PfsParameter pfs, final EntityManager manager) throws Exception {
 
     FullTextQuery fullTextQuery = null;
 

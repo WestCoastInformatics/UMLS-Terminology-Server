@@ -2656,6 +2656,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (style == Style.MULTI && fields[10].equals("SRC")) {
           continue;
         }
+        // Skip SIB rels for "meta edit" load
+        if (style == Style.META_EDIT && fields[3].equals("SIB")) {
+          continue;
+        }
         // Field description
         // 0 CUI1
         // 1 AUI1
@@ -2731,12 +2735,6 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
             final Concept toConcept =
                 getConcept(conceptIdMap.get(getTerminology() + fields[0]));
             conceptRel.setTo(toConcept);
-          }
-          // RUI is the terminologyId for concept relationships, not the alt
-          // terminology id, for the "project" terminology only.
-          if (fields[10]
-              .equals(getTerminology())) {
-            conceptRel.setTerminologyId(fields[8]);
           }
           setRelationshipFields(fields, conceptRel);
 
@@ -2957,15 +2955,12 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
     relationship.setPublishable(true);
     relationship.setWorkflowStatus(WorkflowStatus.PUBLISHED);
     relationship.setHierarchical(fields[3].equals("CHD"));
+    relationship.setTerminologyId(fields[9]);
 
-    // If terminology Id was set to RUI for CUI-CUI rel, skip this part
-    if (relationship.getTerminologyId() == null) {
-      // skip in single/multi mode
-      if (style.toString().startsWith("META")) {
-        relationship.getAlternateTerminologyIds().put(getTerminology(),
-            fields[8]);
-      }
-      relationship.setTerminologyId(fields[9]);
+    // skip in single/multi mode
+    if (style.toString().startsWith("META")) {
+      relationship.getAlternateTerminologyIds().put(getTerminology(),
+          fields[8]);
     }
 
     relationship.setTerminology(fields[10]);

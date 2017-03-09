@@ -15,8 +15,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -42,6 +40,7 @@ import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Implementation of an algorithm to update releasability / publishable.
@@ -113,7 +112,7 @@ public class UpdateReleasabilityAlgorithm
       commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
-      Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+      Set<Terminology> referencedTerminologies = new HashSet<>();
       referencedTerminologies = getReferencedTerminologies();
 
       final List<Class> classList = new ArrayList<>(Arrays.asList(AtomJpa.class,
@@ -137,10 +136,10 @@ public class UpdateReleasabilityAlgorithm
 
         // Make sure all of the terminologies in sources.src are included in the
         // query
-        for (Pair<String, String> referencedTerminology : referencedTerminologies) {
-          query += " OR (c.terminology='" + referencedTerminology.getLeft()
-              + "' AND NOT c.version='" + referencedTerminology.getRight()
-              + "')";
+        for (Terminology referencedTerminology : referencedTerminologies) {
+          query += " OR (c.terminology='"
+              + referencedTerminology.getTerminology() + "' AND NOT c.version='"
+              + referencedTerminology.getVersion() + "')";
         }
 
         // Perform a QueryActionAlgorithm using the class and query
@@ -153,6 +152,7 @@ public class UpdateReleasabilityAlgorithm
           queryAction.setTerminology(getTerminology());
           queryAction.setVersion(getVersion());
           queryAction.setWorkId(getWorkId());
+          queryAction.setActivityId(getActivityId());
 
           queryAction.setObjectTypeClass(clazz);
           queryAction.setAction("Make Unpublishable");

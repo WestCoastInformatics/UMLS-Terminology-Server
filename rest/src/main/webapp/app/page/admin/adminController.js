@@ -277,7 +277,7 @@ tsApp
         // Removes a user
         $scope.removeUser = function(user) {
           if (user.projectRoleMap && Object.keys(user.projectRoleMap).length > 0) {
-            window.alert('You can not delete a user that is assigned to a project -'
+            window.alert('You can not remove a user that is assigned to a project -'
               + 'Remove this user from all projects before deleting it');
             return;
           }

@@ -20,12 +20,14 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
+import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractMergeAlgorithm;
 import com.wci.umls.server.jpa.algo.action.UndoMolecularAction;
 import com.wci.umls.server.jpa.content.AtomJpa;
+import com.wci.umls.server.jpa.helpers.PfsParameterJpa;
 import com.wci.umls.server.model.actions.MolecularAction;
 import com.wci.umls.server.model.actions.MolecularActionList;
 
@@ -142,8 +144,10 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
       Map<String, String> params = new HashMap<>();
       params.put("terminology", getProcess().getTerminology());
       params.put("version", getProcess().getVersion());
-      params.put("latestTerminologyVersion", getProcess().getTerminology() + getProcess().getVersion());
-      params.put("previousTerminologyVersion", getProcess().getTerminology() + getPreviousVersion(getProcess().getTerminology()));
+      params.put("latestTerminologyVersion",
+          getProcess().getTerminology() + getProcess().getVersion());
+      params.put("previousTerminologyVersion", getProcess().getTerminology()
+          + getPreviousVersion(getProcess().getTerminology()));
       params.put("projectTerminology", getProject().getTerminology());
       params.put("projectVersion", getProject().getVersion());
 
@@ -216,10 +220,13 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   @Override
   public void reset() throws Exception {
     logInfo("Starting RESET " + getName());
-    // Collect any merges previously performed, and UNDO them
+    // Collect any merges previously performed, and UNDO them in reverse order
+    final PfsParameter pfs = new PfsParameterJpa();
+    pfs.setAscending(false);
+    pfs.setSortField("lastModified");
     final MolecularActionList molecularActions =
         findMolecularActions(null, getProject().getTerminology(),
-            getProject().getVersion(), "activityId:" + getActivityId(), null);
+            getProject().getVersion(), "activityId:" + getActivityId(), pfs);
 
     for (MolecularAction molecularAction : molecularActions.getObjects()) {
       // Create and set up an undo action

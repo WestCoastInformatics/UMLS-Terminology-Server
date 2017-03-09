@@ -7,10 +7,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -18,7 +21,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.Project;
 import com.wci.umls.server.ValidationResult;
-import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
 import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.algo.action.AddDemotionMolecularAction;
@@ -35,10 +37,11 @@ import com.wci.umls.server.model.content.ConceptRelationship;
 public abstract class AbstractMergeAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
-  /**
-   * The concept-pairs that have gone through the merging process
-   */
+  /** The concept-pairs that have gone through the merging process. */
   private Set<String> conceptPairs = new HashSet<>();
+
+  /** The atoms and which concept they belong to. */
+  private Map<Long, Long> atomsConcepts = new HashMap<>();
 
   /**
    * Instantiates an empty {@link AbstractMergeAlgorithm}.
@@ -65,25 +68,39 @@ public abstract class AbstractMergeAlgorithm
     boolean makeDemotion, boolean changeStatus, Project project,
     Map<String, Integer> statsMap) throws Exception {
 
-    // Get the two concepts associated with the two atoms
-    List<ConceptJpa> concepts =
-        searchHandler.getQueryResults(getProject().getTerminology(),
-            getProject().getVersion(), Branch.ROOT, "atoms.id:" + atomId, null,
-            ConceptJpa.class, null, new int[1], getEntityManager());
-    if (concepts.size() != 1) {
-      throw new Exception("Unexpected number of concepts: " + concepts.size()
-          + ", for atom: " + atomId);
+    // If this is the first time merge is getting called, cache the atom Ids and
+    // their concept Ids
+    if (atomsConcepts.isEmpty()) {
+      logInfo("  caching atomId - conceptId pairs");
+      cacheAtomsConcepts();
     }
-    final Concept concept = concepts.get(0);
 
-    concepts = searchHandler.getQueryResults(getProject().getTerminology(),
-        getProject().getVersion(), Branch.ROOT, "atoms.id:" + atomId2, null,
-        ConceptJpa.class, null, new int[1], getEntityManager());
-    if (concepts.size() != 1) {
-      throw new Exception("Unexpected number of concepts: " + concepts.size()
-          + ", for atom: " + atomId2);
+    // Get the two concepts associated with the two atoms
+    final Long conceptId = atomsConcepts.get(atomId);
+    final Long conceptId2 = atomsConcepts.get(atomId2);
+
+    // If this concept pair has already had a merge attempted on it, don't try
+    // it again
+    if (conceptPairs.contains(conceptId + "|" + conceptId2)) {
+      return;
+    } else {
+      conceptPairs.add(conceptId + "|" + conceptId2);
+      conceptPairs.add(conceptId2 + "|" + conceptId);
+      statsMap.put("conceptPairs", conceptPairs.size());
     }
-    final Concept concept2 = concepts.get(0);
+
+    // If Atoms are in the same concept, DON'T perform merge, and log that the
+    // atoms are already merged.
+    if (conceptId.equals(conceptId2)) {
+      addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
+          getActivityId(), getWorkId(),
+          "Skip merging atom " + atomId + " with atom " + atomId2
+              + " - atoms are both already in the same concept " + conceptId);
+
+      statsMap.put("unsuccessfulMerges",
+          statsMap.get("unsuccessfulMerges") + 1);
+      return;
+    }
 
     // Identify the from and to concepts, and from/to Atoms
     // FromConcept will be the smaller concept (least number of atoms)
@@ -91,6 +108,9 @@ public abstract class AbstractMergeAlgorithm
     Concept toConcept = null;
     Atom fromAtom = null;
     Atom toAtom = null;
+
+    final Concept concept = getConcept(conceptId);
+    final Concept concept2 = getConcept(conceptId2);
 
     if (concept.getAtoms().size() < concept2.getAtoms().size()) {
       fromConcept = concept;
@@ -102,29 +122,6 @@ public abstract class AbstractMergeAlgorithm
       fromAtom = getAtom(atomId2);
       toConcept = concept;
       toAtom = getAtom(atomId);
-    }
-
-    // If this concept pair has already had a merge attempted on it, don't try
-    // it again
-    if (conceptPairs.contains(fromConcept.getId() + "|" + toConcept.getId())) {
-      return;
-    } else {
-      conceptPairs.add(fromConcept.getId() + "|" + toConcept.getId());
-      statsMap.put("conceptPairs", conceptPairs.size());
-    }
-
-    // If Atoms are in the same concept, DON'T perform merge, and log that the
-    // atoms are already merged.
-    if (fromConcept.getId().equals(toConcept.getId())) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(),
-          fromConcept.getId(), getActivityId(), getWorkId(),
-          "Failure merging atom " + atomId + " with atom " + atomId2
-              + " - atoms are both already in the same concept "
-              + toConcept.getId());
-
-      statsMap.put("unsuccessfulMerges",
-          statsMap.get("unsuccessfulMerges") + 1);
-      return;
     }
 
     // Otherwise, create and set up a merge action
@@ -172,7 +169,7 @@ public abstract class AbstractMergeAlgorithm
         if (makeDemotion) {
           // If from and to concepts have a relationship between them,
           // do NOT make demotion, and add log entry saying why
-          for (ConceptRelationship rel : fromConcept.getRelationships()) {
+          for (final ConceptRelationship rel : fromConcept.getRelationships()) {
             if (rel.getTo().getId() == toConcept.getId()) {
               addLogEntry(getLastModifiedBy(), getProject().getId(),
                   fromConcept.getId(), getActivityId(), getWorkId(),
@@ -229,6 +226,8 @@ public abstract class AbstractMergeAlgorithm
       }
       // Otherwise, it was successful.
       else {
+        // Update atomsConcepts map to reflect change made by successful merge
+        updateAtomsConcepts(fromConcept.getId(), toConcept.getId());
         statsMap.put("successfulMerges", statsMap.get("successfulMerges") + 1);
         return;
       }
@@ -494,6 +493,50 @@ public abstract class AbstractMergeAlgorithm
     }
 
     return filteredAtomIdPairs;
+  }
+
+  /**
+   * Cache atoms concepts.
+   *
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("unchecked")
+  public void cacheAtomsConcepts() throws Exception {
+
+    // Load alternateTerminologyIds
+    Query query = getEntityManager()
+        .createQuery("select c.id, a.id from ConceptJpa c join c.atoms a "
+            + "where c.publishable=true and a.publishable=true and "
+            + "c.terminology=:projectTerminology and c.version=:projectVersion");
+    query.setParameter("projectTerminology", getProject().getTerminology());
+    query.setParameter("projectVersion", getProject().getVersion());
+
+    List<Object[]> list = query.getResultList();
+    for (final Object[] entry : list) {
+      final Long conceptId = Long.valueOf(entry[0].toString());
+      final Long atomId = Long.valueOf(entry[1].toString());
+      atomsConcepts.put(atomId, conceptId);
+    }
+  }
+
+  /**
+   * Update atoms concepts.
+   *
+   * @param fromConceptId the from concept id
+   * @param toConceptId the to concept id
+   * @throws Exception the exception
+   */
+  public void updateAtomsConcepts(Long fromConceptId, Long toConceptId)
+    throws Exception {
+    // For every atom that was merged into a new concept, update its value in
+    // the atomsConcepts map.
+    for (Map.Entry<Long, Long> entry : atomsConcepts.entrySet()) {
+      Long atomId = entry.getKey();
+      Long conceptId = entry.getValue();
+      if (conceptId.equals(fromConceptId)) {
+        atomsConcepts.put(atomId, toConceptId);
+      }
+    }
   }
 
 }

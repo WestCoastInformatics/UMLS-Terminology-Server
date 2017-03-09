@@ -76,8 +76,9 @@ public class StampingAlgorithm extends AbstractAlgorithm {
       // precollect records based on if checklistId or worklistId is set
       fireProgressEvent(0, "Starting...find tracking records");
       List<TrackingRecord> records = new ArrayList<>();
+      Worklist worklist = null;
       if (worklistId != null) {
-        final Worklist worklist = getWorklist(worklistId);
+        worklist = getWorklist(worklistId);
         records = worklist.getTrackingRecords();
       } else if (checklistId != null) {
         final Checklist checklist = getChecklist(checklistId);
@@ -101,11 +102,19 @@ public class StampingAlgorithm extends AbstractAlgorithm {
 
         lookupTrackingRecordConcepts(record);
         for (final Concept c : record.getConcepts()) {
+
           // skip those that don't need action
-          if (approve && c.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
+          if (approve && checklistId != null
+              && c.getWorkflowStatus() != WorkflowStatus.NEEDS_REVIEW) {
             continue;
-          }
-          if (!approve
+          } else if (approve && worklistId != null) {
+            // determine if this concept was touched since worklist assigned
+            // if so, skip it.
+            if (worklist.getWorkflowStateHistory().get("Assigned")
+                .before(c.getLastModified())) {
+              continue;
+            }
+          } else if (!approve
               && c.getWorkflowStatus() == WorkflowStatus.NEEDS_REVIEW) {
             continue;
           }
