@@ -71,6 +71,7 @@ public abstract class AbstractMergeAlgorithm
     // If this is the first time merge is getting called, cache the atom Ids and
     // their concept Ids
     if (atomsConcepts.isEmpty()) {
+      logInfo("  caching atomId - conceptId pairs");
       cacheAtomsConcepts();
     }
 

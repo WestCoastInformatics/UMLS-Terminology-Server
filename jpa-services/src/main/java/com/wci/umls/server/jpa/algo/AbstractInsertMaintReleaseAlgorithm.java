@@ -139,11 +139,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   private static Set<String> conceptCachedTerms = new HashSet<>();
 
   /** The project concept preferred atom id cache. */
-  private static Map<String, Long> projectConceptPreferredAtomIdCache =
+  private static Map<String, Long> cuiPreferredAtomConceptIdCache =
       new HashMap<>();
 
   /** The project concept cached terms. */
-  private static Set<String> projectConceptCachedTerms = new HashSet<>();
+  private static Set<String> cuiPreferredAtomConceptCachedTerms =
+      new HashSet<>();
 
   /**
    * The code ID cache. Key = terminologyId + terminology; Value = CodeJpa.Id
@@ -563,50 +564,67 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
   /**
    * Cache existing concept Ids.
    *
-   * @param terminology the terminology
+   * @param terminologyVersion the terminology
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void cacheExistingProjectConceptPreferredAtomIds(String terminology)
-    throws Exception {
+  private void cacheExistingCuiPreferredAtomConceptIds(
+    String terminologyVersion) throws Exception {
     logInfo(
-        "[SourceLoader] Loading concept preferred atom Terminology Ids from database for "
-            + terminology);
+        "[SourceLoader] Loading concept of preferred atom Terminology Ids from database for "
+            + terminologyVersion);
+
+    // NOTE: Unlike other caching functionality, this gets passed in a
+    // terminology and version.
+    // e.g. MTH2015AB
+
+    // Look up all atoms that have this terminologyVersion as a
+    // conceptTerminologyId, rank them, and get the id of the comcept that
+    // contains the
+    // highest-ranked atom
 
     // Look up matching conceptTerminologyIds
     final Query query =
-        getEntityManager().createQuery("select value(cid), a.id "
-            + "from AtomJpa a join a.conceptTerminologyIds cid "
-            + "where key(cid) = :terminology AND publishable = true ");
-    query.setParameter("terminology", terminology);
-    final Map<String, Set<Long>> atomsMap = new HashMap<>();
+        getEntityManager().createQuery("select value(cid), a.id, c.id "
+            + "from ConceptJpa c join c.atoms a join a.conceptTerminologyIds cid "
+            + "where c.terminology = :projectTerminology and key(cid) = :terminologyVersion AND c.publishable = true  AND a.publishable = true ");
+    query.setParameter("terminologyVersion", terminologyVersion);
+    query.setParameter("projectTerminology", getProject().getTerminology());
+
+    final Map<String, Set<Long[]>> atomsMap = new HashMap<>();
     final List<Object[]> list = query.getResultList();
     for (final Object[] entry : list) {
       final String terminologyId = entry[0].toString();
-      final Long id = Long.valueOf(entry[1].toString());
+      final Long atomId = Long.valueOf(entry[1].toString());
+      final Long conceptId = Long.valueOf(entry[2].toString());
       if (!atomsMap.containsKey(terminologyId)) {
-        atomsMap.put(terminologyId, new HashSet<>());
+        atomsMap.put(terminologyId, new HashSet<Long[]>());
       }
-      atomsMap.get(terminologyId).add(id);
+      atomsMap.get(terminologyId).add(new Long[] {
+          atomId, conceptId
+      });
     }
 
     if (precedenceList == null) {
-      precedenceList = this.getPrecedenceList(getProject().getTerminology(),
+      precedenceList = getPrecedenceList(getProject().getTerminology(),
           getProject().getVersion());
     }
     for (final String key : atomsMap.keySet()) {
-      final Set<Atom> atoms = new HashSet<>();
-      for (final Long id : atomsMap.get(key)) {
-        atoms.add(getAtom(id));
+      final Map<Atom, Long> atoms = new HashMap<>();
+      for (final Long[] ids : atomsMap.get(key)) {
+        final Long atomId = ids[0];
+        final Long conceptId = ids[1];
+        atoms.put(getAtom(atomId), conceptId);
       }
-      final Atom prefAtom = handler.sortAtoms(atoms, precedenceList).get(0);
+      final Atom prefAtom =
+          handler.sortAtoms(atoms.keySet(), precedenceList).get(0);
 
-      projectConceptPreferredAtomIdCache.put(key + terminology,
-          prefAtom.getId());
+      cuiPreferredAtomConceptIdCache.put(key + terminologyVersion,
+          atoms.get(prefAtom));
     }
 
     // Add this terminology to the cached set.
-    projectConceptCachedTerms.add(terminology);
+    cuiPreferredAtomConceptCachedTerms.add(terminologyVersion);
   }
 
   /**
@@ -762,12 +780,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     }
 
     else if (type.equals("CUI")) {
-      if (!projectConceptCachedTerms.contains(terminology)) {
-        cacheExistingProjectConceptPreferredAtomIds(terminology);
+      if (!cuiPreferredAtomConceptCachedTerms.contains(terminology)) {
+        cacheExistingCuiPreferredAtomConceptIds(terminology);
       }
       return getComponent(
-          projectConceptPreferredAtomIdCache.get(terminologyId + terminology),
-          AtomJpa.class);
+          cuiPreferredAtomConceptIdCache.get(terminologyId + terminology),
+          ConceptJpa.class);
     }
 
     else if (type.equals("DEFINITION")) {
