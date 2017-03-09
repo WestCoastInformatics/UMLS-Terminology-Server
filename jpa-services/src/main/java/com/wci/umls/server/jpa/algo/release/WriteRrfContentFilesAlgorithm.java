@@ -1541,7 +1541,7 @@ public class WriteRrfContentFilesAlgorithm
               ? "CUI" : "SCUI";
           aui2 = stype2.equals("CUI") ? ""
               : conceptContentsMap.get(from.getId()).getAui();
-          cui2 = stype2.equals("CUI") ? null : from.getTerminologyId();
+          cui2 = stype2.equals("CUI") ? from.getTerminologyId() : null;
         } else if (from.getType() == IdType.CODE) {
           aui2 = codeContentsMap.get(from.getId()).getAui();
           stype2 = "CODE";
