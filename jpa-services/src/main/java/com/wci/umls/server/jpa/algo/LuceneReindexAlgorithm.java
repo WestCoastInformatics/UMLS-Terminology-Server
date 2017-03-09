@@ -56,11 +56,15 @@ public class LuceneReindexAlgorithm extends AbstractAlgorithm {
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
+    commitClearBegin();
+    
     if (fullTextEntityManager == null) {
       fullTextEntityManager = Search.getFullTextEntityManager(manager);
     }
     computeLuceneIndexes(indexedObjects);
     // fullTextEntityManager.close();
+
+    logInfo("Finished " + getName());    
   }
 
   /* see superclass */

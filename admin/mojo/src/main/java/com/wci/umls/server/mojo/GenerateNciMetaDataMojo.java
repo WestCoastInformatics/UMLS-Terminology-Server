@@ -1202,12 +1202,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -1268,10 +1268,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' "
             + "and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true "
             + "and a1.lexicalClassId = a2.lexicalClassId "
-            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
-            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
-            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) "
-            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+            + "and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) "
+            + "and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
     algoProperties.put("newAtomsOnly", "true");
@@ -1611,12 +1611,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -1703,13 +1703,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.terminology = :terminology and a1.version = :version and "
             + "a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and "
             + "a2.terminology != :terminology and a2.publishable = true and "
-            + "a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select "
+            + "a1.lexicalClassId = a2.lexicalClassId and not a1.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a2.termType in (select "
+            + ":projectTerminology and exclude = true) and not a2.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in (select "
+            + ":projectTerminology and exclude = true) and not a1.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in (select "
+            + ":projectTerminology and normExclude = true) and not a2.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -2463,12 +2463,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -2525,7 +2525,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JPQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
     algoProperties.put("newAtomsOnly", "true");

@@ -131,6 +131,7 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
     statsMap.put("atomPairsReturnedByQuery", 0);
     statsMap.put("atomPairsRemovedByFilters", 0);
     statsMap.put("atomPairsRemainingAfterFilters", 0);
+    statsMap.put("conceptPairs", 0);
     statsMap.put("successfulMerges", 0);
     statsMap.put("unsuccessfulMerges", 0);
     statsMap.put("successfulDemotions", 0);

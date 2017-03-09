@@ -10,8 +10,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -29,6 +27,9 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  * Implementation of an algorithm to bequeath old versioned SRC concepts.
  */
 public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
+
+  /** The add count. */
+  private int addCount = 0;
 
   /**
    * Instantiates an empty {@link BequeathAlgorithm}.
@@ -146,11 +147,13 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           bequeathRel.setTo(toConcept);
           bequeathRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           bequeathRel = (ConceptRelationship) addRelationship(bequeathRel);
+          addCount++;
 
           ConceptRelationship inverseBequeathRel =
               createInverseConceptRelationship(bequeathRel);
           inverseBequeathRel =
               (ConceptRelationship) addRelationship(inverseBequeathRel);
+          addCount++;
 
           fromConcept.getRelationships().add(bequeathRel);
           toConcept.getRelationships().add(inverseBequeathRel);
@@ -164,6 +167,8 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+
+      logInfo("  added count = " + addCount);
 
       logInfo("Finished " + getName());
 

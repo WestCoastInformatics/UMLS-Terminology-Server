@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.persistence.NoResultException;
 
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParserBase;
 
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -711,9 +712,10 @@ public class UmlsIdentityServiceJpa extends MetadataServiceJpa
   public long getIdentityId(Identity identity) throws Exception {
 
     // Set up the "full text query"
-    final List<Long> results = handler.getIdResults(null, null, Branch.ROOT,
-        "identityCode:\"" + identity.getIdentityCode() + "\"", null,
-        identity.getClass(), null, new int[1], manager);
+    final List<Long> results = handler.getIdResults(null, null,
+        Branch.ROOT, "identityCode:\""
+            + QueryParserBase.escape(identity.getIdentityCode()) + "\"",
+        null, identity.getClass(), null, new int[1], manager);
 
     if (results.isEmpty()) {
       return -1L;
