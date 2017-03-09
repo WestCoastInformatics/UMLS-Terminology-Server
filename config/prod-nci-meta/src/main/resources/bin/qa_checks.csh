@@ -51,6 +51,11 @@ set mrxnw=$dir/MRXNW_ENG.RRF
 set mrxns=$dir/MRXNS_ENG.RRF
 set mraui=$dir/MRAUI.RRF
 
+set notMini = 1
+if (`cat $mrhier | wc -l` > 1000) {
+	set notMini = 0
+endif
+
 if ($target == "DOC") then
     echo "    Verify nothing for DOC"
 else if ($target == "MRAUI") then
@@ -1593,7 +1598,8 @@ else if ($target == "MRHIER") then
     perl -ne '@_ = split /\|/; @f = split /\./, $_[6]; $x = pop @f; $y = join ".", @f; print "$x|$_[4]|$y\n" if $x;' $mrhier | sort -T . -u -o mrhier.2.$$
     # everything in mrhier.2 should be in mrhier.1
     set ct=`comm -13 mrhier.1.$$ mrhier.2.$$ | wc -l`
-    if ($ct != 0) then
+    # for mini, ignore this
+    if ($ct != 0 && $notMini) then
         echo "ERROR: AUI|SAB|PTR missing from MRHIER"
         comm -13 mrhier.1.$$ mrhier.2.$$ | sed 's/^/      /'
     endif
@@ -1770,11 +1776,11 @@ else if ($target == "MRFILESCOLS") then
     #   Verify FIL,FMT matches MRCOLS.FILCOL
     #
     echo "    Verify FIL,FMT matches MRCOLS.FIL,COL"
-    perl -ne '@_ = split/\|/; map((print "$_[0]|$_|\n"), @_ = split(/,/,$_[2]))' $mrfiles | sort -u >! MRFILES.tmp.$$
-    set cnt = `awk -F\| '{print $7"|"$1"|"}' $mrcols | sort -u | comm -3 - MRFILES.tmp.$$ | wc -l `
+    perl -ne '@_ = split/\|/; map((print "$_[0]|$_|\n"), split(/,/,$_[2]))' $mrfiles | sort -u >! MRFILES.tmp.$$
+    set cnt = `perl -ne '@_ = split/\|/; print "$_[6]|$_[0]|\n";' $mrcols | sort -u | comm -3 - MRFILES.tmp.$$ | wc -l `
     if ($cnt != 0) then
-	echo "ERROR:  FIL,FMT does not match MRCOLS.FIL,COL"
-	awk -F\| '{print $7"|"$1"|"}' $mrcols | sort -u | comm -3 - MRFILES.tmp.$$| head -10 | sed 's/^/  /'
+  	  echo "ERROR:  FIL,FMT does not match MRCOLS.FIL,COL"
+	  perl -ne '@_ = split/\|/; print "$_[6]|$_[0]|\n";' $mrcols | sort -u | comm -3 - MRFILES.tmp.$$  head -10 | sed 's/^/  /'
     endif
     rm -f MRFILES.tmp.$$
 
@@ -2379,15 +2385,15 @@ else if ($target == "MRSAB") then
     #
     #   Verify SRL in MRDOC
     #
-    echo "    Verify SRL in MRDOC"
-    cut -d\| -f14 $mrsab | sort -u >! mrsab.tmp1.$$
-    awk -F\| '$3=="expanded_form"&&$1=="SRL"{print $2}' $mrdoc | sort -u >! mrdoc.tmp1.$$
-    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$ | wc -l`
-    if ($ct != 0) then
-        echo "ERROR:  SRL not in MRSAB.RSAB"
-     diff mrsab.tmp1.$$ mrdoc.tmp1.$$
-    endif
-    rm -f mrsab.tmp1.$$ mrdoc.tmp2.$$
+#    echo "    Verify SRL in MRDOC"
+#    cut -d\| -f14 $mrsab | sort -u >! mrsab.tmp1.$$
+#    awk -F\| '$3=="expanded_form"&&$1=="SRL"{print $2}' $mrdoc | sort -u >! mrdoc.tmp1.$$
+#    set ct=`diff mrsab.tmp1.$$ mrdoc.tmp1.$$ | wc -l`
+#    if ($ct != 0) then
+#        echo "ERROR:  SRL not in MRSAB.RSAB"
+#     diff mrsab.tmp1.$$ mrdoc.tmp1.$$
+#    endif
+#    rm -f mrsab.tmp1.$$ mrdoc.tmp2.$$
 
     #
     # Verify RCUI count equals RSAB count
@@ -2402,7 +2408,8 @@ else if ($target == "MRSAB") then
     #
 	set vsab_cui_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n" if ($_[2] !~ /^(NCIMTH|NLM-MED|SRC)$/ && $_[21] eq "Y");' $mrsab | sort -u | wc -l`;
     echo "    Verify VCUI count = VSAB count (excludes NCIMTH,NLM-MED,SRC)"
-    if ($vcui_cnt != $vsab_cui_cnt) then
+    # avoid this check for the mini
+    if ($vcui_cnt != $vsab_cui_cnt && $notMini) then
         echo "ERROR: VCUI count ($vcui_cnt) != VSAB count ($vsab_cui_cnt) (excludes NCIMTH,NLM-MED,SRC)"
     endif
 

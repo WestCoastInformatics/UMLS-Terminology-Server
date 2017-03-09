@@ -4068,7 +4068,9 @@ public class ContentServiceJpa extends MetadataServiceJpa
       final Long partId = Long.parseLong(pathPart);
 
       final StringBuilder finalQuery = new StringBuilder();
-      finalQuery.append("nodeId:" + partId + " AND ");
+      finalQuery.append("nodeId:" + partId + " AND terminology:"
+          + treePosition.getTerminology() + " AND version:"
+          + treePosition.getVersion() + " AND ");
       if (partAncPath.isEmpty()) {
         // query for empty value
         finalQuery.append("NOT ancestorPath:[* TO *]");

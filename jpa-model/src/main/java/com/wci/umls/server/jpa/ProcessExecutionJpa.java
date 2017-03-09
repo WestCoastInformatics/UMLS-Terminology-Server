@@ -206,7 +206,6 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
   public Map<String, String> getExecutionInfo() {
     if (executionInfo == null) {

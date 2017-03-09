@@ -262,8 +262,13 @@ public class GeneratedMergeAlgorithm extends AbstractMergeAlgorithm {
   public void setProperties(Properties p) throws Exception {
 
     if (p.getProperty("queryType") != null) {
-      queryType = Enum.valueOf(QueryType.class,
-          String.valueOf(p.getProperty("queryType")));
+      final String qt = p.getProperty("queryType");
+      // legacy handling
+      if (qt.equals("JQL")) {
+        queryType = QueryType.JPQL;
+      } else {
+        queryType = Enum.valueOf(QueryType.class, qt);
+      }
     }
     if (p.getProperty("query") != null) {
       query = String.valueOf(p.getProperty("query"));

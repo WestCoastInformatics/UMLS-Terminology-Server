@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.Query;
+
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
@@ -415,12 +417,34 @@ public class WriteRrfMetadataFilesAlgorithm
     String queryStr = "select distinct name "
         + "from AttributeJpa a where a.terminology = :terminology"
         + " and a.publishable = true";
-    javax.persistence.Query query = manager.createQuery(queryStr);
+    Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     @SuppressWarnings("unchecked")
-    List<String> list = query.getResultList();
+    final List<String> list = query.getResultList();
+
+    // SUBSETMEMBER
+    queryStr = "select count(*) "
+        + "from AtomSubsetMemberJpa a where a.terminology = :terminology"
+        + " and a.publishable = true";
+    query = manager.createQuery(queryStr);
+    query.setParameter("terminology", terminology);
+
+    Long ct = (Long) query.getSingleResult();
+    if (ct > 0) {
+      list.add("SUBSET_MEMBER");
+    } else {
+      queryStr = "select count(*) "
+          + "from ConceptSubsetMemberJpa a where a.terminology = :terminology"
+          + " and a.publishable = true";
+      query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      ct = (Long) query.getSingleResult();
+      if (ct > 0) {
+        list.add("SUBSET_MEMBER");
+      }
+    }
     Collections.sort(list);
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     for (final String atn : list) {
       sb.append(atn).append(",");
     }
@@ -428,6 +452,7 @@ public class WriteRrfMetadataFilesAlgorithm
       return sb.toString().substring(0, sb.toString().length() - 1);
     }
     return "";
+
   }
 
   /**

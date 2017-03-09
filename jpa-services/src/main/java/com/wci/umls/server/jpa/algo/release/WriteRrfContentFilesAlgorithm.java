@@ -2293,7 +2293,7 @@ public class WriteRrfContentFilesAlgorithm
       // e.g.
       // C0000097|||R94999574|RUI||AT110096379||CHARACTERISTIC_TYPE_ID|SNOMEDCT_US|900000000000011006|N||
       if (ruiAttributeTerminologies.contains(a.getTerminology())) {
-        for (final AtomRelationship rel : a.getRelationships()) {
+        for (final AtomRelationship rel : a.getInverseRelationships()) {
           if (!rel.isPublishable()) {
             continue;
           }
@@ -2437,7 +2437,7 @@ public class WriteRrfContentFilesAlgorithm
 
         // Source concept relationship attributes (RUIs)
         if (ruiAttributeTerminologies.contains(scui.getTerminology())) {
-          for (final ConceptRelationship rel : scui.getRelationships()) {
+          for (final ConceptRelationship rel : scui.getInverseRelationships()) {
             if (!rel.isPublishable()) {
               continue;
             }

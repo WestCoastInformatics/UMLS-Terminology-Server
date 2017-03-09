@@ -105,10 +105,11 @@ public abstract class AbstractMergeAlgorithm
     // If Atoms are in the same concept, DON'T perform merge, and log that the
     // atoms are already merged.
     if (conceptId.equals(conceptId2)) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
-          getActivityId(), getWorkId(),
-          "Skip merging atom " + atomId + " with atom " + atomId2
-              + " - atoms are both already in the same concept " + conceptId);
+      // Too many entries for large merge sets
+      // addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
+      // getActivityId(), getWorkId(),
+      // "Skip merging atom " + atomId + " with atom " + atomId2
+      // + " - atoms are both already in the same concept " + conceptId);
 
       statsMap.put("unsuccessfulMerges",
           statsMap.get("unsuccessfulMerges") + 1);
@@ -184,14 +185,15 @@ public abstract class AbstractMergeAlgorithm
           // do NOT make demotion, and add log entry saying why
           for (final ConceptRelationship rel : fromConcept.getRelationships()) {
             if (rel.getTo().getId() == toConcept.getId()) {
-              addLogEntry(getLastModifiedBy(), getProject().getId(),
-                  fromConcept.getId(), getActivityId(), getWorkId(),
-                  "Did not create demotion to concept " + toConcept.getId()
-                      + " - relationship between concepts already exist.");
-              addLogEntry(getLastModifiedBy(), getProject().getId(),
-                  toConcept.getId(), getActivityId(), getWorkId(),
-                  "Did not create demotion from concept " + fromConcept.getId()
-                      + " - relationship between concepts already exist.");
+              // Too many for a large mergeset
+              // addLogEntry(getLastModifiedBy(), getProject().getId(),
+              // fromConcept.getId(), getActivityId(), getWorkId(),
+              // "Did not create demotion to concept " + toConcept.getId()
+              // + " - relationship between concepts already exist.");
+              // addLogEntry(getLastModifiedBy(), getProject().getId(),
+              // toConcept.getId(), getActivityId(), getWorkId(),
+              // "Did not create demotion from concept " + fromConcept.getId()
+              // + " - relationship between concepts already exist.");
               return;
             }
           }
