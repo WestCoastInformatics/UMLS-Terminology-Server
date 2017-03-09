@@ -74,6 +74,7 @@ public abstract class AbstractMergeAlgorithm
       cacheAtomsConcepts();
     }
 
+    System.out.println("XXX1=" + atomId + ", " + atomId2);
     // Get the two concepts associated with the two atoms
     final Long conceptId = atomsConcepts.get(atomId);
     final Long conceptId2 = atomsConcepts.get(atomId2);
@@ -91,10 +92,11 @@ public abstract class AbstractMergeAlgorithm
     // If Atoms are in the same concept, DON'T perform merge, and log that the
     // atoms are already merged.
     if (conceptId.equals(conceptId2)) {
-      addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
-          getActivityId(), getWorkId(),
-          "Skip merging atom " + atomId + " with atom " + atomId2
-              + " - atoms are both already in the same concept " + conceptId);
+      // Too many entries for large merge sets
+      // addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
+      // getActivityId(), getWorkId(),
+      // "Skip merging atom " + atomId + " with atom " + atomId2
+      // + " - atoms are both already in the same concept " + conceptId);
 
       statsMap.put("unsuccessfulMerges",
           statsMap.get("unsuccessfulMerges") + 1);
@@ -110,7 +112,7 @@ public abstract class AbstractMergeAlgorithm
 
     final Concept concept = getConcept(conceptId);
     final Concept concept2 = getConcept(conceptId2);
-
+    System.out.println("XXX=" + conceptId + ", " + conceptId2);
     if (concept.getAtoms().size() < concept2.getAtoms().size()) {
       fromConcept = concept;
       fromAtom = getAtom(atomId);
@@ -170,14 +172,15 @@ public abstract class AbstractMergeAlgorithm
           // do NOT make demotion, and add log entry saying why
           for (final ConceptRelationship rel : fromConcept.getRelationships()) {
             if (rel.getTo().getId() == toConcept.getId()) {
-              addLogEntry(getLastModifiedBy(), getProject().getId(),
-                  fromConcept.getId(), getActivityId(), getWorkId(),
-                  "Did not create demotion to concept " + toConcept.getId()
-                      + " - relationship between concepts already exist.");
-              addLogEntry(getLastModifiedBy(), getProject().getId(),
-                  toConcept.getId(), getActivityId(), getWorkId(),
-                  "Did not create demotion from concept " + fromConcept.getId()
-                      + " - relationship between concepts already exist.");
+              // Too many for a large mergeset
+              // addLogEntry(getLastModifiedBy(), getProject().getId(),
+              // fromConcept.getId(), getActivityId(), getWorkId(),
+              // "Did not create demotion to concept " + toConcept.getId()
+              // + " - relationship between concepts already exist.");
+              // addLogEntry(getLastModifiedBy(), getProject().getId(),
+              // toConcept.getId(), getActivityId(), getWorkId(),
+              // "Did not create demotion from concept " + fromConcept.getId()
+              // + " - relationship between concepts already exist.");
               return;
             }
           }
@@ -505,8 +508,7 @@ public abstract class AbstractMergeAlgorithm
     // Load alternateTerminologyIds
     Query query = getEntityManager()
         .createQuery("select c.id, a.id from ConceptJpa c join c.atoms a "
-            + "where c.publishable=true and a.publishable=true and "
-            + "c.terminology=:projectTerminology and c.version=:projectVersion");
+            + "where c.terminology=:projectTerminology and c.version=:projectVersion");
     query.setParameter("projectTerminology", getProject().getTerminology());
     query.setParameter("projectVersion", getProject().getVersion());
 
