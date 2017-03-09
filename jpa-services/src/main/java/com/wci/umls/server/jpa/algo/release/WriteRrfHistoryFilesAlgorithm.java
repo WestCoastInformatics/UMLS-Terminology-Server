@@ -464,10 +464,11 @@ public class WriteRrfHistoryFilesAlgorithm
         new DefaultComputePreferredNameHandler();
 
     String queryStr = null;
-    queryStr = "select distinct a.id, b.id "
-        + "from ConceptJpa a join a.atoms aa, ConceptJpa b join b.atoms ba "
-        + "where aa.id = ba.id and a.terminology = 'NCI' "
-        + "  and aa.termType = 'PT' and b.terminology = :projectTerminology";
+    queryStr = "select distinct scui.id, cui.id "
+        + "from ConceptJpa cui join cui.atoms aa, "
+        + "     ConceptJpa scui join scui.atoms ba "
+        + "where aa.id = ba.id and scui.terminology = 'NCI' "
+        + "  and aa.termType = 'PT' and cui.terminology = :projectTerminology";
     final Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());

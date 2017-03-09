@@ -102,6 +102,7 @@ public class ValidateReleaseAlgorithm
         "MRDOC", "MRX"
     };
     for (final String target : targets) {
+      logInfo("  VALIDATE " + target);
       ConfigUtility.exec(new String[] {
           cmd, meta, target, prevMeta
       }, new String[] {}, false, binDir, logBridge, true);

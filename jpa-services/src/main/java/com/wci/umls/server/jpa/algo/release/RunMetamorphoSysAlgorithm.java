@@ -79,12 +79,6 @@ public class RunMetamorphoSysAlgorithm
           "Unexpected missing file = " + pathRelease + "/METASUBSET");
     }
 
-    // Expect that "path/$release/MMSYS does NOT exists"
-    if (new File(pathRelease, "MMSYS").exists()) {
-      throw new Exception(
-          "Unexpected directory exists = " + pathRelease + "/MMSYS");
-    }
-
     return result;
   }
 
@@ -98,6 +92,12 @@ public class RunMetamorphoSysAlgorithm
         + getProcess().getInputPath());
     final File pathMeta = new File(path, "/META");
     final File pathRelease = new File(path, getProcess().getVersion());
+
+    // If "path/$release/MMSYS does exists already, remove it"
+    if (new File(pathRelease, "MMSYS").exists()) {
+      logInfo("  Remove directory = " + pathRelease + "/MMSYS");
+      FileUtils.deleteDirectory(new File(pathRelease, "MMSYS"));
+    }
 
     // Unzip "path/META/mmsys.zip" into "path/$release/MMSYS"
     logInfo("  Unzip " + pathMeta.getPath() + "/mmsys.zip");
