@@ -203,6 +203,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         } else {
           // Check for current version CUIs first.
           // If not found, check for previous version CUIs.
+          // (Can merge FROM an old Or new CUI)
           component = getComponent(fields[8], fields[0],
               getProcess().getTerminology() + getProcess().getVersion(), null);
           if (component == null) {
