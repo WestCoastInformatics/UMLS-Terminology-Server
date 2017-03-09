@@ -2656,6 +2656,10 @@ public class RrfLoaderAlgorithm extends AbstractTerminologyLoaderAlgorithm {
         if (style == Style.MULTI && fields[10].equals("SRC")) {
           continue;
         }
+        // Skip SIB rels for "meta edit" load
+        if (style == Style.META_EDIT && fields[3].equals("SIB")) {
+          continue;
+        }
         // Field description
         // 0 CUI1
         // 1 AUI1

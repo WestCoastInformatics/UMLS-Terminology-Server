@@ -1012,11 +1012,10 @@ public class ReportServiceJpa extends HistoryServiceJpa
     return list;
   }
 
-  /* see superclass */ 
+  /* see superclass */
   @Override
   public Report generateReport(Project project, String name, String query,
-    QueryType queryType, IdType resultType)
-    throws Exception {
+    QueryType queryType, IdType resultType) throws Exception {
 
     final List<Object[]> list = executeReportQuery(query, queryType,
         getDefaultQueryParams(project), false);

@@ -194,8 +194,26 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
 
         // Load the two atoms specified by the mergefacts line, or the preferred
         // name atoms if they are containing component
-        final Component component = getComponent(fields[8], fields[0],
-            getCachedTerminologyName(fields[9]), null);
+        // If the type is 'CUI', this is a umls CUI, and needs to be handled
+        // differently than any other component.
+        Component component = null;
+        if (!fields[8].equals("CUI")) {
+          component = getComponent(fields[8], fields[0],
+              getCachedTerminologyName(fields[9]), null);
+        } else {
+          // Check for current version CUIs first.
+          // If not found, check for previous version CUIs.
+          // (Can merge FROM an old Or new CUI)
+          component = getComponent(fields[8], fields[0],
+              getProcess().getTerminology() + getProcess().getVersion(), null);
+          if (component == null) {
+            component =
+                getComponent(fields[8], fields[0],
+                    getProcess().getTerminology()
+                        + getPreviousVersion(getProcess().getTerminology()),
+                    null);
+          }
+        }
         if (component == null) {
           logWarn("WARNING - could not find Component for type: " + fields[8]
               + ", terminologyId: " + fields[0]
@@ -218,8 +236,18 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           continue;
         }
 
-        final Component component2 = getComponent(fields[10], fields[2],
-            getCachedTerminologyName(fields[11]), null);
+        // If the type is 'CUI', this is a umls CUI, and needs to be handled
+        // differently than any other component.
+        Component component2 = null;
+        if (!fields[10].equals("CUI")) {
+          component2 = getComponent(fields[10], fields[2],
+              getCachedTerminologyName(fields[11]), null);
+        } else {
+          // Only need to check for new CUIs (will never merge TO an old
+          // concept)
+          component2 = getComponent(fields[10], fields[2],
+              getProcess().getTerminology() + getProcess().getVersion(), null);
+        }
         if (component2 == null) {
           logWarn("WARNING - could not find Component for type: " + fields[10]
               + ", terminologyId: " + fields[2]

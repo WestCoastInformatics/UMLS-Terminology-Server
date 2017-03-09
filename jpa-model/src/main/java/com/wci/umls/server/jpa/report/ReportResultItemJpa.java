@@ -35,7 +35,7 @@ public class ReportResultItemJpa extends AbstractHasLastModified
   private String itemId;
 
   /** The item name. */
-  @Column(nullable = false)
+  @Column(nullable = false, length = 4000)
   private String itemName;
 
   /** The report result. */
