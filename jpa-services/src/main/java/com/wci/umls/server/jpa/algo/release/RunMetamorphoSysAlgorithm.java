@@ -241,8 +241,9 @@ public class RunMetamorphoSysAlgorithm
     for (final String file : new String[] {
         "MRDOC.RRF", "MRFILES.RRF", "MRCOLS.RRF", "release.dat"
     }) {
-      FileUtils.copyFile(new File(pathRelease.getPath() + "/META", file),
-          new File(pathRelease.getPath(), "METASUBSET"));
+      FileUtils.copyFileToDirectory(
+          new File(pathRelease.getPath() + "/METASUBSET", file),
+          new File(pathRelease.getPath(), "META"));
     }
 
     logInfo("Finishing " + getName());
