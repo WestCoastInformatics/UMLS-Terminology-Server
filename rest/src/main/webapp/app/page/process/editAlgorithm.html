@@ -45,16 +45,24 @@
         <!-- textarea -->
         <td
           ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') != -1">
-          <textarea ng-model="parameter.value" rows="4" class="w80"
-            title="{{parameter.description}}"
+          <i title="Show formatted query"
+            class="noul glyphicon glyphicon-refresh pull-right"
+            ng-click="show[$index] = !show[$index]"></i>
+          <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
+          <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
+            class="w80" title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
         </td>
         <!-- textarea for a query returning an id -->
         <td
           ng-show="parameter.type == 'QUERY_ID' && parameter.name.indexOf('Query') != -1">
-          <textarea ng-model="parameter.value" rows="4" class="w80"
-            title="{{parameter.description}}"
+          <i title="Show formatted query"
+            class="noul glyphicon glyphicon-refresh pull-right"
+            ng-click="show[$index] = !show[$index]"></i>
+          <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
+          <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
+            class="w80" title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
           <span ng-show="parameter.name.indexOf('Query') != -1">
@@ -65,8 +73,12 @@
         <!-- textarea for a query returning a pair of ids -->
         <td
           ng-show="parameter.type == 'QUERY_ID_PAIR' && parameter.name.indexOf('Query') != -1">
-          <textarea ng-model="parameter.value" rows="4" class="w80"
-            title="{{parameter.description}}"
+          <i title="Show formatted query"
+            class="noul glyphicon glyphicon-refresh pull-right"
+            ng-click="show[$index] = !show[$index]"></i>
+          <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
+          <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
+            class="w80" title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
           <span ng-show="parameter.name.indexOf('Query') != -1">

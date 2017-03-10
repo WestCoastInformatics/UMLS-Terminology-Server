@@ -122,8 +122,8 @@
             <tr ng-click="bin.enabled && selectBin(bin, 'all');"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id && bin.enabled}">
-              <td rowspan="4">{{bin.rank}}</td>
-              <td rowspan="4">
+              <td rowspan="{{bin.stats.length+1}}">{{bin.rank}}</td>
+              <td rowspan="{{bin.stats.length+1}}">
                 <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>
                 &nbsp;{{bin.name}}<br />
@@ -144,7 +144,7 @@
                     class="noul glyphicon glyphicon-trash"></i>
                 </span>
               </td>
-              <td rowspan="4">
+              <td rowspan="{{bin.stats.length+1}}">
                 Created: {{toDate(bin.creationTime)}} <br />Modified:
                 {{toDate(bin.lastModified)}}
                 <span ng-show="bin.required">
@@ -163,7 +163,7 @@
               <td>{{stats.stats.unassigned}}</td>
               <td class="nobreak">
                 <i confirm="Are you sure you want to regenerate the bin?"
-                  ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
+                  ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled && hasPermissions('CreateChecklist')"
                   ng-click="regenerateBin(bin)" ng-show="bin.enabled"
                   title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
                 <i

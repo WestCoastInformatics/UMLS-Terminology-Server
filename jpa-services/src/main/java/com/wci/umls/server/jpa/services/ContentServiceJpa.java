@@ -4392,14 +4392,19 @@ public class ContentServiceJpa extends MetadataServiceJpa
     String branch) throws Exception {
     Logger.getLogger(getClass())
         .debug("Content Service - get mapsets " + terminology + "/" + version);
-    final javax.persistence.Query query =
-        manager.createQuery("select a from MapSetJpa a where "
-            + "version = :version and terminology = :terminology");
+    javax.persistence.Query query;
+    String queryStr = "select a from MapSetJpa a ";
+    if (terminology != null && version != null) {
+      queryStr += " where version = :version and terminology = :terminology";
+      query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      query.setParameter("version", version);
+    } else {
+      query = manager.createQuery(queryStr);
+    }
     // Try to retrieve the single expected result If zero or more than one
     // result are returned, log error and set result to null
     try {
-      query.setParameter("terminology", terminology);
-      query.setParameter("version", version);
       @SuppressWarnings("unchecked")
       final List<MapSet> m = query.getResultList();
       final MapSetListJpa mapSetList = new MapSetListJpa();

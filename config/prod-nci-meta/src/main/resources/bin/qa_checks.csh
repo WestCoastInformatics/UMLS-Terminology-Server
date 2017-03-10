@@ -2409,7 +2409,7 @@ else if ($target == "MRSAB") then
 	set vsab_cui_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n" if ($_[2] !~ /^(NCIMTH|NLM-MED|SRC)$/ && $_[21] eq "Y");' $mrsab | sort -u | wc -l`;
     echo "    Verify VCUI count = VSAB count (excludes NCIMTH,NLM-MED,SRC)"
     # avoid this check for the mini
-    if ($vcui_cnt != $vsab_cui_cnt && $notMini) then
+    if ($vcui_cnt != $vsab_cui) then
         echo "ERROR: VCUI count ($vcui_cnt) != VSAB count ($vsab_cui_cnt) (excludes NCIMTH,NLM-MED,SRC)"
     endif
 
