@@ -82,7 +82,8 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
       atomRanks.put(atom, rank);
     }
     // Sort by atom rank - this works because atom ranks are designed to be
-    // fixed-length strings that are directly comparable
+    // fixed-length strings that are directly comparable where higher 
+    // values are ranked better
     Collections.sort(sortedAtoms, new Comparator<Atom>() {
       @Override
       public int compare(Atom o1, Atom o2) {
