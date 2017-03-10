@@ -282,7 +282,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
       // Log it
       addLogEntry(getLastModifiedBy(), getProject().getId(), newAtomId,
-          getActivityId(), getWorkId(), "Preformed safe replace on new Atom: "
+          getActivityId(), getWorkId(), "Performed safe replace on new Atom: "
               + newAtomId + " using old Atom: " + oldAtomId);
 
       // Update the progress
@@ -290,7 +290,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     }
 
     commitClearBegin();
-
+    
+    logInfo("  new atoms safe-replaced = " + safeReplacedAtomIds.size());
     logInfo("Finished " + getName());
 
   }

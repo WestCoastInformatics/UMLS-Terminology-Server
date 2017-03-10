@@ -982,9 +982,13 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     for (final Long[] result : results) {
       clustersEncountered.add(result[0]);
 
+      final PfsParameter localPfs =
+          (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
       // Keep only prescribed range from the query
-      if (pfs != null && ((clustersEncountered.size() - 1) < pfs.getStartIndex()
-          || clustersEncountered.size() > pfs.getMaxResults())) {
+      if ((localPfs.getStartIndex() > -1
+          && (clustersEncountered.size() - 1) < localPfs.getStartIndex())
+          || (localPfs.getMaxResults() > -1
+              && clustersEncountered.size() > localPfs.getMaxResults())) {
         continue;
       }
 

@@ -232,9 +232,11 @@ public class ContextLoaderAlgorithm
         logInfo("  added tree position count = " + addedTreePositions);
       }
 
-      // Get all referenced terminology Names
+      // Get all terminology Names referenced in sources.src
+      final Set<Terminology> referencedTerminologies =
+          getReferencedTerminologies();
       final Set<String> referencedTerminologyNames = new HashSet<>();
-      for (final Terminology terminology : allReferencedTerminologies) {
+      for (final Terminology terminology : referencedTerminologies) {
         referencedTerminologyNames.add(terminology.getTerminology());
       }
 
@@ -244,7 +246,7 @@ public class ContextLoaderAlgorithm
           new ArrayList<>();
 
       // Get all non-current versions of terminologies referenced in
-      // contexts.src
+      // sources.src
       for (final Terminology terminology : allTerminologies.getObjects()) {
         if (referencedTerminologyNames.contains(terminology.getTerminology())
             && !terminology.isCurrent()) {
@@ -297,14 +299,29 @@ public class ContextLoaderAlgorithm
       clazz = AtomTreePositionJpa.class;
     }
 
-    Query query = manager.createQuery("SELECT a.id FROM "
-        + clazz.getSimpleName() + " a WHERE terminology = :terminology "
-        + " AND version = :version");
+    // Attempt to remove tree positions for organizing class type (if not Atom
+    // Tree Positon)
+    if (clazz != AtomTreePositionJpa.class) {
+      Query query = manager.createQuery("SELECT a.id FROM "
+          + clazz.getSimpleName() + " a WHERE terminology = :terminology "
+          + " AND version = :version");
+      query.setParameter("terminology", term.getTerminology());
+      query.setParameter("version", term.getVersion());
+      for (final Long id : (List<Long>) query.getResultList()) {
+        removeTreePosition(id,
+            (Class<? extends TreePosition<? extends AtomClass>>) clazz);
+        logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
+      }
+    }
+
+    // Attempt again for AtomTreePositionJpa.class
+    Query query = manager.createQuery(
+        "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology "
+            + " AND version = :version");
     query.setParameter("terminology", term.getTerminology());
     query.setParameter("version", term.getVersion());
     for (final Long id : (List<Long>) query.getResultList()) {
-      removeTreePosition(id,
-          (Class<? extends TreePosition<? extends AtomClass>>) clazz);
+      removeTreePosition(id, AtomTreePositionJpa.class);
       logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
     }
 
@@ -345,15 +362,27 @@ public class ContextLoaderAlgorithm
     //
     // Compute tree positions
     //
-    TreePositionAlgorithm algo2 = null;
 
     // Only compute for organizing class types
     if (terminology.getOrganizingClassType() != null) {
-      algo2 = new TreePositionAlgorithm();
+      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setLastModifiedBy(getLastModifiedBy());
       algo2.setTerminology(terminology.getTerminology());
       algo2.setVersion(terminology.getVersion());
       algo2.setIdType(terminology.getOrganizingClassType());
+      algo2.setWorkId(getWorkId());
+      algo2.setActivityId(getActivityId());
+      algo2.setCycleTolerant(false);
+      algo2.setComputeSemanticType(false);
+      algo2.setProject(getProject());
+      algo2.compute();
+      algo2.close();
+
+      algo2 = new TreePositionAlgorithm();
+      algo2.setLastModifiedBy(getLastModifiedBy());
+      algo2.setTerminology(terminology.getTerminology());
+      algo2.setVersion(terminology.getVersion());
+      algo2.setIdType(IdType.ATOM);
       algo2.setWorkId(getWorkId());
       algo2.setActivityId(getActivityId());
       algo2.setCycleTolerant(false);
