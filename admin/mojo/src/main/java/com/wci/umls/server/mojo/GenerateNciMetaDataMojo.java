@@ -2918,7 +2918,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add PackageReleaseAlgorithm
+    // Package release
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PACKAGERRFRELEASE");
+    algoConfig.setDescription("PACKAGERRFRELEASE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PACKAGERRFRELEASE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);

@@ -186,7 +186,7 @@ public class WriteRrfMetadataFilesAlgorithm
     for (final MapSet mapset : getMapSets(null, null, Branch.ROOT)
         .getObjects()) {
       final Terminology mapsetTerm =
-          getTerminology(mapset.getTerminology(), mapset.getVersion());
+          getTerminology(mapset.getToTerminology(), mapset.getToVersion());
       if (!mapsetTerm.isCurrent()) {
         terminologies.add(mapsetTerm);
       }

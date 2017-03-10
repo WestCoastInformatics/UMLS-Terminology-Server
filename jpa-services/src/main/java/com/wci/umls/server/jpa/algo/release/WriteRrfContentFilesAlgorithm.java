@@ -213,6 +213,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
@@ -258,6 +259,7 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
@@ -303,6 +305,7 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
