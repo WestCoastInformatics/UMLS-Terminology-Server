@@ -121,7 +121,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
     // [publishable][obsolete][suppressible][tty rank][lrr][SUI][atomId]
     // Higher values are better.
     if (!atom.getStringClassId().isEmpty()) {
-      return (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
+      return "" +(atom.isPublishable() ? 1 : 0) +(atom.isObsolete() ? 0 : 1)
           + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank()
@@ -129,7 +129,7 @@ public class RrfComputePreferredNameHandler extends AbstractConfigurable
               - Long.parseLong(atom.getStringClassId().substring(1)))
           + (100000000000L - atom.getId());
     } else {
-      return (atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
+      return "" +(atom.isPublishable() ? 1 : 0) + (atom.isObsolete() ? 0 : 1)
           + (atom.isSuppressible() ? 0 : 1)
           + ttyRanks.get(atom.getTerminology() + "/" + atom.getTermType())
           + atom.getLastPublishedRank() + (100000000000L - atom.getId());

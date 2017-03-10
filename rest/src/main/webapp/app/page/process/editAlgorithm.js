@@ -12,7 +12,7 @@ tsApp.controller('AlgorithmModalCtrl', [
   function($scope, $uibModalInstance, utilService, processService, selected,
     lists, user, algorithm, action) {
     console.debug("configure AlgorithmModalCtrl", algorithm, action);
-
+    
     // Scope vars
     $scope.action = action;
     $scope.algorithm = angular.copy(algorithm);

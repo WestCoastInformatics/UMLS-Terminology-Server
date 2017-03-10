@@ -4,11 +4,9 @@
 package com.wci.umls.server.jpa.algo.maint;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 
 import com.wci.umls.server.AlgorithmParameter;
@@ -18,7 +16,6 @@ import com.wci.umls.server.helpers.QueryType;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.ComponentInfoRelationshipJpa;
-import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Component;
 import com.wci.umls.server.model.content.ComponentInfoRelationship;
 import com.wci.umls.server.model.meta.IdType;
@@ -74,16 +71,13 @@ public class ComponentInfoRelRemapperAlgorithm
           terminology.getVersion());
     }
 
-    // Create a cache for to/from components that are updated by this algorithm
-    final Set<Component> updatedComponents = new HashSet<>();
-
     // Find all publishable component info relationships
     final String query = "SELECT r.id FROM ComponentInfoRelationshipJpa r "
         + "WHERE r.publishable=true";
 
     final List<Long> componentInfoRelIds = executeSingleComponentIdQuery(query,
         QueryType.JPQL, getDefaultQueryParams(getProject()),
-        ComponentInfoRelationshipJpa.class,false);
+        ComponentInfoRelationshipJpa.class, false);
 
     setSteps(componentInfoRelIds.size());
 
@@ -103,40 +97,24 @@ public class ComponentInfoRelRemapperAlgorithm
 
       // If from component doesn't exist, mark the relationship as unpublishable
       // (and warn)
-      if (fromComponent == null) {
+      if (fromComponent == null || !fromComponent.isPublishable()) {
         componentInfoRelationship.setPublishable(false);
+        updateRelationship(componentInfoRelationship);
         logWarn(
-            "WARNING - from component cannot be found for component info relationship = "
+            "WARNING - publishable from component cannot be found for component info relationship = "
                 + componentInfoRelationship);
         updateProgress();
         continue;
       }
 
-      // If a previous step already updated this component (e.g. from this
-      // relationship's inverse), update the relationship
-      if (updatedComponents.contains(fromComponent)) {
-        componentInfoRelationship.setFrom(fromComponent);
-        relNeedsUpdating = true;
-      }
-
       // If from component exists and the terminology is not the current
       // version, make it the current version (and updateRelationship)
-      else if (!fromComponent.getVersion().equals(
+      if (!fromComponentInfo.getVersion().equals(
           currentTerminologyVersions.get(fromComponent.getTerminology()))) {
-        fromComponent.setVersion(
+        fromComponentInfo.setVersion(
             currentTerminologyVersions.get(fromComponent.getTerminology()));
-        updateComponent(fromComponent);
 
-        // Handle ComponentInfoRelationship atom components
-        // Change terminology and version from atom's to project's
-        if (fromComponent instanceof Atom) {
-          fromComponent.setTerminology(getProject().getTerminology());
-          fromComponent.setVersion(getProject().getVersion());
-        }
-        
-        updatedComponents.add(fromComponent);
-
-        componentInfoRelationship.setFrom(fromComponent);
+        componentInfoRelationship.setFrom(fromComponentInfo);
         relNeedsUpdating = true;
       }
 
@@ -149,40 +127,24 @@ public class ComponentInfoRelRemapperAlgorithm
 
       // If to component doesn't exist, mark the relationship as unpublishable
       // (and warn)
-      if (toComponent == null) {
+      if (toComponent == null || !toComponent.isPublishable()) {
         componentInfoRelationship.setPublishable(false);
+        updateRelationship(componentInfoRelationship);
         logWarn(
-            "WARNING - to component cannot be found for component info relationship = "
+            "WARNING - publishable to component cannot be found for component info relationship = "
                 + componentInfoRelationship);
         updateProgress();
         continue;
       }
 
-      // If a previous step already updated this component (e.g. from this
-      // relationship's inverse), update the relationship
-      if (updatedComponents.contains(toComponent)) {
-        componentInfoRelationship.setTo(toComponent);
-        relNeedsUpdating = true;
-      }
-
       // If to component exists and the terminology is not the current
       // version, make it the current version (and updateRelationship)
-      else if (!toComponent.getVersion().equals(
-          currentTerminologyVersions.get(toComponent.getTerminology()))) {
-        toComponent.setVersion(
-            currentTerminologyVersions.get(toComponent.getTerminology()));
-        updateComponent(toComponent);
-        
-        // Handle ComponentInfoRelationship atom components
-        // Change terminology and version from atom's to project's
-        if (toComponent instanceof Atom) {
-          toComponent.setTerminology(getProject().getTerminology());
-          toComponent.setVersion(getProject().getVersion());
-        }
-        
-        updatedComponents.add(toComponent);
+      if (!toComponentInfo.getVersion().equals(
+          currentTerminologyVersions.get(toComponentInfo.getTerminology()))) {
+        toComponentInfo.setVersion(
+            currentTerminologyVersions.get(toComponentInfo.getTerminology()));
 
-        componentInfoRelationship.setTo(toComponent);
+        componentInfoRelationship.setTo(toComponentInfo);
         relNeedsUpdating = true;
       }
 
