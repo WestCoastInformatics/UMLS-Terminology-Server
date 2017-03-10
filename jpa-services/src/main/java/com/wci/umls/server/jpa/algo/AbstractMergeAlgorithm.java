@@ -79,6 +79,19 @@ public abstract class AbstractMergeAlgorithm
     final Long conceptId = atomsConcepts.get(atomId);
     final Long conceptId2 = atomsConcepts.get(atomId2);
 
+    if (conceptId == null) {
+      addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId,
+          getActivityId(), getWorkId(),
+          "FAIL no project concept found for atom=" + atomId);
+      return;
+    }
+    if (conceptId2 == null) {
+      addLogEntry(getLastModifiedBy(), getProject().getId(), conceptId2,
+          getActivityId(), getWorkId(),
+          "FAIL no project concept found for atom=" + atomId2);
+      return;
+    }
+
     // If this concept pair has already had a merge attempted on it, don't try
     // it again
     if (conceptPairs.contains(conceptId + "|" + conceptId2)) {
@@ -86,7 +99,7 @@ public abstract class AbstractMergeAlgorithm
     } else {
       conceptPairs.add(conceptId + "|" + conceptId2);
       conceptPairs.add(conceptId2 + "|" + conceptId);
-      statsMap.put("conceptPairs", conceptPairs.size());
+      statsMap.put("conceptPairs", statsMap.get("conceptPairs") + 1);
     }
 
     // If Atoms are in the same concept, DON'T perform merge, and log that the

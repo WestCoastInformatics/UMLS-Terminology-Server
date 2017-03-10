@@ -389,20 +389,6 @@
       "workflowConfigId": 52
     },
     {
-      "id": 1060,
-      "lastModified": 1488820266000,
-      "lastModifiedBy": "RAW",
-      "timestamp": 1488820266000,
-      "name": "deleted_cui_split",
-      "description": "Complex split/merge case CUIs that are going away - will need bequeathal",
-      "query": "SELECT c.id conceptId from concepts c where c.id=9999999",
-      "queryType": "SQL",
-      "editable": true,
-      "enabled": true,
-      "required": false,
-      "workflowConfigId": 52
-    },
-    {
       "id": 1062,
       "lastModified": 1488820319000,
       "lastModifiedBy": "RAW",

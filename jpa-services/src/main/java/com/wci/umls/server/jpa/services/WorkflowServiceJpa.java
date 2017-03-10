@@ -976,8 +976,6 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final List<Long[]> results = executeClusteredConceptQuery(query, queryType,
         getDefaultQueryParams(project), false);
 
-    final PfsParameter localPfs =
-        (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
     // keys should remain sorted
     final Set<Long> clustersEncountered = new HashSet<>();
     final Map<Long, List<Long>> entries = new TreeMap<>();
@@ -985,8 +983,8 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       clustersEncountered.add(result[0]);
 
       // Keep only prescribed range from the query
-      if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
-          || clustersEncountered.size() > localPfs.getMaxResults()) {
+      if (pfs != null && ((clustersEncountered.size() - 1) < pfs.getStartIndex()
+          || clustersEncountered.size() > pfs.getMaxResults())) {
         continue;
       }
 

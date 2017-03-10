@@ -126,6 +126,7 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
     statsMap.put("atomPairsLoadedFromMergefacts", 0);
     statsMap.put("atomPairsRemovedByFilters", 0);
     statsMap.put("atomPairsRemainingAfterFilters", 0);
+    statsMap.put("conceptPairs", 0);
     statsMap.put("successfulMerges", 0);
     statsMap.put("unsuccessfulMerges", 0);
     statsMap.put("successfulDemotions", 0);
@@ -318,6 +319,8 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
           + statsMap.get("atomPairsRemovedByFilters"));
       logInfo("  atom pairs remaining after filters count = "
           + statsMap.get("atomPairsRemainingAfterFilters"));
+      logInfo("  unique concept-pair merges attempted = "
+          + statsMap.get("conceptPairs"));
       logInfo("  merges successfully performed count = "
           + statsMap.get("successfulMerges"));
       logInfo("  unsuccessful merges count = "

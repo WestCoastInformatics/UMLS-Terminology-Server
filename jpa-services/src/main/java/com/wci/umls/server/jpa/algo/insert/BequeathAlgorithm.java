@@ -28,6 +28,9 @@ import com.wci.umls.server.model.workflow.WorkflowStatus;
  */
 public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
+  /** The add count. */
+  private int addCount = 0;
+
   /**
    * Instantiates an empty {@link BequeathAlgorithm}.
    * @throws Exception if anything goes wrong
@@ -144,11 +147,13 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           bequeathRel.setTo(toConcept);
           bequeathRel.setWorkflowStatus(WorkflowStatus.READY_FOR_PUBLICATION);
           bequeathRel = (ConceptRelationship) addRelationship(bequeathRel);
+          addCount++;
 
           ConceptRelationship inverseBequeathRel =
               createInverseConceptRelationship(bequeathRel);
           inverseBequeathRel =
               (ConceptRelationship) addRelationship(inverseBequeathRel);
+          addCount++;
 
           fromConcept.getRelationships().add(bequeathRel);
           toConcept.getRelationships().add(inverseBequeathRel);
@@ -162,6 +167,8 @@ public class BequeathAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       }
 
       commitClearBegin();
+
+      logInfo("  added count = " + addCount);
 
       logInfo("Finished " + getName());
 
