@@ -45,6 +45,14 @@ tsApp.controller('BinModalCtrl', [
       $scope.allowSave = false;
     }
 
+    // Formatter for SQL
+    $scope.getSql = function(sql) {
+      if (sql) {
+        return sqlFormatter.format(sql);
+      }
+      return "";
+    }
+
     // Turn allow save off when query changed
     $scope.queryChanged = function() {
       $scope.allowSave = false;

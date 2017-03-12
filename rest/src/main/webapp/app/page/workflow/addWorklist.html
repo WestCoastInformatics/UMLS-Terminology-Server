@@ -1,72 +1,74 @@
-<div class="modal-header">
-  <h4 style="display: inline">Create Worklist</h4>
-  <span style="float: right">
-    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
-  </span>
-</div>
+<form ng-submit="createWorklist()">
+  <div class="modal-header">
+    <h4 style="display: inline">Create Worklist</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
 
-<div class="modal-body">
-  <table class="slim table">
-    <tr>
-      <td>
-        <b>Bin</b>
-      </td>
-      <td>
-        {{bin.name}}
-        <span ng-show="clusterType != 'default'"> ({{clusterType}})</span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Cluster Count</b>
-      </td>
-      <td>
-        <input autofocus type="number" size="4" ng-model="clusterCt"
-          list="clusterCtList" placeholder="e.g. 100, 200" />
-        <datalist id="clusterCtList">
-          <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
-        </datalist>
-        <button class="btn btn-xs btn-warning" ng-show="clusterCt"
-          ng-click="clusterCt = ''">Clear</button>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Skip Clusters</b>
-      </td>
-      <td>
-        <input type="number" ng-model="skipClusterCt" size="4" />
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Sort order</b>
-      </td>
-      <td>
-        <select ng-model="sortOrder" title="Sort order for creating worklist">
-          <option value="clusterId">Cluster id</option>
-          <option value="indexedData">Name</option>
-          <option value="RANDOM">Randomize</option>
-        </select>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Number of Worklists</b>
-      </td>
-      <td>
-        <input type="number" ng-model="numberOfWorklists" size="4" />
-      </td>
-    </tr>
-  </table>
+  <div class="modal-body">
+    <table class="slim table">
+      <tr>
+        <td>
+          <b>Bin</b>
+        </td>
+        <td>
+          {{bin.name}}
+          <span ng-show="clusterType != 'default'"> ({{clusterType}})</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Cluster Count</b>
+        </td>
+        <td>
+          <input autofocus type="number" size="4" ng-model="clusterCt"
+            list="clusterCtList" placeholder="e.g. 100, 200" />
+          <datalist id="clusterCtList">
+            <option ng-repeat="ct in clusterCtOptions" value="{{ct}}">{{ct}}</option>
+          </datalist>
+          <span class="btn btn-xs btn-warning" ng-show="clusterCt"
+            ng-click="clusterCt = ''">Clear</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Skip Clusters</b>
+        </td>
+        <td>
+          <input type="number" ng-model="skipClusterCt" size="4" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Sort order</b>
+        </td>
+        <td>
+          <select ng-model="sortOrder" title="Sort order for creating worklist">
+            <option value="clusterId">Cluster id</option>
+            <option value="indexedData">Name</option>
+            <option value="RANDOM">Randomize</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Number of Worklists</b>
+        </td>
+        <td>
+          <input type="number" ng-model="numberOfWorklists" size="4" />
+        </td>
+      </tr>
+    </table>
 
-  <!-- Errors -->
-  <div errors="errors"></div>
+    <!-- Errors -->
+    <div errors="errors"></div>
 
-</div>
+  </div>
 
-{{completionMessage}}
-<div class="modal-footer">
-  <button class="btn btn-primary" ng-click="createWorklist();">Add</button>
-  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-</div>
+  {{completionMessage}}
+  <div class="modal-footer">
+    <button class="btn btn-primary">Add</button>
+    <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
+  </div>
+</form>

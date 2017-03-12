@@ -267,6 +267,10 @@ h5 {
 	width: 80%;
 	max-width: 80%;
 }
+.w90 {
+	width: 90%;
+	max-width: 90%;
+}
 
 .tab-disabled {
 	color: gray;

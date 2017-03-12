@@ -34,10 +34,20 @@ tsApp.controller('ChecklistModalCtrl', [
     $scope.errors = [];
     $scope.warnings = [];
 
+    // Submit checklist
+    $scope.submitChecklist = function() {
+      if ($scope.action == 'Add') {
+        $scope.createChecklist();
+      } else if ($scope.action == 'Compute') {
+        $scope.computeChecklist();
+      }
+    }
+
     // Create the checklist
     $scope.createChecklist = function() {
+      $scope.errors = new Array();
       if (!$scope.name) {
-        window.alert('The name field cannot be blank. ');
+        $scope.errors.push('Checklist name must be set');
         return;
       }
 
@@ -62,15 +72,16 @@ tsApp.controller('ChecklistModalCtrl', [
         utilService.clearError();
       });
     };
-    
+
     // create a new checklist from report results
     $scope.computeChecklist = function() {
-      var query = 'select distinct itemId conceptId, itemId clusterId from report_result_items a, ' +
-        ' report_results b where b.report_id = ' + $scope.selected.report.id  + ' and b.id = ' + result.id +
-        ' and a.result_id = b.id';
-      
+      $scope.errors = new Array();
+      var query = 'select distinct itemId conceptId, itemId clusterId from report_result_items a, '
+        + ' report_results b where b.report_id = ' + $scope.selected.report.id + ' and b.id = '
+        + result.id + ' and a.result_id = b.id';
+
       if (!$scope.name) {
-        window.alert('The name field cannot be blank. ');
+        $scope.errors.push('Checklist name must be set');
         return;
       }
 
@@ -78,18 +89,18 @@ tsApp.controller('ChecklistModalCtrl', [
         startIndex : $scope.skipClusterCt,
         maxResults : $scope.clusterCt ? $scope.clusterCt : 100
       }
-      
-      workflowService.computeChecklist($scope.selected.project.id, query, 
-        'SQL', $scope.name, pfs).then(
-      // Success
-      function(data) {
-        $scope.warnings[0] = "Checklist created " + $scope.name + ".";
-      },
-      // Error
-      function(data) {
-        $scope.errors[0] = data;
-        utilService.clearError();
-      });
+
+      workflowService.computeChecklist($scope.selected.project.id, query, 'SQL', $scope.name, pfs)
+        .then(
+        // Success
+        function(data) {
+          $scope.warnings[0] = "Checklist created " + $scope.name + ".";
+        },
+        // Error
+        function(data) {
+          $scope.errors[0] = data;
+          utilService.clearError();
+        });
     }
 
     $scope.close = function() {
