@@ -198,7 +198,10 @@ public class AssignReleaseIdentifiersAlgorithm extends AbstractAlgorithm {
       }
       final Concept concept = getConcept(conceptId);
 
-      // skip unpublishable concepts (should never happen)
+      // skip unpublishable concepts
+      // These are concepts containing only unreleasable atoms that did not win
+      // their CUI assignment.  They should not get assigned new CUIs, they should be removed
+      // by prod mid cleanup
       if (!concept.isPublishable()) {
         continue;
       }

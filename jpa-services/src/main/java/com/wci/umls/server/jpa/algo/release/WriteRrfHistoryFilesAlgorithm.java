@@ -97,9 +97,17 @@ public class WriteRrfHistoryFilesAlgorithm
 
     logInfo("  Determine previously released CUIs");
     final Set<String> previousCuis = new HashSet<>();
+    // Last relesed CUIs
     query = manager.createQuery("select distinct value(cid) "
         + "from AtomJpa a join a.conceptTerminologyIds cid "
         + "where key(cid) = :terminology");
+    query.setParameter("terminology", getProject().getTerminology());
+    previousCuis.addAll(query.getResultList());
+
+    // prior historical CUIs
+    query = manager.createQuery("select terminologyId from ConceptJpa a "
+        + "where terminology = :terminology and id != terminologyId"
+        + "  and publishable = false");
     query.setParameter("terminology", getProject().getTerminology());
     previousCuis.addAll(query.getResultList());
     updateProgress();
@@ -113,9 +121,9 @@ public class WriteRrfHistoryFilesAlgorithm
     writeMrcui(previousCuis, currentCuis);
     updateProgress();
 
-    logInfo("  Write NCI code file");
-    writeNciCodeCuiMap();
-    updateProgress();
+    logInfo("  UNCOMMENT Write NCI code file");
+    // writeNciCodeCuiMap();
+    // updateProgress();
 
     logInfo("  Write NCIMETA history file");
     writeNciMetaHistory(previousCuis, currentCuis);
@@ -796,8 +804,8 @@ public class WriteRrfHistoryFilesAlgorithm
      * @return the facts
      * @throws Exception the exception
      */
-    public Set<ComponentHistory> getFacts(String cui, Set<String> currentCuis,
-      Set<String> previousCuis) throws Exception {
+    public Set<ComponentHistory> getFacts(String cui, Set<String> previousCuis,
+      Set<String> currentCuis) throws Exception {
 
       // If the CUI is current, there are no entries
       if (currentCuis.contains(cui)) {
@@ -973,6 +981,7 @@ public class WriteRrfHistoryFilesAlgorithm
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
       history.setVersion(release);
+      history.setRelationshipType("DEL");
       if (!factMap.containsKey(cui)) {
         factMap.put(cui, new HashSet<>());
       }
