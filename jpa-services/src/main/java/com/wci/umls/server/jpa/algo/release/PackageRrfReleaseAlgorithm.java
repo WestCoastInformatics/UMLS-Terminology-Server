@@ -6,7 +6,6 @@ package com.wci.umls.server.jpa.algo.release;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -25,15 +24,6 @@ import com.wci.umls.server.jpa.algo.AbstractAlgorithm;
  */
 public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
 
-  /** The path. */
-  private File path;
-
-  /** The filename. */
-  private String filename;
-
-  /** The zip file. */
-  private File zipFile;
-
   /**
    * Instantiates an empty {@link PackageRrfReleaseAlgorithm}.
    *
@@ -50,12 +40,13 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
   @Override
   public ValidationResult checkPreconditions() throws Exception {
 
-    path = new File(config.getProperty("source.data.dir") + "/"
+    final File path = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath());
     logInfo("  path " + path);
 
-    filename = getProcess().getVersion() + ".zip";
-    zipFile = new File(path, filename);
+    final String filename = getProcess().getVersion() + ".zip";
+    final File zipFile =
+        new File(path, getProcess().getVersion() + "/" + filename);
     logInfo("  zipFileName " + zipFile);
 
     if (zipFile.exists()) {
@@ -68,6 +59,12 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
   /* see superclass */
   @Override
   public void compute() throws Exception {
+    logInfo("Starting " + getName());
+    final File path = new File(config.getProperty("source.data.dir") + "/"
+        + getProcess().getInputPath());
+    final String filename = getProcess().getVersion() + ".zip";
+    final File zipFile =
+        new File(path, getProcess().getVersion() + "/" + filename);
 
     final File pathMeta =
         new File(path, "/" + getProcess().getVersion() + "/META");
@@ -78,11 +75,14 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
     logInfo("  mmsysPath " + mmsysPath);
 
     ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+    logInfo("  Process META");
     zipDirectory(pathMeta, out,
         pathMeta.getPath().length() + 1 - "/META".length());
+    logInfo("  Process MMSYS");
     zipDirectory(mmsysPath, out, mmsysPath.getPath().length() + 1);
 
     out.close();
+    logInfo("Finished " + getName());
 
   }
 
@@ -92,12 +92,13 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
    * @param folder the folder
    * @param zipOutputStream the zip output stream
    * @param prefixLength the prefix length
-   * @throws IOException Signals that an I/O exception has occurred.
+   * @throws Exception the exception
    */
-  public static void zipDirectory(File folder, ZipOutputStream zipOutputStream,
-    int prefixLength) throws IOException {
+  public void zipDirectory(File folder, ZipOutputStream zipOutputStream,
+    int prefixLength) throws Exception {
     for (final File file : folder.listFiles()) {
       if (file.isFile()) {
+        logInfo("    " + new File(folder, file.getName()).getName());
         final ZipEntry zipEntry =
             new ZipEntry(file.getPath().substring(prefixLength));
         zipOutputStream.putNextEntry(zipEntry);
@@ -105,6 +106,7 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
           IOUtils.copy(inputStream, zipOutputStream);
         }
         zipOutputStream.closeEntry();
+        commitClearBegin();
       } else if (file.isDirectory()) {
         zipDirectory(file, zipOutputStream, prefixLength);
       }
@@ -118,12 +120,13 @@ public class PackageRrfReleaseAlgorithm extends AbstractAlgorithm {
     logInfo("Starting RESET " + getName());
 
     // Remove the output zip file
-    path = new File(config.getProperty("source.data.dir") + "/"
+    final File path = new File(config.getProperty("source.data.dir") + "/"
         + getProcess().getInputPath());
     logInfo("  path " + path);
 
-    filename = getProcess().getVersion() + ".zip";
-    zipFile = new File(path, filename);
+    final String filename = getProcess().getVersion() + ".zip";
+    final File zipFile =
+        new File(path, getProcess().getVersion() + "/" + filename);
     if (zipFile.exists()) {
       FileUtils.fileDelete(zipFile.getAbsolutePath());
     }
