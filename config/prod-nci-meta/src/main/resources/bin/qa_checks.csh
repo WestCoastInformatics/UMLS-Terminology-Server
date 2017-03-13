@@ -1415,11 +1415,15 @@ else if ($target == "MRCUI") then
     #  Verify CUI1,CUI2 in MRCUI.CUI1,CUI2
     #
     echo "    Verify  CUI1,CUI2 in MRCUI.CUI1,CUI2"
-    set ct=`awk -F\| '$6!=""{print $1"|"$6"|"}' $mrcui | sort -u | comm -13 - $merged_cui | wc -l`
+    awk -F\| '($2!=""){print $1"|"$6"|"}' $mrcui | sort -u >! mrcui.tmp1.$$
+    awk -F\| '{print $1"|"$2"|"};' $merged_cui | sort -u >! merged_cui.tmp1.$$
+    set ct=`comm -13 mrcui.tmp1.$$ merged_cui.tmp1.$$ | wc -l`
     if ($ct != 0) then
-        echo "ERROR: CUI1,CUI2 not in MRCONSO.CUI"
-	awk -F\| '$6!=""{print $1"|"$6"|"}' $mrcui |  sort -u | comm -13 - $merged_cui | head -10 | sed 's/^/  /'
+        echo "ERROR: CUI1,CUI2 not in MRCUI.CUI1,CUI2"
+        comm -13 mrcui.tmp1.$$ merged_cui.tmp1.$$  | head -10 | sed 's/^/  /'
     endif
+    rm -f mrcui.tmp1.$$
+    rm -f merged_cui.tmp1.$$
 
     #
     #   Verify sort order
