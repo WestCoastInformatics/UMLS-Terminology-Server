@@ -190,9 +190,63 @@ public class UpdateReleasabilityAlgorithm
           // Close algorithm for each loop
           queryAction.close();
         }
-
         // Update the progress
         updateProgress();
+      }
+
+      // Finally, there is a special case where SRC-owned atom relationships
+      // may need to be marked unpublishable, and they won't get caught by the
+      // above queries. Handle here.
+      String query = "SELECT a.id " + "FROM AtomRelationshipJpa a "
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND (a.from.publishable=false OR a.to.publishable=false)";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(AtomRelationshipJpa.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
       }
 
       logInfo("Finished " + getName());

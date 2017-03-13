@@ -195,8 +195,9 @@ public class ComponentHistoryJpa extends AbstractComponent
   /* see superclass */
   @Override
   public String toString() {
-    return "ComponentHistoryJpa [referencedConcept=" + referencedTerminologyId
-        + ", reason=" + reason + ", relationshipType=" + relationshipType
+    return "ComponentHistoryJpa [terminologyId=" + getTerminologyId()
+        + ", referencedConcept=" + referencedTerminologyId + ", reason="
+        + reason + ", relationshipType=" + relationshipType
         + ", additionalRelationshipType=" + additionalRelationshipType
         + ", release=" + associatedRelease + "]";
   }

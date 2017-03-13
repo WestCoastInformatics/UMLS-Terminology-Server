@@ -293,7 +293,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           }
 
           // Set conceptTerminologyId for process terminology/version
-          if (!ConfigUtility.isEmpty(fields[14])) {
+          if (!ConfigUtility.isEmpty(fields[14])
+              && !fields[14].equals(oldAtom.getConceptTerminologyIds().get(
+                  getProcess().getTerminology() + getProcess().getVersion()))) {
 
             // Set previous release CUI for process terminology/version
             oldAtom.getConceptTerminologyIds().put(
@@ -332,7 +334,6 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           if (oldAtomChanged) {
             updateAtom(oldAtom);
             updateCount++;
-            putComponent(oldAtom, newAtomAui);
 
             // Reconcile code/concept/descriptor
             reconcileCodeConceptDescriptor(oldAtom);
@@ -378,7 +379,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           atom.getCodeId(), atom.getTerminology(), null);
 
       if (existingCode != null) {
-        existingCode.getAtoms().add(atom);
+        if (!existingCode.getAtoms().contains(atom)) {
+          existingCode.getAtoms().add(atom);
+        }
         existingCode.setVersion(atom.getVersion());
         updateCode(existingCode);
       }
@@ -409,7 +412,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
       final Concept existingConcept = (Concept) getComponent("SOURCE_CUI",
           atom.getConceptId(), atom.getTerminology(), null);
       if (existingConcept != null) {
-        existingConcept.getAtoms().add(atom);
+        if (!existingConcept.getAtoms().contains(atom)) {
+          existingConcept.getAtoms().add(atom);
+        }
         existingConcept.setVersion(atom.getVersion());
         updateConcept(existingConcept);
       }
@@ -440,7 +445,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
           (Descriptor) getComponent("SOURCE_DUI", atom.getConceptId(),
               atom.getTerminology(), null);
       if (existingDescriptor != null) {
-        existingDescriptor.getAtoms().add(atom);
+        if (!existingDescriptor.getAtoms().contains(atom)) {
+          existingDescriptor.getAtoms().add(atom);
+        }
         existingDescriptor.setVersion(atom.getVersion());
         updateDescriptor(existingDescriptor);
       }

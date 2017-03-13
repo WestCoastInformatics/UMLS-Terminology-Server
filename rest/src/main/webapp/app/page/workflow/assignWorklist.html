@@ -1,54 +1,56 @@
-<div class="modal-header">
-  <h4 style="display: inline">
-    {{action}} Worklist
-    <span ng-show="action == 'REASSIGN'"> to Author</span>
-  </h4>
-  <span style="float: right">
-    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
-  </span>
-</div>
+<form ng-submit="assignWorklist()">
+  <div class="modal-header">
+    <h4 style="display: inline">
+      {{action}} Worklist
+      <span ng-show="action == 'REASSIGN'"> to Author</span>
+    </h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
 
-<div class="modal-body">
-  <!-- Worklist info -->
-  <div worklist-info worklist="worklist" form="short"></div>
+  <div class="modal-body">
+    <!-- Worklist info -->
+    <div worklist-info worklist="worklist" form="short"></div>
 
-  <table class="slim table">
-    <tr ng-show="action == 'ASSIGN'">
-      <td>
-        <b>Select user</b>
-      </td>
-      <td>
-        <select autofocus ng-model="user"
-          ng-options="item.userName for item in users"></select>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <b>Note</b>
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <textarea rows="4" cols="40" ng-model="note" ui-tinymce="tinymceOptions"></textarea>
-      </td>
-    </tr>
-  </table>
+    <table class="slim table">
+      <tr ng-show="action == 'ASSIGN'">
+        <td>
+          <b>Select user</b>
+        </td>
+        <td>
+          <select autofocus ng-model="user"
+            ng-options="item.userName for item in users"></select>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <b>Note</b>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <textarea rows="4" cols="40" ng-model="note"
+            ui-tinymce="tinymceOptions"></textarea>
+        </td>
+      </tr>
+    </table>
 
-  <!-- Errors -->
-  <div errors="errors"></div>
+    <!-- Errors -->
+    <div errors="errors"></div>
 
-  <!-- messages -->
-  <div class="col-md-12 col-xs-12">
-    <div class="alert alert-success" ng-repeat="message in messages">
-      {{message}}
-      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+    <!-- messages -->
+    <div class="col-md-12 col-xs-12">
+      <div class="alert alert-success" ng-repeat="message in messages">
+        {{message}}
+        <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal-footer">
-  <button ng-show="action == 'ASSIGN'" class="btn btn-primary"
-    ng-click="assignWorklist();">Assign</button>
-  <button class="btn btn-warning" ng-click="close()">Close</button>
-</div>
+  <div class="modal-footer">
+    <button ng-show="action == 'ASSIGN'" class="btn btn-primary">Assign</button>
+    <span class="btn btn-warning" ng-click="close()">Close</span>
+  </div>
+</form>

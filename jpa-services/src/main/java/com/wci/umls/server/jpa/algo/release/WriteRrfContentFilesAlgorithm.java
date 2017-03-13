@@ -213,6 +213,7 @@ public class WriteRrfContentFilesAlgorithm
               prev = line;
             }
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
@@ -258,6 +259,7 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
@@ -303,6 +305,7 @@ public class WriteRrfContentFilesAlgorithm
             }
 
             if (ct++ % RootService.commitCt == 0) {
+              checkCancel();
               service.commitClearBegin();
             }
           }
@@ -754,7 +757,8 @@ public class WriteRrfContentFilesAlgorithm
       if (!type.equals("Code")) {
         logInfo("    definitions");
         query = manager.createQuery("select distinct a.id from " + type
-            + "Jpa a join a.definitions d where d.publishable = true");
+            + "Jpa a join a.definitions d where a.publishable = true "
+            + "and d.publishable = true");
         ct = 0;
         for (final Long id : (List<Long>) query.getResultList()) {
           map.get(id).markDefinitions();
@@ -1748,7 +1752,7 @@ public class WriteRrfContentFilesAlgorithm
         return null;
       }
       for (final Atom atom : list.getObjects().get(0).getAtoms()) {
-        if (atomContentsMap.get(atom.getId()).getAui()
+        if (atom.isPublishable() && atomContentsMap.get(atom.getId()).getAui()
             .equals(componentInfo.getTerminologyId())) {
           return atom;
         }

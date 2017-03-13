@@ -1,4 +1,4 @@
-<form ng-submit="importProcess(file);">
+<form ng-submit="importProcess(file)">
   <div class="modal-header">
     <h4 style="display: inline">Import Process</h4>
     <span style="float: right">
@@ -39,6 +39,6 @@
 
   <div class="modal-footer">
     <button class="btn btn-primary" ng-disabled="!file">Import</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
   </div>
 </form>

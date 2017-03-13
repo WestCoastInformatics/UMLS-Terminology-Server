@@ -1,101 +1,106 @@
-<div class="modal-header">
-  <h4 style="display: inline">{{action}} Bin</h4>
-  <span style="float: right">
-    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
-  </span>
-</div>
-<div class="modal-body">
-  <table class="slim table">
-    <tr>
-      <td>
-        <b>Project</b>
-      </td>
-      <td>{{project.name}}</td>
-    </tr>
-    <tr>
-      <td>
-        <b>Name</b>
-      </td>
-      <td>
-        <input autofocus ng-model="definition.name" size="60"
-          placeholder="e.g. demotions" />
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Description</b>
-      </td>
-      <td>
-        <textarea rows="2" cols="60" ng-model="definition.description"
-          placeholder="Basic description of the bin"></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Query</b>
-      </td>
-      <td>
-        <textarea rows="5" cols="60" ng-model="definition.query"
-          ng-change="queryChanged()" placeholder="Query to compose bin"></textarea>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Query Type</b>
-      </td>
-      <td>
-        <select ng-model="definition.queryType"
-          ng-options="item for item in queryTypes"></select>
-        <span style="float: right;">
-          <button ng-click="testQuery(definition)" title="Test query"
-            class="btn btn-xs btn-primary">Test Query</button>
-        </span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Required</b>
-      </td>
-      <td>
-        <input type="checkbox" ng-model="definition.required">
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <b>Editable</b>
-      </td>
-      <td>
-        <input type="checkbox" ng-model="definition.editable">
-      </td>
-    </tr>
-    <tr ng-show="action == 'Add' || action == 'Clone'">
-      <td>
-        <b>Position bin after</b>
-      </td>
-      <td>
-        <select ng-model="positionBin" ng-change="positionAfterBin(positionBin)"
-          ng-options="positionBin.name for positionBin in bins">
-        </select>
-      </td>
-    </tr>
-  </table>
-  <!-- Errors -->
-  <div errors="errors"></div>
-  <!-- messages -->
-  <div class="col-md-12 col-xs-12">
-    <div class="alert alert-success" ng-repeat="message in messages">
-      {{message}}
-      <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+<form ng-submit="submitDefinition(bin, definition)">
+  <div class="modal-header">
+    <h4 style="display: inline">{{action}} Bin</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
+  <div class="modal-body">
+    <table class="slim table">
+      <tr>
+        <td>
+          <b>Project</b>
+        </td>
+        <td>{{project.name}}</td>
+      </tr>
+      <tr>
+        <td>
+          <b>Name</b>
+        </td>
+        <td>
+          <input autofocus ng-model="definition.name" size="60"
+            placeholder="e.g. demotions" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Description</b>
+        </td>
+        <td>
+          <textarea class="w80" rows="4" ng-model="definition.description"
+            placeholder="Basic description of the bin"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query</b>
+        </td>
+        <td>
+          <span class="pull-right">
+            <i title="{{show[$index] ? 'Edit query' : 'Show formatted query'}}"
+              class="noul glyphicon glyphicon-refresh"
+              ng-click="show[$index] = !show[$index]"></i>
+            <br /> <br />
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(definition)">Test</span>
+          </span>
+          <span class="preformatted" ng-show="show[$index]">{{getSql(definition.query)}}</span>
+          <textarea ng-show="!show[$index]" class="w80" rows="4"
+            ng-model="definition.query" ng-change="queryChanged()"
+            placeholder="Query to compose bin"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Query Type</b>
+        </td>
+        <td>
+          <select ng-model="definition.queryType"
+            ng-options="item for item in queryTypes"></select>
+
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Required</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="definition.required">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <b>Editable</b>
+        </td>
+        <td>
+          <input type="checkbox" ng-model="definition.editable">
+        </td>
+      </tr>
+      <tr ng-show="action == 'Add' || action == 'Clone'">
+        <td>
+          <b>Position bin after</b>
+        </td>
+        <td>
+          <select ng-model="positionBin"
+            ng-change="positionAfterBin(positionBin)"
+            ng-options="positionBin.name for positionBin in bins">
+          </select>
+        </td>
+      </tr>
+    </table>
+    <!-- Errors -->
+    <div errors="errors"></div>
+    <!-- messages -->
+    <div class="col-md-12 col-xs-12">
+      <div class="alert alert-success" ng-repeat="message in messages">
+        {{message}}
+        <div style="cursor: pointer; display: inline; float: right; width: 3%;">
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="modal-footer">
-  <button ng-show="action == 'Add'" ng-disabled="!allowSave"
-    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Add</button>
-  <button ng-show="action == 'Edit'" ng-disabled="!allowSave"
-    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Save</button>
-  <button ng-show="action == 'Clone'" ng-disabled="!allowSave"
-    class="btn btn-primary" ng-click="submitDefinition(bin, definition); ">Clone</button>
-  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-</div>
+  <div class="modal-footer">
+    <button ng-bind="action" ng-disabled="!allowSave" class="btn btn-primary"></button>
+    <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
+  </div>
+</form>

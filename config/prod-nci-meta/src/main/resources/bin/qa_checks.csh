@@ -729,7 +729,7 @@ if ($mode != "subset") then
     if ($empty == 0) then
 	echo "WARNING: Only Metathesaurus Names entry exist in MRCONSO"
     else
-	set ct=`cut -d\| -f 2,24 $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
+	set ct=`perl -ne '@_ = split/\|/; print "$_[1]|$_[23]\n" if $_[1];' $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  MRSAB.RCUI,SSN not in CUI,STR"
 	    cut -d\| -f 2,24 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
@@ -764,7 +764,7 @@ if ($mode != "subset") then
     if ($empty[1] == 0) then
 	echo "WARNING: There are no RAB's in MRCONSO"
     else
-	set ct=`cut -d\| -f 2,4 $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
+	set ct=`perl -ne '@_ = split/\|/; print "$_[1]|$_[3]\n" if $_[1];' $mrsab | sort -u | comm -23 - mrconso.tmp1.$$ | wc -l`
 	if ($ct != 0) then
 	    echo "ERROR:  CUI,STR not in MRSAB.RCUI,RSAB"
 	    cut -d\| -f 2,4 $mrsab | sort -u | comm -23 -  mrconso.tmp1.$$ | head -10 | sed 's/^/  /'
@@ -2351,7 +2351,7 @@ else if ($target == "MRSAB") then
     endif
 
     echo "    Verify field formats"
-    perl -ne 'print unless /^C.\d{6}\|C.\d{6}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
+    perl -ne '@_ = split/\|/; next unless $_[0]; print unless /^C.\d{6}\|C.\d{6}\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]+\|[^\|]*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}_\d{2}_\d{2})*\|(?:\d{4}..[^\|]*)*\|(?:\d{4}..[^\|]*)*\|[^\|]*\|[^\|]*\|[0-3]\|\d*\|\d*\|(?:FULL(?:-(?:MULTIPLE|NOSIB)*)?)?\|(?:,{0,1}[A-Z]{2,})*\|(?:,{0,1}[a-zA-Z0-9]+)*|[^\|]*\|[^\|]*\|[YN]\|[YN]\|[^\|]+\|[^\|]*\|/;' $mrsab >! MRSAB.badfields.$$
     set cnt = `cat MRSAB.badfields.$$ | wc -l`
     if ($cnt != 0) then
 	echo "ERROR: The following rows have bad field formats"
@@ -2362,10 +2362,10 @@ else if ($target == "MRSAB") then
     #
     # Gather counts
     set rcnt=`cat $mrsab | wc -l`
-    set vcui_cnt=`perl -ne '@_ = split /\|/; print "$_[0]\n" if $_[0] ne "";' $mrsab | sort -u | wc -l`;
-    set rcui_cnt=`perl -ne '@_ = split /\|/; print "$_[1]\n";' $mrsab | sort -u | wc -l`;
-    set vsab_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n";' $mrsab | sort -u | wc -l`;
-    set rsab_cnt=`perl -ne '@_ = split /\|/; print "$_[3]\n";' $mrsab | sort -u | wc -l`;
+    set vcui_cnt=`perl -ne '@_ = split /\|/; print "$_[0]\n" if $_[0];' $mrsab | sort -u | wc -l`;
+    set rcui_cnt=`perl -ne '@_ = split /\|/; print "$_[1]\n" if $_[1];' $mrsab | sort -u | wc -l`;
+    set vsab_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n" if $_[0];' $mrsab | sort -u | wc -l`;
+    set rsab_cnt=`perl -ne '@_ = split /\|/; print "$_[3]\n" if $_[1];' $mrsab | sort -u | wc -l`;
     set sf_cnt=`perl -ne '@_ = split /\|/; print "$_[5]\n";' $mrsab | sort -u | wc -l`;
     set sf_lat_cnt=`perl -ne '@_ = split /\|/; print "$_[5]|$_[19]\n";' $mrsab | sort -u | wc -l`;
 
@@ -2409,7 +2409,7 @@ else if ($target == "MRSAB") then
 	set vsab_cui_cnt=`perl -ne '@_ = split /\|/; print "$_[2]\n" if ($_[2] !~ /^(NCIMTH|NLM-MED|SRC)$/ && $_[21] eq "Y");' $mrsab | sort -u | wc -l`;
     echo "    Verify VCUI count = VSAB count (excludes NCIMTH,NLM-MED,SRC)"
     # avoid this check for the mini
-    if ($vcui_cnt != $vsab_cui_cnt && $notMini) then
+    if ($vcui_cnt != $vsab_cnt) then
         echo "ERROR: VCUI count ($vcui_cnt) != VSAB count ($vsab_cui_cnt) (excludes NCIMTH,NLM-MED,SRC)"
     endif
 

@@ -92,9 +92,8 @@ public class SemanticTypeLoaderAlgorithm
     final ComputePreferredNameHandler prefNameHandler =
         getComputePreferredNameHandler(getProject().getTerminology());
 
-    // Count number of added and updated Semantic Types, for logging
+    // Count number of added Semantic Types, for logging
     int addCount = 0;
-    int updateCount = 0;
 
     try {
 
@@ -219,7 +218,6 @@ public class SemanticTypeLoaderAlgorithm
       commitClearBegin();
 
       logInfo("  add count=  " + addCount);
-      logInfo("  update count = " + updateCount);
 
       logInfo("Finished " + getName());
 

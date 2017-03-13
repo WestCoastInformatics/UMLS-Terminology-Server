@@ -1,3 +1,4 @@
+<!-- no form -->
 <div class="modal-header">
   <h4 style="display: inline">{{action}}</h4>
   <span style="float: right">
@@ -172,5 +173,6 @@
     ng-disabled="!toConcept" title="Move concepts">Move</button>
   <button ng-show="action == 'Split'" class="btn btn-primary"
     ng-click="split(selected.component);" title="Split atoms">Split</button>
-  <button class="btn btn-warning" ng-click="cancel()">Close</button>
+  <span class="btn btn-warning" ng-click="cancel()">Close</span>
 </div>
+
