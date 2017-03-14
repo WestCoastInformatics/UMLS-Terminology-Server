@@ -1308,12 +1308,35 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       FieldedStringTokenizer.split(line, "|", 20, fields);
       final Terminology referencedTerminology = new TerminologyJpa();
       referencedTerminology.setTerminology(fields[4]);
-      referencedTerminology.setVersion(fields[5]);
+      referencedTerminology.setVersion(computeVersion(fields[0], fields[4]));
       referencedTerminologies.add(referencedTerminology);
     }
 
     return referencedTerminologies;
 
+  }
+
+  /**
+   * Compute version. Note: the version found in sources.src fields[5] is not
+   * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
+   * 16AA_160906F). Calculate the version instead. This is also done in the RRF
+   * loader
+   *
+   * @param terminologyAndVersion the terminology and version
+   * @param terminology the terminology
+   * @return the string
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  public String computeVersion(String terminologyAndVersion, String terminology)
+    throws Exception {
+
+    String version = terminologyAndVersion.substring(terminology.length());
+    if (version.startsWith("_")) {
+      version = version.substring(1);
+    }
+
+    return version;
   }
 
 }

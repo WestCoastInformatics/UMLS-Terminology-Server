@@ -589,29 +589,6 @@ public class MetadataLoaderAlgorithm
   }
 
   /**
-   * Compute version. Note: the version found in sources.src fields[5] is not
-   * always accurate (e.g. RXNORM_2016AA_2016_09_06F shows version of
-   * 16AA_160906F). Calculate the version instead. This is also done in the RRF
-   * loader
-   *
-   * @param terminologyAndVersion the terminology and version
-   * @param terminology the terminology
-   * @return the string
-   * @throws Exception the exception
-   */
-  @SuppressWarnings("static-method")
-  private String computeVersion(String terminologyAndVersion,
-    String terminology) throws Exception {
-
-    String version = terminologyAndVersion.substring(terminology.length());
-    if (version.startsWith("_")) {
-      version = version.substring(1);
-    }
-
-    return version;
-  }
-
-  /**
    * Determine organizing class type.
    *
    * @param terminologyAndVersion the terminology

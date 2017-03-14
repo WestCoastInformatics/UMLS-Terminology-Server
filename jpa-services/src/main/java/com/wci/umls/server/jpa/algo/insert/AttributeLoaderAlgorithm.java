@@ -5,15 +5,23 @@ package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.QueryType;
+import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.content.AttributeJpa;
@@ -34,6 +42,9 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
  */
 public class AttributeLoaderAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
+
+  /** The replace flag. */
+  private Boolean replace = null;
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -71,6 +82,9 @@ public class AttributeLoaderAlgorithm
   }
 
   /* see superclass */
+  @SuppressWarnings({
+      "rawtypes", "unchecked"
+  })
   @Override
   public void compute() throws Exception {
     logInfo("Starting " + getName());
@@ -112,6 +126,62 @@ public class AttributeLoaderAlgorithm
       setSteps(lines.size());
 
       final String fields[] = new String[14];
+
+      //
+      // REPLACE
+      //
+
+      // If replace flag is set, remove all attributes that match the
+      // terminology, version, and attribute names present in the file before
+      // reloading.
+      if (replace) {
+        final Set<Pair<String, String>> terminologyAttributesToRemove =
+            new HashSet<>();
+
+        for (final String line : lines) {
+
+          FieldedStringTokenizer.split(line, "|", 14, fields);
+          Pair<String, String> terminologyAttribute =
+              new ImmutablePair<>(fields[5], fields[3]);
+
+          if (!terminologyAttributesToRemove.contains(terminologyAttribute)) {
+            terminologyAttributesToRemove.add(terminologyAttribute);
+          }
+        }
+
+        // Once all unique terminology/attribute name pairs have been
+        // identified, remove them all from the database
+
+        for (Pair<String, String> terminologyAttribute : terminologyAttributesToRemove) {
+          final String terminologyAndVersion = terminologyAttribute.getLeft();
+          final String attributeName = terminologyAttribute.getRight();
+          final Terminology terminology =
+              getCachedTerminology(terminologyAndVersion);
+          if (terminology == null) {
+            logWarn("WARNING - terminology not found: " + terminologyAndVersion
+                + ".");
+            continue;
+          }
+          final String query =
+              "SELECT a.id from AttributeJpa a where a.terminology=:specifiedTerminology and a.version=:specifiedVersion and a.name=:name";
+          final Map<String, String> params =
+              getDefaultQueryParams(getProject());
+          params.put("specifiedTerminology", terminology.getTerminology());
+          params.put("specifiedVersion", terminology.getVersion());
+          params.put("name", attributeName);
+
+          final List<Long> objectIds = executeSingleComponentIdQuery(query,
+              QueryType.JPQL, params, AttributeJpa.class, false);
+
+          System.out.println("STOP HERE!");
+
+        }
+
+      }
+
+      //
+      // LOAD
+      //
 
       // Each line of relationships.src corresponds to one relationship.
       // Check to make sure the relationship doesn't already exist in the
@@ -395,19 +465,28 @@ public class AttributeLoaderAlgorithm
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
-    // n/a
+    checkRequiredProperties(new String[] {
+        "replace"
+    }, p);
   }
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    // n/a
+    if (p.getProperty("replace") != null) {
+      replace = Boolean.parseBoolean(p.getProperty("replace"));
+    }
   }
 
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
+
+    AlgorithmParameter param = new AlgorithmParameterJpa("Replace", "replace",
+        "Remove matching attributes (terminology,version,attribute name) and replace with ones from file",
+        "e.g. true", 5, AlgorithmParameter.Type.BOOLEAN, "false");
+    params.add(param);
 
     return params;
   }
