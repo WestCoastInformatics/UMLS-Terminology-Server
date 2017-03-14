@@ -4,6 +4,8 @@
 package com.wci.umls.server.jpa.algo.insert;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -20,11 +22,11 @@ import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
-import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.jpa.AlgorithmParameterJpa;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
+import com.wci.umls.server.jpa.content.AtomJpa;
 import com.wci.umls.server.jpa.content.AttributeJpa;
+import com.wci.umls.server.jpa.content.ConceptJpa;
 import com.wci.umls.server.jpa.content.DefinitionJpa;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.AtomClass;
@@ -43,8 +45,8 @@ import com.wci.umls.server.services.handlers.IdentifierAssignmentHandler;
 public class AttributeLoaderAlgorithm
     extends AbstractInsertMaintReleaseAlgorithm {
 
-  /** The replace flag. */
-  private Boolean replace = null;
+  /** The replace flag (only set to true by ReplaceAttributeAlgorithm). */
+  protected Boolean replace = false;
 
   /**
    * Instantiates an empty {@link AttributeLoaderAlgorithm}.
@@ -104,6 +106,7 @@ public class AttributeLoaderAlgorithm
 
     // Count number of added and updated Attributes and Definitions
     // for logging
+    int attributeRemoveCount = 0;
     int attributeAddCount = 0;
     int attributeUpdateCount = 0;
     int definitionAddCount = 0;
@@ -141,20 +144,20 @@ public class AttributeLoaderAlgorithm
         for (final String line : lines) {
 
           FieldedStringTokenizer.split(line, "|", 14, fields);
-          Pair<String, String> terminologyAttribute =
+          final Pair<String, String> terminologyAttribute =
               new ImmutablePair<>(fields[5], fields[3]);
 
-          if (!terminologyAttributesToRemove.contains(terminologyAttribute)) {
-            terminologyAttributesToRemove.add(terminologyAttribute);
-          }
+          terminologyAttributesToRemove.add(terminologyAttribute);
         }
 
         // Once all unique terminology/attribute name pairs have been
         // identified, remove them all from the database
-
         for (Pair<String, String> terminologyAttribute : terminologyAttributesToRemove) {
           final String terminologyAndVersion = terminologyAttribute.getLeft();
           final String attributeName = terminologyAttribute.getRight();
+          logInfo("  Removing existing attributes where terminology= "
+              + terminologyAndVersion + ", name =" + attributeName);
+
           final Terminology terminology =
               getCachedTerminology(terminologyAndVersion);
           if (terminology == null) {
@@ -162,32 +165,59 @@ public class AttributeLoaderAlgorithm
                 + ".");
             continue;
           }
-          final String query =
-              "SELECT a.id from AttributeJpa a where a.terminology=:specifiedTerminology and a.version=:specifiedVersion and a.name=:name";
-          final Map<String, String> params =
-              getDefaultQueryParams(getProject());
-          params.put("specifiedTerminology", terminology.getTerminology());
-          params.put("specifiedVersion", terminology.getVersion());
-          params.put("name", attributeName);
 
-          final List<Long> objectIds = executeSingleComponentIdQuery(query,
-              QueryType.JPQL, params, AttributeJpa.class, false);
+          // We need to load both the attribute and the component they're
+          // attached to, so we can remove the attribute from
+          // the component before deleting the attribute
 
-          System.out.println("STOP HERE!");
+          final List<Class> containingClazzes =
+              new ArrayList<>(Arrays.asList(AtomJpa.class, ConceptJpa.class));
 
+          for (Class clazz : containingClazzes) {
+            final String query = "SELECT a.id, att.id from "
+                + clazz.getSimpleName()
+                + " a join a.attributes att where att.terminology=:specifiedTerminology and att.version=:specifiedVersion and att.name=:name";
+            final Map<String, String> params =
+                getDefaultQueryParams(getProject());
+            params.put("specifiedTerminology", terminology.getTerminology());
+            params.put("specifiedVersion", terminology.getVersion());
+            params.put("name", attributeName);
+
+            javax.persistence.Query jpaQuery =
+                getEntityManager().createQuery(query);
+            jpaQuery.setParameter("specifiedTerminology",
+                terminology.getTerminology());
+            jpaQuery.setParameter("specifiedVersion", terminology.getVersion());
+            jpaQuery.setParameter("name", attributeName);
+
+            // Return the result list as a pair of component id longs.
+            final List<Object[]> list = jpaQuery.getResultList();
+
+            for (Object[] entry : list) {
+              Long containingComponentId = (Long) entry[0];
+              Long attributeId = (Long) entry[1];
+
+              final Attribute attribute = getAttribute(attributeId);
+              final ComponentHasAttributes containingComponent =
+                  (ComponentHasAttributes) getComponent(containingComponentId,
+                      clazz);
+
+              containingComponent.getAttributes().remove(attribute);
+              removeAttribute(attributeId);
+              attributeRemoveCount++;
+            }
+          }
         }
-
+        // Clear the attribute caches, since they will no longer be accurate
+        clearAttributeCaches();
+        commitClearBegin();
       }
 
       //
       // LOAD
       //
 
-      // Each line of relationships.src corresponds to one relationship.
-      // Check to make sure the relationship doesn't already exist in the
-      // database
-      // If it does, skip it.
-      // If it does not, add it.
+      // Each line of attributes.src corresponds to one attribute.
       for (final String line : lines) {
 
         // Check for a cancelled call once every 100 lines
@@ -438,6 +468,9 @@ public class AttributeLoaderAlgorithm
       commitClearBegin();
       handler.commit();
 
+      if (replace) {
+        logInfo("  removed attribute count = " + attributeRemoveCount);
+      }
       logInfo("  added attribute count = " + attributeAddCount);
       logInfo("  updated attribute count = " + attributeUpdateCount);
       logInfo("  added definition count = " + definitionAddCount);
@@ -465,28 +498,19 @@ public class AttributeLoaderAlgorithm
   /* see superclass */
   @Override
   public void checkProperties(Properties p) throws Exception {
-    checkRequiredProperties(new String[] {
-        "replace"
-    }, p);
+    // n/a
   }
 
   /* see superclass */
   @Override
   public void setProperties(Properties p) throws Exception {
-    if (p.getProperty("replace") != null) {
-      replace = Boolean.parseBoolean(p.getProperty("replace"));
-    }
+    // n/a
   }
 
   /* see superclass */
   @Override
   public List<AlgorithmParameter> getParameters() throws Exception {
     final List<AlgorithmParameter> params = super.getParameters();
-
-    AlgorithmParameter param = new AlgorithmParameterJpa("Replace", "replace",
-        "Remove matching attributes (terminology,version,attribute name) and replace with ones from file",
-        "e.g. true", 5, AlgorithmParameter.Type.BOOLEAN, "false");
-    params.add(param);
 
     return params;
   }

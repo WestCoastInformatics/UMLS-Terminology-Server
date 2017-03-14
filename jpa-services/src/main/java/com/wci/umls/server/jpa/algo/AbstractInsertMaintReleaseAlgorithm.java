@@ -1,5 +1,5 @@
 /*
- *    Copyright 2017 West Coast Informatics, LLC
+ *    Copyright 2015 West Coast Informatics, LLC
  */
 package com.wci.umls.server.jpa.algo;
 
@@ -1250,6 +1250,15 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     descriptorIdCache.clear();
     relCachedTerms.clear();
     relIdCache.clear();
+  }
+
+  /**
+   * Clear attribute caches.
+   */
+  @SuppressWarnings("static-method")
+  public void clearAttributeCaches() {
+    attributeCachedTerms.clear();
+    attributeIdCache.clear();
   }
 
   /**
