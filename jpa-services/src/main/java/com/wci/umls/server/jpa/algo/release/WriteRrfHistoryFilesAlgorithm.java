@@ -337,7 +337,7 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append("Y|\n");
         writerMap.get("MRCUI.RRF").print(sb.toString());
         if (fact.getRelationshipType().equals("SY")) {
-          writerMap.get("MERGEDCUI.RRF").println(fact.getTerminologyId() + "|"
+          writerMap.get("MERGEDCUI.RRF").print(fact.getTerminologyId() + "|"
               + fact.getReferencedTerminologyId() + "|\n");
 
         }
@@ -345,7 +345,7 @@ public class WriteRrfHistoryFilesAlgorithm
 
           // Write out NCI META history file retirements
           writerMap.get("DELETEDCUI.RRF")
-              .println(fact.getTerminologyId() + "|"
+              .print(fact.getTerminologyId() + "|"
                   + getConcept(fact.getTerminologyId(),
                       getProject().getTerminology(), getProject().getVersion(),
                       Branch.ROOT).getName()
