@@ -87,7 +87,7 @@ public class MGV_H1 extends AbstractValidationCheck {
                   || (sourceAtom.getCodeId().toString().startsWith("D")
                       && targetAtom.getCodeId().toString().startsWith("C")))
               && !targetAtom.getCodeId().equals(sourceAtom.getCodeId())) {
-            result.getErrors().add(getName()
+            result.getWarnings().add(getName()
                 + ": Source and target concepts contain latest version publishable MSH atoms with different codes.");
             return result;
           }
