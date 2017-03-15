@@ -3253,6 +3253,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     processConfig.setVersion(project1.getVersion());
     processConfig.setTimestamp(new Date());
     processConfig.setType("Maintenance");
+    processConfig.setInputPath("inv/MTH_2016AB/insert");
     processConfig = process.addProcessConfig(projectId,
         (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
