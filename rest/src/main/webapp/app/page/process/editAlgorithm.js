@@ -12,7 +12,7 @@ tsApp.controller('AlgorithmModalCtrl', [
   function($scope, $uibModalInstance, utilService, processService, selected, lists, user,
     algorithm, action) {
     console.debug("configure AlgorithmModalCtrl", algorithm, action);
-    
+
     // Scope vars
     $scope.action = action;
     $scope.algorithm = angular.copy(algorithm);
@@ -21,10 +21,13 @@ tsApp.controller('AlgorithmModalCtrl', [
     $scope.errors = [];
     $scope.messages = [];
     $scope.show = {};
-    
+
     // Formatter for SQL
     $scope.getSql = function(sql) {
-      return sqlFormatter.format(sql);
+      if (sql) {
+        return sqlFormatter.format(sql);
+      }
+      return "";
     }
 
     if ($scope.action == 'Edit') {

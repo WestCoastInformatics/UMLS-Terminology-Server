@@ -197,6 +197,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("authors");
     tester.include("reviewers");
     tester.include("name");
+    tester.include("workflowState");
     assertTrue(tester.testAnalyzedIndexedFields());
 
     // Test non analyzed fields
@@ -209,7 +210,7 @@ public class WorklistJpaUnitTest extends ModelUnitSupport {
     tester.include("epoch");
     tester.include("workflowStatus");
     tester.include("workflowBinName");
-    tester.include("workflowStateHistory");
+    tester.include("workflowStateSort");
     tester.include("reviewersSort");
     tester.include("authorsSort");
 

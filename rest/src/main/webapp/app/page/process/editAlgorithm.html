@@ -45,9 +45,11 @@
         <!-- textarea -->
         <td
           ng-show="parameter.type == 'TEXT' && parameter.name.indexOf('Query') != -1">
-          <i title="Show formatted query"
-            class="noul glyphicon glyphicon-refresh pull-right"
-            ng-click="show[$index] = !show[$index]"></i>
+          <span class="pull-right">
+            <i title="{{show[$index] ? 'Edit query' : 'Show formatted query'}}"
+              class="noul glyphicon glyphicon-refresh"
+              ng-click="show[$index] = !show[$index]"></i>
+          </span>
           <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
           <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
             class="w80" title="{{parameter.description}}"
@@ -55,36 +57,38 @@
             ng-change="validated = false"></textarea>
         </td>
         <!-- textarea for a query returning an id -->
-        <td
-          ng-show="parameter.type == 'QUERY_ID' && parameter.name.indexOf('Query') != -1">
-          <i title="Show formatted query"
-            class="noul glyphicon glyphicon-refresh pull-right"
-            ng-click="show[$index] = !show[$index]"></i>
+        <td ng-show="parameter.type == 'QUERY_ID'">
+          <span class="pull-right">
+            <i title="{{show[$index] ? 'Edit query' : 'Show formatted query'}}"
+              class="noul glyphicon glyphicon-refresh"
+              ng-click="show[$index] = !show[$index]"></i>
+            <br /> <br />
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName,'ID')">Test</span>
+          </span>
           <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
           <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
             class="w80" title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
-          <span ng-show="parameter.name.indexOf('Query') != -1">
-            <span class="btn btn-xs btn-primary"
-              ng-click="testQuery(parameter.value, parameter.fieldName,'ID')">Test</span>
-          </span>
+
         </td>
         <!-- textarea for a query returning a pair of ids -->
         <td
           ng-show="parameter.type == 'QUERY_ID_PAIR' && parameter.name.indexOf('Query') != -1">
-          <i title="Show formatted query"
-            class="noul glyphicon glyphicon-refresh pull-right"
-            ng-click="show[$index] = !show[$index]"></i>
+          <span class="pull-right">
+            <i title="{{show[$index] ? 'Edit query' : 'Show formatted query'}}"
+              class="noul glyphicon glyphicon-refresh"
+              ng-click="show[$index] = !show[$index]"></i>
+            <br /> <br />
+            <span class="btn btn-xs btn-primary"
+              ng-click="testQuery(parameter.value, parameter.fieldName,'ID_PAIR')">Test</span>
+          </span>
           <span class="preformatted" ng-show="show[$index]">{{getSql(parameter.value)}}</span>
           <textarea ng-show="!show[$index]" ng-model="parameter.value" rows="4"
             class="w80" title="{{parameter.description}}"
             placeholder="{{parameter.placeholder}}"
             ng-change="validated = false"></textarea>
-          <span ng-show="parameter.name.indexOf('Query') != -1">
-            <span class="btn btn-xs btn-primary"
-              ng-click="testQuery(parameter.value, parameter.fieldName, 'ID_PAIR')">Test</span>
-          </span>
         </td>
         <!-- normal textarea -->
         <td
@@ -147,8 +151,8 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-success" ng-click="validate(algorithm)">Validate</button>
+  <span class="btn btn-success" ng-click="validate(algorithm)">Validate</span>
   <button ng-disabled="!validated" ng-click="submitAlgorithm(algorithm)"
     class="btn btn-primary" ng-bind="action=='Add' ? 'Add' : 'Save'"></button>
-  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+  <span class="btn btn-warning" ng-click="cancel()">Cancel</span>
 </div>
