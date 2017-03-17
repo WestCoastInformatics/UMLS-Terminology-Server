@@ -99,6 +99,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       contentService.beginTransaction();
       contentService.setLastModifiedBy(userName);
       contentService.setMolecularActionFlag(false);
+      contentService.setAssignIdentifiersFlag(true);
 
       final Project project = contentService.getProject(projectId);
       if (project == null) {
@@ -423,6 +424,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
           securityService, authToken, "add concept", UserRole.USER);
       contentService.setLastModifiedBy(userName);
       contentService.setMolecularActionFlag(false);
+      contentService.setAssignIdentifiersFlag(true);
 
       final Project project = contentService.getProject(projectId);
       if (project == null) {
@@ -577,7 +579,7 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
   @Override
   @Path("/concepts/remove")
   @POST
-  @ApiOperation(value = "Removes concept", notes = "Removes concepts by id", response = TypeKeyValueJpa.class)
+  @ApiOperation(value = "Removes concepts", notes = "Removes concepts for project")
   public void removeConcepts(
     @ApiParam(value = "The id of the project, e.g. 1", required = true) @QueryParam("projectId") Long projectId,
     @ApiParam(value = "The query for concepts to remove", required = false) @QueryParam("query") String query,
@@ -611,8 +613,10 @@ public class SimpleEditServiceRestImpl extends RootServiceRestImpl
       
       // if no query or query restriction, get all concept ids
       else {
+        Logger.getLogger(getClass()).info("get all concept ids");
         contentService.getAllConceptIds(project.getTerminology(),
             project.getVersion(), project.getBranch());
+        Logger.getLogger(getClass()).info("get all concept ids");
       }
       
       contentService.setTransactionPerOperation(false);
