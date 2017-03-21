@@ -338,8 +338,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     createReportProcesses(project1, projectId, authToken);
     createLexicalClassAssignmentProcess(project1, projectId, authToken);
     createComputePreferredNamesProcess(project1, projectId, authToken);
-    createRemapComponentInfoRelationshipsProcesses(project1, projectId,
+    createRemapComponentInfoRelationshipsProcess(project1, projectId,
         authToken);
+    createReplaceAttributesProcess(project1, projectId, authToken);
 
     //
     // Fake some data as needs review
@@ -3230,7 +3231,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the remap component info relationships processes.
+   * Create and set up a Replace Attributesprocess
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -3238,40 +3239,85 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private void createRemapComponentInfoRelationshipsProcesses(Project project1,
-    Long projectId, String authToken) throws Exception {
+  private void createReplaceAttributesProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
 
-    // This will make two processes, one Insertion, and one Maintenance
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
-    ProcessConfig processConfig2 = new ProcessConfigJpa();
-    processConfig2.setDescription("Remap Component Info Relationships Process");
-    processConfig2.setFeedbackEmail(null);
-    processConfig2.setName("Remap Component Info Relationships Process");
-    processConfig2.setProject(project1);
-    processConfig2.setTerminology(project1.getTerminology());
-    processConfig2.setVersion(project1.getVersion());
-    processConfig2.setTimestamp(new Date());
-    processConfig2.setType("Maintenance");
-    processConfig2 = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig2, authToken);
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Replace Attributes Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Replace Attributes Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig.setInputPath("inv/MTH_2016AB/insert");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
 
-    AlgorithmConfig algoConfig2 = new AlgorithmConfigJpa();
-    algoConfig2.setAlgorithmKey("COMPINFORELREMAPPER");
-    algoConfig2.setDescription("COMPINFORELREMAPPER Algorithm");
-    algoConfig2.setEnabled(true);
-    algoConfig2.setName("COMPINFORELREMAPPER algorithm");
-    algoConfig2.setProcess(processConfig2);
-    algoConfig2.setProject(project1);
-    algoConfig2.setTimestamp(new Date());
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPLACEATTRIBUTES");
+    algoConfig.setDescription("REPLACEATTRIBUTES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPLACEATTRIBUTES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
     // Add algorithm and insert as step into process
-    algoConfig2 = process.addAlgorithmConfig(projectId, processConfig2.getId(),
-        (AlgorithmConfigJpa) algoConfig2, authToken);
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig2.getSteps().add(algoConfig2);
+    processConfig.getSteps().add(algoConfig);
 
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig2,
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Creates the remap component info relationships process.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createRemapComponentInfoRelationshipsProcess(Project project1,
+    Long projectId, String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Remap Component Info Relationships Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Remap Component Info Relationships Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
+    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("COMPINFORELREMAPPER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
   }
 

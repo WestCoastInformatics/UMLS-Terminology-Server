@@ -29,13 +29,17 @@ tsApp.controller('SimpleAtomModalCtrl', [
       || $scope.selected.project.newAtomTermgroups.length == 0) {
       $scope.selected.project.newAtomTermgroups = [];
       angular.forEach($scope.selected.metadata.termTypes, function(termType) {
+        var termGroup = $scope.selected.metadata.terminology.terminology + '/' + termType.key;
         $scope.selected.project.newAtomTermgroups
-          .push($scope.selected.metadata.terminology.terminology + '/' + termType.key);
+          .push(termGroup);
+        
+        if (termType.key == $scope.selected.defaultTermType) {
+          $scope.selectedTermgroup = termGroup;
+        }
       });
 
     }
-    $scope.selectedTermgroup = $scope.selected.project.newAtomTermgroups[0];
-
+   
     // Init modal
     function initialize() {
       if (!$scope.atom) {

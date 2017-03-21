@@ -183,4 +183,11 @@ public interface Worklist extends Checklist, HasStats {
    */
   public void setReviewerAvailable(boolean reviewerAvailable);
 
+  /**
+   * Gets the workflow state.
+   *
+   * @return the workflow state
+   */
+  public Map<String, Date> getWorkflowState();
+
 }

@@ -345,14 +345,12 @@
           class="btn btn-xs btn-primary"
           ng-click="restartProcess(selected.process.id); ">Restart</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) != 'RUNNING' && getExecutionState(selected.process) != 'COMPLETE'"
-          confirm="
-          Are you sure you want to step the process
-          forward?"
+          ng-show="showStep(1)"
+          confirm="Are you sure you want to step the process forward?"
           class="btn btn-xs btn-primary"
           ng-click="stepProcess(selected.process.id,1); ">Step</button>
         <button
-          ng-show="selected.process && selected.process.steps.length > 0 && selected.mode == 'Execution' && selected.process.startDate && (selected.process.stopDate || selected.process.failDate || selected.process.finishDate)"
+          ng-show="showStep(-1)"
           confirm="Are you sure you want to step the process back?"
           class="btn btn-xs btn-primary"
           ng-click="stepProcess(selected.process.id,-1); ">Unstep</button>

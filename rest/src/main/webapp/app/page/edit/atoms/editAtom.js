@@ -49,7 +49,7 @@ tsApp.controller('AtomModalCtrl', [
       if ($scope.action == 'Add') {
         if (!atom || !atom.name || !$scope.selectedTermgroup
           || (!atom.codeId && !atom.conceptId && !atom.descriptorId)) {
-          $scope.errors.push('Name, termgroup and at least one id must be entered for new atom.');
+          $scope.errors.push('Name, termgroup and at least one id must be entered for new atom');
           return;
         }
         atom.terminology = $scope.selectedTermgroup

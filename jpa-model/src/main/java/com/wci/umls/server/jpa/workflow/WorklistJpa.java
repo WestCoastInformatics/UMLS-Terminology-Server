@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -193,15 +194,23 @@ public class WorklistJpa extends AbstractChecklist implements Worklist {
   }
 
   /* see superclass */
+  @Fields({
+    @Field(bridge = @FieldBridge(impl = MaxStateHistoryBridge.class), index = Index.YES, analyze = Analyze.YES, store = Store.NO),
+    @Field(name = "workflowStateSort", bridge = @FieldBridge(impl = MaxStateHistoryBridge.class), index = Index.YES, analyze = Analyze.NO, store = Store.NO)
+})
   @Override
-  @Field(name = "workflowState", index = Index.YES, analyze = Analyze.NO, store = Store.NO, bridge = @FieldBridge(impl = MaxStateHistoryBridge.class))
+  public Map<String, Date> getWorkflowState() {
+    return getWorkflowStateHistory();
+  }
+  
+  @Override
   public Map<String, Date> getWorkflowStateHistory() {
     if (workflowStateHistory == null) {
       workflowStateHistory = new HashMap<>();
     }
     return workflowStateHistory;
   }
-
+  
   /* see superclass */
   @Override
   public void setWorkflowStateHistory(Map<String, Date> workflowStateHistory) {
