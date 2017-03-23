@@ -28,6 +28,10 @@ create index x_cr_t on concept_relationships(terminology);
 create index x_dr_t on descriptor_relationships (terminology);
 create index x_cdr_t on code_tree_relationships (terminology);
 
+-- Create indexes on subsetmembers
+create index x_csm_1 on concept_subset_members (terminologyId);
+create index x_asm_1 on atom_subset_members (terminologyId);
+
 
 -- Views for making it easier to query in a MEME4 kind of way
 create view classes_m4 as select a.id atom_d, a.name, a.terminology, a.version, a.publishable, a.stringClassId sui, a.lexicalClassId lui,  a.codeId code, a.conceptId scui, a.descriptorId sdui, c.id concept_id from atoms a, concepts_atoms b, concepts c where c.terminology = 'NCIMTH'   and atoms_id = a.id and concepts_id = c.id;

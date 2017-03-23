@@ -117,10 +117,10 @@ public class WriteRrfMetadataFilesAlgorithm
     try {
       final PrecedenceList precList = getPrecedenceList(
           getProject().getTerminology(), getProject().getVersion());
-      int index = precList.getPrecedence().getKeyValuePairs().size();
+      int index = sabTty.size() - 1;
       for (final KeyValuePair pair : precList.getPrecedence()
           .getKeyValuePairs()) {
-        // Skip entries that are not represnted in atoms
+        // Skip entries that are not represented in atoms
         if (!sabTty.contains(pair.getKey() + pair.getValue())) {
           continue;
         }
