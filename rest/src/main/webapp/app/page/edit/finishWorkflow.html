@@ -1,39 +1,40 @@
-<div class="modal-header">
-  <h4 style="display: inline">{{action}} {{worklist.name}}</h4>
-  <span style="float: right">
-    <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
-  </span>
-</div>
+<form ng-submit="finish()">
+  <div class="modal-header">
+    <h4 style="display: inline">{{action}} {{worklist.name}}</h4>
+    <span style="float: right">
+      <i class="noul glyphicon glyphicon-remove" ng-click="cancel()"></i>
+    </span>
+  </div>
 
-<div class="modal-body">
+  <div class="modal-body">
 
-  <table class="slim table">
-    <tr>
-      <td colspan="2">Enter time spent editing or reviewing worklist:</td>
-    <tr>
-      <td>
-        <b>Hours</b>
-      </td>
-      <td>
-        <input ng-model="hours" type="number" size="3" />
-      </td>
-    <tr>
-      <td>
+    <div>Enter time spent editing or reviewing worklist:</div>
+    <table class="slim table">
+      <tr>
+        <td>
+          <b>Hours</b>
+        </td>
+        <td>
+          <input ng-model="hours" type="number" size="3" />
+        </td>
+      <tr>
+        <td>
+          <b>Minutes</b>
+        </td>
+        <td>
+          <input ng-model="minutes" type="number" size="3" />
+        </td>
+      </tr>
+    </table>
 
-        <b>Minutes</b>
-      </td>
-      <td>
-        <input ng-model="minutes" type="number" size="3" />
-      </td>
-    </tr>
-  </table>
+    <!-- Errors -->
+    <div errors="errors"></div>
 
-  <!-- Errors -->
-  <div errors="errors"></div>
+  </div>
 
-</div>
-
-<div class="modal-footer">
-  <button class="btn btn-primary" ng-click="finish()">{{action}}</button>
-  <button class="btn btn-warning" ng-click="cancel()">Close</button>
-</div>
+  <div class="modal-footer">
+    <button ng-disabled="!hours && !minutes" ng-bind="action"
+      class="btn btn-primary"></button>
+    <span class="btn btn-warning" ng-click="cancel()">Close</span>
+  </div>
+</form>

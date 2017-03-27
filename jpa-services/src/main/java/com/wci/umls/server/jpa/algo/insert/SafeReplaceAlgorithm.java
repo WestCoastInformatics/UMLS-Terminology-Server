@@ -130,20 +130,22 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     // other is new
 
     // Generate query string
-    String query = "SELECT DISTINCT a1.id, a2.id "
-        + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
-        + "WHERE NOT a1.id = a2.id "
-        + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
-        + "AND a1.terminology=:terminology AND NOT a1.version=:version "
-        + "AND a1.publishable=true "
-        + "AND a2.terminology=:terminology AND a2.version=:version "
-        + "AND a2.publishable=true "
-        + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
-        + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId " : "")
-        + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
-        + (codeId ? "AND a1.codeId = a2.codeId " : "")
-        + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "")
-        + (termType ? "AND a1.termType = a2.termType " : "");
+    String query =
+        "SELECT DISTINCT a1.id, a2.id "
+            + "FROM ConceptJpa c JOIN c.atoms a1 JOIN c.atoms a2 "
+            + "WHERE NOT a1.id = a2.id "
+            + "AND c.terminology=:projectTerminology AND c.version=:projectVersion "
+            + "AND a1.terminology=:terminology AND NOT a1.version=:version "
+            + "AND a1.publishable=true "
+            + "AND a2.terminology=:terminology AND a2.version=:version "
+            + "AND a2.publishable=true "
+            + (stringClassId ? "AND a1.stringClassId = a2.stringClassId " : "")
+            + (lexicalClassId ? "AND a1.lexicalClassId = a2.lexicalClassId "
+                : "")
+            + (conceptId ? "AND a1.conceptId = a2.conceptId " : "")
+            + (codeId ? "AND a1.codeId = a2.codeId " : "")
+            + (descriptorId ? "AND a1.descriptorId = a2.descriptorId " : "")
+            + (termType ? "AND a1.termType = a2.termType " : "");
 
     // If terminology is not set, run the query for ALL terminologies referenced
     // in sources.src, and add all results to atomIdPairArray
@@ -156,19 +158,19 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
       // Get all terminologies referenced in the sources.src file
       // terminologies.left = Terminology
       // terminolgoies.right = Version
-      Set<Pair<String, String>> terminologies = new HashSet<>();
+      Set<Terminology> terminologies = new HashSet<>();
       terminologies = getReferencedTerminologies();
 
-      for (Pair<String, String> terminology : terminologies) {
+      for (final Terminology terminology : terminologies) {
         // Generate parameters to pass into query executions
         Map<String, String> params = new HashMap<>();
-        params.put("terminology", terminology.getLeft());
-        params.put("version", terminology.getRight());
+        params.put("terminology", terminology.getTerminology());
+        params.put("version", terminology.getVersion());
         params.put("projectTerminology", getProject().getTerminology());
         params.put("projectVersion", getProject().getVersion());
 
-        atomIdPairArray.addAll(executeComponentIdPairQuery(query, QueryType.JPQL,
-            params, AtomJpa.class, false));
+        atomIdPairArray.addAll(executeComponentIdPairQuery(query,
+            QueryType.JPQL, params, AtomJpa.class, false));
       }
     } else {
 
@@ -280,7 +282,7 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
 
       // Log it
       addLogEntry(getLastModifiedBy(), getProject().getId(), newAtomId,
-          getActivityId(), getWorkId(), "Preformed safe replace on new Atom: "
+          getActivityId(), getWorkId(), "Performed safe replace on new Atom: "
               + newAtomId + " using old Atom: " + oldAtomId);
 
       // Update the progress
@@ -288,7 +290,8 @@ public class SafeReplaceAlgorithm extends AbstractMergeAlgorithm {
     }
 
     commitClearBegin();
-
+    
+    logInfo("  new atoms safe-replaced = " + safeReplacedAtomIds.size());
     logInfo("Finished " + getName());
 
   }

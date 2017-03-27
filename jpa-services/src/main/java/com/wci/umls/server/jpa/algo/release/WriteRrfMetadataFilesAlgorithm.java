@@ -19,15 +19,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.Query;
+
 import com.wci.umls.server.ValidationResult;
+import com.wci.umls.server.helpers.Branch;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.KeyValuePair;
 import com.wci.umls.server.helpers.PrecedenceList;
-import com.wci.umls.server.helpers.SearchResultList;
+import com.wci.umls.server.helpers.content.ConceptList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.model.content.Atom;
 import com.wci.umls.server.model.content.Concept;
+import com.wci.umls.server.model.content.MapSet;
 import com.wci.umls.server.model.meta.AdditionalRelationshipType;
 import com.wci.umls.server.model.meta.AttributeName;
 import com.wci.umls.server.model.meta.CodeVariantType;
@@ -176,8 +180,20 @@ public class WriteRrfMetadataFilesAlgorithm
     final File outputFile = new File(dir, "MRSAB.RRF");
     final List<String> outputLines = new ArrayList<>();
 
+    final Set<Terminology> terminologies =
+        new HashSet<>(getCurrentTerminologies().getObjects());
+    // Add in non-current terminologies referred to by map sets
+    for (final MapSet mapset : getMapSets(null, null, Branch.ROOT)
+        .getObjects()) {
+      final Terminology mapsetTerm =
+          getTerminology(mapset.getToTerminology(), mapset.getToVersion());
+      if (!mapsetTerm.isCurrent()) {
+        terminologies.add(mapsetTerm);
+      }
+    }
+
     // progress monitoring
-    for (final Terminology term : getCurrentTerminologies().getObjects()) {
+    for (final Terminology term : terminologies) {
 
       // Field Description
       // 0 VCUI
@@ -221,32 +237,78 @@ public class WriteRrfMetadataFilesAlgorithm
       final StringBuilder sb = new StringBuilder();
       String vcui = "";
       String rcui = "";
-      SearchResultList results = findConceptSearchResults(
-          getProject().getTerminology(), getProject().getVersion(),
-          getProject().getBranch(), " atoms.codeId:V-" + term.getTerminology()
-              + " AND atoms.terminology:SRC AND atoms.termType:RPT",
-          null);
-      Concept rootTerminologyConcept = null;
-      if (results.size() > 0) {
-        rootTerminologyConcept =
-            getConcept(results.getObjects().get(0).getId());
-        rcui = rootTerminologyConcept.getTerminologyId();
+      String vsab = "";
+      boolean rhtFlag = false;
+      String ssn = "";
+      // for non-current terminologies, just set vsab
+      if (!term.isCurrent()) {
+        vsab = term.getTerminology() + "_" + term.getVersion();
+      }
 
-        // Look up versioned concept
-        results = findConceptSearchResults(getProject().getTerminology(),
-            getProject().getVersion(), getProject().getBranch(),
-            " atoms.codeId:V-" + term.getTerminology() + "_" + term.getVersion()
-                + " AND atoms.terminology:SRC AND atoms.termType:VPT",
-            null);
+      // OTherwise, lookup
+      else {
+
+        ConceptList results =
+            findConcepts(getProject().getTerminology(),
+                getProject().getVersion(), getProject().getBranch(),
+                " atoms.codeId:V-" + term.getTerminology()
+                    + " AND atoms.terminology:SRC AND atoms.termType:RPT",
+                null);
+
+        Concept rootTerminologyConcept = null;
         if (results.size() > 0) {
-          vcui = getConcept(results.getObjects().get(0).getId())
-              .getTerminologyId();
+          rootTerminologyConcept = results.getObjects().get(0);
+          rhtFlag = rootTerminologyConcept.getAtoms().stream()
+              .filter(a -> a.isPublishable() && a.getTermType().equals("RHT"))
+              .collect(Collectors.toList()).size() > 0;
+          // Compute SSN name
+          for (final Atom atom : rootTerminologyConcept.getAtoms()) {
+            if (atom.getTermType().equals("SSN") && atom.isPublishable()) {
+              ssn = atom.getName();
+              break;
+            }
+          }
+
+          rcui = rootTerminologyConcept.getTerminologyId();
+
+          // If latest, use defaults
+          if (term.getVersion().equals("latest")) {
+            vcui = "";
+            vsab = term.getTerminology();
+          }
+          // If not latest, look up versioned SRC concept
+          else {
+            // Look up versioned concept
+            results = findConcepts(getProject().getTerminology(),
+                getProject().getVersion(), getProject().getBranch(),
+                " atoms.codeId:V-" + term.getTerminology() + "_"
+                    + term.getVersion()
+                    + " AND atoms.terminology:SRC AND atoms.termType:VPT",
+                null);
+            if (results.size() > 0) {
+              vcui = results.getObjects().get(0).getTerminologyId();
+              vsab = term.getTerminology() + "_" + term.getVersion();
+
+            } else if (results.size() == 0) {
+              results = findConcepts(getProject().getTerminology(),
+                  getProject().getVersion(), getProject().getBranch(),
+                  " atoms.codeId:V-" + term.getTerminology() + term.getVersion()
+                      + " AND atoms.terminology:SRC AND atoms.termType:VPT",
+                  null);
+              if (results.size() > 0) {
+                vcui = results.getObjects().get(0).getTerminologyId();
+                vsab = term.getTerminology() + term.getVersion();
+              } else {
+                throw new Exception("Unable to find VCUI, VSAB for " + term);
+              }
+            }
+          }
+          // not everything has a VCUI (e.g. "SRC" and "MTH").
+        } else {
+          // everything should have an RCUI
+          logWarn("Unexpected missing RCUI concept " + term.getTerminology());
+          continue;
         }
-        // not everything has a VCUI (e.g. "SRC" and "MTH").
-      } else {
-        // everything should have an RCUI
-        logWarn("Unexpected missing RCUI concept " + term.getTerminology());
-        continue;
       }
 
       // 0 VCUI
@@ -254,7 +316,7 @@ public class WriteRrfMetadataFilesAlgorithm
       // 1 RCUI
       sb.append(rcui).append("|");
       // 2 VSAB
-      sb.append(term.getTerminology() + "_" + term.getVersion()).append("|");
+      sb.append(vsab).append("|");
       // 3 RSAB
       sb.append(term.getRootTerminology().getTerminology()).append("|");
       // 4 SON
@@ -289,9 +351,7 @@ public class WriteRrfMetadataFilesAlgorithm
       // 15 CFR
       sb.append(getCfr(term.getRootTerminology().getTerminology())).append("|");
       // 16 CXTY FULL, NOSIB, IGNORE-RELA, MULTIPLE
-      if (rootTerminologyConcept.getAtoms().stream()
-          .filter(a -> a.isPublishable() && a.getTermType().equals("RHT"))
-          .collect(Collectors.toList()).size() > 0) {
+      if (rhtFlag) {
         sb.append("FULL");
         if (!term.isIncludeSiblings()) {
           sb.append("-NOSIB");
@@ -322,13 +382,7 @@ public class WriteRrfMetadataFilesAlgorithm
       sb.append("Y").append("|");
 
       // 23 SSN
-      for (final Atom atom : rootTerminologyConcept.getAtoms()) {
-        if (atom.getTermType().equals("SSN") && atom.isPublishable()) {
-          sb.append(atom.getName());
-          break;
-        }
-      }
-      sb.append("|");
+      sb.append(ssn).append("|");
       // 24 SCIT
       sb.append(term.getCitation()).append("|");
 
@@ -415,12 +469,34 @@ public class WriteRrfMetadataFilesAlgorithm
     String queryStr = "select distinct name "
         + "from AttributeJpa a where a.terminology = :terminology"
         + " and a.publishable = true";
-    javax.persistence.Query query = manager.createQuery(queryStr);
+    Query query = manager.createQuery(queryStr);
     query.setParameter("terminology", terminology);
     @SuppressWarnings("unchecked")
-    List<String> list = query.getResultList();
+    final List<String> list = query.getResultList();
+
+    // SUBSETMEMBER
+    queryStr = "select count(*) "
+        + "from AtomSubsetMemberJpa a where a.terminology = :terminology"
+        + " and a.publishable = true";
+    query = manager.createQuery(queryStr);
+    query.setParameter("terminology", terminology);
+
+    Long ct = (Long) query.getSingleResult();
+    if (ct > 0) {
+      list.add("SUBSET_MEMBER");
+    } else {
+      queryStr = "select count(*) "
+          + "from ConceptSubsetMemberJpa a where a.terminology = :terminology"
+          + " and a.publishable = true";
+      query = manager.createQuery(queryStr);
+      query.setParameter("terminology", terminology);
+      ct = (Long) query.getSingleResult();
+      if (ct > 0) {
+        list.add("SUBSET_MEMBER");
+      }
+    }
     Collections.sort(list);
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     for (final String atn : list) {
       sb.append(atn).append(",");
     }
@@ -428,6 +504,7 @@ public class WriteRrfMetadataFilesAlgorithm
       return sb.toString().substring(0, sb.toString().length() - 1);
     }
     return "";
+
   }
 
   /**

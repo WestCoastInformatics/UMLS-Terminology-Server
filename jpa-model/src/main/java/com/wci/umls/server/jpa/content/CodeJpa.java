@@ -119,7 +119,7 @@ public class CodeJpa extends AbstractAtomClass implements Code {
   }
 
   /* see superclass */
-  @XmlElement(type = CodeTreePositionJpa.class)
+  @XmlTransient
   @Override
   public List<CodeTreePosition> getTreePositions() {
     if (treePositions == null) {

@@ -43,16 +43,15 @@ RELOADING DATA
 cd ~/snomed/data
 wget https://wci1.s3.amazonaws.com/TermServer/snomed.sql.gz
 mysqls < ~/snomed/code/admin/mojo/src/main/resources/truncate_all.sql
-cat snomed.sql.gz | gunzip -c | mysqls &
+gunzip -c snomed.sql.gz | mysqls &
 wait
 mysqls < ~/fixWindowsExportData.sql
 /bin/rm ~/snomed/data/snomed.sql.gz
 
-# deploy indexes
-cd ~/snomed/data
-wget https://wci1.s3.amazonaws.com/TermServer/snomedct-indexes.zip
+# recompute indexes (make sure latest code is built)
 /bin/rm -rf /var/lib/tomcat8/indexes/snomedct/*
-unzip snomedct-indexes.zip -d /var/lib/tomcat8/indexes
+cd ~/snomed/code/admin/lucene
+mvn install -PReindex  -Drun.config.umls=/home/ec2-tomcat/snomed/config/config.properties >&! mvn.log &
 
 # Deploy and remove maintenance page
 /bin/cp -f ~/snomed/code/rest/target/umls-server-rest*war /var/lib/tomcat8/webapps/snomed-server-rest.war
@@ -64,7 +63,7 @@ REDEPLOY INSTRUCTIONS
 
 cd ~/snomed/code
 git pull
-mvn -Dconfig.artifactId=term-server-config-prod-snomedct clean install
+mvn -Drun.config.label=ts -Dconfig.artifactId=term-server-config-prod-snomedct clean install
 
 /bin/rm -rf /var/lib/tomcat8/work/Catalina/localhost/snomed-server-rest
 /bin/rm -rf /var/lib/tomcat8/webapps/snomed-server-rest

@@ -20,6 +20,7 @@ import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.FieldedStringTokenizer;
+import com.wci.umls.server.helpers.meta.TerminologyList;
 import com.wci.umls.server.jpa.ValidationResultJpa;
 import com.wci.umls.server.jpa.algo.AbstractInsertMaintReleaseAlgorithm;
 import com.wci.umls.server.jpa.algo.TreePositionAlgorithm;
@@ -50,6 +51,9 @@ public class ContextLoaderAlgorithm
 
   /** The added tree positions. */
   private int addedTreePositions;
+
+  /** The removed tree pos count. */
+  private int removedTreePosCount;
 
   /**
    * The child and descendant counts. Key = full ptr string (e.g.
@@ -122,6 +126,7 @@ public class ContextLoaderAlgorithm
       // for a given terminology is populated.
       final Set<String> withHcd = findTermsWithHcd(lines);
       final Set<String> computedTerminologies = new HashSet<>();
+      final Set<Terminology> allReferencedTerminologies = new HashSet<>();
 
       final String fields[] = new String[17];
       for (final String line : lines) {
@@ -135,6 +140,8 @@ public class ContextLoaderAlgorithm
               + ". Could not process the following line:\n\t" + line);
           continue;
         }
+
+        allReferencedTerminologies.add(terminology);
 
         // If the specified terminology never has a populated HCD, the
         // transitive relationships and tree positions can be computed.
@@ -219,7 +226,40 @@ public class ContextLoaderAlgorithm
 
       commitClearBegin();
 
-      logInfo("  added tree position count = " + addedTreePositions);
+      // Only show this counter if contexts.src actually had any lines to load.
+      // Otherwise, all logging will be handled by the sub-algorithms
+      if (getSteps() > 0) {
+        logInfo("  added tree position count = " + addedTreePositions);
+      }
+
+      // Get all terminology Names referenced in sources.src
+      final Set<Terminology> referencedTerminologies =
+          getReferencedTerminologies();
+      final Set<String> referencedTerminologyNames = new HashSet<>();
+      for (final Terminology terminology : referencedTerminologies) {
+        referencedTerminologyNames.add(terminology.getTerminology());
+      }
+
+      // Get all of the terminologies currently in the database
+      final TerminologyList allTerminologies = getTerminologies();
+      final List<Terminology> nonCurrentReferencedTerminologies =
+          new ArrayList<>();
+
+      // Get all non-current versions of terminologies referenced in
+      // sources.src
+      for (final Terminology terminology : allTerminologies.getObjects()) {
+        if (referencedTerminologyNames.contains(terminology.getTerminology())
+            && !terminology.isCurrent()) {
+          nonCurrentReferencedTerminologies.add(terminology);
+        }
+      }
+
+      for (final Terminology terminology : nonCurrentReferencedTerminologies) {
+        removedTreePosCount += removeTreePositions(terminology);
+        commitClearBegin();
+      }
+
+      logInfo("  removed tree position count = " + removedTreePosCount);
 
       logInfo("Finished " + getName());
 
@@ -259,14 +299,29 @@ public class ContextLoaderAlgorithm
       clazz = AtomTreePositionJpa.class;
     }
 
-    Query query = manager.createQuery("SELECT a.id FROM "
-        + clazz.getSimpleName() + " a WHERE terminology = :terminology "
-        + " AND version = :version");
+    // Attempt to remove tree positions for organizing class type (if not Atom
+    // Tree Positon)
+    if (clazz != AtomTreePositionJpa.class) {
+      Query query = manager.createQuery("SELECT a.id FROM "
+          + clazz.getSimpleName() + " a WHERE terminology = :terminology "
+          + " AND version = :version");
+      query.setParameter("terminology", term.getTerminology());
+      query.setParameter("version", term.getVersion());
+      for (final Long id : (List<Long>) query.getResultList()) {
+        removeTreePosition(id,
+            (Class<? extends TreePosition<? extends AtomClass>>) clazz);
+        logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
+      }
+    }
+
+    // Attempt again for AtomTreePositionJpa.class
+    Query query = manager.createQuery(
+        "SELECT a.id FROM AtomTreePositionJpa a WHERE terminology = :terminology "
+            + " AND version = :version");
     query.setParameter("terminology", term.getTerminology());
     query.setParameter("version", term.getVersion());
     for (final Long id : (List<Long>) query.getResultList()) {
-      removeTreePosition(id,
-          (Class<? extends TreePosition<? extends AtomClass>>) clazz);
+      removeTreePosition(id, AtomTreePositionJpa.class);
       logAndCommit(removedCount++, RootService.logCt, RootService.commitCt);
     }
 
@@ -307,19 +362,32 @@ public class ContextLoaderAlgorithm
     //
     // Compute tree positions
     //
-    TreePositionAlgorithm algo2 = null;
 
     // Only compute for organizing class types
     if (terminology.getOrganizingClassType() != null) {
-      algo2 = new TreePositionAlgorithm();
+      TreePositionAlgorithm algo2 = new TreePositionAlgorithm();
       algo2.setLastModifiedBy(getLastModifiedBy());
       algo2.setTerminology(terminology.getTerminology());
       algo2.setVersion(terminology.getVersion());
       algo2.setIdType(terminology.getOrganizingClassType());
       algo2.setWorkId(getWorkId());
-      algo2.setActivityId(UUID.randomUUID().toString());
+      algo2.setActivityId(getActivityId());
       algo2.setCycleTolerant(false);
       algo2.setComputeSemanticType(false);
+      algo2.setProject(getProject());
+      algo2.compute();
+      algo2.close();
+
+      algo2 = new TreePositionAlgorithm();
+      algo2.setLastModifiedBy(getLastModifiedBy());
+      algo2.setTerminology(terminology.getTerminology());
+      algo2.setVersion(terminology.getVersion());
+      algo2.setIdType(IdType.ATOM);
+      algo2.setWorkId(getWorkId());
+      algo2.setActivityId(getActivityId());
+      algo2.setCycleTolerant(false);
+      algo2.setComputeSemanticType(false);
+      algo2.setProject(getProject());
       algo2.compute();
       algo2.close();
     }
@@ -647,6 +715,7 @@ public class ContextLoaderAlgorithm
     return params;
   }
 
+  /* see superclass */
   @Override
   public String getDescription() {
     return "Loads and processes contexts.src and computes tree positions where possible from PAR/CHD relationships.";

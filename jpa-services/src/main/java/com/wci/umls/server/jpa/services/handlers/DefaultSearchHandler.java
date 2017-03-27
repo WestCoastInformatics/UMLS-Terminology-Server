@@ -148,7 +148,8 @@ public class DefaultSearchHandler extends AbstractConfigurable
     // OPTION 1: Empty or Fielded query search.
     // Performed if empty query, ":" detected or no field specified
     if (fixedQuery.isEmpty() || query.contains(":")) {
-      combinedQuery = fixedQuery;
+      // Don't strip out forward-slashes for ":" queries
+      combinedQuery = query;
     } else {
       combinedQuery = fixedQuery.isEmpty() ? "" : fixedQuery;
 

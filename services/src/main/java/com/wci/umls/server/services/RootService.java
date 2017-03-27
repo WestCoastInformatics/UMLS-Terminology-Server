@@ -28,7 +28,7 @@ import com.wci.umls.server.services.handlers.ValidationCheck;
 public interface RootService extends Transactionable {
 
   /** The logging object ct threshold. */
-  public final static int logCt = 2000;
+  public final static int logCt = 5000;
 
   /** The commit count. */
   public final static int commitCt = 2000;

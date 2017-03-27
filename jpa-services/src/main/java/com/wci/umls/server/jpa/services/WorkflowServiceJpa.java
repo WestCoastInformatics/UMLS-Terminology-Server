@@ -27,7 +27,6 @@ import com.wci.umls.server.helpers.ConfigUtility;
 import com.wci.umls.server.helpers.LocalException;
 import com.wci.umls.server.helpers.PfsParameter;
 import com.wci.umls.server.helpers.QueryType;
-import com.wci.umls.server.helpers.SearchResult;
 import com.wci.umls.server.helpers.StringList;
 import com.wci.umls.server.helpers.TrackingRecordList;
 import com.wci.umls.server.helpers.WorkflowConfigList;
@@ -977,19 +976,21 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final List<Long[]> results = executeClusteredConceptQuery(query, queryType,
         getDefaultQueryParams(project), false);
 
-    final PfsParameter localPfs =
-        (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
     // keys should remain sorted
     final Set<Long> clustersEncountered = new HashSet<>();
     final Map<Long, List<Long>> entries = new TreeMap<>();
     for (final Long[] result : results) {
       clustersEncountered.add(result[0]);
 
+      final PfsParameter localPfs =
+          (pfs == null) ? new PfsParameterJpa() : new PfsParameterJpa(pfs);
       // Keep only prescribed range from the query
-      /*if ((clustersEncountered.size() - 1) < localPfs.getStartIndex()
-          || clustersEncountered.size() > localPfs.getMaxResults()) {
+      if ((localPfs.getStartIndex() > -1
+          && (clustersEncountered.size() - 1) < localPfs.getStartIndex())
+          || (localPfs.getMaxResults() > -1
+              && clustersEncountered.size() > localPfs.getMaxResults())) {
         continue;
-      }*/  // TODO remove
+      }
 
       if (!entries.containsKey(result[0])) {
         entries.put(result[0], new ArrayList<>());
@@ -1015,12 +1016,12 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
       for (final Long conceptId : entries.get(clusterId)) {
         final Concept concept = getConcept(conceptId);
         record.getComponentIds().addAll(concept.getAtoms().stream()
-            .map(a -> a.getId()).collect(Collectors.toSet())); 
+            .map(a -> a.getId()).collect(Collectors.toSet()));
         if (!record.getOrigConceptIds().contains(concept.getId())) {
           sb.append(concept.getName()).append(" ");
         }
         record.getOrigConceptIds().add(concept.getId());
-       
+
       }
 
       record.setIndexedData(sb.toString());
@@ -1181,9 +1182,10 @@ public class WorkflowServiceJpa extends HistoryServiceJpa
     final String query = ConfigUtility.composeQuery("OR", clauses);
 
     // add concepts
-    for (final SearchResult result : findConceptSearchResults(
-        record.getTerminology(), null, Branch.ROOT, query, null).getObjects()) {
-      record.getConcepts().add(new ConceptJpa(result));
+    for (final Concept concept : findConcepts(record.getTerminology(), null,
+        Branch.ROOT, query, null).getObjects()) {
+      // copy without collections
+      record.getConcepts().add(new ConceptJpa(concept, false));
     }
 
   }

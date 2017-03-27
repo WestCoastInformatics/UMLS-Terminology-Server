@@ -1,10 +1,6 @@
 // Edit epoch modal controller
-tsApp.controller('EpochModalCtrl', [
-  '$scope',
-  '$uibModalInstance',
-  'utilService',
-  'workflowService',
-  'selected',
+tsApp.controller('EpochModalCtrl', [ '$scope', '$uibModalInstance', 'utilService',
+  'workflowService', 'selected',
   function($scope, $uibModalInstance, utilService, workflowService, selected) {
     console.debug("configure EpochModalCtrl", selected);
 
@@ -24,44 +20,40 @@ tsApp.controller('EpochModalCtrl', [
       $scope.errors = new Array();
       epoch.projectId = $scope.project.id;
 
-        workflowService.addWorkflowEpoch($scope.project.id, epoch).then(
-        function(data) {
-          $scope.getAllWorkflowEpochs();
-        },
-        // Error - update definition
-        function(data) {
-          handleError($scope.errors, data);
-        });
+      workflowService.addWorkflowEpoch($scope.project.id, epoch).then(function(data) {
+        $scope.getAllWorkflowEpochs();
+      },
+      // Error - update definition
+      function(data) {
+        handleError($scope.errors, data);
+      });
     };
-    
+
     // Remove epoch from epochs on the project
     $scope.removeEpoch = function(epoch) {
-      workflowService.removeWorkflowEpoch($scope.project.id, epoch.id).then(
-        function(data) {
-          $scope.getAllWorkflowEpochs();
-        });
+      workflowService.removeWorkflowEpoch($scope.project.id, epoch.id).then(function(data) {
+        $scope.getAllWorkflowEpochs();
+      });
     }
 
     // Dismiss modal
     $scope.cancel = function() {
       $uibModalInstance.dismiss('cancel');
     };
-    
+
     $scope.close = function() {
       $uibModalInstance.close();
     };
 
     // Gets all epochs for the project
     $scope.getAllWorkflowEpochs = function() {
-    workflowService.getWorkflowEpochs($scope.project.id).then(
-      function(data) {
-        $scope.epochs = data.epochs;
+      workflowService.getWorkflowEpochs($scope.project.id).then(function(data) {
+        $scope.epochs = data.epochs.sort().reverse();
       });
     }
-    
+
     // initialize
     $scope.getAllWorkflowEpochs();
-    
-    
+
     // end
   } ]);

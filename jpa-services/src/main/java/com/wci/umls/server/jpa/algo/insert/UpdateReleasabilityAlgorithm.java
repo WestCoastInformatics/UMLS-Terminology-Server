@@ -15,8 +15,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.wci.umls.server.AlgorithmParameter;
 import com.wci.umls.server.ValidationResult;
 import com.wci.umls.server.helpers.ConfigUtility;
@@ -42,6 +40,7 @@ import com.wci.umls.server.jpa.content.DescriptorRelationshipJpa;
 import com.wci.umls.server.jpa.content.MapSetJpa;
 import com.wci.umls.server.jpa.content.MappingJpa;
 import com.wci.umls.server.jpa.content.SemanticTypeComponentJpa;
+import com.wci.umls.server.model.meta.Terminology;
 
 /**
  * Implementation of an algorithm to update releasability / publishable.
@@ -113,7 +112,7 @@ public class UpdateReleasabilityAlgorithm
       commitClearBegin();
 
       // Get all terminologies referenced in the sources.src file
-      Set<Pair<String, String>> referencedTerminologies = new HashSet<>();
+      Set<Terminology> referencedTerminologies = new HashSet<>();
       referencedTerminologies = getReferencedTerminologies();
 
       final List<Class> classList = new ArrayList<>(Arrays.asList(AtomJpa.class,
@@ -137,10 +136,10 @@ public class UpdateReleasabilityAlgorithm
 
         // Make sure all of the terminologies in sources.src are included in the
         // query
-        for (Pair<String, String> referencedTerminology : referencedTerminologies) {
-          query += " OR (c.terminology='" + referencedTerminology.getLeft()
-              + "' AND NOT c.version='" + referencedTerminology.getRight()
-              + "')";
+        for (Terminology referencedTerminology : referencedTerminologies) {
+          query += " OR (c.terminology='"
+              + referencedTerminology.getTerminology() + "' AND NOT c.version='"
+              + referencedTerminology.getVersion() + "')";
         }
 
         // Perform a QueryActionAlgorithm using the class and query
@@ -153,6 +152,7 @@ public class UpdateReleasabilityAlgorithm
           queryAction.setTerminology(getTerminology());
           queryAction.setVersion(getVersion());
           queryAction.setWorkId(getWorkId());
+          queryAction.setActivityId(getActivityId());
 
           queryAction.setObjectTypeClass(clazz);
           queryAction.setAction("Make Unpublishable");
@@ -190,9 +190,63 @@ public class UpdateReleasabilityAlgorithm
           // Close algorithm for each loop
           queryAction.close();
         }
-
         // Update the progress
         updateProgress();
+      }
+
+      // Finally, there is a special case where SRC-owned atom relationships
+      // may need to be marked unpublishable, and they won't get caught by the
+      // above queries. Handle here.
+      String query = "SELECT a.id " + "FROM AtomRelationshipJpa a "
+          + "WHERE a.terminology='SRC' AND a.publishable=true AND (a.from.publishable=false OR a.to.publishable=false)";
+
+      // Perform a QueryActionAlgorithm using the class and query
+      final QueryActionAlgorithm queryAction = new QueryActionAlgorithm();
+      try {
+        queryAction.setLastModifiedBy(getLastModifiedBy());
+        queryAction.setLastModifiedFlag(isLastModifiedFlag());
+        queryAction.setProcess(getProcess());
+        queryAction.setProject(getProject());
+        queryAction.setTerminology(getTerminology());
+        queryAction.setVersion(getVersion());
+        queryAction.setWorkId(getWorkId());
+        queryAction.setActivityId(getActivityId());
+
+        queryAction.setObjectTypeClass(AtomRelationshipJpa.class);
+        queryAction.setAction("Make Unpublishable");
+        queryAction.setQueryType(QueryType.JPQL);
+        queryAction.setQuery(query);
+
+        queryAction.setTransactionPerOperation(false);
+        queryAction.beginTransaction();
+
+        //
+        // Check prerequisites
+        //
+        ValidationResult validationResult = queryAction.checkPreconditions();
+        // if prerequisites fail, return validation result
+        if (!validationResult.getErrors().isEmpty()
+            || (!validationResult.getWarnings().isEmpty())) {
+          // rollback -- unlocks the concept and closes transaction
+          queryAction.rollback();
+        }
+        assertTrue(validationResult.getErrors().isEmpty());
+
+        //
+        // Perform the algorithm
+        //
+        queryAction.compute();
+
+        // Commit the algorithm.
+        queryAction.commit();
+
+      } catch (Exception e) {
+        queryAction.rollback();
+        e.printStackTrace();
+        fail("Unexpected exception thrown - please review stack trace.");
+      } finally {
+        // Close algorithm for each loop
+        queryAction.close();
       }
 
       logInfo("Finished " + getName());

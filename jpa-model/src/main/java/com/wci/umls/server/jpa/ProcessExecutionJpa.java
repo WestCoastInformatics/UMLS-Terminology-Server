@@ -19,7 +19,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 import org.hibernate.envers.Audited;
 import org.hibernate.search.annotations.Analyze;
@@ -206,7 +205,6 @@ public class ProcessExecutionJpa extends AbstractProcessInfo<AlgorithmExecution>
   }
 
   /* see superclass */
-  @XmlTransient
   @Override
   public Map<String, String> getExecutionInfo() {
     if (executionInfo == null) {

@@ -232,7 +232,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       // Save steps
       final List<WorkflowBinDefinition> binDefinitions =
-          workflow.getWorkflowBinDefinitions();
+          new ArrayList<>(workflow.getWorkflowBinDefinitions());
 
       // Prep workflow config
       workflow.setId(null);
@@ -336,6 +336,9 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
           workflowService.getWorkflowConfig(config.getId());
       verifyProject(oldConfig, projectId);
 
+      // Workflow bin maintenance is not performed through UI - re-update here.
+      config.setWorkflowBinDefinitions(oldConfig.getWorkflowBinDefinitions());
+
       workflowService.updateWorkflowConfig(config);
       workflowService.addLogEntry(userName, projectId, config.getId(), null,
           null, "UPDATE workflowConfig - " + config);
@@ -425,6 +428,14 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
       final WorkflowConfig config = workflowService.getWorkflowConfig(id);
       verifyProject(config, projectId);
+
+      // Remove all of the attached bin definitions
+      for (WorkflowBinDefinition bin : new ArrayList<>(
+          config.getWorkflowBinDefinitions())) {
+        workflowService.removeWorkflowBinDefinition(bin.getId());
+      }
+
+      // Remove the workflow config itself
       workflowService.removeWorkflowConfig(id);
 
       workflowService.addLogEntry(userName, projectId, id, null, null,
@@ -1792,7 +1803,7 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
 
   /* see superclass */
   @Override
-  @PUT
+  @POST
   @Path("/checklist")
   @ApiOperation(value = "Create checklist", notes = "Create checklist", response = ChecklistJpa.class)
   public Checklist createChecklist(
@@ -2127,11 +2138,12 @@ public class WorkflowServiceRestImpl extends RootServiceRestImpl
         // Now extract cluster types and add statistics
         for (final String clusterType : typeAssignedMap.keySet()) {
 
-          // Skip "all" if there is only one cluster type
-          if (typeAssignedMap.keySet().size() == 2
-              && clusterType.equals("all")) {
-            continue;
-          }
+          // N/A // Skip "all" if there is only one cluster type
+          // if (typeAssignedMap.keySet().size() == 2
+          // && clusterType.equals("all")) {
+          // continue;
+          // }
+          
           // Add statistics
           ClusterTypeStats stats = new ClusterTypeStatsJpa();
           stats.setClusterType(clusterType);

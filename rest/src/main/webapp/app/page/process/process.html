@@ -147,6 +147,19 @@
                 poll="{{selected.mode == 'Execution' && !selected.process.finishDate  && !selected.process.stopDate  && !selected.process.failDate}}"></div>
             </td>
           </tr>
+          <tr
+            ng-show="selected.mode == 'Execution' && selected.process.executionInfo">
+            <td>
+              <b>Execution Info</b>
+            </td>
+            <td>
+              <table class="slim table">
+                <tr ng-repeat="(key, value) in selected.process.executionInfo">
+                  <td>{{key}}</td>
+                  <td>{{value}}</td>
+                </tr>
+              </table>
+          </tr>
           <tr ng-show="selected.mode == 'Execution'">
             <td>
               <b>Start date</b>
@@ -221,7 +234,8 @@
             class="ml20 btn btn-xs btn-primary">Add</button>
         </span>
       </div>
-      <button ng-show="selected.process && selected.mode == 'Config' && hasPermissions('EditProcessOrStep')"
+      <button
+        ng-show="selected.process && selected.mode == 'Config' && hasPermissions('EditProcessOrStep')"
         class="btn btn-xs btn-primary" ng-click="prepareProcess(); ">Prepare</button>
       <table class="slim table pointer">
         <thead>
@@ -270,6 +284,9 @@
             <span ng-show="selected.mode == 'Execution'" log
               selected="{step : step, project : selected.project}" type="Step"
               poll="{{selected.mode == 'Execution' && !step.finishDate && !selected.process.stopDate  && !selected.process.failDate}}"></span>
+            <i ng-click="openAddAlgorithmModal(step)"
+              ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
+              title="Clone step" class="noul glyphicon glyphicon-copy"></i>
             <i title="Edit step"
               ng-show="hasPermissions('EditProcessOrStep') && selected.mode != 'Execution'"
               ng-click="openEditAlgorithmModal(step); $event.stopPropagation()"
@@ -285,20 +302,22 @@
         <tr ng-show="step.id == selected.step.id && step.parameters.length>0"
           ng-repeat-end ng-class="{selected: step.id == selected.step.id}">
           <td colspan="4">
-            <span ng-repeat="parameter in step.parameters">
-              <span class="ml20">
-                <b>{{parameter.name}}:</b> {{parameter.value}}
-                <span ng-show="!parameter.value">
-                  [
-                  <span ng-repeat="value in parameter.values">
-                    {{value}}
-                    <span ng-if="!$last">, </span>
-                  </span>
-                  ]
+            <div ng-repeat="parameter in step.parameters" class="ml20">
+              <b>{{parameter.name}}:</b>
+              <span class="preformatted"
+                ng-show="parameter.type == 'QUERY_ID' || parameter.type == 'QUERY_ID_PAIR'">{{getSql(parameter.value)}}</span>
+              <span
+                ng-show="parameter.type != 'QUERY_ID' && parameter.type != 'QUERY_ID_PAIR'">
+                {{parameter.value}}</span>
+              <span ng-show="!parameter.value">
+                [
+                <span ng-repeat="value in parameter.values">
+                  {{value}}
+                  <span ng-if="!$last">, </span>
                 </span>
+                ]
               </span>
-              <br />
-            </span>
+            </div>
           </td>
         </tr>
       </table>
@@ -326,14 +345,12 @@
           class="btn btn-xs btn-primary"
           ng-click="restartProcess(selected.process.id); ">Restart</button>
         <button
-          ng-show="selected.process && selected.mode == 'Execution' && getExecutionState(selected.process) != 'RUNNING' && getExecutionState(selected.process) != 'COMPLETE'"
-          confirm="
-          Are you sure you want to step the process
-          forward?"
+          ng-show="showStep(1)"
+          confirm="Are you sure you want to step the process forward?"
           class="btn btn-xs btn-primary"
           ng-click="stepProcess(selected.process.id,1); ">Step</button>
         <button
-          ng-show="selected.process && selected.process.steps.length > 0 && selected.mode == 'Execution' && selected.process.startDate && (selected.process.stopDate || selected.process.failDate)"
+          ng-show="showStep(-1)"
           confirm="Are you sure you want to step the process back?"
           class="btn btn-xs btn-primary"
           ng-click="stepProcess(selected.process.id,-1); ">Unstep</button>

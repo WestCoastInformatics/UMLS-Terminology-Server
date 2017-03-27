@@ -122,8 +122,8 @@
             <tr ng-click="bin.enabled && selectBin(bin, 'all');"
               ng-style="{'opacity' : bin.enabled == 0 ? 0.4 : 1}"
               ng-class="{selected: bin.id == selected.bin.id && bin.enabled}">
-              <td rowspan="4">{{bin.rank}}</td>
-              <td rowspan="4">
+              <td rowspan="{{bin.stats.length+1}}">{{bin.rank}}</td>
+              <td rowspan="{{bin.stats.length+1}}">
                 <i uib-tooltip="{{bin.description}}"
                   class="noul glyphicon glyphicon-question-sign"></i>
                 &nbsp;{{bin.name}}<br />
@@ -144,7 +144,7 @@
                     class="noul glyphicon glyphicon-trash"></i>
                 </span>
               </td>
-              <td rowspan="4">
+              <td rowspan="{{bin.stats.length+1}}">
                 Created: {{toDate(bin.creationTime)}} <br />Modified:
                 {{toDate(bin.lastModified)}}
                 <span ng-show="bin.required">
@@ -162,14 +162,13 @@
               <td>{{stats.stats.assigned}}</td>
               <td>{{stats.stats.unassigned}}</td>
               <td class="nobreak">
-                <i
-                  ng-show="stats.clusterType == 'all' && bin.stats.length > 1 && bin.enabled"
-                  ng-click="setConfig(selected.config); $event.stopPropagation()"
-                  title="Refresh counts"
-                  class="noul glyphicon glyphicon-refresh"></i>
+                <i confirm="Are you sure you want to regenerate the bin?"
+                  ng-show="stats.clusterType == 'all' && bin.enabled && hasPermissions('CreateChecklist')"
+                  ng-click="regenerateBin(bin)" ng-show="bin.enabled"
+                  title="Regenerate Bin" class="noul glyphicon glyphicon-repeat"></i>
                 <i
                   ng-show="stats.clusterType != 'all' && bin.enabled && hasPermissions('CreateChecklist')"
-                  ng-click="openAddChecklistModal(bin, stats.clusterType); $event.stopPropagation()"
+                  ng-click="openAddChecklistModal(bin, stats.clusterType, 'Add', null); $event.stopPropagation()"
                   title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
                 &nbsp;
                 <i
@@ -209,25 +208,36 @@
     </uib-accordion-heading>
     <div worklists-table type="Worklist" selected="selected" lists="lists"
       user="user"></div>
-    </uib-accordion-group>
-    <uib-accordion-group
-      is-open="groups[3].open" ng-click="saveAccordionStatus()">
-    <uib-accordion-heading>
+    </uib-accordion-group> <uib-accordion-group is-open="groups[3].open"
+      ng-show="selected.projectRole != 'AUTHOR'"
+      ng-click="saveAccordionStatus()"> <uib-accordion-heading>
     <h5>
       <span uib-tooltip="Reports">Reports</span>
     </h5>
     </uib-accordion-heading>
     <div class="col-md-6 col-xs-12">
-      <div><select ng-model="selected.reportType" ng-show="lists.configs.length > 1"
-        ng-options="def as def.name for def in getReportTypeList()"
-        ng-change="findPagedReports();"></select>
+      <div>
+        <select ng-model="selected.reportType"
+          ng-show="lists.configs.length > 1"
+          ng-options="def as def.name for def in getReportTypeList()"
+          ng-change="findPagedReports();"></select>
 
-      <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate
-        Report</button></div>
-        
+        <button class="btn btn-xs btn-primary" ng-click="generateReport()">Generate
+          Report</button>
+      </div>
+
+      <!-- page size control -->
+      <span ng-show="selected.reports.totalCount > 1" style="float: right;">
+        Page size: <select ng-model="paging['reports'].pageSize"
+          title="Page Size"
+          ng-change="paging['reports'].callbacks.getPagedList()"
+          ng-options="item.value as item.name for item in pageSizes">
+        </select>
+      </span>
+
       <div pager paging="paging['reports']" count="selected.reports.totalCount"
-          callbacks="paging['reports'].callbacks"></div>
-          
+        callbacks="paging['reports'].callbacks" style="padding-top: 5px"></div>
+
       <table class="slim table table-hover pointer" style="margin-top: 10px;"
         ng-show="lists.configs.length > 0">
         <thead>
@@ -237,57 +247,74 @@
         </thead>
         <tbody>
           <tr ng-repeat="report in selected.reports.atoms"
-              ng-click="setSelectedReport(report)"
-              ng-class="{selected: report.id == selected.report.id}">
+            ng-click="setSelectedReport(report)"
+            ng-class="{selected: report.id == selected.report.id}">
             <td>{{report.name}}</td>
             <td>{{toDate(report.lastModified)}}</td>
-            <td><i       
-                  ng-click="deleteReport(report)"
-                  title="Delete Report" class="noul glyphicon glyphicon-trash"></i></td>
+            <td>
+              <i confirm="Are you sure you want to remove the report?"
+                ng-click="removeReport(report); $event.stopPropagation()"
+                title="Remove Report" class="noul glyphicon glyphicon-trash"></i>
+            </td>
           </tr>
         </tbody>
       </table>
       <span ng-show="!selected.reportType" style="display: block;"
-          class="alert alert-warning">No report type selected</span>
-      <span ng-show="selected.reportType && selected.reports.totalCount == 0" style="display: block;"
-          class="alert alert-warning">No reports available</span>
+        class="alert alert-warning">No report type selected</span>
+      <span ng-show="selected.reportType && selected.reports.totalCount == 0"
+        style="display: block;" class="alert alert-warning">No reports
+        available</span>
     </div>
     <div class="col-md-6 col-xs-12">
-      <span ng-show="!pagedResults || pagedResults.totalCount == 0" style="display: block;"
-          class="alert alert-warning">No report selected</span>
-      <span ng-show="pagedResults.totalCount > 0"><b>Report:</b> {{selected.report.name}}</span>
+      <span ng-show="!pagedResults || pagedResults.totalCount == 0"
+        style="display: block;" class="alert alert-warning">No report
+        selected</span>
+      <span ng-show="pagedResults.totalCount > 0">
+        <b>Report:</b> {{selected.report.name}}
+      </span>
+      <!-- page size control -->
+      <span ng-show="pagedResults.totalCount > 1" style="float: right;">
+        Page size: <select ng-model="paging['results'].pageSize"
+          title="Page Size"
+          ng-change="paging['results'].callbacks.getPagedList()"
+          ng-options="item.value as item.name for item in pageSizes">
+        </select>
+      </span>
       <div pager paging="paging['results']" count="pagedResults.totalCount"
-          callbacks="paging['results'].callbacks"></div>
-          
+        callbacks="paging['results'].callbacks"></div>
+
       <table class="slim table table-hover pointer" style="margin-top: 10px;"
         ng-show="pagedResults.totalCount > 0">
         <thead>
           <th class="col-md-10 col-xs-10"><span
-                ng-click="setSortField('results','value')">
-                Value
-                <span ng-bind="getSortIndicator('results','value')"></span>
-              </span></th>
+              ng-click="setSortField('results','value')">
+              Value
+              <span ng-bind="getSortIndicator('results','value')"></span>
+            </span></th>
           <th class="col-md-1 col-xs-1"><span
-                ng-click="setSortField('results','ct')">
-                Count
-                <span ng-bind="getSortIndicator('results','ct')"></span>
-              </span></th>
+              ng-click="setSortField('results','ct')">
+              Count
+              <span ng-bind="getSortIndicator('results','ct')"></span>
+            </span></th>
           <th class="col-md-1 col-xs-1"></th>
         </thead>
         <tbody>
           <tr ng-repeat="result in pagedResults.data">
-            <td><ul style="list-style: none;">
-              <li ng-repeat="sty in result.valueArray">{{sty}}</li>
-            </ul></td>
+            <td>
+              <ul style="list-style: none; padding-left: 0px;">
+                <li ng-repeat="sty in result.valueArray">{{sty}}</li>
+              </ul>
+            </td>
             <td>{{result.ct}}</td>
-            <td><i       
-                  ng-click="computeChecklist(result)"
-                  title="Add Checklist" class="noul glyphicon glyphicon-check"></i></td>
+            <td>
+              <i
+                ng-click="openAddChecklistModal(null, null, 'Compute', result);"
+                title="Add Checklist" class="noul glyphicon glyphicon-check"></i>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    </uib-accordion-group>
-    </uib-accordion>
+    </uib-accordion-group> </uib-accordion>
   </div>
 </div>

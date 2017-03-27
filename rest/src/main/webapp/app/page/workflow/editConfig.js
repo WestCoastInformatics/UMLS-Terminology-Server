@@ -30,11 +30,19 @@ tsApp.controller('ConfigModalCtrl', [
       config.projectId = $scope.project.id;
 
       if (action == 'Add') {
+        if (!config.type) {
+          $scope.errors.push('Config type must be set');
+          return;
+        }
+        if (!config.queryStyle) {
+          $scope.errors.push('Config query style must be set');
+          return;
+        }
         // Check that this type doesn't already exist
         for (var i = 0; i < lists.configs.length; i++) {
           if (lists.configs[i].type == $scope.config.type) {
-            $scope.errors.push('A workflow configuration with type ' + $scope.config.type
-              + ' already exists.');
+            $scope.errors.push('Workflow configuration with type ' + $scope.config.type
+              + ' already exists');
             return;
           }
         }

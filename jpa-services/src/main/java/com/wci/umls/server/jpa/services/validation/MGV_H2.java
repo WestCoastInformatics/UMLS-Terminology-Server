@@ -33,7 +33,6 @@ public class MGV_H2 extends AbstractValidationCheck {
     // n/a
   }
 
-
   /* see superclass */
   @SuppressWarnings("unused")
   @Override
@@ -41,10 +40,11 @@ public class MGV_H2 extends AbstractValidationCheck {
     ValidationResult result = new ValidationResultJpa();
 
     // Only run this check on merge and move actions
-    if (!(action instanceof MergeMolecularAction || action instanceof MoveMolecularAction)){
+    if (!(action instanceof MergeMolecularAction
+        || action instanceof MoveMolecularAction)) {
       return result;
     }
-    
+
     final Project project = action.getProject();
     final ContentService service = (AbstractMolecularAction) action;
     final Concept source = (action instanceof MergeMolecularAction
@@ -52,18 +52,18 @@ public class MGV_H2 extends AbstractValidationCheck {
     final Concept target = (action instanceof MergeMolecularAction
         ? action.getConcept() : action.getConcept2());
     final List<Atom> source_atoms = (action instanceof MoveMolecularAction
-        ? ((MoveMolecularAction)action).getMoveAtoms() : source.getAtoms());
+        ? ((MoveMolecularAction) action).getMoveAtoms() : source.getAtoms());
 
     //
     // Get publishable MSH atoms
     //
-    List<Atom> target_atoms =
-        target.getAtoms().stream().filter(a -> a.getTerminology().equals("MSH") && a.isPublishable())
-            .collect(Collectors.toList());
+    List<Atom> target_atoms = target.getAtoms().stream()
+        .filter(a -> a.getTerminology().equals("MSH") && a.isPublishable())
+        .collect(Collectors.toList());
 
-    List<Atom> l_source_atoms =
-        source_atoms.stream().filter(a -> a.getTerminology().equals("MSH") && a.isPublishable())
-            .collect(Collectors.toList());
+    List<Atom> l_source_atoms = source_atoms.stream()
+        .filter(a -> a.getTerminology().equals("MSH") && a.isPublishable())
+        .collect(Collectors.toList());
 
     //
     // Find cases where publishable current version MSH atoms with
@@ -72,16 +72,16 @@ public class MGV_H2 extends AbstractValidationCheck {
 
     for (Atom sourceAtom : l_source_atoms) {
       if (sourceAtom.getCodeId().toString().startsWith("D")
-              || sourceAtom.getCodeId().toString().startsWith("C")) {
+          || sourceAtom.getCodeId().toString().startsWith("C")) {
         for (Atom targetAtom : target_atoms) {
           if ((sourceAtom.getCodeId().toString().startsWith("C")
+              && targetAtom.getCodeId().toString().startsWith("C"))
+              || (sourceAtom.getCodeId().toString().startsWith("C")
+                  && targetAtom.getCodeId().toString().startsWith("D"))
+              || (sourceAtom.getCodeId().toString().startsWith("D")
                   && targetAtom.getCodeId().toString().startsWith("C"))
-                  || (sourceAtom.getCodeId().toString().startsWith("C")
-                      && targetAtom.getCodeId().toString().startsWith("D"))
-                  || (sourceAtom.getCodeId().toString().startsWith("D")
-                      && targetAtom.getCodeId().toString().startsWith("C"))
-              && !targetAtom.getCodeId().equals(sourceAtom.getCodeId())) {
-            result.getErrors().add(getName()
+                  && !targetAtom.getCodeId().equals(sourceAtom.getCodeId())) {
+            result.getWarnings().add(getName()
                 + ": Source and target concepts contain latest version publishable MSH atoms with different codes.");
             return result;
           }

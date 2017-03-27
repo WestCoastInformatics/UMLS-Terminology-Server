@@ -504,13 +504,37 @@ public class RrfUnpublishedLoaderAlgorithm
 
       logAndCommit(++ct, RootService.logCt, RootService.commitCt);
 
-      // Try concept relationship
+      // Try atom relationship
+      final List<AtomRelationshipJpa> aList =
+          handler.getQueryResults(null, null, Branch.ROOT,
+              "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
+              AtomRelationshipJpa.class, null, new int[1], getEntityManager());
+      if (aList.size() == 1) {
+        final AtomRelationship rel = aList.get(0);
+        // skip if re-running this
+        if (rel.getTerminologyId().endsWith(flag)) {
+          continue;
+        }
+        rel.setTerminologyId(rel.getTerminologyId() + flag);
+        logInfo("  fixing A rel = " + rui + ", " + rel);
+        updateRelationship(rel);
+        // found, go to next case
+        continue;
+      } else if (aList.size() > 1) {
+        logError("ERROR: unexpected number of A RUI matches = " + aList.size());
+      }
+
+      // Try atom relationship
       final List<ConceptRelationshipJpa> crList = handler.getQueryResults(null,
           null, Branch.ROOT, "alternateTerminologyIds:\"NCIMTH=" + rui + "\"",
           null, ConceptRelationshipJpa.class, null, new int[1],
           getEntityManager());
       if (crList.size() == 1) {
         final ConceptRelationship rel = crList.get(0);
+        // skip if re-running this
+        if (rel.getTerminologyId().endsWith(flag)) {
+          continue;
+        }
         rel.setTerminologyId(rel.getTerminologyId() + flag);
         logInfo("  fixing C rel = " + rui + ", " + rel);
         updateRelationship(rel);
@@ -528,6 +552,10 @@ public class RrfUnpublishedLoaderAlgorithm
               CodeRelationshipJpa.class, null, new int[1], getEntityManager());
       if (cdrList.size() == 1) {
         final CodeRelationship rel = cdrList.get(0);
+        // skip if re-running this
+        if (rel.getTerminologyId().endsWith(flag)) {
+          continue;
+        }
         rel.setTerminologyId(rel.getTerminologyId() + flag);
         logInfo("  fixing CODE rel = " + rui + ", " + rel);
         updateRelationship(rel);
@@ -546,6 +574,10 @@ public class RrfUnpublishedLoaderAlgorithm
               getEntityManager());
       if (drList.size() == 1) {
         final DescriptorRelationship rel = drList.get(0);
+        // skip if re-running this
+        if (rel.getTerminologyId().endsWith(flag)) {
+          continue;
+        }
         rel.setTerminologyId(rel.getTerminologyId() + flag);
         logInfo("  fixing D rel = " + rui + ", " + rel);
         updateRelationship(rel);
@@ -554,22 +586,6 @@ public class RrfUnpublishedLoaderAlgorithm
       } else if (drList.size() > 1) {
         logError(
             "ERROR: unexpected number of D RUI matches = " + drList.size());
-      }
-
-      // Try atom relationship
-      final List<AtomRelationshipJpa> aList =
-          handler.getQueryResults(null, null, Branch.ROOT,
-              "alternateTerminologyIds:\"NCIMTH=" + rui + "\"", null,
-              AtomRelationshipJpa.class, null, new int[1], getEntityManager());
-      if (aList.size() == 1) {
-        final AtomRelationship rel = aList.get(0);
-        rel.setTerminologyId(rel.getTerminologyId() + flag);
-        logInfo("  fixing A rel = " + rui + ", " + rel);
-        updateRelationship(rel);
-        // found, go to next case
-        continue;
-      } else if (aList.size() > 1) {
-        logError("ERROR: unexpected number of A RUI matches = " + aList.size());
       }
 
       logError("ERROR: unable to find matching relationship for = " + rui);

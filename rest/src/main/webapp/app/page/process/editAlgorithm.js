@@ -15,11 +15,20 @@ tsApp.controller('AlgorithmModalCtrl', [
 
     // Scope vars
     $scope.action = action;
-    $scope.algorithm = algorithm;
+    $scope.algorithm = angular.copy(algorithm);
     $scope.project = selected.project;
     $scope.steps = selected.process.steps;
     $scope.errors = [];
     $scope.messages = [];
+    $scope.show = {};
+
+    // Formatter for SQL
+    $scope.getSql = function(sql) {
+      if (sql) {
+        return sqlFormatter.format(sql);
+      }
+      return "";
+    }
 
     if ($scope.action == 'Edit') {
       processService.getAlgorithmConfig($scope.project.id, $scope.algorithm.id).then(
@@ -28,14 +37,23 @@ tsApp.controller('AlgorithmModalCtrl', [
         $scope.algorithm = data;
       });
     } else if ($scope.action == 'Add') {
-      processService.newAlgorithmConfig($scope.project.id, selected.process.id,
-        selected.algorithmConfigType.key).then(function(data) {
-        $scope.algorithm = data;
-        $scope.algorithm.processId = selected.process.id;
-        $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
-        $scope.algorithm.name = selected.algorithmConfigType.value;
-        $scope.description = selected.algorithmConfigType.value + ' ' + (new Date().getTime());
-      });
+      if ($scope.algorithm) {
+        processService.getAlgorithmConfig($scope.project.id, $scope.algorithm.id).then(
+        // Success
+        function(data) {
+          $scope.algorithm = data;
+          $scope.algorithm.id = null;
+        });
+      } else {
+        processService.newAlgorithmConfig($scope.project.id, selected.process.id,
+          selected.algorithmConfigType.key).then(function(data) {
+          $scope.algorithm = data;
+          $scope.algorithm.processId = selected.process.id;
+          $scope.algorithm.algorithmKey = selected.algorithmConfigType.key;
+          $scope.algorithm.name = selected.algorithmConfigType.value;
+          $scope.description = selected.algorithmConfigType.value + ' ' + (new Date().getTime());
+        });
+      }
     }
 
     // Update algorithm
@@ -101,7 +119,8 @@ tsApp.controller('AlgorithmModalCtrl', [
       }
 
       // Get the queryType.
-      // If this is a QueryActionAlgorithm, get the objectType. Otherwise leave
+      // If this is a QueryActionAlgorithm, get the objectType. Otherwise
+      // leave
       // empty, and it will be handled by the server
       var objectType = null;
       var queryType = null;
@@ -126,18 +145,18 @@ tsApp.controller('AlgorithmModalCtrl', [
         }
       }
 
-      processService
-        .testQuery($scope.project.id, $scope.algorithm.processId, queryType, queryStyle, query, objectType).then(
-        // Success
-        function(data) {
-          console.debug("This is what is returned in data: " + data);
-          $scope.messages.push('Query is properly formed.')
-        },
-        // Error
-        function(data) {
-          console.debug("This is what is returned in data: " + data);
-          utilService.handleDialogError($scope.errors, 'Query is improperly formed.');
-        });
+      processService.testQuery($scope.project.id, $scope.algorithm.processId, queryType,
+        queryStyle, query, objectType).then(
+      // Success
+      function(data) {
+        console.debug("This is what is returned in data: " + data);
+        $scope.messages.push('Query is properly formed.')
+      },
+      // Error
+      function(data) {
+        console.debug("This is what is returned in data: " + data);
+        utilService.handleDialogError($scope.errors, 'Query is improperly formed.');
+      });
     };
 
     // end

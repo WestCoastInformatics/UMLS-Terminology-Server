@@ -1,5 +1,5 @@
 /*
- *    Copyright 2015 West Coast Informatics, LLC
+ *    Copyright 2017 West Coast Informatics, LLC
  */
 /**
  * Copyright (c) 2012 International Health Terminology Standards Development
@@ -19,6 +19,9 @@
  */
 package com.wci.umls.server.mojo;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 import com.wci.umls.server.AlgorithmConfig;
 import com.wci.umls.server.ProcessConfig;
@@ -107,6 +111,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   @Parameter
   private String version = "latest";
 
+  /**
+   * input dir override
+   */
+  @Parameter
+  private String inputDir = null;
+
   /** The next release. */
   // private final String nextRelease = "2016AB";
 
@@ -128,6 +138,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
       getLog().info("  mode = " + mode);
       getLog().info("  terminology = " + terminology);
       getLog().info("  version = " + version);
+      getLog().info("  inputPath = " + inputDir);
 
       // Handle creating the database if the mode parameter is set
       final Properties properties = ConfigUtility.getConfigProperties();
@@ -327,8 +338,9 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     createReportProcesses(project1, projectId, authToken);
     createLexicalClassAssignmentProcess(project1, projectId, authToken);
     createComputePreferredNamesProcess(project1, projectId, authToken);
-    createRemapComponentInfoRelationshipsProcesses(project1, projectId,
+    createRemapComponentInfoRelationshipsProcess(project1, projectId,
         authToken);
+    createReplaceAttributesProcess(project1, projectId, authToken);
 
     //
     // Fake some data as needs review
@@ -757,136 +769,31 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     //
     // Add a QA bins workflow config for the current project
     //
-    getLog().info("  Create a QA workflow config");
+
+    // load QA workflowConfig and bins from workflow.QA.txt file
     workflowService = new WorkflowServiceRestImpl();
-    config = new WorkflowConfigJpa();
-    config.setType("QUALITY_ASSURANCE");
-    config.setMutuallyExclusive(false);
-    config.setQueryStyle(QueryStyle.CLUSTER);
-    config.setProjectId(projectId);
-    workflowService = new WorkflowServiceRestImpl();
-    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
 
-    // SCUI "merge" bins
-    getLog().info("    Add required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "nci"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(true);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
+    final String workflowFilePath = inputDir + "/workflow/workflow.QA.txt";
+    final File workflowFile = new File(workflowFilePath);
 
-    // nci_sub_split
-    getLog().info("    Add nci_sub_split bin");
-    definition = new WorkflowBinDefinitionJpa();
-    definition.setName(terminology + "_merge");
-    definition
-        .setDescription("Split SCUI current version NCI (or sub-source) atoms");
-    definition.setQuery("select a.id clusterId, a.id conceptId "
-        + "from concepts a, concepts_atoms b, atoms c "
-        + "where a.terminology = :terminology "
-        + "  and a.id = b.concepts_id and b.atoms_id = c.id  "
-        + "  and c.terminology='NCI'  "
-        + "group by a.id having count(distinct c.conceptId)>1");
-    definition.setEditable(true);
-    definition.setEnabled(true);
-    definition.setRequired(true);
-    definition.setQueryType(QueryType.SQL);
-    definition.setWorkflowConfig(newConfig);
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.addWorkflowBinDefinition(projectId, null, definition,
-        authToken);
+    final InputStream in = new FileInputStream(workflowFile);
+    final FormDataContentDisposition contentDispositionHeader =
+        new FormDataContentDisposition(
+            "form-data; filename=\"workflow.QA.txt\"; name=\"file\"");
+    workflowService.importWorkflowConfig(contentDispositionHeader, in,
+        projectId, authToken);
 
-    // sct_sepfnpt
-    // cdsty_coc
-    // multsty
-    // styisa
-    // sfo_lfo
-    // deleted_cui
-    //
-
-    //
-    // Non-required
-    //
-
-    // SCUI "merge" bins
-    getLog().info("    Add non-required SCUI merge bins");
-    for (final String terminology : new String[] {
-        "rxnorm", "cbo"
-    }) {
-      getLog()
-          .info("    Add '" + terminology + "_merge' workflow bin definition");
-      definition = new WorkflowBinDefinitionJpa();
-      definition.setName(terminology + "_merge");
-      definition.setDescription("Merged " + terminology.toUpperCase()
-          + " SCUIs, including merged PTs");
-      definition.setQuery("select a.id clusterId, a.id conceptId "
-          + "from concepts a, concepts_atoms b, atoms c "
-          + "where a.terminology = :terminology "
-          + "  and a.id = b.concepts_id " + "  and b.atoms_id = c.id  "
-          + "  and c.terminology='" + terminology.toUpperCase() + "'  "
-          + "group by a.id having count(distinct c.conceptId)>1");
-      definition.setEditable(true);
-      definition.setEnabled(true);
-      definition.setRequired(false);
-      definition.setQueryType(QueryType.SQL);
-      definition.setWorkflowConfig(newConfig);
-      workflowService = new WorkflowServiceRestImpl();
-      workflowService.addWorkflowBinDefinition(projectId, null, definition,
-          authToken);
-    }
-
-    // sct_sepfnpt
-    getLog().info("    Add sct_sepfnpt");
-    // rxnorm_split
-    // nci_pdq_merge
-    // nci_sct_merge
-    // ambig_no_ncimth_pn
-    // ambig_no_mth_pn
-    // ambig_no_rel
-    // pn_pn_ambig
-    // multiple_pn
-    // pn_no_ambig
-    // ambig_pn
-    // pn_orphan
-    // cdsty_coc
-    // nosty
-    // multsty
-    // styisa
-    // cbo_chem
-    // go_chem
-    // mdr_chem
-    // true_orphan
-    // sfo_lfo
-    // deleted_cui_split
-
-    // Clear and regenerate all bins
-    getLog().info("  Clear and regenerate QA bins");
+    // Clear bins
+    getLog().info(" Clear and regenerate QA bins");
     // Clear bins
     workflowService = new WorkflowServiceRestImpl();
     workflowService.clearBins(projectId, "QUALITY_ASSURANCE", authToken);
 
-    // Regenerate bins
-    workflowService = new WorkflowServiceRestImpl();
-    workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE", authToken);
+    // Note: don't regenerate all bins. Users will do so manually as needed.
+    // // Regenerate bins
+    // workflowService = new WorkflowServiceRestImpl();
+    // workflowService.regenerateBins(projectId, "QUALITY_ASSURANCE",
+    // authToken);
 
     //
     // Add MID VALIDATOIN
@@ -980,6 +887,101 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     workflowService.addWorkflowBinDefinition(projectId, null, definition,
         authToken);
 
+    //
+    // Add REPORT_DEFINITIONS
+    //
+    getLog().info("  Create a REPORT DEFINITIONS config");
+    workflowService = new WorkflowServiceRestImpl();
+    config = new WorkflowConfigJpa();
+    config.setType("REPORT_DEFINITIONS");
+    config.setMutuallyExclusive(false);
+    config.setAdminConfig(true);
+    config.setQueryStyle(QueryStyle.REPORT);
+    config.setProjectId(projectId);
+    workflowService = new WorkflowServiceRestImpl();
+    newConfig = workflowService.addWorkflowConfig(projectId, config, authToken);
+
+    // Report for 2 STYS
+    getLog().info("    2 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("2 STYS");
+    definition.setDescription("Finds concepts with 2 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 2;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 3 STYS
+    getLog().info("    3 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("3 STYS");
+    definition.setDescription("Finds concepts with 3 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 3;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for 4 STYS
+    getLog().info("    4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName("4 STYS");
+    definition.setDescription("Finds concepts with 4 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) = 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
+    // Report for >4 STYS
+    getLog().info("    >4 STYS");
+    definition = new WorkflowBinDefinitionJpa();
+    definition.setName(">4 STYS");
+    definition
+        .setDescription("Finds concepts with greater than 4 coocurring stys.");
+    definition.setQuery("SELECT distinct c.id itemId, c.name itemName, "
+        + " GROUP_CONCAT(sty.semanticType order by sty.semanticType separator '@ ') value "
+        + " FROM concepts c, concepts_semantic_type_components csty, semantic_type_components sty "
+        + " WHERE c.terminology = :terminology and c.id = csty.concepts_id "
+        + " and csty.semanticTypes_id = sty.id "
+        + " GROUP BY c.id, c.name HAVING count(distinct sty.semanticType) > 4;");
+    definition.setEditable(true);
+    definition.setEnabled(true);
+    definition.setRequired(true);
+    definition.setQueryType(QueryType.SQL);
+    definition.setWorkflowConfig(newConfig);
+    workflowService = new WorkflowServiceRestImpl();
+    workflowService.addWorkflowBinDefinition(projectId, null, definition,
+        authToken);
+
     // ComponentInfoRelationship resolves to nothing (auto-fix -> remove), need
     // algorithm?
 
@@ -991,7 +993,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
 
   /**
    * Create and set up a NCI_2016_11D insertion process and algorithm
-   * configurations
+   * configurations.
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -1201,12 +1203,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -1267,10 +1269,10 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' "
             + "and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true "
             + "and a1.lexicalClassId = a2.lexicalClassId "
-            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
-            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
-            + "and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) "
-            + "and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+            + "and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) "
+            + "and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) "
+            + "and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
     algoProperties.put("newAtomsOnly", "true");
@@ -1610,12 +1612,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -1702,13 +1704,13 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.terminology = :terminology and a1.version = :version and "
             + "a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and "
             + "a2.terminology != :terminology and a2.publishable = true and "
-            + "a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select "
+            + "a1.lexicalClassId = a2.lexicalClassId and not a1.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a2.termType in (select "
+            + ":projectTerminology and exclude = true) and not a2.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in (select "
+            + ":projectTerminology and exclude = true) and not a1.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in (select "
+            + ":projectTerminology and normExclude = true) and not a2.termType in (select "
             + "tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -2462,12 +2464,12 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
             + "a1.publishable = true and a2.terminology = :terminology and "
             + "a2.version != :version and a2.publishable = true and a1.codeId = "
             + "a2.codeId and a1.lexicalClassId = a2.lexicalClassId and "
-            + "a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
-            + "terminology = :projectTerminology and exclude = true) and a2.termType in "
+            + "not a1.termType in (select tty.abbreviation from TermTypeJpa tty where "
+            + "terminology = :projectTerminology and exclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and exclude = true) and a1.termType in "
+            + ":projectTerminology and exclude = true) and not a1.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
-            + ":projectTerminology and normExclude = true) and a2.termType in "
+            + ":projectTerminology and normExclude = true) and not a2.termType in "
             + "(select tty.abbreviation from TermTypeJpa tty where terminology = "
             + ":projectTerminology and normExclude = true)");
     // Use all checks
@@ -2524,7 +2526,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     algoProperties = new HashMap<String, String>();
     algoProperties.put("queryType", "JPQL");
     algoProperties.put("query",
-        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
+        "select distinct a1.id, a2.id from ConceptJpa c1 join c1.atoms a1, ConceptJpa c2 join c2.atoms a2 where c1.terminology = :projectTerminology and c2.terminology = :projectTerminology and c1.id != c2.id and a1.terminology = :terminology and a1.version = :version and a1.workflowStatus = 'NEEDS_REVIEW' and a1.publishable = true and a2.terminology != :terminology and a2.publishable = true and a1.lexicalClassId = a2.lexicalClassId and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and exclude = true) and not a1.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true) and not a2.termType in (select tty.abbreviation from TermTypeJpa tty where terminology = :projectTerminology and normExclude = true)");
     // Use all checks
     algoProperties.put("checkNames", allChecks);
     algoProperties.put("newAtomsOnly", "true");
@@ -2691,6 +2693,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     Map<String, String> algoProperties = new HashMap<String, String>();
     algoProperties.put("warnValidationChecks", "true");
     algoConfig.setProperties(algoProperties);
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
+    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("COMPINFORELREMAPPER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
     // Add algorithm and insert as step into process
     algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
         (AlgorithmConfigJpa) algoConfig, authToken);
@@ -2903,7 +2919,20 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
     process = new ProcessServiceRestImpl();
     processConfig.getSteps().add(algoConfig);
 
-    // TODO - once it's available, add PackageReleaseAlgorithm
+    // Package release
+    algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("PACKAGERRFRELEASE");
+    algoConfig.setDescription("PACKAGERRFRELEASE Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("PACKAGERRFRELEASE algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
 
     process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
@@ -3202,7 +3231,7 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
   }
 
   /**
-   * Creates the remap component info relationships processes.
+   * Create and set up a Replace Attributesprocess
    *
    * @param project1 the project 1
    * @param projectId the project id
@@ -3210,40 +3239,85 @@ public class GenerateNciMetaDataMojo extends AbstractLoaderMojo {
    * @throws Exception the exception
    */
   @SuppressWarnings("static-method")
-  private void createRemapComponentInfoRelationshipsProcesses(Project project1,
-    Long projectId, String authToken) throws Exception {
+  private void createReplaceAttributesProcess(Project project1, Long projectId,
+    String authToken) throws Exception {
 
-    // This will make two processes, one Insertion, and one Maintenance
     ProcessServiceRest process = new ProcessServiceRestImpl();
 
-    ProcessConfig processConfig2 = new ProcessConfigJpa();
-    processConfig2.setDescription("Remap Component Info Relationships Process");
-    processConfig2.setFeedbackEmail(null);
-    processConfig2.setName("Remap Component Info Relationships Process");
-    processConfig2.setProject(project1);
-    processConfig2.setTerminology(project1.getTerminology());
-    processConfig2.setVersion(project1.getVersion());
-    processConfig2.setTimestamp(new Date());
-    processConfig2.setType("Maintenance");
-    processConfig2 = process.addProcessConfig(projectId,
-        (ProcessConfigJpa) processConfig2, authToken);
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Replace Attributes Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Replace Attributes Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig.setInputPath("inv/MTH_2016AB/insert");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
     process = new ProcessServiceRestImpl();
 
-    AlgorithmConfig algoConfig2 = new AlgorithmConfigJpa();
-    algoConfig2.setAlgorithmKey("COMPINFORELREMAPPER");
-    algoConfig2.setDescription("COMPINFORELREMAPPER Algorithm");
-    algoConfig2.setEnabled(true);
-    algoConfig2.setName("COMPINFORELREMAPPER algorithm");
-    algoConfig2.setProcess(processConfig2);
-    algoConfig2.setProject(project1);
-    algoConfig2.setTimestamp(new Date());
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("REPLACEATTRIBUTES");
+    algoConfig.setDescription("REPLACEATTRIBUTES Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("REPLACEATTRIBUTES algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
     // Add algorithm and insert as step into process
-    algoConfig2 = process.addAlgorithmConfig(projectId, processConfig2.getId(),
-        (AlgorithmConfigJpa) algoConfig2, authToken);
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
     process = new ProcessServiceRestImpl();
-    processConfig2.getSteps().add(algoConfig2);
+    processConfig.getSteps().add(algoConfig);
 
-    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig2,
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
+        authToken);
+  }
+
+  /**
+   * Creates the remap component info relationships process.
+   *
+   * @param project1 the project 1
+   * @param projectId the project id
+   * @param authToken the auth token
+   * @throws Exception the exception
+   */
+  @SuppressWarnings("static-method")
+  private void createRemapComponentInfoRelationshipsProcess(Project project1,
+    Long projectId, String authToken) throws Exception {
+
+    ProcessServiceRest process = new ProcessServiceRestImpl();
+
+    ProcessConfig processConfig = new ProcessConfigJpa();
+    processConfig.setDescription("Remap Component Info Relationships Process");
+    processConfig.setFeedbackEmail(null);
+    processConfig.setName("Remap Component Info Relationships Process");
+    processConfig.setProject(project1);
+    processConfig.setTerminology(project1.getTerminology());
+    processConfig.setVersion(project1.getVersion());
+    processConfig.setTimestamp(new Date());
+    processConfig.setType("Maintenance");
+    processConfig = process.addProcessConfig(projectId,
+        (ProcessConfigJpa) processConfig, authToken);
+    process = new ProcessServiceRestImpl();
+
+    AlgorithmConfig algoConfig = new AlgorithmConfigJpa();
+    algoConfig.setAlgorithmKey("COMPINFORELREMAPPER");
+    algoConfig.setDescription("COMPINFORELREMAPPER Algorithm");
+    algoConfig.setEnabled(true);
+    algoConfig.setName("COMPINFORELREMAPPER algorithm");
+    algoConfig.setProcess(processConfig);
+    algoConfig.setProject(project1);
+    algoConfig.setTimestamp(new Date());
+    // Add algorithm and insert as step into process
+    algoConfig = process.addAlgorithmConfig(projectId, processConfig.getId(),
+        (AlgorithmConfigJpa) algoConfig, authToken);
+    process = new ProcessServiceRestImpl();
+    processConfig.getSteps().add(algoConfig);
+
+    process.updateProcessConfig(projectId, (ProcessConfigJpa) processConfig,
         authToken);
   }
 

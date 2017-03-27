@@ -249,7 +249,7 @@ public class AtomJpa extends AbstractComponentHasAttributes implements Atom {
   }
 
   /* see superclass */
-  @XmlElement(type = AtomTreePositionJpa.class)
+  @XmlTransient
   @Override
   public List<AtomTreePosition> getTreePositions() {
     if (treePositions == null) {

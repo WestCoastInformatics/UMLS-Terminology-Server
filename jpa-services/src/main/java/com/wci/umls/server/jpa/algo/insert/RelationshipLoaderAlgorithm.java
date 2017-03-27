@@ -313,7 +313,7 @@ public class RelationshipLoaderAlgorithm
     final String fields[] = new String[17];
     for (final String line : lineList) {
       FieldedStringTokenizer.split(line, "|", 17, fields);
-      final String concatedFields = fields[2] + fields[14] + fields[14];
+      final String concatedFields = fields[2] + fields[11] + fields[14];
       if (!seenLines.contains(concatedFields)) {
         lines.add(line);
         seenLines.add(concatedFields);
@@ -370,22 +370,42 @@ public class RelationshipLoaderAlgorithm
     // }
 
     // Load the from and to objects based on type
-    final Component fromComponent =
-        getComponent(fromClassIdType, fromTermId,
-            fromTermAndVersion.equals("") ? null
-                : getCachedTerminology(fromTermAndVersion).getTerminology(),
-            null);
+    // If the type is 'CUI', this is a umls CUI, and needs to be handled
+    // differently than any other component.
+    Component fromComponent = null;
+    if (!fromClassIdType.equals("CUI")) {
+      fromComponent = getComponent(fromClassIdType, fromTermId,
+          fromTermAndVersion.equals("") ? null
+              : getCachedTerminology(fromTermAndVersion).getTerminology(),
+          null);
+    } else {
+      fromComponent = getComponent(fromClassIdType, fromTermId,
+          getProcess().getTerminology()
+              + getProcess().getVersion(),
+          null);
+    }
+
     if (fromComponent == null) {
       logWarnAndUpdate(line,
           "Warning - could not find from Component for this line.");
       return;
     }
 
-    final Component toComponent =
-        getComponent(toClassIdType, toTermId,
-            toTermAndVersion.equals("") ? null
-                : getCachedTerminology(toTermAndVersion).getTerminology(),
-            null);
+    Component toComponent = null;
+    // If the type is 'CUI', this is a umls CUI, and needs to be handled
+    // differently than any other component.
+    if (!fromClassIdType.equals("CUI")) {
+      toComponent =
+          getComponent(toClassIdType, toTermId,
+              toTermAndVersion.equals("") ? null
+                  : getCachedTerminology(toTermAndVersion).getTerminology(),
+              null);
+    } else {
+      toComponent =
+          getComponent(toClassIdType, toTermId, getProcess().getTerminology()
+              + getProcess().getVersion(), null);
+    }
+
     if (toComponent == null) {
       logWarnAndUpdate(line,
           "Warning - could not find to Component for this line.");
@@ -421,7 +441,8 @@ public class RelationshipLoaderAlgorithm
         toComponent.setTerminology(getProject().getTerminology());
         toComponent.setVersion(getProject().getVersion());
       }
-    } else if (fromClassIdType.equals("SOURCE_CUI") || fromClassIdType.equals("CUI")) {
+    } else if (fromClassIdType.equals("SOURCE_CUI")
+        || fromClassIdType.equals("CUI")) {
       relClass = ConceptRelationshipJpa.class;
       newRelationship = new ConceptRelationshipJpa();
     } else if (fromClassIdType.equals("SOURCE_DUI")) {

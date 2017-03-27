@@ -54,6 +54,9 @@ public class WriteRrfHistoryFilesAlgorithm
   /** The writer map. */
   private Map<String, PrintWriter> writerMap = new HashMap<>();
 
+  /** The history. */
+  private ConceptHistory history = new ConceptHistory();
+
   /**
    * Instantiates an empty {@link WriteRrfHistoryFilesAlgorithm}.
    *
@@ -94,9 +97,17 @@ public class WriteRrfHistoryFilesAlgorithm
 
     logInfo("  Determine previously released CUIs");
     final Set<String> previousCuis = new HashSet<>();
+    // Last relesed CUIs
     query = manager.createQuery("select distinct value(cid) "
         + "from AtomJpa a join a.conceptTerminologyIds cid "
         + "where key(cid) = :terminology");
+    query.setParameter("terminology", getProject().getTerminology());
+    previousCuis.addAll(query.getResultList());
+
+    // prior historical CUIs
+    query = manager.createQuery("select terminologyId from ConceptJpa a "
+        + "where terminology = :terminology and id != terminologyId"
+        + "  and publishable = false");
     query.setParameter("terminology", getProject().getTerminology());
     previousCuis.addAll(query.getResultList());
     updateProgress();
@@ -105,6 +116,7 @@ public class WriteRrfHistoryFilesAlgorithm
     writeMraui();
     updateProgress();
 
+    // This also populates the "ConceptHistory" object
     logInfo("  Write MRCUI.RRF");
     writeMrcui(previousCuis, currentCuis);
     updateProgress();
@@ -114,7 +126,7 @@ public class WriteRrfHistoryFilesAlgorithm
     updateProgress();
 
     logInfo("  Write NCIMETA history file");
-    writeHistory(currentCuis);
+    writeNciMetaHistory(previousCuis, currentCuis);
     updateProgress();
 
     closeWriters();
@@ -197,9 +209,6 @@ public class WriteRrfHistoryFilesAlgorithm
       }
       atomsMoved.get(lastReleaseCui).add(cui);
     }
-
-    // Start tracking history
-    final ConceptHistory history = new ConceptHistory();
 
     // Determine "merge" cases - all keys from atomsMoved where the value is
     // size()==1 and the key is not in currentCuis.
@@ -289,22 +298,15 @@ public class WriteRrfHistoryFilesAlgorithm
           else if (ch.getRelationshipType().equals("SY")
               || ch.getRelationshipType().startsWith("R")) {
 
-            // if "referenced concept" is publishable, write it out as is
-            final Concept concept = getConcept(ch.getReferencedTerminologyId(),
-                ch.getTerminology(), ch.getVersion(), Branch.ROOT);
+            if (ch.getRelationshipType().equals("SY")) {
+              history.addMerge(c.getTerminologyId(), ch.getVersion(),
+                  ch.getReferencedTerminologyId());
+            }
 
-            if (concept != null) {
+            else {
+              history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
+                  ch.getRelationshipType(), ch.getReferencedTerminologyId());
 
-              if (ch.getRelationshipType().equals("SY")) {
-                history.addMerge(c.getTerminologyId(), ch.getVersion(),
-                    ch.getReferencedTerminologyId());
-              }
-
-              else {
-                history.addBequeathal(c.getTerminologyId(), ch.getVersion(),
-                    ch.getRelationshipType(), ch.getReferencedTerminologyId());
-
-              }
             }
 
           }
@@ -323,7 +325,6 @@ public class WriteRrfHistoryFilesAlgorithm
       // Get facts
       final Set<ComponentHistory> facts =
           history.getFacts(cui, previousCuis, currentCuis);
-      System.out.println("  " + cui + " = " + facts);
       // Write these entries out
       for (final ComponentHistory fact : facts) {
         // C1584235|201508|RO|||C0000294|Y|
@@ -334,14 +335,17 @@ public class WriteRrfHistoryFilesAlgorithm
         sb.append(fact.getReferencedTerminologyId() == null ? ""
             : fact.getReferencedTerminologyId()).append("|");
         sb.append("Y|\n");
-        writerMap.get("MCUI.RRF").print(sb.toString());
+        writerMap.get("MRCUI.RRF").print(sb.toString());
         if (fact.getRelationshipType().equals("SY")) {
-          writerMap.get("MERGEDCUI.RRF").println(fact.getTerminologyId() + "|"
+          writerMap.get("MERGEDCUI.RRF").print(fact.getTerminologyId() + "|"
               + fact.getReferencedTerminologyId() + "|\n");
+
         }
         if (fact.getRelationshipType().equals("DEL")) {
+
+          // Write out NCI META history file retirements
           writerMap.get("DELETEDCUI.RRF")
-              .println(fact.getTerminologyId() + "|"
+              .print(fact.getTerminologyId() + "|"
                   + getConcept(fact.getTerminologyId(),
                       getProject().getTerminology(), getProject().getVersion(),
                       Branch.ROOT).getName()
@@ -467,10 +471,11 @@ public class WriteRrfHistoryFilesAlgorithm
         new DefaultComputePreferredNameHandler();
 
     String queryStr = null;
-    queryStr = "select distinct a.id, b.id "
-        + "from ConceptJpa a join a.atoms aa, ConceptJpa b join b.atoms ba "
-        + "where aa.id = ba.id and a.terminology = 'NCI' "
-        + "  and aa.termType = 'PT' and b.terminology = :projectTerminology";
+    queryStr = "select distinct scui.id, cui.id "
+        + "from ConceptJpa cui join cui.atoms aa, "
+        + "     ConceptJpa scui join scui.atoms ba "
+        + "where aa.id = ba.id and scui.terminology = 'NCI' "
+        + "  and aa.termType = 'PT' and cui.terminology = :projectTerminology";
     final Query query = manager.createQuery(queryStr);
     query.setParameter("projectTerminology", getProject().getTerminology());
     results.addAll(query.getResultList());
@@ -505,11 +510,15 @@ public class WriteRrfHistoryFilesAlgorithm
   /**
    * Write history.
    *
+   * @param previousCuis the previous cuis
    * @param currentCuis the current cuis
    * @throws Exception the exception
    */
   @SuppressWarnings("unchecked")
-  private void writeHistory(Set<String> currentCuis) throws Exception {
+  private void writeNciMetaHistory(Set<String> previousCuis,
+    Set<String> currentCuis)
+
+    throws Exception {
     // This file maps the NCI concept to it's CUI and the preferred terms of
     // each as well.
     // Field Description
@@ -522,18 +531,11 @@ public class WriteRrfHistoryFilesAlgorithm
     //
     // e.g.
     // # CUI, preferredName, type, dd-MMM-yyy (for $release+01), CUI2,pn
-    // C0000266|Parlodel|split|15-dec-2016|C0546852|Bromocriptine Mesylate
-    // C0000325|20-Methylcholanthrene|split|15-dec-2016|C0025732|20-Methylcholanthrene
-    // C0000473|4-Aminobenzoic Acid|split|15-dec-2016|C0000473|4-Aminobenzoic
-    // Acid
-    // C0000530|5'-NUCLEOTIDASE|split|15-dec-2016|C0000530|5'-NUCLEOTIDASE
-    // C0000545|Eicosapentaenoic
-    // Acid|split|15-dec-2016|C0000545|Eicosapentaenoic Acid
-    // C0000598|Ticlopidine Hydrochloride|merge|15-dec-2016|C0000598|Ticlopidine
-    // Hydrochloride
-    // C0000719|Abbott 46811|split|15-dec-2016|C0887647|Cefsulodin Sodium
 
-    // splits
+    // C0000325|20-Methylcholanthrene|split|15-dec-2016|C0025732|20-Methylcholanthrene
+    // CL503757|Zebrafish Model Organism Database, 2016_04D|retire|15-dec-2016||
+    // CL505143|Zinc Finger Protein 224|merge|15-dec-2016|C1173181|Zinc Finger
+    // Protein 224
 
     final Map<String, Set<String>> atomsMoved = new HashMap<>();
     Query query =
@@ -562,43 +564,105 @@ public class WriteRrfHistoryFilesAlgorithm
     // write RO rows for both "value" CUIs.
     // Note: split concept must be merged into third concept in order to meet
     // !currentCuis requirement
+    final Set<String> splitCuis = new HashSet<>();
     for (final Entry<String, Set<String>> entry : atomsMoved.entrySet()) {
       final String lastReleaseCui = entry.getKey();
-      final Concept lastReleaseConcept =
-          getConcept(lastReleaseCui, getProcess().getTerminology(),
-              getProcess().getVersion(), Branch.ROOT);
 
-      if (entry.getValue().size() > 1
-          && !currentCuis.contains(lastReleaseCui)) {
-        // write RO rows for both "value" CUIs.
-        final List<String> values = new ArrayList<>(entry.getValue());
+      if (entry.getValue().size() > 1 && currentCuis.contains(lastReleaseCui)) {
+
+        for (final String cui2 : entry.getValue()) {
+
+          // Skip entries for the concept itself, and skip entries that were
+          // prior CUIs
+          if (previousCuis.contains(cui2) || lastReleaseCui.equals(cui2)) {
+            continue;
+          }
+
+          splitCuis.add(cui2);
+
+          final Concept lastReleaseConcept =
+              getConcept(lastReleaseCui, getProcess().getTerminology(),
+                  getProcess().getVersion(), Branch.ROOT);
+
+          // write RO rows for both "value" CUIs.
+          final StringBuilder sb = new StringBuilder();
+          // 0 CUI1
+          sb.append(lastReleaseCui).append("|");
+          // 1 NAME
+          sb.append(lastReleaseConcept.getName()).append("|");
+          // 2 DATE
+          sb.append(convertDate(getProcess().getVersion() + "01")).append("|");
+          // 3 TYPE
+          sb.append("split|");
+          final Concept concept =
+              getConcept(cui2, getProcess().getTerminology(),
+                  getProcess().getVersion(), Branch.ROOT);
+          // 4 CUI2
+          sb.append(cui2).append("|");
+          // 5 NAME
+          sb.append(concept.getName());
+          sb.append("\n");
+
+          writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt")
+              .print(sb.toString());
+
+        }
+
+      }
+    }
+
+    // Handle "merge" and "retire" cases
+    final Set<String> retiredCuis = new HashSet<>();
+    for (final String cui : history.getTerminologyIds()) {
+
+      // Get facts
+      final Set<ComponentHistory> facts =
+          history.getFacts(cui, previousCuis, currentCuis);
+      // Write these entries out
+      for (final ComponentHistory fact : facts) {
+        String type = null;
+        Concept concept2 = null;
+
+        if (fact.getRelationshipType().equals("SY")) {
+          type = "merge";
+          concept2 = getConcept(fact.getReferencedTerminologyId(),
+              getProcess().getTerminology(), getProcess().getVersion(),
+              Branch.ROOT);
+        }
+        if (!retiredCuis.contains(cui) && !splitCuis.contains(cui)) {
+          retiredCuis.add(cui);
+          type = "retire";
+        }
+
+        else {
+          // split, do nothing
+        }
+
+        final Concept concept = getConcept(cui, getProject().getTerminology(),
+            getProject().getVersion(), Branch.ROOT);
+
         final StringBuilder sb = new StringBuilder();
-        sb.append(lastReleaseCui).append("|"); // 0 CUI1
-        sb.append(lastReleaseConcept.getName()).append("|"); // 1 NAME
-        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2
-                                                                              // DATE
-        sb.append("split|"); // 3 TYPE
-        Concept concept =
-            getConcept(values.get(0), getProcess().getTerminology(),
-                getProcess().getVersion(), Branch.ROOT);
-        sb.append(values.get(0)).append("|"); // 4 CUI2
-        sb.append(concept.getName()).append("|"); // 5 NAME
-        sb.append("\n");
-        sb.append(lastReleaseCui).append("|"); // 0 CUI1
-        sb.append(getProcess().getVersion()).append("|"); // 1 NAME
-        sb.append(convertDate(getProcess().getVersion() + "01")).append("|"); // 2
-                                                                              // DATE
-        sb.append("split|"); // 3 TYPE
-        concept = getConcept(values.get(1), getProcess().getTerminology(),
-            getProcess().getVersion(), Branch.ROOT);
-        sb.append(values.get(1)).append("|"); // 4 CUI2
-        sb.append(concept.getName()).append("|"); // 5 NAME
+        // 0 CUI1
+        sb.append(fact.getTerminologyId()).append("|");
+        // 1 NAME
+        sb.append(concept.getName()).append("|");
+        // 2 DATE
+        sb.append(convertDate(getProcess().getVersion() + "01")).append("|");
+        // 3 TYPE
+        sb.append(type).append("|");
+        // 4 CUI2
+        sb.append(concept2 == null ? "" : concept2.getTerminologyId())
+            .append("|");
+        // 5 NAME
+        sb.append(concept2 == null ? "" : concept2.getName());
         sb.append("\n");
 
         writerMap.get("NCIMEME_" + getProcess().getVersion() + "_history.txt")
             .print(sb.toString());
       }
+
     }
+
   }
 
   /**
@@ -739,24 +803,21 @@ public class WriteRrfHistoryFilesAlgorithm
      * @return the facts
      * @throws Exception the exception
      */
-    public Set<ComponentHistory> getFacts(String cui, Set<String> currentCuis,
-      Set<String> previousCuis) throws Exception {
+    public Set<ComponentHistory> getFacts(String cui, Set<String> previousCuis,
+      Set<String> currentCuis) throws Exception {
 
       // If the CUI is current, there are no entries
       if (currentCuis.contains(cui)) {
-        System.out.println("    CURRENT CUI");
         return new HashSet<>(0);
       }
 
       // If the CUI1 was not a prior CUI, there are no entries
       if (!previousCuis.contains(cui)) {
-        System.out.println("    NON PRIOR CUI");
         return new HashSet<>(0);
 
       }
 
       final Set<ComponentHistory> facts = factMap.get(cui);
-      System.out.println("    raw = " + facts);
       // All facts either have a blank CUI2 or a CUI2 that is alive.
       boolean validCui2 = facts.stream()
           .filter(item -> item.getReferencedTerminologyId() != null
@@ -912,10 +973,10 @@ public class WriteRrfHistoryFilesAlgorithm
      * @param release the release
      */
     public void addDeleted(String cui, String release) {
-      System.out.println("DEL " + cui + ", " + release);
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
-      history.setVersion(release);
+      history.setAssociatedRelease(release);
+      history.setRelationshipType("DEL");
       if (!factMap.containsKey(cui)) {
         factMap.put(cui, new HashSet<>());
       }
@@ -933,8 +994,6 @@ public class WriteRrfHistoryFilesAlgorithm
      */
     public void addBequeathal(String cui, String release, String rel,
       String cui2) throws Exception {
-      System.out.println(
-          "BEQUEATHAL " + cui + ", " + release + ", " + rel + ", " + cui2);
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
       history.setAssociatedRelease(release);
@@ -956,7 +1015,6 @@ public class WriteRrfHistoryFilesAlgorithm
      */
     public void addMerge(String cui, String release, String cui2)
       throws Exception {
-      System.out.println("SY " + cui + ", " + release + ", " + cui2);
       final ComponentHistory history = new ComponentHistoryJpa();
       history.setTerminologyId(cui);
       history.setAssociatedRelease(release);

@@ -143,7 +143,7 @@ public class DescriptorJpa extends AbstractAtomClass implements Descriptor {
   }
 
   /* see superclass */
-  @XmlElement(type = DescriptorTreePositionJpa.class)
+  @XmlTransient
   @Override
   public List<DescriptorTreePosition> getTreePositions() {
     if (treePositions == null) {

@@ -454,6 +454,7 @@
                   <mode>${mode}</mode>
                   <terminology>${terminology}</terminology>
                   <version>${version}</version>
+                  <inputDir>${input.dir}</inputDir>
                 </configuration>
               </execution>
             </executions>
