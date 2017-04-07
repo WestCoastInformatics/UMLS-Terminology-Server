@@ -379,10 +379,10 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
     final List<String> relationshipPrefixes =
         Arrays.asList("Atom", "Code", "Concept", "Descriptor", "ComponentInfo");
 
-    // Get RUIs for ConceptRelationships, CodeRelationships, and
+    // Get alternate terminology Ids for ConceptRelationships, CodeRelationships, and
     // ComponentInfoRelationships.
     for (String relPrefix : relationshipPrefixes) {
-      final Query query = getEntityManager()
+      Query query = getEntityManager()
           .createQuery("select value(b), a.id from " + relPrefix
               + "RelationshipJpa a join a.alternateTerminologyIds b "
               + "where KEY(b)  = :altTerminologyKey and "
@@ -391,10 +391,30 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       query.setParameter("altTerminologyKey", altTerminologyKey);
 
       logInfo("[SourceLoader] Loading " + relPrefix
+          + "Relationship Alternate Terminology Ids from database for terminology "
+          + terminology);
+
+      List<Object[]> list = query.getResultList();
+      for (final Object[] entry : list) {
+        final String terminologyId = entry[0].toString();
+        final Long id = Long.valueOf(entry[1].toString());
+        relIdCache.put(terminologyId, id);
+      }
+      
+
+      // Get terminologyIds as well (for SOURCE_RUI sg_types)
+      query = getEntityManager()
+          .createQuery("select a.terminologyId, a.id from " + relPrefix
+              + "RelationshipJpa a "
+              + "WHERE a.terminology = :terminology AND a.terminologyId != '' "
+              + "and a.publishable=true");
+      query.setParameter("terminology", terminology);
+
+      logInfo("[SourceLoader] Loading " + relPrefix
           + "Relationship Terminology Ids from database for terminology "
           + terminology);
 
-      final List<Object[]> list = query.getResultList();
+      list = query.getResultList();
       for (final Object[] entry : list) {
         final String terminologyId = entry[0].toString();
         final Long id = Long.valueOf(entry[1].toString());
@@ -735,7 +755,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       return atom;
     }
 
-    else if (type.equals("SOURCE_AUI")) {
+    else if (type.equals("SOURCE_AUI") || type.equals("ROOT_SOURCE_AUI")) {
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
@@ -810,7 +830,7 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           DescriptorJpa.class);
     }
 
-    else if (type.equals("RUI")) {
+    else if (type.equals("RUI") || type.equals("SOURCE_RUI")) {
       if (!relCachedTerms
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingRelationshipIds(getProject().getTerminology(),

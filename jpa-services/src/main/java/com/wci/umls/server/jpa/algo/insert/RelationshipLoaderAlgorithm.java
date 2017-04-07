@@ -527,6 +527,9 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newRelationship, newRelationshipRui);
+      if(!ConfigUtility.isEmpty(newRelationship.getTerminologyId())){
+        putComponent(newRelationship, newRelationship.getTerminologyId());
+      }
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.
@@ -583,6 +586,9 @@ public class RelationshipLoaderAlgorithm
 
       addCount++;
       putComponent(newComp, newInverseRelationshipRui);
+      if(!ConfigUtility.isEmpty(newComp.getTerminologyId())){
+        putComponent(newComp, newComp.getTerminologyId());
+      }
 
       // No need to explicitly attach to component - will be done
       // automatically by addRelationship.

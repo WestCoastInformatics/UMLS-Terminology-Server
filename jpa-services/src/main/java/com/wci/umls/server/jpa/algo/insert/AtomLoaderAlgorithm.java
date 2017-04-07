@@ -271,6 +271,9 @@ public class AtomLoaderAlgorithm extends AbstractInsertMaintReleaseAlgorithm {
 
           addCount++;
           putComponent(newAtom2, newAtomAui);
+          if(!ConfigUtility.isEmpty(newAtom2.getTerminologyId())){
+            putComponent(newAtom2, newAtom2.getTerminologyId());
+          }
 
           // Reconcile code/concept/descriptor
           reconcileCodeConceptDescriptor(newAtom2);

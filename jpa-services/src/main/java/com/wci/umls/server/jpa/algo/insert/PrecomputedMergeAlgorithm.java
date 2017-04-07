@@ -199,8 +199,9 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         // differently than any other component.
         Component component = null;
         if (!fields[8].equals("CUI")) {
-          component = getComponent(fields[8], fields[0],
-              getCachedTerminologyName(fields[9]), null);
+          component =
+              getComponent(fields[8], fields[0], fields[8].startsWith("ROOT")
+                  ? fields[9] : getCachedTerminologyName(fields[9]), null);
         } else {
           // Check for current version CUIs first.
           // If not found, check for previous version CUIs.
@@ -241,8 +242,11 @@ public class PrecomputedMergeAlgorithm extends AbstractMergeAlgorithm {
         // differently than any other component.
         Component component2 = null;
         if (!fields[10].equals("CUI")) {
-          component2 = getComponent(fields[10], fields[2],
-              getCachedTerminologyName(fields[11]), null);
+          component2 =
+              getComponent(
+                  fields[10], fields[2], fields[10].startsWith("ROOT")
+                      ? fields[11] : getCachedTerminologyName(fields[11]),
+                  null);
         } else {
           // Only need to check for new CUIs (will never merge TO an old
           // concept)
