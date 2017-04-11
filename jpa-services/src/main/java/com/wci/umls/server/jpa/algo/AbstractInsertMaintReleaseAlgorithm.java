@@ -731,9 +731,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(getProject().getTerminology())) {
         cacheExistingAtomIds(getProject().getTerminology());
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -745,9 +750,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(getProject().getTerminology() + "-SRC")) {
         cacheExistingAtomIds(getProject().getTerminology() + "-SRC");
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -759,9 +769,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!atomCachedTerms.contains(terminology)) {
         cacheExistingAtomIds(terminology);
       }
-      // Handle lazy init
+      final Long componentId = atomIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Atom atom =
-          getComponent(atomIdCache.get(terminologyId), AtomJpa.class);
+          getComponent(componentId, AtomJpa.class);
+      // Handle lazy init
       if (atom != null) {
         atom.getAlternateTerminologyIds().size();
         atom.getConceptTerminologyIds().size();
@@ -774,9 +789,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingAttributeIds(getProject().getTerminology(), terminology);
       }
-      // Handle lazy init
+      final Long componentId = attributeIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Attribute attribute =
-          getComponent(attributeIdCache.get(terminologyId), AttributeJpa.class);
+          getComponent(componentId, AttributeJpa.class);
+      // Handle lazy init
       if (attribute != null) {
         attribute.getAlternateTerminologyIds().size();
       }
@@ -787,7 +807,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!codeCachedTerms.contains(terminology)) {
         cacheExistingCodeIds(terminology);
       }
-      return getComponent(codeIdCache.get(terminologyId + terminology),
+      final Long componentId = codeIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           CodeJpa.class);
     }
 
@@ -795,7 +820,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!conceptCachedTerms.contains(terminology)) {
         cacheExistingConceptIds(terminology);
       }
-      return getComponent(conceptIdCache.get(terminologyId + terminology),
+      final Long componentId = conceptIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           ConceptJpa.class);
     }
 
@@ -803,8 +833,13 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!cuiPreferredAtomConceptCachedTerms.contains(terminology)) {
         cacheExistingCuiPreferredAtomConceptIds(terminology);
       }
+      final Long componentId = cuiPreferredAtomConceptIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
       return getComponent(
-          cuiPreferredAtomConceptIdCache.get(terminologyId + terminology),
+          componentId,
           ConceptJpa.class);
     }
 
@@ -813,9 +848,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
           .contains(getProject().getTerminology() + terminology)) {
         cacheExistingDefinitionIds(getProject().getTerminology(), terminology);
       }
-      // Handle lazy init
+      final Long componentId = definitionIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Definition definition = getComponent(
-          definitionIdCache.get(terminologyId), DefinitionJpa.class);
+          componentId, DefinitionJpa.class);
+      // Handle lazy init
       if (definition != null) {
         definition.getAlternateTerminologyIds().size();
       }
@@ -826,7 +866,12 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
       if (!descriptorCachedTerms.contains(terminology)) {
         cacheExistingDescriptorIds(terminology);
       }
-      return getComponent(descriptorIdCache.get(terminologyId + terminology),
+      final Long componentId = descriptorIdCache.get(terminologyId + terminology);
+      if(componentId == null){
+        return null;
+      }
+      
+      return getComponent(componentId,
           DescriptorJpa.class);
     }
 
@@ -836,9 +881,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingRelationshipIds(getProject().getTerminology(),
             terminology);
       }
-      // Handle lazy init
+      final Long componentId = relIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Relationship relationship =
-          getComponent(relIdCache.get(terminologyId), relClass);
+          getComponent(componentId, relClass);
+      // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();
       }
@@ -851,9 +901,14 @@ public abstract class AbstractInsertMaintReleaseAlgorithm
         cacheExistingRelationshipIds(getProject().getTerminology() + "-SRC",
             terminology);
       }
-      // Handle lazy init
+      final Long componentId = relIdCache.get(terminologyId);
+      if(componentId == null){
+        return null;
+      }
+      
       final Relationship relationship =
-          getComponent(relIdCache.get(terminologyId), relClass);
+          getComponent(componentId, relClass);
+      // Handle lazy init
       if (relationship != null) {
         relationship.getAlternateTerminologyIds().size();
       }
