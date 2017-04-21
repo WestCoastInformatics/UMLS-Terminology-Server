@@ -1760,9 +1760,9 @@ public abstract class RootServiceJpa implements RootService {
     Class<? extends Component> clazz, boolean test) throws Exception {
 
     // If query type is not filled out, return an empty List.
-    if (ConfigUtility.isEmpty(query)) {
+    /*if (ConfigUtility.isEmpty(query)) {
       return new ArrayList<>();
-    }
+    }*/
     // Validate parameters and query
     validateQueryAndParams(query, queryType, params);
 
